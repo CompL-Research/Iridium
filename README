@@ -1,0 +1,26 @@
+
+
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+░        ░░       ░░░        ░░       ░░░        ░░  ░░░░  ░░  ░░░░  ░
+▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒   ▒▒   ▒
+▓▓▓▓  ▓▓▓▓▓       ▓▓▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓        ▓
+████  █████  ███  ██████  █████  ████  █████  █████  ████  ██  █  █  █
+█        ██  ████  ██        ██       ███        ███      ███  ████  █
+██████████████████████████████████████████████████████████████████████
+Iridium Version: 0.1a
+
+
+About
+
+  This project provides infrastructure to allow static analysis of react based  
+  applications.                                                                 
+  $ node iridium.js <command> [OPTIONS]                                         
+  $ node iridium.js help                                                        
+  $ node iridium.js analyze help                                                
+
+Command List
+
+  help      Display help information about iridium. 
+  analyze   Run static analysis over a project.     
+  version   Print the version.                      
+
