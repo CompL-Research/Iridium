@@ -1,15 +1,30 @@
-const fs = require('fs');
-const path = require('path');
-const babel = require('@babel/core');
-const parser = require('@babel/parser');
-const traverse = require('@babel/traverse').default;
-const t = require('@babel/types');
-const assert = require('node:assert/strict');
-const generate = require("@babel/generator").default;
-const shell = require('shelljs');
+import fs from 'fs'
+import path from 'path'
+import babel from '@babel/core'
+import parser from '@babel/parser'
 
+import _traverse from "@babel/traverse";
+const traverse = _traverse.default;
+
+// const traverse = require('@babel/traverse').default;
+
+import t from '@babel/types'
+
+import assert from 'node:assert/strict'
+// const generate = require("@babel/generator").default;
+
+import _generate from "@babel/generator";
+const generate = _generate.default;
+
+
+import shell from 'shelljs'
+import chalk from 'chalk'
+
+import commandLineUsage from 'command-line-usage'
+import commandLineArgs from 'command-line-args'
 
 const OUTPUTS_FOLDER = "outputs"
+const VERSION = "0.1a"
 
 class ProjectFile {
   imports = []
@@ -27,6 +42,11 @@ class ProjectFile {
   constructor(absoluteFilePath, projectBasePath) {
     assert(absoluteFilePath !== null)
     assert(projectBasePath !== null)
+    if (absoluteFilePath.startsWith(projectBasePath) === false) {
+      console.error("File path does not start with project base path")
+      console.error("File path: ", absoluteFilePath)
+      console.error("Base path: ", projectBasePath)
+    }
     assert(absoluteFilePath.startsWith(projectBasePath) === true)
     
     this.absoluteFilePath = absoluteFilePath
@@ -42,7 +62,6 @@ class ProjectFile {
   }
 
   transformAndParse() {
-    // console.log("Transform and parse: ", this.uname)
     const code = fs.readFileSync(this.absoluteFilePath, 'utf-8');
 
     let presets = [["@babel/preset-env", { "modules": false }], ['@babel/preset-react', { runtime: "automatic", importSource: true }]]
@@ -124,7 +143,6 @@ class ProjectFile {
         //     }
         //   }
         // }
-        return source
       }
       return source;
     };    
@@ -200,7 +218,7 @@ class ImportsGraph {
 
   dumpDOT() {
 
-    var stream = fs.createWriteStream(OUTPUTS_FOLDER + "/" + 'importsMap.DOT', {flags: 'w'});
+    var stream = fs.createWriteStream(OUTPUTS_FOLDER + "/" + 'moduleGraph.DOT', {flags: 'w'});
     stream.write("digraph {\n")
     this.#nodes.forEach(n => {
       stream.write(`  "${n}";\n`)
@@ -217,20 +235,8 @@ class ImportsGraph {
     stream.write("}")
 
     stream.close(() => {
-      // dot -Grankdir=TB -Gnodesep=1.0 -Granksep=1.0 -Gconcentrate=true -Gsplines=true -Tpng graph.dot -o large_graph.png
-      shell.exec(`dot -Grankdir=TB -Gnodesep=1.0 -Granksep=1.0 -Gconcentrate=true -Gsplines=true -Tpng ${OUTPUTS_FOLDER + "/" + 'importsMap.DOT'} > ${OUTPUTS_FOLDER + "/" + 'importsMap.png'}`)
-
-      // shell.exec(`dot -Tpng ${OUTPUTS_FOLDER + "/" + 'importsMap.DOT'} > ${OUTPUTS_FOLDER + "/" + 'importsMap.png'}`)
-
+      shell.exec(`dot -Grankdir=TB -Gnodesep=1.0 -Granksep=1.0 -Gconcentrate=true -Gsplines=true -Tpng ${OUTPUTS_FOLDER + "/" + 'moduleGraph.DOT'} > ${OUTPUTS_FOLDER + "/" + 'moduleGraph.png'}`)
     });
-
-    // console.log(this.#nodes)
-    // console.log(this.#edges)
-
-
-    // spawn(`dot -Tpng ${OUTPUTS_FOLDER + "/" + 'importsMap.DOT'} > ${OUTPUTS_FOLDER + "/" + 'importsMap.png'}`);
-
-
 
   }
 }
@@ -342,6 +348,221 @@ function main(mainProjectPath, analyzePath) {
 }
 
 
+
+
+
+// main(absolutePath, analyzePath)
+
+const header = `
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+░        ░░       ░░░        ░░       ░░░        ░░  ░░░░  ░░  ░░░░  ░
+▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒   ▒▒   ▒
+▓▓▓▓  ▓▓▓▓▓       ▓▓▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓        ▓
+████  █████  ███  ██████  █████  ████  █████  █████  ████  ██  █  █  █
+█        ██  ████  ██        ██       ███        ███      ███  ████  █
+██████████████████████████████████████████████████████████████████████
+`
+
+const mainDefinitions = [
+  { name: 'command', defaultOption: true }
+]
+
+const mainOptions = commandLineArgs(mainDefinitions, { stopAtFirstUnknown: true })
+const argv = mainOptions._unknown || []
+
+const commandList = [
+  {
+    header: 'Command List',
+    content: [
+      { name: 'help', summary: 'Display help information about iridium.' },
+      { name: 'analyze', summary: 'Run static analysis over a project.' },
+      { name: 'version', summary: 'Print the version.' }
+    ]
+  },
+]
+
+const analyzeDefinitionsOptionList = [
+  {
+    name: 'folder',
+    description: 'Folder where the analysis should begin (relative path such as {italic ./app}, {italic ./src}, {italic ./src/pages/}).',
+    alias: 'f',
+    type: String,
+    typeLabel: '{underline path} ...'
+  },
+  {
+    name: 'outputs-path',
+    description: 'Path to outputs directory.',
+    alias: 'o',
+    type: String,
+    typeLabel: '{underline path} ...'
+  },
+  {
+    name: 'print-module-graph',
+    description: 'Save the generated module graph.',
+    alias: 'm',
+    type: Boolean,
+  }
+]
+
+const analyzeDefinitions = [
+  {
+    header: 'Options',
+    optionList: analyzeDefinitionsOptionList
+  }
+]
+
+function printUsage(altHeader = undefined, otherOpts = []) {
+  let sections = [
+    {
+      content: chalk.red(header),
+      raw: true
+    },
+    {
+      header: 'About',
+      content: [
+        'This project provides infrastructure to allow static analysis of {italic react} based applications.',
+        '$ node iridium.js <command> [OPTIONS]',
+        '$ node iridium.js help',
+        '$ node iridium.js analyze help'
+      ]
+    },
+    ...commandList,
+  ]
+
+  if (otherOpts.length > 0) {
+    assert(altHeader !== undefined)
+    sections = [
+      {
+        content: chalk.red(header),
+        raw: true
+      },
+      {
+        ...altHeader,
+      },
+      ...otherOpts,
+    ]
+  }
+  const usage = commandLineUsage(sections)
+  console.log(usage)
+}
+
+if (mainOptions.command === 'analyze') {
+  const analyzemainDefinitions = [
+    { name: 'command', defaultOption: true }
+  ]
+
+  if (argv.length === 0) {
+    printUsage(
+      {
+        header: "=== Error: Please provide a path to the project to analyze ===",
+        content: [
+          `$ node iridium.js analyze <path-to-project> [OPTIONS]`
+        ]
+      },
+      analyzeDefinitions)
+    process.exit(0)
+  }
+
+  const analyzeMainOptions = commandLineArgs(analyzemainDefinitions, { argv, stopAtFirstUnknown: true })
+  const analyzeArgv = analyzeMainOptions._unknown || []
+
+  if (analyzeMainOptions.command === "help") {
+    printUsage(
+      {
+        header: "=== Analyze Usage ===",
+        content: [
+          `$ node iridium.js analyze <path-to-project> [OPTIONS]`
+        ]
+      },
+      analyzeDefinitions)
+    process.exit(0)
+  }
+
+  // Process options if they were passed
+  const projectPath = path.resolve(analyzeMainOptions.command)
+
+  if (!fs.existsSync(projectPath)) {
+    console.error(`[ERROR] Project path does not exist: ${projectPath}`)
+    process.exit(1)
+  }
+
+  let analyzePath = analyzeMainOptions.command
+  if (analyzeArgv.length > 0) {
+    const analyzeOptions = commandLineArgs(analyzeDefinitionsOptionList, { argv: analyzeArgv })
+
+    if ("folder" in analyzeOptions) {
+      if (analyzeOptions.folder === null) {
+        console.log(chalk.red("Folder path not provided"))
+        process.exit(1)
+      }
+      try {
+        analyzePath = path.resolve(projectPath + "/" + analyzeOptions.folder)
+      } catch (e) {
+        console.log(chalk.red(`Could not find folder path: ${projectPath + analyzeOptions.folder}`))
+      }
+      if (!fs.existsSync(analyzePath)) {
+        console.warn(`[INFO] Project Path: ${projectPath}`)
+        console.warn(`[INFO] Analysis Folder: ${analyzeOptions.folder}`)
+        console.error(`[ERROR] Analysis path does not exist: ${analyzePath}`)
+        process.exit(1)
+      }
+    }
+
+  }
+
+  console.warn(`[IRIDIUM STARTING] ${projectPath}` )
+
+  main(projectPath, analyzePath)
+  
+} else if (mainOptions.command === 'version') {
+  console.log(`Iridium Version: ${chalk.red(VERSION)}`)
+} else if (mainOptions.command === 'help') {
+  printUsage()
+} else {
+  const sections = [
+    {
+      content: chalk.red(header),
+      raw: true
+    },
+    {
+      header: chalk.red('Unknown command used!'),
+    },
+    ...commandList
+  ]
+  const usage = commandLineUsage(sections)
+  console.log(usage)
+}
+
+process.exit(0)
+
+
+const optionDefinitions = [
+  {
+    name: 'outputs-path',
+    description: 'Path to outputs directory.',
+    alias: 'o',
+    type: String,
+    typeLabel: '{underline path} ...'
+  },
+  {
+    name: 'print-module-graph',
+    description: 'Save the generated module graph.',
+    alias: 'm',
+    type: Boolean,
+  },
+  {
+    name: 'help',
+    description: 'Display this usage guide.',
+    alias: 'h',
+    type: Boolean
+  },
+]
+
+
+const options = commandLineArgs(optionDefinitions)
+
+console.log(options)
+
 let projectPath = process.argv[2];
 let analyzePath = process.argv[3]
 if (!projectPath) {
@@ -349,8 +570,8 @@ if (!projectPath) {
   analyzePath = "tests/next-shadcn-dashboard-starter/app";
 }
 
-absolutePath = path.resolve(projectPath);
+projectPath = path.resolve(projectPath);
 analyzePath = path.resolve(analyzePath);
 
-main(absolutePath, analyzePath)
-
+// const usage = commandLineUsage(sections)
+// console.log(usage)
