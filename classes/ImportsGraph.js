@@ -40,7 +40,7 @@ export class ImportsGraph {
   addEdge(n, m) {
     // console.log("Adding Edge: ", n, m)
     this.#nodes.add(n); this.#nodes.add(m); // Ensure the nodes are declared
-    
+
     if (n in this.#edges) {
       this.#edges[n].add(m)
     } else {

@@ -6,7 +6,7 @@ import commandLineUsage from 'command-line-usage'
 import commandLineArgs from 'command-line-args'
 
 import debugConfig from './configs/debug.js'
-import {Project} from './classes/Project.js'
+import { Project } from './classes/Project.js'
 
 const VERSION = "0.1a"
 
@@ -76,8 +76,8 @@ const analyzeDefinitionsOptionList = [
 
 const analyzeDefinitions = [
   {
-    header: 'Options',
-    optionList: analyzeDefinitionsOptionList
+  header: 'Options',
+  optionList: analyzeDefinitionsOptionList
   }
 ]
 
@@ -186,7 +186,7 @@ if (mainOptions.command === 'analyze') {
         console.log(chalk.red("Outputs path not provided"))
         process.exit(1)
       }
-      debugConfig.outputsPath = path.resolve("./" + analyzeOptions["outputs-path"]) 
+      debugConfig.outputsPath = path.resolve("./" + analyzeOptions["outputs-path"])
     }
 
     if ("print-module-graph-png" in analyzeOptions) {
@@ -212,10 +212,10 @@ if (mainOptions.command === 'analyze') {
     console.error(`[ERROR] Creating output folder failed: ${debugConfig.outputsPath}`)
     process.exit(1)
   }
-  console.warn(`[IRIDIUM STARTING] ${projectPath}` )
+  console.warn(`[IRIDIUM STARTING] ${projectPath}`)
 
   main(projectPath, analyzePath)
-  
+
 } else if (mainOptions.command === 'version') {
   console.log(`Iridium Version: ${chalk.red(VERSION)}`)
 } else if (mainOptions.command === 'help') {
