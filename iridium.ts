@@ -33,6 +33,7 @@ const commandList = [
     content: [
       { name: 'help', summary: 'Display help information about iridium.' },
       { name: 'analyze', summary: 'Run static analysis over a project.' },
+      { name: 'sanity', summary: 'Run sanity tests.' },
       { name: 'version', summary: 'Print the version.' }
     ]
   },
@@ -247,6 +248,23 @@ if (mainOptions.command === 'analyze') {
   console.log(`Iridium Version: ${chalk.red(VERSION)}`)
 } else if (mainOptions.command === 'help') {
   printUsage()
+} else if (mainOptions.command === 'sanity') {
+
+  const projectPath = path.resolve("./sanity/test1")
+  const analyzePath = path.resolve("./sanity/test1/src")
+  
+  debugConfig.printModuleGraphPng = true
+  debugConfig.includeLibrariesInComponentGraph = true
+  debugConfig.outputsPath = path.resolve("./output-sanity")
+  
+  // Ensure outputs directory
+  if (fs.existsSync(debugConfig.outputsPath)) {
+    fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
+  }
+
+  fs.mkdirSync(debugConfig.outputsPath);
+
+  main(projectPath, analyzePath)
 } else {
   const sections = [
     {
