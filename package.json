@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./iridium analyze tests/MMem-Sim/ -f src"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +20,7 @@
     "chalk": "^5.3.0",
     "command-line-args": "^6.0.0",
     "command-line-usage": "^7.0.3",
+    "log4js": "^6.9.1",
     "shelljs": "^0.8.5"
   },
   "devDependencies": {
@@ -29,6 +30,7 @@
     "@babel/plugin-transform-react-jsx-development": "^7.24.7",
     "@babel/plugin-transform-typescript": "^7.24.8",
     "@babel/preset-typescript": "^7.24.7",
+    "@types/node": "^20.14.12",
     "tsx": "^4.16.2"
   }
 }

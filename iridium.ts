@@ -27,13 +27,6 @@ const header = `
 Iridium Version: ${chalk.red(VERSION)}
 `
 
-const mainDefinitions = [
-  { name: 'command', defaultOption: true }
-]
-
-const mainOptions = commandLineArgs(mainDefinitions, { stopAtFirstUnknown: true })
-const argv = mainOptions._unknown || []
-
 const commandList = [
   {
     header: 'Command List',
@@ -45,7 +38,15 @@ const commandList = [
   },
 ]
 
-const analyzeDefinitionsOptionList = [
+type DefinitionsOption = {
+  name: string,
+  description: string,
+  alias?: string,
+  type: any,
+  typeLabel?: string
+}
+
+const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
   {
     name: 'folder',
     description: 'Folder where the analysis should begin (relative path such as {italic ./app}, {italic ./src}, {italic ./src/pages/}).',
@@ -71,18 +72,31 @@ const analyzeDefinitionsOptionList = [
     description: 'Include libraries in the module graph.',
     alias: 'l',
     type: Boolean,
+  },
+  {
+    name: 'resolve-imports-cjs',
+    description: 'Resolve imports as using cjs during babel translation.',
+    alias: 'c',
+    type: Boolean,
   }
 ]
 
 const analyzeDefinitions = [
   {
-  header: 'Options',
-  optionList: analyzeDefinitionsOptionList
+    header: 'Options',
+    optionList: analyzeDefinitionsOptionList
   }
 ]
 
-function printUsage(altHeader = undefined, otherOpts = []) {
-  let sections = [
+type UsageOptions = typeof analyzeDefinitions;
+
+type UsageHeader = {
+  header: string,
+  content: string[]
+}
+
+function printUsage(altHeader: undefined | UsageHeader = undefined, otherOpts: UsageOptions | undefined = undefined) {
+  let sections: any = [ // Sometimes the type system is just annoying
     {
       content: chalk.red(header),
       raw: true
@@ -99,8 +113,8 @@ function printUsage(altHeader = undefined, otherOpts = []) {
     ...commandList,
   ]
 
-  if (otherOpts.length > 0) {
-    assert(altHeader !== undefined)
+  if (otherOpts) {
+    assert(typeof altHeader !== "undefined");
     sections = [
       {
         content: chalk.red(header),
@@ -115,6 +129,16 @@ function printUsage(altHeader = undefined, otherOpts = []) {
   const usage = commandLineUsage(sections)
   console.log(usage)
 }
+
+////////////////////////////////////////// START //////////////////////////////////////////
+
+const mainDefinitions = [
+  { name: 'command', defaultOption: true }
+]
+
+const mainOptions = commandLineArgs(mainDefinitions, { stopAtFirstUnknown: true })
+const argv = mainOptions._unknown || []
+
 
 if (mainOptions.command === 'analyze') {
   const analyzemainDefinitions = [
@@ -196,6 +220,10 @@ if (mainOptions.command === 'analyze') {
     if ("include-libraries-in-module-graph" in analyzeOptions) {
       debugConfig.includeLibrariesInComponentGraph = true
     }
+
+    if ("resolve-imports-cjs" in analyzeOptions) {
+      debugConfig.resolveImportsToCjs = true
+    }
   }
 
   // Ensure outputs directory
@@ -208,7 +236,6 @@ if (mainOptions.command === 'analyze') {
   if (!fs.existsSync(debugConfig.outputsPath)) {
     console.warn(`[INFO] Project Path: ${projectPath}`)
     console.warn(`[INFO] Analysis Folder: ${analyzePath}`)
-    console.warn(`[INFO] Output Folder: ${analyzeOptions["outputs-path"]}`)
     console.error(`[ERROR] Creating output folder failed: ${debugConfig.outputsPath}`)
     process.exit(1)
   }

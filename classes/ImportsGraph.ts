@@ -3,10 +3,14 @@ import fs from 'fs'
 
 import debugConfig from '../configs/debug.js'
 
+type Edge = {
+  [node: string] : Set<string>
+}
+
 export class ImportsGraph {
-  #nodes
-  #libraryNodes
-  #edges
+  #nodes : Set<string>
+  #libraryNodes : Set<string>
+  #edges : Edge
   constructor() {
     this.#nodes = new Set()
     this.#libraryNodes = new Set()

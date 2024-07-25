@@ -1,5 +1,5 @@
-import babel from '@babel/core'
-import parser from '@babel/parser'
+import * as babel from '@babel/core'
+import parser, { ParserPlugin } from '@babel/parser'
 import _traverse from "@babel/traverse"
 import _generate from "@babel/generator"
 import assert from 'node:assert/strict'
@@ -12,15 +12,15 @@ import debugConfig from '../configs/debug.js'
 const traverse = _traverse.default;
 const generate = _generate.default;
 
+
 export class ProjectFile {
-  imports = []
   absoluteFilePath
   projectBasePath
   relativeFilePath
   uname
   isRelative
   extension
-  ast = null
+  ast : t.Node | undefined = undefined
   transformedCode = null
   filename
   loc = 0
@@ -50,11 +50,14 @@ export class ProjectFile {
   transformAndParse() {
     const code = fs.readFileSync(this.absoluteFilePath, 'utf-8');
 
-    let presets = [["@babel/preset-env", { "modules": false }], ['@babel/preset-react', { runtime: "automatic", importSource: true }]]
-    let plugins = ['jsx']
+    let presets = [
+      ["@babel/preset-env", { "modules": debugConfig.resolveImportsToCjs ? "cjs" : false }], 
+      ['@babel/preset-react', { runtime: "automatic", importSource: true }]
+    ]
+    let plugins : Array<ParserPlugin> = ['jsx']
 
     if (this.extension === 'ts' || this.extension === 'tsx') {
-      presets.push('@babel/preset-typescript')
+      presets.push(['@babel/preset-typescript'])
       plugins.push(["typescript", { disallowAmbiguousJSXLike: true }])
     }
 
@@ -165,8 +168,4 @@ export class ProjectFile {
     });
   }
 
-  toString() {
-    if (this.isRelative) return this.relativePath
-    else this.path
-  }
 }
