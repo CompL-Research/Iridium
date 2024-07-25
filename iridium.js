@@ -91,9 +91,9 @@ function printUsage(altHeader = undefined, otherOpts = []) {
       header: 'About',
       content: [
         'This project provides infrastructure to allow static analysis of {italic react} based applications.',
-        '$ node iridium.js <command> [OPTIONS]',
-        '$ node iridium.js help',
-        '$ node iridium.js analyze help'
+        '$ ./iridium <command> [OPTIONS]',
+        '$ ./iridium help',
+        '$ ./iridium analyze help'
       ]
     },
     ...commandList,
@@ -126,7 +126,7 @@ if (mainOptions.command === 'analyze') {
       {
         header: "=== Error: Please provide a path to the project to analyze ===",
         content: [
-          `$ node iridium.js analyze <path-to-project> [OPTIONS]`
+          `$ ./iridium analyze <path-to-project> [OPTIONS]`
         ]
       },
       analyzeDefinitions)
@@ -141,7 +141,7 @@ if (mainOptions.command === 'analyze') {
       {
         header: "=== Analyze Usage ===",
         content: [
-          `$ node iridium.js analyze <path-to-project> [OPTIONS]`
+          `$ ./iridium analyze <path-to-project> [OPTIONS]`
         ]
       },
       analyzeDefinitions)
