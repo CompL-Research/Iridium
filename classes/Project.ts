@@ -1,14 +1,11 @@
-import _traverse from "@babel/traverse"
 import fs from 'fs'
 import path from 'path'
 import assert from 'node:assert/strict'
-import t, { isCallExpression, isImportDeclaration } from "@babel/types"
+import t from "@babel/types"
 
-import debugConfig from '../configs/debug.ts'
 import { ImportsGraph } from './ImportsGraph.js'
 import { ProjectFile } from './ProjectFile.js'
-
-const traverse = _traverse['default'];
+import debugConfig from '../configs/debug.js'
 
 type Files = {
   [key: string]: ProjectFile;
@@ -19,8 +16,6 @@ export class Project {
   analyzePath: string
   importsGraph: ImportsGraph = new ImportsGraph()
   files: Files = {}
-  failedImports: Set<string> = new Set()
-  ignoredImports: Set<string> = new Set()
   constructor(projectBasePath: string, analyzePath: string) {
     this.base = projectBasePath;
     this.analyzePath = analyzePath
@@ -41,16 +36,9 @@ export class Project {
         }
       }
     }
-    if (typeof ext === "string") { // This is more or less redundant, but the typesystem cant determine that this is not required
-      if (['ico', 'css', 'json'].includes(ext) && file !== "true/jsx-runtime") {
-        this.ignoredImports.add(file) // These were deliberately ignored
-      } else {
-        this.failedImports.add(file)
-      }
-      return null
-    }
-    assert(false) // Unreachable
+    return null;
   }
+
 
   #populateJSFiles = (results: Files, dir: string, projectBase: string) => {
     const list: string[] = fs.readdirSync(dir);
@@ -78,43 +66,27 @@ export class Project {
       const AST: t.Node | undefined = file.ast
 
       importsGraph.addNode(file.uname)
-      
+
       // Assert that the AST node isn't null
       assert(typeof AST !== "undefined")
-      traverse(AST, {
-        enter(nodePath) {
-          const node: t.Node = nodePath.node
-          if (isImportDeclaration(node)) {
-            const importPath = node.source.value;
-            let i = processNewImport(result, importPath, projectBase)
-            if (i) {
-              importsGraph.addEdge(file.uname, i.uname)
-            } else {
-              if (debugConfig.includeLibrariesInComponentGraph) {
-                importsGraph.addLibraryNode(importPath)
-                importsGraph.addEdge(file.uname, importPath)
-              }
-            }
-          } else if (isCallExpression(node)) {
-            const callNode : t.CallExpression = node;
-            // const calleeName = callNode.callee.
-            if (callNode.callee.name === 'require' && nodePath.node.arguments[0] && nodePath.node.arguments[0].type === 'StringLiteral') {
-              const importPath = nodePath.node.arguments[0].value;
-              let i = processNewImport(result, importPath, projectBase)
-              if (i) {
-                importsGraph.addEdge(file.uname, i.uname)
-              } else {
-                if (debugConfig.includeLibrariesInComponentGraph) {
-                  importsGraph.addLibraryNode(importPath)
-                  importsGraph.addEdge(file.uname, importPath)
-                }
-              }
-            } else if (nodePath.node.callee.name === 'require') {
-              this.failedImports.add(nodePath.node)
-            }
-          }
+
+      // Process new nodes
+      for (const [resolvedNode, [oldPath, resolvedPath]] of file.resolvedModuleImports) {
+        let i = processNewImport(result, resolvedPath, projectBase)
+        if (i) {
+          importsGraph.addEdge(file.uname, i.uname)
+        } else {
+          assert(false)
         }
-      })
+      }
+
+      if (debugConfig.includeLibrariesInComponentGraph) {
+        // Process unresolved nodes
+        for (const [resolvedNode, unresolvedPath] of file.unresolvedModuleImports) {
+          importsGraph.addLibraryNode(unresolvedPath)
+          importsGraph.addEdge(file.uname, unresolvedPath)
+        }
+      }
 
     }
 
@@ -124,19 +96,32 @@ export class Project {
     if (newSet.length !== oldSet.length) { // Recurse until all imports have been processed
       return this.processImportsGraph()
     }
-    console.warn(`Loaded: ${newSet.length} files`)
+  }
+
+  printStats() {
+    const loadedFiles = this.files
     let LOC = 0
-    for (const [, value] of Object.entries(result)) {
-      console.warn(`  ├── ${value.uname}: ${value.loc}`);
-      LOC += value.loc
+    let failed : Set<string> | string[] = new Set()
+
+
+    for (const [, value] of Object.entries(loadedFiles)) {
+      LOC += value.loc      
+      for (const [, failedImport] of value.unresolvedModuleImports) {
+        failed.add(failedImport)
+      }
     }
+
+    failed = Array.from(failed)
+    failed = failed.filter((f) => {
+      const ext = f.split('.').pop();
+      if (typeof ext === "string") { // we don't care about certain types of imports
+        return !['ico', 'css', 'json'].includes(ext)
+      }
+    })
+
+    console.warn(`Loaded: ${Object.keys(loadedFiles).length} files`)
     console.warn(`  └── LOC: ${LOC}`)
-    console.warn("Failed to import: ")
-    this.failedImports.forEach(f => console.warn(`  ├── ${f}`))
-    console.warn(`  └── Total: ${this.failedImports.size}`)
-    console.warn("Ignored imports: ")
-    this.ignoredImports.forEach(f => console.warn(`  ├── ${f}`))
-    console.warn(`  └── Total: ${this.ignoredImports.size}`)
-    importsGraph.dumpDOT();
+    console.log(failed)
+    console.warn(`Failed to process ${failed.length} imports`)
   }
 }

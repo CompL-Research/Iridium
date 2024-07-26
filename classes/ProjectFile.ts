@@ -9,8 +9,8 @@ import t from '@babel/types'
 
 import debugConfig from '../configs/debug.js'
 
-const traverse = _traverse.default;
-const generate = _generate.default;
+const traverse = _traverse["default"];
+const generate = _generate["default"];
 
 
 export class ProjectFile {
@@ -20,7 +20,12 @@ export class ProjectFile {
   uname
   isRelative
   extension
-  ast : t.Node | undefined = undefined
+  resolvedModuleImports = new Map<t.Node, readonly [string, string]>
+  unresolvedModuleImports = new Map<t.Node, string>
+  moduleExportAllDeclarations = new Set<t.Node>
+  moduleExportNamedDeclarations = new Set<t.Node>
+  moduleExportDefaultDeclarations = new Set<t.Node>
+  ast: t.Node | undefined = undefined
   transformedCode = null
   filename
   loc = 0
@@ -51,10 +56,10 @@ export class ProjectFile {
     const code = fs.readFileSync(this.absoluteFilePath, 'utf-8');
 
     let presets = [
-      ["@babel/preset-env", { "modules": debugConfig.resolveImportsToCjs ? "cjs" : false }], 
-      ['@babel/preset-react', { runtime: "automatic", importSource: true }]
+      ["@babel/preset-env", { targets: "last 2 Chrome versions", "modules": debugConfig.resolveImportsToCjs ? "cjs" : false }],
+      ['@babel/preset-react'] // { runtime: "automatic", importSource: true }
     ]
-    let plugins : Array<ParserPlugin> = ['jsx']
+    let plugins: Array<ParserPlugin> = ['jsx']
 
     if (this.extension === 'ts' || this.extension === 'tsx') {
       presets.push(['@babel/preset-typescript'])
@@ -87,35 +92,21 @@ export class ProjectFile {
     const resolvePath = (source) => {
       if (source.startsWith('@/')) {
         let res = path.resolve(source.replace('@/', `${this.projectBasePath}/`));
-        if (isValidPath(res)) {
-          return res;
-        } else {
-          for (const extension of ['.js', '.jsx', '.ts', '.tsx']) {
-            const resolved = path.resolve(`${res}${extension}`);
-
-            if (isValidPath(resolved)) {
-              return resolved
-            }
+        for (const extension of ['.js', '.jsx', '.ts', '.tsx']) {
+          const resolved = path.resolve(`${res}${extension}`);
+          if (isValidPath(resolved)) {
+            return resolved
           }
         }
-        return source
       } else if (source.startsWith('.')) {
         // Extract folder path
         const folderPath = path.dirname(this.absoluteFilePath);
-
-        // let res =  source.replace('./', `${folderPath}/`);
-        let res = path.resolve(`${folderPath}/${source}`)
-        if (isValidPath(res)) {
-          return res;
-        } else {
-          for (const extension of ['.js', '.jsx', '.ts', '.tsx']) {
-            const resolved = path.resolve(`${res}${extension}`);
-
-            if (isValidPath(resolved)) {
-              return resolved
-            }
+        const res = path.resolve(`${folderPath}/${source}`)
+        for (const extension of ['.js', '.jsx', '.ts', '.tsx']) {
+          const resolved = path.resolve(`${res}${extension}`);
+          if (isValidPath(resolved)) {
+            return resolved
           }
-          return source
         }
       } else {
         // TODO: handle libraries
@@ -126,26 +117,56 @@ export class ProjectFile {
         // } else {
         //   for(const extension of ['.js', '.jsx', '.ts', '.tsx']) {
         //     const resolved = path.resolve(`${res}${extension}`);
-
         //     if (isValidPath(resolved)) {
         //       return resolved
         //     }
         //   }
         // }
       }
-      return source;
+      return null;
     };
+
+    const that = this
 
     // Translate imports
     traverse(ast, {
       ImportDeclaration({ node }) {
-        node.source.value = resolvePath(node.source.value);
-      },
-      CallExpression({ node }) {
-        if (node.callee.name === 'require' && node.arguments[0] && node.arguments[0].type === 'StringLiteral') {
-          node.arguments[0].value = resolvePath(node.arguments[0].value);
+        let resolved = resolvePath(node.source.value);
+        if (resolved) {
+          that.resolvedModuleImports.set(node, [node.source.value, resolved])
+          if (debugConfig.printTransformedImports) {
+            node.source.value = resolved
+          }
+        } else {
+          that.unresolvedModuleImports.set(node, node.source.value)
         }
       },
+      CallExpression({ node }) {
+        if (node.callee.name === 'require') {
+          if (node.arguments[0] && node.arguments[0].type === 'StringLiteral') {
+            let resolved = resolvePath(node.arguments[0].value);
+            if (resolved) {
+              that.resolvedModuleImports.set(node, [node.arguments[0].value, resolved])
+              if (debugConfig.printTransformedImports) {
+                node.arguments[0].value = resolved
+              }
+            } else {
+              that.unresolvedModuleImports.set(node, node.arguments[0].value)
+            }
+          } else {
+            that.unresolvedModuleImports.set(node, "ERR_NOSTR")
+          }
+        }
+      },
+      ExportAllDeclaration({ node }) {
+        that.moduleExportAllDeclarations.add(node)
+      },
+      ExportNamedDeclaration({ node }) {
+        that.moduleExportNamedDeclarations.add(node)
+      },
+      ExportDefaultDeclaration({ node }) {
+        that.moduleExportDefaultDeclarations.add(node)
+      }
     });
 
     const output = generate(
@@ -166,6 +187,10 @@ export class ProjectFile {
         console.error('Error writing to file', err);
       }
     });
+  }
+
+  populateImportsAndExports() {
+
   }
 
 }

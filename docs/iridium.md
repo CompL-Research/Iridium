@@ -21,6 +21,17 @@ Root nodes typically represent routes, tests, middlewares, etc. in a react appli
 
 ## From the root nodes next task is to generate a component tree for the application
 
+A module basically has three things:
+
+1. Imports : Imports are code we get from other files, they are singleton
+2. Exports : Local stuff that we are trying to send away
+3. Environment : File local constants, lexical bindings, local functions, etc.
+
+A module generally contains a bunch of helper functions, some of these are React components or hooks, while others are normal functions.
+
+First pass, mark all functions that generate a React state.
+After we have functions we are interested in, generate a control flow graph with states and their modifiers as first class values.
+
 
 ## Important Classes
 

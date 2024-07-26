@@ -14,6 +14,8 @@ const VERSION = "0.1a"
 function main(mainProjectPath, analyzePath) {
   let project = new Project(mainProjectPath, analyzePath)
   project.processImportsGraph()
+  project.printStats()
+  project.importsGraph.dumpDOT();
 }
 
 const header = `
@@ -78,6 +80,12 @@ const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
     name: 'resolve-imports-cjs',
     description: 'Resolve imports as using cjs during babel translation.',
     alias: 'c',
+    type: Boolean,
+  },
+  {
+    name: 'print-transformed-imports',
+    description: 'Print absolute paths for resolved imports (this is cosmetic, Iridium uses absolute addresses for processing)',
+    alias: 'i',
     type: Boolean,
   }
 ]
@@ -224,6 +232,10 @@ if (mainOptions.command === 'analyze') {
 
     if ("resolve-imports-cjs" in analyzeOptions) {
       debugConfig.resolveImportsToCjs = true
+    }
+
+    if ("print-transformed-imports" in analyzeOptions) {
+      debugConfig.printTransformedImports = true
     }
   }
 
