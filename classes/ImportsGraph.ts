@@ -2,19 +2,42 @@ import shell from 'shelljs'
 import fs from 'fs'
 
 import debugConfig from '../configs/debug.js'
+import assert from 'node:assert/strict'
 
-type Edge = {
-  [node: string] : Set<string>
+export class NodeProp {
+  shape: string = "rectangle"
+  style: string = "rounded"
+  fillcolor: string = "white"
+
+  dumpToStream(stream: fs.WriteStream, node: string, space = 0) {
+    for (let i = 0; i < space; i++) stream.write(" ");
+    stream.write(`"${node}"[shape="${this.shape}", fillcolor="${this.fillcolor}", style="${this.style}"];\n`)
+  }
+}
+
+export class EdgeProp {
+  style: string = "solid"
+  color: string = "black"
+  label: string = ""
+
+  dumpToStream(stream: fs.WriteStream, n: string, m: string, space = 0) {
+    for (let i = 0; i < space; i++) stream.write(" ");
+    stream.write(`"${n}" -> "${m}" [label="${this.label}", style="${this.style}", color="${this.color}"];\n`)
+  }
+
 }
 
 export class ImportsGraph {
-  #nodes : Set<string>
-  #libraryNodes : Set<string>
-  #edges : Edge
+  #nodes: Set<string>
+  #edges: Map<string, Set<string>>
+  #nodeProp: Map<string, NodeProp>
+  #edgeProp: Map<string, EdgeProp>
+
   constructor() {
     this.#nodes = new Set()
-    this.#libraryNodes = new Set()
-    this.#edges = {}
+    this.#edges = new Map()
+    this.#nodeProp = new Map()
+    this.#edgeProp = new Map()
   }
 
   getNodes() {
@@ -25,73 +48,81 @@ export class ImportsGraph {
     return this.#edges
   }
 
-  addNode(n) {
-    // console.log("Adding Node", n)
-    this.#nodes.add(n)
-    if (!(n in this.#edges)) {
-      this.#edges[n] = new Set()
+  getNodeProp(n) {
+    if (!this.#nodeProp.has(n)) {
+      this.#nodeProp.set(n, new NodeProp())
     }
+    return this.#nodeProp.get(n)
   }
 
-  addLibraryNode(n) {
-    this.#nodes.add(n)
-    this.#libraryNodes.add(n)
-    if (!(n in this.#edges)) {
-      this.#edges[n] = new Set()
-    }
+  addNode(n) {
+    if (!this.#nodes.has(n)) this.#nodes.add(n)
+    if (!this.#edges.has(n)) this.#edges.set(n,new Set())
   }
 
   addEdge(n, m) {
-    // console.log("Adding Edge: ", n, m)
-    this.#nodes.add(n); this.#nodes.add(m); // Ensure the nodes are declared
-
-    if (n in this.#edges) {
-      this.#edges[n].add(m)
-    } else {
-      this.#edges[n] = new Set()
-      this.#edges[n].add(m)
-    }
+    this.addNode(n); this.addNode(m);
+    this.#edges.get(n)?.add(m)
   }
 
-  getNodesWithNoIncomingEdges() {
+  getEdgeProp(n, m) {
+    const key = n + m
+    if (!this.#edgeProp.has(key)) {
+      this.#edgeProp.set(key, new EdgeProp())
+    }
+    return this.#edgeProp.get(key)
+  }
+
+  colorRootNodes() {
     // Might be slowwww....
+    const that = this
     const nodes = this.#nodes
     const edges = this.#edges
-    let setOfNodesWithIncomingEdges = new Set()
-    nodes.forEach(n => {
-      edges[n].forEach(m => setOfNodesWithIncomingEdges.add(m))
+
+    // Union of all right side sets
+    const setOfNodesWithIncomingEdges = new Set()
+    nodes.forEach(n => edges.get(n)?.forEach(m => setOfNodesWithIncomingEdges.add(m)))
+
+    // Set difference
+    var diff = Array.from(nodes).filter(x => !setOfNodesWithIncomingEdges.has(x));
+
+    diff.forEach(n => {
+      const nProp = that.getNodeProp(n)
+      if (nProp) {
+        nProp.style = "rounded,filled"
+        nProp.fillcolor = "green"
+      }
+      else assert(false)
+
     })
-    var diff = Array.from(nodes).filter(function (x) {
-      return !setOfNodesWithIncomingEdges.has(x);
-    });
-    return diff
+
+  }
+
+  dump() {
+    console.log(this.#edges)
   }
 
   dumpDOT() {
-
-    const toMark = this.getNodesWithNoIncomingEdges()
+    const that = this
 
     var stream = fs.createWriteStream(debugConfig.outputsPath + "/" + 'moduleGraph.DOT', { flags: 'w' });
     stream.write("digraph {\n")
     stream.write("  beautify=true;\n")
-    this.#nodes.forEach(n => {
-      if (toMark.includes(n)) {
-        stream.write(`  "${n}"[shape=rectangle, fillcolor=green, style="rounded,filled"];\n`)
-      } else if (this.#libraryNodes.has(n)) {
-        stream.write(`  "${n}"[shape=rectangle, fillcolor=red, style="rounded,filled"];\n`)
 
-      } else {
-        stream.write(`  "${n}"[shape=rectangle, style="rounded"];\n`)
-      }
+    this.#nodes.forEach((n) => {
+      const nProp = that.getNodeProp(n)
+      if (nProp) nProp.dumpToStream(stream, n, 2)
+      else assert(false)
     })
 
-    for (let key in this.#edges) {
-      if (this.#edges.hasOwnProperty(key)) { // Ensure it's not iterating over prototype properties
-        let nn = this.#edges[key]
-        nn.forEach(m => stream.write(`  "${key}" -> "${m}";\n`))
-      }
-    }
 
+    for (const [n, adjSet] of this.#edges) {
+      adjSet.forEach(m => {
+        const eProp = that.getEdgeProp(n, m)
+        if (eProp) eProp.dumpToStream(stream, n, m, 2)
+        else assert(false)
+      })
+    }
 
     stream.write("}")
 

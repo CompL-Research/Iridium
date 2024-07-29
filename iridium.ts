@@ -15,6 +15,9 @@ function main(mainProjectPath, analyzePath) {
   let project = new Project(mainProjectPath, analyzePath)
   project.processImportsGraph()
   project.printStats()
+  if (debugConfig.dontColorRootNodes === false) {
+    project.importsGraph.colorRootNodes()
+  }
   project.importsGraph.dumpDOT();
 }
 
@@ -86,6 +89,11 @@ const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
     name: 'print-transformed-imports',
     description: 'Print absolute paths for resolved imports (this is cosmetic, Iridium uses absolute addresses for processing)',
     alias: 'i',
+    type: Boolean,
+  },
+  {
+    name: 'dont-color-root-nodes',
+    description: 'Prevents coloring root nodes green',
     type: Boolean,
   }
 ]
@@ -236,6 +244,10 @@ if (mainOptions.command === 'analyze') {
 
     if ("print-transformed-imports" in analyzeOptions) {
       debugConfig.printTransformedImports = true
+    }
+
+    if ("dont-color-root-nodes" in analyzeOptions) {
+      debugConfig.dontColorRootNodes = true
     }
   }
 

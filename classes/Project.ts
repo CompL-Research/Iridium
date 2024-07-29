@@ -3,7 +3,7 @@ import path from 'path'
 import assert from 'node:assert/strict'
 import t from "@babel/types"
 
-import { ImportsGraph } from './ImportsGraph.js'
+import { EdgeProp, ImportsGraph, NodeProp } from './ImportsGraph.js'
 import { ProjectFile } from './ProjectFile.js'
 import debugConfig from '../configs/debug.js'
 
@@ -70,7 +70,7 @@ export class Project {
       // Assert that the AST node isn't null
       assert(typeof AST !== "undefined")
 
-      // Process new nodes
+      // Process normal imports
       for (const [resolvedNode, [oldPath, resolvedPath]] of file.resolvedModuleImports) {
         let i = processNewImport(result, resolvedPath, projectBase)
         if (i) {
@@ -83,8 +83,57 @@ export class Project {
       if (debugConfig.includeLibrariesInComponentGraph) {
         // Process unresolved nodes
         for (const [resolvedNode, unresolvedPath] of file.unresolvedModuleImports) {
-          importsGraph.addLibraryNode(unresolvedPath)
           importsGraph.addEdge(file.uname, unresolvedPath)
+
+          // Mark edge as red
+          const eProp = importsGraph.getEdgeProp(file.uname, unresolvedPath)
+          if (eProp) {
+            eProp.color = "gray"
+          } else assert(false)
+          
+          // Mark leaf node as red
+          const nProp = importsGraph.getNodeProp(unresolvedPath)
+          if (nProp) {
+            nProp.fillcolor = "gray"
+            nProp.style = "rounded,filled"
+          } else assert(false)
+        }
+      }
+
+      // Process require imports
+      for (const [resolvedNode, [oldPath, resolvedPath]] of file.resolvedRequireImports) {
+        let i = processNewImport(result, resolvedPath, projectBase)
+        if (i) {
+          importsGraph.addEdge(file.uname, i.uname)
+
+          // Edges via require are dashed
+          const eProp = importsGraph.getEdgeProp(file.uname, resolvedPath)
+          if (eProp) {
+            eProp.style = "dashed"
+          } else assert(false)
+
+        } else {
+          assert(false)
+        }
+      }
+
+      if (debugConfig.includeLibrariesInComponentGraph) {
+        // Process unresolved nodes
+        for (const [resolvedNode, unresolvedPath] of file.unresolvedRequireImports) {
+          importsGraph.addEdge(file.uname, unresolvedPath)
+
+          // Mark edge as red
+          const eProp = importsGraph.getEdgeProp(file.uname, unresolvedPath)
+          if (eProp) {
+            eProp.style = "dashed"
+          } else assert(false)
+          
+          // Mark leaf node as red
+          const nProp = importsGraph.getNodeProp(unresolvedPath)
+          if (nProp) {
+            nProp.fillcolor = "red"
+            nProp.style = "rounded,filled"
+          } else assert(false)
         }
       }
 

@@ -22,6 +22,8 @@ export class ProjectFile {
   extension
   resolvedModuleImports = new Map<t.Node, readonly [string, string]>
   unresolvedModuleImports = new Map<t.Node, string>
+  resolvedRequireImports = new Map<t.Node, readonly[string, string]>
+  unresolvedRequireImports = new Map<t.Node, string>
   moduleExportAllDeclarations = new Set<t.Node>
   moduleExportNamedDeclarations = new Set<t.Node>
   moduleExportDefaultDeclarations = new Set<t.Node>
@@ -142,19 +144,20 @@ export class ProjectFile {
         }
       },
       CallExpression({ node }) {
+        // Handle require separately
         if (node.callee.name === 'require') {
           if (node.arguments[0] && node.arguments[0].type === 'StringLiteral') {
             let resolved = resolvePath(node.arguments[0].value);
             if (resolved) {
-              that.resolvedModuleImports.set(node, [node.arguments[0].value, resolved])
+              that.resolvedRequireImports.set(node, [node.arguments[0].value, resolved])
               if (debugConfig.printTransformedImports) {
                 node.arguments[0].value = resolved
               }
             } else {
-              that.unresolvedModuleImports.set(node, node.arguments[0].value)
+              that.unresolvedRequireImports.set(node, node.arguments[0].value)
             }
           } else {
-            that.unresolvedModuleImports.set(node, "ERR_NOSTR")
+            that.unresolvedRequireImports.set(node, "ERR_NOSTR")
           }
         }
       },
