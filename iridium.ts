@@ -5,21 +5,37 @@ import chalk from 'chalk'
 import commandLineUsage from 'command-line-usage'
 import commandLineArgs from 'command-line-args'
 
-import debugConfig from './configs/debug.js'
-import { Project } from './classes/Project.js'
+import debugConfig from './configs/debug.ts'
+import { Project } from './classes/Project.ts'
+import { IridiumBuilder } from './classes/builder/IridiumBuilder.ts'
 
 const VERSION = "0.1a"
 const directories = ['./classes', './configs', './docs'];
 
 
 function main(mainProjectPath, analyzePath) {
-  let project = new Project(mainProjectPath, analyzePath)
+
+  // Ensure outputs directory
+  if (fs.existsSync(debugConfig.outputsPath)) {
+    fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
+  }
+
+  fs.mkdirSync(debugConfig.outputsPath);
+  debugConfig.iridiumDebugPath = debugConfig.outputsPath + "/Iridium";
+  fs.mkdirSync(debugConfig.iridiumDebugPath);
+
+  console.warn(`[IRIDIUM STARTING] ${mainProjectPath}`)
+
+  const project = new Project(mainProjectPath, analyzePath)
   project.processImportsGraph()
+  project.importsGraph.generateRootNodes()
   project.printStats()
   if (debugConfig.dontColorRootNodes === false) {
     project.importsGraph.colorRootNodes()
   }
   project.importsGraph.dumpDOT();
+  const builder = new IridiumBuilder(project)
+  builder.start()
 }
 
 const header = `
@@ -307,21 +323,6 @@ if (mainOptions.command === 'analyze') {
     }
   }
 
-  // Ensure outputs directory
-  if (fs.existsSync(debugConfig.outputsPath)) {
-    fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
-  }
-
-  fs.mkdirSync(debugConfig.outputsPath);
-
-  if (!fs.existsSync(debugConfig.outputsPath)) {
-    console.warn(`[INFO] Project Path: ${projectPath}`)
-    console.warn(`[INFO] Analysis Folder: ${analyzePath}`)
-    console.error(`[ERROR] Creating output folder failed: ${debugConfig.outputsPath}`)
-    process.exit(1)
-  }
-  console.warn(`[IRIDIUM STARTING] ${projectPath}`)
-
   main(projectPath, analyzePath)
 
 } else if (mainOptions.command === 'version') {
@@ -336,13 +337,6 @@ if (mainOptions.command === 'analyze') {
   debugConfig.printModuleGraphPng = true
   debugConfig.includeLibrariesInComponentGraph = true
   debugConfig.outputsPath = path.resolve("./output-sanity")
-
-  // Ensure outputs directory
-  if (fs.existsSync(debugConfig.outputsPath)) {
-    fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
-  }
-
-  fs.mkdirSync(debugConfig.outputsPath);
 
   main(projectPath, analyzePath)
 } else if (mainOptions.command === "stats") {

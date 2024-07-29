@@ -5,7 +5,7 @@ import _generate from "@babel/generator"
 import assert from 'node:assert/strict'
 import fs from 'fs'
 import path from 'path'
-import t from '@babel/types'
+import t, { ImportDeclaration } from '@babel/types'
 
 import debugConfig from '../configs/debug.js'
 
@@ -27,7 +27,7 @@ export class ProjectFile {
   moduleExportAllDeclarations = new Set<t.Node>
   moduleExportNamedDeclarations = new Set<t.Node>
   moduleExportDefaultDeclarations = new Set<t.Node>
-  ast: t.Node | undefined = undefined
+  parseResult: parser.ParseResult<t.File> | undefined = undefined
   transformedCode = null
   filename
   loc = 0
@@ -181,7 +181,7 @@ export class ProjectFile {
     );
 
     this.transformedCode = output.code
-    this.ast = ast
+    this.parseResult = ast
 
 
     // DEBUG

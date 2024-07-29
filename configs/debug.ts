@@ -1,4 +1,5 @@
 const config : {
+  iridiumDebugPath: string,
   outputsPath: string,
   printModuleGraphPng: boolean,
   includeLibrariesInComponentGraph: boolean,
@@ -6,6 +7,7 @@ const config : {
   printTransformedImports: boolean,
   dontColorRootNodes: boolean
 } = {
+  iridiumDebugPath: "",
   outputsPath: "",
   printModuleGraphPng: false,
   includeLibrariesInComponentGraph: false,

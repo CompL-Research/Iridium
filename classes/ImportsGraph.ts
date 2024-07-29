@@ -3,11 +3,14 @@ import fs from 'fs'
 
 import debugConfig from '../configs/debug.js'
 import assert from 'node:assert/strict'
+import t from "@babel/types"
+import { ProjectFile } from './ProjectFile.js'
 
 export class NodeProp {
   shape: string = "rectangle"
   style: string = "rounded"
   fillcolor: string = "white"
+  sourceFile: ProjectFile | null = null
 
   dumpToStream(stream: fs.WriteStream, node: string, space = 0) {
     for (let i = 0; i < space; i++) stream.write(" ");
@@ -32,6 +35,7 @@ export class ImportsGraph {
   #edges: Map<string, Set<string>>
   #nodeProp: Map<string, NodeProp>
   #edgeProp: Map<string, EdgeProp>
+  rootNodes: Array<string>
 
   constructor() {
     this.#nodes = new Set()
@@ -73,29 +77,29 @@ export class ImportsGraph {
     return this.#edgeProp.get(key)
   }
 
-  colorRootNodes() {
+  generateRootNodes() {
     // Might be slowwww....
-    const that = this
     const nodes = this.#nodes
     const edges = this.#edges
-
+  
     // Union of all right side sets
     const setOfNodesWithIncomingEdges = new Set()
     nodes.forEach(n => edges.get(n)?.forEach(m => setOfNodesWithIncomingEdges.add(m)))
+  
+    // Set difference -> Root Nodes
+    this.rootNodes = Array.from(nodes).filter(x => !setOfNodesWithIncomingEdges.has(x));
+  }
 
-    // Set difference
-    var diff = Array.from(nodes).filter(x => !setOfNodesWithIncomingEdges.has(x));
-
-    diff.forEach(n => {
+  colorRootNodes() {
+    const that = this
+    this.rootNodes.forEach(n => {
       const nProp = that.getNodeProp(n)
       if (nProp) {
         nProp.style = "rounded,filled"
         nProp.fillcolor = "green"
       }
       else assert(false)
-
     })
-
   }
 
   dump() {

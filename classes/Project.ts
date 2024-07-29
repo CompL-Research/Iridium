@@ -7,15 +7,13 @@ import { EdgeProp, ImportsGraph, NodeProp } from './ImportsGraph.js'
 import { ProjectFile } from './ProjectFile.js'
 import debugConfig from '../configs/debug.js'
 
-type Files = {
-  [key: string]: ProjectFile;
-}
+type Files = Map<string, ProjectFile>
 
 export class Project {
   base: string
   analyzePath: string
   importsGraph: ImportsGraph = new ImportsGraph()
-  files: Files = {}
+  files: Files = new Map()
   constructor(projectBasePath: string, analyzePath: string) {
     this.base = projectBasePath;
     this.analyzePath = analyzePath
@@ -24,19 +22,19 @@ export class Project {
     this.#populateJSFiles(this.files, this.analyzePath, this.base)
   }
 
-  #handleFileImport = (results: Files, file: string, projectBase: string): ProjectFile | null => {
+  #handleFileImport = (results: Files, file: string, projectBase: string): ProjectFile | undefined => {
     const ext = file.split('.').pop();
     if (typeof ext === "string") { // This is more or less redundant, but the typesystem cant determine that this is not required
       if (['js', 'jsx', 'ts', 'tsx'].includes(ext)) {
-        if (!(file in results)) {
-          results[file] = new ProjectFile(file, projectBase)
-          return results[file]
+        if (!results.has(file)) {
+          results.set(file, new ProjectFile(file, projectBase))
+          return results.get(file)
         } else {
-          return results[file]
+          return results.get(file)
         }
       }
     }
-    return null;
+    return undefined;
   }
 
 
@@ -58,45 +56,24 @@ export class Project {
     const projectBase: string = this.base
     const importsGraph: ImportsGraph = this.importsGraph
     const processNewImport = this.#handleFileImport
-    const oldFiles: Files = { ...this.files }
+    const oldFiles: Files = new Map(this.files)
     const result: Files = this.files
 
-    for (const key in oldFiles) {
-      const file: ProjectFile = oldFiles[key]
-      const AST: t.Node | undefined = file.ast
-
+    for (const [, file] of oldFiles) {
       importsGraph.addNode(file.uname)
+      // Add a node mapping in the imports graph
+      const importsGraphProp = importsGraph.getNodeProp(file.uname)
+      if (importsGraphProp) {
+        importsGraphProp.sourceFile = file
+      } else assert(false)
 
-      // Assert that the AST node isn't null
-      assert(typeof AST !== "undefined")
-
-      // Process normal imports
+      // Process resolved imports
       for (const [resolvedNode, [oldPath, resolvedPath]] of file.resolvedModuleImports) {
         let i = processNewImport(result, resolvedPath, projectBase)
         if (i) {
           importsGraph.addEdge(file.uname, i.uname)
         } else {
           assert(false)
-        }
-      }
-
-      if (debugConfig.includeLibrariesInComponentGraph) {
-        // Process unresolved nodes
-        for (const [resolvedNode, unresolvedPath] of file.unresolvedModuleImports) {
-          importsGraph.addEdge(file.uname, unresolvedPath)
-
-          // Mark edge as red
-          const eProp = importsGraph.getEdgeProp(file.uname, unresolvedPath)
-          if (eProp) {
-            eProp.color = "gray"
-          } else assert(false)
-          
-          // Mark leaf node as red
-          const nProp = importsGraph.getNodeProp(unresolvedPath)
-          if (nProp) {
-            nProp.fillcolor = "gray"
-            nProp.style = "rounded,filled"
-          } else assert(false)
         }
       }
 
@@ -117,11 +94,28 @@ export class Project {
         }
       }
 
+      // Process unresolved nodes
       if (debugConfig.includeLibrariesInComponentGraph) {
-        // Process unresolved nodes
-        for (const [resolvedNode, unresolvedPath] of file.unresolvedRequireImports) {
+        for (const [unresolvedNode, unresolvedPath] of file.unresolvedModuleImports) {
           importsGraph.addEdge(file.uname, unresolvedPath)
 
+          // Mark edge as red
+          const eProp = importsGraph.getEdgeProp(file.uname, unresolvedPath)
+          if (eProp) {
+            eProp.color = "gray"
+          } else assert(false)
+          
+          // Mark leaf node as red
+          const nProp = importsGraph.getNodeProp(unresolvedPath)
+          if (nProp) {
+            nProp.fillcolor = "gray"
+            nProp.style = "rounded,filled"
+          } else assert(false)
+        }
+
+        for (const [resolvedNode, unresolvedPath] of file.unresolvedRequireImports) {
+          importsGraph.addEdge(file.uname, unresolvedPath)
+  
           // Mark edge as red
           const eProp = importsGraph.getEdgeProp(file.uname, unresolvedPath)
           if (eProp) {
@@ -136,7 +130,6 @@ export class Project {
           } else assert(false)
         }
       }
-
     }
 
     const newSet: string[] = Object.keys(result)
@@ -153,9 +146,12 @@ export class Project {
     let failed : Set<string> | string[] = new Set()
 
 
-    for (const [, value] of Object.entries(loadedFiles)) {
-      LOC += value.loc      
-      for (const [, failedImport] of value.unresolvedModuleImports) {
+    for (const [, pFile] of loadedFiles) {
+      LOC += pFile.loc      
+      for (const [, failedImport] of pFile.unresolvedModuleImports) {
+        failed.add(failedImport)
+      }
+      for (const [, failedImport] of pFile.unresolvedRequireImports) {
         failed.add(failedImport)
       }
     }
