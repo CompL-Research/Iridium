@@ -9,6 +9,7 @@ import debugConfig from './configs/debug.js'
 import { Project } from './classes/Project.js'
 
 const VERSION = "0.1a"
+const directories = ['./classes', './configs', './docs'];
 
 
 function main(mainProjectPath, analyzePath) {
@@ -32,6 +33,60 @@ const header = `
 Iridium Version: ${chalk.red(VERSION)}
 `
 
+function getAllFiles(dirPath, arrayOfFiles) {
+  const files = fs.readdirSync(dirPath);
+
+  arrayOfFiles = arrayOfFiles || [];
+
+  files.forEach(function (file) {
+    if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+      arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles);
+    } else {
+      arrayOfFiles.push(path.join(dirPath, "/", file));
+    }
+  });
+
+  return arrayOfFiles;
+}
+
+function getFileExtension(fileName) {
+  return path.extname(fileName).toLowerCase();
+}
+
+function isImageFile(extension) {
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'];
+  return imageExtensions.includes(extension);
+}
+
+
+function countLinesInFile(filePath) {
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  return fileContent.split('\n').length;
+}
+
+function analyzeFiles(filePaths) {
+  let totalFiles = 0;
+  let extensions = new Set();
+  let totalLinesOfCode = 0;
+
+  filePaths.forEach(filePath => {
+    const files = getAllFiles(filePath);
+    totalFiles += files.length;
+    files.forEach(file => {
+      const ext = getFileExtension(file);
+      extensions.add(ext);
+      if (!isImageFile(ext)) {
+        totalLinesOfCode += countLinesInFile(file);
+      }
+    });
+  });
+
+  console.log(`Total Files  : ${totalFiles}`);
+  console.log(`LOC          : ${totalLinesOfCode}`);
+  console.log(`Extensions   : ${Array.from(extensions).join(', ')}`);
+}
+
+
 const commandList = [
   {
     header: 'Command List',
@@ -39,6 +94,7 @@ const commandList = [
       { name: 'help', summary: 'Display help information about iridium.' },
       { name: 'analyze', summary: 'Run static analysis over a project.' },
       { name: 'sanity', summary: 'Run sanity tests.' },
+      { name: 'stats', summary: 'Codespace stats.' },
       { name: 'version', summary: 'Print the version.' }
     ]
   },
@@ -276,11 +332,11 @@ if (mainOptions.command === 'analyze') {
 
   const projectPath = path.resolve("./sanity/test1")
   const analyzePath = path.resolve("./sanity/test1/src")
-  
+
   debugConfig.printModuleGraphPng = true
   debugConfig.includeLibrariesInComponentGraph = true
   debugConfig.outputsPath = path.resolve("./output-sanity")
-  
+
   // Ensure outputs directory
   if (fs.existsSync(debugConfig.outputsPath)) {
     fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
@@ -289,7 +345,18 @@ if (mainOptions.command === 'analyze') {
   fs.mkdirSync(debugConfig.outputsPath);
 
   main(projectPath, analyzePath)
-} else {
+} else if (mainOptions.command === "stats") {
+  const sections = [
+    {
+      header: chalk.red(`Iridium ${VERSION} Stats`),
+    }
+  ]
+  const usage = commandLineUsage(sections)
+  console.log(usage)
+  analyzeFiles(directories);
+}
+
+else {
   const sections = [
     {
       content: chalk.red(header),
