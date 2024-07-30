@@ -57,8 +57,8 @@ export class ProjectFile {
   transformAndParse() {
     const code = fs.readFileSync(this.absoluteFilePath, 'utf-8');
 
-    let presets = [
-      ["@babel/preset-env", { targets: "last 2 Chrome versions", "modules": debugConfig.resolveImportsToCjs ? "cjs" : false }],
+    let presets = [ // last 2 Chrome versions
+      ["@babel/preset-env", { targets: "> 0.25%, not dead", "modules": debugConfig.resolveImportsToCjs ? "cjs" : false }],
       ['@babel/preset-react'] // { runtime: "automatic", importSource: true }
     ]
     let plugins: Array<ParserPlugin> = ['jsx']

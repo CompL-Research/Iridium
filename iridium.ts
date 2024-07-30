@@ -4,6 +4,8 @@ import assert from 'node:assert/strict'
 import chalk from 'chalk'
 import commandLineUsage from 'command-line-usage'
 import commandLineArgs from 'command-line-args'
+import { Server } from "socket.io";
+
 
 import debugConfig from './configs/debug.ts'
 import { Project } from './classes/Project.ts'
@@ -12,7 +14,6 @@ import { IridiumBuilder } from './classes/builder/IridiumBuilder.ts'
 const VERSION = "0.1a"
 const directories = ['./classes', './configs', './docs'];
 
-
 function main(mainProjectPath, analyzePath) {
 
   // Ensure outputs directory
@@ -20,11 +21,29 @@ function main(mainProjectPath, analyzePath) {
     fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
   }
 
-  fs.mkdirSync(debugConfig.outputsPath);
   debugConfig.iridiumDebugPath = debugConfig.outputsPath + "/Iridium";
+  debugConfig.js3DebugPath = debugConfig.outputsPath + "/JS3";
+  fs.mkdirSync(debugConfig.outputsPath);
   fs.mkdirSync(debugConfig.iridiumDebugPath);
-
+  fs.mkdirSync(debugConfig.js3DebugPath);
+  
   console.warn(`[IRIDIUM STARTING] ${mainProjectPath}`)
+  
+  // Iridium Playground
+  if (debugConfig.enablePlayground) {
+    const port = debugConfig.playgroundPort
+    const io = new Server({ /* options */ });
+    
+    io.on("connection", (socket) => {
+      console.log("[IRIDIUM PLAYGROUND]Connection!!!")
+    });
+
+    io.listen(port);
+    console.log(`[IRIDIUM PLAYGROUND] Listening on port: ${port}`)
+    console.log(io)
+  }
+
+
 
   const project = new Project(mainProjectPath, analyzePath)
   project.processImportsGraph()
@@ -36,6 +55,10 @@ function main(mainProjectPath, analyzePath) {
   project.importsGraph.dumpDOT();
   const builder = new IridiumBuilder(project)
   builder.start()
+
+
+  
+  
 }
 
 const header = `
@@ -153,7 +176,7 @@ const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
   },
   {
     name: 'resolve-imports-cjs',
-    description: 'Resolve imports as using cjs during babel translation.',
+    description: 'Resolve imports in commonJS format during babel translation.',
     alias: 'c',
     type: Boolean,
   },
@@ -162,6 +185,17 @@ const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
     description: 'Print absolute paths for resolved imports (this is cosmetic, Iridium uses absolute addresses for processing)',
     alias: 'i',
     type: Boolean,
+  },
+  {
+    name: 'enable-playground',
+    description: `Enable interactive playground for Iridium (default: ${debugConfig.enablePlayground})`,
+    alias: 'p',
+    type: Boolean,
+  },
+  {
+    name: 'playground-port',
+    description: `The port used by Iridium backend server (Default: ${debugConfig.playgroundPort})`,
+    type: Number,
   },
   {
     name: 'dont-color-root-nodes',
@@ -318,9 +352,18 @@ if (mainOptions.command === 'analyze') {
       debugConfig.printTransformedImports = true
     }
 
+    if ("enable-playground" in analyzeOptions) {
+      debugConfig.enablePlayground = true
+    }
+
+    if ("playground-port" in analyzeOptions) {
+      debugConfig.playgroundPort = analyzeOptions["playground-port"]
+    }
+
     if ("dont-color-root-nodes" in analyzeOptions) {
       debugConfig.dontColorRootNodes = true
     }
+    
   }
 
   main(projectPath, analyzePath)

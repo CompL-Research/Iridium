@@ -1,0 +1,110 @@
+.main {
+  height: 100vh; 
+  display: flex;
+  flex-direction: column;
+  font-family: "JetBrains Mono", monospace;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+.main-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-bar {
+  display: flex;
+  flex-direction: row-reverse;
+  background-color: slategray;
+  padding: 5px 5px 5px 40px;
+}
+
+.top-bar-connection-status {
+  flex: 1;
+  text-align: left;
+  background-color: darkslateblue;
+  color: white;
+  font-size: 15px;
+  border: 1px solid gray;
+  border-radius: 1px;
+  padding: 0px 10px;
+}
+
+.top-bar-ip-address {
+  font-family: "JetBrains Mono", monospace;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+.top-bar-connect-icon {
+  font-size: 5px;
+  padding: 0 10px 0 10px;
+  color: white;
+  background-color: black;
+}
+
+.main-space {
+  flex: 1; 
+  display: flex; 
+  flex-direction: row
+}
+
+.left-bar {
+  width: 40px;
+  background-color: slategray;
+  color: white;
+  display: flex; 
+  flex-direction: column;
+  padding: 0px 0px;
+}
+.left-icon {
+  border-radius: 0px;
+  text-align: center;
+  padding: 10px 0px;
+  transition: 0.3s;
+}
+
+.left-icon:hover  {
+  background-color: slateblue;
+  cursor: pointer;
+}
+
+.left-icon-selected {
+  color: white;
+  background-color: cadetblue;
+}
+
+.left-icon-idle {
+  color: lightgray;
+}
+
+.left-icon-disabled {
+  color: lightgray;
+  background-color: gray;
+}
+
+.left-icon-disabled:hover {
+  color: lightgray;
+  background-color: gray;
+  cursor: not-allowed;
+}
+
+
+
+.right-space {
+  flex: 1;
+  background-color: darkred;
+}
+
+.banner {
+  color: red;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+.generic-button:hover {
+  background-color: cadetblue;
+  cursor: pointer;
+  color: white;
+}
