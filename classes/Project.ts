@@ -161,7 +161,7 @@ export class Project {
       }
     })
 
-    debugConfig.logger.log(`Loaded: ${Object.keys(loadedFiles).length} files (LOC: ${LOC})`)
+    debugConfig.logger.log(`Loaded: ${loadedFiles.size} files (LOC: ${LOC})`)
     debugConfig.logger.error(`Failed to process ${failed.length} imports`, failed)
   }
 }
