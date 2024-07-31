@@ -1,4 +1,5 @@
 .graph-container {
+  display: flex;
   flex: 1;
   background-color: antiquewhite;
   flex-direction: column;
@@ -6,7 +7,7 @@
 
 .graph-svg-container {
   resize: vertical;
-  height: 50%;
+  flex: 1;
 }
 
 .graph-svg-container > svg {
@@ -17,7 +18,7 @@
 }
 
 .node-data {
-  flex: 1;
+  
   margin: 5px;
   resize: both;
   border: 2px solid;

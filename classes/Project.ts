@@ -68,7 +68,7 @@ export class Project {
       } else assert(false)
 
       // Process resolved imports
-      for (const [resolvedNode, [oldPath, resolvedPath]] of file.resolvedModuleImports) {
+      for (const [, [, resolvedPath]] of file.resolvedModuleImports) {
         let i = processNewImport(result, resolvedPath, projectBase)
         if (i) {
           importsGraph.addEdge(file.uname, i.uname)
@@ -78,7 +78,7 @@ export class Project {
       }
 
       // Process require imports
-      for (const [resolvedNode, [oldPath, resolvedPath]] of file.resolvedRequireImports) {
+      for (const [, [, resolvedPath]] of file.resolvedRequireImports) {
         let i = processNewImport(result, resolvedPath, projectBase)
         if (i) {
           importsGraph.addEdge(file.uname, i.uname)
@@ -96,7 +96,7 @@ export class Project {
 
       // Process unresolved nodes
       if (debugConfig.includeLibrariesInComponentGraph) {
-        for (const [unresolvedNode, unresolvedPath] of file.unresolvedModuleImports) {
+        for (const [, unresolvedPath] of file.unresolvedModuleImports) {
           importsGraph.addEdge(file.uname, unresolvedPath)
 
           // Mark edge as red
@@ -113,7 +113,7 @@ export class Project {
           } else assert(false)
         }
 
-        for (const [resolvedNode, unresolvedPath] of file.unresolvedRequireImports) {
+        for (const [, unresolvedPath] of file.unresolvedRequireImports) {
           importsGraph.addEdge(file.uname, unresolvedPath)
   
           // Mark edge as red
@@ -132,10 +132,7 @@ export class Project {
       }
     }
 
-    const newSet: string[] = Object.keys(result)
-    const oldSet: string[] = Object.keys(oldFiles)
-
-    if (newSet.length !== oldSet.length) { // Recurse until all imports have been processed
+    if (result.size !== oldFiles.size) { // Recurse until all imports have been processed
       return this.processImportsGraph()
     }
   }
@@ -164,9 +161,7 @@ export class Project {
       }
     })
 
-    debugConfig.logger.log(`Loaded: ${Object.keys(loadedFiles).length} files`)
-    debugConfig.logger.log(`  └── LOC: ${LOC}`)
-    debugConfig.logger.error(`Failed to process ${failed.length} imports`)
-    debugConfig.logger.error("Failed Files:",failed)
+    debugConfig.logger.log(`Loaded: ${Object.keys(loadedFiles).length} files (LOC: ${LOC})`)
+    debugConfig.logger.error(`Failed to process ${failed.length} imports`, failed)
   }
 }
