@@ -6,9 +6,10 @@ import assert from 'node:assert/strict'
 import fs from 'fs'
 import path from 'path'
 import t, { ImportDeclaration } from '@babel/types'
+import { execSync } from 'child_process';
 
 import debugConfig from '../configs/debug.js'
-
+import { resolveESM } from './util/ESMResolve.cjs'
 const traverse = _traverse["default"];
 const generate = _generate["default"];
 
@@ -17,13 +18,16 @@ export class ProjectFile {
   absoluteFilePath
   projectBasePath
   relativeFilePath
+  analysisPath
   uname
   isRelative
   extension
   resolvedModuleImports = new Map<t.Node, readonly [string, string]>
   unresolvedModuleImports = new Map<t.Node, string>
-  resolvedRequireImports = new Map<t.Node, readonly[string, string]>
+  resolvedRequireImports = new Map<t.Node, readonly [string, string]>
   unresolvedRequireImports = new Map<t.Node, string>
+  ignoredModuleImports = new Map<t.Node, string>
+  ignoredRequireImports = new Map<t.Node, string>
   moduleExportAllDeclarations = new Set<t.Node>
   moduleExportNamedDeclarations = new Set<t.Node>
   moduleExportDefaultDeclarations = new Set<t.Node>
@@ -32,9 +36,10 @@ export class ProjectFile {
   filename
   loc = 0
 
-  constructor(absoluteFilePath, projectBasePath) {
+  constructor(absoluteFilePath, projectBasePath, analysisPath) {
     assert(absoluteFilePath !== null)
     assert(projectBasePath !== null)
+    assert(analysisPath !== null)
     if (absoluteFilePath.startsWith(projectBasePath) === false) {
       debugConfig.logger.error("File path does not start with project base path")
       debugConfig.logger.error("File path: ", absoluteFilePath)
@@ -45,6 +50,7 @@ export class ProjectFile {
     this.absoluteFilePath = absoluteFilePath
     this.projectBasePath = projectBasePath
     this.relativeFilePath = absoluteFilePath.substr(projectBasePath.length + 1)
+    this.analysisPath = analysisPath
     this.uname = this.relativeFilePath.replace(/\//g, '_')
 
     this.isRelative = true
@@ -81,83 +87,137 @@ export class ProjectFile {
       plugins: plugins,
     });
 
+    const nodeLibraries = [
+      'assert', 
+      'buffer', 
+      'child_process', 
+      'cluster', 
+      'console', 
+      'crypto', 
+      'dgram', 
+      'dns', 
+      'events', 
+      'fs', 
+      'http', 
+      'https', 
+      'net', 
+      'os', 
+      'path', 
+      'punycode', 
+      'querystring', 
+      'readline', 
+      'stream', 
+      'string_decoder', 
+      'timers', 
+      'tls', 
+      'tty', 
+      'url', 
+      'util', 
+      'v8', 
+      'vm', 
+      'zlib'
+    ];
+    
 
+    const ignoredImports = [...nodeLibraries, "debug"]
+    const ignoredPatterns = ["@mui", "engine.io-client"]
 
-    const isValidPath = (path) => {
-      try {
-        return fs.statSync(path).isFile()
-      } catch {
-        return false;
+    const isIgnoredPattern = (source: string) => {
+      for (const patt of ignoredPatterns) {
+        if (source.includes(patt)) return true
       }
+      return false
     }
 
-    const resolvePath = (source) => {
-      if (source.startsWith('@/')) {
-        let res = path.resolve(source.replace('@/', `${this.projectBasePath}/`));
-        for (const extension of ['.js', '.jsx', '.ts', '.tsx']) {
-          const resolved = path.resolve(`${res}${extension}`);
-          if (isValidPath(resolved)) {
-            return resolved
-          }
-        }
-      } else if (source.startsWith('.')) {
-        // Extract folder path
-        const folderPath = path.dirname(this.absoluteFilePath);
-        const res = path.resolve(`${folderPath}/${source}`)
-        for (const extension of ['.js', '.jsx', '.ts', '.tsx']) {
-          const resolved = path.resolve(`${res}${extension}`);
-          if (isValidPath(resolved)) {
-            return resolved
-          }
-        }
-      } else {
-        // TODO: handle libraries
-
-        // let res =  path.resolve(this.projectBasePath + "/node_modules/" + source)
-        // if (isValidPath(res)) {
-        //   return res;
-        // } else {
-        //   for(const extension of ['.js', '.jsx', '.ts', '.tsx']) {
-        //     const resolved = path.resolve(`${res}${extension}`);
-        //     if (isValidPath(resolved)) {
-        //       return resolved
-        //     }
-        //   }
-        // }
-      }
-      return null;
-    };
-
     const that = this
+
+    const handleModuleImport = (source) => {
+      let resolved
+      try {
+        try {
+          const command = `node -e "process.stdout.write(require.resolve('${source}', { paths: [ '${path.dirname(that.absoluteFilePath)}' ] }))"`
+          // Execute the command synchronously with the specified working directory
+          const result = execSync(command, {
+            cwd: that.projectBasePath,
+            encoding: 'utf-8', // Get the output as a string
+          });
+
+          if (!debugConfig.includeLibrariesInComponentGraph && result.includes("node_modules")) {
+            resolved = undefined
+          } else {
+            resolved = result
+          }
+
+
+        } catch (error) {
+          // Log any errors or standard error output
+          console.error(`Error executing command: ${error.message}`);
+          if (error.stderr) {
+            console.error(`stderr: ${error.stderr.toString()}`);
+          }
+          process.exit(1);
+        }
+      } catch (e) {
+        return null
+      }
+
+      return resolved
+    }
+
+    // const resolutionPaths = [path.dirname(that.absoluteFilePath), that.analysisPath, that.projectBasePath]
 
     // Translate imports
     traverse(ast, {
       ImportDeclaration({ node }) {
-        let resolved = resolvePath(node.source.value);
+        const importSpecifier = node.source.value
+        const resolved = handleModuleImport(importSpecifier)
+
         if (resolved) {
-          that.resolvedModuleImports.set(node, [node.source.value, resolved])
-          if (debugConfig.printTransformedImports) {
-            node.source.value = resolved
+          if (ignoredImports.includes(importSpecifier) || isIgnoredPattern(importSpecifier)) {
+            debugConfig.logger.warn(`[Ignored import] ${importSpecifier}`)
+            that.ignoredModuleImports.set(node, importSpecifier)
+          } else {
+            debugConfig.logger.log(`[Added to import list] ${importSpecifier} ${isIgnoredPattern(importSpecifier)}`)
+            that.resolvedModuleImports.set(node, [importSpecifier, resolved])
+            if (debugConfig.printTransformedImports) {
+              node.source.value = resolved
+            }
           }
         } else {
-          that.unresolvedModuleImports.set(node, node.source.value)
+          that.unresolvedModuleImports.set(node, importSpecifier)
+          debugConfig.logger.error(`[Failed import] ${importSpecifier}`)
         }
+
       },
       CallExpression({ node }) {
         // Handle require separately
         if (node.callee.name === 'require') {
           if (node.arguments[0] && node.arguments[0].type === 'StringLiteral') {
-            let resolved = resolvePath(node.arguments[0].value);
+
+
+            const importSpecifier = node.arguments[0].value
+            const resolved = handleModuleImport(importSpecifier)
+
             if (resolved) {
-              that.resolvedRequireImports.set(node, [node.arguments[0].value, resolved])
-              if (debugConfig.printTransformedImports) {
-                node.arguments[0].value = resolved
+              if (ignoredImports.includes(importSpecifier) || isIgnoredPattern(importSpecifier)) {
+                debugConfig.logger.warn(`[Ignored import] ${importSpecifier}`)
+                that.ignoredRequireImports.set(node, importSpecifier)
+              } else {
+                debugConfig.logger.log(`[Added to import list] ${importSpecifier} ${isIgnoredPattern(importSpecifier)}`)
+                that.resolvedRequireImports.set(node, [importSpecifier, resolved])
+                if (debugConfig.printTransformedImports) {
+                  node.arguments[0] = resolved
+                }
               }
             } else {
-              that.unresolvedRequireImports.set(node, node.arguments[0].value)
+              that.unresolvedRequireImports.set(node, importSpecifier)
+              debugConfig.logger.error(`[Failed import] ${importSpecifier}`)
             }
+
+
           } else {
             that.unresolvedRequireImports.set(node, "ERR_NOSTR")
+            debugConfig.logger.error(`[Failed import] ERR_NOSTR`)
           }
         }
       },

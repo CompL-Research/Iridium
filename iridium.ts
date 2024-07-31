@@ -6,13 +6,23 @@ import commandLineUsage from 'command-line-usage'
 import commandLineArgs from 'command-line-args'
 import { Server } from "socket.io";
 
-
 import debugConfig from './configs/debug.ts'
 import { Project } from './classes/Project.ts'
 import { IridiumBuilder } from './classes/builder/IridiumBuilder.ts'
 
-const VERSION = "0.1a"
+const VERSION = "0.2a"
 const directories = ['./classes', './configs', './docs'];
+
+const header = `
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+░        ░░       ░░░        ░░       ░░░        ░░  ░░░░  ░░  ░░░░  ░
+▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒   ▒▒   ▒
+▓▓▓▓  ▓▓▓▓▓       ▓▓▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓        ▓
+████  █████  ███  ██████  █████  ████  █████  █████  ████  ██  █  █  █
+█        ██  ████  ██        ██       ███        ███      ███  ████  █
+██████████████████████████████████████████████████████████████████████
+Iridium Version: ${chalk.red(VERSION)}
+`
 
 function main(mainProjectPath, analyzePath) {
 
@@ -27,11 +37,9 @@ function main(mainProjectPath, analyzePath) {
   fs.mkdirSync(debugConfig.iridiumDebugPath);
   fs.mkdirSync(debugConfig.js3DebugPath);
 
-  console.warn(`[IRIDIUM STARTING] ${mainProjectPath}`)
+  debugConfig.logger.log(`[IRIDIUM STARTING] ${mainProjectPath}`)
   const project = new Project(mainProjectPath, analyzePath)
-  project.processImportsGraph()
-  project.importsGraph.generateRootNodes()
-
+  debugConfig.logger.log(`[IRIDIUM Project Created]`)
   // Iridium Playground
   if (debugConfig.enablePlayground) {
     const port = debugConfig.playgroundPort
@@ -42,18 +50,17 @@ function main(mainProjectPath, analyzePath) {
     const clientList = { }
 
     io.on("connection", (socket) => {
-      console.log(`[IRIDIUM PLAYGROUND] Connected to a remote client ${socket.id}`)
+      debugConfig.logger.log(`[IRIDIUM PLAYGROUND] Connected to a remote client ${socket.id}`)
       clientList[socket.id] = true
 
       socket.on('disconnect', function () {
         clientList[socket.id] = false
         let activeClients = Object.values(clientList).filter(e => e == true).length
         
-        console.log(`[IRIDIUM PLAYGROUND] Client disconnected ${socket.id} [${activeClients} active]`)
+        debugConfig.logger.log(`[IRIDIUM PLAYGROUND] Client disconnected ${socket.id} [${activeClients} active]`)
       });
 
       socket.on("get-log-data", (dataLen) => {
-        console.log("Datalen: ", dataLen)
         if (dataLen === debugConfig.logger.logData.length) {
           console.log(`[IRIDIUM PLAYGROUND] Latest logdata on ${socket.id}`)
         } else {
@@ -63,27 +70,39 @@ function main(mainProjectPath, analyzePath) {
       });
 
       socket.on("get-imports-graph", (dataLen) => {
-        const res = project.importsGraph.getDOT()
-        console.log("Sending imports graph", res)
-        socket.emit("imports-graph-delivery", res)
+        if (project.importsGraphProcessed) {
+          const res = project.importsGraph.getDOT()
+          socket.emit("imports-graph-delivery", res)
+        } else {
+          debugConfig.logger.warn("Imports graph is not yet ready!")
+        }
       });
       
     });
 
-
-
     io.listen(port);
-    console.log(`[IRIDIUM PLAYGROUND] Listening on port: ${port}`)
+    debugConfig.logger.log(`[IRIDIUM PLAYGROUND] Listening on port: ${port}`)
   }
+  
+  debugConfig.logger.log("[Starting to process imports graph]")
+  project.processImportsGraph()
+  project.importsGraphProcessed = true
 
+  debugConfig.logger.log("[Processing imports graph completed]")
 
-
+  project.importsGraph.generateRootNodes()
   
   project.printStats()
+
   if (debugConfig.dontColorRootNodes === false) {
     project.importsGraph.colorRootNodes()
   }
   project.importsGraph.dumpDOT();
+
+  
+
+  
+
   const builder = new IridiumBuilder(project)
   builder.start()
 
@@ -92,16 +111,7 @@ function main(mainProjectPath, analyzePath) {
 
 }
 
-const header = `
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-░        ░░       ░░░        ░░       ░░░        ░░  ░░░░  ░░  ░░░░  ░
-▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒   ▒▒   ▒
-▓▓▓▓  ▓▓▓▓▓       ▓▓▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓        ▓
-████  █████  ███  ██████  █████  ████  █████  █████  ████  ██  █  █  █
-█        ██  ████  ██        ██       ███        ███      ███  ████  █
-██████████████████████████████████████████████████████████████████████
-Iridium Version: ${chalk.red(VERSION)}
-`
+
 
 function getAllFiles(dirPath, arrayOfFiles) {
   const files = fs.readdirSync(dirPath);
@@ -151,9 +161,9 @@ function analyzeFiles(filePaths) {
     });
   });
 
-  console.log(`Total Files  : ${totalFiles}`);
-  console.log(`LOC          : ${totalLinesOfCode}`);
-  console.log(`Extensions   : ${Array.from(extensions).join(', ')}`);
+  debugConfig.logger.log(`Total Files  : ${totalFiles}`);
+  debugConfig.logger.log(`LOC          : ${totalLinesOfCode}`);
+  debugConfig.logger.log(`Extensions   : ${Array.from(extensions).join(', ')}`);
 }
 
 

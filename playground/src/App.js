@@ -86,7 +86,7 @@ function MainContainer() {
     }, 250)
   }
 
-  const enablePlayground = mainSocket && mainSocket.connected && isConnected
+  const enablePlayground = isConnected
 
   return (
     <React.Fragment>

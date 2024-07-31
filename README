@@ -7,20 +7,22 @@
 ████  █████  ███  ██████  █████  ████  █████  █████  ████  ██  █  █  █
 █        ██  ████  ██        ██       ███        ███      ███  ████  █
 ██████████████████████████████████████████████████████████████████████
-Iridium Version: 0.1a
+Iridium Version: 0.2a
 
 
 About
 
   This project provides infrastructure to allow static analysis of react based  
   applications.                                                                 
-  $ node iridium.js <command> [OPTIONS]                                         
-  $ node iridium.js help                                                        
-  $ node iridium.js analyze help                                                
+  $ ./iridium <command> [OPTIONS]                                               
+  $ ./iridium help                                                              
+  $ ./iridium analyze help                                                      
 
 Command List
 
   help      Display help information about iridium. 
   analyze   Run static analysis over a project.     
+  sanity    Run sanity tests.                       
+  stats     Codespace stats.                        
   version   Print the version.                      
 

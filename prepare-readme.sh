@@ -1,1 +1,1 @@
-node iridium.js help > README
+./iridium help > README
