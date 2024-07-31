@@ -36,9 +36,9 @@ export class ProjectFile {
     assert(absoluteFilePath !== null)
     assert(projectBasePath !== null)
     if (absoluteFilePath.startsWith(projectBasePath) === false) {
-      console.error("File path does not start with project base path")
-      console.error("File path: ", absoluteFilePath)
-      console.error("Base path: ", projectBasePath)
+      debugConfig.logger.error("File path does not start with project base path")
+      debugConfig.logger.error("File path: ", absoluteFilePath)
+      debugConfig.logger.error("Base path: ", projectBasePath)
     }
     assert(absoluteFilePath.startsWith(projectBasePath) === true)
 
@@ -187,7 +187,7 @@ export class ProjectFile {
     // DEBUG
     fs.writeFile(debugConfig.outputsPath + "/" + this.uname, output.code, 'utf8', (err) => {
       if (err) {
-        console.error('Error writing to file', err);
+        debugConfig.logger.error('Error writing to file', [err]);
       }
     });
   }

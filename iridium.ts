@@ -26,28 +26,59 @@ function main(mainProjectPath, analyzePath) {
   fs.mkdirSync(debugConfig.outputsPath);
   fs.mkdirSync(debugConfig.iridiumDebugPath);
   fs.mkdirSync(debugConfig.js3DebugPath);
-  
+
   console.warn(`[IRIDIUM STARTING] ${mainProjectPath}`)
-  
+  const project = new Project(mainProjectPath, analyzePath)
+  project.processImportsGraph()
+  project.importsGraph.generateRootNodes()
+
   // Iridium Playground
   if (debugConfig.enablePlayground) {
     const port = debugConfig.playgroundPort
-    const io = new Server({ /* options */ });
-    
-    io.on("connection", (socket) => {
-      console.log("[IRIDIUM PLAYGROUND]Connection!!!")
+    const io = new Server({
+      connectionStateRecovery: {}
     });
+
+    const clientList = { }
+
+    io.on("connection", (socket) => {
+      console.log(`[IRIDIUM PLAYGROUND] Connected to a remote client ${socket.id}`)
+      clientList[socket.id] = true
+
+      socket.on('disconnect', function () {
+        clientList[socket.id] = false
+        let activeClients = Object.values(clientList).filter(e => e == true).length
+        
+        console.log(`[IRIDIUM PLAYGROUND] Client disconnected ${socket.id} [${activeClients} active]`)
+      });
+
+      socket.on("get-log-data", (dataLen) => {
+        console.log("Datalen: ", dataLen)
+        if (dataLen === debugConfig.logger.logData.length) {
+          console.log(`[IRIDIUM PLAYGROUND] Latest logdata on ${socket.id}`)
+        } else {
+          console.log(`[IRIDIUM PLAYGROUND] Sending logdata ==> ${socket.id}`)
+          socket.emit("log-data-delivery", debugConfig.logger.logData)
+        }
+      });
+
+      socket.on("get-imports-graph", (dataLen) => {
+        const res = project.importsGraph.getDOT()
+        console.log("Sending imports graph", res)
+        socket.emit("imports-graph-delivery", res)
+      });
+      
+    });
+
+
 
     io.listen(port);
     console.log(`[IRIDIUM PLAYGROUND] Listening on port: ${port}`)
-    console.log(io)
   }
 
 
 
-  const project = new Project(mainProjectPath, analyzePath)
-  project.processImportsGraph()
-  project.importsGraph.generateRootNodes()
+  
   project.printStats()
   if (debugConfig.dontColorRootNodes === false) {
     project.importsGraph.colorRootNodes()
@@ -57,8 +88,8 @@ function main(mainProjectPath, analyzePath) {
   builder.start()
 
 
-  
-  
+
+
 }
 
 const header = `
@@ -363,7 +394,7 @@ if (mainOptions.command === 'analyze') {
     if ("dont-color-root-nodes" in analyzeOptions) {
       debugConfig.dontColorRootNodes = true
     }
-    
+
   }
 
   main(projectPath, analyzePath)

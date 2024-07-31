@@ -1,0 +1,27 @@
+.graph-container {
+  flex: 1;
+  background-color: antiquewhite;
+  flex-direction: column;
+}
+
+.graph-svg-container {
+  resize: vertical;
+  height: 50%;
+}
+
+.graph-svg-container > svg {
+  max-width: 100%;
+  height: 99%;
+  background-color: white;
+  
+}
+
+.node-data {
+  flex: 1;
+  margin: 5px;
+  resize: both;
+  border: 2px solid;
+  padding: 20px; 
+  resize: vertical;
+  overflow: auto;
+}

@@ -95,6 +95,8 @@
 .right-space {
   flex: 1;
   background-color: darkred;
+  display: flex;
+  flex-direction: column;
 }
 
 .banner {

@@ -1,3 +1,5 @@
+import Logger from "../classes/debugger/Logger";
+
 const config : {
   js3DebugPath: string,
   iridiumDebugPath: string,
@@ -8,7 +10,8 @@ const config : {
   printTransformedImports: boolean,
   dontColorRootNodes: boolean,
   enablePlayground: boolean,
-  playgroundPort: number
+  playgroundPort: number,
+  logger: Logger
 } = {
   js3DebugPath: "",
   iridiumDebugPath: "",
@@ -19,7 +22,8 @@ const config : {
   printTransformedImports: false,
   dontColorRootNodes: false,
   enablePlayground: false,
-  playgroundPort: 4000
+  playgroundPort: 4000,
+  logger: new Logger()
 }
 
 export default config;

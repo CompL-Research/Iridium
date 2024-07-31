@@ -3,6 +3,8 @@ import * as React from 'react';
 import { io } from 'socket.io-client';
 
 import './App.css'
+import Logs from './pages/Logs';
+import ImportsGraph from './pages/ImportsGraph';
 
 const banner = `
  
@@ -34,6 +36,8 @@ Author: mee, meeteshmehta@cse.iitb.ac.in
 function MainContainer() {
   const [mainSocket, setMainSocket] = React.useState(null)
   const [isConnected, setIsConnected] = React.useState(false);
+
+  const [selectedTab, setSelectedTab] = React.useState(2);
 
   const [url, setUrl] = React.useState("")
   const [message, setMessage] = React.useState("Waiting to connect...")
@@ -82,6 +86,8 @@ function MainContainer() {
     }, 250)
   }
 
+  const enablePlayground = mainSocket && mainSocket.connected && isConnected
+
   return (
     <React.Fragment>
       <div className='main'>
@@ -103,16 +109,36 @@ function MainContainer() {
           </div>
           <div className='main-space'>
             <div className='left-bar'>
-              <div title="Project" className='left-icon left-icon-disabled'><i className="material-icons">folder_open</i></div>
-              <div title="Imports Graph" className='left-icon left-icon-disabled'><i className="material-symbols-outlined">tenancy</i></div>
-              <div title="Logs" className='left-icon left-icon-disabled'><i className="material-icons">list</i></div>
+              <div 
+                title="Project" 
+                onClick={() => setSelectedTab(0)}
+                className={`left-icon ${enablePlayground ? selectedTab === 0 ? "left-icon-selected" : "left-icon-idle" : "left-icon-disabled"}`}>
+                <i className="material-icons">folder_open</i>
+              </div>
+              <div 
+                title="Imports Graph" 
+                onClick={() => setSelectedTab(1)}
+                className={`left-icon ${enablePlayground ? selectedTab === 1 ? "left-icon-selected" : "left-icon-idle" : "left-icon-disabled"}`}>
+                <i className="material-symbols-outlined">tenancy</i>
+              </div>
+              <div 
+                title="Logs" 
+                onClick={() => setSelectedTab(2)}
+                className={`left-icon ${enablePlayground ? selectedTab === 2 ? "left-icon-selected" : "left-icon-idle" : "left-icon-disabled"}`}>
+                <i className="material-icons">list</i>
+              </div>
             </div>
             <div className='right-space'>
               {
-                mainSocket && mainSocket.connected ?
-                  <div>
-                    Connected...
-                  </div> :
+                enablePlayground ?
+                  <>
+                    {
+                      selectedTab === 1 && <ImportsGraph socket={mainSocket} />
+                    }
+                    {
+                      selectedTab === 2 && <Logs socket={mainSocket} />
+                    }
+                  </> :
                   <div className="banner">
                     {
                       banner.split("\n").map((i, key) => {

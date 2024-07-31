@@ -12,6 +12,13 @@ export class NodeProp {
   fillcolor: string = "white"
   sourceFile: ProjectFile | null = null
 
+  getString(node: string, space = 0) {
+    let res = ""
+    for (let i = 0; i < space; i++) res += (" ");
+    res += (`"${node}"[shape="${this.shape}", fillcolor="${this.fillcolor}", style="${this.style}"];\n`)
+    return res
+  }
+
   dumpToStream(stream: fs.WriteStream, node: string, space = 0) {
     for (let i = 0; i < space; i++) stream.write(" ");
     stream.write(`"${node}"[shape="${this.shape}", fillcolor="${this.fillcolor}", style="${this.style}"];\n`)
@@ -22,6 +29,13 @@ export class EdgeProp {
   style: string = "solid"
   color: string = "black"
   label: string = ""
+
+  getString(n: string, m: string, space = 0) {
+    let res = ""
+    for (let i = 0; i < space; i++) res += (" ");
+    res += (`"${n}" -> "${m}" [label="${this.label}", style="${this.style}", color="${this.color}"];\n`)
+    return res
+  }
 
   dumpToStream(stream: fs.WriteStream, n: string, m: string, space = 0) {
     for (let i = 0; i < space; i++) stream.write(" ");
@@ -103,7 +117,34 @@ export class ImportsGraph {
   }
 
   dump() {
-    console.log(this.#edges)
+    debugConfig.logger.log("ImportsGraph Dump", [this.#edges])
+  }
+
+  getDOT() {
+    const that = this
+    let res = ""
+
+    res += ("digraph {\n")
+    res += ("  beautify=true;\n")
+
+    this.#nodes.forEach((n) => {
+      const nProp = that.getNodeProp(n)
+      if (nProp) res += nProp.getString(n, 2)
+      else assert(false)
+    })
+
+
+    for (const [n, adjSet] of this.#edges) {
+      adjSet.forEach(m => {
+        const eProp = that.getEdgeProp(n, m)
+        if (eProp) res += eProp.getString(n, m, 2)
+        else assert(false)
+      })
+    }
+
+    res += ("}")
+
+    return res
   }
 
   dumpDOT() {

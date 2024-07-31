@@ -164,9 +164,9 @@ export class Project {
       }
     })
 
-    console.warn(`Loaded: ${Object.keys(loadedFiles).length} files`)
-    console.warn(`  └── LOC: ${LOC}`)
-    console.log(failed)
-    console.warn(`Failed to process ${failed.length} imports`)
+    debugConfig.logger.log(`Loaded: ${Object.keys(loadedFiles).length} files`)
+    debugConfig.logger.log(`  └── LOC: ${LOC}`)
+    debugConfig.logger.error(`Failed to process ${failed.length} imports`)
+    debugConfig.logger.error("Failed Files:",failed)
   }
 }

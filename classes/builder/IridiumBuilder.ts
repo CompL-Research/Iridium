@@ -8,6 +8,8 @@ import { declareTypeAlias, isArrayPattern, isFunctionDeclaration, isIdentifier, 
 import { NoInitVariableDeclaration } from './JS3Instructions'
 const traverse = _traverse["default"];
 
+import debugConfig from '../../configs/debug'
+
 export class IridiumBuilder {
   project: Project
   moduleMap: Map<string, JS3Module>
@@ -26,7 +28,7 @@ export class IridiumBuilder {
         if (importsGraphProp.sourceFile) {
           that.handleProjectFile(importsGraphProp.sourceFile)
         } else {
-          console.error(`Project File not found for "${f}"`)
+          debugConfig.logger.error(`Project File not found for "${f}"`)
         }
       } else assert(false)
     })
@@ -35,7 +37,7 @@ export class IridiumBuilder {
 
 
   handleProjectFile(file: ProjectFile) {
-    console.warn(`[Generating Iridium Module] ${file.relativeFilePath}`)
+    debugConfig.logger.log(`[Generating Iridium Module] ${file.relativeFilePath}`)
     const parseResult = file.parseResult
     const module = new JS3Module(file)
 
@@ -45,7 +47,7 @@ export class IridiumBuilder {
     assert(parseResult !== undefined)
 
     const program = parseResult.program
-    // console.log(program)
+    // debugConfig.logger.log(program)
     if (isProgram(program)) {
       program.body.forEach(node => {
         if (isImportDeclaration(node)) {
@@ -91,7 +93,7 @@ export class IridiumBuilder {
     // }
 
     else {
-      console.error("// TODO: VariableDeclarator with init")
+      debugConfig.logger.error("// TODO: VariableDeclarator with init", [node])
     }
   }
 

@@ -1,0 +1,42 @@
+.logs-container {
+  background-color: black;
+  flex: 1; 
+  padding: 10px 0px 0px 10px;
+  color: wheat;
+  /* border: 2px solid blue; */
+}
+
+.react-json-view {
+  /* padding: 25px 10px; */
+  margin: 10px;
+  font-family: 'JetBrains Mono';
+  font-size: small;
+  margin-left: 25px;
+}
+
+.log-item {
+  font-family: 'JetBrains Mono';
+  font-size: large;
+  /* padding: 5px; */
+  padding-bottom: 5px;
+  /* background-color: black; */
+  /* margin-left: 10px;
+  padding-left: 5px; */
+  /* border-bottom: 1px solid gray; */
+}
+
+
+.log-item-error {
+  color: red;
+  /* border-left: 5px solid red; */
+}
+
+.log-item-warn {
+  color: yellow;
+  /* border-left: 5px solid yellow; */
+}
+
+.log-item-general {
+  color: greenyellow;
+  /* border-left: 5px solid greenyellow; */
+}
