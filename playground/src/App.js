@@ -133,7 +133,7 @@ function MainContainer() {
                 enablePlayground ?
                   <>
                     {
-                      selectedTab === 1 && <ImportsGraph socket={mainSocket} />
+                      selectedTab === 1 && <ImportsGraph flashMessage={flashMessage} socket={mainSocket} />
                     }
                     {
                       selectedTab === 2 && <Logs flashMessage={flashMessage} socket={mainSocket} />

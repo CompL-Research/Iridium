@@ -12,7 +12,8 @@ const config : {
   enablePlayground: boolean,
   playgroundPort: number,
   logger: Logger,
-  enableParallelizedImportsGraphCreation: boolean 
+  enableParallelizedImportsGraphCreation: boolean,
+  versionNumber: string
 } = {
   js3DebugPath: "",
   iridiumDebugPath: "",
@@ -25,7 +26,8 @@ const config : {
   enablePlayground: false,
   playgroundPort: 4000,
   logger: new Logger(),
-  enableParallelizedImportsGraphCreation: false
+  enableParallelizedImportsGraphCreation: false,
+  versionNumber: ""
 }
 
 export default config;

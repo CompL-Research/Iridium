@@ -1,5 +1,5 @@
-import { parentPort, workerData } from 'worker_threads';
 import { Server } from "socket.io";
+import { parentPort, workerData } from 'worker_threads';
 
 // 
 // Spawing the playground process in a separate thread

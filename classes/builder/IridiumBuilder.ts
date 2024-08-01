@@ -1,14 +1,12 @@
+import _traverse from "@babel/traverse"
+import assert from 'node:assert/strict'
 import { Project } from '../Project'
 import { ProjectFile } from '../ProjectFile'
 import { JS3Module } from './JS3Module'
-import assert from 'node:assert/strict'
-import * as js3 from './JS3Instructions'
-import _traverse from "@babel/traverse"
-import { declareTypeAlias, isArrayPattern, isFunctionDeclaration, isIdentifier, isImportDeclaration, isImportDefaultSpecifier, isImportNamespaceSpecifier, isImportSpecifier, isModuleSpecifier, isProgram, isStringLiteral, isVariableDeclaration, Node, variableDeclaration, VariableDeclarator } from '@babel/types'
-import { NoInitVariableDeclaration } from './JS3Instructions'
 const traverse = _traverse["default"];
 
-import debugConfig from '../../configs/debug'
+import debugConfig from "#debugConfig"
+import JS3Builder from './JS3Builder'
 
 export class IridiumBuilder {
   project: Project
@@ -37,109 +35,12 @@ export class IridiumBuilder {
 
 
   handleProjectFile(file: ProjectFile) {
-    debugConfig.logger.log(`[Generating Iridium Module] ${file.relativeFilePath}`)
-    const parseResult = file.parseResult
-    const module = new JS3Module(file)
+    
+    // Generate JS3 Module
+    debugConfig.logger.log(`[Generating JS3 Module] ${file.relativeFilePath}`)
+    const js3Builder = new JS3Builder(file);
 
-    // Generate Import Statements
-    module.addStatement(new js3.Comment("Module Imports"))
-
-    assert(parseResult !== undefined)
-
-    const program = parseResult.program
-    // debugConfig.logger.log(program)
-    if (isProgram(program)) {
-      program.body.forEach(node => {
-        if (isImportDeclaration(node)) {
-          const iDeclStmt = node
-          const from = iDeclStmt.source.value
-          const specifiers = iDeclStmt.specifiers
-          const isResolved = file.resolvedModuleImports.has(node)
-
-          specifiers.forEach((s) => {
-            this.handleImportSpecifier(node, from, isResolved, s, module)
-          })
-        }
-        
-        else if (isVariableDeclaration(node)) {
-          const varDecl = node
-          const declarators = varDecl.declarations
-
-          declarators.forEach((d) => {
-            this.handleVariableDeclarator(node, varDecl.kind, d, module)
-          })
-        }
-
-      });
-    }
-
-    module.dumpIR()
+    js3Builder.start()
   }
-
-  handleVariableDeclarator(node: Node, kind: string, declarator: VariableDeclarator, module: JS3Module) {
-    const id = declarator.id
-    const init = declarator.init
-
-    // "ArrayPattern" | "AssignmentPattern" | "Identifier" | "MemberExpression" | "ObjectPattern" | "RestElement" | "TSAsExpression" | "TSNonNullExpression" | "TSParameterProperty" | "TSSatisfiesExpression" | "TSTypeAssertion"
-
-    // Case 1: let a, var b
-    if (isIdentifier(id) && !init) {
-      const noInitVarDecl = new NoInitVariableDeclaration(kind, id.name)
-      module.addStatement(noInitVarDecl)
-    }
-    // // Case 2: let [a, b, c] = ...
-    // else if (isArrayPattern(id)) {
-      
-    // }
-
-    else {
-      debugConfig.logger.error("// TODO: VariableDeclarator with init", [node])
-    }
-  }
-
-  handleImportSpecifier(node: Node, from: string, isResolved: boolean, specifier: Node, module: JS3Module) {
-    if (isImportDefaultSpecifier(specifier)) {
-      assert(specifier.local.type === "Identifier");
-
-      const irS = new js3.ImportDefaultStmt(from, specifier.local.name, isResolved);
-
-      irS.node = node
-      irS.loc = node.loc
-
-      module.addStatement(irS)
-    } else if (isImportNamespaceSpecifier(specifier)) {
-      assert(specifier.local.type === "Identifier");
-
-      const irS = new js3.ImportDefaultStmt(from, specifier.local.name, isResolved);
-
-      irS.node = node
-      irS.loc = node.loc
-
-      module.addStatement(irS)
-    } else if (isImportSpecifier(specifier)) {
-      const imported = specifier.imported
-      const localName = specifier.local.name
-
-      let importedName: string;
-      if (isStringLiteral(imported)) {
-        importedName = imported.value
-      } else if (isIdentifier(imported)) {
-        importedName = imported.name
-      } else assert(false)
-
-      let irS: js3.JS3Stmt
-
-      if (localName === importedName) {
-        irS = new js3.ImportSameNameStmt(from, importedName, isResolved);
-      } else {
-        irS = new js3.ImportRenamedStmt(from, importedName, localName, isResolved);
-      }
-
-      irS.node = node
-      irS.loc = node.loc
-
-      module.addStatement(irS)
-    } else assert(false)
-  }
-
+  
 }

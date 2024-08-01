@@ -8,8 +8,8 @@ export default function Logs({ socket, flashMessage }) {
   // const [graphData, setGraphData] = useState("")
   const containerRef = useRef(null);
 
-  const graphDataDelivery = (data) => {
-    console.log(data)
+  function graphDataDelivery(data) {
+    flashMessage("Got imports graph data...")
     graphviz(containerRef.current)
       .renderDot(data)
       .on("end", function () {
@@ -23,12 +23,13 @@ export default function Logs({ socket, flashMessage }) {
       });
   }
 
-  const graphWaiting = () => {
+  function graphWaiting() {
     flashMessage("Imports graph is not yet ready...")
   }
 
 
   useEffect(() => {
+    flashMessage("Requesting Imports Graph...")
     socket.on("imports-graph-not-ready", graphWaiting)
     socket.on("imports-graph-delivery", graphDataDelivery)
 

@@ -1,30 +1,34 @@
 import { useEffect, useState } from "react";
 import ReactJson from '@microlink/react-json-view'
 import './Logs.css'
-export default function Logs({ socket, }) {
+export default function Logs({ socket, flashMessage }) {
 
   const [logs, setLogs] = useState([])
+  console.log("Render")
 
-  const logDataDelivery = (data) => {
-    if (data) {
-      setLogs(data)
-    }
-  }
-
-  const requestDelivery = () => {
-    socket.emit("get-log-data", logs.length)
-  }
-
+  
+  
   useEffect(() => {
+    const logDataDelivery = (data) =>  {
+      if (data) {
+        flashMessage("New logs...", data)
+        setLogs(data)
+      }
+    }
+    const requestDelivery = () => {
+      socket.emit("get-log-data", logs.length)
+    }
     socket.on("log-data-delivery", logDataDelivery)
 
-    const requestLogs = setInterval(requestDelivery, 1000);
+    requestDelivery()
+
+    const requestLogs = setInterval(requestDelivery, 2000);
 
     return () => {
       socket.off('log-data-delivery', logDataDelivery);
       clearInterval(requestLogs);
     };
-  }, [socket])
+  }, [socket, logs])
 
   return <div className="logs-container">
     {

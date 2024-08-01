@@ -6,12 +6,14 @@ import commandLineUsage from 'command-line-usage'
 import commandLineArgs from 'command-line-args'
 import { Server } from "socket.io";
 
-import debugConfig from './configs/debug.ts'
+import debugConfig from "#debugConfig"
 import { Project } from './classes/Project.ts'
 import { IridiumBuilder } from './classes/builder/IridiumBuilder.ts'
 
 const VERSION = "0.2a"
 const directories = ['./classes', './configs', './docs'];
+
+debugConfig.versionNumber = `Iridium ${VERSION}`
 
 const header = `
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -63,8 +65,9 @@ async function main(mainProjectPath, analyzePath) {
       socket.on("get-log-data", (dataLen) => {
         if (dataLen === debugConfig.logger.logData.length) {
           console.log(`[IRIDIUM PLAYGROUND] Latest logdata on ${socket.id}`)
+          socket.emit("log-data-delivery", null)
         } else {
-          console.log(`[IRIDIUM PLAYGROUND] Sending logdata ==> ${socket.id}`)
+          console.log(`[IRIDIUM PLAYGROUND] Sending logdata ==> ${socket.id} | datalength: ${dataLen}`)
           socket.emit("log-data-delivery", debugConfig.logger.logData)
         }
       });

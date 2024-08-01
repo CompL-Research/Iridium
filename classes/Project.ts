@@ -1,13 +1,12 @@
 import fs from 'fs'
-import path from 'path'
 import assert from 'node:assert/strict'
-import t from "@babel/types"
+import path from 'path'
 
-import { EdgeProp, ImportsGraph, NodeProp } from './ImportsGraph.js'
+import debugConfig from "#debugConfig"
+import { ImportsGraph } from './ImportsGraph.js'
 import { ProjectFile } from './ProjectFile.js'
-import debugConfig from '../configs/debug.js'
 
-import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
+import { Worker } from 'worker_threads'
 
 
 type Files = Map<string, ProjectFile>
@@ -27,16 +26,21 @@ export class Project {
   }
 
   #handleFileImport = (results: Files, file: string, projectBase: string): ProjectFile | undefined => {
-    const ext = file.split('.').pop();
+    const ext = path.extname(file)
     if (typeof ext === "string") { // This is more or less redundant, but the typesystem cant determine that this is not required
-      if (['js', 'jsx', 'ts', 'tsx'].includes(ext)) {
+      if (['.js', '.jsx', '.ts', '.tsx'].includes(ext)) {
         if (!results.has(file)) {
           try {
-            const pf = new ProjectFile(file, projectBase, this.analyzePath)
-            if (!pf) {
-              debugConfig.logger.error("[Invalid Project File]", pf)
+            try {
+              const pf = new ProjectFile(file, projectBase, this.analyzePath)
+              pf.transformAndParse()
+              if (!pf) {
+                debugConfig.logger.error("[Invalid Project File]", pf)
+              }
+              results.set(file, pf)
+            } catch(e) {
+              debugConfig.logger.error(`Failed to load file ${file}`, e)
             }
-            results.set(file, pf)
           } catch (e) {
             return undefined
           }

@@ -1,9 +1,8 @@
-import shell from 'shelljs'
 import fs from 'fs'
+import shell from 'shelljs'
 
-import debugConfig from '../configs/debug.js'
+import debugConfig from "#debugConfig"
 import assert from 'node:assert/strict'
-import t from "@babel/types"
 import { ProjectFile } from './ProjectFile.js'
 
 export class NodeProp {

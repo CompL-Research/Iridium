@@ -1,15 +1,14 @@
 import * as babel from '@babel/core'
+import _generate from "@babel/generator"
 import parser, { ParserPlugin } from '@babel/parser'
 import _traverse from "@babel/traverse"
-import _generate from "@babel/generator"
-import assert from 'node:assert/strict'
+import t from '@babel/types'
+import { execSync } from 'child_process'
 import fs from 'fs'
+import assert from 'node:assert/strict'
 import path from 'path'
-import t, { ImportDeclaration } from '@babel/types'
-import { execSync } from 'child_process';
 
-import debugConfig from '../configs/debug.js'
-import { resolveESM } from './util/ESMResolve.cjs'
+import debugConfig from "#debugConfig"
 const traverse = _traverse["default"];
 const generate = _generate["default"];
 
@@ -54,8 +53,6 @@ export class ProjectFile {
     this.isRelative = true
     this.extension = absoluteFilePath.split('.').pop()
     this.filename = absoluteFilePath.replace(/^.*[\\/]/, '')
-
-    this.transformAndParse()
   }
 
   transformAndParse() {

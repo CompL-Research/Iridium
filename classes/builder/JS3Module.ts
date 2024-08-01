@@ -1,19 +1,21 @@
 // import assert from 'node:assert/strict'
-import t from "@babel/types"
+import debugConfig from "#debugConfig"
+import fs from "fs"
 import { ProjectFile } from "../ProjectFile"
 import * as js3 from "./JS3Instructions"
-import assert from "node:assert"
-import { writeFileSync } from "node:fs"
-import fs from "fs"
-import debugConfig from "../../configs/debug"
 
 export class JS3Module {
   code: Array<js3.JS3Stmt>
   projectFile: ProjectFile
+  #varIncrement : number = 0
 
   constructor(file: ProjectFile) {
     this.code = new Array<js3.JS3Stmt>()
     this.projectFile = file
+  }
+
+  getNewLocal() {
+    return `iriLoc_${++this.#varIncrement}`
   }
 
   addStatement(stmt: js3.JS3Stmt) {
