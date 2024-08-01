@@ -94,9 +94,9 @@ export class Project {
       debugConfig.logger.log(`[Parallelizing imports graph file load] Loaded all filepaths: ${setOfResolvedPaths.size} files`);
       const startTime = process.hrtime();
 
-      const workerPromises : Array<Promise<void>> = new Array<Promise<void>>();
+      const workerPromises: Array<Promise<void>> = new Array<Promise<void>>();
       const workerPath = '/home/meetesh/wd/Iridium/classes/worker/workerScript.js'; // Path to the worker file
-      
+
 
       for (const resolvedPath of setOfResolvedPaths) {
         workerPromises.push(new Promise<void>((resolve, reject) => {
@@ -136,21 +136,43 @@ export class Project {
 
     // Resume old code
 
+    const isLibraryImport = (source: string) => {
+      return source.includes("node_modules")
+    }
+
+    const uselessImports = [".css"]
+    const isUselessImport = (source: string) => {
+      const ext = path.extname(source)
+      if (uselessImports.includes(ext)) return true
+      return false
+    }
+
     for (const [, file] of oldFiles) {
       // debugConfig.logger.log(`[Processing file] ${file.absoluteFilePath}`)
       importsGraph.addNode(file.uname)
+
       // Add a node mapping in the imports graph
       const importsGraphProp = importsGraph.getNodeProp(file.uname)
       if (importsGraphProp) {
         importsGraphProp.sourceFile = file
       } else assert(false)
 
-      // Process resolved imports
-      for (const [, [, resolvedPath]] of file.resolvedModuleImports) {
-        // debugConfig.logger.log(`[Processing import] ${resolvedPath}`)
+      // Process imports
+      for (const [, [specifier, resolvedPath]] of file.resolvedModuleImports) {
+        // Ignore library imports for now
+        if (isLibraryImport(resolvedPath) || isUselessImport(resolvedPath)) {
+          importsGraph.addEdge(file.uname, specifier)
+          const nProp = importsGraph.getNodeProp(specifier)
+          if (nProp) {
+            nProp.fillcolor = "yellow"
+            nProp.style = "rounded,filled"
+          } else assert(false)
+          continue;
+        }
+
+        // Resolve import path
         let i = processNewImport(result, resolvedPath, projectBase)
         if (i) {
-          // debugConfig.logger.log(`[Completed import] ${resolvedPath}`)
           importsGraph.addEdge(file.uname, i.uname)
         } else {
           debugConfig.logger.error(`Failed to process import "${resolvedPath}" included in file "${file.uname}"`)
@@ -158,45 +180,52 @@ export class Project {
         }
       }
 
-      // Process require imports
-      for (const [, [, resolvedPath]] of file.resolvedRequireImports) {
-        // debugConfig.logger.log(`[Processing require import] ${resolvedPath}`)
-        let i = processNewImport(result, resolvedPath, projectBase)
-        if (i) {
-          // debugConfig.logger.log(`[Completed require import] ${resolvedPath}`)
-          importsGraph.addEdge(file.uname, i.uname)
+      // Process requires
+      for (const [, [specifier, resolvedPath]] of file.resolvedRequireImports) {
+        // Ignore library imports for now
+        if (isLibraryImport(resolvedPath) || isUselessImport(resolvedPath)) {
+          importsGraph.addEdge(file.uname, specifier)
 
-          // Edges via require are dashed
-          const eProp = importsGraph.getEdgeProp(file.uname, resolvedPath)
+          const eProp = importsGraph.getEdgeProp(file.uname, specifier)
           if (eProp) {
             eProp.style = "dashed"
           } else assert(false)
 
+          const nProp = importsGraph.getNodeProp(specifier)
+          if (nProp) {
+            nProp.fillcolor = "yellow"
+            nProp.style = "rounded,filled"
+          } else assert(false)
+          continue;
+        }
+
+        // Resolve import path
+        let i = processNewImport(result, resolvedPath, projectBase)
+        if (i) {
+          importsGraph.addEdge(file.uname, i.uname)
+          const eProp = importsGraph.getEdgeProp(file.uname, i.uname)
+          if (eProp) {
+            eProp.style = "dashed"
+          } else assert(false)
         } else {
-          debugConfig.logger.error(`Failed to process require "${resolvedPath}" included in file "${file.uname}"`)
+          debugConfig.logger.error(`Failed to process import "${resolvedPath}" included in file "${file.uname}"`)
           assert(false)
         }
       }
 
       // Process unresolved nodes
-
       for (const [, unresolvedPath] of file.unresolvedModuleImports) {
         importsGraph.addEdge(file.uname, unresolvedPath)
-
-        // Mark edge as red
-        const eProp = importsGraph.getEdgeProp(file.uname, unresolvedPath)
-        if (eProp) {
-          eProp.color = "gray"
-        } else assert(false)
 
         // Mark leaf node as red
         const nProp = importsGraph.getNodeProp(unresolvedPath)
         if (nProp) {
-          nProp.fillcolor = "gray"
+          nProp.fillcolor = "red"
           nProp.style = "rounded,filled"
         } else assert(false)
       }
 
+      // Process unresolved nodes
       for (const [, unresolvedPath] of file.unresolvedRequireImports) {
         importsGraph.addEdge(file.uname, unresolvedPath)
 
@@ -213,43 +242,6 @@ export class Project {
           nProp.style = "rounded,filled"
         } else assert(false)
       }
-
-      for (const [, unresolvedPath] of file.ignoredModuleImports) {
-        importsGraph.addEdge(file.uname, unresolvedPath)
-
-        // Mark edge as red
-        const eProp = importsGraph.getEdgeProp(file.uname, unresolvedPath)
-        if (eProp) {
-          eProp.color = "gray"
-        } else assert(false)
-
-        // Mark leaf node as red
-        const nProp = importsGraph.getNodeProp(unresolvedPath)
-        if (nProp) {
-          nProp.fillcolor = "gray"
-          nProp.style = "rounded,filled"
-        } else assert(false)
-      }
-
-      for (const [, unresolvedPath] of file.ignoredRequireImports) {
-        importsGraph.addEdge(file.uname, unresolvedPath)
-
-        // Mark edge as red
-        const eProp = importsGraph.getEdgeProp(file.uname, unresolvedPath)
-        if (eProp) {
-          eProp.style = "dashed"
-        } else assert(false)
-
-        // Mark leaf node as red
-        const nProp = importsGraph.getNodeProp(unresolvedPath)
-        if (nProp) {
-          nProp.fillcolor = "red"
-          nProp.style = "rounded,filled"
-        } else assert(false)
-      }
-
-
-
     }
 
     if (result.size !== oldFiles.size) { // Recurse until all imports have been processed
@@ -266,9 +258,6 @@ export class Project {
 
     for (const [, pFile] of loadedFiles) {
       LOC += pFile.loc
-      for (const [, failedImport] of pFile.unresolvedModuleImports) {
-        failed.add(failedImport)
-      }
       for (const [, failedImport] of pFile.unresolvedRequireImports) {
         failed.add(failedImport)
       }
