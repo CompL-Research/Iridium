@@ -136,7 +136,7 @@ function MainContainer() {
                       selectedTab === 1 && <ImportsGraph socket={mainSocket} />
                     }
                     {
-                      selectedTab === 2 && <Logs socket={mainSocket} />
+                      selectedTab === 2 && <Logs flashMessage={flashMessage} socket={mainSocket} />
                     }
                   </> :
                   <div className="banner">

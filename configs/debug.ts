@@ -11,7 +11,8 @@ const config : {
   dontColorRootNodes: boolean,
   enablePlayground: boolean,
   playgroundPort: number,
-  logger: Logger
+  logger: Logger,
+  enableParallelizedImportsGraphCreation: boolean 
 } = {
   js3DebugPath: "",
   iridiumDebugPath: "",
@@ -23,7 +24,8 @@ const config : {
   dontColorRootNodes: false,
   enablePlayground: false,
   playgroundPort: 4000,
-  logger: new Logger()
+  logger: new Logger(),
+  enableParallelizedImportsGraphCreation: false
 }
 
 export default config;

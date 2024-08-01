@@ -7,6 +7,9 @@ import { EdgeProp, ImportsGraph, NodeProp } from './ImportsGraph.js'
 import { ProjectFile } from './ProjectFile.js'
 import debugConfig from '../configs/debug.js'
 
+import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
+
+
 type Files = Map<string, ProjectFile>
 
 export class Project {
@@ -61,15 +64,80 @@ export class Project {
     });
   };
 
-  processImportsGraph() {
+  async processImportsGraph() {
+    const analyzePath = this.analyzePath
     const projectBase: string = this.base
     const importsGraph: ImportsGraph = this.importsGraph
     const processNewImport = this.#handleFileImport
     const oldFiles: Files = new Map(this.files)
     const result: Files = this.files
     debugConfig.logger.log("[Processing imports graph]")
+
+    // Parallelize file load
+    if (debugConfig.enableParallelizedImportsGraphCreation) {
+      debugConfig.logger.log("[Parallelizing imports graph file load]");
+
+      const setOfResolvedPaths = new Set<string>();
+
+      for (const [, file] of oldFiles) {
+        for (const [, [, resolvedPath]] of file.resolvedModuleImports) {
+          if (!result.has(resolvedPath))
+            setOfResolvedPaths.add(resolvedPath);
+        }
+
+        for (const [, [, resolvedPath]] of file.resolvedRequireImports) {
+          if (!result.has(resolvedPath))
+            setOfResolvedPaths.add(resolvedPath);
+        }
+      }
+
+      debugConfig.logger.log(`[Parallelizing imports graph file load] Loaded all filepaths: ${setOfResolvedPaths.size} files`);
+      const startTime = process.hrtime();
+
+      const workerPromises : Array<Promise<void>> = new Array<Promise<void>>();
+      const workerPath = '/home/meetesh/wd/Iridium/classes/worker/workerScript.js'; // Path to the worker file
+      
+
+      for (const resolvedPath of setOfResolvedPaths) {
+        workerPromises.push(new Promise<void>((resolve, reject) => {
+          const worker = new Worker(workerPath, { workerData: { results: result, file: resolvedPath, projectBase, analyzePath } });
+
+          worker.on('message', (msg) => {
+            debugConfig.logger.log("Worker message", msg)
+            resolve()
+          });
+
+          worker.on('error', (e) => {
+            debugConfig.logger.error("Worker responded [error]", [e])
+            reject()
+          });
+          worker.on('exit', (code) => {
+            if (code !== 0) {
+              debugConfig.logger.error(`Worker stopped with error code ${code}`)
+              reject(new Error(`Worker stopped with exit code ${code}`));
+            }
+          });
+        }));
+      }
+
+      debugConfig.logger.log(`[Parallelizing imports graph file load] Spawned (${workerPromises.length}) worker(s), waiting for completion`);
+
+      try {
+        await Promise.all(workerPromises);
+      } catch (error) {
+        debugConfig.logger.error(error);
+      }
+
+      const endTime = process.hrtime(startTime); // End time in [seconds, nanoseconds]
+      const timeTaken = endTime[0] + endTime[1] / 1e9; // Convert to seconds
+
+      debugConfig.logger.log(`[Completed FileLoad]: Time Taken ${timeTaken} seconds`);
+    }
+
+    // Resume old code
+
     for (const [, file] of oldFiles) {
-      debugConfig.logger.log(`[Processing file] ${file.absoluteFilePath}`)
+      // debugConfig.logger.log(`[Processing file] ${file.absoluteFilePath}`)
       importsGraph.addNode(file.uname)
       // Add a node mapping in the imports graph
       const importsGraphProp = importsGraph.getNodeProp(file.uname)
@@ -79,10 +147,10 @@ export class Project {
 
       // Process resolved imports
       for (const [, [, resolvedPath]] of file.resolvedModuleImports) {
-        debugConfig.logger.log(`[Processing import] ${resolvedPath}`)
+        // debugConfig.logger.log(`[Processing import] ${resolvedPath}`)
         let i = processNewImport(result, resolvedPath, projectBase)
         if (i) {
-          debugConfig.logger.log(`[Completed import] ${resolvedPath}`)
+          // debugConfig.logger.log(`[Completed import] ${resolvedPath}`)
           importsGraph.addEdge(file.uname, i.uname)
         } else {
           debugConfig.logger.error(`Failed to process import "${resolvedPath}" included in file "${file.uname}"`)
@@ -92,10 +160,10 @@ export class Project {
 
       // Process require imports
       for (const [, [, resolvedPath]] of file.resolvedRequireImports) {
-        debugConfig.logger.log(`[Processing require import] ${resolvedPath}`)
+        // debugConfig.logger.log(`[Processing require import] ${resolvedPath}`)
         let i = processNewImport(result, resolvedPath, projectBase)
         if (i) {
-          debugConfig.logger.log(`[Completed require import] ${resolvedPath}`)
+          // debugConfig.logger.log(`[Completed require import] ${resolvedPath}`)
           importsGraph.addEdge(file.uname, i.uname)
 
           // Edges via require are dashed
@@ -185,7 +253,7 @@ export class Project {
     }
 
     if (result.size !== oldFiles.size) { // Recurse until all imports have been processed
-      debugConfig.logger.log(`[Processing Imports] ${oldFiles.size} -> ${result.size}`)
+      debugConfig.logger.log(`[Expanding import scope] ${oldFiles.size} -> ${result.size}`)
       return this.processImportsGraph()
     }
   }

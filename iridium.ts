@@ -24,7 +24,7 @@ const header = `
 Iridium Version: ${chalk.red(VERSION)}
 `
 
-function main(mainProjectPath, analyzePath) {
+async function main(mainProjectPath, analyzePath) {
 
   // Ensure outputs directory
   if (fs.existsSync(debugConfig.outputsPath)) {
@@ -75,6 +75,7 @@ function main(mainProjectPath, analyzePath) {
           socket.emit("imports-graph-delivery", res)
         } else {
           debugConfig.logger.warn("Imports graph is not yet ready!")
+          socket.emit("imports-graph-not-ready")
         }
       });
       
@@ -85,7 +86,7 @@ function main(mainProjectPath, analyzePath) {
   }
   
   debugConfig.logger.log("[Starting to process imports graph]")
-  project.processImportsGraph()
+  await project.processImportsGraph()
   project.importsGraphProcessed = true
 
   debugConfig.logger.log("[Processing imports graph completed]")
@@ -241,6 +242,11 @@ const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
   {
     name: 'dont-color-root-nodes',
     description: 'Prevents coloring root nodes green',
+    type: Boolean,
+  },
+  {
+    name: 'enable-parallelized-imports',
+    description: 'Enable parallelized imports graph creation (this may make things worse sometimes)',
     type: Boolean,
   }
 ]
@@ -403,6 +409,10 @@ if (mainOptions.command === 'analyze') {
 
     if ("dont-color-root-nodes" in analyzeOptions) {
       debugConfig.dontColorRootNodes = true
+    }
+
+    if ("enable-parallelized-imports" in analyzeOptions) {
+      debugConfig.enableParallelizedImportsGraphCreation = true
     }
 
   }

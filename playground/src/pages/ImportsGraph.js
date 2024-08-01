@@ -3,7 +3,7 @@ import './ImportsGraph.css'
 import { graphviz } from 'd3-graphviz';
 import * as d3 from 'd3';
 
-export default function Logs({ socket, }) {
+export default function Logs({ socket, flashMessage }) {
 
   // const [graphData, setGraphData] = useState("")
   const containerRef = useRef(null);
@@ -23,8 +23,13 @@ export default function Logs({ socket, }) {
       });
   }
 
+  const graphWaiting = () => {
+    flashMessage("Imports graph is not yet ready...")
+  }
+
 
   useEffect(() => {
+    socket.on("imports-graph-not-ready", graphWaiting)
     socket.on("imports-graph-delivery", graphDataDelivery)
 
     socket.emit("get-imports-graph")
