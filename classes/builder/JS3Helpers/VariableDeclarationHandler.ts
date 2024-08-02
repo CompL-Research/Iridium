@@ -34,7 +34,17 @@ export function handleVariableDeclaration(node: VariableDeclaration, module: JS3
 
 // LVal: Identifier | MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | TSParameterProperty | TSAsExpression | TSSatisfiesExpression | TSTypeAssertion | TSNonNullExpression
 
-export function handleVarDeclaration(node: VariableDeclaration, module: JS3Module, projectFile: ProjectFile) {}
+export function handleVarDeclaration(node: VariableDeclaration, module: JS3Module, projectFile: ProjectFile) {
+  for (const d of node.declarations) {
+    const lval = handleLVal(d.id)
+    const init = d.init
+    if (init === null || init === undefined) {
+      module.addStatement(new NoInitVariableDeclaration(node, "var", lval))
+    } else {
+      module.addStatement(new InitVariableDeclaration(node, "var", lval, handleExpression(init, module, projectFile)))
+    } 
+  }
+}
 
 export function handleLetDeclaration(node: VariableDeclaration, module: JS3Module, projectFile: ProjectFile) {
   for (const d of node.declarations) {
@@ -48,11 +58,25 @@ export function handleLetDeclaration(node: VariableDeclaration, module: JS3Modul
   }
 }
 
-export function handleConstDeclaration(node: VariableDeclaration, module: JS3Module, projectFile: ProjectFile) {}
+export function handleConstDeclaration(node: VariableDeclaration, module: JS3Module, projectFile: ProjectFile) {
+  for (const d of node.declarations) {
+    const lval = handleLVal(d.id)
+    const init = d.init
+    if (init === null || init === undefined) {
+      module.addStatement(new NoInitVariableDeclaration(node, "const", lval))
+    } else {
+      module.addStatement(new InitVariableDeclaration(node, "const", lval, handleExpression(init, module, projectFile)))
+    } 
+  }
+}
 
-export function handleUsingDeclaration(node: VariableDeclaration, module: JS3Module, projectFile: ProjectFile) {}
+export function handleUsingDeclaration(node: VariableDeclaration, module: JS3Module, projectFile: ProjectFile) {
+  debugConfig.logger.error("// TODO UsingDeclaration", [node]);
+}
 
-export function handleAwaitUsingDeclaration(node: VariableDeclaration, module: JS3Module, projectFile: ProjectFile) {}
+export function handleAwaitUsingDeclaration(node: VariableDeclaration, module: JS3Module, projectFile: ProjectFile) {
+  debugConfig.logger.error("// TODO AwaitUsingDeclaration", [node]);
+}
 
 export function handleLVal(node: LVal) : string {
   if (isIdentifier(node)) {

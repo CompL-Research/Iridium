@@ -13,7 +13,8 @@ const config : {
   playgroundPort: number,
   logger: Logger,
   enableParallelizedImportsGraphCreation: boolean,
-  versionNumber: string
+  versionNumber: string,
+  saveBabelTransforms: boolean
 } = {
   js3DebugPath: "",
   iridiumDebugPath: "",
@@ -27,7 +28,8 @@ const config : {
   playgroundPort: 4000,
   logger: new Logger(),
   enableParallelizedImportsGraphCreation: false,
-  versionNumber: ""
+  versionNumber: "",
+  saveBabelTransforms: false
 }
 
 export default config;

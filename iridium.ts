@@ -89,10 +89,6 @@ async function main(mainProjectPath, analyzePath) {
   
   debugConfig.logger.log("[Starting to process imports graph]")
   await project.processImportsGraph()
-  project.importsGraphProcessed = true
-
-  debugConfig.logger.log("[Processing imports graph completed]")
-
   project.importsGraph.generateRootNodes()
   
   project.printStats()
@@ -100,17 +96,14 @@ async function main(mainProjectPath, analyzePath) {
   if (debugConfig.dontColorRootNodes === false) {
     project.importsGraph.colorRootNodes()
   }
+  project.importsGraphProcessed = true
+
+  debugConfig.logger.log("[Processing imports graph completed]")
+
   project.importsGraph.dumpDOT();
-
   
-
-  
-
   const builder = new IridiumBuilder(project)
   builder.start()
-
-
-
 
 }
 
@@ -249,6 +242,11 @@ const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
   {
     name: 'enable-parallelized-imports',
     description: 'Enable parallelized imports graph creation (this may make things worse sometimes)',
+    type: Boolean,
+  },
+  {
+    name: 'save-babel-transforms',
+    description: 'Saved babel transformed source code to disk.',
     type: Boolean,
   }
 ]
@@ -418,6 +416,10 @@ if (mainOptions.command === 'analyze') {
 
     if ("enable-parallelized-imports" in analyzeOptions) {
       debugConfig.enableParallelizedImportsGraphCreation = true
+    }
+
+    if ("save-babel-transforms" in analyzeOptions) {
+      debugConfig.saveBabelTransforms = true
     }
 
   }

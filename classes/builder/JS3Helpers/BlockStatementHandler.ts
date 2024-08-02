@@ -14,6 +14,8 @@ import { handleVariableDeclaration } from "./VariableDeclarationHandler"
 import debugConfig from "#debugConfig"
 import assert from "node:assert"
 import { isIdentifier } from "@babel/types"
+import { isExpressionStatement } from "@babel/types"
+import { handleExpressionStatement } from "./ExperssionHandler"
 
 // interface BlockStatement extends BaseNode {
 //   type: "BlockStatement";
@@ -27,7 +29,11 @@ export function handleBlockStatement(node: BlockStatement, module: JS3Module, pr
       assert(false) // import declaration inside blocks are not allowed!!!
     } else if (isVariableDeclaration(s)) {
       handleVariableDeclaration(s, temporaryModule, projectFile)
-    } else {
+    } else if (isExpressionStatement(s)) {
+      handleExpressionStatement(s.expression, temporaryModule, projectFile)
+    }
+    
+    else {
       debugConfig.logger.error(`// TODO BLOCKSTMT: ${s.type}`, [s]);
     }
   }

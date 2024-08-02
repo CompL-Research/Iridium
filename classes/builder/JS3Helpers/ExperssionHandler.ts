@@ -1,11 +1,12 @@
 
-import { ArrayExpression, Expression, isBigIntLiteral, isBooleanLiteral, isIdentifier, isNullLiteral, isNumericLiteral, isStringLiteral } from "@babel/types"
+import { ArrayExpression, CallExpression, Expression, isBigIntLiteral, isBooleanLiteral, isIdentifier, isNullLiteral, isNumericLiteral, isStringLiteral } from "@babel/types"
 import { ProjectFile } from "../../ProjectFile"
 import { JS3Module } from "../JS3Module"
 
 import debugConfig from "#debugConfig"
 import { isArrayExpression, isExpression, isSpreadElement } from "@babel/types"
 import { Comment, InitVariableDeclaration } from "../JS3Instructions"
+import { isCallExpression } from "@babel/types"
 
 // Identifier
 // StringLiteral 
@@ -13,12 +14,12 @@ import { Comment, InitVariableDeclaration } from "../JS3Instructions"
 // NullLiteral 
 // BooleanLiteral 
 // BigIntLiteral 
+// CallExpression
 
 
 // ArrayExpression 
 // AssignmentExpression 
 // BinaryExpression 
-// CallExpression
 // ConditionalExpression
 // FunctionExpression
 // RegExpLiteral 
@@ -62,6 +63,13 @@ import { Comment, InitVariableDeclaration } from "../JS3Instructions"
 // TSTypeAssertion
 // TSNonNullExpression
 
+export function handleExpressionStatement(node: Expression, module: JS3Module, projectFile: ProjectFile) : string {
+  const lVal = module.getNewLocal()
+  const rVal = handleExpression(node, module, projectFile)
+  module.addStatement(new InitVariableDeclaration(node, "let", lVal, rVal))
+  return lVal
+}
+
 export function handleExpression(node: Expression, module: JS3Module, projectFile: ProjectFile) : string {
   if (isIdentifier(node)) {
     return node.name
@@ -77,6 +85,8 @@ export function handleExpression(node: Expression, module: JS3Module, projectFil
     return `${node.value}n`
   } else if (isArrayExpression(node)) {
     return handleArrayExpression(node, module, projectFile)
+  } else if (isCallExpression(node)) {
+    return handleCallExpression(node, module, projectFile)
   }
   debugConfig.logger.error(`// ERR HANDLE EXPRESSION: ${node.type}`, [node])
   return "$TODO$"
@@ -123,4 +133,23 @@ export function handleArrayExpression(node: ArrayExpression, module: JS3Module, 
   module.addStatement(new InitVariableDeclaration(node, "let", arrayResultHolder, finalRVal))
   module.addStatement(new Comment("End: Array Expression \n"))
   return arrayResultHolder
+}
+
+// interface CallExpression extends BaseNode {
+//   type: "CallExpression";
+//   callee: Expression | Super | V8IntrinsicIdentifier;
+//   arguments: Array<Expression | SpreadElement | ArgumentPlaceholder>;
+//   optional?: true | false | null;
+//   typeArguments?: TypeParameterInstantiation | null;
+//   typeParameters?: TSTypeParameterInstantiation | null;
+// }
+export function handleCallExpression(node: CallExpression, module: JS3Module, projectFile: ProjectFile) : string {
+  
+  // const callee = node.callee
+  // const arguments = node.arguments
+  
+
+
+  debugConfig.logger.error(`// TODO HANDLE CALL EXPR: ${node.type}`, [node])
+  return "$TODO$"
 }

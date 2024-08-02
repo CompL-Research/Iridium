@@ -79,63 +79,59 @@ export class Project {
 
     // Parallelize file load
     if (debugConfig.enableParallelizedImportsGraphCreation) {
-      debugConfig.logger.log("[Parallelizing imports graph file load]");
+      debugConfig.logger.error("[Parallelized imports is currently disabled]")
+      // debugConfig.logger.log("[Parallelizing imports graph file load]");
 
-      const setOfResolvedPaths = new Set<string>();
+      // const setOfResolvedPaths = new Set<string>();
 
-      for (const [, file] of oldFiles) {
-        for (const [, [, resolvedPath]] of file.resolvedModuleImports) {
-          if (!result.has(resolvedPath))
-            setOfResolvedPaths.add(resolvedPath);
-        }
+      // for (const [, file] of oldFiles) {
+      //   for (const [, [, resolvedPath]] of file.resolvedModuleImports) {
+      //     if (!result.has(resolvedPath))
+      //       setOfResolvedPaths.add(resolvedPath);
+      //   }
+      // }
 
-        for (const [, [, resolvedPath]] of file.resolvedRequireImports) {
-          if (!result.has(resolvedPath))
-            setOfResolvedPaths.add(resolvedPath);
-        }
-      }
+      // debugConfig.logger.log(`[Parallelizing imports graph file load] Loaded all filepaths: ${setOfResolvedPaths.size} files`);
+      // const startTime = process.hrtime();
 
-      debugConfig.logger.log(`[Parallelizing imports graph file load] Loaded all filepaths: ${setOfResolvedPaths.size} files`);
-      const startTime = process.hrtime();
-
-      const workerPromises: Array<Promise<void>> = new Array<Promise<void>>();
-      const workerPath = '/home/meetesh/wd/Iridium/classes/worker/workerScript.js'; // Path to the worker file
+      // const workerPromises: Array<Promise<void>> = new Array<Promise<void>>();
+      // const workerPath = '/home/meetesh/wd/Iridium/classes/worker/workerScript.js'; // Path to the worker file
 
 
-      for (const resolvedPath of setOfResolvedPaths) {
-        workerPromises.push(new Promise<void>((resolve, reject) => {
-          const worker = new Worker(workerPath, { workerData: { results: result, file: resolvedPath, projectBase, analyzePath } });
+      // for (const resolvedPath of setOfResolvedPaths) {
+      //   workerPromises.push(new Promise<void>((resolve, reject) => {
+      //     const worker = new Worker(workerPath, { workerData: { results: result, file: resolvedPath, projectBase, analyzePath } });
 
-          worker.on('message', (msg) => {
-            debugConfig.logger.log("Worker message", msg)
-            resolve()
-          });
+      //     worker.on('message', (msg) => {
+      //       debugConfig.logger.log("Worker message", msg)
+      //       resolve()
+      //     });
 
-          worker.on('error', (e) => {
-            debugConfig.logger.error("Worker responded [error]", [e])
-            reject()
-          });
-          worker.on('exit', (code) => {
-            if (code !== 0) {
-              debugConfig.logger.error(`Worker stopped with error code ${code}`)
-              reject(new Error(`Worker stopped with exit code ${code}`));
-            }
-          });
-        }));
-      }
+      //     worker.on('error', (e) => {
+      //       debugConfig.logger.error("Worker responded [error]", [e])
+      //       reject()
+      //     });
+      //     worker.on('exit', (code) => {
+      //       if (code !== 0) {
+      //         debugConfig.logger.error(`Worker stopped with error code ${code}`)
+      //         reject(new Error(`Worker stopped with exit code ${code}`));
+      //       }
+      //     });
+      //   }));
+      // }
 
-      debugConfig.logger.log(`[Parallelizing imports graph file load] Spawned (${workerPromises.length}) worker(s), waiting for completion`);
+      // debugConfig.logger.log(`[Parallelizing imports graph file load] Spawned (${workerPromises.length}) worker(s), waiting for completion`);
 
-      try {
-        await Promise.all(workerPromises);
-      } catch (error) {
-        debugConfig.logger.error(error);
-      }
+      // try {
+      //   await Promise.all(workerPromises);
+      // } catch (error) {
+      //   debugConfig.logger.error(error);
+      // }
 
-      const endTime = process.hrtime(startTime); // End time in [seconds, nanoseconds]
-      const timeTaken = endTime[0] + endTime[1] / 1e9; // Convert to seconds
+      // const endTime = process.hrtime(startTime); // End time in [seconds, nanoseconds]
+      // const timeTaken = endTime[0] + endTime[1] / 1e9; // Convert to seconds
 
-      debugConfig.logger.log(`[Completed FileLoad]: Time Taken ${timeTaken} seconds`);
+      // debugConfig.logger.log(`[Completed FileLoad]: Time Taken ${timeTaken} seconds`);
     }
 
     // Resume old code
@@ -161,7 +157,7 @@ export class Project {
         importsGraphProp.sourceFile = file
       } else assert(false)
 
-      // Process imports
+      // Process resolved imports
       for (const [, [specifier, resolvedPath]] of file.resolvedModuleImports) {
         // Ignore library imports for now
         if (isLibraryImport(resolvedPath) || isUselessImport(resolvedPath)) {
@@ -184,60 +180,9 @@ export class Project {
         }
       }
 
-      // Process requires
-      for (const [, [specifier, resolvedPath]] of file.resolvedRequireImports) {
-        // Ignore library imports for now
-        if (isLibraryImport(resolvedPath) || isUselessImport(resolvedPath)) {
-          importsGraph.addEdge(file.uname, specifier)
-
-          const eProp = importsGraph.getEdgeProp(file.uname, specifier)
-          if (eProp) {
-            eProp.style = "dashed"
-          } else assert(false)
-
-          const nProp = importsGraph.getNodeProp(specifier)
-          if (nProp) {
-            nProp.fillcolor = "yellow"
-            nProp.style = "rounded,filled"
-          } else assert(false)
-          continue;
-        }
-
-        // Resolve import path
-        let i = processNewImport(result, resolvedPath, projectBase)
-        if (i) {
-          importsGraph.addEdge(file.uname, i.uname)
-          const eProp = importsGraph.getEdgeProp(file.uname, i.uname)
-          if (eProp) {
-            eProp.style = "dashed"
-          } else assert(false)
-        } else {
-          debugConfig.logger.error(`Failed to process import "${resolvedPath}" included in file "${file.uname}"`)
-          assert(false)
-        }
-      }
-
-      // Process unresolved nodes
+      // Process unresolved imports
       for (const [, unresolvedPath] of file.unresolvedModuleImports) {
         importsGraph.addEdge(file.uname, unresolvedPath)
-
-        // Mark leaf node as red
-        const nProp = importsGraph.getNodeProp(unresolvedPath)
-        if (nProp) {
-          nProp.fillcolor = "red"
-          nProp.style = "rounded,filled"
-        } else assert(false)
-      }
-
-      // Process unresolved nodes
-      for (const [, unresolvedPath] of file.unresolvedRequireImports) {
-        importsGraph.addEdge(file.uname, unresolvedPath)
-
-        // Mark edge as red
-        const eProp = importsGraph.getEdgeProp(file.uname, unresolvedPath)
-        if (eProp) {
-          eProp.style = "dashed"
-        } else assert(false)
 
         // Mark leaf node as red
         const nProp = importsGraph.getNodeProp(unresolvedPath)
@@ -262,7 +207,7 @@ export class Project {
 
     for (const [, pFile] of loadedFiles) {
       LOC += pFile.loc
-      for (const [, failedImport] of pFile.unresolvedRequireImports) {
+      for (const [, failedImport] of pFile.unresolvedModuleImports) {
         failed.add(failedImport)
       }
     }

@@ -22,6 +22,14 @@ export class JS3Module {
     this.code.push(stmt)
   }
 
+  getIRString(indent: number) {
+    let result = ""
+    this.code.forEach(s => {
+      result += " ".repeat(indent) + (s.getString() + "\n");
+    })
+    return result
+  }
+
   dumpIR() {
     const removeExtension = filePath => filePath.substring(0, filePath.lastIndexOf('.')) || filePath;
 

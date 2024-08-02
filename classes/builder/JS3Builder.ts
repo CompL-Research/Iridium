@@ -29,18 +29,22 @@ export default class JS3Builder {
     // Generate Import Statements
     module.addStatement(new Comment(`Transformed by ${debugConfig.versionNumber}\n`))
 
-    // Iterate over body
-    for (const node of program.body) {
-      if (isImportDeclaration(node)) {
-        handleImportDeclaration(node, module, projectFile)
-      } else if (isVariableDeclaration(node)) {
-        handleVariableDeclaration(node, module, projectFile)
-      } else if (isTryStatement(node)) {
-        handleTryStatement(node, module, projectFile)
-      } else {
-        debugConfig.logger.error(`// TODO PROGRAM: ${node.type}`, [node]);
-      }
-    }
+    // // Iterate over body
+    // for (const node of program.body) {
+    //   if (isImportDeclaration(node)) {
+    //     handleImportDeclaration(node, module, projectFile)
+    //   } 
+      
+    //   // else if (isVariableDeclaration(node)) {
+    //   //   handleVariableDeclaration(node, module, projectFile)
+    //   // } else if (isTryStatement(node)) {
+    //   //   handleTryStatement(node, module, projectFile)
+    //   // } 
+      
+    //   else {
+    //   }
+    // }
+    debugConfig.logger.error(`// TODO PROGRAM: ${program.type}`);
 
     module.dumpIR()
 

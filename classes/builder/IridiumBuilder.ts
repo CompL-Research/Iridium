@@ -41,6 +41,9 @@ export class IridiumBuilder {
     const js3Builder = new JS3Builder(file);
 
     js3Builder.start()
+    debugConfig.logger.warn(`[Source Code] \n${file.transformedCode}\n`)
+
+    debugConfig.logger.log(`[Genereted Module] \n${js3Builder.module.getIRString(0)}\n`)
   }
   
 }
