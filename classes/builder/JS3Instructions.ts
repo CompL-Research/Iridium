@@ -1,5 +1,6 @@
 import t from "@babel/types"
 import assert from "node:assert"
+import { JS3Block, JS3CatchClause } from "./JS3Module"
 //////////////////////////////////////////////////////////////////////////////////
 // GENERIC
 //////////////////////////////////////////////////////////////////////////////////
@@ -21,6 +22,39 @@ export class Comment extends JS3Stmt {
     return "// " + this.value
   }
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+// TRY STATEMENT 
+//////////////////////////////////////////////////////////////////////////////////
+
+export class TryStmt extends JS3Stmt {
+  toTry: JS3Block
+  ifCaught: JS3CatchClause | null
+  inTheEnd: JS3Block | null
+  constructor(node: t.Node, toTry: JS3Block, ifCaught: JS3CatchClause | null, inTheEnd: JS3Block | null) {
+    super()
+    this.node = node;
+    this.toTry = toTry
+    this.ifCaught = ifCaught
+    this.inTheEnd = inTheEnd
+    if (this.ifCaught === null) assert(this.inTheEnd !== null)
+    if (this.inTheEnd === null) assert(this.ifCaught !== null)
+  }
+
+  getString() {
+    let result = "try " + this.toTry.getIRString(2) + "\n";
+    if (this.ifCaught !== null) {
+      result += this.ifCaught.getIRString(4) + "\n";
+    }
+
+    if (this.inTheEnd !== null) {
+      result += "finally " + this.inTheEnd.getIRString(4) + "\n";
+    }
+
+    return result
+  }
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////
 // VARIABLE DECLARATION 

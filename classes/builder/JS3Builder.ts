@@ -6,6 +6,9 @@ import { handleImportDeclaration } from "./JS3Helpers/ImportDeclarationHandler";
 import { handleVariableDeclaration } from "./JS3Helpers/VariableDeclarationHandler";
 import { Comment } from "./JS3Instructions";
 import { JS3Module } from "./JS3Module";
+import { tryStatement } from "@babel/types";
+import { handleTryStatement } from "./JS3Helpers/TryStatementHandler";
+import { isTryStatement } from "@babel/types";
 
 
 export default class JS3Builder {
@@ -32,6 +35,10 @@ export default class JS3Builder {
         handleImportDeclaration(node, module, projectFile)
       } else if (isVariableDeclaration(node)) {
         handleVariableDeclaration(node, module, projectFile)
+      } else if (isTryStatement(node)) {
+        handleTryStatement(node, module, projectFile)
+      } else {
+        debugConfig.logger.error(`// TODO PROGRAM: ${node.type}`, [node]);
       }
     }
 

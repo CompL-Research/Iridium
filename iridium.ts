@@ -33,8 +33,8 @@ async function main(mainProjectPath, analyzePath) {
     fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
   }
 
-  debugConfig.iridiumDebugPath = debugConfig.outputsPath + "/Iridium";
-  debugConfig.js3DebugPath = debugConfig.outputsPath + "/JS3";
+  debugConfig.iridiumDebugPath = path.resolve(debugConfig.outputsPath + "/Iridium");
+  debugConfig.js3DebugPath = path.resolve(debugConfig.outputsPath + "/JS3");
   fs.mkdirSync(debugConfig.outputsPath);
   fs.mkdirSync(debugConfig.iridiumDebugPath);
   fs.mkdirSync(debugConfig.js3DebugPath);
@@ -64,7 +64,6 @@ async function main(mainProjectPath, analyzePath) {
 
       socket.on("get-log-data", (dataLen) => {
         if (dataLen === debugConfig.logger.logData.length) {
-          console.log(`[IRIDIUM PLAYGROUND] Latest logdata on ${socket.id}`)
           socket.emit("log-data-delivery", null)
         } else {
           console.log(`[IRIDIUM PLAYGROUND] Sending logdata ==> ${socket.id} | datalength: ${dataLen}`)
@@ -353,6 +352,9 @@ if (mainOptions.command === 'analyze') {
     process.exit(1)
   }
 
+  // Initialize Output path
+  debugConfig.outputsPath = path.resolve("./outputs")
+
   let analyzePath = analyzeMainOptions.command
   if (analyzeArgv.length > 0) {
     const analyzeOptions = commandLineArgs(analyzeDefinitionsOptionList, { argv: analyzeArgv })
@@ -376,7 +378,7 @@ if (mainOptions.command === 'analyze') {
       }
     }
 
-    debugConfig.outputsPath = path.resolve("./outputs")
+    
 
     if ("outputs-path" in analyzeOptions) {
       if (analyzeOptions["outputs-path"] === null) {
