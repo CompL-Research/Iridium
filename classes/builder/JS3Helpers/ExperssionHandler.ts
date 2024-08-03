@@ -1,155 +1,80 @@
-
-import { ArrayExpression, CallExpression, Expression, isBigIntLiteral, isBooleanLiteral, isIdentifier, isNullLiteral, isNumericLiteral, isStringLiteral } from "@babel/types"
-import { ProjectFile } from "../../ProjectFile"
-import { JS3Module } from "../JS3Module"
-
-import debugConfig from "#debugConfig"
-import { isArrayExpression, isExpression, isSpreadElement } from "@babel/types"
-import { Comment, InitVariableDeclaration } from "../JS3Instructions"
-import { isCallExpression } from "@babel/types"
-
-// Identifier
-// StringLiteral 
-// NumericLiteral 
-// NullLiteral 
-// BooleanLiteral 
-// BigIntLiteral 
-// CallExpression
+import debugConfig from "#debugConfig";
+import { generateCommentLine, generateIdentifier, generateJS3CallExpression, generateJS3VariableDeclaration } from "#utils";
+import { CallExpression, Expression, Identifier, isBooleanLiteral, isCallExpression, isExpression, isIdentifier, isNullLiteral, isNumericLiteral, isStringLiteral } from "@babel/types";
+import { JS3BuilderUtils } from "../JS3Builder";
+import { JS3Statement } from "../JS3Instructions";
 
 
-// ArrayExpression 
-// AssignmentExpression 
-// BinaryExpression 
-// ConditionalExpression
-// FunctionExpression
-// RegExpLiteral 
-// LogicalExpression 
-// MemberExpression 
-// NewExpression 
-// ObjectExpression 
-// SequenceExpression 
-// ParenthesizedExpression 
-// ThisExpression 
-// UnaryExpression 
-// UpdateExpression 
-// ArrowFunctionExpression 
-// ClassExpression 
-// ImportExpression 
-// MetaProperty 
-// Super 
-// TaggedTemplateExpression 
-// TemplateLiteral 
-// YieldExpression 
-// AwaitExpression 
-// Import 
-// OptionalMemberExpression 
-// OptionalCallExpression 
-// TypeCastExpression 
-// JSXElement 
-// JSXFragment 
-// BindExpression 
-// DoExpression 
-// RecordExpression 
-// TupleExpression 
-// DecimalLiteral 
-// ModuleExpression 
-// TopicReference 
-// PipelineTopicExpression 
-// PipelineBareFunction 
-// PipelinePrimaryTopicReference
-// TSInstantiationExpression
-// TSAsExpression
-// TSSatisfiesExpression
-// TSTypeAssertion
-// TSNonNullExpression
+// Returns an Identifier containing the result of the evaluated expression
+export function handleExpression(node: Expression, holder: Array<JS3Statement>, utils: JS3BuilderUtils, prefix : string | undefined = undefined) : Identifier {
+  const resultHolder = generateIdentifier(node, utils.getNewTemporary(prefix))
 
-export function handleExpressionStatement(node: Expression, module: JS3Module, projectFile: ProjectFile) : string {
-  const lVal = module.getNewLocal()
-  const rVal = handleExpression(node, module, projectFile)
-  module.addStatement(new InitVariableDeclaration(node, "let", lVal, rVal))
-  return lVal
-}
-
-export function handleExpression(node: Expression, module: JS3Module, projectFile: ProjectFile) : string {
   if (isIdentifier(node)) {
-    return node.name
-  } else if (isStringLiteral(node)) {
-    return `"${node.value}"`
-  } else if (isNumericLiteral(node)) {
-    return `${node.value}`
-  } else if (isNullLiteral(node)) {
-    return "null"
-  } else if (isBooleanLiteral(node)) {
-    return node.value ? "true" : "false"
-  } else if (isBigIntLiteral(node)) {
-    return `${node.value}n`
-  } else if (isArrayExpression(node)) {
-    return handleArrayExpression(node, module, projectFile)
+    return node
+  } else if (isStringLiteral(node) || isNumericLiteral(node) || isNullLiteral(node) || isBooleanLiteral(node)) {
+    // Generate a new variable declaration node
+    const assnm = generateJS3VariableDeclaration(node, resultHolder, node)
+    assnm.trailingComments = []
+    if (prefix) {
+      assnm.trailingComments.push(generateCommentLine("source -- " + prefix))
+    }
   } else if (isCallExpression(node)) {
-    return handleCallExpression(node, module, projectFile)
-  }
-  debugConfig.logger.error(`// ERR HANDLE EXPRESSION: ${node.type}`, [node])
-  return "$TODO$"
-}
-
-// 
-// https://tc39.es/ecma262/#prod-ArrayLiteral
-// 
-export function handleArrayExpression(node: ArrayExpression, module: JS3Module, projectFile: ProjectFile) : string {
-  module.addStatement(new Comment("Start: Array Expression"))
-  const arrayResultHolder = module.getNewLocal()
-  const elementResults = Array<string>()
-
-  for (const e of node.elements) {
-    if (isExpression(e)) {
-      const lVal = module.getNewLocal()
-      const rVal = handleExpression(e, module, projectFile)
-      module.addStatement(new InitVariableDeclaration(e, "let", lVal, rVal))
-      elementResults.push(lVal)
-
-    } else if (isSpreadElement(e)) {
-      debugConfig.logger.error(`// ERR HANDLE ARRAY EXPRESSION: ${e.type}`, [e]);
-      const lVal = module.getNewLocal()
-      const rVal = "$TODO$" // Here is a TODO
-      module.addStatement(new InitVariableDeclaration(e, "let", lVal, rVal))
-      elementResults.push(lVal)
-    } else {
-      // let a = [,2,3]
-      // a[0]
-      // $ undefined
-      const lVal = module.getNewLocal()
-      const rVal = "undefined"
-      module.addStatement(new InitVariableDeclaration(node, "let", lVal, rVal))
-      elementResults.push(lVal)
+    const callResult = handleCallExpression(node, holder, utils, prefix);
+    // Generate a new variable declaration node
+    const assnm = generateJS3VariableDeclaration(node, resultHolder, callResult)
+    assnm.trailingComments = []
+    if (prefix) {
+      assnm.trailingComments.push(generateCommentLine("source -- " + prefix))
     }
   }
 
-  let finalRVal = "[ "
-  for (const rValLocation of elementResults) {
-    finalRVal += rValLocation + ", "
+  else {
+    resultHolder.name = "$TODO"
+    debugConfig.logger.error(`TODO // Handle expr: ${node.type} @ ExpressionHandler.ts`)
+    // throw new JS3GenerationError(`TODO // Handle stmt: ${node.type} @ ExpressionHandler.ts`);
   }
-  finalRVal += "]"
 
-  module.addStatement(new InitVariableDeclaration(node, "let", arrayResultHolder, finalRVal))
-  module.addStatement(new Comment("End: Array Expression \n"))
-  return arrayResultHolder
+  return resultHolder
 }
 
-// interface CallExpression extends BaseNode {
-//   type: "CallExpression";
-//   callee: Expression | Super | V8IntrinsicIdentifier;
-//   arguments: Array<Expression | SpreadElement | ArgumentPlaceholder>;
-//   optional?: true | false | null;
-//   typeArguments?: TypeParameterInstantiation | null;
-//   typeParameters?: TSTypeParameterInstantiation | null;
-// }
-export function handleCallExpression(node: CallExpression, module: JS3Module, projectFile: ProjectFile) : string {
-  
-  // const callee = node.callee
-  // const arguments = node.arguments
-  
+export function handleCallExpression(node: CallExpression, holder: Array<JS3Statement>, utils: JS3BuilderUtils, prefix : string | undefined = undefined) : Identifier {
+  const resultHolder = generateIdentifier(node, utils.getNewTemporary(prefix))
+  let callee : Identifier 
+  // Handle Callee
+  if (isExpression(node.callee)) {
+    callee = handleExpression(node.callee, holder, utils, prefix)
+  }
+  else {
+    callee = generateIdentifier(node, "$TODO")
+    debugConfig.logger.error(`TODO // Handle callexpr callee: ${node.callee.type} @ ExpressionHandler.ts`)
+    // throw new JS3GenerationError(`TODO // Handle stmt: ${node.type} @ ExpressionHandler.ts`);
+  }
 
+  // Handle Arguments
+  let args = new Array<Identifier>()
+  for (const arg of node.arguments) {
+    if (isExpression(arg)) {
+      args.push(handleExpression(arg, holder, utils, prefix))
+    }
+    else {
+      callee = generateIdentifier(node, "$TODO")
+      debugConfig.logger.error(`TODO // Handle callexpr args: ${arg.type} @ ExpressionHandler.ts`)
+      // throw new JS3GenerationError(`TODO // Handle stmt: ${node.type} @ ExpressionHandler.ts`);
+    }
+  }
 
-  debugConfig.logger.error(`// TODO HANDLE CALL EXPR: ${node.type}`, [node])
-  return "$TODO$"
+  // Generate JS3 Call expression
+  const js3CallExpression = generateJS3CallExpression(node, callee, args, node.optional, node.typeArguments, node.typeParameters)
+
+  // Function call here
+  const assnm = generateJS3VariableDeclaration(node, resultHolder, js3CallExpression)
+  assnm.trailingComments = []
+  if (prefix) {
+    assnm.trailingComments.push(generateCommentLine("source -- " + prefix))
+  }
+
+  // push to holder
+  holder.push(assnm)
+
+  return resultHolder;
 }

@@ -1,5 +1,4 @@
-import t, { ImportDeclaration, ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, VariableDeclaration, VariableDeclarator, Identifier } from "@babel/types"
-import assert from "node:assert"
+import t, { BooleanLiteral, CallExpression, Identifier, ImportDeclaration, ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, NullLiteral, NumericLiteral, StringLiteral, VariableDeclaration, VariableDeclarator } from "@babel/types";
 
 export const JS3_VERSION = "0.1"
 
@@ -30,215 +29,33 @@ export interface JS3ImportDeclaration extends ImportDeclaration {
 }
 
 export type JS3Statement = JS3ImportDeclaration | JS3VariableDeclaration
+// type Statement = BlockStatement | BreakStatement | ContinueStatement | DebuggerStatement | DoWhileStatement | EmptyStatement | ExpressionStatement | ForInStatement | ForStatement | FunctionDeclaration | IfStatement | LabeledStatement | ReturnStatement | SwitchStatement | ThrowStatement | TryStatement | VariableDeclaration | WhileStatement | WithStatement | ClassDeclaration | ExportAllDeclaration | ExportDefaultDeclaration | ExportNamedDeclaration | ForOfStatement | ImportDeclaration | DeclareClass | DeclareFunction | DeclareInterface | DeclareModule | DeclareModuleExports | DeclareTypeAlias | DeclareOpaqueType | DeclareVariable | DeclareExportDeclaration | DeclareExportAllDeclaration | InterfaceDeclaration | OpaqueType | TypeAlias | EnumDeclaration | TSDeclareFunction | TSInterfaceDeclaration | TSTypeAliasDeclaration | TSEnumDeclaration | TSModuleDeclaration | TSImportEqualsDeclaration | TSExportAssignment | TSNamespaceExportDeclaration;
+
+// 
+// Handled Expressions: Identifier | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | CallExpression
+// 
+// type Expression = ArrayExpression | AssignmentExpression | BinaryExpression |  | ConditionalExpression | FunctionExpression |  |  |  |  |  | RegExpLiteral | LogicalExpression | MemberExpression | NewExpression | ObjectExpression | SequenceExpression | ParenthesizedExpression | ThisExpression | UnaryExpression | UpdateExpression | ArrowFunctionExpression | ClassExpression | ImportExpression | MetaProperty | Super | TaggedTemplateExpression | TemplateLiteral | YieldExpression | AwaitExpression | Import | BigIntLiteral | OptionalMemberExpression | OptionalCallExpression | TypeCastExpression | JSXElement | JSXFragment | BindExpression | DoExpression | RecordExpression | TupleExpression | DecimalLiteral | ModuleExpression | TopicReference | PipelineTopicExpression | PipelineBareFunction | PipelinePrimaryTopicReference | TSInstantiationExpression | TSAsExpression | TSSatisfiesExpression | TSTypeAssertion | TSNonNullExpression;
+
+export interface JS3CallExpression extends CallExpression {
+  callee: Identifier;
+  arguments: Array<Identifier>;
+}
 
 export interface JS3Program extends t.Program {
   body: Array<JS3Statement>;
   js3version: string
 }
 
+export type JS3RVal = JS3CallExpression | Identifier | NumericLiteral | StringLiteral | NullLiteral | BooleanLiteral | null
 // type LVal = Identifier | MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | TSParameterProperty | TSAsExpression | TSSatisfiesExpression | TSTypeAssertion | TSNonNullExpression;
 
 export interface JS3VariableDeclarator extends VariableDeclarator {
   // id: LVal;
   // init?: Expression | null; --> We compact the grammar here, so a declarator is always just an identifier
-  init?: Identifier | null
+  init?: JS3RVal
 }
 
 export interface JS3VariableDeclaration extends VariableDeclaration {
   // declarations: Array<VariableDeclarator>; --> We enforce 
   declarations: Array<JS3VariableDeclarator>; // This must be an array of length 1...
 }
-
-// interface VariableDeclarator extends BaseNode {
-//   type: "VariableDeclarator";
-//   id: LVal;
-//   init?: Expression | null;
-//   definite?: boolean | null;
-// }
-
-
-
-// import { JS3Block, JS3CatchClause } from "./JS3Module"
-// //////////////////////////////////////////////////////////////////////////////////
-// // GENERIC
-// //////////////////////////////////////////////////////////////////////////////////
-// export class JS3Stmt {
-//   node: t.Node | null = null
-//   getString() {
-//     assert(false)
-//   }
-// }
-
-// export class Comment extends JS3Stmt {
-//   value: string
-//   constructor(comment: string) {
-//     super()
-//     this.value = comment
-//   }
-
-//   getString() {
-//     return "// " + this.value
-//   }
-// }
-
-// //////////////////////////////////////////////////////////////////////////////////
-// // TRY STATEMENT 
-// //////////////////////////////////////////////////////////////////////////////////
-
-// export class TryStmt extends JS3Stmt {
-//   toTry: JS3Block
-//   ifCaught: JS3CatchClause | null
-//   inTheEnd: JS3Block | null
-//   constructor(node: t.Node, toTry: JS3Block, ifCaught: JS3CatchClause | null, inTheEnd: JS3Block | null) {
-//     super()
-//     this.node = node;
-//     this.toTry = toTry
-//     this.ifCaught = ifCaught
-//     this.inTheEnd = inTheEnd
-//     if (this.ifCaught === null) assert(this.inTheEnd !== null)
-//     if (this.inTheEnd === null) assert(this.ifCaught !== null)
-//   }
-
-//   getString() {
-//     let result = "try " + this.toTry.getIRString(2) + "\n";
-//     if (this.ifCaught !== null) {
-//       result += this.ifCaught.getIRString(4) + "\n";
-//     }
-
-//     if (this.inTheEnd !== null) {
-//       result += "finally " + this.inTheEnd.getIRString(4) + "\n";
-//     }
-
-//     return result
-//   }
-// }
-
-
-// //////////////////////////////////////////////////////////////////////////////////
-// // VARIABLE DECLARATION 
-// //////////////////////////////////////////////////////////////////////////////////
-
-// export class NoInitVariableDeclaration extends JS3Stmt {
-//   kind: "var" | "let" | "const" | "using" | "await using"
-//   id: string
-//   constructor(node: t.Node, kind: "var" | "let" | "const" | "using" | "await using", id: string) {
-//     super()
-//     this.node = node
-//     this.kind = kind
-//     this.id = id
-//   }
-
-//   getString() {
-//     return `${this.kind} ${this.id};`
-//   }
-// }
-
-// export class InitVariableDeclaration extends JS3Stmt {
-//   kind: "var" | "let" | "const" | "using" | "await using"
-//   id: string
-//   init: string
-//   constructor(node: t.Node, kind: "var" | "let" | "const" | "using" | "await using", id: string, init: string) {
-//     super()
-//     this.node = node
-//     this.kind = kind
-//     this.id = id
-//     this.init = init
-//   }
-
-//   getString() {
-//     return `${this.kind} ${this.id} = ${this.init};`
-//   }
-// }
-
-// //////////////////////////////////////////////////////////////////////////////////
-// // IMPORTS 
-// //////////////////////////////////////////////////////////////////////////////////
-// export class ImportStorelessStmt extends JS3Stmt {
-//   importsFrom: string   // The path from where the import happens
-//   isResolved: string  // Has the file been resolved
-
-//   constructor(node, from, isResolved: string) {
-//     super()
-//     this.node = node
-//     this.importsFrom = from
-//     this.isResolved = isResolved
-//   }
-
-//   getString() {
-//     return `import "${this.importsFrom} // ${this.isResolved}"`
-//   }
-// }
-
-// export class ImportDefaultStmt extends JS3Stmt {
-//   importsFrom: string   // The path from where the import happens
-//   storesAs: string   // The binding we create in the environment
-//   isResolved: string  // Has the file been resolved
-
-//   constructor(node, from, as, isResolved: string) {
-//     super()
-//     this.node = node
-//     this.importsFrom = from
-//     this.storesAs = as
-//     this.isResolved = isResolved
-//   }
-
-//   getString() {
-//     return `import ${this.storesAs} from "${this.importsFrom} // ${this.isResolved}"`
-//   }
-// }
-
-// export class ImportNameSpaceStmt extends JS3Stmt {
-//   importsFrom: string   // The path from where the import happens
-//   storesAs: string   // The binding we create in the environment
-//   isResolved: string  // Has the file been resolved
-
-//   constructor(node, from, as, isResolved : string) {
-//     super()
-//     this.node = node
-//     this.importsFrom = from
-//     this.storesAs = as
-//     this.isResolved = isResolved
-//   }
-
-//   getString() {
-//     return `import * as ${this.storesAs} from "${this.importsFrom} // ${this.isResolved}"`
-//   }
-// }
-
-// export class ImportSameNameStmt extends JS3Stmt {
-//   importsFrom: string   // The path from where the import happens
-//   storesAs: string   // The binding we create in the environment
-//   isResolved: string  // Has the file been resolved
-
-//   constructor(node, from, as, isResolved: string) {
-//     super()
-//     this.node = node
-//     this.importsFrom = from
-//     this.storesAs = as
-//     this.isResolved = isResolved
-//   }
-
-//   getString() {
-//     return `import { ${this.storesAs} } from "${this.importsFrom} // ${this.isResolved}"`
-//   }
-// }
-
-// export class ImportRenamedStmt extends JS3Stmt {
-//   importsFrom: string   // The path from where the import happens
-//   importedItem: string   // The thing we want to import
-//   storesAs: string   // The binding we create in the environment
-//   isResolved: string  // Has the file been resolved
-
-//   constructor(node, from, item, as, isResolved: string) {
-//     super()
-//     this.node = node
-//     this.importsFrom = from
-//     this.importedItem = item
-//     this.storesAs = as
-//     this.isResolved = isResolved
-//   }
-
-//   getString() {
-//     return `import { "${this.importedItem}" as ${this.storesAs} } from "${this.importsFrom} // ${this.isResolved}"`
-//   }
-// }

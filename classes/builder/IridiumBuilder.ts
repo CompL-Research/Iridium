@@ -44,7 +44,7 @@ export class IridiumBuilder {
     // Generate JS3 Module
     debugConfig.logger.log(`[Generating JS3 Module] ${file.relativeFilePath}`)
     const js3Builder = new JS3Builder(file);
-    js3Builder.start()
+    js3Builder.build()
     debugConfig.logger.warn(`[Source Code] \n${file.transformedCode}\n`)
 
     if (js3Builder.parsedProgram !== null) {

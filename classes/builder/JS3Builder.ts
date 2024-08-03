@@ -5,9 +5,10 @@ import { ProjectFile } from "../ProjectFile";
 import { handleImportDeclaration } from './JS3Helpers/ImportDeclarationHandler';
 import { handleVariableDeclaration } from './JS3Helpers/VariableDeclarationHandler'
 import { JS3_VERSION, JS3Program, JS3Statement } from "./JS3Instructions";
+import { JS3GenerationError } from '#utils';
 
 export type JS3BuilderUtils = {
-  getNewTemporary: (string) => string
+  getNewTemporary: (prefix: string | undefined) => string
 }
 
 export default class JS3Builder {
@@ -15,7 +16,7 @@ export default class JS3Builder {
   parsedProgram: JS3Program | null
   #varIdx : number = 0
   utils: JS3BuilderUtils = {
-    getNewTemporary: (prefix: string = "js3$") => `${prefix}${++this.#varIdx}`,
+    getNewTemporary: (prefix: string | undefined) => `${prefix ? prefix : "js3$"}${++this.#varIdx}`,
   }
 
   constructor(file: ProjectFile) {
@@ -24,7 +25,7 @@ export default class JS3Builder {
     this.parsedProgram = null
   }
 
-  start() {
+  build() {
 
     const program = this.projectFile.parseResult?.program
     assert(program !== undefined)
@@ -49,6 +50,7 @@ export default class JS3Builder {
       }
       else {
         debugConfig.logger.error(`TODO // Handle stmt: ${stmt.type} @ JS3Builder.ts`)
+        // throw new JS3GenerationError(`TODO // Handle stmt: ${stmt.type} @ JS3Builder.ts`);
       }
     }
 
