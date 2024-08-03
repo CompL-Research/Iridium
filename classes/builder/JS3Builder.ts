@@ -1,11 +1,12 @@
 import debugConfig from '#debugConfig';
-import { isImportDeclaration, isVariableDeclaration, Statement } from '@babel/types';
+import { isImportDeclaration, isVariableDeclaration, Statement, isExportDefaultDeclaration } from '@babel/types';
 import assert from "node:assert";
 import { ProjectFile } from "../ProjectFile";
 import { handleImportDeclaration } from './JS3Helpers/ImportDeclarationHandler';
 import { handleVariableDeclaration } from './JS3Helpers/VariableDeclarationHandler'
 import { JS3_VERSION, JS3Program, JS3Statement } from "./JS3Instructions";
 import { JS3GenerationError } from '#utils';
+import { handleExportDefaultDeclaration } from './JS3Helpers/ExportDefaultDeclarationHandler';
 
 export type JS3BuilderUtils = {
   getNewTemporary: (prefix: string | undefined) => string
@@ -47,6 +48,9 @@ export default class JS3Builder {
       }
       else if (isVariableDeclaration(stmt)) {
         handleVariableDeclaration(stmt, js3Program.body, this.utils)
+      }
+      else if (isExportDefaultDeclaration(stmt)) {
+        handleExportDefaultDeclaration(stmt, js3Program.body, this.utils)
       }
       else {
         debugConfig.logger.error(`TODO // Handle stmt: ${stmt.type} @ JS3Builder.ts`)

@@ -12,20 +12,31 @@ export function handleExpression(node: Expression, holder: Array<JS3Statement>, 
   if (isIdentifier(node)) {
     return node
   } else if (isStringLiteral(node) || isNumericLiteral(node) || isNullLiteral(node) || isBooleanLiteral(node)) {
+
     // Generate a new variable declaration node
     const assnm = generateJS3VariableDeclaration(node, resultHolder, node)
     assnm.trailingComments = []
     if (prefix) {
       assnm.trailingComments.push(generateCommentLine("source -- " + prefix))
     }
+
+    // Push to holder
+    holder.push(assnm)
+
   } else if (isCallExpression(node)) {
+    
+    // Handle call expression
     const callResult = handleCallExpression(node, holder, utils, prefix);
+    
     // Generate a new variable declaration node
     const assnm = generateJS3VariableDeclaration(node, resultHolder, callResult)
     assnm.trailingComments = []
     if (prefix) {
       assnm.trailingComments.push(generateCommentLine("source -- " + prefix))
     }
+    
+    // Push to holder
+    holder.push(assnm)
   }
 
   else {

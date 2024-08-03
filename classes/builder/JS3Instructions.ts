@@ -1,7 +1,99 @@
-import t, { BooleanLiteral, CallExpression, Identifier, ImportDeclaration, ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, NullLiteral, NumericLiteral, StringLiteral, VariableDeclaration, VariableDeclarator } from "@babel/types";
+import t, { Decorator, ClassMethod, ClassPrivateMethod, ClassProperty, ClassPrivateProperty, ClassAccessorProperty, TSDeclareMethod, TSIndexSignature, StaticBlock, ClassBody, TSDeclareFunction, FunctionDeclaration, ClassDeclaration, Expression, BooleanLiteral, CallExpression, ExportDefaultDeclaration, Identifier, ImportDeclaration, ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, NullLiteral, NumericLiteral, StringLiteral, VariableDeclaration, VariableDeclarator, BigIntLiteral } from "@babel/types";
 
 export const JS3_VERSION = "0.1"
 
+
+
+
+export type JS3Statement = JS3ImportDeclaration | JS3VariableDeclaration | JS3ExportDefaultDeclaration
+
+// 
+// The Root of all eval ;O
+// 
+
+export interface JS3Program extends t.Program {
+  body: Array<JS3Statement>;
+  js3version: string
+}
+
+// 
+// ClassDeclaration related
+// 
+
+export interface JS3ClassProperty extends ClassProperty {
+  // key: Identifier | StringLiteral | NumericLiteral | BigIntLiteral | Expression; // TODO: Incomplete
+  key: Identifier | StringLiteral | NumericLiteral | BigIntLiteral;
+  // value?: Expression | null; // TODO: Incomplete
+  value: Identifier | null
+  // typeAnnotation?: TypeAnnotation | TSTypeAnnotation | Noop | null; // TODO: Incomplete
+  typeAnnotation?: null;
+  // decorators?: Array<Decorator> | null; // TODO: Incomplete
+  decorators?: null;
+  // variance?: Variance | null;
+  variance?: null;
+}
+
+export interface JS3ClassBody extends ClassBody {
+  //   body: Array<ClassMethod | ClassPrivateMethod | ClassProperty | ClassPrivateProperty | ClassAccessorProperty | TSDeclareMethod | TSIndexSignature | StaticBlock>; // TODO: Incomplete
+  body: Array<JS3ClassProperty>;
+}
+
+
+export interface JS3Decorator extends Decorator {
+  expression: Identifier;
+}
+
+export interface JS3ClassDeclaration extends ClassDeclaration {
+  superClass?: Identifier | null;
+  body: JS3ClassBody;
+  decorators?: Array<JS3Decorator> | null;
+  // implements?: Array<TSExpressionWithTypeArguments | ClassImplements> | null; // TODO: Incomplete
+  implements?: null
+  // mixins?: InterfaceExtends | null; // TODO: Incomplete
+  mixins?: null
+  // superTypeParameters?: TypeParameterInstantiation | TSTypeParameterInstantiation | null; // TODO: Incomplete
+  superTypeParameters?: null
+  // typeParameters?: TypeParameterDeclaration | TSTypeParameterDeclaration | Noop | null; // TODO: Incomplete
+  typeParameters?: null
+}
+
+// 
+// ExportDefaultDeclaration related
+// 
+
+export interface JS3ExportDefaultDeclaration extends ExportDefaultDeclaration {
+  // declaration: TSDeclareFunction | FunctionDeclaration | ClassDeclaration | Expression; // TODO: Incomplete
+  declaration: JS3ClassDeclaration | Identifier;
+}
+
+// 
+// CallExpression related
+// 
+
+export interface JS3CallExpression extends CallExpression {
+  callee: Identifier;
+  arguments: Array<Identifier>;
+}
+
+// 
+// VariableDeclaration related
+// 
+export type JS3RVal = JS3CallExpression | Identifier | NumericLiteral | StringLiteral | NullLiteral | BooleanLiteral | null
+
+export interface JS3VariableDeclarator extends VariableDeclarator {
+  // init?: Expression | null; --> We compact the grammar here, so a declarator is always just an identifier
+  init?: JS3RVal
+}
+
+export interface JS3VariableDeclaration extends VariableDeclaration {
+  // declarations: Array<VariableDeclarator>;
+  declarations: Array<JS3VariableDeclarator>; // This must be an array of length 1...
+}
+
+
+// 
+// Imports related
+// 
 
 // https://stackoverflow.com/questions/41139763/how-to-declare-a-fixed-length-array-in-typescript
 type LengthArray<
@@ -26,36 +118,4 @@ export interface JS3ImportDeclaration extends ImportDeclaration {
   specifiers: Array<JS3ImportSpecifiers>, // I wanted to use the fancy, size one check type but it is making my life harder ;(
   js3version: string,
   resolvedPath: string | null
-}
-
-export type JS3Statement = JS3ImportDeclaration | JS3VariableDeclaration
-// type Statement = BlockStatement | BreakStatement | ContinueStatement | DebuggerStatement | DoWhileStatement | EmptyStatement | ExpressionStatement | ForInStatement | ForStatement | FunctionDeclaration | IfStatement | LabeledStatement | ReturnStatement | SwitchStatement | ThrowStatement | TryStatement | VariableDeclaration | WhileStatement | WithStatement | ClassDeclaration | ExportAllDeclaration | ExportDefaultDeclaration | ExportNamedDeclaration | ForOfStatement | ImportDeclaration | DeclareClass | DeclareFunction | DeclareInterface | DeclareModule | DeclareModuleExports | DeclareTypeAlias | DeclareOpaqueType | DeclareVariable | DeclareExportDeclaration | DeclareExportAllDeclaration | InterfaceDeclaration | OpaqueType | TypeAlias | EnumDeclaration | TSDeclareFunction | TSInterfaceDeclaration | TSTypeAliasDeclaration | TSEnumDeclaration | TSModuleDeclaration | TSImportEqualsDeclaration | TSExportAssignment | TSNamespaceExportDeclaration;
-
-// 
-// Handled Expressions: Identifier | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | CallExpression
-// 
-// type Expression = ArrayExpression | AssignmentExpression | BinaryExpression |  | ConditionalExpression | FunctionExpression |  |  |  |  |  | RegExpLiteral | LogicalExpression | MemberExpression | NewExpression | ObjectExpression | SequenceExpression | ParenthesizedExpression | ThisExpression | UnaryExpression | UpdateExpression | ArrowFunctionExpression | ClassExpression | ImportExpression | MetaProperty | Super | TaggedTemplateExpression | TemplateLiteral | YieldExpression | AwaitExpression | Import | BigIntLiteral | OptionalMemberExpression | OptionalCallExpression | TypeCastExpression | JSXElement | JSXFragment | BindExpression | DoExpression | RecordExpression | TupleExpression | DecimalLiteral | ModuleExpression | TopicReference | PipelineTopicExpression | PipelineBareFunction | PipelinePrimaryTopicReference | TSInstantiationExpression | TSAsExpression | TSSatisfiesExpression | TSTypeAssertion | TSNonNullExpression;
-
-export interface JS3CallExpression extends CallExpression {
-  callee: Identifier;
-  arguments: Array<Identifier>;
-}
-
-export interface JS3Program extends t.Program {
-  body: Array<JS3Statement>;
-  js3version: string
-}
-
-export type JS3RVal = JS3CallExpression | Identifier | NumericLiteral | StringLiteral | NullLiteral | BooleanLiteral | null
-// type LVal = Identifier | MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | TSParameterProperty | TSAsExpression | TSSatisfiesExpression | TSTypeAssertion | TSNonNullExpression;
-
-export interface JS3VariableDeclarator extends VariableDeclarator {
-  // id: LVal;
-  // init?: Expression | null; --> We compact the grammar here, so a declarator is always just an identifier
-  init?: JS3RVal
-}
-
-export interface JS3VariableDeclaration extends VariableDeclaration {
-  // declarations: Array<VariableDeclarator>; --> We enforce 
-  declarations: Array<JS3VariableDeclarator>; // This must be an array of length 1...
 }

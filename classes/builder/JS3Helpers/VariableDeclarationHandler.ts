@@ -30,6 +30,7 @@ export function handleVariableDeclaration(node: VariableDeclaration, holder: Arr
   for (const declarator of node.declarations) {
     const result = isExpression(declarator.init) ? handleExpression(declarator.init, holder, utils) : null
     const duplicatedNode = generateJS3VariableDeclaration(node, declarator.id, result, node.kind, node.declare, declarator.definite)
+    // Push to holder
     holder.push(duplicatedNode)
   }
 }
