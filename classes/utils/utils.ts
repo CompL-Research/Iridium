@@ -2,8 +2,16 @@ import path from 'path'
 import fs from 'fs'
 import { execSync } from 'child_process'
 import debugConfig from '#debugConfig'
+import { CommentLine } from '@babel/types';
 
 export class JS3GenerationError extends Error {}
+
+export function generateCommentLine(comment: string) : CommentLine {
+  return {
+    type: "CommentLine",
+    value: comment,
+  } as CommentLine
+}
 
 export function resolveModuleImport(source: string, absoluteFilePath: string, projectBasePath: string) : string | undefined {
   let nodeResolutionError

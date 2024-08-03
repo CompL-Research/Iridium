@@ -11,27 +11,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@babel/parser": "^7.24.8",
-    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
-    "@babel/preset-env": "^7.24.8",
-    "@babel/preset-react": "^7.24.7",
-    "@babel/traverse": "^7.24.8",
-    "@babel/types": "^7.24.9",
+    "@babel/core": "^7.25.2",
     "chalk": "^5.3.0",
     "command-line-args": "^6.0.0",
     "command-line-usage": "^7.0.3",
     "shelljs": "^0.8.5",
-    "socket.io": "^4.7.5"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.24.8",
-    "@babel/core": "^7.24.9",
-    "@babel/plugin-syntax-typescript": "^7.24.7",
-    "@babel/plugin-transform-react-jsx-development": "^7.24.7",
-    "@babel/plugin-transform-typescript": "^7.24.8",
-    "@babel/preset-typescript": "^7.24.7",
-    "@types/node": "^20.14.12",
-    "tsx": "^4.16.2"
+    "socket.io": "^4.7.5",
+    "tsx": "^4.16.5"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8",
