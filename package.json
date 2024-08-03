@@ -38,6 +38,7 @@
     "utf-8-validate": "^6.0.4"
   },
   "imports": {
-    "#debugConfig": "./configs/debug.ts"
+    "#debugConfig": "./configs/debug.ts",
+    "#utils": "./classes/utils/utils.ts"
   }
 }

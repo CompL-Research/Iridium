@@ -6,7 +6,7 @@ import assert from 'node:assert/strict'
 
 import debugConfig from "#debugConfig"
 import { isImportDeclaration } from '@babel/types'
-import { resolveModuleImport } from "./util/utils"
+import { resolveModuleImport } from "#utils"
 const generate = _generate["default"];
 
 

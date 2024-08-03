@@ -1,53 +1,40 @@
-import debugConfig from "#debugConfig";
-import { isImportDeclaration, isProgram, isVariableDeclaration } from '@babel/types';
+import { File, isImportDeclaration, Program, Statement } from '@babel/types';
 import assert from "node:assert";
 import { ProjectFile } from "../ProjectFile";
-import { handleImportDeclaration } from "./JS3Helpers/ImportDeclarationHandler";
-import { handleVariableDeclaration } from "./JS3Helpers/VariableDeclarationHandler";
-import { Comment } from "./JS3Instructions";
-import { JS3Module } from "./JS3Module";
-import { tryStatement } from "@babel/types";
-import { handleTryStatement } from "./JS3Helpers/TryStatementHandler";
-import { isTryStatement } from "@babel/types";
-
+import { JS3_VERSION, JS3Program, JS3Statement } from "./JS3Instructions";
+import { handleImportDeclaration } from './JS3Helpers/ImportDeclarationHandler';
+import debugConfig from '#debugConfig'
 
 export default class JS3Builder {
   projectFile: ProjectFile
-  module: JS3Module
+  parsedProgram: JS3Program | null 
+
   constructor(file: ProjectFile) {
     assert(file.parseResult !== undefined)
     this.projectFile = file
+    this.parsedProgram = null
   }
 
   start() {
-    const projectFile = this.projectFile
-    assert(this.projectFile.parseResult !== undefined)
-    const program = this.projectFile.parseResult.program
-    assert(isProgram(program))
-    const module = this.module = new JS3Module(this.projectFile)
 
-    // Generate Import Statements
-    module.addStatement(new Comment(`Transformed by ${debugConfig.versionNumber}\n`))
+    const program = this.projectFile.parseResult?.program
+    assert(program !== undefined)
 
-    // // Iterate over body
-    // for (const node of program.body) {
-    //   if (isImportDeclaration(node)) {
-    //     handleImportDeclaration(node, module, projectFile)
-    //   } 
-      
-    //   // else if (isVariableDeclaration(node)) {
-    //   //   handleVariableDeclaration(node, module, projectFile)
-    //   // } else if (isTryStatement(node)) {
-    //   //   handleTryStatement(node, module, projectFile)
-    //   // } 
-      
-    //   else {
-    //   }
-    // }
-    debugConfig.logger.error(`// TODO PROGRAM: ${program.type}`);
+    const js3Program = {...program} as JS3Program
+    const oldStatements: Array<Statement> = js3Program.body
+    js3Program.body = new Array<JS3Statement>
+    js3Program.js3version = JS3_VERSION
 
-    module.dumpIR()
+    for (const stmt of oldStatements) {
+      if (isImportDeclaration(stmt)) {
+        handleImportDeclaration(stmt, js3Program.body)
+      }
+      else {
+        debugConfig.logger.error(`TODO // Handle stmt: ${stmt.type} @ JS3Builder.ts`)
+      }
+    }
 
+    this.parsedProgram = js3Program
   }
   
   

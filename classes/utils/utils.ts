@@ -3,6 +3,8 @@ import fs from 'fs'
 import { execSync } from 'child_process'
 import debugConfig from '#debugConfig'
 
+export class JS3GenerationError extends Error {}
+
 export function resolveModuleImport(source: string, absoluteFilePath: string, projectBasePath: string) : string | undefined {
   let nodeResolutionError
   // Try resolving using node.resolve

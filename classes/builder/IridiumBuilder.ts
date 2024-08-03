@@ -3,10 +3,13 @@ import assert from 'node:assert/strict'
 import { Project } from '../Project'
 import { ProjectFile } from '../ProjectFile'
 import { JS3Module } from './JS3Module'
-const traverse = _traverse["default"];
+import _generator from "@babel/generator"
+
+const generator = _generator["default"]
+
 
 import debugConfig from "#debugConfig"
-import JS3Builder from './JS3Builder'
+import JS3Builder from "./JS3Builder"
 
 export class IridiumBuilder {
   project: Project
@@ -28,22 +31,28 @@ export class IridiumBuilder {
         } else {
           debugConfig.logger.error(`Project File not found for "${f}"`)
         }
-      } else assert(false)
+      } else {
+        debugConfig.logger.error(`Node Property Missing for "${f}", cannot proceed. Exiting...`)
+        assert(false)
+      }
     })
   }
 
 
 
   handleProjectFile(file: ProjectFile) {
-    
     // Generate JS3 Module
     debugConfig.logger.log(`[Generating JS3 Module] ${file.relativeFilePath}`)
     const js3Builder = new JS3Builder(file);
-
     js3Builder.start()
     debugConfig.logger.warn(`[Source Code] \n${file.transformedCode}\n`)
 
-    debugConfig.logger.log(`[Genereted Module] \n${js3Builder.module.getIRString(0)}\n`)
+    if (js3Builder.parsedProgram !== null) {
+      const generatedJS3Program = generator(js3Builder.parsedProgram)
+      debugConfig.logger.log(`[Genereted Module] \n ${generatedJS3Program.code}`)
+    } else {
+      debugConfig.logger.log(`JS3 builder failed!`)
+    }
   }
   
 }
