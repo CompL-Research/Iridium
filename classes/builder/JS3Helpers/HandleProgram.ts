@@ -1,22 +1,24 @@
 // Generated on 6/8/2024, 10:15:01 am, generated 1 handlers 
-import { Program, isBlockStatement, isBreakStatement, isContinueStatement, isDebuggerStatement, isDoWhileStatement, isEmptyStatement, isExpressionStatement, isForInStatement, isForStatement, isFunctionDeclaration, isIfStatement, isLabeledStatement, isReturnStatement, isSwitchStatement, isThrowStatement, isTryStatement, isVariableDeclaration, isWhileStatement, isWithStatement, isClassDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isForOfStatement, isImportDeclaration, isDeclareClass, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareTypeAlias, isDeclareOpaqueType, isDeclareVariable, isDeclareExportDeclaration, isDeclareExportAllDeclaration, isInterfaceDeclaration, isOpaqueType, isTypeAlias, isEnumDeclaration, isTSDeclareFunction, isTSInterfaceDeclaration, isTSTypeAliasDeclaration, isTSEnumDeclaration, isTSModuleDeclaration, isTSImportEqualsDeclaration, isTSExportAssignment, isTSNamespaceExportDeclaration, VariableDeclaration, isVariableDeclarator, VariableDeclarator, isArrayExpression, isAssignmentExpression, isBinaryExpression, isCallExpression, isConditionalExpression, isFunctionExpression, isIdentifier, isStringLiteral, isNumericLiteral, isNullLiteral, isBooleanLiteral, isRegExpLiteral, isLogicalExpression, isMemberExpression, isNewExpression, isObjectExpression, isSequenceExpression, isParenthesizedExpression, isThisExpression, isUnaryExpression, isUpdateExpression, isArrowFunctionExpression, isClassExpression, isImportExpression, isMetaProperty, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isYieldExpression, isAwaitExpression, isImport, isBigIntLiteral, isOptionalMemberExpression, isOptionalCallExpression, isTypeCastExpression, isJSXElement, isJSXFragment, isBindExpression, isDoExpression, isRecordExpression, isTupleExpression, isDecimalLiteral, isModuleExpression, isTopicReference, isPipelineTopicExpression, isPipelineBareFunction, isPipelinePrimaryTopicReference, isTSInstantiationExpression, isTSAsExpression, isTSSatisfiesExpression, isTSTypeAssertion, isTSNonNullExpression, ImportDeclaration, isImportSpecifier, isImportDefaultSpecifier, isImportNamespaceSpecifier, isImportAttribute, } from "@babel/types";
-import { JS3Program_body, JS3Program, JS3VariableDeclaration_declarations, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3VariableDeclarator, JS3ImportDeclaration_specifiers, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration, } from "./JS3Types.ts";
-import { generateJS3Program, generateJS3VariableDeclaration, generateJS3VariableDeclarator, generateJS3ImportDeclaration, generateIdentifier, } from "./JS3Constructors.ts";
+import { ExportDefaultDeclaration, ImportDeclaration, Program, VariableDeclaration, VariableDeclarator, isBlockStatement, isBreakStatement, isClassDeclaration, isContinueStatement, isDebuggerStatement, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isIdentifier, isIfStatement, isImportAttribute, isImportDeclaration, isInterfaceDeclaration, isLabeledStatement, isOpaqueType, isReturnStatement, isSwitchStatement, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSTypeAliasDeclaration, isThrowStatement, isTryStatement, isTypeAlias, isVariableDeclaration, isWhileStatement, isWithStatement } from "@babel/types";
+import { generateJS3ExportDefaultDeclaration, generateJS3ImportDeclaration, generateJS3Program, generateJS3VariableDeclaration, generateJS3VariableDeclarator } from "./JS3Constructors.ts";
+import { JS3ExportDefaultDeclaration, JS3ExportDefaultDeclaration_declaration, JS3ImportDeclaration, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body, JS3VariableDeclaration, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init, } from "./JS3Types.ts";
 
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
 
 import debugConfig from "#debugConfig";
 import { generateCommentLine } from "#utils";
-import { handleCallExpression, handleCallExpressionAndGetResultIdentifier } from "./HandleCallExpression.ts";
 
-import assert from "node:assert"
+import assert from "node:assert";
+import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
+import { handleExpression } from "./HandleExpression.ts";
+
+type OtherProps = JS3BuilderUtils;
 
 const isnull = (a) => a === null;
 const isundefined = (a) => a === undefined;
 
-type OtherProps = JS3BuilderUtils;
-
 export function handleProgram(node: Program, otherProps: OtherProps): JS3Program {
+  otherProps.debugTrace.push("Program");
   // 4 fallthrough props, 1 restricted props
   let orig_body = node.body; // Handling prop body
   let fin_body: JS3Program_body = new Array() // Handling prop body
@@ -55,9 +57,9 @@ export function handleProgram(node: Program, otherProps: OtherProps): JS3Program
       } else if (isTryStatement(_arrProp)) {
         debugConfig.logger.error("TODO // unhandled Program->[body]->TryStatement");
       } else if (isVariableDeclaration(_arrProp)) {
-// ========================================================================================
+        // ========================================================================================
         handleVariableDeclaration(_arrProp, otherProps).forEach(d => fin_body.push(d))
-// ========================================================================================
+        // ========================================================================================
       } else if (isWhileStatement(_arrProp)) {
         debugConfig.logger.error("TODO // unhandled Program->[body]->WhileStatement");
       } else if (isWithStatement(_arrProp)) {
@@ -67,15 +69,17 @@ export function handleProgram(node: Program, otherProps: OtherProps): JS3Program
       } else if (isExportAllDeclaration(_arrProp)) {
         debugConfig.logger.error("TODO // unhandled Program->[body]->ExportAllDeclaration");
       } else if (isExportDefaultDeclaration(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled Program->[body]->ExportDefaultDeclaration");
+        // ========================================================================================
+        handleExportDefaultDeclaration(_arrProp, otherProps).forEach(d => fin_body.push(d))
+        // ========================================================================================
       } else if (isExportNamedDeclaration(_arrProp)) {
         debugConfig.logger.error("TODO // unhandled Program->[body]->ExportNamedDeclaration");
       } else if (isForOfStatement(_arrProp)) {
         debugConfig.logger.error("TODO // unhandled Program->[body]->ForOfStatement");
       } else if (isImportDeclaration(_arrProp)) {
-// ========================================================================================
+        // ========================================================================================
         handleImportDeclaration(_arrProp, otherProps).forEach(d => fin_body.push(d))
-// ========================================================================================
+        // ========================================================================================
       } else if (isDeclareClass(_arrProp)) {
         debugConfig.logger.error("TODO // unhandled Program->[body]->DeclareClass");
       } else if (isDeclareFunction(_arrProp)) {
@@ -125,7 +129,7 @@ export function handleProgram(node: Program, otherProps: OtherProps): JS3Program
   }
 
   let result: JS3Program = generateJS3Program(fin_body, node);
-
+  otherProps.debugTrace.pop()
   return result
 }
 
@@ -138,10 +142,12 @@ export function handleProgram(node: Program, otherProps: OtherProps): JS3Program
 //   let b = 2
 //   let c = 3 
 // 
-export function handleVariableDeclaration(node: VariableDeclaration, otherProps: OtherProps) : Array<JS3VariableDeclaration> {
+export function handleVariableDeclaration(node: VariableDeclaration, otherProps: OtherProps): Array<JS3VariableDeclaration> {
+  otherProps.debugTrace.push("VariableDeclaration");
+
   // One variable declaration is broken down into multiple variable declarations
   let finalResult = new Array<JS3VariableDeclaration>()
-  
+
   // 3 fallthrough props, 1 restricted props
   let orig_declarations = node.declarations; // Handling prop declarations
 
@@ -150,9 +156,9 @@ export function handleVariableDeclaration(node: VariableDeclaration, otherProps:
 
       // A JS3VariableDeclaration will only contain one declaration inside it
       const fin_declarations: JS3VariableDeclaration_declarations = new Array()
-      
+
       // Holder holds the generated intermediate nodes
-      const updatedProps = { others: { holder: new Array<JS3VariableDeclaration>() }, ...otherProps }
+      const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: new Array<JS3VariableDeclaration>() } }
 
       // If the LVal is an identifier we can use it as prefix for the temporaries
       if (isIdentifier(_arrProp.id)) updatedProps.others.prefix = _arrProp.id.name;
@@ -171,6 +177,7 @@ export function handleVariableDeclaration(node: VariableDeclaration, otherProps:
       finalResult.push(duplicatedNode)
     }
   }
+  otherProps.debugTrace.pop()
   return finalResult
 }
 
@@ -180,137 +187,23 @@ export function handleVariableDeclaration(node: VariableDeclaration, otherProps:
 // 
 // init must be reduced down to Identifier and the a final JS3VariableDeclarator must be of the form LVal = $result_holder$
 // 
-export function handleVariableDeclarator(node: VariableDeclarator, otherProps: OtherProps) : JS3VariableDeclarator {
-
+export function handleVariableDeclarator(node: VariableDeclarator, otherProps: OtherProps): JS3VariableDeclarator {
+  otherProps.debugTrace.push("VariableDeclarator");
   assert(Array.isArray(otherProps.others.holder), "handleVariableDeclarator expects an holder to spill intermediate values");
-
-  // 
-  // We need to reduce orig_init -> Identifier
-  // 
-  // We can spill intermediates into intermediatesHolder
-  // 
-  // 
-
   // 3 fallthrough props, 1 restricted props
   let orig_init = node.init; // Handling prop init
-  let fin_init: JS3VariableDeclarator_init = generateIdentifier(node, "$TODO"); // Handling prop init
-  if (isArrayExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->ArrayExpression");
-  } else if (isAssignmentExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->AssignmentExpression");
-  } else if (isBinaryExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->BinaryExpression");
-  } else if (isCallExpression(orig_init)) {
-// ========================================================================================
-    fin_init = handleCallExpressionAndGetResultIdentifier(orig_init, otherProps);
-// ========================================================================================
-  } else if (isConditionalExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->ConditionalExpression");
-  } else if (isFunctionExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->FunctionExpression");
-  } else if (isIdentifier(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->Identifier");
-  } else if (isStringLiteral(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->StringLiteral");
-  } else if (isNumericLiteral(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->NumericLiteral");
-  } else if (isNullLiteral(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->NullLiteral");
-  } else if (isBooleanLiteral(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->BooleanLiteral");
-  } else if (isRegExpLiteral(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->RegExpLiteral");
-  } else if (isLogicalExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->LogicalExpression");
-  } else if (isMemberExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->MemberExpression");
-  } else if (isNewExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->NewExpression");
-  } else if (isObjectExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->ObjectExpression");
-  } else if (isSequenceExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->SequenceExpression");
-  } else if (isParenthesizedExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->ParenthesizedExpression");
-  } else if (isThisExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->ThisExpression");
-  } else if (isUnaryExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->UnaryExpression");
-  } else if (isUpdateExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->UpdateExpression");
-  } else if (isArrowFunctionExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->ArrowFunctionExpression");
-  } else if (isClassExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->ClassExpression");
-  } else if (isImportExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->ImportExpression");
-  } else if (isMetaProperty(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->MetaProperty");
-  } else if (isSuper(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->Super");
-  } else if (isTaggedTemplateExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->TaggedTemplateExpression");
-  } else if (isTemplateLiteral(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->TemplateLiteral");
-  } else if (isYieldExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->YieldExpression");
-  } else if (isAwaitExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->AwaitExpression");
-  } else if (isImport(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->Import");
-  } else if (isBigIntLiteral(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->BigIntLiteral");
-  } else if (isOptionalMemberExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->OptionalMemberExpression");
-  } else if (isOptionalCallExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->OptionalCallExpression");
-  } else if (isTypeCastExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->TypeCastExpression");
-  } else if (isJSXElement(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->JSXElement");
-  } else if (isJSXFragment(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->JSXFragment");
-  } else if (isBindExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->BindExpression");
-  } else if (isDoExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->DoExpression");
-  } else if (isRecordExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->RecordExpression");
-  } else if (isTupleExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->TupleExpression");
-  } else if (isDecimalLiteral(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->DecimalLiteral");
-  } else if (isModuleExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->ModuleExpression");
-  } else if (isTopicReference(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->TopicReference");
-  } else if (isPipelineTopicExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->PipelineTopicExpression");
-  } else if (isPipelineBareFunction(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->PipelineBareFunction");
-  } else if (isPipelinePrimaryTopicReference(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->PipelinePrimaryTopicReference");
-  } else if (isTSInstantiationExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->TSInstantiationExpression");
-  } else if (isTSAsExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->TSAsExpression");
-  } else if (isTSSatisfiesExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->TSSatisfiesExpression");
-  } else if (isTSTypeAssertion(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->TSTypeAssertion");
-  } else if (isTSNonNullExpression(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->TSNonNullExpression");
-  } else if (isnull(orig_init)) {
-    debugConfig.logger.error("TODO // unhandled VariableDeclarator->init->null");
+  let fin_init: JS3VariableDeclarator_init = null; // Handling prop init
+  if (isExpression(orig_init)) {
+    fin_init = handleExpression(orig_init, otherProps)
   }
-
-  const final = generateJS3VariableDeclarator(fin_init, node);
-
-  return final;
+  let result: JS3VariableDeclarator = generateJS3VariableDeclarator(fin_init, node);
+  otherProps.debugTrace.pop()
+  return result;
 }
 
 // Import Declarations
 export function handleImportDeclaration(node: ImportDeclaration, otherProps: OtherProps): Array<JS3ImportDeclaration> {
+  otherProps.debugTrace.push("ImportDeclaration");
   // 5 fallthrough props, 3 restricted props
   let orig_assertions = node.assertions; // Handling prop assertions
   let fin_assertions: JS3ImportDeclaration_assertions; // Handling prop assertions
@@ -367,7 +260,48 @@ export function handleImportDeclaration(node: ImportDeclaration, otherProps: Oth
       finalResult.push(duplicatedNode);
     }
   }
-
+  otherProps.debugTrace.pop()
   return finalResult
 }
 
+// Export Default Declaration, returns a list of declarations (may be caused by spilling) and finally a ExportDefaultDeclaration
+export function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, otherProps: OtherProps): JS3Program_body {
+  otherProps.debugTrace.push("ExportDefaultDeclaration");
+  const finalResult: JS3Program_body = new Array()
+
+  // 2 fallthrough props, 1 restricted props
+  let orig_declaration = node.declaration; // Handling prop declaration
+  let fin_declaration: JS3ExportDefaultDeclaration_declaration; // Handling prop declaration
+  if (isTSDeclareFunction(orig_declaration)) {
+    debugConfig.logger.error("TODO // unhandled ExportDefaultDeclaration->declaration->TSDeclareFunction");
+  } else if (isFunctionDeclaration(orig_declaration)) {
+    debugConfig.logger.error("TODO // unhandled ExportDefaultDeclaration->declaration->FunctionDeclaration");
+  } else if (isClassDeclaration(orig_declaration)) {
+
+    // This may cause spilling as the 
+    const holder: JS3Program_body = new Array()
+    // Holder holds the generated intermediate nodes
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder, prefix: "expDef" } }
+    
+    fin_declaration = handleClassDeclaration(orig_declaration, updatedProps)
+    
+    // Add spilled to the parent holder
+    holder.forEach(e => finalResult.push(e))
+
+  } else if (isExpression(orig_declaration)) {
+    // This may cause spilling as the 
+    const holder: JS3Program_body = new Array()
+    // Holder holds the generated intermediate nodes
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder, prefix: "expDef" } }
+    
+    fin_declaration = handleExpression(orig_declaration, updatedProps)
+    
+    // Add spilled to the parent holder
+    holder.forEach(e => finalResult.push(e))
+  }
+
+  let result: JS3ExportDefaultDeclaration = generateJS3ExportDefaultDeclaration(fin_declaration, node);
+  finalResult.push(result)
+  otherProps.debugTrace.pop()
+  return finalResult
+}
