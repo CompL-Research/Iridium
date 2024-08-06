@@ -47,11 +47,11 @@ export class IridiumBuilder {
     js3Builder.build()
     debugConfig.logger.warn(`[Source Code] \n${file.transformedCode}\n`)
 
-    if (js3Builder.parsedProgram !== null) {
-      const generatedJS3Program = generator(js3Builder.parsedProgram)
+    if (js3Builder.generatedProgram !== null) {
+      const generatedJS3Program = generator(js3Builder.generatedProgram)
       debugConfig.logger.log(`[Genereted Module] \n ${generatedJS3Program.code}`)
     } else {
-      debugConfig.logger.log(`JS3 builder failed!`)
+      debugConfig.logger.log(`[Iridium Builder] JS3 builder failed!`)
     }
   }
   

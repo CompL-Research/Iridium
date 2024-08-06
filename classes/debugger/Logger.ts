@@ -56,4 +56,16 @@ export default class Logger {
     this.#generateLog(data)
   }
 
+  thrownError(message: string, objects: Array<any> = []) {
+    const timestamp = new Date().toLocaleString()
+    const data: LogItem = {
+      timestamp,
+      level: "error",
+      message,
+      objects
+    }
+    this.#generateLog(data)
+    throw new Error(message)
+  }
+
 };
