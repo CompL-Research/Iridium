@@ -6,6 +6,10 @@
   /* border: 2px solid blue; */
 }
 
+.log-msg-line {
+  white-space: pre-wrap;
+}
+
 .react-json-view {
   /* padding: 25px 10px; */
   margin: 10px;

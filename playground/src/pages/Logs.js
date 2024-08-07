@@ -10,6 +10,7 @@ export default function Logs({ socket, flashMessage }) {
   
   useEffect(() => {
     const logDataDelivery = (data) =>  {
+      console.log("LogData", data)
       if (data) {
         flashMessage("New logs...", data)
         setLogs(data)
@@ -33,7 +34,7 @@ export default function Logs({ socket, flashMessage }) {
   return <div className="logs-container">
     {
       logs.map((l, idx) => <div className={`log-item log-item-${l.level}`} key={idx} title={l.timestamp}>
-        {l.message.split("\n").map((e,index) => <div>{index > 0 ? `> ${e}` : e}</div>)}
+        {l.message.split("\n").map((e,index) => <div className="log-msg-line" >{e}</div>)}
       
         {l.objects.length > 0 && 
           <ReactJson theme="threezerotwofour" name={false} displayDataTypes={false} indentWidth={6} enableClipboard src={l.objects} collapsed={0} />
