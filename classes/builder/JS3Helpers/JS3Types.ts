@@ -1,4 +1,4 @@
-// Generated on 7/8/2024, 7:56:10 pm, extended 21 interfaces 
+// Generated on 7/8/2024, 8:16:23 pm, extended 21 interfaces 
 
 import { ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, RestElement, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, ExpressionStatement, AssignmentExpression, BinaryExpression, BlockStatement, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, VariableDeclaration, VariableDeclarator, ClassBody, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, } from "@babel/types";
 
@@ -30,7 +30,7 @@ export type JS3NewExpression_callee = Identifier | Super | V8IntrinsicIdentifier
 export type JS3NewExpression_arguments = Array<Identifier | SpreadElement | ArgumentPlaceholder>;
 export type JS3NewExpression_typeArguments = null;
 export type JS3NewExpression_typeParameters = null;
-export type JS3Program_body = Array< JS3ImportDeclaration | JS3VariableDeclaration | JS3ExportDefaultDeclaration | JS3ExpressionStatement>;
+export type JS3Program_body = Array< JS3ImportDeclaration | JS3ExportDefaultDeclaration | JS3VariableDeclaration | JS3ReturnStatement | JS3ExpressionStatement | JS3IfStatement >;
 export type JS3ObjectExpression_properties = Array<ObjectMethod | ObjectProperty | SpreadElement>;
 export type JS3ReturnStatement_argument = undefined | null | Identifier;
 export type JS3VariableDeclaration_declarations = Array<JS3VariableDeclarator>;

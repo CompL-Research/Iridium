@@ -1,7 +1,7 @@
 // Generated on 6/8/2024, 10:15:01 am, generated 1 handlers 
 import { ExportDefaultDeclaration, ImportDeclaration, Program, VariableDeclaration, VariableDeclarator, isBlockStatement, isBreakStatement, isClassDeclaration, isContinueStatement, isDebuggerStatement, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isIdentifier, isIfStatement, isImportAttribute, isImportDeclaration, isInterfaceDeclaration, isLabeledStatement, isOpaqueType, isReturnStatement, isSwitchStatement, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSTypeAliasDeclaration, isThrowStatement, isTryStatement, isTypeAlias, isVariableDeclaration, isWhileStatement, isWithStatement } from "@babel/types";
 import { generateJS3ExportDefaultDeclaration, generateJS3ImportDeclaration, generateJS3Program, generateJS3VariableDeclaration, generateJS3VariableDeclarator } from "./JS3Constructors.ts";
-import { JS3ExportDefaultDeclaration, JS3ExportDefaultDeclaration_declaration, JS3ImportDeclaration, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body, JS3VariableDeclaration, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init, } from "./JS3Types.ts";
+import { JS3BlockStatement_body, JS3ExportDefaultDeclaration, JS3ExportDefaultDeclaration_declaration, JS3ImportDeclaration, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body, JS3VariableDeclaration, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init, } from "./JS3Types.ts";
 
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
 
@@ -9,6 +9,7 @@ import debugConfig from "#debugConfig";
 import { generateCommentLine } from "#utils";
 
 import assert from "node:assert";
+import { handleExpressionStatement } from "./HandleBlocks.ts";
 import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
 import { handleExpression } from "./HandleExpression.ts";
 
@@ -37,7 +38,13 @@ export function handleProgram(node: Program, otherProps: OtherProps): JS3Program
       } else if (isEmptyStatement(_arrProp)) {
         debugConfig.logger.error("TODO // unhandled Program->[body]->EmptyStatement");
       } else if (isExpressionStatement(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled Program->[body]->ExpressionStatement");
+        // ========================================================================================
+        const holder : JS3BlockStatement_body = new Array()
+        const updatedProps = { ...otherProps, others: { ...otherProps.others, holder } }
+        const exprStmt = handleExpressionStatement(_arrProp, updatedProps)
+        holder.forEach(s => fin_body.push(s))
+        fin_body.push(exprStmt)
+        // ========================================================================================
       } else if (isForInStatement(_arrProp)) {
         debugConfig.logger.error("TODO // unhandled Program->[body]->ForInStatement");
       } else if (isForStatement(_arrProp)) {
