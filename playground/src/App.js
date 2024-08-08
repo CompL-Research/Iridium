@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { io } from 'socket.io-client';
 
-import './App.css'
-import Logs from './pages/Logs';
+import './App.css';
 import ImportsGraph from './pages/ImportsGraph';
+import Logs from './pages/Logs';
 
 const banner = `
  
@@ -125,7 +125,7 @@ function MainContainer() {
                 title="Logs" 
                 onClick={() => setSelectedTab(2)}
                 className={`left-icon ${enablePlayground ? selectedTab === 2 ? "left-icon-selected" : "left-icon-idle" : "left-icon-disabled"}`}>
-                <i className="material-icons">list</i>
+                <i className="material-icons">terminal</i>
               </div>
             </div>
             <div className='right-space'>

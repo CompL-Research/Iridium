@@ -1,4 +1,4 @@
-import Logger from "../classes/debugger/Logger";
+import Logger from "../classes/debugger/Logger.ts";
 
 const config : {
   js3DebugPath: string,

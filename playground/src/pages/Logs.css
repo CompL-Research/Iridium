@@ -1,26 +1,56 @@
 .logs-container {
-  background-color: black;
+  background-color: #111111;
   flex: 1; 
-  padding: 10px 0px 0px 10px;
+  /* padding: 10px 10px 0px 10px; */
   color: wheat;
   /* border: 2px solid blue; */
 }
+
+.log-filter-bar {
+  text-align: right;
+  font-size: smaller;
+  background-color: slategray;
+  /* border-bottom: 1px solid; */
+  color: white;
+  padding: 5px 10px 10px 10px;
+}
+
+.logs-container > div:nth-of-type(even) {
+  background-color: #181818;
+}
+
+.filter-bar-checkbox {
+  display: inline-flex;
+  justify-content: center;
+  margin-right: 10px;
+}
+
+.log-filter-bar > input {
+  width: 40px;
+}
+
+.logs-container >div {
+  padding: 5px 10px;
+}
+
 
 .log-msg-line {
   white-space: pre-wrap;
 }
 
+
+
 .react-json-view {
-  /* padding: 25px 10px; */
-  margin: 10px;
+  border: 2px solid;
+  margin: 20px 10px;
+  padding: 10px;
   font-family: 'JetBrains Mono';
-  font-size: small;
-  margin-left: 25px;
+  font-size: larger;
 }
 
 .log-item {
   font-family: 'JetBrains Mono';
-  font-size: large;
+  font-size: medium;
   /* padding: 5px; */
   padding-bottom: 5px;
   /* background-color: black; */
@@ -43,4 +73,35 @@
 .log-item-general {
   color: greenyellow;
   /* border-left: 5px solid greenyellow; */
+}
+
+.data-pane {
+  padding: 10px;
+}
+
+.resolve-data-button-container {
+  margin: 5px 5px;
+  text-align: center;
+}
+
+.resolve-data-button {
+  border: 1px solid;
+  padding: 10px 10px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.resolve-data-button > span {
+  margin-left: 5px;
+}
+
+.resolve-data-button:hover  {
+  background-color: slateblue;
+  cursor: pointer;
+}
+
+.downloading {
+  background-color: darkgray;
+  color: black
 }

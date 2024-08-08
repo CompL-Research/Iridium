@@ -1,10 +1,10 @@
-import fs from 'fs'
-import path from 'path'
-import assert from 'node:assert/strict'
 import chalk from 'chalk'
-import commandLineUsage from 'command-line-usage'
 import commandLineArgs from 'command-line-args'
-import { Server } from "socket.io";
+import commandLineUsage from 'command-line-usage'
+import fs from 'fs'
+import assert from 'node:assert/strict'
+import path from 'path'
+import { Server } from "socket.io"
 
 import debugConfig from "#debugConfig"
 import { Project } from './classes/Project.ts'
@@ -62,13 +62,22 @@ async function main(mainProjectPath, analyzePath) {
         debugConfig.logger.log(`[IRIDIUM PLAYGROUND] Client disconnected ${socket.id} [${activeClients} active]`)
       });
 
-      socket.on("get-log-data", (dataLen) => {
-        if (dataLen === debugConfig.logger.logData.length) {
-          socket.emit("log-data-delivery", null)
-        } else {
-          console.log(`[IRIDIUM PLAYGROUND] Sending logdata ==> ${socket.id} | datalength: ${dataLen}`)
-          socket.emit("log-data-delivery", debugConfig.logger.logData)
-        }
+      socket.on("get-log-data", (dataLen : number) => {
+        const dataToSend = debugConfig.logger.logData.slice(dataLen)
+        let finalData : any = []
+
+        dataToSend.forEach(o => {
+          finalData.push({ ...o, objects: o.objects.length > 0 ? ["unresolved"] : ["none"] })
+        })
+
+
+        socket.emit("log-data-delivery", finalData)
+      });
+
+      socket.on("get-log-object", (dataIdx : number) => {
+        const dataItem = debugConfig.logger.logData[dataIdx]
+        console.log("Sending Requested Log Data: ", dataIdx, dataItem)
+        socket.emit("log-object-delivery", { dataIdx, data: dataItem.objects })
       });
 
       socket.on("get-imports-graph", (dataLen) => {
