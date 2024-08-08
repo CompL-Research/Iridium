@@ -1,12 +1,12 @@
 // Generated on 7/8/2024, 5:50:38 pm, generated 16 handlers 
 
-import { BlockStatement, CatchClause, ExpressionStatement, IfStatement, isBlockStatement, isBreakStatement, isCatchClause, isClassDeclaration, isContinueStatement, isDebuggerStatement, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isIdentifier, isIfStatement, isImportDeclaration, isInterfaceDeclaration, isLabeledStatement, isOpaqueType, isReturnStatement, isStatement, isSwitchStatement, isThrowStatement, isTryStatement, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration, isWhileStatement, isWithStatement, ReturnStatement, Statement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator } from "@babel/types";
+import { BlockStatement, CatchClause, ExpressionStatement, FunctionDeclaration, IfStatement, isArrayPattern, isAssignmentPattern, isBlockStatement, isBreakStatement, isCatchClause, isClassDeclaration, isContinueStatement, isDebuggerStatement, isDeclareClass, isDeclaredPredicate, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isIdentifier, isIfStatement, isImportDeclaration, isInferredPredicate, isInterfaceDeclaration, isLabeledStatement, isNoop, isObjectPattern, isOpaqueType, isRestElement, isReturnStatement, isStatement, isSwitchStatement, isThrowStatement, isTryStatement, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSTypeAliasDeclaration, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTypeAlias, isTypeAnnotation, isTypeParameterDeclaration, isVariableDeclaration, isWhileStatement, isWithStatement, ReturnStatement, Statement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator } from "@babel/types";
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { JS3BlockStatement, JS3BlockStatement_body, JS3CatchClause_body, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3ReturnStatement_argument, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init } from "./JS3Types.ts";
+import { JS3BlockStatement, JS3BlockStatement_body, JS3CatchClause_body, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3FunctionDeclaration, JS3FunctionDeclaration_body, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3ReturnStatement_argument, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
 import { handleExpression } from "./HandleExpression.ts";
-import { generateIdentifier, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3CatchClause, generateJS3ExpressionStatement, generateJS3IfStatement, generateJS3ReturnStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarator } from "./JS3Constructors.ts";
+import { generateIdentifier, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3CatchClause, generateJS3ExpressionStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3ReturnStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarator } from "./JS3Constructors.ts";
 
 import assert from 'node:assert';
 
@@ -52,7 +52,9 @@ export function handleStatement(node: Statement, otherProps: OtherProps) {
   } else if (isForStatement(node)) {
     debugConfig.logger.error("TODO // unhandled Statement->ForStatement");
   } else if (isFunctionDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->FunctionDeclaration");
+    // ========================================================================================
+    handleFunctionDeclaration(node, otherProps)
+    // ========================================================================================
   } else if (isIfStatement(node)) {
     // ========================================================================================
     handleIfStatement(node, otherProps)
@@ -279,10 +281,10 @@ export function handleVariableDeclaration(node: VariableDeclaration, otherProps:
 export function handleVariableDeclarator(node: VariableDeclarator, otherProps: OtherProps): JS3VariableDeclarator {
   otherProps.debugTrace.push("VariableDeclarator");
   assert(Array.isArray(otherProps.others.holder), "handleVariableDeclarator expects an holder to spill intermediate values");
-  
+
   const oldPrefix = otherProps.others.prefix
   if (isIdentifier(node.id)) otherProps.others.prefix = node.id.name;
-  
+
   // 3 fallthrough props, 1 restricted props
   let orig_init = node.init; // Handling prop init
   let fin_init: JS3VariableDeclarator_init = null; // Handling prop init
@@ -290,7 +292,7 @@ export function handleVariableDeclarator(node: VariableDeclarator, otherProps: O
     fin_init = handleExpression(orig_init, otherProps)
   }
   let result: JS3VariableDeclarator = generateJS3VariableDeclarator(fin_init, node);
-  
+
   otherProps.others.prefix = oldPrefix
   otherProps.debugTrace.pop()
   return result;
@@ -303,18 +305,18 @@ export function handleVariableDeclarator(node: VariableDeclarator, otherProps: O
 export function handleTryStatement(node: TryStatement, otherProps: OtherProps) {
   // 1 fallthrough props, 3 restricted props
   let orig_block = node.block; // Handling prop block
-  let fin_block : JS3TryStatement_block; // Handling prop block
-  if(isBlockStatement (orig_block)) {
+  let fin_block: JS3TryStatement_block; // Handling prop block
+  if (isBlockStatement(orig_block)) {
     fin_block = handleBlockStatement(orig_block, otherProps)
-  } 
+  }
   let orig_handler = node.handler; // Handling prop handler
-  let fin_handler : JS3TryStatement_handler = null; // Handling prop handler
-  if(isCatchClause (orig_handler)) {
+  let fin_handler: JS3TryStatement_handler = null; // Handling prop handler
+  if (isCatchClause(orig_handler)) {
     fin_handler = handleCatchClause(orig_handler, otherProps)
   }
   let orig_finalizer = node.finalizer; // Handling prop finalizer
-  let fin_finalizer : JS3TryStatement_finalizer = null; // Handling prop finalizer
-  if(isBlockStatement (orig_finalizer)) {
+  let fin_finalizer: JS3TryStatement_finalizer = null; // Handling prop finalizer
+  if (isBlockStatement(orig_finalizer)) {
     fin_finalizer = handleBlockStatement(orig_finalizer, otherProps)
   }
   otherProps.others.holder.push(generateJS3TryStatement(fin_block, fin_handler, fin_finalizer, node))
@@ -327,10 +329,10 @@ export function handleTryStatement(node: TryStatement, otherProps: OtherProps) {
 export function handleCatchClause(node: CatchClause, otherProps: OtherProps) {
   // 2 fallthrough props, 1 restricted props
   let orig_body = node.body; // Handling prop body
-  let fin_body : JS3CatchClause_body; // Handling prop body
-  if(isBlockStatement (orig_body)) {
+  let fin_body: JS3CatchClause_body; // Handling prop body
+  if (isBlockStatement(orig_body)) {
     fin_body = handleBlockStatement(orig_body, otherProps)
-  } 
+  }
   return generateJS3CatchClause(fin_body, node)
 }
 
@@ -341,9 +343,78 @@ export function handleCatchClause(node: CatchClause, otherProps: OtherProps) {
 export function handleThrowStatement(node: ThrowStatement, otherProps: OtherProps) {
   // 1 fallthrough props, 1 restricted props
   let orig_argument = node.argument; // Handling prop argument
-  let fin_argument : JS3ThrowStatement_argument; // Handling prop argument
-  if(isExpression (orig_argument)) {
+  let fin_argument: JS3ThrowStatement_argument; // Handling prop argument
+  if (isExpression(orig_argument)) {
     fin_argument = handleExpression(orig_argument, otherProps)
-  } 
+  }
   otherProps.others.holder.push(generateJS3ThrowStatement(fin_argument, node))
+}
+
+//
+// (6) FunctionDeclaration
+//
+// TODO
+export function handleFunctionDeclaration(node: FunctionDeclaration, otherProps: OtherProps) {
+  // 4 fallthrough props, 6 restricted props
+  let orig_id = node.id; // Handling prop id
+  let fin_id: JS3FunctionDeclaration_id = null; // Handling prop id
+  if (isIdentifier(orig_id)) {
+    fin_id = orig_id
+  }
+
+  let orig_params = node.params; // Handling prop params
+  let fin_params: JS3FunctionDeclaration_params = new Array(); // Handling prop params
+  if (Array.isArray(orig_params)) {
+    for (const _arrProp of orig_params) {
+      if (isIdentifier(_arrProp)) {
+        fin_params.push(_arrProp)
+      } else if (isAssignmentPattern(_arrProp)) {
+        debugConfig.logger.error("TODO // unhandled FunctionDeclaration->[params]->AssignmentPattern");
+      } else if (isArrayPattern(_arrProp)) {
+        debugConfig.logger.error("TODO // unhandled FunctionDeclaration->[params]->ArrayPattern");
+      } else if (isObjectPattern(_arrProp)) {
+        debugConfig.logger.error("TODO // unhandled FunctionDeclaration->[params]->ObjectPattern");
+      } else if (isRestElement(_arrProp)) {
+        debugConfig.logger.error("TODO // unhandled FunctionDeclaration->[params]->RestElement");
+      }
+    }
+  }
+
+  let orig_body = node.body; // Handling prop body
+  let fin_body: JS3FunctionDeclaration_body; // Handling prop body
+  if (isBlockStatement(orig_body)) {
+    fin_body = handleBlockStatement(orig_body, otherProps)
+  }
+
+  let orig_predicate = node.predicate; // Handling prop predicate
+  let fin_predicate: JS3FunctionDeclaration_predicate = null; // Handling prop predicate
+  if (isDeclaredPredicate(orig_predicate)) {
+    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->predicate->DeclaredPredicate");
+  } else if (isInferredPredicate(orig_predicate)) {
+    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->predicate->InferredPredicate");
+  }
+
+  let orig_returnType = node.returnType; // Handling prop returnType
+  let fin_returnType: JS3FunctionDeclaration_returnType = null; // Handling prop returnType
+  if (isTypeAnnotation(orig_returnType)) {
+    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->returnType->TypeAnnotation");
+  } else if (isTSTypeAnnotation(orig_returnType)) {
+    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->returnType->TSTypeAnnotation");
+  } else if (isNoop(orig_returnType)) {
+    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->returnType->Noop");
+  }
+
+  let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
+  let fin_typeParameters: JS3FunctionDeclaration_typeParameters = null; // Handling prop typeParameters
+  if (isTypeParameterDeclaration(orig_typeParameters)) {
+    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->typeParameters->TypeParameterDeclaration");
+  } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
+    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->typeParameters->TSTypeParameterDeclaration");
+  } else if (isNoop(orig_typeParameters)) {
+    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->typeParameters->Noop");
+  }
+
+  let result: JS3FunctionDeclaration = generateJS3FunctionDeclaration(fin_id, fin_params, fin_body, fin_predicate, fin_returnType, fin_typeParameters, node);
+  otherProps.others.holder.push(result)
+
 }

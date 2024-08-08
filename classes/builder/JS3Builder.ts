@@ -1,9 +1,13 @@
 import debugConfig from "#debugConfig";
+import _generator from "@babel/generator";
 import { Node } from "@babel/types";
 import assert from "node:assert";
+import fs from "node:fs";
 import { ProjectFile } from "../ProjectFile.ts";
 import { handleProgram } from "./JS3Helpers/HandleProgram.ts";
 import { JS3AllowedBlockStatement, JS3Program, JS3Program_body } from "./JS3Helpers/JS3Types.ts";
+
+const generator = _generator["default"]
 
 export type JS3BuilderUtils = {
   getNewTemporary: (prefix: string | undefined) => string
@@ -36,10 +40,8 @@ export default class JS3Builder {
   }
 
   build() {
-
     const program = this.projectFile.parseResult?.program
     assert(program !== undefined)
-
     try {
       this.generatedProgram = handleProgram(program, this.utils)
     } catch(e) {
@@ -47,5 +49,20 @@ export default class JS3Builder {
     }
   }
 
+  saveGeneratedFile() {
+    let generatedCode : string
+    try {
+      generatedCode = generator(this.generatedProgram).code
+    } catch {
+      generatedCode = "// JS3 GENERATION FAILED"
+    }
+
+    // DEBUG
+    fs.writeFile(debugConfig.js3DebugPath + "/" + this.projectFile.uname, generatedCode, 'utf8', (err) => {
+      if (err) {
+        debugConfig.logger.error('Error writing to file', [err]);
+      }
+    });
+  }
 
 }
