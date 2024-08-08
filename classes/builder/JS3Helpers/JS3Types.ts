@@ -1,8 +1,8 @@
-// Generated on 8/8/2024, 9:45:14 am, extended 21 interfaces 
+// Generated on 8/8/2024, 11:15:41 am, extended 24 interfaces 
 
-import { ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, RestElement, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, ExpressionStatement, AssignmentExpression, BinaryExpression, BlockStatement, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, VariableDeclaration, VariableDeclarator, ClassBody, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, } from "@babel/types";
+import { ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, RestElement, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, ExpressionStatement, AssignmentExpression, BinaryExpression, BlockStatement, CatchClause, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator, ClassBody, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, } from "@babel/types";
 
-export type JS3AllowedBlockStatement = JS3VariableDeclaration | JS3ReturnStatement | JS3ExpressionStatement | JS3IfStatement;
+export type JS3AllowedBlockStatement = JS3VariableDeclaration | JS3ReturnStatement | JS3ExpressionStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement;
 
 export type JS3AssignmentExpression_left = JS3MemberExpression | Identifier;
 export type JS3AssignmentExpression_right = Identifier;
@@ -13,6 +13,7 @@ export type JS3CallExpression_callee = Identifier | Super | V8IntrinsicIdentifie
 export type JS3CallExpression_arguments = Array < Identifier >;
 export type JS3CallExpression_typeArguments = null;
 export type JS3CallExpression_typeParameters = null;
+export type JS3CatchClause_body = JS3BlockStatement;
 export type JS3ExpressionStatement_expression = JS3AssignmentExpression | JS3CallExpression | Identifier;
 export type JS3FunctionExpression_id = null | Identifier | undefined;
 export type JS3FunctionExpression_params = Array<Identifier | Pattern | RestElement>;
@@ -34,6 +35,10 @@ export type JS3NewExpression_typeParameters = null;
 export type JS3Program_body = Array< JS3ImportDeclaration | JS3ExportDefaultDeclaration | JS3AllowedBlockStatement >;
 export type JS3ObjectExpression_properties = Array<ObjectMethod | ObjectProperty | SpreadElement>;
 export type JS3ReturnStatement_argument = undefined | null | Identifier;
+export type JS3ThrowStatement_argument = Identifier;
+export type JS3TryStatement_block = JS3BlockStatement;
+export type JS3TryStatement_handler = null | undefined | JS3CatchClause;
+export type JS3TryStatement_finalizer = null | undefined | JS3BlockStatement;
 export type JS3VariableDeclaration_declarations = Array<JS3VariableDeclarator>;
 export type JS3VariableDeclarator_init = ThisExpression | JS3FunctionExpression | Identifier | BigIntLiteral | DecimalLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | JS3MemberExpression | JS3CallExpression | JS3ObjectExpression | JS3NewExpression | JS3BinaryExpression | JS3LogicalExpression | JS3AssignmentExpression;
 export type JS3ClassBody_body = Array<JS3ClassProperty | JS3ClassMethod>;
@@ -84,6 +89,11 @@ export interface JS3CallExpression extends CallExpression {
   arguments: JS3CallExpression_arguments;
   typeArguments: JS3CallExpression_typeArguments;
   typeParameters: JS3CallExpression_typeParameters;
+}
+
+// @ts-ignore
+export interface JS3CatchClause extends CatchClause {
+  body: JS3CatchClause_body;
 }
 
 // @ts-ignore
@@ -141,6 +151,18 @@ export interface JS3ObjectExpression extends ObjectExpression {
 // @ts-ignore
 export interface JS3ReturnStatement extends ReturnStatement {
   argument: JS3ReturnStatement_argument;
+}
+
+// @ts-ignore
+export interface JS3ThrowStatement extends ThrowStatement {
+  argument: JS3ThrowStatement_argument;
+}
+
+// @ts-ignore
+export interface JS3TryStatement extends TryStatement {
+  block: JS3TryStatement_block;
+  handler: JS3TryStatement_handler;
+  finalizer: JS3TryStatement_finalizer;
 }
 
 // @ts-ignore

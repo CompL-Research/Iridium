@@ -1,12 +1,12 @@
 // Generated on 7/8/2024, 5:50:38 pm, generated 16 handlers 
 
-import { BlockStatement, ExpressionStatement, IfStatement, isBlockStatement, isBreakStatement, isClassDeclaration, isContinueStatement, isDebuggerStatement, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isIdentifier, isIfStatement, isImportDeclaration, isInterfaceDeclaration, isLabeledStatement, isOpaqueType, isReturnStatement, isStatement, isSwitchStatement, isThrowStatement, isTryStatement, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration, isWhileStatement, isWithStatement, ReturnStatement, Statement, VariableDeclaration, VariableDeclarator } from "@babel/types";
+import { BlockStatement, CatchClause, ExpressionStatement, IfStatement, isBlockStatement, isBreakStatement, isCatchClause, isClassDeclaration, isContinueStatement, isDebuggerStatement, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isIdentifier, isIfStatement, isImportDeclaration, isInterfaceDeclaration, isLabeledStatement, isOpaqueType, isReturnStatement, isStatement, isSwitchStatement, isThrowStatement, isTryStatement, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration, isWhileStatement, isWithStatement, ReturnStatement, Statement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator } from "@babel/types";
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { JS3BlockStatement, JS3BlockStatement_body, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3ReturnStatement_argument, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init } from "./JS3Types.ts";
+import { JS3BlockStatement, JS3BlockStatement_body, JS3CatchClause_body, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3ReturnStatement_argument, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
 import { handleExpression } from "./HandleExpression.ts";
-import { generateIdentifier, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3ExpressionStatement, generateJS3IfStatement, generateJS3ReturnStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarator } from "./JS3Constructors.ts";
+import { generateIdentifier, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3CatchClause, generateJS3ExpressionStatement, generateJS3IfStatement, generateJS3ReturnStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarator } from "./JS3Constructors.ts";
 
 import assert from 'node:assert';
 
@@ -66,9 +66,13 @@ export function handleStatement(node: Statement, otherProps: OtherProps) {
   } else if (isSwitchStatement(node)) {
     debugConfig.logger.error("TODO // unhandled Statement->SwitchStatement");
   } else if (isThrowStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->ThrowStatement");
+    // ========================================================================================
+    handleThrowStatement(node, otherProps)
+    // ========================================================================================
   } else if (isTryStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->TryStatement");
+    // ========================================================================================
+    handleTryStatement(node, otherProps)
+    // ========================================================================================
   } else if (isVariableDeclaration(node)) {
     // ========================================================================================
     handleVariableDeclaration(node, otherProps)
@@ -290,4 +294,56 @@ export function handleVariableDeclarator(node: VariableDeclarator, otherProps: O
   otherProps.others.prefix = oldPrefix
   otherProps.debugTrace.pop()
   return result;
+}
+
+//
+// (5) TryStatement
+//
+// TODO
+export function handleTryStatement(node: TryStatement, otherProps: OtherProps) {
+  // 1 fallthrough props, 3 restricted props
+  let orig_block = node.block; // Handling prop block
+  let fin_block : JS3TryStatement_block; // Handling prop block
+  if(isBlockStatement (orig_block)) {
+    fin_block = handleBlockStatement(orig_block, otherProps)
+  } 
+  let orig_handler = node.handler; // Handling prop handler
+  let fin_handler : JS3TryStatement_handler = null; // Handling prop handler
+  if(isCatchClause (orig_handler)) {
+    fin_handler = handleCatchClause(orig_handler, otherProps)
+  }
+  let orig_finalizer = node.finalizer; // Handling prop finalizer
+  let fin_finalizer : JS3TryStatement_finalizer = null; // Handling prop finalizer
+  if(isBlockStatement (orig_finalizer)) {
+    fin_finalizer = handleBlockStatement(orig_finalizer, otherProps)
+  }
+  otherProps.others.holder.push(generateJS3TryStatement(fin_block, fin_handler, fin_finalizer, node))
+
+}
+//
+// (5.1) CatchClause
+//
+// TODO
+export function handleCatchClause(node: CatchClause, otherProps: OtherProps) {
+  // 2 fallthrough props, 1 restricted props
+  let orig_body = node.body; // Handling prop body
+  let fin_body : JS3CatchClause_body; // Handling prop body
+  if(isBlockStatement (orig_body)) {
+    fin_body = handleBlockStatement(orig_body, otherProps)
+  } 
+  return generateJS3CatchClause(fin_body, node)
+}
+
+//
+// (6) ThrowStatement
+//
+// TODO
+export function handleThrowStatement(node: ThrowStatement, otherProps: OtherProps) {
+  // 1 fallthrough props, 1 restricted props
+  let orig_argument = node.argument; // Handling prop argument
+  let fin_argument : JS3ThrowStatement_argument; // Handling prop argument
+  if(isExpression (orig_argument)) {
+    fin_argument = handleExpression(orig_argument, otherProps)
+  } 
+  otherProps.others.holder.push(generateJS3ThrowStatement(fin_argument, node))
 }

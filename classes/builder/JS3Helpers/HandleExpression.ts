@@ -83,7 +83,13 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     otherProps.others.holder.push(varDecl)
     // ========================================================================================
   } else if (isNullLiteral(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->NullLiteral`, otherProps.debugTrace);
+    // ========================================================================================
+    // $resultIdentifier = null
+    resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+    const init = node
+    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
+    otherProps.others.holder.push(varDecl)
+    // ========================================================================================
   } else if (isBooleanLiteral(node)) {
     // ========================================================================================
     // $resultIdentifier = true/false
