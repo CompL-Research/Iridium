@@ -155,6 +155,7 @@ function analyzeFiles(filePaths) {
   let totalLinesOfCode = 0;
 
   filePaths.forEach(filePath => {
+    // @ts-ignore
     const files = getAllFiles(filePath);
     totalFiles += files.length;
     files.forEach(file => {
