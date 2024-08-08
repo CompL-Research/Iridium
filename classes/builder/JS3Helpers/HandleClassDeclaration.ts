@@ -113,6 +113,9 @@ export function handleClassBody(node: ClassBody, otherProps: OtherProps): JS3Cla
 
 export function handleClassProperty(node: ClassProperty, otherProps: OtherProps): JS3ClassProperty {
   otherProps.debugTrace.push("ClassProperty")
+
+  const oldPrefix = otherProps.others.prefix
+
   // 10 fallthrough props, 5 restricted props
   let orig_key = node.key; // Handling prop key
   let fin_key: JS3ClassProperty_key; // Handling prop key
@@ -154,6 +157,7 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
       const funcExprBody = generateJS3BlockStatementfromBaseNode(bodyOfTheFunc, new Array(), dummyNode); // BODY
       const funcExpr = generateJS3FunctionExpressionfromBaseNode(null, new Array(), funcExprBody, null, null, null, false, false, dummyNode); // function {BODY}
       const callFnExpr = generateJS3CallExpressionfromBaseNode(funcExpr, new Array(), null, null, null, dummyNode); // func()
+
       const exprStmt = generateJS3ExpressionStatementfromBaseNode(callFnExpr, orig_value); // ( )
 
       // Add a return statement
@@ -194,10 +198,13 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
 
   let result: JS3ClassProperty = generateJS3ClassProperty(fin_key, fin_value, fin_typeAnnotation, fin_decorators, fin_variance, node);
   otherProps.debugTrace.pop()
+  otherProps.others.prefix = oldPrefix
   return result
 }
 
 export function handleClassMethod(node: ClassMethod, otherProps: OtherProps): JS3ClassMethod {
+
+  const oldPrefix = otherProps.others.prefix
   // 11 fallthrough props, 6 restricted props
   let orig_key = node.key; // Handling prop key
   let fin_key : JS3ClassMethod_key; // Handling prop key
@@ -273,5 +280,6 @@ export function handleClassMethod(node: ClassMethod, otherProps: OtherProps): JS
     debugConfig.logger.error("TODO // unhandled ClassMethod->typeParameters->Noop");
   }
   let result: JS3ClassMethod = generateJS3ClassMethod(fin_key, fin_params, fin_body, fin_decorators, fin_returnType, fin_typeParameters, node);
+  otherProps.others.prefix = oldPrefix
   return result
 }

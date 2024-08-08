@@ -1,15 +1,14 @@
-import _traverse from "@babel/traverse"
-import assert from 'node:assert/strict'
-import { Project } from '../Project'
-import { ProjectFile } from '../ProjectFile'
-import { JS3Module } from './JS3Module'
 import _generator from "@babel/generator"
+import assert from 'node:assert/strict'
+import { Project } from '../Project.ts'
+import { ProjectFile } from '../ProjectFile.ts'
+import { JS3Module } from './JS3Module.ts'
 
 const generator = _generator["default"]
 
 
 import debugConfig from "#debugConfig"
-import JS3Builder from "./JS3Builder"
+import JS3Builder from "./JS3Builder.ts"
 
 export class IridiumBuilder {
   project: Project
@@ -49,7 +48,7 @@ export class IridiumBuilder {
 
     if (js3Builder.generatedProgram !== null) {
       const generatedJS3Program = generator(js3Builder.generatedProgram)
-      debugConfig.logger.log(`[Genereted Module] \n ${generatedJS3Program.code}`)
+      debugConfig.logger.log(`[Genereted Module] \n${generatedJS3Program.code}`)
     } else {
       debugConfig.logger.log(`[Iridium Builder] JS3 builder failed!`)
     }

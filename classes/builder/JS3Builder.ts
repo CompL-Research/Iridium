@@ -3,14 +3,14 @@ import { Node } from "@babel/types";
 import assert from "node:assert";
 import { ProjectFile } from "../ProjectFile.ts";
 import { handleProgram } from "./JS3Helpers/HandleProgram.ts";
-import { JS3BlockStatement_body, JS3Program, JS3Program_body } from "./JS3Helpers/JS3Types.ts";
+import { JS3AllowedBlockStatement, JS3Program, JS3Program_body } from "./JS3Helpers/JS3Types.ts";
 
 export type JS3BuilderUtils = {
   getNewTemporary: (prefix: string | undefined) => string
   isResolvedModuleImport: (node: Node) => string | null
   debugTrace: Array<string>
   others?: {
-    holder: JS3Program_body | JS3BlockStatement_body | null,
+    holder: JS3Program_body | Array<JS3AllowedBlockStatement> | null,
     prefix?: string
   }
 }
