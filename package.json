@@ -12,6 +12,9 @@
   "description": "",
   "dependencies": {
     "@babel/core": "^7.25.2",
+    "@babel/plugin-syntax-jsx": "^7.24.7",
+    "@babel/preset-env": "^7.25.3",
+    "babel-plugin-jsx": "^1.2.0",
     "chalk": "^5.3.0",
     "command-line-args": "^6.0.0",
     "command-line-usage": "^7.0.3",

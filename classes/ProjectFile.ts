@@ -1,3 +1,5 @@
+import babel from '@babel/core'
+
 import _generate from "@babel/generator"
 import { parse, ParseResult } from '@babel/parser'
 import t, { Program } from '@babel/types'
@@ -21,7 +23,8 @@ export class ProjectFile {
   resolvedModuleImports = new Map<t.Node, readonly [string, string]>
   unresolvedModuleImports = new Map<t.Node, string>
   parseResult: ParseResult<t.File> | undefined = undefined
-  transformedCode: string | null = null
+  parsedSourceCode: string | null = null
+  sourceMap
   filename
   loc = 0
 
@@ -66,16 +69,32 @@ export class ProjectFile {
 
   transformAndParse() {
     const code = fs.readFileSync(this.absoluteFilePath, 'utf-8');
-    const parsed = parse(code, {
-      sourceType: 'module',
+
+    // More finetuned 
+    let presets : Array<Array<string | {}>> = [
+      ["@babel/preset-env", { targets: "last 2 Chrome versions", modules: false }], 
+      // ['@babel/preset-react', { runtime: "automatic", importSource: true }]
+    ]
+
+    if (this.extension === 'ts' || this.extension === 'tsx') {
+      presets.push(['@babel/preset-typescript'])
+    }
+
+    this.loc = code.split(/\r\n|\r|\n/).length
+
+    const transformedCode = babel.transformSync(code, {
+      cwd: this.projectBasePath,
+      filename: this.filename,
+      ast: true,
+      presets,
+      sourceMaps: true,
       plugins: [
-        "jsx"
+        "@babel/plugin-syntax-jsx"
       ],
-      sourceFilename: this.filename,
-      attachComment: true,
-      createImportExpressions: true,
-      tokens: true
     });
+    
+    const parsed = transformedCode.ast
+    this.sourceMap = transformedCode.map
 
     this.loc = code.split(/\r\n|\r|\n/).length
     this.parseResult = parsed
@@ -89,10 +108,10 @@ export class ProjectFile {
       {
         filename: this.uname
       },
-      code
+      parsed.code
     );
 
-    this.transformedCode = code
+    this.parsedSourceCode = transformedCode.code
     this.parseResult = parsed
 
     if (debugConfig.saveBabelTransforms) {
