@@ -66,13 +66,13 @@ export default class JS3Builder {
         presets.push(['@babel/preset-typescript'])
       }
 
-      const transformedCode = babel.transformFromAst(this.generatedProgram, this.projectFile.parsedSourceCode, {
+      const transformedCode = babel.transformFromAst(this.generatedProgram, this.projectFile.unparsedSourceCode, {
         cwd: this.projectFile.projectBasePath,
         filename: this.projectFile.uname,
-        inputSourceMap: this.projectFile.sourceMap,
+        // inputSourceMap: this.projectFile.sourceMap,
         ast: true,
         presets,
-        sourceMaps: true,
+        sourceMaps: "both",
         plugins: [
           "@babel/plugin-syntax-jsx"
         ],

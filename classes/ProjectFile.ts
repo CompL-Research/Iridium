@@ -24,6 +24,7 @@ export class ProjectFile {
   unresolvedModuleImports = new Map<t.Node, string>
   parseResult: ParseResult<t.File> | undefined = undefined
   parsedSourceCode: string | null = null
+  unparsedSourceCode: string = ""
   sourceMap
   filename
   loc = 0
@@ -69,6 +70,7 @@ export class ProjectFile {
 
   transformAndParse() {
     const code = fs.readFileSync(this.absoluteFilePath, 'utf-8');
+    this.unparsedSourceCode = code
 
     // More finetuned 
     let presets : Array<Array<string | {}>> = [
