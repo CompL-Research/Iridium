@@ -62,6 +62,10 @@ async function main(mainProjectPath, analyzePath) {
         debugConfig.logger.log(`[IRIDIUM PLAYGROUND] Client disconnected ${socket.id} [${activeClients} active]`)
       });
 
+      socket.on("get-file-listing", (dataLen : number) => {
+        // Send the list of files loaded in the project...
+      });
+
       socket.on("get-log-data", (dataLen : number) => {
         const dataToSend = debugConfig.logger.logData.slice(dataLen)
         let finalData : any = []
@@ -69,8 +73,6 @@ async function main(mainProjectPath, analyzePath) {
         dataToSend.forEach(o => {
           finalData.push({ ...o, objects: o.objects.length > 0 ? ["unresolved"] : ["none"] })
         })
-
-
         socket.emit("log-data-delivery", finalData)
       });
 

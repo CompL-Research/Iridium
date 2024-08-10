@@ -32,7 +32,7 @@ export default function Logs({ socket, flashMessage }) {
     requestDelivery()
     const requestLogs = setInterval(requestDelivery, 2000);
 
-    function updateLogObject({dataIdx, data}) {
+    function updateLogObject({ dataIdx, data }) {
       const newLogs = [...logs]
       newLogs[dataIdx].objects = ["resolved", data]
       setLogs(newLogs)
@@ -48,7 +48,7 @@ export default function Logs({ socket, flashMessage }) {
   }, [socket, logs])
 
   function updateStartAndEnd() {
-    
+
     try {
       let start = parseInt(startingValRef.current.value)
       let end = parseInt(endingValRef.current.value)
@@ -73,66 +73,71 @@ export default function Logs({ socket, flashMessage }) {
 
   console.log("Datafilter: ", dataFilter)
 
-  return <div className="logs-container">
+  return <div>
+
     <div className='log-filter-bar'>
-    <span className='filter-bar-checkbox'>
-      general <input checked={dataFilter.has("general")} onChange={() => handleDataFilter("general")} type="checkbox" />
-    </span>
-    <span className='filter-bar-checkbox'>
-      warn <input checked={dataFilter.has("warn")} onChange={() => handleDataFilter("warn")} type="checkbox" />
-    </span>
-    <span className='filter-bar-checkbox'>
-      errors <input checked={dataFilter.has("error")} onChange={() => handleDataFilter("error")} type="checkbox" />
-    </span>
+      <span className='filter-bar-checkbox'>
+        general <input checked={dataFilter.has("general")} onChange={() => handleDataFilter("general")} type="checkbox" />
+      </span>
+      <span className='filter-bar-checkbox'>
+        warn <input checked={dataFilter.has("warn")} onChange={() => handleDataFilter("warn")} type="checkbox" />
+      </span>
+      <span className='filter-bar-checkbox'>
+        errors <input checked={dataFilter.has("error")} onChange={() => handleDataFilter("error")} type="checkbox" />
+      </span>
       : Select Range <input placeholder={startEnd[0]} ref={startingValRef} type="number" /> to <input ref={endingValRef} placeholder={startEnd[1]} type="number" /> <button onClick={updateStartAndEnd}>Filter</button> : Currently showing entries {startEnd[0]} - {startEnd[1]} of {logs.length} entries.
     </div>
-    {
-      logs.slice(startEnd[0],startEnd[1]).filter(l => dataFilter.has(l.level)).map((l, idx) =>
-        <div className={`log-item log-item-${l.level}`} key={idx} title={l.timestamp}>
-          {l.message.split("\n").map((e, index) => <div className="log-msg-line" >{e}</div>)}
+    <div className="logs-container">
+      {
+        logs.slice(startEnd[0], startEnd[1]).filter(l => dataFilter.has(l.level)).map((l, idx) =>
+          <div className={`log-item log-item-${l.level}`} key={idx} title={l.timestamp}>
+            {l.message.split("\n").map((e, index) => <div className="log-msg-line" >{e}</div>)}
 
-          {
-            l.objects[0] === "unresolved" &&
-            <div
-              title="Download Object"
-              onClick={() => resolveLogObject(idx)}
-              className="resolve-data-button-container">
-              <span className="resolve-data-button">
-                Download Additional Log Data
-                <span className="material-symbols-outlined">
-                  data_object
+            {
+              l.objects[0] === "unresolved" &&
+              <div
+                title="Download Object"
+                onClick={() => resolveLogObject(idx)}
+                className="resolve-data-button-container">
+                <span className="resolve-data-button">
+                  Download Additional Log Data
+                  <span className="material-symbols-outlined">
+                    data_object
+                  </span>
                 </span>
-              </span>
-            </div>
-          }
+              </div>
+            }
 
-          {
-            l.objects[0] === "resolving" &&
-            <div
-              title="Downloading Object"
-              onClick={() => resolveLogObject(idx)}
-              className="resolve-data-button-container">
-              <span className="resolve-data-button downloading">
-                Waiting... (re-request?)
-                <span className="material-symbols-outlined">
-                  downloading
+            {
+              l.objects[0] === "resolving" &&
+              <div
+                title="Downloading Object"
+                onClick={() => resolveLogObject(idx)}
+                className="resolve-data-button-container">
+                <span className="resolve-data-button downloading">
+                  Waiting... (re-request?)
+                  <span className="material-symbols-outlined">
+                    downloading
+                  </span>
                 </span>
+              </div>
+            }
+
+            {
+              l.objects[0] === "resolved" &&
+              <span>
+                <ReactJson theme="flat" name={false} displayDataTypes={false} indentWidth={6} enableClipboard src={l.objects[1]} collapsed={4} />
               </span>
-            </div>
-          }
-
-          {
-            l.objects[0] === "resolved" &&
-            <span>
-              <ReactJson theme="flat" name={false} displayDataTypes={false} indentWidth={6} enableClipboard src={l.objects[1]} collapsed={4} />
-            </span>
-          }
+            }
 
 
-          
 
 
-        </div>)
-    }
+
+          </div>)
+      }
+    </div>
   </div>
+
+
 }
