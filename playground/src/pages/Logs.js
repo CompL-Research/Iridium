@@ -91,7 +91,8 @@ export default function Logs({ socket, flashMessage }) {
       {
         logs.slice(startEnd[0], startEnd[1]).filter(l => dataFilter.has(l.level)).map((l, idx) =>
           <div className={`log-item log-item-${l.level}`} key={idx} title={l.timestamp}>
-            {l.message.split("\n").map((e, index) => <div className="log-msg-line" >{e}</div>)}
+
+            {l.message.startsWith("https://") ? <div className="resolve-data-button-container"> <a title={"Visit Link"} className='resolve-data-button' target='_blank' href={l.message}>Visit Link</a> </div> : l.message.split("\n").map((e, index) => <div className="log-msg-line" >{e}</div>)}
 
             {
               l.objects[0] === "unresolved" &&
@@ -100,7 +101,6 @@ export default function Logs({ socket, flashMessage }) {
                 onClick={() => resolveLogObject(idx)}
                 className="resolve-data-button-container">
                 <span className="resolve-data-button">
-                  Download Additional Log Data
                   <span className="material-symbols-outlined">
                     data_object
                   </span>
@@ -129,6 +129,10 @@ export default function Logs({ socket, flashMessage }) {
                 <ReactJson theme="flat" name={false} displayDataTypes={false} indentWidth={6} enableClipboard src={l.objects[1]} collapsed={4} />
               </span>
             }
+
+            {/* <div className='log-item-timestamp'>
+              {l.timestamp}
+            </div> */}
 
 
 

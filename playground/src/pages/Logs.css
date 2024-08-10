@@ -52,6 +52,15 @@
   font-size: larger;
 }
 
+.resolve-data-button-container > a {
+  color: white;
+  padding: 0px 4px;
+  border: none;
+  background-color: blue;
+  text-decoration: none;
+  width: 40%;
+}
+
 .log-item {
   font-family: 'JetBrains Mono';
   font-size: medium;
@@ -61,6 +70,22 @@
   /* margin-left: 10px;
   padding-left: 5px; */
   /* border-bottom: 1px solid gray; */
+}
+
+.log-item:hover {
+  /* border: 1px solid; */
+}
+
+.log-item:hover .log-item-timestamp { display: block; }
+
+
+.log-item-timestamp {
+  display: none;
+  text-align: end;
+  color: gray;
+  font-size: small;
+  position: relative;
+  bottom: -7px;
 }
 
 
@@ -84,21 +109,15 @@
 }
 
 .resolve-data-button-container {
-  margin: 5px 5px;
-  text-align: center;
+  display: flex;
+  flex-direction: row-reverse;
 }
 
 .resolve-data-button {
-  border: 1px solid;
-  padding: 10px 10px;
-  border-radius: 5px;
-  display: inline-flex;
-  align-items: center;
+  color: white;
+  font-size: small;
 }
 
-.resolve-data-button > span {
-  margin-left: 5px;
-}
 
 .resolve-data-button:hover  {
   background-color: slateblue;

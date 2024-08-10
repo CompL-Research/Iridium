@@ -7,8 +7,8 @@ import path from 'path'
 import { Server } from "socket.io"
 
 import debugConfig from "#debugConfig"
+import JS3Builder from 'classes/builder/JS3Builder.ts'
 import { Project } from './classes/Project.ts'
-import { IridiumBuilder } from './classes/builder/IridiumBuilder.ts'
 
 const VERSION = "0.2a"
 const directories = ['./classes', './configs', './docs'];
@@ -26,22 +26,9 @@ const header = `
 Iridium Version: ${chalk.red(VERSION)}
 `
 
-async function main(mainProjectPath, analyzePath) {
-
-  // Ensure outputs directory
-  if (fs.existsSync(debugConfig.outputsPath)) {
-    fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
-  }
-
-  debugConfig.iridiumDebugPath = path.resolve(debugConfig.outputsPath + "/Iridium");
-  debugConfig.js3DebugPath = path.resolve(debugConfig.outputsPath + "/JS3");
-  fs.mkdirSync(debugConfig.outputsPath);
-  fs.mkdirSync(debugConfig.iridiumDebugPath);
-  fs.mkdirSync(debugConfig.js3DebugPath);
-
+function main(mainProjectPath, analyzePath) {
   debugConfig.logger.log(`[IRIDIUM STARTING] ${mainProjectPath}`)
-  const project = new Project(mainProjectPath, analyzePath)
-  debugConfig.logger.log(`[IRIDIUM Project Created]`)
+
   // Iridium Playground
   if (debugConfig.enablePlayground) {
     const port = debugConfig.playgroundPort
@@ -49,7 +36,7 @@ async function main(mainProjectPath, analyzePath) {
       connectionStateRecovery: {}
     });
 
-    const clientList = { }
+    const clientList = {}
 
     io.on("connection", (socket) => {
       debugConfig.logger.log(`[IRIDIUM PLAYGROUND] Connected to a remote client ${socket.id}`)
@@ -58,17 +45,17 @@ async function main(mainProjectPath, analyzePath) {
       socket.on('disconnect', function () {
         clientList[socket.id] = false
         let activeClients = Object.values(clientList).filter(e => e == true).length
-        
+
         debugConfig.logger.log(`[IRIDIUM PLAYGROUND] Client disconnected ${socket.id} [${activeClients} active]`)
       });
 
-      socket.on("get-file-listing", (dataLen : number) => {
+      socket.on("get-file-listing", (dataLen: number) => {
         // Send the list of files loaded in the project...
       });
 
-      socket.on("get-log-data", (dataLen : number) => {
+      socket.on("get-log-data", (dataLen: number) => {
         const dataToSend = debugConfig.logger.logData.slice(dataLen)
-        let finalData : any = []
+        let finalData: any = []
 
         dataToSend.forEach(o => {
           finalData.push({ ...o, objects: o.objects.length > 0 ? ["unresolved"] : ["none"] })
@@ -76,7 +63,7 @@ async function main(mainProjectPath, analyzePath) {
         socket.emit("log-data-delivery", finalData)
       });
 
-      socket.on("get-log-object", (dataIdx : number) => {
+      socket.on("get-log-object", (dataIdx: number) => {
         const dataItem = debugConfig.logger.logData[dataIdx]
         console.log("Sending Requested Log Data: ", dataIdx, dataItem)
         socket.emit("log-object-delivery", { dataIdx, data: dataItem.objects })
@@ -91,30 +78,95 @@ async function main(mainProjectPath, analyzePath) {
           socket.emit("imports-graph-not-ready")
         }
       });
-      
+
     });
 
     io.listen(port);
     debugConfig.logger.log(`[IRIDIUM PLAYGROUND] Listening on port: ${port}`)
   }
-  
-  debugConfig.logger.log("[Starting to process imports graph]")
-  await project.processImportsGraph()
-  project.importsGraph.generateRootNodes()
-  
-  project.printStats()
 
-  if (debugConfig.dontColorRootNodes === false) {
-    project.importsGraph.colorRootNodes()
+  // Ensure outputs directory
+  if (fs.existsSync(debugConfig.outputsPath)) {
+    fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
   }
-  project.importsGraphProcessed = true
 
-  debugConfig.logger.log("[Processing imports graph completed]")
+  debugConfig.iridiumDebugPath = path.resolve(debugConfig.outputsPath + "/Iridium");
+  debugConfig.js3DebugPath = path.resolve(debugConfig.outputsPath + "/JS3");
+  fs.mkdirSync(debugConfig.outputsPath);
+  fs.mkdirSync(debugConfig.iridiumDebugPath);
+  fs.mkdirSync(debugConfig.js3DebugPath);
 
-  project.importsGraph.dumpDOT();
-  
-  const builder = new IridiumBuilder(project)
-  builder.start()
+  const project = new Project(mainProjectPath, analyzePath)
+  project.init();
+
+
+  debugConfig.logger.log("[Initializing Project Files]")
+
+  const fileInitPromises = new Array<Promise<void>>()
+  // Initialize all project files
+  for (const [, projectFile] of project.files) {
+    fileInitPromises.push(projectFile.init())
+  }
+
+  Promise.all(fileInitPromises).then(() => {
+    debugConfig.logger.log("[All Project Files Were Initialized]")
+
+    project.processImportsGraph()
+    project.importsGraph.generateRootNodes()
+    project.importsGraph.colorRootNodes()
+    project.printStats()
+
+    for (const f of project.importsGraph.rootNodes) {
+
+      const importsGraphProp = project.importsGraph.getNodeProp(f)
+      if (importsGraphProp) {
+        if (importsGraphProp.sourceFile) {
+          const file = importsGraphProp.sourceFile
+          const js3Builder = new JS3Builder(file)
+          js3Builder.build()
+          const uri = js3Builder.generateURI()
+          if (uri) {
+            debugConfig.logger.log(`[JS3 ${file.filename}]`)
+            debugConfig.logger.log(`${uri}`)
+          } else {
+            debugConfig.logger.error(`[Failed to generate JS3 URI for ${file.filename}]`)
+          }
+
+        } else {
+          debugConfig.logger.error(`Project File not found for "${f}"`)
+        }
+      } else {
+        debugConfig.logger.error(`Node Property Missing for "${f}", cannot proceed. Exiting...`)
+        assert(false)
+      }
+
+
+
+    }
+
+
+  }).catch(err => {
+    debugConfig.logger.error("[Failed to initialize project files]", [err])
+  })
+
+
+  // debugConfig.logger.log("[Starting to process imports graph]")
+  // project.generateImportsGraph()
+  // project.importsGraph.generateRootNodes()
+
+  // project.printStats()
+
+  // if (debugConfig.dontColorRootNodes === false) {
+  //   project.importsGraph.colorRootNodes()
+  // }
+  // project.importsGraphProcessed = true
+
+  // debugConfig.logger.log("[Processing imports graph completed]")
+
+  // project.importsGraph.dumpDOT();
+
+  // const builder = new IridiumBuilder(project)
+  // builder.start()
 
 }
 
@@ -230,12 +282,6 @@ const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
     type: Boolean,
   },
   {
-    name: 'print-transformed-imports',
-    description: 'Print absolute paths for resolved imports (this is cosmetic, Iridium uses absolute addresses for processing)',
-    alias: 'i',
-    type: Boolean,
-  },
-  {
     name: 'enable-playground',
     description: `Enable interactive playground for Iridium (default: ${debugConfig.enablePlayground})`,
     alias: 'p',
@@ -245,21 +291,6 @@ const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
     name: 'playground-port',
     description: `The port used by Iridium backend server (Default: ${debugConfig.playgroundPort})`,
     type: Number,
-  },
-  {
-    name: 'dont-color-root-nodes',
-    description: 'Prevents coloring root nodes green',
-    type: Boolean,
-  },
-  {
-    name: 'enable-parallelized-imports',
-    description: 'Enable parallelized imports graph creation (this may make things worse sometimes)',
-    type: Boolean,
-  },
-  {
-    name: 'save-babel-transforms',
-    description: 'Saved babel transformed source code to disk.',
-    type: Boolean,
   }
 ]
 
@@ -388,7 +419,7 @@ if (mainOptions.command === 'analyze') {
       }
     }
 
-    
+
 
     if ("outputs-path" in analyzeOptions) {
       if (analyzeOptions["outputs-path"] === null) {
@@ -410,10 +441,6 @@ if (mainOptions.command === 'analyze') {
       debugConfig.resolveImportsToCjs = true
     }
 
-    if ("print-transformed-imports" in analyzeOptions) {
-      debugConfig.printTransformedImports = true
-    }
-
     if ("enable-playground" in analyzeOptions) {
       debugConfig.enablePlayground = true
     }
@@ -422,17 +449,6 @@ if (mainOptions.command === 'analyze') {
       debugConfig.playgroundPort = analyzeOptions["playground-port"]
     }
 
-    if ("dont-color-root-nodes" in analyzeOptions) {
-      debugConfig.dontColorRootNodes = true
-    }
-
-    if ("enable-parallelized-imports" in analyzeOptions) {
-      debugConfig.enableParallelizedImportsGraphCreation = true
-    }
-
-    if ("save-babel-transforms" in analyzeOptions) {
-      debugConfig.saveBabelTransforms = true
-    }
 
   }
 

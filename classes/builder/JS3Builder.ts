@@ -1,5 +1,5 @@
-import babel from '@babel/core';
 import debugConfig from "#debugConfig";
+import babel from '@babel/core';
 import _generator from "@babel/generator";
 import { Node } from "@babel/types";
 import assert from "node:assert";
@@ -26,7 +26,7 @@ export default class JS3Builder {
   generatedProgram: JS3Program | null
   #varIdx: number = 0
   generatedCode: string = ""
-  sourceMap : any = ""
+  sourceMap: any = ""
 
   utils: JS3BuilderUtils = {
     getNewTemporary: (prefix: string | undefined) => `${prefix ? prefix : "js3"}$${++this.#varIdx}`,
@@ -52,6 +52,40 @@ export default class JS3Builder {
     } catch (e) {
       debugConfig.logger.error("[JS3 Builder] failed to generate JS3...")
     }
+  }
+
+  generateURI() : null | string {
+    // https://github.com/facebook/react
+    function utf16ToUTF8(s: string): string {
+      return unescape(encodeURIComponent(s));
+    }
+
+    function getSourceMapUrl(code: string, map: string): string | null {
+      code = utf16ToUTF8(code);
+      map = utf16ToUTF8(map);
+      return `https://evanw.github.io/source-map-visualization/#${btoa(
+        `${code.length}\0${code}${map.length}\0${map}`,
+      )}`;
+    }
+
+    const ast = this.generatedProgram
+    const source = this.projectFile.unparsedSourceCode
+    const sourceFileName = this.projectFile.filename
+
+    if (ast) {
+      const generated = generator(
+        ast,
+        { sourceMaps: true, sourceFileName },
+        source,
+      );
+      const sourceMapUrl = getSourceMapUrl(
+        generated.code,
+        JSON.stringify(generated.map),
+      );
+      return sourceMapUrl
+    }
+
+    return null
   }
 
   saveGeneratedFile() {

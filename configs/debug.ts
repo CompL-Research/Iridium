@@ -7,14 +7,10 @@ const config : {
   printModuleGraphPng: boolean,
   includeLibrariesInComponentGraph: boolean,
   resolveImportsToCjs: boolean,
-  printTransformedImports: boolean,
-  dontColorRootNodes: boolean,
   enablePlayground: boolean,
   playgroundPort: number,
   logger: Logger,
-  enableParallelizedImportsGraphCreation: boolean,
   versionNumber: string,
-  saveBabelTransforms: boolean
 } = {
   js3DebugPath: "",
   iridiumDebugPath: "",
@@ -22,14 +18,10 @@ const config : {
   printModuleGraphPng: false,
   includeLibrariesInComponentGraph: false,
   resolveImportsToCjs: false,
-  printTransformedImports: false,
-  dontColorRootNodes: false,
   enablePlayground: false,
   playgroundPort: 4000,
   logger: new Logger(),
-  enableParallelizedImportsGraphCreation: false,
   versionNumber: "",
-  saveBabelTransforms: false
 }
 
 export default config;

@@ -45,7 +45,7 @@ export class IridiumBuilder {
     const js3Builder = new JS3Builder(file);
     js3Builder.build()
     js3Builder.saveGeneratedFile()
-    debugConfig.logger.warn(`\/\/ [Source Code]\n${file.parsedSourceCode}\n`)
+    debugConfig.logger.warn(`\/\/ [Source Code]\n${file.unparsedSourceCode}\n`)
 
     if (js3Builder.generatedProgram !== null) {
       // const generatedJS3Program = generator(js3Builder.generatedProgram)
