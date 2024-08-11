@@ -30,10 +30,13 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ArrayExpression`, otherProps.debugTrace);
   } else if (isAssignmentExpression(node)) {
     // ========================================================================================
-    // $resultIdentifier = b
+    // (LVal = init)
+    // $resultIdentifier = LVal
+    const assnExpr = handleAssignmentExpression(node, otherProps)
+    otherProps.others.holder.push(assnExpr)
+    
     resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-    const init = handleAssignmentExpression(node, otherProps)
-    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
+    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, assnExpr.left);
     otherProps.others.holder.push(varDecl)
     // ========================================================================================
   } else if (isBinaryExpression(node)) {

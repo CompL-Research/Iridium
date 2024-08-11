@@ -9,6 +9,7 @@ import { handleExpression } from "./HandleExpression.ts";
 import { generateIdentifier, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3CatchClause, generateJS3ExpressionStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3ReturnStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarator } from "./JS3Constructors.ts";
 
 import assert from 'node:assert';
+import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
 
 const isnull = (a) => a === null;
 const isundefined = (a) => a === undefined;
@@ -42,7 +43,7 @@ export function handleStatement(node: Statement, otherProps: OtherProps) {
   } else if (isDoWhileStatement(node)) {
     debugConfig.logger.error("TODO // unhandled Statement->DoWhileStatement");
   } else if (isEmptyStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->EmptyStatement");
+    otherProps.others.holder.push(node)
   } else if (isExpressionStatement(node)) {
     // ========================================================================================
     handleExpressionStatement(node, otherProps)
@@ -84,7 +85,9 @@ export function handleStatement(node: Statement, otherProps: OtherProps) {
   } else if (isWithStatement(node)) {
     debugConfig.logger.error("TODO // unhandled Statement->WithStatement");
   } else if (isClassDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->ClassDeclaration");
+    // ========================================================================================
+    handleClassDeclaration(node, otherProps)
+    // ========================================================================================
   } else if (isExportAllDeclaration(node)) {
     debugConfig.logger.error("TODO // unhandled Statement->ExportAllDeclaration");
   } else if (isExportDefaultDeclaration(node)) {

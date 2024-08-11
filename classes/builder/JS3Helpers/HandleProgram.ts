@@ -9,7 +9,7 @@ import debugConfig from "#debugConfig";
 import { generateCommentLine } from "#utils";
 
 import { handleStatement } from "./HandleBlocks.ts";
-import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
+import { handleClassDeclarationWithRet } from "./HandleClassDeclaration.ts";
 import { handleExpression } from "./HandleExpression.ts";
 
 type OtherProps = JS3BuilderUtils;
@@ -117,7 +117,7 @@ export function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, o
     debugConfig.logger.error("TODO // unhandled ExportDefaultDeclaration->declaration->FunctionDeclaration");
   } else if (isClassDeclaration(orig_declaration)) {
     otherProps.others.prefix = "exportDefClass"
-    fin_declaration = handleClassDeclaration(orig_declaration, otherProps)
+    fin_declaration = handleClassDeclarationWithRet(orig_declaration, otherProps)
   } else if (isExpression(orig_declaration)) {
     otherProps.others.prefix = "exportDefExpr"
     fin_declaration = handleExpression(orig_declaration, otherProps)

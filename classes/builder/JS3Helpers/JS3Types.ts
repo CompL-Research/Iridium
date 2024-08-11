@@ -1,15 +1,15 @@
-// Generated on 8/8/2024, 2:43:04 pm, extended 26 interfaces 
+// Generated on 11/8/2024, 11:27:10 am, extended 27 interfaces 
 
-import { ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, RestElement, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, ExpressionStatement, AssignmentExpression, BinaryExpression, BlockStatement, CatchClause, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, ThrowStatement, TryStatement, UnaryExpression, VariableDeclaration, VariableDeclarator, ClassBody, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, } from "@babel/types";
+import { ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, RestElement, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, AssignmentExpression, BinaryExpression, BlockStatement, CatchClause, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, ThrowStatement, TryStatement, UnaryExpression, VariableDeclaration, VariableDeclarator, ClassBody, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, ClassPrivateProperty, } from "@babel/types";
 
-export type JS3AllowedBlockStatement = JS3VariableDeclaration | JS3ReturnStatement | JS3ExpressionStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement | JS3FunctionDeclaration;
+export type JS3AllowedBlockStatement = JS3VariableDeclaration | JS3ReturnStatement | JS3ExpressionStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement | JS3FunctionDeclaration | JS3AssignmentExpression | JS3ClassDeclaration | EmptyStatement;
 
 export type JS3AssignmentExpression_left = JS3MemberExpression | Identifier;
 export type JS3AssignmentExpression_right = Identifier;
 export type JS3BinaryExpression_left = Identifier | PrivateName;
 export type JS3BinaryExpression_right = Identifier;
 export type JS3BlockStatement_body = Array<JS3AllowedBlockStatement>;
-export type JS3CallExpression_callee = Identifier | Super | V8IntrinsicIdentifier | FunctionExpression;
+export type JS3CallExpression_callee = Identifier | Super | V8IntrinsicIdentifier | JS3FunctionExpression;
 export type JS3CallExpression_arguments = Array < Identifier >;
 export type JS3CallExpression_typeArguments = null;
 export type JS3CallExpression_typeParameters = null;
@@ -48,7 +48,7 @@ export type JS3TryStatement_finalizer = null | undefined | JS3BlockStatement;
 export type JS3UnaryExpression_argument = Identifier;
 export type JS3VariableDeclaration_declarations = Array<JS3VariableDeclarator>;
 export type JS3VariableDeclarator_init = ThisExpression | JS3FunctionExpression | Identifier | BigIntLiteral | DecimalLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | JS3MemberExpression | JS3CallExpression | JS3ObjectExpression | JS3NewExpression | JS3BinaryExpression | JS3LogicalExpression | JS3AssignmentExpression | JS3UnaryExpression;
-export type JS3ClassBody_body = Array<JS3ClassProperty | JS3ClassMethod>;
+export type JS3ClassBody_body = Array<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty>;
 export type JS3ClassDeclaration_superClass = null | undefined | Identifier;
 export type JS3ClassDeclaration_body = JS3ClassBody;
 export type JS3ClassDeclaration_decorators = null;
@@ -71,6 +71,10 @@ export type JS3ClassProperty_value = undefined | null | Identifier | StringLiter
 export type JS3ClassProperty_typeAnnotation = null;
 export type JS3ClassProperty_decorators = null;
 export type JS3ClassProperty_variance = null;
+export type JS3ClassPrivateProperty_value = undefined | null | Identifier | StringLiteral | NumericLiteral | BigIntLiteral | JS3ExpressionStatement;
+export type JS3ClassPrivateProperty_decorators = null;
+export type JS3ClassPrivateProperty_typeAnnotation = null;
+export type JS3ClassPrivateProperty_variance = null;
 
 
 // @ts-ignore
@@ -242,5 +246,13 @@ export interface JS3ClassProperty extends ClassProperty {
   typeAnnotation: JS3ClassProperty_typeAnnotation;
   decorators: JS3ClassProperty_decorators;
   variance: JS3ClassProperty_variance;
+}
+
+// @ts-ignore
+export interface JS3ClassPrivateProperty extends ClassPrivateProperty {
+  value: JS3ClassPrivateProperty_value;
+  decorators: JS3ClassPrivateProperty_decorators;
+  typeAnnotation: JS3ClassPrivateProperty_typeAnnotation;
+  variance: JS3ClassPrivateProperty_variance;
 }
 

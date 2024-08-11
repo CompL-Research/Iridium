@@ -1,6 +1,6 @@
-import { ClassBody, ClassDeclaration, ClassMethod, ClassProperty, isArrayPattern, isAssignmentPattern, isBigIntLiteral, isBlockStatement, isClassAccessorProperty, isClassBody, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecorator, isExpression, isIdentifier, isInterfaceExtends, isNoop, isNumericLiteral, isObjectPattern, isRestElement, isStaticBlock, isStringLiteral, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance } from "@babel/types";
-import { generateBaseNodeFrom, generateJS3BlockStatementfromBaseNode, generateJS3CallExpressionfromBaseNode, generateJS3ClassBody, generateJS3ClassDeclaration, generateJS3ClassMethod, generateJS3ClassProperty, generateJS3ExpressionStatementfromBaseNode, generateJS3FunctionExpressionfromBaseNode, generateJS3ReturnStatement } from "./JS3Constructors.ts";
-import { JS3BlockStatement_body, JS3ClassBody, JS3ClassBody_body, JS3ClassDeclaration, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superClass, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_value, JS3ClassProperty_variance, JS3ReturnStatement } from "./JS3Types.ts";
+import { ClassBody, ClassDeclaration, ClassMethod, ClassPrivateProperty, ClassProperty, isArrayPattern, isAssignmentPattern, isBigIntLiteral, isBlockStatement, isClassAccessorProperty, isClassBody, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecorator, isExpression, isIdentifier, isInterfaceExtends, isNoop, isNumericLiteral, isObjectPattern, isRestElement, isStaticBlock, isStringLiteral, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance } from "@babel/types";
+import { generateBaseNodeFrom, generateJS3BlockStatementfromBaseNode, generateJS3CallExpressionfromBaseNode, generateJS3ClassBody, generateJS3ClassDeclaration, generateJS3ClassMethod, generateJS3ClassPrivateProperty, generateJS3ClassProperty, generateJS3ExpressionStatementfromBaseNode, generateJS3FunctionExpressionfromBaseNode, generateJS3ReturnStatement } from "./JS3Constructors.ts";
+import { JS3BlockStatement_body, JS3ClassBody, JS3ClassBody_body, JS3ClassDeclaration, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superClass, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassPrivateProperty, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_variance, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_value, JS3ClassProperty_variance, JS3ReturnStatement } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
 import { JS3BuilderUtils } from "../JS3Builder.ts";
@@ -14,7 +14,12 @@ const isundefined = (a) => a === undefined;
 
 type OtherProps = JS3BuilderUtils;
 
-export function handleClassDeclaration(node: ClassDeclaration, otherProps: OtherProps): JS3ClassDeclaration {
+export function handleClassDeclaration(node: ClassDeclaration, otherProps: OtherProps) {
+  const res = handleClassDeclarationWithRet(node, otherProps)
+  otherProps.others.holder.push(res)
+}
+
+export function handleClassDeclarationWithRet(node: ClassDeclaration, otherProps: OtherProps): JS3ClassDeclaration {
   otherProps.debugTrace.push("ClassDeclaration")
   assert(Array.isArray(otherProps.others.holder), "handleClassDeclaration expects an holder to spill intermediate values");
 
@@ -92,9 +97,13 @@ export function handleClassBody(node: ClassBody, otherProps: OtherProps): JS3Cla
       } else if (isClassPrivateMethod(_arrProp)) {
         debugConfig.logger.error("TODO // unhandled ClassBody->[body]->ClassPrivateMethod");
       } else if (isClassProperty(_arrProp)) {
+        // ========================================================================================
         fin_body.push(handleClassProperty(_arrProp, otherProps))
+        // ========================================================================================
       } else if (isClassPrivateProperty(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassBody->[body]->ClassPrivateProperty");
+        // ========================================================================================
+        fin_body.push(handleClassPrivateProperty(_arrProp, otherProps))
+        // ========================================================================================
       } else if (isClassAccessorProperty(_arrProp)) {
         debugConfig.logger.error("TODO // unhandled ClassBody->[body]->ClassAccessorProperty");
       } else if (isTSDeclareMethod(_arrProp)) {
@@ -137,9 +146,8 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
   let orig_value = node.value; // Handling prop value
   let fin_value: JS3ClassProperty_value = null; // Handling prop value
   if (isExpression(orig_value)) {
-
     // Holder will hold all the spilled beans...
-    const holder : JS3BlockStatement_body = new Array()
+    const holder: JS3BlockStatement_body = new Array()
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder } }
 
     const res = handleExpression(orig_value, updatedProps)
@@ -153,7 +161,7 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
       // 
       const dummyNode = generateBaseNodeFrom(orig_value)
 
-      const bodyOfTheFunc : JS3BlockStatement_body = updatedProps.others.holder;
+      const bodyOfTheFunc: JS3BlockStatement_body = updatedProps.others.holder;
       const funcExprBody = generateJS3BlockStatementfromBaseNode(bodyOfTheFunc, new Array(), dummyNode); // BODY
       const funcExpr = generateJS3FunctionExpressionfromBaseNode(null, new Array(), funcExprBody, null, null, null, false, false, dummyNode); // function {BODY}
       const callFnExpr = generateJS3CallExpressionfromBaseNode(funcExpr, new Array(), null, null, null, dummyNode); // func()
@@ -163,7 +171,7 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
       // Add a return statement
       const retStmt = generateBaseNodeFrom(orig_value) as JS3ReturnStatement
       retStmt.type = "ReturnStatement";
-      const js3RetStmt = generateJS3ReturnStatement(res,retStmt)
+      const js3RetStmt = generateJS3ReturnStatement(res, retStmt)
       bodyOfTheFunc.push(js3RetStmt)
 
       fin_value = exprStmt
@@ -202,81 +210,149 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
   return result
 }
 
-export function handleClassMethod(node: ClassMethod, otherProps: OtherProps): JS3ClassMethod {
+export function handleClassPrivateProperty(node: ClassPrivateProperty, otherProps: OtherProps) {
+  // 5 fallthrough props, 4 restricted props
+  let orig_value = node.value; // Handling prop value
+  let fin_value: JS3ClassPrivateProperty_value = null; // Handling prop value
+  if (isExpression(orig_value)) {
+    // debugConfig.logger.error("TODO // unhandled ClassPrivateProperty->value->Expression");
+    // Holder will hold all the spilled beans...
+    const holder: JS3BlockStatement_body = new Array()
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder } }
 
+    const res = handleExpression(orig_value, updatedProps)
+
+    if (updatedProps.others.holder.length === 0) {
+      // In case of no spills, we dont need an enclosing function expression
+      fin_value = res;
+    } else {
+      // Create a call expression of the form
+      // (function() { Expression is evaluated and returned as a result of this function }())
+      // 
+      const dummyNode = generateBaseNodeFrom(orig_value)
+
+      const bodyOfTheFunc: JS3BlockStatement_body = updatedProps.others.holder;
+      const funcExprBody = generateJS3BlockStatementfromBaseNode(bodyOfTheFunc, new Array(), dummyNode); // BODY
+      const funcExpr = generateJS3FunctionExpressionfromBaseNode(null, new Array(), funcExprBody, null, null, null, false, false, dummyNode); // function {BODY}
+      const callFnExpr = generateJS3CallExpressionfromBaseNode(funcExpr, new Array(), null, null, null, dummyNode); // func()
+
+      const exprStmt = generateJS3ExpressionStatementfromBaseNode(callFnExpr, orig_value); // ( )
+
+      // Add a return statement
+      const retStmt = generateBaseNodeFrom(orig_value) as JS3ReturnStatement
+      retStmt.type = "ReturnStatement";
+      const js3RetStmt = generateJS3ReturnStatement(res, retStmt)
+      bodyOfTheFunc.push(js3RetStmt)
+
+      fin_value = exprStmt
+    }
+  }
+
+
+  let orig_decorators = node.decorators; // Handling prop decorators
+  let fin_decorators: JS3ClassPrivateProperty_decorators = null; // Handling prop decorators
+  if (Array.isArray(orig_decorators)) {
+    for (const _arrProp of orig_decorators) {
+      if (isDecorator(_arrProp)) {
+        debugConfig.logger.error("TODO // unhandled ClassPrivateProperty->[decorators]->Decorator");
+      }
+    }
+  }
+
+  let orig_typeAnnotation = node.typeAnnotation; // Handling prop typeAnnotation
+  let fin_typeAnnotation: JS3ClassPrivateProperty_typeAnnotation = null; // Handling prop typeAnnotation
+  if (isTypeAnnotation(orig_typeAnnotation)) {
+    debugConfig.logger.error("TODO // unhandled ClassPrivateProperty->typeAnnotation->TypeAnnotation");
+  } else if (isTSTypeAnnotation(orig_typeAnnotation)) {
+    debugConfig.logger.error("TODO // unhandled ClassPrivateProperty->typeAnnotation->TSTypeAnnotation");
+  } else if (isNoop(orig_typeAnnotation)) {
+    debugConfig.logger.error("TODO // unhandled ClassPrivateProperty->typeAnnotation->Noop");
+  }
+
+  let orig_variance = node.variance; // Handling prop variance
+  let fin_variance: JS3ClassPrivateProperty_variance = null; // Handling prop variance
+  if (isVariance(orig_variance)) {
+    debugConfig.logger.error("TODO // unhandled ClassPrivateProperty->variance->Variance");
+  }
+
+  let result: JS3ClassPrivateProperty = generateJS3ClassPrivateProperty(fin_value, fin_decorators, fin_typeAnnotation, fin_variance, node);
+  return result
+}
+
+export function handleClassMethod(node: ClassMethod, otherProps: OtherProps): JS3ClassMethod {
   const oldPrefix = otherProps.others.prefix
   // 11 fallthrough props, 6 restricted props
   let orig_key = node.key; // Handling prop key
-  let fin_key : JS3ClassMethod_key; // Handling prop key
-  if(isIdentifier (orig_key)) {
+  let fin_key: JS3ClassMethod_key; // Handling prop key
+  if (isIdentifier(orig_key)) {
     otherProps.others.prefix = orig_key.name
     fin_key = orig_key
-  } else if(isStringLiteral (orig_key)) {
+  } else if (isStringLiteral(orig_key)) {
     otherProps.others.prefix = orig_key.value
     fin_key = orig_key
-  } else if(isNumericLiteral (orig_key)) {
+  } else if (isNumericLiteral(orig_key)) {
     otherProps.others.prefix = `numeric_${orig_key.value}`
     fin_key = orig_key
-  } else if(isBigIntLiteral (orig_key)) {
+  } else if (isBigIntLiteral(orig_key)) {
     otherProps.others.prefix = `numeric_${orig_key.value}`
     fin_key = orig_key
-  } else if(isExpression (orig_key)) {
+  } else if (isExpression(orig_key)) {
     debugConfig.logger.error("TODO // unhandled ClassMethod->key->Expression");
   }
 
   let orig_params = node.params; // Handling prop params
-  let fin_params : JS3ClassMethod_params = new Array(); // Handling prop params
-  if (Array.isArray ( orig_params )) { 
+  let fin_params: JS3ClassMethod_params = new Array(); // Handling prop params
+  if (Array.isArray(orig_params)) {
     for (const _arrProp of orig_params) {
-      if(isIdentifier (_arrProp)) {
+      if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp)
-      } else if(isAssignmentPattern (_arrProp)) {
+      } else if (isAssignmentPattern(_arrProp)) {
         fin_params.push(_arrProp)
-      } else if(isArrayPattern (_arrProp)) {
+      } else if (isArrayPattern(_arrProp)) {
         fin_params.push(_arrProp)
-      } else if(isObjectPattern (_arrProp)) {
+      } else if (isObjectPattern(_arrProp)) {
         fin_params.push(_arrProp)
-      } else if(isRestElement (_arrProp)) {
+      } else if (isRestElement(_arrProp)) {
         fin_params.push(_arrProp)
-      } else if(isTSParameterProperty (_arrProp)) {
+      } else if (isTSParameterProperty(_arrProp)) {
         fin_params.push(_arrProp)
       }
     }
   }
 
   let orig_body = node.body; // Handling prop body
-  let fin_body : JS3ClassMethod_body; // Handling prop body
-  if(isBlockStatement (orig_body)) {
+  let fin_body: JS3ClassMethod_body; // Handling prop body
+  if (isBlockStatement(orig_body)) {
     fin_body = handleBlockStatement(orig_body, otherProps)
   }
 
   let orig_decorators = node.decorators; // Handling prop decorators
-  let fin_decorators : JS3ClassMethod_decorators = null; // Handling prop decorators
-  if (Array.isArray ( orig_decorators )) { 
+  let fin_decorators: JS3ClassMethod_decorators = null; // Handling prop decorators
+  if (Array.isArray(orig_decorators)) {
     for (const _arrProp of orig_decorators) {
-      if(isDecorator (_arrProp)) {
+      if (isDecorator(_arrProp)) {
         debugConfig.logger.error("TODO // unhandled ClassMethod->[decorators]->Decorator");
-      } 
+      }
     }
   }
 
   let orig_returnType = node.returnType; // Handling prop returnType
-  let fin_returnType : JS3ClassMethod_returnType = null; // Handling prop returnType
-  if(isTypeAnnotation (orig_returnType)) {
+  let fin_returnType: JS3ClassMethod_returnType = null; // Handling prop returnType
+  if (isTypeAnnotation(orig_returnType)) {
     debugConfig.logger.error("TODO // unhandled ClassMethod->returnType->TypeAnnotation");
-  } else if(isTSTypeAnnotation (orig_returnType)) {
+  } else if (isTSTypeAnnotation(orig_returnType)) {
     debugConfig.logger.error("TODO // unhandled ClassMethod->returnType->TSTypeAnnotation");
-  } else if(isNoop (orig_returnType)) {
+  } else if (isNoop(orig_returnType)) {
     debugConfig.logger.error("TODO // unhandled ClassMethod->returnType->Noop");
   }
 
   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
-  let fin_typeParameters : JS3ClassMethod_typeParameters = null; // Handling prop typeParameters
-  if(isTypeParameterDeclaration (orig_typeParameters)) {
+  let fin_typeParameters: JS3ClassMethod_typeParameters = null; // Handling prop typeParameters
+  if (isTypeParameterDeclaration(orig_typeParameters)) {
     debugConfig.logger.error("TODO // unhandled ClassMethod->typeParameters->TypeParameterDeclaration");
-  } else if(isTSTypeParameterDeclaration (orig_typeParameters)) {
+  } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
     debugConfig.logger.error("TODO // unhandled ClassMethod->typeParameters->TSTypeParameterDeclaration");
-  } else if(isNoop (orig_typeParameters)) {
+  } else if (isNoop(orig_typeParameters)) {
     debugConfig.logger.error("TODO // unhandled ClassMethod->typeParameters->Noop");
   }
   let result: JS3ClassMethod = generateJS3ClassMethod(fin_key, fin_params, fin_body, fin_decorators, fin_returnType, fin_typeParameters, node);
