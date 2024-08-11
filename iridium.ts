@@ -32,9 +32,7 @@ function main(mainProjectPath, analyzePath) {
   // Iridium Playground
   if (debugConfig.enablePlayground) {
     const port = debugConfig.playgroundPort
-    const io = new Server({
-      connectionStateRecovery: {}
-    });
+    const io = new Server();
 
     const clientList = {}
 
@@ -233,7 +231,6 @@ const commandList = [
     content: [
       { name: 'help', summary: 'Display help information about iridium.' },
       { name: 'analyze', summary: 'Run static analysis over a project.' },
-      { name: 'sanity', summary: 'Run sanity tests.' },
       { name: 'stats', summary: 'Codespace stats.' },
       { name: 'version', summary: 'Print the version.' }
     ]
@@ -264,31 +261,18 @@ const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
     typeLabel: '{underline path} ...'
   },
   {
-    name: 'print-module-graph-png',
-    description: 'Save the generated module graph as a png (DOT file is saved by default).',
-    alias: 'm',
-    type: Boolean,
-  },
-  {
-    name: 'include-libraries-in-module-graph',
-    description: 'Include libraries in the module graph.',
-    alias: 'l',
-    type: Boolean,
-  },
-  {
-    name: 'resolve-imports-cjs',
-    description: 'Resolve imports in commonJS format during babel translation.',
-    alias: 'c',
-    type: Boolean,
-  },
-  {
     name: 'enable-playground',
     description: `Enable interactive playground for Iridium (default: ${debugConfig.enablePlayground})`,
     alias: 'p',
     type: Boolean,
   },
   {
-    name: 'playground-port',
+    name: 'module-graph-png',
+    description: `Save the generated module graph as a png (default: ${debugConfig.printModuleGraphPng})`,
+    type: Boolean,
+  },
+  {
+    name: 'port',
     description: `The port used by Iridium backend server (Default: ${debugConfig.playgroundPort})`,
     type: Number,
   }
@@ -429,17 +413,10 @@ if (mainOptions.command === 'analyze') {
       debugConfig.outputsPath = path.resolve("./" + analyzeOptions["outputs-path"])
     }
 
-    if ("print-module-graph-png" in analyzeOptions) {
+    if ("module-graph-png" in analyzeOptions) {
       debugConfig.printModuleGraphPng = true
     }
 
-    if ("include-libraries-in-module-graph" in analyzeOptions) {
-      debugConfig.includeLibrariesInComponentGraph = true
-    }
-
-    if ("resolve-imports-cjs" in analyzeOptions) {
-      debugConfig.resolveImportsToCjs = true
-    }
 
     if ("enable-playground" in analyzeOptions) {
       debugConfig.enablePlayground = true
@@ -448,8 +425,6 @@ if (mainOptions.command === 'analyze') {
     if ("playground-port" in analyzeOptions) {
       debugConfig.playgroundPort = analyzeOptions["playground-port"]
     }
-
-
   }
 
   main(projectPath, analyzePath)
@@ -458,16 +433,6 @@ if (mainOptions.command === 'analyze') {
   console.log(`Iridium Version: ${chalk.red(VERSION)}`)
 } else if (mainOptions.command === 'help') {
   printUsage()
-} else if (mainOptions.command === 'sanity') {
-
-  const projectPath = path.resolve("./sanity/test1")
-  const analyzePath = path.resolve("./sanity/test1/src")
-
-  debugConfig.printModuleGraphPng = true
-  debugConfig.includeLibrariesInComponentGraph = true
-  debugConfig.outputsPath = path.resolve("./output-sanity")
-
-  main(projectPath, analyzePath)
 } else if (mainOptions.command === "stats") {
   const sections = [
     {

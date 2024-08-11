@@ -158,35 +158,9 @@ export class ImportsGraph {
 
   dumpDOT() {
     const that = this
-
     fs.writeFileSync(debugConfig.outputsPath + "/" + 'moduleGraph.DOT', this.getDOT())
-
-    // var stream = fs.createWriteStream(debugConfig.outputsPath + "/" + 'moduleGraph.DOT', { flags: 'w' });
-    // stream.write("digraph {\n")
-    // stream.write("  beautify=true;\n")
-
-    // this.#nodes.forEach((n) => {
-    //   const nProp = that.getNodeProp(n)
-    //   if (nProp) nProp.dumpToStream(stream, n, 2)
-    //   else assert(false)
-    // })
-
-
-    // for (const [n, adjSet] of this.#edges) {
-    //   adjSet.forEach(m => {
-    //     const eProp = that.getEdgeProp(n, m)
-    //     if (eProp) eProp.dumpToStream(stream, n, m, 2)
-    //     else assert(false)
-    //   })
-    // }
-
-    // stream.write("}")
     if (debugConfig.printModuleGraphPng) {
       shell.exec(`dot -Grankdir=TB -Gnodesep=1.0 -Granksep=1.0 -Gconcentrate=true -Gsplines=true -Tpng ${debugConfig.outputsPath + "/" + 'moduleGraph.DOT'} > ${debugConfig.outputsPath + "/" + 'moduleGraph.png'}`)
     }
-
-    // stream.close(() => {
-    // });
-
   }
 }
