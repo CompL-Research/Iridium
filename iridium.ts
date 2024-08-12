@@ -98,8 +98,6 @@ function main(mainProjectPath, analyzePath) {
   project.init();
 
 
-  debugConfig.logger.log("[Initializing Project Files]")
-
   const fileInitPromises = new Array<Promise<void>>()
   // Initialize all project files
   for (const [, projectFile] of project.files) {
@@ -111,40 +109,30 @@ function main(mainProjectPath, analyzePath) {
 
     project.processImportsGraph()
     project.importsGraph.generateRootNodes()
-    project.importsGraph.colorRootNodes()
     project.printStats()
 
-    for (const f of project.importsGraph.rootNodes) {
-
-      const importsGraphProp = project.importsGraph.getNodeProp(f)
-      if (importsGraphProp) {
-        if (importsGraphProp.sourceFile) {
-          const file = importsGraphProp.sourceFile
-          const js3Builder = new JS3Builder(file)
-          js3Builder.build()
-          const uri = js3Builder.generateURI()
-          if (uri) {
-            debugConfig.logger.log(`[JS3 ${file.filename}]`)
-            debugConfig.logger.log(`${uri}`)
-          } else {
-            debugConfig.logger.error(`[Failed to generate JS3 URI for ${file.filename}]`)
-          }
-
+    for (const [f, file] of project.files) {
+      // const importsGraphProp = project.importsGraph.getNodeProp(f); 
+      // assert(importsGraphProp);
+      // if (!importsGraphProp.sourceFile) {
+      //   debugConfig.logger.log(`Skipping: ${importsGraphProp.}`)
+      // } 
+      // const file = importsGraphProp.sourceFile
+      
+      if (file.initData.status === "loaded" && file.initData.parseStatus === "parsed") {
+        const js3Builder = new JS3Builder(file)
+        js3Builder.build()
+        const uri = js3Builder.generateURI()
+        if (uri) {
+          debugConfig.logger.log(`[JS3 ${file.filename}]`)
+          debugConfig.logger.log(`${uri}`)
         } else {
-          debugConfig.logger.error(`Project File not found for "${f}"`)
+          debugConfig.logger.error(`[Failed to generate JS3 URI for ${file.filename}]`)
         }
       } else {
-        debugConfig.logger.error(`Node Property Missing for "${f}", cannot proceed. Exiting...`)
-        assert(false)
+        debugConfig.logger.error(`[Not generating JS3 for ${file.uname}, Status: ${file.initData.status}, ParseStatus: ${file.initData.parseStatus}]`)
       }
-
-
-
     }
-
-
-  }).catch(err => {
-    debugConfig.logger.error("[Failed to initialize project files]", [err])
   })
 
 

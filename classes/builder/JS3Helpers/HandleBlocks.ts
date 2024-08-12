@@ -357,7 +357,14 @@ export function handleThrowStatement(node: ThrowStatement, otherProps: OtherProp
 // (6) FunctionDeclaration
 //
 // TODO
+
 export function handleFunctionDeclaration(node: FunctionDeclaration, otherProps: OtherProps) {
+  const res = handleFunctionDeclarationWithRet(node, otherProps)
+  otherProps.others.holder.push(res)
+
+}
+
+export function handleFunctionDeclarationWithRet(node: FunctionDeclaration, otherProps: OtherProps) : JS3FunctionDeclaration {
   // 4 fallthrough props, 6 restricted props
   let orig_id = node.id; // Handling prop id
   let fin_id: JS3FunctionDeclaration_id = null; // Handling prop id
@@ -418,6 +425,5 @@ export function handleFunctionDeclaration(node: FunctionDeclaration, otherProps:
   }
 
   let result: JS3FunctionDeclaration = generateJS3FunctionDeclaration(fin_id, fin_params, fin_body, fin_predicate, fin_returnType, fin_typeParameters, node);
-  otherProps.others.holder.push(result)
-
+  return result;
 }

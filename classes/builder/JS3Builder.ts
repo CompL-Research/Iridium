@@ -1,7 +1,7 @@
 import debugConfig from "#debugConfig";
 import babel from '@babel/core';
 import _generator from "@babel/generator";
-import { Node } from "@babel/types";
+import { ImportDeclaration, Node } from "@babel/types";
 import assert from "node:assert";
 import fs from "node:fs";
 import { ProjectFile } from "../ProjectFile.ts";
@@ -30,27 +30,27 @@ export default class JS3Builder {
 
   utils: JS3BuilderUtils = {
     getNewTemporary: (prefix: string | undefined) => `${prefix ? prefix : "js3"}$${++this.#varIdx}`,
-    isResolvedModuleImport: (node: Node) => {
-      const resolvedImport = this.projectFile.resolvedModuleImports.has(node);
-      return resolvedImport ? this.projectFile.resolvedModuleImports.get(node)[1] : null
+    isResolvedModuleImport: (node: ImportDeclaration) => {
+      const resolvedImport = this.projectFile.initData.moduleImports.has(node);
+      return resolvedImport ? this.projectFile.initData.moduleImports.get(node) : null
     },
     debugTrace: new Array<string>()
   }
 
   constructor(file: ProjectFile) {
-    assert(file.parseResult !== undefined)
+    assert(file.initData.parseStatus === "parsed")
     this.projectFile = file
     this.generatedProgram = null
     this.generatedCode = "// NOPE"
   }
 
   build() {
-    const program = this.projectFile.parseResult?.program
-    assert(program !== undefined)
+    const program = this.projectFile.initData.parseResult.program
+    assert(program)
     try {
       this.generatedProgram = handleProgram(program, this.utils)
     } catch (e) {
-      debugConfig.logger.error("[JS3 Builder] failed to generate JS3...")
+      debugConfig.logger.error("[JS3 Builder] failed to generate JS3...", [e])
     }
   }
 
@@ -69,7 +69,7 @@ export default class JS3Builder {
     }
 
     const ast = this.generatedProgram
-    const source = this.projectFile.unparsedSourceCode
+    const source = this.projectFile.initData.sourceCode
     const sourceFileName = this.projectFile.filename
 
     if (ast) {
@@ -100,13 +100,13 @@ export default class JS3Builder {
         presets.push(['@babel/preset-typescript'])
       }
 
-      const transformedCode = babel.transformFromAst(this.generatedProgram, this.projectFile.unparsedSourceCode, {
+      const transformedCode = babel.transformFromAst(this.generatedProgram, this.projectFile.initData.sourceCode, {
         cwd: this.projectFile.projectBasePath,
         filename: this.projectFile.uname,
         // inputSourceMap: this.projectFile.sourceMap,
         ast: true,
         presets,
-        sourceMaps: "both",
+        sourceMaps: true,
         plugins: [
           "@babel/plugin-syntax-jsx"
         ],

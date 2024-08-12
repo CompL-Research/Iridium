@@ -41,11 +41,11 @@ export class IridiumBuilder {
 
   handleProjectFile(file: ProjectFile) {
     // Generate JS3 Module
-    debugConfig.logger.log(`[Generating JS3 Module] ${file.relativeFilePath}`)
+    debugConfig.logger.log(`[Generating JS3 Module] ${file.filename}`)
     const js3Builder = new JS3Builder(file);
     js3Builder.build()
     js3Builder.saveGeneratedFile()
-    debugConfig.logger.warn(`\/\/ [Source Code]\n${file.unparsedSourceCode}\n`)
+    debugConfig.logger.warn(`\/\/ [Source Code]\n${file.initData.sourceCode}\n`)
 
     if (js3Builder.generatedProgram !== null) {
       // const generatedJS3Program = generator(js3Builder.generatedProgram)
@@ -54,5 +54,5 @@ export class IridiumBuilder {
       debugConfig.logger.log(`[Iridium Builder] JS3 builder failed!`)
     }
   }
-
+  
 }

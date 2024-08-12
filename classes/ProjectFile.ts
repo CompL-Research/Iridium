@@ -2,9 +2,10 @@ import babel from '@babel/core'
 
 import _generate from "@babel/generator"
 import { ParseResult } from '@babel/parser'
-import t, { Program } from '@babel/types'
+import t, { ImportDeclaration, Program } from '@babel/types'
 import fs from 'fs'
 import assert from 'node:assert/strict'
+import path from 'path'
 
 import debugConfig from "#debugConfig"
 import { resolveModuleImport } from "#utils"
@@ -12,54 +13,60 @@ import { isImportDeclaration } from '@babel/types'
 const generate = _generate["default"];
 
 
-export class ProjectFile {
-  absoluteFilePath
-  projectBasePath
-  relativeFilePath
-  analysisPath
-  uname
-  isRelative
-  extension
-  resolvedModuleImports = new Map<t.Node, readonly [string, string]>
-  unresolvedModuleImports = new Map<t.Node, string>
-  parseResult: ParseResult<t.File> | undefined = undefined
-  parsedSourceCode: string | null = null
-  unparsedSourceCode: string = ""
-  sourceMap
-  filename
-  loc = 0
+export class InitData {
+  status: "loaded" | "failed" | "uninitialized" = "uninitialized"
+  sourceCode: string | null = null
+  loc: number | null = null
 
-  constructor(absoluteFilePath, projectBasePath, analysisPath) {
+  parseStatus: "parsed" | "failed" = "failed"
+  parseResult: ParseResult<t.File> | null = null
+  sourceMap: any | null = null
+
+  moduleImports: Map<ImportDeclaration, string | null> = new Map()
+}
+
+export class ProjectFile {
+  absoluteFilePath: string
+  projectBasePath: string
+  uname: string
+  extension: string
+  filename: string
+  filepath: string
+  initData: InitData
+
+  constructor(absoluteFilePath, projectBasePath) {
     assert(absoluteFilePath !== null)
     assert(projectBasePath !== null)
-    assert(analysisPath !== null)
     if (absoluteFilePath.startsWith(projectBasePath) === false) {
-      debugConfig.logger.error("File path does not start with project base path")
       debugConfig.logger.error("File path: ", absoluteFilePath)
       debugConfig.logger.error("Base path: ", projectBasePath)
+      debugConfig.logger.thrownError("File path does not start with project base path")
     }
     assert(absoluteFilePath.startsWith(projectBasePath) === true)
 
     this.absoluteFilePath = absoluteFilePath
     this.projectBasePath = projectBasePath
-    this.relativeFilePath = absoluteFilePath.substr(projectBasePath.length + 1)
-    this.analysisPath = analysisPath
-    this.uname = this.relativeFilePath.replace(/\//g, '_')
-    this.isRelative = true
-    this.extension = absoluteFilePath.split('.').pop()
-    this.filename = absoluteFilePath.replace(/^.*[\\/]/, '')
+    const relativeFilePath = absoluteFilePath.substr(projectBasePath.length + 1)
+    this.uname = relativeFilePath.replace(/\//g, '_')
+    this.extension = path.extname(absoluteFilePath)
+    this.filename = path.basename(absoluteFilePath)
+    this.filepath = path.dirname(absoluteFilePath)
+    this.initData = new InitData()
+
+    debugConfig.logger.log(`[Created Project File ${this.filename}]`)
   }
 
-  #transformImports(program: Program) {
+  #transformImports(program: Program, result: Map<t.Node, string | null>) {
     for (const stmtNode of program.body) {
       if (isImportDeclaration(stmtNode)) {
         const importSpecifier = stmtNode.source.value
+        // if (importSpecifier === "true/jsx-runtime") continue;
         const resolved = resolveModuleImport(importSpecifier, this.absoluteFilePath, this.projectBasePath)
         if (!resolved) {
-          this.unresolvedModuleImports.set(stmtNode, importSpecifier)
+          result.set(stmtNode, null)
           debugConfig.logger.error(`[Failed module import] ${importSpecifier}`)
         } else {
-          this.resolvedModuleImports.set(stmtNode, [importSpecifier, resolved])
+          result.set(stmtNode, resolved)
         }
       }
     }
@@ -68,26 +75,25 @@ export class ProjectFile {
   // Loads the file and creates an AST
   init() {
     const that = this
-    debugConfig.logger.log(`[Initializing Project File] ${this.filename}`)
     // This will return a promise
-    return new Promise<void>((resolve, reject) => {
-      fs.readFile(this.absoluteFilePath, 'utf-8', function (err, unparsedSourceCode) {
+    return new Promise<void>((resolve,) => {
+      fs.readFile(this.absoluteFilePath, 'utf-8', function (err, sourceCode) {
         if (err) {
           debugConfig.logger.error(`[Failed To Read File] ${that.filename}`, [err])
-          reject(`Failed To Read ${that.filename}`)
+          resolve()
         } else {
-          // The source code, useful when creating source maps
-          that.unparsedSourceCode = unparsedSourceCode
-          that.loc = unparsedSourceCode.split(/\r\n|\r|\n/).length
+          // 1. Load Source Code
+          that.initData.status = "loaded"
+          that.initData.sourceCode = sourceCode
+          that.initData.loc = sourceCode.split(/\r\n|\r|\n/).length
 
+          // 2. Parse Source Code
           let presets: Array<Array<string | {}>> = [
             ["@babel/preset-env", { targets: "last 2 Chrome versions", modules: false }],
-            // ['@babel/preset-react', { runtime: "automatic", importSource: true }]
+            ['@babel/preset-react', { runtime: "automatic" }]
           ]
 
-          if (that.extension === 'ts' || that.extension === 'tsx') {
-            presets.push(['@babel/preset-typescript'])
-          }
+          if (that.extension === 'ts' || that.extension === 'tsx') presets.push(['@babel/preset-typescript'])
 
           const options = {
             cwd: that.projectBasePath,
@@ -100,49 +106,25 @@ export class ProjectFile {
             ],
           }
 
-          babel.transformAsync(unparsedSourceCode, options).then(result => {
-            that.parsedSourceCode = result.code
-            that.parseResult = result.ast
-            that.sourceMap = result.map
+          babel.transformAsync(sourceCode, options).then(result => {
+            that.initData.parseStatus = "parsed"
+            that.initData.parseResult = result.ast
+            that.initData.sourceMap = result.map
 
             // Resolve imports using the loaded file's AST
-            that.#transformImports(that.parseResult.program)
+            that.#transformImports(result.ast.program, that.initData.moduleImports)
 
-            debugConfig.logger.log(`[Initialized File: ${that.filename}] ${that.resolvedModuleImports.size} imports resolved, ${that.unresolvedModuleImports.size} imports unresolved`)
-            for (const [node, importSpecifier] of that.unresolvedModuleImports) {
-              debugConfig.logger.error(`[Failed to resolve import ${importSpecifier}]`, [node])
+            debugConfig.logger.log(`[Loaded file] ${that.filename}`, [err])
 
-            }
+            fs.writeFileSync(debugConfig.outputsPath + "/" + that.uname, result.code)
+
             resolve()
           }).catch(err => {
             debugConfig.logger.error(`[Failed To Transform] ${that.filename}`, [err])
-            reject(`Failed To Transform ${that.filename}`)
+            resolve()
           })
         }
       });
     });
-
-    // // Transform AST to resolve imports
-    // this.#transformImports(parsed.program)
-
-    // // Save generated code
-    // const output = generate(
-    //   parsed,
-    //   {
-    //     filename: this.uname
-    //   },
-    //   parsed.code
-    // );
-
-    // this.parseResult = parsed
-
-    // if (debugConfig.saveBabelTransforms) {
-    //   // DEBUG
-    //   fs.writeFile(debugConfig.outputsPath + "/" + this.uname, output.code, 'utf8', (err) => {
-    //     if (err) {
-    //       debugConfig.logger.error('Error writing to file', [err]);
-    //     }
-    //   });
-    // }
   }
 }

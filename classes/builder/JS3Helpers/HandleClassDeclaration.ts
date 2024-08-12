@@ -307,15 +307,15 @@ export function handleClassMethod(node: ClassMethod, otherProps: OtherProps): JS
       if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp)
       } else if (isAssignmentPattern(_arrProp)) {
-        fin_params.push(_arrProp)
+        debugConfig.logger.error("TODO // unhandled ClassMethod->[params]->AssignmentPattern");
       } else if (isArrayPattern(_arrProp)) {
-        fin_params.push(_arrProp)
+        debugConfig.logger.error("TODO // unhandled ClassMethod->[params]->ArrayPattern");
       } else if (isObjectPattern(_arrProp)) {
-        fin_params.push(_arrProp)
+        debugConfig.logger.error("TODO // unhandled ClassMethod->[params]->ObjectPattern");
       } else if (isRestElement(_arrProp)) {
-        fin_params.push(_arrProp)
+        debugConfig.logger.error("TODO // unhandled ClassMethod->[params]->RestElement");
       } else if (isTSParameterProperty(_arrProp)) {
-        fin_params.push(_arrProp)
+        debugConfig.logger.error("TODO // unhandled ClassMethod->[params]->TSParameterProperty");
       }
     }
   }

@@ -1,10 +1,10 @@
 
 import debugConfig from "#debugConfig";
-import { AssignmentExpression, BigIntLiteral, BinaryExpression, CallExpression, DecimalLiteral, Expression, FunctionExpression, Identifier, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassExpression, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDoExpression, isExpression, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPatternLike, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSInstantiationExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, LogicalExpression, MemberExpression, NewExpression, NumericLiteral, ObjectExpression, PrivateName, StringLiteral, UnaryExpression } from "@babel/types";
+import { ArrowFunctionExpression, AssignmentExpression, BigIntLiteral, BinaryExpression, CallExpression, DecimalLiteral, Expression, FunctionExpression, Identifier, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassExpression, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDoExpression, isExpression, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPatternLike, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSInstantiationExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, LogicalExpression, MemberExpression, NewExpression, NumericLiteral, ObjectExpression, PrivateName, StringLiteral, UnaryExpression } from "@babel/types";
 import assert from 'node:assert';
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { generateBaseNodeFrom, generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3BinaryExpression, generateJS3CallExpression, generateJS3ExpressionStatementfromBaseNode, generateJS3FunctionExpression, generateJS3LogicalExpression, generateJS3MemberExpression, generateJS3MemberExpressionfromBaseNode, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3UnaryExpression } from "./JS3Constructors.ts";
-import { JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3CallExpression, JS3CallExpression_callee, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3LogicalExpression, JS3LogicalExpression_left, JS3LogicalExpression_right, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression_properties, JS3UnaryExpression, JS3UnaryExpression_argument } from "./JS3Types.ts";
+import { generateBaseNodeFrom, generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3BinaryExpression, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3ExpressionStatementfromBaseNode, generateJS3FunctionExpression, generateJS3LogicalExpression, generateJS3MemberExpression, generateJS3MemberExpressionfromBaseNode, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ReturnStatementfromBaseNode, generateJS3UnaryExpression } from "./JS3Constructors.ts";
+import { JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3LogicalExpression, JS3LogicalExpression_left, JS3LogicalExpression_right, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression_properties, JS3UnaryExpression, JS3UnaryExpression_argument } from "./JS3Types.ts";
 
 import { isArgumentPlaceholder, isSpreadElement, isTSTypeParameterInstantiation, isTypeParameterInstantiation, isV8IntrinsicIdentifier } from "@babel/types";
 import { handleBlockStatement } from "./HandleBlocks.ts";
@@ -164,7 +164,14 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
   } else if (isUpdateExpression(node)) {
     debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->UpdateExpression`, otherProps.debugTrace);
   } else if (isArrowFunctionExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ArrowFunctionExpression`, otherProps.debugTrace);
+    // ========================================================================================
+    // $resultIdentifier = () => JS3Body
+    resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+    const init = handleArrowFunctionExpression(node, otherProps)
+    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
+    otherProps.others.holder.push(varDecl)
+    // ========================================================================================
+
   } else if (isClassExpression(node)) {
     debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ClassExpression`, otherProps.debugTrace);
   } else if (isImportExpression(node)) {
@@ -342,7 +349,7 @@ export function spillObjectExpression(objectHolder: Identifier, node: ObjectExpr
         const exprStmt = generateJS3ExpressionStatementfromBaseNode(assignmentExpression, dummyNode)
         otherProps.others.holder.push(exprStmt)
       } else if (isSpreadElement(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled spill ObjectExpression->[properties]->SpreadElement");
+        debugConfig.logger.error("TODO // unhandled spill ObjectExpression->[properties]->SpreadElement", [_arrProp]);
       }
     }
   }
@@ -358,21 +365,22 @@ export function handleFunctionExpression(node: FunctionExpression, otherProps: O
 
   let orig_params = node.params; // Handling prop params
   let fin_params: JS3FunctionExpression_params = new Array(); // Handling prop params
-  if (Array.isArray(orig_params)) {
+  if (Array.isArray ( orig_params )) { 
     for (const _arrProp of orig_params) {
-      if (isIdentifier(_arrProp)) {
+      if(isIdentifier (_arrProp)) {
         fin_params.push(_arrProp)
-      } else if (isAssignmentPattern(_arrProp)) {
-        fin_params.push(_arrProp)
-      } else if (isArrayPattern(_arrProp)) {
-        fin_params.push(_arrProp)
-      } else if (isObjectPattern(_arrProp)) {
-        fin_params.push(_arrProp)
-      } else if (isRestElement(_arrProp)) {
-        fin_params.push(_arrProp)
-      }
+      } else if(isAssignmentPattern (_arrProp)) {
+        debugConfig.logger.error("TODO // unhandled FunctionExpression->[params]->AssignmentPattern");
+      } else if(isArrayPattern (_arrProp)) {
+        debugConfig.logger.error("TODO // unhandled FunctionExpression->[params]->ArrayPattern");
+      } else if(isObjectPattern (_arrProp)) {
+        debugConfig.logger.error("TODO // unhandled FunctionExpression->[params]->ObjectPattern");
+      } else if(isRestElement (_arrProp)) {
+        debugConfig.logger.error("TODO // unhandled FunctionExpression->[params]->RestElement");
+      } 
     }
   }
+
   let orig_body = node.body; // Handling prop body
 
   let fin_body: JS3FunctionExpression_body; // Handling prop body
@@ -542,4 +550,69 @@ export function handleUnaryExpression(node: UnaryExpression, otherProps: OtherPr
   } 
   let result: JS3UnaryExpression = generateJS3UnaryExpression(fin_argument, node);
   return result;
-} 
+}
+
+export function handleArrowFunctionExpression(node: ArrowFunctionExpression, otherProps: OtherProps) {
+  // 4 fallthrough props, 5 restricted props
+  let orig_params = node.params; // Handling prop params
+  let fin_params : JS3ArrowFunctionExpression_params = new Array(); // Handling prop params
+  if (Array.isArray ( orig_params )) { 
+    for (const _arrProp of orig_params) {
+      if(isIdentifier (_arrProp)) {
+        fin_params.push(_arrProp)
+      } else if(isAssignmentPattern (_arrProp)) {
+        debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->[params]->AssignmentPattern");
+      } else if(isArrayPattern (_arrProp)) {
+        debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->[params]->ArrayPattern");
+      } else if(isObjectPattern (_arrProp)) {
+        debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->[params]->ObjectPattern");
+      } else if(isRestElement (_arrProp)) {
+        debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->[params]->RestElement");
+      } 
+    }
+  }
+
+  let orig_body = node.body; // Handling prop body
+  let fin_body : JS3ArrowFunctionExpression_body; // Handling prop body
+  if(isBlockStatement (orig_body)) {
+    fin_body = handleBlockStatement(orig_body, otherProps)
+  } else if(isExpression (orig_body)) {
+    const body: JS3BlockStatement_body = new Array()
+    fin_body = generateJS3BlockStatementfromBaseNode(body, new Array(), orig_body);
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: body } }
+    const resultId = handleExpression(orig_body, updatedProps);
+    const retStmt = generateJS3ReturnStatementfromBaseNode(resultId, orig_body)
+    body.push(retStmt)
+  }
+
+  let orig_predicate = node.predicate; // Handling prop predicate
+  let fin_predicate : JS3ArrowFunctionExpression_predicate = null; // Handling prop predicate
+  if(isDeclaredPredicate (orig_predicate)) {
+    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->predicate->DeclaredPredicate");
+  } else if(isInferredPredicate (orig_predicate)) {
+    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->predicate->InferredPredicate");
+  }
+
+  let orig_returnType = node.returnType; // Handling prop returnType
+  let fin_returnType : JS3ArrowFunctionExpression_returnType = null; // Handling prop returnType
+  if(isTypeAnnotation (orig_returnType)) {
+    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->returnType->TypeAnnotation");
+  } else if(isTSTypeAnnotation (orig_returnType)) {
+    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->returnType->TSTypeAnnotation");
+  } else if(isNoop (orig_returnType)) {
+    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->returnType->Noop");
+  }
+
+  let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
+  let fin_typeParameters : JS3ArrowFunctionExpression_typeParameters = null; // Handling prop typeParameters
+  if(isTypeParameterDeclaration (orig_typeParameters)) {
+    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->typeParameters->TypeParameterDeclaration");
+  } else if(isTSTypeParameterDeclaration (orig_typeParameters)) {
+    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->typeParameters->TSTypeParameterDeclaration");
+  } else if(isNoop (orig_typeParameters)) {
+    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->typeParameters->Noop");
+  }
+
+  let result: JS3ArrowFunctionExpression = generateJS3ArrowFunctionExpression(fin_params, fin_body, fin_predicate, fin_returnType, fin_typeParameters, node);
+  return result
+}

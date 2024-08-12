@@ -131,7 +131,7 @@ export class ImportsGraph {
 
     this.#nodes.forEach((n) => {
       const nProp = that.getNodeProp(n)
-      if (nProp?.fillcolor === "green") {
+      if (this.rootNodes.includes(n)) {
         rootCluster += nProp.getString(n, 4)
       } else if (nProp) {
         res += nProp.getString(n, 2)

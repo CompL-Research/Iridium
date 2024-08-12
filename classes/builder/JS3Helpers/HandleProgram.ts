@@ -8,7 +8,7 @@ import { JS3BuilderUtils, } from "../JS3Builder.ts";
 import debugConfig from "#debugConfig";
 import { generateCommentLine } from "#utils";
 
-import { handleStatement } from "./HandleBlocks.ts";
+import { handleFunctionDeclarationWithRet, handleStatement } from "./HandleBlocks.ts";
 import { handleClassDeclarationWithRet } from "./HandleClassDeclaration.ts";
 import { handleExpression } from "./HandleExpression.ts";
 
@@ -114,13 +114,20 @@ export function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, o
   if (isTSDeclareFunction(orig_declaration)) {
     debugConfig.logger.error("TODO // unhandled ExportDefaultDeclaration->declaration->TSDeclareFunction");
   } else if (isFunctionDeclaration(orig_declaration)) {
-    debugConfig.logger.error("TODO // unhandled ExportDefaultDeclaration->declaration->FunctionDeclaration");
+    // ========================================================================================
+    otherProps.others.prefix = "exportDefFunc"
+    fin_declaration = handleFunctionDeclarationWithRet(orig_declaration, otherProps)
+    // ========================================================================================
   } else if (isClassDeclaration(orig_declaration)) {
+    // ========================================================================================
     otherProps.others.prefix = "exportDefClass"
     fin_declaration = handleClassDeclarationWithRet(orig_declaration, otherProps)
+    // ========================================================================================
   } else if (isExpression(orig_declaration)) {
+    // ========================================================================================
     otherProps.others.prefix = "exportDefExpr"
     fin_declaration = handleExpression(orig_declaration, otherProps)
+    // ========================================================================================
   }
 
   // Generate a export default statement and push it into the holder

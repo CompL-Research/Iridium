@@ -10,8 +10,7 @@ import { ProjectFile } from './ProjectFile.js'
 
 type Files = Map<string, ProjectFile>
 
-const excludedFolders = ['.git', 'node_modules', 'node_modules1']
-const supportedExtensions = ['.js', '.jsx', '.ts', '.tsx']
+const excludedFolders = ['.git', 'node_modules']
 
 export class Project {
   base: string
@@ -23,36 +22,18 @@ export class Project {
     this.base = projectBasePath;
     this.analyzePath = analyzePath
   }
-  
+
   init() {
     debugConfig.logger.log(`[Initializing Project]`)
     this.#populateJSFiles(this.files, this.analyzePath, this.base)
-    debugConfig.logger.log(`[Loaded Filed] Loaded ${this.files} files`)
+    debugConfig.logger.log(`[Finished Initializing Project] Loaded ${this.files.size} files`)
   }
 
   #handleFileImport = (results: Files, file: string, projectBase: string): ProjectFile | undefined => {
-    const ext = path.extname(file)
-
-    if (!supportedExtensions.includes(ext)) {
-      debugConfig.logger.warn(`[Skipping file] unsupported extension: ${file}`)
-      return undefined
-    }
-
     if (results.has(file)) return results.get(file)
-
-    try {
-      const pf = new ProjectFile(file, projectBase, this.analyzePath)
-      if (!pf) {
-        debugConfig.logger.error("[Invalid Project File]", [pf])
-        return undefined;
-      }
-      results.set(file, pf)
-      return pf
-    } catch (e) {
-      debugConfig.logger.error(`[Failed to Load] ${file}`, [e])
-    }
-
-    return undefined;
+    const pf = new ProjectFile(file, projectBase)
+    results.set(file, pf)
+    return pf
   }
 
 
@@ -75,7 +56,6 @@ export class Project {
   };
 
   processImportsGraph() {
-    const analyzePath = this.analyzePath
     const projectBase: string = this.base
     const importsGraph: ImportsGraph = this.importsGraph
     const processNewImport = this.#handleFileImport
@@ -83,62 +63,38 @@ export class Project {
     const result: Files = this.files
     debugConfig.logger.log("[Processing imports graph]")
 
-    // Resume old code
-
-    const isLibraryImport = (source: string) => {
-      return source.includes("node_modules")
-    }
-
-    const uselessImports = [".css"]
-    const isUselessImport = (source: string) => {
-      const ext = path.extname(source)
-      if (uselessImports.includes(ext)) return true
-      return false
-    }
-
     for (const [, file] of oldFiles) {
-      // debugConfig.logger.log(`[Processing file] ${file.absoluteFilePath}`)
       importsGraph.addNode(file.uname)
-
-      // Add a node mapping in the imports graph
-      const importsGraphProp = importsGraph.getNodeProp(file.uname)
-      if (importsGraphProp) {
-        importsGraphProp.sourceFile = file
-      } else assert(false)
-
-      // Process resolved imports
-      for (const [, [specifier, resolvedPath]] of file.resolvedModuleImports) {
-        // Ignore library imports for now
-        if (isLibraryImport(resolvedPath) || isUselessImport(resolvedPath)) {
-          importsGraph.addEdge(file.uname, specifier)
-          const nProp = importsGraph.getNodeProp(specifier)
-          if (nProp) {
-            nProp.fillcolor = "yellow"
-            nProp.style = "rounded,filled"
-          } else assert(false)
-          continue;
-        }
-
-        // Resolve import path
-        let i = processNewImport(result, resolvedPath, projectBase)
-        if (i) {
-          importsGraph.addEdge(file.uname, i.uname)
-        } else {
-          debugConfig.logger.error(`Failed to process import "${resolvedPath}" included in file "${file.uname}"`)
-          assert(false)
-        }
+      const nProp = importsGraph.getNodeProp(file.uname); assert(nProp);
+      nProp.sourceFile = file
+      if (file.initData.status === "uninitialized") {
+        nProp.fillcolor = "yellow"
+        nProp.style = "filled"
+      } else if (file.initData.status === "failed") {
+        nProp.fillcolor = "red"
+        nProp.style = "filled"
+      } else if (file.initData.parseStatus === "failed") {
+        nProp.fillcolor = "orange"
+        nProp.style = "filled"
       }
 
-      // Process unresolved imports
-      for (const [, unresolvedPath] of file.unresolvedModuleImports) {
-        importsGraph.addEdge(file.uname, unresolvedPath)
+      if (file.initData.status === "loaded" && file.initData.parseStatus === "parsed") {
+        for (const [node, resolvedPath] of file.initData.moduleImports) {
+          const specifier = node.source.value
 
-        // Mark leaf node as red
-        const nProp = importsGraph.getNodeProp(unresolvedPath)
-        if (nProp) {
-          nProp.fillcolor = "red"
-          nProp.style = "rounded,filled"
-        } else assert(false)
+          if (!resolvedPath) {
+            importsGraph.addEdge(file.uname, specifier)
+            const eProp = importsGraph.getEdgeProp(file.uname, specifier); assert(eProp);
+            eProp.style = "dashed"
+            const nProp = importsGraph.getNodeProp(specifier); assert(nProp);
+            nProp.fillcolor = "red"
+            nProp.style = "rounded,filled"
+            continue;
+          }
+
+          let i = processNewImport(result, resolvedPath, projectBase)
+          importsGraph.addEdge(file.uname, i.uname)
+        }
       }
     }
 
@@ -151,14 +107,20 @@ export class Project {
 
   printStats() {
     const loadedFiles = this.files
+    let loaded = 0
     let LOC = 0
     let failed: Set<string> | string[] = new Set()
 
 
     for (const [, pFile] of loadedFiles) {
-      LOC += pFile.loc
-      for (const [, failedImport] of pFile.unresolvedModuleImports) {
-        failed.add(failedImport)
+      if (pFile.initData.status === "loaded" && pFile.initData.parseStatus === "parsed") {
+        loaded++;
+        LOC += pFile.initData.loc
+        for (const [n, failedImport] of pFile.initData.moduleImports) {
+          if (!failedImport) {
+            failed.add(n.source.value)
+          }
+        }
       }
     }
 
@@ -170,7 +132,7 @@ export class Project {
       }
     })
 
-    debugConfig.logger.log(`Loaded: ${loadedFiles.size} files (LOC: ${LOC})`)
+    debugConfig.logger.log(`Loaded: ${loaded} files (LOC: ${LOC})`)
     debugConfig.logger.error(`Failed to process ${failed.length} imports`, failed)
   }
 }
