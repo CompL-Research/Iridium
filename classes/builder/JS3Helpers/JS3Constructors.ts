@@ -1,7 +1,7 @@
-// Generated on 12/8/2024, 5:04:48 pm, generated 28 constructors 
+// Generated on 12/8/2024, 9:18:47 pm, generated 30 constructors 
 
-import { AssignmentExpression, BinaryExpression, BlockStatement, CallExpression, CatchClause, ExpressionStatement, FunctionDeclaration, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, ThrowStatement, TryStatement, UnaryExpression, VariableDeclaration, VariableDeclarator, ArrowFunctionExpression, ClassBody, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, ClassProperty, ClassPrivateProperty, PrivateName, ArrayPattern, ObjectPattern, Directive, StringLiteral, InterpreterDirective, Node, LVal, Identifier, } from "@babel/types";
-import { JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3CallExpression_arguments, JS3CallExpression_typeArguments, JS3CallExpression_typeParameters, JS3CatchClause, JS3CatchClause_body, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3FunctionDeclaration, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_body, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3FunctionExpression, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_body, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3IfStatement, JS3IfStatement_test, JS3IfStatement_consequent, JS3IfStatement_alternate, JS3LogicalExpression, JS3LogicalExpression_left, JS3LogicalExpression_right, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3NewExpression, JS3NewExpression_callee, JS3NewExpression_arguments, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3Program, JS3Program_body, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ReturnStatement, JS3ReturnStatement_argument, JS3ThrowStatement, JS3ThrowStatement_argument, JS3TryStatement, JS3TryStatement_block, JS3TryStatement_handler, JS3TryStatement_finalizer, JS3UnaryExpression, JS3UnaryExpression_argument, JS3VariableDeclaration, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3ClassBody, JS3ClassBody_body, JS3ClassDeclaration, JS3ClassDeclaration_superClass, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ExportDefaultDeclaration, JS3ExportDefaultDeclaration_declaration, JS3ImportDeclaration, JS3ImportDeclaration_specifiers, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ClassMethod, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassProperty, JS3ClassProperty_key, JS3ClassProperty_value, JS3ClassProperty_typeAnnotation, JS3ClassProperty_decorators, JS3ClassProperty_variance, JS3ClassPrivateProperty, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_variance, } from "./JS3Types.ts";
+import { AssignmentExpression, BinaryExpression, BlockStatement, CallExpression, CatchClause, ExpressionStatement, FunctionDeclaration, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, ThrowStatement, TryStatement, UnaryExpression, VariableDeclaration, VariableDeclarator, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, ClassProperty, ClassPrivateProperty, ClassPrivateMethod, PrivateName, ArrayPattern, ObjectPattern, Directive, StringLiteral, InterpreterDirective, Node, LVal, Identifier, } from "@babel/types";
+import { JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3CallExpression_arguments, JS3CallExpression_typeArguments, JS3CallExpression_typeParameters, JS3CatchClause, JS3CatchClause_body, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3FunctionDeclaration, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_body, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3FunctionExpression, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_body, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3IfStatement, JS3IfStatement_test, JS3IfStatement_consequent, JS3IfStatement_alternate, JS3LogicalExpression, JS3LogicalExpression_left, JS3LogicalExpression_right, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3NewExpression, JS3NewExpression_callee, JS3NewExpression_arguments, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3Program, JS3Program_body, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ReturnStatement, JS3ReturnStatement_argument, JS3ThrowStatement, JS3ThrowStatement_argument, JS3TryStatement, JS3TryStatement_block, JS3TryStatement_handler, JS3TryStatement_finalizer, JS3UnaryExpression, JS3UnaryExpression_argument, JS3VariableDeclaration, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3ClassBody, JS3ClassBody_body, JS3ClassExpression, JS3ClassExpression_superClass, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3ClassDeclaration, JS3ClassDeclaration_superClass, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ExportDefaultDeclaration, JS3ExportDefaultDeclaration_declaration, JS3ImportDeclaration, JS3ImportDeclaration_specifiers, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ClassMethod, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassProperty, JS3ClassProperty_key, JS3ClassProperty_value, JS3ClassProperty_typeAnnotation, JS3ClassProperty_decorators, JS3ClassProperty_variance, JS3ClassPrivateProperty, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_variance, JS3ClassPrivateMethod, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, } from "./JS3Types.ts";
 
 export function generateBaseNodeFrom(from: Node): Node {
   const { start, end, loc, range, extra } = from;
@@ -455,6 +455,34 @@ export function generateJS3ClassBodyfromBaseNode(_body : JS3ClassBody_body, from
   return to;
 }
 
+export function generateJS3ClassExpression(_superClass : JS3ClassExpression_superClass, _body : JS3ClassExpression_body, _decorators : JS3ClassExpression_decorators, _implements : JS3ClassExpression_implements, _mixins : JS3ClassExpression_mixins, _superTypeParameters : JS3ClassExpression_superTypeParameters, _typeParameters : JS3ClassExpression_typeParameters, from: ClassExpression) : JS3ClassExpression {
+  let to: JS3ClassExpression = generateBaseNodeFrom(from) as JS3ClassExpression;
+  to.type = from.type;
+  to.id = from.id;
+  to.superClass = _superClass;
+  to.body = _body;
+  to.decorators = _decorators;
+  to.implements = _implements;
+  to.mixins = _mixins;
+  to.superTypeParameters = _superTypeParameters;
+  to.typeParameters = _typeParameters;
+  return to;
+}
+
+export function generateJS3ClassExpressionfromBaseNode(_superClass : JS3ClassExpression_superClass, _body : JS3ClassExpression_body, _decorators : JS3ClassExpression_decorators, _implements : JS3ClassExpression_implements, _mixins : JS3ClassExpression_mixins, _superTypeParameters : JS3ClassExpression_superTypeParameters, _typeParameters : JS3ClassExpression_typeParameters, _id : Identifier | null, from: Node) : JS3ClassExpression {
+  let to: JS3ClassExpression = generateBaseNodeFrom(from) as JS3ClassExpression;
+  to.type = "ClassExpression";
+  to.id = _id;
+  to.superClass = _superClass;
+  to.body = _body;
+  to.decorators = _decorators;
+  to.implements = _implements;
+  to.mixins = _mixins;
+  to.superTypeParameters = _superTypeParameters;
+  to.typeParameters = _typeParameters;
+  return to;
+}
+
 export function generateJS3ClassDeclaration(_superClass : JS3ClassDeclaration_superClass, _body : JS3ClassDeclaration_body, _decorators : JS3ClassDeclaration_decorators, _implements : JS3ClassDeclaration_implements, _mixins : JS3ClassDeclaration_mixins, _superTypeParameters : JS3ClassDeclaration_superTypeParameters, _typeParameters : JS3ClassDeclaration_typeParameters, from: ClassDeclaration) : JS3ClassDeclaration {
   let to: JS3ClassDeclaration = generateBaseNodeFrom(from) as JS3ClassDeclaration;
   to.type = from.type;
@@ -638,6 +666,50 @@ export function generateJS3ClassPrivatePropertyfromBaseNode(_value : JS3ClassPri
   to.decorators = _decorators;
   to.typeAnnotation = _typeAnnotation;
   to.variance = _variance;
+  return to;
+}
+
+export function generateJS3ClassPrivateMethod(_params : JS3ClassPrivateMethod_params, _body : JS3ClassPrivateMethod_body, _decorators : JS3ClassPrivateMethod_decorators, _returnType : JS3ClassPrivateMethod_returnType, _typeParameters : JS3ClassPrivateMethod_typeParameters, from: ClassPrivateMethod) : JS3ClassPrivateMethod {
+  let to: JS3ClassPrivateMethod = generateBaseNodeFrom(from) as JS3ClassPrivateMethod;
+  to.type = from.type;
+  to.kind = from.kind;
+  to.key = from.key;
+  to.static = from.static;
+  to.abstract = from.abstract;
+  to.access = from.access;
+  to.accessibility = from.accessibility;
+  to.async = from.async;
+  to.computed = from.computed;
+  to.generator = from.generator;
+  to.optional = from.optional;
+  to.override = from.override;
+  to.params = _params;
+  to.body = _body;
+  to.decorators = _decorators;
+  to.returnType = _returnType;
+  to.typeParameters = _typeParameters;
+  return to;
+}
+
+export function generateJS3ClassPrivateMethodfromBaseNode(_params : JS3ClassPrivateMethod_params, _body : JS3ClassPrivateMethod_body, _decorators : JS3ClassPrivateMethod_decorators, _returnType : JS3ClassPrivateMethod_returnType, _typeParameters : JS3ClassPrivateMethod_typeParameters, _kind : "get" | "set" | "method", _key : PrivateName, _static : boolean, _abstract : boolean | null, _access : "public" | "private" | "protected" | null, _accessibility : "public" | "private" | "protected" | null, _async : boolean, _computed : boolean, _generator : boolean, _optional : boolean | null, _override : boolean, from: Node) : JS3ClassPrivateMethod {
+  let to: JS3ClassPrivateMethod = generateBaseNodeFrom(from) as JS3ClassPrivateMethod;
+  to.type = "ClassPrivateMethod";
+  to.kind = _kind;
+  to.key = _key;
+  to.static = _static;
+  to.abstract = _abstract;
+  to.access = _access;
+  to.accessibility = _accessibility;
+  to.async = _async;
+  to.computed = _computed;
+  to.generator = _generator;
+  to.optional = _optional;
+  to.override = _override;
+  to.params = _params;
+  to.body = _body;
+  to.decorators = _decorators;
+  to.returnType = _returnType;
+  to.typeParameters = _typeParameters;
   return to;
 }
 

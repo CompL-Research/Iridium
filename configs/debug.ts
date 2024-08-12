@@ -10,9 +10,9 @@ const config : {
   logger: Logger,
   versionNumber: string,
 } = {
-  js3DebugPath: "",
-  iridiumDebugPath: "",
-  outputsPath: "",
+  js3DebugPath: "./outputs/JS3",
+  iridiumDebugPath: "./outputs/IRIDIUM",
+  outputsPath: "./outputs",
   printModuleGraphPng: false,
   enablePlayground: false,
   playgroundPort: 4000,

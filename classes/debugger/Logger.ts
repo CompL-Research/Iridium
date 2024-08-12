@@ -28,11 +28,11 @@ export default class Logger {
     this.logData.push(item)
     if (!this.printToConsole) return;
     if (item.level === "general") {
-      console.log(`[${item.timestamp}] ${item.message}`, item.objects)
+      console.log(`// [${item.timestamp}] ${item.message}`, item.objects)
     } else if (item.level === "warn") {
-      console.warn(`[${item.timestamp}] ${item.message}`, item.objects)
+      console.warn(`// [${item.timestamp}] ${item.message}`, item.objects)
     } else {
-      console.error(`[${item.timestamp}] ${item.message}`, item.objects)
+      console.error(`// [${item.timestamp}] ${item.message}`, item.objects)
     }
   }
 

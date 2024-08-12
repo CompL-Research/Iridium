@@ -1,6 +1,6 @@
-// Generated on 12/8/2024, 5:04:48 pm, extended 28 interfaces 
+// Generated on 12/8/2024, 9:18:47 pm, extended 30 interfaces 
 
-import { ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, RestElement, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, AssignmentExpression, BinaryExpression, BlockStatement, CatchClause, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, ThrowStatement, TryStatement, UnaryExpression, VariableDeclaration, VariableDeclarator, ArrowFunctionExpression, ClassBody, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, ClassPrivateProperty, } from "@babel/types";
+import { ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, RestElement, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, AssignmentExpression, BinaryExpression, BlockStatement, CatchClause, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, ThrowStatement, TryStatement, UnaryExpression, VariableDeclaration, VariableDeclarator, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, ClassPrivateProperty, ClassPrivateMethod, } from "@babel/types";
 
 export type JS3AllowedBlockStatement = JS3VariableDeclaration | JS3ReturnStatement | JS3ExpressionStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement | JS3FunctionDeclaration | JS3AssignmentExpression | JS3ClassDeclaration | EmptyStatement;
 
@@ -47,13 +47,20 @@ export type JS3TryStatement_handler = null | undefined | JS3CatchClause;
 export type JS3TryStatement_finalizer = null | undefined | JS3BlockStatement;
 export type JS3UnaryExpression_argument = Identifier;
 export type JS3VariableDeclaration_declarations = Array<JS3VariableDeclarator>;
-export type JS3VariableDeclarator_init = ThisExpression | JS3FunctionExpression | Identifier | BigIntLiteral | DecimalLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | JS3MemberExpression | JS3CallExpression | JS3ObjectExpression | JS3NewExpression | JS3BinaryExpression | JS3LogicalExpression | JS3AssignmentExpression | JS3UnaryExpression | JS3ArrowFunctionExpression;
+export type JS3VariableDeclarator_init = ThisExpression | JS3FunctionExpression | Identifier | BigIntLiteral | DecimalLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | JS3MemberExpression | JS3CallExpression | JS3ObjectExpression | JS3NewExpression | JS3BinaryExpression | JS3LogicalExpression | JS3AssignmentExpression | JS3UnaryExpression | JS3ArrowFunctionExpression | JS3ClassExpression;
 export type JS3ArrowFunctionExpression_params = Array<Identifier>;
 export type JS3ArrowFunctionExpression_body = JS3BlockStatement;
 export type JS3ArrowFunctionExpression_predicate = null;
 export type JS3ArrowFunctionExpression_returnType = null;
 export type JS3ArrowFunctionExpression_typeParameters = null;
-export type JS3ClassBody_body = Array<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty>;
+export type JS3ClassBody_body = Array<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod>;
+export type JS3ClassExpression_superClass = null | undefined | Identifier;
+export type JS3ClassExpression_body = JS3ClassBody;
+export type JS3ClassExpression_decorators = null;
+export type JS3ClassExpression_implements = null;
+export type JS3ClassExpression_mixins = null;
+export type JS3ClassExpression_superTypeParameters = null;
+export type JS3ClassExpression_typeParameters = null;
 export type JS3ClassDeclaration_superClass = null | undefined | Identifier;
 export type JS3ClassDeclaration_body = JS3ClassBody;
 export type JS3ClassDeclaration_decorators = null;
@@ -80,6 +87,11 @@ export type JS3ClassPrivateProperty_value = undefined | null | Identifier | Stri
 export type JS3ClassPrivateProperty_decorators = null;
 export type JS3ClassPrivateProperty_typeAnnotation = null;
 export type JS3ClassPrivateProperty_variance = null;
+export type JS3ClassPrivateMethod_params = Array<Identifier>;
+export type JS3ClassPrivateMethod_body = JS3BlockStatement;
+export type JS3ClassPrivateMethod_decorators = null;
+export type JS3ClassPrivateMethod_returnType = null;
+export type JS3ClassPrivateMethod_typeParameters = null;
 
 
 // @ts-ignore
@@ -221,6 +233,17 @@ export interface JS3ClassBody extends ClassBody {
 }
 
 // @ts-ignore
+export interface JS3ClassExpression extends ClassExpression {
+  superClass: JS3ClassExpression_superClass;
+  body: JS3ClassExpression_body;
+  decorators: JS3ClassExpression_decorators;
+  implements: JS3ClassExpression_implements;
+  mixins: JS3ClassExpression_mixins;
+  superTypeParameters: JS3ClassExpression_superTypeParameters;
+  typeParameters: JS3ClassExpression_typeParameters;
+}
+
+// @ts-ignore
 export interface JS3ClassDeclaration extends ClassDeclaration {
   superClass: JS3ClassDeclaration_superClass;
   body: JS3ClassDeclaration_body;
@@ -268,5 +291,14 @@ export interface JS3ClassPrivateProperty extends ClassPrivateProperty {
   decorators: JS3ClassPrivateProperty_decorators;
   typeAnnotation: JS3ClassPrivateProperty_typeAnnotation;
   variance: JS3ClassPrivateProperty_variance;
+}
+
+// @ts-ignore
+export interface JS3ClassPrivateMethod extends ClassPrivateMethod {
+  params: JS3ClassPrivateMethod_params;
+  body: JS3ClassPrivateMethod_body;
+  decorators: JS3ClassPrivateMethod_decorators;
+  returnType: JS3ClassPrivateMethod_returnType;
+  typeParameters: JS3ClassPrivateMethod_typeParameters;
 }
 

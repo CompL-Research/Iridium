@@ -2,12 +2,12 @@ import chalk from 'chalk'
 import commandLineArgs from 'command-line-args'
 import commandLineUsage from 'command-line-usage'
 import fs from 'fs'
-import assert from 'node:assert/strict'
 import path from 'path'
 import { Server } from "socket.io"
 
 import debugConfig from "#debugConfig"
 import JS3Builder from 'classes/builder/JS3Builder.ts'
+import { ProjectFile } from 'classes/ProjectFile.ts'
 import { Project } from './classes/Project.ts'
 
 const VERSION = "0.2a"
@@ -118,7 +118,7 @@ function main(mainProjectPath, analyzePath) {
       //   debugConfig.logger.log(`Skipping: ${importsGraphProp.}`)
       // } 
       // const file = importsGraphProp.sourceFile
-      
+
       if (file.initData.status === "loaded" && file.initData.parseStatus === "parsed") {
         const js3Builder = new JS3Builder(file)
         js3Builder.build()
@@ -156,7 +156,34 @@ function main(mainProjectPath, analyzePath) {
 
 }
 
+function genJS3(filePath) {
+  // Ensure outputs directory
+  if (fs.existsSync(debugConfig.outputsPath)) {
+    fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
+  }
 
+  debugConfig.iridiumDebugPath = path.resolve(debugConfig.outputsPath + "/Iridium");
+  debugConfig.js3DebugPath = path.resolve(debugConfig.outputsPath + "/JS3");
+  fs.mkdirSync(debugConfig.outputsPath);
+  fs.mkdirSync(debugConfig.iridiumDebugPath);
+  fs.mkdirSync(debugConfig.js3DebugPath);
+  
+  const file = new ProjectFile(filePath, path.dirname(filePath))
+  file.init().then(() => {
+    const builder = new JS3Builder(file)
+    builder.build()
+    if (builder.generatedProgram) {
+      builder.saveGeneratedFile()
+      console.log(builder.generatedCode)
+    } else {
+      debugConfig.logger.error("Failed to generate JS3 file")
+      process.exit(1)
+    }
+  }).catch((err) => {
+    debugConfig.logger.error("Failed to load project file")
+    process.exit(1)
+  })
+}
 
 function getAllFiles(dirPath, arrayOfFiles) {
   const files = fs.readdirSync(dirPath);
@@ -219,6 +246,7 @@ const commandList = [
     content: [
       { name: 'help', summary: 'Display help information about iridium.' },
       { name: 'analyze', summary: 'Run static analysis over a project.' },
+      { name: 'js3', summary: 'Generate JS3 file and print to stdout' },
       { name: 'stats', summary: 'Codespace stats.' },
       { name: 'version', summary: 'Print the version.' }
     ]
@@ -280,7 +308,7 @@ type UsageHeader = {
   content: string[]
 }
 
-function printUsage(altHeader: undefined | UsageHeader = undefined, otherOpts: UsageOptions | undefined = undefined) {
+function printUsage(altHeader: undefined | UsageHeader = undefined, otherOpts: UsageOptions = []) {
   let sections: any = [ // Sometimes the type system is just annoying
     {
       content: chalk.red(header),
@@ -298,8 +326,8 @@ function printUsage(altHeader: undefined | UsageHeader = undefined, otherOpts: U
     ...commandList,
   ]
 
-  if (otherOpts) {
-    assert(typeof altHeader !== "undefined");
+  if (otherOpts || altHeader) {
+    // assert(typeof altHeader !== "undefined");
     sections = [
       {
         content: chalk.red(header),
@@ -421,6 +449,39 @@ if (mainOptions.command === 'analyze') {
   console.log(`Iridium Version: ${chalk.red(VERSION)}`)
 } else if (mainOptions.command === 'help') {
   printUsage()
+} else if (mainOptions.command === "js3") {
+  const analyzemainDefinitions = [
+    { name: 'command', defaultOption: true }
+  ]
+
+  if (argv.length === 0) {
+    printUsage(
+      {
+        header: "=== Error: Please provide a file path for js3 builder ===",
+        content: [
+          `$ ./iridium js3 <js-file-path>`
+        ]
+      })
+    process.exit(0)
+  }
+
+  const js3MainOptions = commandLineArgs(analyzemainDefinitions, { argv, stopAtFirstUnknown: true })
+  const analyzeArgv = js3MainOptions._unknown || []
+
+  if (js3MainOptions.command === "help") {
+    printUsage(
+      {
+        header: "=== Analyze Usage ===",
+        content: [
+          `$ ./iridium js3 <js-file-path>`
+        ]
+      })
+    process.exit(0)
+  }
+
+  // Process options if they were passed
+  const filePath = path.resolve(js3MainOptions.command)
+  genJS3(filePath)
 } else if (mainOptions.command === "stats") {
   const sections = [
     {
@@ -430,9 +491,7 @@ if (mainOptions.command === 'analyze') {
   const usage = commandLineUsage(sections)
   console.log(usage)
   analyzeFiles(directories);
-}
-
-else {
+} else {
   const sections = [
     {
       content: chalk.red(header),
