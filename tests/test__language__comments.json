@@ -1,0 +1,141 @@
+{
+    "skipped": [
+        "test262/test/language/comments/single-line-html-close-without-lt.js",
+        "test262/test/language/comments/S7.4_A4_T4.js",
+        "test262/test/language/comments/S7.4_A3.js",
+        "test262/test/language/comments/S7.4_A2_T2.js",
+        "test262/test/language/comments/hashbang/escaped-hash-043.js",
+        "test262/test/language/comments/hashbang/escaped-hash-u23.js",
+        "test262/test/language/comments/hashbang/function-body.js",
+        "test262/test/language/comments/hashbang/preceding-empty-statement.js",
+        "test262/test/language/comments/hashbang/preceding-hashbang.js",
+        "test262/test/language/comments/hashbang/escaped-hash-u0023.js",
+        "test262/test/language/comments/hashbang/preceding-multi-line-comment.js",
+        "test262/test/language/comments/hashbang/preceding-whitespace.js",
+        "test262/test/language/comments/hashbang/statement-block.js",
+        "test262/test/language/comments/hashbang/preceding-line-comment.js",
+        "test262/test/language/comments/hashbang/escaped-bang-u0021.js",
+        "test262/test/language/comments/hashbang/escaped-bang-u21.js",
+        "test262/test/language/comments/hashbang/preceding-directive-prologue.js",
+        "test262/test/language/comments/hashbang/escaped-hash-x23.js",
+        "test262/test/language/comments/hashbang/escaped-bang-x21.js",
+        "test262/test/language/comments/hashbang/preceding-directive-prologue-sc.js",
+        "test262/test/language/comments/hashbang/escaped-bang-041.js",
+        "test262/test/language/comments/hashbang/multi-line-comment.js",
+        "test262/test/language/comments/hashbang/escaped-hashbang.js",
+        "test262/test/language/comments/multi-line-html-close-extra.js",
+        "test262/test/language/comments/S7.4_A4_T1.js"
+    ],
+    "passed": [
+        {
+            "file": "test262/test/language/comments/S7.4_A2_T1.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/S7.4_A6.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/S7.4_A1_T2.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/multi-line-asi-line-feed.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/multi-line-asi-carriage-return.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/S7.4_A1_T1.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/S7.4_A4_T2.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/multi-line-asi-line-separator.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/S7.4_A4_T5.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/mongolian-vowel-separator-single.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/S7.4_A4_T6.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/S7.4_A4_T7.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/hashbang/use-strict.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/hashbang/eval-indirect.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/hashbang/no-line-separator.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/hashbang/eval.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/hashbang/line-terminator-carriage-return.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/hashbang/line-terminator-paragraph-separator.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/hashbang/function-constructor.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/hashbang/module.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/hashbang/line-terminator-line-separator.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/hashbang/not-empty.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/S7.4_A4_T3.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/mongolian-vowel-separator-single-eval.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/mongolian-vowel-separator-multi.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/multi-line-asi-paragraph-separator.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/comments/S7.4_A5.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        }
+    ],
+    "failed": [],
+    "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js"
+}

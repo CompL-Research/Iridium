@@ -20,6 +20,9 @@ const HARNESSES = [
   `${TEST262_DIR}/harness/propertyHelper.js`,
   `${TEST262_DIR}/harness/doneprintHandle.js`,
   `${TEST262_DIR}/harness/assert.js`,
+  `${TEST262_DIR}/harness/compareArray.js`,
+  `${TEST262_DIR}/harness/tcoHelper.js`,
+  
 ].join(' ');
 
 // Logs
@@ -31,8 +34,6 @@ const finalResult = {
   cmd: `${V8_BIN} ${HARNESSES}`
 }
 
-const SKIPPED_FILE = 'skipped_tests.log';
-const FAIL_FILE = 'failed_tests.log';
 
 const FAIL_LOG = 'failed_out.log';
 // const SUCCESS_LOG = 'success_out.log';
@@ -67,8 +68,14 @@ async function iterateOverFiles() {
   const files = execSync(`find ${TESTS_DIR} -type f`).toString().trim().split('\n');
 
   for (const file of files) {
-    if (readFileSync(file, 'utf8').includes('$DONOTEVALUATE()')) {
-      console.log(`Skipping ${file} (contains $DONOTEVALUATE())`);
+    // if (readFileSync(file, 'utf8').includes('$DONOTEVALUATE()')) {
+    //   console.log(`Skipping ${file} (contains $DONOTEVALUATE())`);
+    //   finalResult.skipped.push(file)
+    //   continue;
+    // }
+
+    if (readFileSync(file, 'utf8').includes('type: SyntaxError')) {
+      console.log(`Skipping ${file} (contains 'type: SyntaxError')`);
       finalResult.skipped.push(file)
       continue;
     }
@@ -78,7 +85,9 @@ async function iterateOverFiles() {
     const FLAGS = flagsMatch ? flagsMatch[1].replace(/\s/g, '').replace(/,/g, ' ') : '';
     const MODULE = FLAGS.includes('onlyStrict') ? '--module' : '';
     const fileCMD = `${V8_BIN} ${HARNESSES} ${MODULE}`
-    const cmd = `${fileCMD} ${file}`
+    const cmd = `${fileCMD} ${file} >> ${FAIL_LOG}`
+
+    writeFileSync(FAIL_LOG, `Testing ${file} : ${cmd}\n`, { flag: 'a' });
 
     try {
       await execAsync(cmd);
@@ -87,10 +96,7 @@ async function iterateOverFiles() {
       // writeFileSync(SUCCESS_LOG, `${file}\n`, { flag: 'a' });
       // await execAsync(`${cmd} >> ${SUCCESS_LOG}`);
     } catch (error) {
-      finalResult.passed.push({ file, cmd: fileCMD })
-
-      writeFileSync(FAIL_LOG, `${file}\n`, { flag: 'a' });
-      await execAsync(`${cmd} >> ${FAIL_LOG}`);
+      finalResult.failed.push({ file, cmd: fileCMD })
     }
   }
 

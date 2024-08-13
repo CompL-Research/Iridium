@@ -1,0 +1,75 @@
+{
+    "skipped": [],
+    "passed": [
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/destructuring-object-parameters-function-arguments-length.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/property-list-bindings-elements.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/array-elements-with-initializer.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/object-pattern-with-no-property-list.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/array-pattern-with-no-elements.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/recursive-array-and-object-patterns.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/property-list-followed-by-a-single-comma.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/destructuring-array-parameters-function-arguments-length.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/property-list-single-name-bindings.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/property-list-with-property-list.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/array-pattern-with-elisions.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/array-rest-elements.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/array-elements-with-object-patterns.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/syntax/array-elements-without-initializer.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/initialization-returns-normal-completion-for-empty-objects.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/initialization-requires-object-coercible-null.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        },
+        {
+            "file": "test262/test/language/destructuring/binding/initialization-requires-object-coercible-undefined.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
+        }
+    ],
+    "failed": [],
+    "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js"
+}

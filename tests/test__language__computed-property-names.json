@@ -1,308 +1,196 @@
 {
-    "skipped": [
-        "test262/test/language/asi/S7.9_A6.2_T2.js",
-        "test262/test/language/asi/S7.9.2_A1_T1.js",
-        "test262/test/language/asi/S7.9_A6.3_T2.js",
-        "test262/test/language/asi/S7.9_A6.2_T10.js",
-        "test262/test/language/asi/S7.9_A6.3_T5.js",
-        "test262/test/language/asi/S7.9_A6.2_T5.js",
-        "test262/test/language/asi/S7.9_A6.3_T3.js",
-        "test262/test/language/asi/S7.9_A11_T4.js",
-        "test262/test/language/asi/S7.9_A6.3_T1.js",
-        "test262/test/language/asi/S7.9_A9_T8.js",
-        "test262/test/language/asi/S7.9_A6.2_T4.js",
-        "test262/test/language/asi/S7.9_A6.3_T7.js",
-        "test262/test/language/asi/S7.9_A10_T2.js",
-        "test262/test/language/asi/S7.9_A9_T7.js",
-        "test262/test/language/asi/S7.9_A6.4_T2.js",
-        "test262/test/language/asi/S7.9_A6.2_T3.js",
-        "test262/test/language/asi/S7.9_A6.2_T6.js",
-        "test262/test/language/asi/S7.9_A6.2_T1.js",
-        "test262/test/language/asi/S7.9_A6.2_T9.js",
-        "test262/test/language/asi/S7.9.2_A1_T3.js",
-        "test262/test/language/asi/S7.9_A10_T6.js",
-        "test262/test/language/asi/S7.9_A10_T4.js",
-        "test262/test/language/asi/S7.9_A11_T8.js",
-        "test262/test/language/asi/S7.9.2_A1_T6.js",
-        "test262/test/language/asi/S7.9_A6.2_T7.js",
-        "test262/test/language/asi/S7.9_A5.3_T1.js",
-        "test262/test/language/asi/S7.9_A5.1_T1.js",
-        "test262/test/language/asi/S7.9_A6.3_T4.js",
-        "test262/test/language/asi/S7.9_A6.4_T1.js",
-        "test262/test/language/asi/S7.9_A6.3_T6.js",
-        "test262/test/language/asi/S7.9_A4.js",
-        "test262/test/language/asi/S7.9_A5.7_T1.js",
-        "test262/test/language/asi/S7.9_A9_T6.js",
-        "test262/test/language/asi/S7.9_A10_T8.js",
-        "test262/test/language/asi/S7.9_A6.2_T8.js"
-    ],
+    "skipped": [],
     "passed": [
         {
-            "file": "test262/test/language/asi/S7.9.2_A1_T5.js",
+            "file": "test262/test/language/computed-property-names/to-name-side-effects/object.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A11_T10.js",
+            "file": "test262/test/language/computed-property-names/to-name-side-effects/numbers-class.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A8_T5.js",
+            "file": "test262/test/language/computed-property-names/to-name-side-effects/numbers-object.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A9_T9.js",
+            "file": "test262/test/language/computed-property-names/to-name-side-effects/class.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A5.5_T3.js",
+            "file": "test262/test/language/computed-property-names/object/method/symbol.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A7_T2.js",
+            "file": "test262/test/language/computed-property-names/object/method/string.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A5.8_T1.js",
+            "file": "test262/test/language/computed-property-names/object/method/number.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/do-while-same-line.js",
+            "file": "test262/test/language/computed-property-names/object/method/super.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A10_T1.js",
+            "file": "test262/test/language/computed-property-names/object/method/generator.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A9_T2.js",
+            "file": "test262/test/language/computed-property-names/object/accessor/getter-duplicates.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A6.1_T1.js",
+            "file": "test262/test/language/computed-property-names/object/accessor/setter-super.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A10_T7.js",
+            "file": "test262/test/language/computed-property-names/object/accessor/getter.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A5.5_T4.js",
+            "file": "test262/test/language/computed-property-names/object/accessor/getter-super.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A8_T2.js",
+            "file": "test262/test/language/computed-property-names/object/accessor/setter.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9.2_A1_T2.js",
+            "file": "test262/test/language/computed-property-names/object/accessor/setter-duplicates.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A1.js",
+            "file": "test262/test/language/computed-property-names/object/property/number-duplicates.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A11_T11.js",
+            "file": "test262/test/language/computed-property-names/class/static/method-symbol.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A6.1_T11.js",
+            "file": "test262/test/language/computed-property-names/class/static/getter-prototype.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A5.4_T1.js",
+            "file": "test262/test/language/computed-property-names/class/static/generator-prototype.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A11_T2.js",
+            "file": "test262/test/language/computed-property-names/class/static/generator-constructor.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A5.2_T1.js",
+            "file": "test262/test/language/computed-property-names/class/static/method-prototype.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A7_T4.js",
+            "file": "test262/test/language/computed-property-names/class/static/setter-prototype.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A6.1_T3.js",
+            "file": "test262/test/language/computed-property-names/class/static/method-number.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A11_T3.js",
+            "file": "test262/test/language/computed-property-names/class/static/method-string-order.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A10_T10.js",
+            "file": "test262/test/language/computed-property-names/class/static/method-string.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A11_T1.js",
+            "file": "test262/test/language/computed-property-names/class/static/getter-constructor.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A8_T1.js",
+            "file": "test262/test/language/computed-property-names/class/static/method-symbol-order.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9.2_A1_T7.js",
+            "file": "test262/test/language/computed-property-names/class/static/setter-constructor.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A8_T4.js",
+            "file": "test262/test/language/computed-property-names/class/static/method-number-order.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A10_T11.js",
+            "file": "test262/test/language/computed-property-names/class/static/method-constructor.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A10_T5.js",
+            "file": "test262/test/language/computed-property-names/class/method/symbol.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A6.1_T4.js",
+            "file": "test262/test/language/computed-property-names/class/method/constructor-can-be-setter.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A6.1_T5.js",
+            "file": "test262/test/language/computed-property-names/class/method/constructor-duplicate-1.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A11_T9.js",
+            "file": "test262/test/language/computed-property-names/class/method/constructor-duplicate-3.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A5.9_T1.js",
+            "file": "test262/test/language/computed-property-names/class/method/constructor-duplicate-2.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A7_T9.js",
+            "file": "test262/test/language/computed-property-names/class/method/string.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A11_T6.js",
+            "file": "test262/test/language/computed-property-names/class/method/constructor-can-be-generator.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A3.js",
+            "file": "test262/test/language/computed-property-names/class/method/number.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A6.1_T10.js",
+            "file": "test262/test/language/computed-property-names/class/method/constructor.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A2.js",
+            "file": "test262/test/language/computed-property-names/class/method/constructor-can-be-getter.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A10_T9.js",
+            "file": "test262/test/language/computed-property-names/class/method/generator.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A6.1_T6.js",
+            "file": "test262/test/language/computed-property-names/class/accessor/getter-duplicates.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A6.1_T7.js",
+            "file": "test262/test/language/computed-property-names/class/accessor/getter.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A7_T8.js",
+            "file": "test262/test/language/computed-property-names/class/accessor/setter.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A6.1_T8.js",
+            "file": "test262/test/language/computed-property-names/class/accessor/setter-duplicates.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A9_T5.js",
+            "file": "test262/test/language/computed-property-names/basics/symbol.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A6.1_T2.js",
+            "file": "test262/test/language/computed-property-names/basics/string.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         },
         {
-            "file": "test262/test/language/asi/S7.9_A10_T12.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A8_T3.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A7_T7.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A6.1_T9.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A5.5_T5.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A5.6_T1.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A6.1_T13.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A11_T5.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A6.1_T12.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A9_T1.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A7_T5.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A11_T7.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A5.5_T2.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9.2_A1_T4.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A7_T3.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A7_T6.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A10_T3.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A5.5_T1.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A5.6_T2.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
-        },
-        {
-            "file": "test262/test/language/asi/S7.9_A7_T1.js",
+            "file": "test262/test/language/computed-property-names/basics/number.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js "
         }
     ],
