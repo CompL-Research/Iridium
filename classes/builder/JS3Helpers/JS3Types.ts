@@ -1,4 +1,4 @@
-// Generated on 12/8/2024, 9:18:47 pm, extended 30 interfaces 
+// Generated on 13/8/2024, 10:39:12 am, extended 30 interfaces 
 
 import { ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, RestElement, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, AssignmentExpression, BinaryExpression, BlockStatement, CatchClause, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, ThrowStatement, TryStatement, UnaryExpression, VariableDeclaration, VariableDeclarator, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, ClassPrivateProperty, ClassPrivateMethod, } from "@babel/types";
 
@@ -9,7 +9,7 @@ export type JS3AssignmentExpression_right = Identifier;
 export type JS3BinaryExpression_left = Identifier | PrivateName;
 export type JS3BinaryExpression_right = Identifier;
 export type JS3BlockStatement_body = Array<JS3AllowedBlockStatement>;
-export type JS3CallExpression_callee = Identifier | Super | V8IntrinsicIdentifier | JS3FunctionExpression;
+export type JS3CallExpression_callee = JS3MemberExpression | Identifier | Super | V8IntrinsicIdentifier | JS3FunctionExpression;
 export type JS3CallExpression_arguments = Array < Identifier >;
 export type JS3CallExpression_typeArguments = null;
 export type JS3CallExpression_typeParameters = null;

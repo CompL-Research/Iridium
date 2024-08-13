@@ -254,7 +254,22 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
   let orig_callee = node.callee; // Handling prop callee
   let fin_callee: JS3CallExpression_callee; // Handling prop callee
   if (isExpression(orig_callee)) {
-    fin_callee = handleExpression(orig_callee, otherProps)
+
+    // We would like to retain the context if the callee is a member expression
+    // 
+    // Input:
+    // a.b.next()
+    // 
+    // Output:
+    // t1 = a.b
+    // t1.next()
+    // 
+    if (isMemberExpression(orig_callee)) {
+      fin_callee = handleMemberExpression(orig_callee, otherProps)
+    } else {
+      fin_callee = handleExpression(orig_callee, otherProps)
+    }
+
   } else if (isSuper(orig_callee)) {
     fin_callee = orig_callee
   } else if (isV8IntrinsicIdentifier(orig_callee)) {
