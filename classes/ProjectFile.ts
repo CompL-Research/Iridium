@@ -86,6 +86,7 @@ export class ProjectFile {
           that.initData.status = "loaded"
           that.initData.sourceCode = sourceCode
           that.initData.loc = sourceCode.split(/\r\n|\r|\n/).length
+          const sourceType = sourceCode.includes('noStrict') ? "script" : "module";
 
           // 2. Parse Source Code
           let presets: Array<Array<string | {}>> = [
@@ -98,6 +99,7 @@ export class ProjectFile {
           const options = {
             cwd: that.projectBasePath,
             filename: that.filename,
+            sourceType,
             ast: true,
             presets,
             sourceMaps: true,

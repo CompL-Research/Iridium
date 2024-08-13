@@ -5,6 +5,7 @@ temp
 tests/test262
 tests/folder_
 tests/failed
+tests/failing
 
 
 # Outputs

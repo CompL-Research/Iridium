@@ -1,6 +1,8 @@
 import { exec } from 'child_process';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
+import path from 'path';
+
 import { glob } from 'glob';
 import pLimit from 'p-limit';
 import { promisify } from 'util';
@@ -88,6 +90,16 @@ let FAILEDEXEC = [];
     console.log(`Passed           : ${PASSED.length}`);
     console.log(`Failed (JS3 Gen) : ${FAILEDJS3.length}`);
     console.log(`Failed (Runtime) : ${FAILEDEXEC.length}`);
+
+    console.log("Failed Exec: ", FAILEDEXEC)
+
+    for (const fPath of FAILEDJS3) {
+      await execAsync(`cp ${fPath} failing/${path.basename(fPath)}`);
+    }
+
+    for (const fPath of FAILEDEXEC) {
+      await execAsync(`cp ${fPath} failing/${path.basename(fPath)}`);
+    }
 
     await execAsync(`rm -rf folder_*`);
 
