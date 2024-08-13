@@ -40,7 +40,7 @@ export function handleClassDeclarationWithRet(node: ClassDeclaration, otherProps
   if (Array.isArray(orig_decorators)) {
     for (const _arrProp of orig_decorators) {
       if (isDecorator(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassDeclaration->[decorators]->Decorator");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->[decorators]->Decorator");
       }
     }
   }
@@ -50,9 +50,9 @@ export function handleClassDeclarationWithRet(node: ClassDeclaration, otherProps
   if (Array.isArray(orig_implements)) {
     for (const _arrProp of orig_implements) {
       if (isTSExpressionWithTypeArguments(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassDeclaration->[implements]->TSExpressionWithTypeArguments");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->[implements]->TSExpressionWithTypeArguments");
       } else if (isClassImplements(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassDeclaration->[implements]->ClassImplements");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->[implements]->ClassImplements");
       }
     }
   }
@@ -60,25 +60,25 @@ export function handleClassDeclarationWithRet(node: ClassDeclaration, otherProps
   let orig_mixins = node.mixins; // Handling prop mixins
   let fin_mixins: JS3ClassDeclaration_mixins = null; // Handling prop mixins
   if (isInterfaceExtends(orig_mixins)) {
-    debugConfig.logger.error("TODO // unhandled ClassDeclaration->mixins->InterfaceExtends");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->mixins->InterfaceExtends");
   }
 
   let orig_superTypeParameters = node.superTypeParameters; // Handling prop superTypeParameters
   let fin_superTypeParameters: JS3ClassDeclaration_superTypeParameters = null;; // Handling prop superTypeParameters
   if (isTypeParameterInstantiation(orig_superTypeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassDeclaration->superTypeParameters->TypeParameterInstantiation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->superTypeParameters->TypeParameterInstantiation");
   } else if (isTSTypeParameterInstantiation(orig_superTypeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassDeclaration->superTypeParameters->TSTypeParameterInstantiation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->superTypeParameters->TSTypeParameterInstantiation");
   }
 
   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   let fin_typeParameters: JS3ClassDeclaration_typeParameters = null; // Handling prop typeParameters
   if (isTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassDeclaration->typeParameters->TypeParameterDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->typeParameters->TypeParameterDeclaration");
   } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassDeclaration->typeParameters->TSTypeParameterDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->typeParameters->TSTypeParameterDeclaration");
   } else if (isNoop(orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassDeclaration->typeParameters->Noop");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->typeParameters->Noop");
   }
   let result: JS3ClassDeclaration = generateJS3ClassDeclaration(fin_superClass, fin_body, fin_decorators, fin_implements, fin_mixins, fin_superTypeParameters, fin_typeParameters, node);
   otherProps.debugTrace.pop()
@@ -109,13 +109,13 @@ export function handleClassBody(node: ClassBody, otherProps: OtherProps): JS3Cla
         fin_body.push(handleClassPrivateProperty(_arrProp, otherProps))
         // ========================================================================================
       } else if (isClassAccessorProperty(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassBody->[body]->ClassAccessorProperty");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassBody->[body]->ClassAccessorProperty");
       } else if (isTSDeclareMethod(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassBody->[body]->TSDeclareMethod");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassBody->[body]->TSDeclareMethod");
       } else if (isTSIndexSignature(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassBody->[body]->TSIndexSignature");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassBody->[body]->TSIndexSignature");
       } else if (isStaticBlock(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassBody->[body]->StaticBlock");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassBody->[body]->StaticBlock");
       }
     }
   }
@@ -145,7 +145,7 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
     otherProps.others.prefix = `classProp$${orig_key.value}`
     fin_key = orig_key
   } else if (isExpression(orig_key)) {
-    debugConfig.logger.error("TODO // unhandled ClassProperty->key->Expression");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassProperty->key->Expression");
   }
   let orig_value = node.value; // Handling prop value
   let fin_value: JS3ClassProperty_value = null; // Handling prop value
@@ -185,11 +185,11 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
   let orig_typeAnnotation = node.typeAnnotation; // Handling prop typeAnnotation
   let fin_typeAnnotation: JS3ClassProperty_typeAnnotation = null; // Handling prop typeAnnotation
   if (isTypeAnnotation(orig_typeAnnotation)) {
-    debugConfig.logger.error("TODO // unhandled ClassProperty->typeAnnotation->TypeAnnotation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassProperty->typeAnnotation->TypeAnnotation");
   } else if (isTSTypeAnnotation(orig_typeAnnotation)) {
-    debugConfig.logger.error("TODO // unhandled ClassProperty->typeAnnotation->TSTypeAnnotation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassProperty->typeAnnotation->TSTypeAnnotation");
   } else if (isNoop(orig_typeAnnotation)) {
-    debugConfig.logger.error("TODO // unhandled ClassProperty->typeAnnotation->Noop");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassProperty->typeAnnotation->Noop");
   }
 
   let orig_decorators = node.decorators; // Handling prop decorators
@@ -197,7 +197,7 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
   if (Array.isArray(orig_decorators)) {
     for (const _arrProp of orig_decorators) {
       if (isDecorator(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassProperty->[decorators]->Decorator");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassProperty->[decorators]->Decorator");
       }
     }
   }
@@ -205,7 +205,7 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
   let orig_variance = node.variance; // Handling prop variance
   let fin_variance: JS3ClassProperty_variance = null; // Handling prop variance
   if (isVariance(orig_variance)) {
-    debugConfig.logger.error("TODO // unhandled ClassProperty->variance->Variance");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassProperty->variance->Variance");
   }
 
   let result: JS3ClassProperty = generateJS3ClassProperty(fin_key, fin_value, fin_typeAnnotation, fin_decorators, fin_variance, node);
@@ -219,7 +219,7 @@ export function handleClassPrivateProperty(node: ClassPrivateProperty, otherProp
   let orig_value = node.value; // Handling prop value
   let fin_value: JS3ClassPrivateProperty_value = null; // Handling prop value
   if (isExpression(orig_value)) {
-    // debugConfig.logger.error("TODO // unhandled ClassPrivateProperty->value->Expression");
+    // debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateProperty->value->Expression");
     // Holder will hold all the spilled beans...
     const holder: JS3BlockStatement_body = new Array()
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder } }
@@ -258,7 +258,7 @@ export function handleClassPrivateProperty(node: ClassPrivateProperty, otherProp
   if (Array.isArray(orig_decorators)) {
     for (const _arrProp of orig_decorators) {
       if (isDecorator(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassPrivateProperty->[decorators]->Decorator");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateProperty->[decorators]->Decorator");
       }
     }
   }
@@ -266,17 +266,17 @@ export function handleClassPrivateProperty(node: ClassPrivateProperty, otherProp
   let orig_typeAnnotation = node.typeAnnotation; // Handling prop typeAnnotation
   let fin_typeAnnotation: JS3ClassPrivateProperty_typeAnnotation = null; // Handling prop typeAnnotation
   if (isTypeAnnotation(orig_typeAnnotation)) {
-    debugConfig.logger.error("TODO // unhandled ClassPrivateProperty->typeAnnotation->TypeAnnotation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateProperty->typeAnnotation->TypeAnnotation");
   } else if (isTSTypeAnnotation(orig_typeAnnotation)) {
-    debugConfig.logger.error("TODO // unhandled ClassPrivateProperty->typeAnnotation->TSTypeAnnotation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateProperty->typeAnnotation->TSTypeAnnotation");
   } else if (isNoop(orig_typeAnnotation)) {
-    debugConfig.logger.error("TODO // unhandled ClassPrivateProperty->typeAnnotation->Noop");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateProperty->typeAnnotation->Noop");
   }
 
   let orig_variance = node.variance; // Handling prop variance
   let fin_variance: JS3ClassPrivateProperty_variance = null; // Handling prop variance
   if (isVariance(orig_variance)) {
-    debugConfig.logger.error("TODO // unhandled ClassPrivateProperty->variance->Variance");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateProperty->variance->Variance");
   }
 
   let result: JS3ClassPrivateProperty = generateJS3ClassPrivateProperty(fin_value, fin_decorators, fin_typeAnnotation, fin_variance, node);
@@ -301,7 +301,7 @@ export function handleClassMethod(node: ClassMethod, otherProps: OtherProps): JS
     otherProps.others.prefix = `numeric_${orig_key.value}`
     fin_key = orig_key
   } else if (isExpression(orig_key)) {
-    debugConfig.logger.error("TODO // unhandled ClassMethod->key->Expression");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->key->Expression");
   }
 
   let orig_params = node.params; // Handling prop params
@@ -311,15 +311,15 @@ export function handleClassMethod(node: ClassMethod, otherProps: OtherProps): JS
       if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp)
       } else if (isAssignmentPattern(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassMethod->[params]->AssignmentPattern");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->[params]->AssignmentPattern");
       } else if (isArrayPattern(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassMethod->[params]->ArrayPattern");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->[params]->ArrayPattern");
       } else if (isObjectPattern(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassMethod->[params]->ObjectPattern");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->[params]->ObjectPattern");
       } else if (isRestElement(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassMethod->[params]->RestElement");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->[params]->RestElement");
       } else if (isTSParameterProperty(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassMethod->[params]->TSParameterProperty");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->[params]->TSParameterProperty");
       }
     }
   }
@@ -335,7 +335,7 @@ export function handleClassMethod(node: ClassMethod, otherProps: OtherProps): JS
   if (Array.isArray(orig_decorators)) {
     for (const _arrProp of orig_decorators) {
       if (isDecorator(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassMethod->[decorators]->Decorator");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->[decorators]->Decorator");
       }
     }
   }
@@ -343,21 +343,21 @@ export function handleClassMethod(node: ClassMethod, otherProps: OtherProps): JS
   let orig_returnType = node.returnType; // Handling prop returnType
   let fin_returnType: JS3ClassMethod_returnType = null; // Handling prop returnType
   if (isTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled ClassMethod->returnType->TypeAnnotation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->returnType->TypeAnnotation");
   } else if (isTSTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled ClassMethod->returnType->TSTypeAnnotation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->returnType->TSTypeAnnotation");
   } else if (isNoop(orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled ClassMethod->returnType->Noop");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->returnType->Noop");
   }
 
   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   let fin_typeParameters: JS3ClassMethod_typeParameters = null; // Handling prop typeParameters
   if (isTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassMethod->typeParameters->TypeParameterDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->typeParameters->TypeParameterDeclaration");
   } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassMethod->typeParameters->TSTypeParameterDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->typeParameters->TSTypeParameterDeclaration");
   } else if (isNoop(orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassMethod->typeParameters->Noop");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->typeParameters->Noop");
   }
   let result: JS3ClassMethod = generateJS3ClassMethod(fin_key, fin_params, fin_body, fin_decorators, fin_returnType, fin_typeParameters, node);
   otherProps.others.prefix = oldPrefix
@@ -373,15 +373,15 @@ export function handleClassPrivateMethod(node: ClassPrivateMethod, otherProps: O
       if(isIdentifier (_arrProp)) {
         fin_params.push(_arrProp)
       } else if(isAssignmentPattern (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassPrivateMethod->[params]->AssignmentPattern");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->[params]->AssignmentPattern");
       } else if(isArrayPattern (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassPrivateMethod->[params]->ArrayPattern");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->[params]->ArrayPattern");
       } else if(isObjectPattern (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassPrivateMethod->[params]->ObjectPattern");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->[params]->ObjectPattern");
       } else if(isRestElement (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassPrivateMethod->[params]->RestElement");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->[params]->RestElement");
       } else if(isTSParameterProperty (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassPrivateMethod->[params]->TSParameterProperty");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->[params]->TSParameterProperty");
       } 
     }
   } 
@@ -396,7 +396,7 @@ export function handleClassPrivateMethod(node: ClassPrivateMethod, otherProps: O
   if (Array.isArray ( orig_decorators )) { 
     for (const _arrProp of orig_decorators) {
       if(isDecorator (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassPrivateMethod->[decorators]->Decorator");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->[decorators]->Decorator");
       } 
     }
   }
@@ -404,21 +404,21 @@ export function handleClassPrivateMethod(node: ClassPrivateMethod, otherProps: O
   let orig_returnType = node.returnType; // Handling prop returnType
   let fin_returnType : JS3ClassPrivateMethod_returnType = null; // Handling prop returnType
   if(isTypeAnnotation (orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled ClassPrivateMethod->returnType->TypeAnnotation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->returnType->TypeAnnotation");
   } else if(isTSTypeAnnotation (orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled ClassPrivateMethod->returnType->TSTypeAnnotation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->returnType->TSTypeAnnotation");
   } else if(isNoop (orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled ClassPrivateMethod->returnType->Noop");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->returnType->Noop");
   }
 
   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   let fin_typeParameters : JS3ClassPrivateMethod_typeParameters = null; // Handling prop typeParameters
   if(isTypeParameterDeclaration (orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassPrivateMethod->typeParameters->TypeParameterDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->typeParameters->TypeParameterDeclaration");
   } else if(isTSTypeParameterDeclaration (orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassPrivateMethod->typeParameters->TSTypeParameterDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->typeParameters->TSTypeParameterDeclaration");
   } else if(isNoop (orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassPrivateMethod->typeParameters->Noop");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->typeParameters->Noop");
   }
 
   let result: JS3ClassPrivateMethod = generateJS3ClassPrivateMethod(fin_params, fin_body, fin_decorators, fin_returnType, fin_typeParameters, node);

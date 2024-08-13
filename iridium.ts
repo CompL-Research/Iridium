@@ -167,7 +167,7 @@ function genJS3(filePath) {
   fs.mkdirSync(debugConfig.outputsPath);
   fs.mkdirSync(debugConfig.iridiumDebugPath);
   fs.mkdirSync(debugConfig.js3DebugPath);
-  
+
   const file = new ProjectFile(filePath, path.dirname(filePath))
   file.init().then(() => {
     const builder = new JS3Builder(file)
@@ -298,6 +298,23 @@ const analyzeDefinitions = [
   {
     header: 'Options',
     optionList: analyzeDefinitionsOptionList
+  }
+]
+
+const js3DefinitionsOptionList: Array<DefinitionsOption> = [
+  {
+    name: 'outputs-path',
+    description: 'Path to outputs directory (relative to cwd).',
+    alias: 'o',
+    type: String,
+    typeLabel: '{underline path} ...'
+  }
+]
+
+const js3Definitions = [
+  {
+    header: 'Options',
+    optionList: js3DefinitionsOptionList
   }
 ]
 
@@ -461,12 +478,12 @@ if (mainOptions.command === 'analyze') {
         content: [
           `$ ./iridium js3 <js-file-path>`
         ]
-      })
+      }, analyzeDefinitions)
     process.exit(0)
   }
 
   const js3MainOptions = commandLineArgs(analyzemainDefinitions, { argv, stopAtFirstUnknown: true })
-  const analyzeArgv = js3MainOptions._unknown || []
+  const js3Argv = js3MainOptions._unknown || []
 
   if (js3MainOptions.command === "help") {
     printUsage(
@@ -475,8 +492,22 @@ if (mainOptions.command === 'analyze') {
         content: [
           `$ ./iridium js3 <js-file-path>`
         ]
-      })
+      }, analyzeDefinitions)
     process.exit(0)
+  }
+
+  debugConfig.throwJS3Errors = true
+
+  if (js3Argv.length > 0) {
+    const js3Options = commandLineArgs(analyzeDefinitionsOptionList, { argv: js3Argv })
+
+    if ("outputs-path" in js3Options) {
+      if (js3Options["outputs-path"] === null) {
+        console.log(chalk.red("Outputs path not provided"))
+        process.exit(1)
+      }
+      debugConfig.outputsPath = path.resolve("./" + js3Options["outputs-path"])
+    }
   }
 
   // Process options if they were passed

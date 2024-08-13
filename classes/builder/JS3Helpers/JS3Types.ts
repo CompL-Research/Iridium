@@ -1,4 +1,4 @@
-// Generated on 13/8/2024, 10:39:12 am, extended 30 interfaces 
+// Generated on 13/8/2024, 2:51:54 pm, extended 30 interfaces 
 
 import { ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, RestElement, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, AssignmentExpression, BinaryExpression, BlockStatement, CatchClause, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, ThrowStatement, TryStatement, UnaryExpression, VariableDeclaration, VariableDeclarator, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, ClassPrivateProperty, ClassPrivateMethod, } from "@babel/types";
 
@@ -45,7 +45,7 @@ export type JS3ThrowStatement_argument = Identifier;
 export type JS3TryStatement_block = JS3BlockStatement;
 export type JS3TryStatement_handler = null | undefined | JS3CatchClause;
 export type JS3TryStatement_finalizer = null | undefined | JS3BlockStatement;
-export type JS3UnaryExpression_argument = Identifier;
+export type JS3UnaryExpression_argument = Identifier | JS3MemberExpression;
 export type JS3VariableDeclaration_declarations = Array<JS3VariableDeclarator>;
 export type JS3VariableDeclarator_init = ThisExpression | JS3FunctionExpression | Identifier | BigIntLiteral | DecimalLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | JS3MemberExpression | JS3CallExpression | JS3ObjectExpression | JS3NewExpression | JS3BinaryExpression | JS3LogicalExpression | JS3AssignmentExpression | JS3UnaryExpression | JS3ArrowFunctionExpression | JS3ClassExpression;
 export type JS3ArrowFunctionExpression_params = Array<Identifier>;

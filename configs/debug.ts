@@ -9,6 +9,7 @@ const config : {
   playgroundPort: number,
   logger: Logger,
   versionNumber: string,
+  throwJS3Errors: boolean,
 } = {
   js3DebugPath: "./outputs/JS3",
   iridiumDebugPath: "./outputs/IRIDIUM",
@@ -18,6 +19,7 @@ const config : {
   playgroundPort: 4000,
   logger: new Logger(),
   versionNumber: "",
+  throwJS3Errors: false
 }
 
 export default config;

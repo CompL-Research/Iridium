@@ -33,15 +33,15 @@ export function handleBlockStatement(node: BlockStatement, otherProps: OtherProp
 
 export function handleStatement(node: Statement, otherProps: OtherProps) {
   if (isBlockStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->BlockStatement");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->BlockStatement");
   } else if (isBreakStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->BreakStatement");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->BreakStatement");
   } else if (isContinueStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->ContinueStatement");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->ContinueStatement");
   } else if (isDebuggerStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->DebuggerStatement");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DebuggerStatement");
   } else if (isDoWhileStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->DoWhileStatement");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DoWhileStatement");
   } else if (isEmptyStatement(node)) {
     otherProps.others.holder.push(node)
   } else if (isExpressionStatement(node)) {
@@ -49,9 +49,9 @@ export function handleStatement(node: Statement, otherProps: OtherProps) {
     handleExpressionStatement(node, otherProps)
     // ========================================================================================
   } else if (isForInStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->ForInStatement");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->ForInStatement");
   } else if (isForStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->ForStatement");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->ForStatement");
   } else if (isFunctionDeclaration(node)) {
     // ========================================================================================
     handleFunctionDeclaration(node, otherProps)
@@ -61,13 +61,13 @@ export function handleStatement(node: Statement, otherProps: OtherProps) {
     handleIfStatement(node, otherProps)
     // ========================================================================================
   } else if (isLabeledStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->LabeledStatement");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->LabeledStatement");
   } else if (isReturnStatement(node)) {
     // ========================================================================================
     handleReturnStatement(node, otherProps)
     // ========================================================================================
   } else if (isSwitchStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->SwitchStatement");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->SwitchStatement");
   } else if (isThrowStatement(node)) {
     // ========================================================================================
     handleThrowStatement(node, otherProps)
@@ -81,67 +81,67 @@ export function handleStatement(node: Statement, otherProps: OtherProps) {
     handleVariableDeclaration(node, otherProps)
     // ========================================================================================
   } else if (isWhileStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->WhileStatement");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->WhileStatement");
   } else if (isWithStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->WithStatement");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->WithStatement");
   } else if (isClassDeclaration(node)) {
     // ========================================================================================
     handleClassDeclaration(node, otherProps)
     // ========================================================================================
   } else if (isExportAllDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->ExportAllDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->ExportAllDeclaration");
   } else if (isExportDefaultDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->ExportDefaultDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->ExportDefaultDeclaration");
   } else if (isExportNamedDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->ExportNamedDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->ExportNamedDeclaration");
   } else if (isForOfStatement(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->ForOfStatement");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->ForOfStatement");
   } else if (isImportDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->ImportDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->ImportDeclaration");
   } else if (isDeclareClass(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->DeclareClass");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DeclareClass");
   } else if (isDeclareFunction(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->DeclareFunction");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DeclareFunction");
   } else if (isDeclareInterface(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->DeclareInterface");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DeclareInterface");
   } else if (isDeclareModule(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->DeclareModule");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DeclareModule");
   } else if (isDeclareModuleExports(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->DeclareModuleExports");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DeclareModuleExports");
   } else if (isDeclareTypeAlias(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->DeclareTypeAlias");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DeclareTypeAlias");
   } else if (isDeclareOpaqueType(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->DeclareOpaqueType");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DeclareOpaqueType");
   } else if (isDeclareVariable(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->DeclareVariable");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DeclareVariable");
   } else if (isDeclareExportDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->DeclareExportDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DeclareExportDeclaration");
   } else if (isDeclareExportAllDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->DeclareExportAllDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DeclareExportAllDeclaration");
   } else if (isInterfaceDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->InterfaceDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->InterfaceDeclaration");
   } else if (isOpaqueType(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->OpaqueType");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->OpaqueType");
   } else if (isTypeAlias(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->TypeAlias");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->TypeAlias");
   } else if (isEnumDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->EnumDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->EnumDeclaration");
   } else if (isTSDeclareFunction(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->TSDeclareFunction");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->TSDeclareFunction");
   } else if (isTSInterfaceDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->TSInterfaceDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->TSInterfaceDeclaration");
   } else if (isTSTypeAliasDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->TSTypeAliasDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->TSTypeAliasDeclaration");
   } else if (isTSEnumDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->TSEnumDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->TSEnumDeclaration");
   } else if (isTSModuleDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->TSModuleDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->TSModuleDeclaration");
   } else if (isTSImportEqualsDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->TSImportEqualsDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->TSImportEqualsDeclaration");
   } else if (isTSExportAssignment(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->TSExportAssignment");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->TSExportAssignment");
   } else if (isTSNamespaceExportDeclaration(node)) {
-    debugConfig.logger.error("TODO // unhandled Statement->TSNamespaceExportDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->TSNamespaceExportDeclaration");
   }
 }
 
@@ -205,14 +205,14 @@ export function handleIfStatement(node: IfStatement, otherProps: OtherProps): vo
   let orig_alternate = node.alternate; // Handling prop alternate
   let fin_alternate: JS3IfStatement_alternate = null; // Handling prop alternate
   if (isStatement(orig_alternate)) {
-    if (isBlockStatement(orig_consequent)) {
-      fin_consequent = handleBlockStatement(orig_consequent, otherProps)
+    if (isBlockStatement(orig_alternate)) {
+      fin_alternate = handleBlockStatement(orig_alternate, otherProps)
     } else {
       const dummyBlockHolder: JS3BlockStatement_body = new Array();
-      const dummyBlockStatement = generateJS3BlockStatementfromBaseNode(dummyBlockHolder, new Array(), orig_consequent)
+      const dummyBlockStatement = generateJS3BlockStatementfromBaseNode(dummyBlockHolder, new Array(), orig_alternate)
       const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: dummyBlockHolder } }
-      handleStatement(orig_consequent, updatedProps)
-      fin_consequent = dummyBlockStatement
+      handleStatement(orig_alternate, updatedProps)
+      fin_alternate = dummyBlockStatement
     }
   }
   otherProps.others.prefix = oldPrefix
@@ -379,13 +379,13 @@ export function handleFunctionDeclarationWithRet(node: FunctionDeclaration, othe
       if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp)
       } else if (isAssignmentPattern(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled FunctionDeclaration->[params]->AssignmentPattern");
+        debugConfig.logger.throwJS3Error("TODO // unhandled FunctionDeclaration->[params]->AssignmentPattern");
       } else if (isArrayPattern(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled FunctionDeclaration->[params]->ArrayPattern");
+        debugConfig.logger.throwJS3Error("TODO // unhandled FunctionDeclaration->[params]->ArrayPattern");
       } else if (isObjectPattern(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled FunctionDeclaration->[params]->ObjectPattern");
+        debugConfig.logger.throwJS3Error("TODO // unhandled FunctionDeclaration->[params]->ObjectPattern");
       } else if (isRestElement(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled FunctionDeclaration->[params]->RestElement");
+        debugConfig.logger.throwJS3Error("TODO // unhandled FunctionDeclaration->[params]->RestElement");
       }
     }
   }
@@ -399,29 +399,29 @@ export function handleFunctionDeclarationWithRet(node: FunctionDeclaration, othe
   let orig_predicate = node.predicate; // Handling prop predicate
   let fin_predicate: JS3FunctionDeclaration_predicate = null; // Handling prop predicate
   if (isDeclaredPredicate(orig_predicate)) {
-    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->predicate->DeclaredPredicate");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionDeclaration->predicate->DeclaredPredicate");
   } else if (isInferredPredicate(orig_predicate)) {
-    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->predicate->InferredPredicate");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionDeclaration->predicate->InferredPredicate");
   }
 
   let orig_returnType = node.returnType; // Handling prop returnType
   let fin_returnType: JS3FunctionDeclaration_returnType = null; // Handling prop returnType
   if (isTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->returnType->TypeAnnotation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionDeclaration->returnType->TypeAnnotation");
   } else if (isTSTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->returnType->TSTypeAnnotation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionDeclaration->returnType->TSTypeAnnotation");
   } else if (isNoop(orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->returnType->Noop");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionDeclaration->returnType->Noop");
   }
 
   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   let fin_typeParameters: JS3FunctionDeclaration_typeParameters = null; // Handling prop typeParameters
   if (isTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->typeParameters->TypeParameterDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionDeclaration->typeParameters->TypeParameterDeclaration");
   } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->typeParameters->TSTypeParameterDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionDeclaration->typeParameters->TSTypeParameterDeclaration");
   } else if (isNoop(orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled FunctionDeclaration->typeParameters->Noop");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionDeclaration->typeParameters->Noop");
   }
 
   let result: JS3FunctionDeclaration = generateJS3FunctionDeclaration(fin_id, fin_params, fin_body, fin_predicate, fin_returnType, fin_typeParameters, node);

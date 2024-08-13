@@ -52,7 +52,7 @@ export function handleImportDeclaration(node: ImportDeclaration, otherProps: Oth
   if (Array.isArray(orig_assertions)) {
     for (const _arrProp of orig_assertions) {
       if (isImportAttribute(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ImportDeclaration->[assertions]->ImportAttribute");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ImportDeclaration->[assertions]->ImportAttribute");
       }
     }
   }
@@ -64,7 +64,7 @@ export function handleImportDeclaration(node: ImportDeclaration, otherProps: Oth
   if (Array.isArray(orig_attributes)) {
     for (const _arrProp of orig_attributes) {
       if (isImportAttribute(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ImportDeclaration->[attributes]->ImportAttribute");
+        debugConfig.logger.throwJS3Error("TODO // unhandled ImportDeclaration->[attributes]->ImportAttribute");
       }
     }
   }
@@ -112,7 +112,7 @@ export function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, o
   let orig_declaration = node.declaration; // Handling prop declaration
   let fin_declaration: JS3ExportDefaultDeclaration_declaration; // Handling prop declaration
   if (isTSDeclareFunction(orig_declaration)) {
-    debugConfig.logger.error("TODO // unhandled ExportDefaultDeclaration->declaration->TSDeclareFunction");
+    debugConfig.logger.throwJS3Error("TODO // unhandled ExportDefaultDeclaration->declaration->TSDeclareFunction");
   } else if (isFunctionDeclaration(orig_declaration)) {
     // ========================================================================================
     otherProps.others.prefix = "exportDefFunc"

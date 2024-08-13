@@ -28,14 +28,14 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
   let resultIdentifier = generateIdentifier(node, "$TODO")
 
   if (isArrayExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ArrayExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ArrayExpression`, otherProps.debugTrace);
   } else if (isAssignmentExpression(node)) {
     // ========================================================================================
     // (LVal = init)
     // $resultIdentifier = LVal
     const assnExpr = handleAssignmentExpression(node, otherProps)
     otherProps.others.holder.push(assnExpr)
-    
+
     resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
     const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, assnExpr.left);
     otherProps.others.holder.push(varDecl)
@@ -57,7 +57,7 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     otherProps.others.holder.push(varDecl)
     // ========================================================================================
   } else if (isConditionalExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ConditionalExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ConditionalExpression`, otherProps.debugTrace);
   } else if (isFunctionExpression(node)) {
     // ========================================================================================
     // $resultIdentifier = function () [] ()
@@ -103,7 +103,7 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     otherProps.others.holder.push(varDecl)
     // ========================================================================================
   } else if (isRegExpLiteral(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->RegExpLiteral`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->RegExpLiteral`, otherProps.debugTrace);
   } else if (isLogicalExpression(node)) {
 
     // ========================================================================================
@@ -143,9 +143,9 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
 
     // ========================================================================================
   } else if (isSequenceExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->SequenceExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->SequenceExpression`, otherProps.debugTrace);
   } else if (isParenthesizedExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ParenthesizedExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ParenthesizedExpression`, otherProps.debugTrace);
   } else if (isThisExpression(node)) {
     // ========================================================================================
     // $resultIdentifier = this
@@ -163,7 +163,7 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     otherProps.others.holder.push(varDecl)
     // ========================================================================================
   } else if (isUpdateExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->UpdateExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->UpdateExpression`, otherProps.debugTrace);
   } else if (isArrowFunctionExpression(node)) {
     // ========================================================================================
     // $resultIdentifier = () => JS3Body
@@ -182,65 +182,65 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     otherProps.others.holder.push(varDecl)
     // ========================================================================================
 
-    // debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ClassExpression`, otherProps.debugTrace);
+    // debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ClassExpression`, otherProps.debugTrace);
   } else if (isImportExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ImportExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ImportExpression`, otherProps.debugTrace);
   } else if (isMetaProperty(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->MetaProperty`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->MetaProperty`, otherProps.debugTrace);
   } else if (isSuper(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->Super`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->Super`, otherProps.debugTrace);
   } else if (isTaggedTemplateExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TaggedTemplateExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TaggedTemplateExpression`, otherProps.debugTrace);
   } else if (isTemplateLiteral(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TemplateLiteral`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TemplateLiteral`, otherProps.debugTrace);
   } else if (isYieldExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->YieldExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->YieldExpression`, otherProps.debugTrace);
   } else if (isAwaitExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->AwaitExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->AwaitExpression`, otherProps.debugTrace);
   } else if (isImport(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->Import`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->Import`, otherProps.debugTrace);
   } else if (isBigIntLiteral(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->BigIntLiteral`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->BigIntLiteral`, otherProps.debugTrace);
   } else if (isOptionalMemberExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->OptionalMemberExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->OptionalMemberExpression`, otherProps.debugTrace);
   } else if (isOptionalCallExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->OptionalCallExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->OptionalCallExpression`, otherProps.debugTrace);
   } else if (isTypeCastExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TypeCastExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TypeCastExpression`, otherProps.debugTrace);
   } else if (isJSXElement(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->JSXElement`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->JSXElement`, otherProps.debugTrace);
   } else if (isJSXFragment(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->JSXFragment`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->JSXFragment`, otherProps.debugTrace);
   } else if (isBindExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->BindExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->BindExpression`, otherProps.debugTrace);
   } else if (isDoExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->DoExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->DoExpression`, otherProps.debugTrace);
   } else if (isRecordExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->RecordExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->RecordExpression`, otherProps.debugTrace);
   } else if (isTupleExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TupleExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TupleExpression`, otherProps.debugTrace);
   } else if (isDecimalLiteral(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->DecimalLiteral`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->DecimalLiteral`, otherProps.debugTrace);
   } else if (isModuleExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ModuleExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ModuleExpression`, otherProps.debugTrace);
   } else if (isTopicReference(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TopicReference`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TopicReference`, otherProps.debugTrace);
   } else if (isPipelineTopicExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->PipelineTopicExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->PipelineTopicExpression`, otherProps.debugTrace);
   } else if (isPipelineBareFunction(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->PipelineBareFunction`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->PipelineBareFunction`, otherProps.debugTrace);
   } else if (isPipelinePrimaryTopicReference(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->PipelinePrimaryTopicReference`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->PipelinePrimaryTopicReference`, otherProps.debugTrace);
   } else if (isTSInstantiationExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TSInstantiationExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TSInstantiationExpression`, otherProps.debugTrace);
   } else if (isTSAsExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TSAsExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TSAsExpression`, otherProps.debugTrace);
   } else if (isTSSatisfiesExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TSSatisfiesExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TSSatisfiesExpression`, otherProps.debugTrace);
   } else if (isTSTypeAssertion(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TSTypeAssertion`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TSTypeAssertion`, otherProps.debugTrace);
   } else if (isTSNonNullExpression(node)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TSNonNullExpression`, otherProps.debugTrace);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TSNonNullExpression`, otherProps.debugTrace);
   }
   otherProps.debugTrace.pop()
   return resultIdentifier;
@@ -283,9 +283,9 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
       if (isExpression(_arrProp)) {
         fin_arguments.push(handleExpression(_arrProp, otherProps))
       } else if (isSpreadElement(_arrProp)) {
-        debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}[arguments]->SpreadElement`);
+        debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}[arguments]->SpreadElement`);
       } else if (isArgumentPlaceholder(_arrProp)) {
-        debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}[arguments]->ArgumentPlaceholder`);
+        debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}[arguments]->ArgumentPlaceholder`);
       }
     }
   }
@@ -293,13 +293,13 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
   let orig_typeArguments = node.typeArguments; // Handling prop typeArguments
   let fin_typeArguments: JS3CallExpression_typeArguments = null; // Handling prop typeArguments
   if (isTypeParameterInstantiation(orig_typeArguments)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}typeArguments->TypeParameterInstantiation`);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}typeArguments->TypeParameterInstantiation`);
   }
 
   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   let fin_typeParameters: JS3CallExpression_typeParameters = null; // Handling prop typeParameters
   if (isTSTypeParameterInstantiation(orig_typeParameters)) {
-    debugConfig.logger.error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}typeParameters->TSTypeParameterInstantiation`);
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}typeParameters->TSTypeParameterInstantiation`);
   }
 
   let result: JS3CallExpression = generateJS3CallExpression(fin_callee, fin_arguments, fin_typeArguments, fin_typeParameters, node);
@@ -341,7 +341,7 @@ export function spillObjectExpression(objectHolder: Identifier, node: ObjectExpr
   if (Array.isArray(orig_properties)) {
     for (const _arrProp of orig_properties) {
       if (isObjectMethod(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled spill ObjectExpression->[properties]->ObjectMethod");
+        debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectMethod");
       } else if (isObjectProperty(_arrProp)) {
 
         // objectHolder[key] = [value]
@@ -351,7 +351,7 @@ export function spillObjectExpression(objectHolder: Identifier, node: ObjectExpr
           key = handleExpression(_arrProp.key, otherProps)
         } else if (isPrivateName(_arrProp.key)) {
           key = generateIdentifier(_arrProp.key, "$TODO")
-          debugConfig.logger.error("TODO // unhandled spill ObjectExpression->[properties]->ObjectProperty [key is private name]");
+          debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectProperty [key is private name]");
         } else {
           key = _arrProp.key
         }
@@ -361,7 +361,7 @@ export function spillObjectExpression(objectHolder: Identifier, node: ObjectExpr
           value = handleExpression(_arrProp.value, otherProps)
         } else if (isPatternLike(_arrProp.value)) {
           value = generateIdentifier(_arrProp.value, "$TODO")
-          debugConfig.logger.error("TODO // unhandled spill ObjectExpression->[properties]->ObjectProperty [value is pattern like]");
+          debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectProperty [value is pattern like]");
         }
 
         const dummyNode = generateBaseNodeFrom(_arrProp)
@@ -372,7 +372,7 @@ export function spillObjectExpression(objectHolder: Identifier, node: ObjectExpr
         const exprStmt = generateJS3ExpressionStatementfromBaseNode(assignmentExpression, dummyNode)
         otherProps.others.holder.push(exprStmt)
       } else if (isSpreadElement(_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled spill ObjectExpression->[properties]->SpreadElement", [_arrProp]);
+        debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->SpreadElement", [_arrProp]);
       }
     }
   }
@@ -388,19 +388,19 @@ export function handleFunctionExpression(node: FunctionExpression, otherProps: O
 
   let orig_params = node.params; // Handling prop params
   let fin_params: JS3FunctionExpression_params = new Array(); // Handling prop params
-  if (Array.isArray ( orig_params )) { 
+  if (Array.isArray(orig_params)) {
     for (const _arrProp of orig_params) {
-      if(isIdentifier (_arrProp)) {
+      if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp)
-      } else if(isAssignmentPattern (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled FunctionExpression->[params]->AssignmentPattern");
-      } else if(isArrayPattern (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled FunctionExpression->[params]->ArrayPattern");
-      } else if(isObjectPattern (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled FunctionExpression->[params]->ObjectPattern");
-      } else if(isRestElement (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled FunctionExpression->[params]->RestElement");
-      } 
+      } else if (isAssignmentPattern(_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->[params]->AssignmentPattern");
+      } else if (isArrayPattern(_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->[params]->ArrayPattern");
+      } else if (isObjectPattern(_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->[params]->ObjectPattern");
+      } else if (isRestElement(_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->[params]->RestElement");
+      }
     }
   }
 
@@ -410,38 +410,38 @@ export function handleFunctionExpression(node: FunctionExpression, otherProps: O
 
   if (isBlockStatement(orig_body)) {
     fin_body = handleBlockStatement(orig_body, otherProps)
-    // debugConfig.logger.error("TODO // unhandled FunctionExpression->body->BlockStatement");
+    // debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->body->BlockStatement");
   }
   let orig_predicate = node.predicate; // Handling prop predicate
   let fin_predicate: JS3FunctionExpression_predicate; // Handling prop predicate
   if (isDeclaredPredicate(orig_predicate)) {
-    debugConfig.logger.error("TODO // unhandled FunctionExpression->predicate->DeclaredPredicate");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->predicate->DeclaredPredicate");
   } else if (isInferredPredicate(orig_predicate)) {
-    debugConfig.logger.error("TODO // unhandled FunctionExpression->predicate->InferredPredicate");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->predicate->InferredPredicate");
   } else if (isnull(orig_predicate)) {
-    debugConfig.logger.error("TODO // unhandled FunctionExpression->predicate->null");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->predicate->null");
   }
   let orig_returnType = node.returnType; // Handling prop returnType
   let fin_returnType: JS3FunctionExpression_returnType; // Handling prop returnType
   if (isTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled FunctionExpression->returnType->TypeAnnotation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->returnType->TypeAnnotation");
   } else if (isTSTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled FunctionExpression->returnType->TSTypeAnnotation");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->returnType->TSTypeAnnotation");
   } else if (isNoop(orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled FunctionExpression->returnType->Noop");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->returnType->Noop");
   } else if (isnull(orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled FunctionExpression->returnType->null");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->returnType->null");
   }
   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   let fin_typeParameters: JS3FunctionExpression_typeParameters; // Handling prop typeParameters
   if (isTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled FunctionExpression->typeParameters->TypeParameterDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->typeParameters->TypeParameterDeclaration");
   } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled FunctionExpression->typeParameters->TSTypeParameterDeclaration");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->typeParameters->TSTypeParameterDeclaration");
   } else if (isNoop(orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled FunctionExpression->typeParameters->Noop");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->typeParameters->Noop");
   } else if (isnull(orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled FunctionExpression->typeParameters->null");
+    debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->typeParameters->null");
   }
   let result: JS3FunctionExpression = generateJS3FunctionExpression(fin_id, fin_params, fin_body, fin_predicate, fin_returnType, fin_typeParameters, node);
   return result
@@ -450,75 +450,75 @@ export function handleFunctionExpression(node: FunctionExpression, otherProps: O
 export function handleNewExpression(node: NewExpression, otherProps: OtherProps): JS3NewExpression {
   // 2 fallthrough props, 4 restricted props
   let orig_callee = node.callee; // Handling prop callee
-  let fin_callee : JS3NewExpression_callee; // Handling prop callee
-  if(isExpression (orig_callee)) {
+  let fin_callee: JS3NewExpression_callee; // Handling prop callee
+  if (isExpression(orig_callee)) {
     fin_callee = handleExpression(orig_callee, otherProps)
-  } else if(isSuper (orig_callee)) {
+  } else if (isSuper(orig_callee)) {
     fin_callee = orig_callee
-  } else if(isV8IntrinsicIdentifier (orig_callee)) {
+  } else if (isV8IntrinsicIdentifier(orig_callee)) {
     fin_callee = orig_callee
   }
 
   let orig_arguments = node.arguments; // Handling prop arguments
-  let fin_arguments : JS3NewExpression_arguments = new Array(); // Handling prop arguments
-  if (Array.isArray ( orig_arguments )) { 
+  let fin_arguments: JS3NewExpression_arguments = new Array(); // Handling prop arguments
+  if (Array.isArray(orig_arguments)) {
     for (const _arrProp of orig_arguments) {
-      if(isExpression (_arrProp)) {
+      if (isExpression(_arrProp)) {
         fin_arguments.push(handleExpression(_arrProp, otherProps))
-      } else if(isSpreadElement (_arrProp)) {
+      } else if (isSpreadElement(_arrProp)) {
         fin_arguments.push(_arrProp)
-      } else if(isArgumentPlaceholder (_arrProp)) {
+      } else if (isArgumentPlaceholder(_arrProp)) {
         fin_arguments.push(_arrProp)
       }
     }
   }
 
   let orig_typeArguments = node.typeArguments; // Handling prop typeArguments
-  let fin_typeArguments : JS3NewExpression_typeArguments = null; // Handling prop typeArguments
-  if(isTypeParameterInstantiation (orig_typeArguments)) {
-    debugConfig.logger.error("TODO // unhandled NewExpression->typeArguments->TypeParameterInstantiation");
+  let fin_typeArguments: JS3NewExpression_typeArguments = null; // Handling prop typeArguments
+  if (isTypeParameterInstantiation(orig_typeArguments)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled NewExpression->typeArguments->TypeParameterInstantiation");
   }
 
   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
-  let fin_typeParameters : JS3NewExpression_typeParameters = null; // Handling prop typeParameters
-  if(isTSTypeParameterInstantiation (orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled NewExpression->typeParameters->TSTypeParameterInstantiation");
+  let fin_typeParameters: JS3NewExpression_typeParameters = null; // Handling prop typeParameters
+  if (isTSTypeParameterInstantiation(orig_typeParameters)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled NewExpression->typeParameters->TSTypeParameterInstantiation");
   }
 
   let result: JS3NewExpression = generateJS3NewExpression(fin_callee, fin_arguments, fin_typeArguments, fin_typeParameters, node)
   return result;
 }
 
-export function handleBinaryExpression(node: BinaryExpression, otherProps: OtherProps) : JS3BinaryExpression {
+export function handleBinaryExpression(node: BinaryExpression, otherProps: OtherProps): JS3BinaryExpression {
   // 2 fallthrough props, 2 restricted props
   let orig_left = node.left; // Handling prop left
-  let fin_left : JS3BinaryExpression_left; // Handling prop left
-  if(isExpression (orig_left)) {
+  let fin_left: JS3BinaryExpression_left; // Handling prop left
+  if (isExpression(orig_left)) {
     fin_left = handleExpression(orig_left, otherProps)
-  } else if(isPrivateName (orig_left)) {
-    debugConfig.logger.error("TODO // unhandled BinaryExpression->left->PrivateName");
-  } 
+  } else if (isPrivateName(orig_left)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled BinaryExpression->left->PrivateName");
+  }
   let orig_right = node.right; // Handling prop right
-  let fin_right : JS3BinaryExpression_right; // Handling prop right
-  if(isExpression (orig_right)) {
+  let fin_right: JS3BinaryExpression_right; // Handling prop right
+  if (isExpression(orig_right)) {
     fin_right = handleExpression(orig_right, otherProps)
-  } 
+  }
   let result: JS3BinaryExpression = generateJS3BinaryExpression(fin_left, fin_right, node);
   return result
-} 
+}
 
 export function handleLogicalExpression(node: LogicalExpression, otherProps: OtherProps) {
   // 2 fallthrough props, 2 restricted props
   let orig_left = node.left; // Handling prop left
-  let fin_left : JS3LogicalExpression_left; // Handling prop left
-  if(isExpression (orig_left)) {
+  let fin_left: JS3LogicalExpression_left; // Handling prop left
+  if (isExpression(orig_left)) {
     fin_left = handleExpression(orig_left, otherProps)
-  } 
+  }
   let orig_right = node.right; // Handling prop right
-  let fin_right : JS3LogicalExpression_right; // Handling prop right
-  if(isExpression (orig_right)) {
+  let fin_right: JS3LogicalExpression_right; // Handling prop right
+  if (isExpression(orig_right)) {
     fin_right = handleExpression(orig_right, otherProps)
-  } 
+  }
   let result: JS3LogicalExpression = generateJS3LogicalExpression(fin_left, fin_right, node);
   return result
 }
@@ -526,38 +526,38 @@ export function handleLogicalExpression(node: LogicalExpression, otherProps: Oth
 export function handleAssignmentExpression(node: AssignmentExpression, otherProps: OtherProps) {
   // 2 fallthrough props, 2 restricted props
   let orig_left = node.left; // Handling prop left
-  let fin_left : JS3AssignmentExpression_left; // Handling prop left
-  if(isIdentifier (orig_left)) {
+  let fin_left: JS3AssignmentExpression_left; // Handling prop left
+  if (isIdentifier(orig_left)) {
     fin_left = orig_left
-  } else if(isMemberExpression (orig_left)) {
+  } else if (isMemberExpression(orig_left)) {
     fin_left = handleMemberExpression(orig_left, otherProps)
-  } else if(isRestElement (orig_left)) {
-    debugConfig.logger.error("TODO // unhandled AssignmentExpression->left->RestElement");
-  } else if(isAssignmentPattern (orig_left)) {
-    debugConfig.logger.error("TODO // unhandled AssignmentExpression->left->AssignmentPattern");
-  } else if(isArrayPattern (orig_left)) {
-    debugConfig.logger.error("TODO // unhandled AssignmentExpression->left->ArrayPattern");
-  } else if(isObjectPattern (orig_left)) {
-    debugConfig.logger.error("TODO // unhandled AssignmentExpression->left->ObjectPattern");
-  } else if(isTSAsExpression (orig_left)) {
-    debugConfig.logger.error("TODO // unhandled AssignmentExpression->left->TSAsExpression");
-  } else if(isTSSatisfiesExpression (orig_left)) {
-    debugConfig.logger.error("TODO // unhandled AssignmentExpression->left->TSSatisfiesExpression");
-  } else if(isTSTypeAssertion (orig_left)) {
-    debugConfig.logger.error("TODO // unhandled AssignmentExpression->left->TSTypeAssertion");
-  } else if(isTSNonNullExpression (orig_left)) {
-    debugConfig.logger.error("TODO // unhandled AssignmentExpression->left->TSNonNullExpression");
-  } else if(isOptionalMemberExpression (orig_left)) {
-    debugConfig.logger.error("TODO // unhandled AssignmentExpression->left->OptionalMemberExpression");
+  } else if (isRestElement(orig_left)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->RestElement");
+  } else if (isAssignmentPattern(orig_left)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->AssignmentPattern");
+  } else if (isArrayPattern(orig_left)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->ArrayPattern");
+  } else if (isObjectPattern(orig_left)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->ObjectPattern");
+  } else if (isTSAsExpression(orig_left)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->TSAsExpression");
+  } else if (isTSSatisfiesExpression(orig_left)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->TSSatisfiesExpression");
+  } else if (isTSTypeAssertion(orig_left)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->TSTypeAssertion");
+  } else if (isTSNonNullExpression(orig_left)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->TSNonNullExpression");
+  } else if (isOptionalMemberExpression(orig_left)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->OptionalMemberExpression");
   } else if (isTSParameterProperty(orig_left)) {
-    debugConfig.logger.error("TODO // unhandled AssignmentExpression->left->TSParameterProperty");
+    debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->TSParameterProperty");
   }
 
   let orig_right = node.right; // Handling prop right
-  let fin_right : JS3AssignmentExpression_right; // Handling prop right
-  if(isExpression (orig_right)) {
+  let fin_right: JS3AssignmentExpression_right; // Handling prop right
+  if (isExpression(orig_right)) {
     fin_right = handleExpression(orig_right, otherProps)
-  } 
+  }
   let result: JS3AssignmentExpression = generateJS3AssignmentExpression(fin_left, fin_right, node);
   return result
 }
@@ -567,10 +567,29 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
 export function handleUnaryExpression(node: UnaryExpression, otherProps: OtherProps) {
   // 3 fallthrough props, 1 restricted props
   let orig_argument = node.argument; // Handling prop argument
-  let fin_argument : JS3UnaryExpression_argument; // Handling prop argument
-  if(isExpression (orig_argument)) {
-    fin_argument = handleExpression(orig_argument, otherProps);
-  } 
+  let fin_argument: JS3UnaryExpression_argument; // Handling prop argument
+  if (isExpression(orig_argument)) {
+
+    // For some unary operators like delete, we expect a member expression as argument
+    // 
+    // Correct: delete a.foo
+    // 
+    // Incorrect: t1 = a.foo
+    //            delete t1
+    // 
+    
+    if (node.operator === "delete") {
+      if (isMemberExpression(orig_argument)) {
+        fin_argument = handleMemberExpression(orig_argument, otherProps);
+      } else {
+        fin_argument = generateIdentifier(orig_argument, "$TODO");
+        debugConfig.logger.throwJS3Error("TODO // unhandled UnaryExpression->argument-> delete operator with non-member expression");
+      }
+    } else {
+      fin_argument = handleExpression(orig_argument, otherProps);
+    }
+
+  }
   let result: JS3UnaryExpression = generateJS3UnaryExpression(fin_argument, node);
   return result;
 }
@@ -578,28 +597,28 @@ export function handleUnaryExpression(node: UnaryExpression, otherProps: OtherPr
 export function handleArrowFunctionExpression(node: ArrowFunctionExpression, otherProps: OtherProps) {
   // 4 fallthrough props, 5 restricted props
   let orig_params = node.params; // Handling prop params
-  let fin_params : JS3ArrowFunctionExpression_params = new Array(); // Handling prop params
-  if (Array.isArray ( orig_params )) { 
+  let fin_params: JS3ArrowFunctionExpression_params = new Array(); // Handling prop params
+  if (Array.isArray(orig_params)) {
     for (const _arrProp of orig_params) {
-      if(isIdentifier (_arrProp)) {
+      if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp)
-      } else if(isAssignmentPattern (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->[params]->AssignmentPattern");
-      } else if(isArrayPattern (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->[params]->ArrayPattern");
-      } else if(isObjectPattern (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->[params]->ObjectPattern");
-      } else if(isRestElement (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->[params]->RestElement");
-      } 
+      } else if (isAssignmentPattern(_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->[params]->AssignmentPattern");
+      } else if (isArrayPattern(_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->[params]->ArrayPattern");
+      } else if (isObjectPattern(_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->[params]->ObjectPattern");
+      } else if (isRestElement(_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->[params]->RestElement");
+      }
     }
   }
 
   let orig_body = node.body; // Handling prop body
-  let fin_body : JS3ArrowFunctionExpression_body; // Handling prop body
-  if(isBlockStatement (orig_body)) {
+  let fin_body: JS3ArrowFunctionExpression_body; // Handling prop body
+  if (isBlockStatement(orig_body)) {
     fin_body = handleBlockStatement(orig_body, otherProps)
-  } else if(isExpression (orig_body)) {
+  } else if (isExpression(orig_body)) {
     const body: JS3BlockStatement_body = new Array()
     fin_body = generateJS3BlockStatementfromBaseNode(body, new Array(), orig_body);
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: body } }
@@ -609,31 +628,31 @@ export function handleArrowFunctionExpression(node: ArrowFunctionExpression, oth
   }
 
   let orig_predicate = node.predicate; // Handling prop predicate
-  let fin_predicate : JS3ArrowFunctionExpression_predicate = null; // Handling prop predicate
-  if(isDeclaredPredicate (orig_predicate)) {
-    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->predicate->DeclaredPredicate");
-  } else if(isInferredPredicate (orig_predicate)) {
-    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->predicate->InferredPredicate");
+  let fin_predicate: JS3ArrowFunctionExpression_predicate = null; // Handling prop predicate
+  if (isDeclaredPredicate(orig_predicate)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->predicate->DeclaredPredicate");
+  } else if (isInferredPredicate(orig_predicate)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->predicate->InferredPredicate");
   }
 
   let orig_returnType = node.returnType; // Handling prop returnType
-  let fin_returnType : JS3ArrowFunctionExpression_returnType = null; // Handling prop returnType
-  if(isTypeAnnotation (orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->returnType->TypeAnnotation");
-  } else if(isTSTypeAnnotation (orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->returnType->TSTypeAnnotation");
-  } else if(isNoop (orig_returnType)) {
-    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->returnType->Noop");
+  let fin_returnType: JS3ArrowFunctionExpression_returnType = null; // Handling prop returnType
+  if (isTypeAnnotation(orig_returnType)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->returnType->TypeAnnotation");
+  } else if (isTSTypeAnnotation(orig_returnType)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->returnType->TSTypeAnnotation");
+  } else if (isNoop(orig_returnType)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->returnType->Noop");
   }
 
   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
-  let fin_typeParameters : JS3ArrowFunctionExpression_typeParameters = null; // Handling prop typeParameters
-  if(isTypeParameterDeclaration (orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->typeParameters->TypeParameterDeclaration");
-  } else if(isTSTypeParameterDeclaration (orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->typeParameters->TSTypeParameterDeclaration");
-  } else if(isNoop (orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ArrowFunctionExpression->typeParameters->Noop");
+  let fin_typeParameters: JS3ArrowFunctionExpression_typeParameters = null; // Handling prop typeParameters
+  if (isTypeParameterDeclaration(orig_typeParameters)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->typeParameters->TypeParameterDeclaration");
+  } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->typeParameters->TSTypeParameterDeclaration");
+  } else if (isNoop(orig_typeParameters)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->typeParameters->Noop");
   }
 
   let result: JS3ArrowFunctionExpression = generateJS3ArrowFunctionExpression(fin_params, fin_body, fin_predicate, fin_returnType, fin_typeParameters, node);
@@ -643,60 +662,60 @@ export function handleArrowFunctionExpression(node: ArrowFunctionExpression, oth
 export function handleClassExpression(node: ClassExpression, otherProps: OtherProps) {
   // 2 fallthrough props, 7 restricted props
   let orig_superClass = node.superClass; // Handling prop superClass
-  let fin_superClass : JS3ClassExpression_superClass = null; // Handling prop superClass
-  if(isExpression (orig_superClass)) {
+  let fin_superClass: JS3ClassExpression_superClass = null; // Handling prop superClass
+  if (isExpression(orig_superClass)) {
     fin_superClass = handleExpression(orig_superClass, otherProps)
   }
 
   let orig_body = node.body; // Handling prop body
-  let fin_body : JS3ClassExpression_body; // Handling prop body
-  if(isClassBody (orig_body)) {
+  let fin_body: JS3ClassExpression_body; // Handling prop body
+  if (isClassBody(orig_body)) {
     fin_body = handleClassBody(orig_body, otherProps)
-  } 
+  }
   let orig_decorators = node.decorators; // Handling prop decorators
-  let fin_decorators : JS3ClassExpression_decorators = null; // Handling prop decorators
-  if (Array.isArray ( orig_decorators )) { 
+  let fin_decorators: JS3ClassExpression_decorators = null; // Handling prop decorators
+  if (Array.isArray(orig_decorators)) {
     for (const _arrProp of orig_decorators) {
-      if(isDecorator (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassExpression->[decorators]->Decorator");
-      } 
+      if (isDecorator(_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassExpression->[decorators]->Decorator");
+      }
     }
   }
 
   let orig_implements = node.implements; // Handling prop implements
-  let fin_implements : JS3ClassExpression_implements = null; // Handling prop implements
-  if (Array.isArray ( orig_implements )) { 
+  let fin_implements: JS3ClassExpression_implements = null; // Handling prop implements
+  if (Array.isArray(orig_implements)) {
     for (const _arrProp of orig_implements) {
-      if(isTSExpressionWithTypeArguments (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassExpression->[implements]->TSExpressionWithTypeArguments");
-      } else if(isClassImplements (_arrProp)) {
-        debugConfig.logger.error("TODO // unhandled ClassExpression->[implements]->ClassImplements");
-      } 
+      if (isTSExpressionWithTypeArguments(_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassExpression->[implements]->TSExpressionWithTypeArguments");
+      } else if (isClassImplements(_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled ClassExpression->[implements]->ClassImplements");
+      }
     }
   }
 
   let orig_mixins = node.mixins; // Handling prop mixins
-  let fin_mixins : JS3ClassExpression_mixins = null; // Handling prop mixins
-  if(isInterfaceExtends (orig_mixins)) {
-    debugConfig.logger.error("TODO // unhandled ClassExpression->mixins->InterfaceExtends");
+  let fin_mixins: JS3ClassExpression_mixins = null; // Handling prop mixins
+  if (isInterfaceExtends(orig_mixins)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassExpression->mixins->InterfaceExtends");
   }
 
   let orig_superTypeParameters = node.superTypeParameters; // Handling prop superTypeParameters
-  let fin_superTypeParameters : JS3ClassExpression_superTypeParameters = null; // Handling prop superTypeParameters
-  if(isTypeParameterInstantiation (orig_superTypeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassExpression->superTypeParameters->TypeParameterInstantiation");
-  } else if(isTSTypeParameterInstantiation (orig_superTypeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassExpression->superTypeParameters->TSTypeParameterInstantiation");
+  let fin_superTypeParameters: JS3ClassExpression_superTypeParameters = null; // Handling prop superTypeParameters
+  if (isTypeParameterInstantiation(orig_superTypeParameters)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassExpression->superTypeParameters->TypeParameterInstantiation");
+  } else if (isTSTypeParameterInstantiation(orig_superTypeParameters)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassExpression->superTypeParameters->TSTypeParameterInstantiation");
   }
 
   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
-  let fin_typeParameters : JS3ClassExpression_typeParameters = null; // Handling prop typeParameters
-  if(isTypeParameterDeclaration (orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassExpression->typeParameters->TypeParameterDeclaration");
-  } else if(isTSTypeParameterDeclaration (orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassExpression->typeParameters->TSTypeParameterDeclaration");
-  } else if(isNoop (orig_typeParameters)) {
-    debugConfig.logger.error("TODO // unhandled ClassExpression->typeParameters->Noop");
+  let fin_typeParameters: JS3ClassExpression_typeParameters = null; // Handling prop typeParameters
+  if (isTypeParameterDeclaration(orig_typeParameters)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassExpression->typeParameters->TypeParameterDeclaration");
+  } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassExpression->typeParameters->TSTypeParameterDeclaration");
+  } else if (isNoop(orig_typeParameters)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ClassExpression->typeParameters->Noop");
   }
 
   let result: JS3ClassExpression = generateJS3ClassExpression(fin_superClass, fin_body, fin_decorators, fin_implements, fin_mixins, fin_superTypeParameters, fin_typeParameters, node);

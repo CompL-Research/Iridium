@@ -5,6 +5,8 @@ type LogItem = {
   objects: Array<any>
 }
 
+import debugConfig from "#debugConfig";
+
 export default class Logger {
   logData: Array<LogItem> = new Array()
   printToConsole: boolean = true
@@ -69,7 +71,7 @@ export default class Logger {
     this.#generateLog(data)
   }
 
-  thrownError(message: string, objects: Array<any> = []) {
+  throwJS3Error(message: string, objects: Array<any> = []) {
     const timestamp = new Date().valueOf()
     const data: LogItem = {
       timestamp: this.getTimestampSinceEpoch(timestamp),
@@ -78,7 +80,7 @@ export default class Logger {
       objects
     }
     this.#generateLog(data)
-    throw new Error(message)
+    if (debugConfig.throwJS3Errors) throw new Error(message)
   }
 
 };

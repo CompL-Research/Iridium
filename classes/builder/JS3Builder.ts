@@ -50,6 +50,7 @@ export default class JS3Builder {
     try {
       this.generatedProgram = handleProgram(program, this.utils)
     } catch (e) {
+      this.generatedProgram = null;
       debugConfig.logger.error("[JS3 Builder] failed to generate JS3...", [e])
     }
   }

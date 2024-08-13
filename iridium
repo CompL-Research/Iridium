@@ -1,4 +1,4 @@
 #!/bin/bash
 
-node --import=tsx iridium.ts $*
+node --import=tsx /home/meetesh/wd/Iridium/iridium.ts $*
 # --inspect
