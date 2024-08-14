@@ -1,15 +1,15 @@
 // Generated on 6/8/2024, 10:15:01 am, generated 1 handlers 
 import { ExportDefaultDeclaration, ImportDeclaration, Program, isClassDeclaration, isExportDefaultDeclaration, isExpression, isFunctionDeclaration, isImportAttribute, isImportDeclaration, isTSDeclareFunction } from "@babel/types";
 import { generateJS3ExportDefaultDeclaration, generateJS3ImportDeclaration, generateJS3Program } from "./JS3Constructors.ts";
-import { JS3ExportDefaultDeclaration_declaration, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body } from "./JS3Types.ts";
+import { JS3AllowedBlockStatement, JS3ExportDefaultDeclaration_declaration, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body, JS3VariableDeclaration } from "./JS3Types.ts";
 
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
 
 import debugConfig from "#debugConfig";
 import { generateCommentLine } from "#utils";
 
-import { handleFunctionDeclarationWithRet, handleStatement } from "./HandleBlocks.ts";
-import { handleClassDeclarationWithRet } from "./HandleClassDeclaration.ts";
+import { handleFunctionDeclaration, handleStatement } from "./HandleBlocks.ts";
+import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
 import { handleExpression } from "./HandleExpression.ts";
 
 type OtherProps = JS3BuilderUtils;
@@ -23,7 +23,7 @@ export function handleProgram(node: Program, otherProps: OtherProps) : JS3Progra
   let orig_body = node.body; // Handling prop body
   let fin_body : JS3Program_body = new Array(); // Handling prop body
 
-  // All spills will be held by fin_body
+  // Program Scope
   const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: fin_body } }
   for (const _arrProp of orig_body) {
     if (isImportDeclaration(_arrProp)) {
@@ -35,7 +35,11 @@ export function handleProgram(node: Program, otherProps: OtherProps) : JS3Progra
       handleExportDefaultDeclaration(_arrProp, updatedProps)
       // ========================================================================================
     } else {
-      handleStatement(_arrProp, updatedProps)
+      // ========================================================================================
+      const blockStmt: JS3AllowedBlockStatement | Array<JS3VariableDeclaration> = handleStatement(_arrProp, updatedProps)
+      if (Array.isArray(blockStmt)) blockStmt.forEach(s => fin_body.push(s))
+      else fin_body.push(blockStmt)    
+      // ========================================================================================
     }
   }
   let result: JS3Program = generateJS3Program(fin_body, node);
@@ -116,12 +120,12 @@ export function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, o
   } else if (isFunctionDeclaration(orig_declaration)) {
     // ========================================================================================
     otherProps.others.prefix = "exportDefFunc"
-    fin_declaration = handleFunctionDeclarationWithRet(orig_declaration, otherProps)
+    fin_declaration = handleFunctionDeclaration(orig_declaration, otherProps)
     // ========================================================================================
   } else if (isClassDeclaration(orig_declaration)) {
     // ========================================================================================
     otherProps.others.prefix = "exportDefClass"
-    fin_declaration = handleClassDeclarationWithRet(orig_declaration, otherProps)
+    fin_declaration = handleClassDeclaration(orig_declaration, otherProps)
     // ========================================================================================
   } else if (isExpression(orig_declaration)) {
     // ========================================================================================

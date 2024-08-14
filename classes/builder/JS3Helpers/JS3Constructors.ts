@@ -1,7 +1,7 @@
-// Generated on 14/8/2024, 1:14:54 pm, generated 36 constructors 
+// Generated on 14/8/2024, 5:32:38 pm, generated 40 constructors 
 
-import { ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CallExpression, CatchClause, ExpressionStatement, FunctionDeclaration, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ObjectMethod, ReturnStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, SpreadElement, ClassProperty, ClassPrivateProperty, ClassPrivateMethod, PrivateName, ArrayPattern, ObjectPattern, Directive, StringLiteral, InterpreterDirective, Node, LVal, Identifier, } from "@babel/types";
-import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3BreakStatement_label, JS3CallExpression, JS3CallExpression_callee, JS3CallExpression_arguments, JS3CallExpression_typeArguments, JS3CallExpression_typeParameters, JS3CatchClause, JS3CatchClause_body, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3FunctionDeclaration, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_body, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3FunctionExpression, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_body, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3IfStatement, JS3IfStatement_test, JS3IfStatement_consequent, JS3IfStatement_alternate, JS3LogicalExpression, JS3LogicalExpression_left, JS3LogicalExpression_right, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3NewExpression, JS3NewExpression_callee, JS3NewExpression_arguments, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3Program, JS3Program_body, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ReturnStatement, JS3ReturnStatement_argument, JS3ThrowStatement, JS3ThrowStatement_argument, JS3TryStatement, JS3TryStatement_block, JS3TryStatement_handler, JS3TryStatement_finalizer, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3VariableDeclaration, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init, JS3WhileStatement, JS3WhileStatement_test, JS3WhileStatement_body, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3ClassBody, JS3ClassBody_body, JS3ClassExpression, JS3ClassExpression_superClass, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3ClassDeclaration, JS3ClassDeclaration_superClass, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ExportDefaultDeclaration, JS3ExportDefaultDeclaration_declaration, JS3ImportDeclaration, JS3ImportDeclaration_specifiers, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ClassMethod, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3SpreadElement, JS3SpreadElement_argument, JS3ClassProperty, JS3ClassProperty_key, JS3ClassProperty_value, JS3ClassProperty_typeAnnotation, JS3ClassProperty_decorators, JS3ClassProperty_variance, JS3ClassPrivateProperty, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_variance, JS3ClassPrivateMethod, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, } from "./JS3Types.ts";
+import { ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CallExpression, CatchClause, ContinueStatement, ExpressionStatement, ForInStatement, ForStatement, FunctionDeclaration, FunctionExpression, IfStatement, LabeledStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ObjectMethod, ReturnStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, SpreadElement, ClassProperty, ClassPrivateProperty, ClassPrivateMethod, PrivateName, ArrayPattern, ObjectPattern, Directive, StringLiteral, InterpreterDirective, Node, LVal, Identifier, } from "@babel/types";
+import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3BreakStatement_label, JS3CallExpression, JS3CallExpression_callee, JS3CallExpression_arguments, JS3CallExpression_typeArguments, JS3CallExpression_typeParameters, JS3CatchClause, JS3CatchClause_body, JS3ContinueStatement, JS3ContinueStatement_label, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3ForInStatement, JS3ForInStatement_left, JS3ForInStatement_right, JS3ForInStatement_body, JS3ForStatement, JS3ForStatement_init, JS3ForStatement_test, JS3ForStatement_update, JS3ForStatement_body, JS3FunctionDeclaration, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_body, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3FunctionExpression, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_body, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3IfStatement, JS3IfStatement_test, JS3IfStatement_consequent, JS3IfStatement_alternate, JS3LabeledStatement, JS3LabeledStatement_body, JS3LogicalExpression, JS3LogicalExpression_left, JS3LogicalExpression_right, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3NewExpression, JS3NewExpression_callee, JS3NewExpression_arguments, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3Program, JS3Program_body, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ReturnStatement, JS3ReturnStatement_argument, JS3ThrowStatement, JS3ThrowStatement_argument, JS3TryStatement, JS3TryStatement_block, JS3TryStatement_handler, JS3TryStatement_finalizer, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3VariableDeclaration, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init, JS3WhileStatement, JS3WhileStatement_test, JS3WhileStatement_body, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3ClassBody, JS3ClassBody_body, JS3ClassExpression, JS3ClassExpression_superClass, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3ClassDeclaration, JS3ClassDeclaration_superClass, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ExportDefaultDeclaration, JS3ExportDefaultDeclaration_declaration, JS3ImportDeclaration, JS3ImportDeclaration_specifiers, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ClassMethod, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3SpreadElement, JS3SpreadElement_argument, JS3ClassProperty, JS3ClassProperty_key, JS3ClassProperty_value, JS3ClassProperty_typeAnnotation, JS3ClassProperty_decorators, JS3ClassProperty_variance, JS3ClassPrivateProperty, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_variance, JS3ClassPrivateMethod, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, } from "./JS3Types.ts";
 
 export function generateBaseNodeFrom(from: Node): Node {
   const { start, end, loc, range, extra } = from;
@@ -157,6 +157,20 @@ export function generateJS3CatchClausefromBaseNode(_body : JS3CatchClause_body, 
   return to;
 }
 
+export function generateJS3ContinueStatement(_label : JS3ContinueStatement_label, from: ContinueStatement) : JS3ContinueStatement {
+  let to: JS3ContinueStatement = generateBaseNodeFrom(from) as JS3ContinueStatement;
+  to.type = from.type;
+  to.label = _label;
+  return to;
+}
+
+export function generateJS3ContinueStatementfromBaseNode(_label : JS3ContinueStatement_label, from: Node) : JS3ContinueStatement {
+  let to: JS3ContinueStatement = generateBaseNodeFrom(from) as JS3ContinueStatement;
+  to.type = "ContinueStatement";
+  to.label = _label;
+  return to;
+}
+
 export function generateJS3ExpressionStatement(_expression : JS3ExpressionStatement_expression, from: ExpressionStatement) : JS3ExpressionStatement {
   let to: JS3ExpressionStatement = generateBaseNodeFrom(from) as JS3ExpressionStatement;
   to.type = from.type;
@@ -168,6 +182,44 @@ export function generateJS3ExpressionStatementfromBaseNode(_expression : JS3Expr
   let to: JS3ExpressionStatement = generateBaseNodeFrom(from) as JS3ExpressionStatement;
   to.type = "ExpressionStatement";
   to.expression = _expression;
+  return to;
+}
+
+export function generateJS3ForInStatement(_left : JS3ForInStatement_left, _right : JS3ForInStatement_right, _body : JS3ForInStatement_body, from: ForInStatement) : JS3ForInStatement {
+  let to: JS3ForInStatement = generateBaseNodeFrom(from) as JS3ForInStatement;
+  to.type = from.type;
+  to.left = _left;
+  to.right = _right;
+  to.body = _body;
+  return to;
+}
+
+export function generateJS3ForInStatementfromBaseNode(_left : JS3ForInStatement_left, _right : JS3ForInStatement_right, _body : JS3ForInStatement_body, from: Node) : JS3ForInStatement {
+  let to: JS3ForInStatement = generateBaseNodeFrom(from) as JS3ForInStatement;
+  to.type = "ForInStatement";
+  to.left = _left;
+  to.right = _right;
+  to.body = _body;
+  return to;
+}
+
+export function generateJS3ForStatement(_init : JS3ForStatement_init, _test : JS3ForStatement_test, _update : JS3ForStatement_update, _body : JS3ForStatement_body, from: ForStatement) : JS3ForStatement {
+  let to: JS3ForStatement = generateBaseNodeFrom(from) as JS3ForStatement;
+  to.type = from.type;
+  to.init = _init;
+  to.test = _test;
+  to.update = _update;
+  to.body = _body;
+  return to;
+}
+
+export function generateJS3ForStatementfromBaseNode(_init : JS3ForStatement_init, _test : JS3ForStatement_test, _update : JS3ForStatement_update, _body : JS3ForStatement_body, from: Node) : JS3ForStatement {
+  let to: JS3ForStatement = generateBaseNodeFrom(from) as JS3ForStatement;
+  to.type = "ForStatement";
+  to.init = _init;
+  to.test = _test;
+  to.update = _update;
+  to.body = _body;
   return to;
 }
 
@@ -244,6 +296,22 @@ export function generateJS3IfStatementfromBaseNode(_test : JS3IfStatement_test, 
   to.test = _test;
   to.consequent = _consequent;
   to.alternate = _alternate;
+  return to;
+}
+
+export function generateJS3LabeledStatement(_body : JS3LabeledStatement_body, from: LabeledStatement) : JS3LabeledStatement {
+  let to: JS3LabeledStatement = generateBaseNodeFrom(from) as JS3LabeledStatement;
+  to.type = from.type;
+  to.label = from.label;
+  to.body = _body;
+  return to;
+}
+
+export function generateJS3LabeledStatementfromBaseNode(_body : JS3LabeledStatement_body, _label : Identifier, from: Node) : JS3LabeledStatement {
+  let to: JS3LabeledStatement = generateBaseNodeFrom(from) as JS3LabeledStatement;
+  to.type = "LabeledStatement";
+  to.label = _label;
+  to.body = _body;
   return to;
 }
 

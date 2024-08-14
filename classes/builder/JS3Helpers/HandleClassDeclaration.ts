@@ -14,12 +14,9 @@ const isundefined = (a) => a === undefined;
 
 type OtherProps = JS3BuilderUtils;
 
-export function handleClassDeclaration(node: ClassDeclaration, otherProps: OtherProps) {
-  const res = handleClassDeclarationWithRet(node, otherProps)
-  otherProps.others.holder.push(res)
-}
 
-export function handleClassDeclarationWithRet(node: ClassDeclaration, otherProps: OtherProps): JS3ClassDeclaration {
+
+export function handleClassDeclaration(node: ClassDeclaration, otherProps: OtherProps): JS3ClassDeclaration {
   otherProps.debugTrace.push("ClassDeclaration")
   assert(Array.isArray(otherProps.others.holder), "handleClassDeclaration expects an holder to spill intermediate values");
 
