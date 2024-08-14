@@ -1,5 +1,4 @@
 import { exec } from 'child_process';
-import cliProgress from 'cli-progress';
 import fs from 'fs';
 import { glob } from 'glob';
 import { promisify } from 'util';
@@ -25,13 +24,14 @@ let FAILEDEXEC = [];
     // Read the JSON file synchronously
     const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
-    const bar1 = new cliProgress.SingleBar({ stream: process.stdout }, cliProgress.Presets.shades_classic);
+    // const bar1 = new cliProgress.SingleBar({ stream: process.stdout }, cliProgress.Presets.shades_classic);
 
-    // start the progress bar with a total value of 200 and start value of 0
-    bar1.start(data.passed.length, 0);
+    // // start the progress bar with a total value of 200 and start value of 0
+    // bar1.start(data.passed.length, 0);
 
     for (const o of data.passed) {
-      bar1.increment();
+      console.log(`Processing: ${o.file}`)
+      // bar1.increment();
 
       // Generate JS3
       const cmd = `${IRIDIUM_BIN} js3 ${o.file}`
@@ -48,6 +48,8 @@ let FAILEDEXEC = [];
         FAILEDJS3.push(o.file)
         continue;
       }
+      console.log(`Generated JS3: ${o.file}, cmd: ${cmd}`)
+
       const pattern = './outputs/JS3/*.js';
       const files = await glob(pattern)
       if (files.length !== 1) {
@@ -57,6 +59,7 @@ let FAILEDEXEC = [];
       const myFile = files[0];
       const v8Cmd = `${o.cmd} ${myFile}`;
       try {
+        console.log(`Running v8: ${myFile}, cmd: ${v8Cmd}`)
         await execAsync(v8Cmd);
         PASSED.push(o.file)
       } catch (e) {
@@ -73,7 +76,7 @@ let FAILEDEXEC = [];
     }
 
     // stop the progress bar
-    bar1.stop();
+    // bar1.stop();
 
     console.log(`=== TEST SUMMARY (${data.passed.length} tests) ===`)
     console.log(`Passed           : ${PASSED.length}`)

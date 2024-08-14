@@ -1,12 +1,12 @@
 // Generated on 7/8/2024, 5:50:38 pm, generated 16 handlers 
 
-import { BlockStatement, BreakStatement, CatchClause, ContinueStatement, EmptyStatement, ExpressionStatement, ForInStatement, ForStatement, FunctionDeclaration, IfStatement, isArrayPattern, isAssignmentPattern, isBlockStatement, isBreakStatement, isCatchClause, isClassDeclaration, isContinueStatement, isDebuggerStatement, isDeclareClass, isDeclaredPredicate, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isIdentifier, isIfStatement, isImportDeclaration, isInferredPredicate, isInterfaceDeclaration, isLabeledStatement, isLVal, isNoop, isObjectPattern, isOpaqueType, isRestElement, isReturnStatement, isStatement, isSwitchStatement, isThrowStatement, isTryStatement, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSTypeAliasDeclaration, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTypeAlias, isTypeAnnotation, isTypeParameterDeclaration, isVariableDeclaration, isWhileStatement, isWithStatement, LabeledStatement, ReturnStatement, Statement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator } from "@babel/types";
+import { BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, EmptyStatement, ExpressionStatement, ForInStatement, ForStatement, FunctionDeclaration, IfStatement, isArrayPattern, isAssignmentPattern, isBlockStatement, isBreakStatement, isCatchClause, isClassDeclaration, isContinueStatement, isDebuggerStatement, isDeclareClass, isDeclaredPredicate, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isIdentifier, isIfStatement, isImportDeclaration, isInferredPredicate, isInterfaceDeclaration, isLabeledStatement, isLVal, isNoop, isObjectPattern, isOpaqueType, isRestElement, isReturnStatement, isStatement, isSwitchStatement, isThrowStatement, isTryStatement, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSTypeAliasDeclaration, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTypeAlias, isTypeAnnotation, isTypeParameterDeclaration, isVariableDeclaration, isWhileStatement, isWithStatement, LabeledStatement, ReturnStatement, Statement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator } from "@babel/types";
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { JS3AllowedBlockStatement, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3BreakStatement_label, JS3CatchClause_body, JS3ContinueStatement, JS3ContinueStatement_label, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3ForInStatement, JS3ForInStatement_body, JS3ForInStatement_left, JS3ForInStatement_right, JS3ForStatement, JS3ForStatement_body, JS3ForStatement_init, JS3ForStatement_test, JS3ForStatement_update, JS3FunctionDeclaration, JS3FunctionDeclaration_body, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3LabeledStatement, JS3LabeledStatement_body, JS3ReturnStatement_argument, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init } from "./JS3Types.ts";
+import { JS3AllowedBlockStatement, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3BreakStatement_label, JS3CatchClause_body, JS3ContinueStatement, JS3ContinueStatement_label, JS3DoWhileStatement, JS3DoWhileStatement_test, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3ForInStatement, JS3ForInStatement_body, JS3ForInStatement_left, JS3ForInStatement_right, JS3ForStatement, JS3ForStatement_body, JS3ForStatement_init, JS3ForStatement_test, JS3ForStatement_update, JS3FunctionDeclaration, JS3FunctionDeclaration_body, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3LabeledStatement, JS3LabeledStatement_body, JS3ReturnStatement_argument, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
 import { handleExpression } from "./HandleExpression.ts";
-import { generateBaseNodeFrom, generateIdentifier, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3BreakStatementfromBaseNode, generateJS3CatchClause, generateJS3ContinueStatement, generateJS3ExpressionStatement, generateJS3ForInStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3LabeledStatement, generateJS3ReturnStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarator } from "./JS3Constructors.ts";
+import { generateBaseNodeFrom, generateIdentifier, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3BreakStatementfromBaseNode, generateJS3CatchClause, generateJS3ContinueStatement, generateJS3DoWhileStatement, generateJS3ExpressionStatement, generateJS3ForInStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3LabeledStatement, generateJS3ReturnStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3UnaryExpressionfromBaseNode, generateJS3VariableDeclaration, generateJS3VariableDeclarator } from "./JS3Constructors.ts";
 
 import { generateCommentLine } from "#utils";
 import assert from 'node:assert';
@@ -44,7 +44,7 @@ export function handleStatement(node: Statement, otherProps: OtherProps): JS3All
 
   else if (isDebuggerStatement(node)) debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DebuggerStatement");
 
-  else if (isDoWhileStatement(node)) debugConfig.logger.throwJS3Error("TODO // unhandled Statement->DoWhileStatement");
+  else if (isDoWhileStatement(node)) return handleDoWhileStatement(node, otherProps)
 
   else if (isEmptyStatement(node)) return node
 
@@ -442,12 +442,10 @@ export function handleForStatement(node: ForStatement, otherProps: OtherProps) {
   // }
   // 
   // Output:
-  // for (VarDecl | ) {
+  // for (init; ;update) {
   //   // Condition Check
   // 
   //   // Loop Body 
-  // 
-  //   // Increment
   // }
   // 
   // Did Not Work:: handling labled statements becomes a pain when transforming loops :(
@@ -477,7 +475,7 @@ export function handleForStatement(node: ForStatement, otherProps: OtherProps) {
   if (isVariableDeclaration(orig_init)) {
     fin_init = orig_init
   } else if (isExpression(orig_init)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled ForStatement->init->Expression");
+    fin_init = orig_init
   }
 
   // Body that holds the loop
@@ -491,9 +489,10 @@ export function handleForStatement(node: ForStatement, otherProps: OtherProps) {
   let fin_test: JS3ForStatement_test = null; // Handling prop test
   if (isExpression(orig_test)) {
     const testExpressionResult = handleExpression(orig_test, updatedProps)
+    const negatedCondition = handleExpression(generateJS3UnaryExpressionfromBaseNode(testExpressionResult, "!", true, orig_test), updatedProps)
     const ifStmtBody: JS3BlockStatement_body = new Array()
     ifStmtBody.push(generateJS3BreakStatementfromBaseNode(null, orig_test)) // Break statement
-    const ifStmt = generateJS3IfStatementfromBaseNode(testExpressionResult, generateJS3BlockStatementfromBaseNode(ifStmtBody, new Array(), node), null, orig_test);
+    const ifStmt = generateJS3IfStatementfromBaseNode(negatedCondition, generateJS3BlockStatementfromBaseNode(ifStmtBody, new Array(), node), null, orig_test);
     loopBodyHolder.push(ifStmt);
   }
 
@@ -508,67 +507,40 @@ export function handleForStatement(node: ForStatement, otherProps: OtherProps) {
   let orig_update = node.update; // Handling prop update
   let fin_update: JS3ForStatement_update = null; // Handling prop update
   if (isExpression(orig_update)) {
-    handleExpression(orig_update, updatedProps)
+    fin_update = orig_update
   }
 
   let result: JS3ForStatement = generateJS3ForStatement(fin_init, fin_test, fin_update, fin_body, node);
   return result
 }
 
-// export function handleForInStatement(node: ForInStatement, otherProps: OtherProps) {
-//   // S10.6_A5_T2.js
-//   // 
-//   // 2 fallthrough props, 2 restricted props
-//   let orig_left = node.left; // Handling prop left
-//   let fin_left: JS3ForInStatement_left; // Handling prop left
-//   if (isVariableDeclaration(orig_left)) {
-//     const varDeclResHolder: JS3BlockStatement_body = new Array()
-//     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: varDeclResHolder } }
+export function handleDoWhileStatement(node: DoWhileStatement, otherProps: OtherProps) {
 
-//     handleVariableDeclaration(orig_left, updatedProps)
+  
+  
 
-//     if (varDeclResHolder.length !== 1) {
-//       debugConfig.logger.throwJS3Error("TODO // unhandled ForInStatement->left->VariableDeclaration | One Variable Declaration with no spills expected", varDeclResHolder);
-//     } else {
-//       const resVarDecl = varDeclResHolder.at(0)
-//       if (resVarDecl.type !== "VariableDeclaration") {
-//         debugConfig.logger.throwJS3Error(`TODO // unhandled ForInStatement->left->VariableDeclaration | Non variable declaration, found type ${resVarDecl.type}`, varDeclResHolder);
-//       }
+  // 1 fallthrough props, 2 restricted props
+  let orig_test = node.test; // Handling prop test
+  let fin_test : JS3DoWhileStatement_test; // Handling prop test
+  if(isExpression (orig_test)) {
+    fin_test = orig_test
+  }
 
-//       fin_left = resVarDecl as JS3VariableDeclaration;
-//     }
-//   } else if (isLVal(orig_left)) {
-//     fin_left = orig_left
-//   }
+  let orig_body = node.body; // Handling prop body
+  // Body that holds the loop
+  const loopBodyHolder: JS3BlockStatement_body = new Array()
+  const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: loopBodyHolder } }
+  let fin_body: JS3ForStatement_body = generateJS3BlockStatementfromBaseNode(loopBodyHolder, new Array(), orig_body);
 
-//   let orig_right = node.right; // Handling prop right
-//   let fin_right: JS3ForInStatement_right; // Handling prop right
-//   if (isExpression(orig_right)) {
-//     fin_right = handleExpression(orig_right, otherProps)
-//   }
+  if(isStatement (orig_body)) {
+    const blockStmt: JS3AllowedBlockStatement | Array<JS3VariableDeclaration> = handleStatement(orig_body, updatedProps)
+    if (Array.isArray(blockStmt)) blockStmt.forEach(s => loopBodyHolder.push(s))
+    else loopBodyHolder.push(blockStmt)
+  }
 
-//   let orig_body = node.body; // Handling prop body
-//   let fin_body: JS3ForInStatement_body; // Handling prop body
-//   if (isStatement(orig_body)) {
-//     if (isBlockStatement(orig_body)) {
-//       fin_body = handleBlockStatement(orig_body, otherProps);
-//     } else {
-//       const bodyBlockHolder: JS3BlockStatement_body = new Array()
-//       const bodyBlock = generateJS3BlockStatementfromBaseNode(bodyBlockHolder, new Array(), node)
-
-//       const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: bodyBlockHolder } }
-
-//       const blockStmt: JS3AllowedBlockStatement | Array<JS3VariableDeclaration> = handleStatement(orig_body, updatedProps)
-//       if (Array.isArray(blockStmt)) blockStmt.forEach(s => bodyBlockHolder.push(s))
-//       else bodyBlockHolder.push(blockStmt)
-
-//       fin_body = bodyBlock
-//     }
-//   }
-
-//   let result: JS3ForInStatement = generateJS3ForInStatement(fin_left, fin_right, fin_body, node);
-//   otherProps.others.holder.push(result)
-// }
+  let result: JS3DoWhileStatement = generateJS3DoWhileStatement(fin_test, fin_body, node);
+  return result
+}
 
 export function handleForInStatement(node: ForInStatement, otherProps: OtherProps) {
   // 1 fallthrough props, 3 restricted props
@@ -607,11 +579,15 @@ export function handleLabeledStatement(node: LabeledStatement, otherProps: Other
   let orig_body = node.body; // Handling prop body
   let fin_body: JS3LabeledStatement_body; // Handling prop body
   if (isStatement(orig_body)) {
-    if (isBlockStatement(orig_body)) {
-      fin_body = handleBlockStatement(orig_body, otherProps);
-    } else {
-      debugConfig.logger.throwJS3Error(`TODO // unhandled LabeledStatement->body`);
+    const blockStmt: JS3AllowedBlockStatement | Array<JS3VariableDeclaration> = handleStatement(orig_body, otherProps)
+
+    if (Array.isArray(blockStmt)) {
+      const blockBody: JS3BlockStatement_body = new Array()
+      fin_body = generateJS3BlockStatementfromBaseNode(blockBody, new Array(), orig_body)
+      blockStmt.forEach(s => blockBody.push(s))
     }
+    else fin_body = blockStmt
+
   }
   let result: JS3LabeledStatement = generateJS3LabeledStatement(fin_body, node);
   return result
