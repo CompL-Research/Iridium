@@ -1,8 +1,8 @@
-// Generated on 13/8/2024, 8:32:44 pm, extended 33 interfaces 
+// Generated on 14/8/2024, 1:14:54 pm, extended 36 interfaces 
 
-import { ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, RestElement, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, CatchClause, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, ThrowStatement, TryStatement, UnaryExpression, VariableDeclaration, VariableDeclarator, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, ClassPrivateProperty, ClassPrivateMethod, } from "@babel/types";
+import { ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, RestElement, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, FunctionExpression, IfStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ImportDeclaration, ClassMethod, ClassPrivateProperty, ClassPrivateMethod, } from "@babel/types";
 
-export type JS3AllowedBlockStatement = JS3VariableDeclaration | JS3ReturnStatement | JS3ExpressionStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement | JS3FunctionDeclaration | JS3AssignmentExpression | JS3ClassDeclaration | EmptyStatement;
+export type JS3AllowedBlockStatement = JS3VariableDeclaration | JS3ReturnStatement | JS3ExpressionStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement | JS3FunctionDeclaration | JS3AssignmentExpression | JS3ClassDeclaration | EmptyStatement | JS3WhileStatement | JS3BreakStatement | JS3BlockStatement;
 
 export type JS3ArrayExpression_elements = Array<null | Identifier | JS3SpreadElement>;
 export type JS3AssignmentExpression_left = JS3MemberExpression | Identifier;
@@ -10,6 +10,7 @@ export type JS3AssignmentExpression_right = Identifier;
 export type JS3BinaryExpression_left = Identifier | PrivateName;
 export type JS3BinaryExpression_right = Identifier;
 export type JS3BlockStatement_body = Array<JS3AllowedBlockStatement>;
+export type JS3BreakStatement_label = null;
 export type JS3CallExpression_callee = JS3MemberExpression | Identifier | Super | V8IntrinsicIdentifier | JS3FunctionExpression;
 export type JS3CallExpression_arguments = Array < Identifier | JS3SpreadElement >;
 export type JS3CallExpression_typeArguments = null;
@@ -53,8 +54,11 @@ export type JS3TryStatement_block = JS3BlockStatement;
 export type JS3TryStatement_handler = null | undefined | JS3CatchClause;
 export type JS3TryStatement_finalizer = null | undefined | JS3BlockStatement;
 export type JS3UnaryExpression_argument = Identifier | JS3MemberExpression;
+export type JS3UpdateExpression_argument = Identifier;
 export type JS3VariableDeclaration_declarations = Array<JS3VariableDeclarator>;
-export type JS3VariableDeclarator_init = ThisExpression | JS3FunctionExpression | Identifier | BigIntLiteral | DecimalLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | JS3MemberExpression | JS3CallExpression | JS3ObjectExpression | JS3NewExpression | JS3BinaryExpression | JS3LogicalExpression | JS3AssignmentExpression | JS3UnaryExpression | JS3ArrowFunctionExpression | JS3ClassExpression | JS3ArrayExpression | JS3ObjectMethod;
+export type JS3VariableDeclarator_init = ThisExpression | JS3FunctionExpression | Identifier | BigIntLiteral | DecimalLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | JS3MemberExpression | JS3CallExpression | JS3ObjectExpression | JS3NewExpression | JS3BinaryExpression | JS3LogicalExpression | JS3AssignmentExpression | JS3UnaryExpression | JS3ArrowFunctionExpression | JS3ClassExpression | JS3ArrayExpression | JS3ObjectMethod | JS3UpdateExpression;
+export type JS3WhileStatement_test = BooleanLiteral;
+export type JS3WhileStatement_body = JS3BlockStatement;
 export type JS3ArrowFunctionExpression_params = Array<Identifier>;
 export type JS3ArrowFunctionExpression_body = JS3BlockStatement;
 export type JS3ArrowFunctionExpression_predicate = null;
@@ -122,6 +126,11 @@ export interface JS3BinaryExpression extends BinaryExpression {
 // @ts-ignore
 export interface JS3BlockStatement extends BlockStatement {
   body: JS3BlockStatement_body;
+}
+
+// @ts-ignore
+export interface JS3BreakStatement extends BreakStatement {
+  label: JS3BreakStatement_label;
 }
 
 // @ts-ignore
@@ -232,6 +241,11 @@ export interface JS3UnaryExpression extends UnaryExpression {
 }
 
 // @ts-ignore
+export interface JS3UpdateExpression extends UpdateExpression {
+  argument: JS3UpdateExpression_argument;
+}
+
+// @ts-ignore
 export interface JS3VariableDeclaration extends VariableDeclaration {
   declarations: JS3VariableDeclaration_declarations;
 }
@@ -239,6 +253,12 @@ export interface JS3VariableDeclaration extends VariableDeclaration {
 // @ts-ignore
 export interface JS3VariableDeclarator extends VariableDeclarator {
   init: JS3VariableDeclarator_init;
+}
+
+// @ts-ignore
+export interface JS3WhileStatement extends WhileStatement {
+  test: JS3WhileStatement_test;
+  body: JS3WhileStatement_body;
 }
 
 // @ts-ignore

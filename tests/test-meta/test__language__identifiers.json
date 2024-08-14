@@ -1,0 +1,1000 @@
+{
+    "skipped": [
+        {
+            "file": "test262/test/language/identifiers/val-false.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-while-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/unicode-escape-nls-err.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-switch.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-default-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-in-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-if-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-throw.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-in.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-const.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-throw-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-catch-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-return-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-do-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-false-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-new-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-super.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-catch-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-export-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-debugger-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-for-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-throw-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-try.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-function-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-finally-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/start-zwj-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-with-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-break-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-var-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-class.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-in-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-const-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-try-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-enum-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-new-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-case-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-finally.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-class-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-with.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-catch.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-if-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-void-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-true.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-true-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-this.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/vertical-tilde-continue.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-delete.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-break.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-super-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-extends-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-switch-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-continue-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-do-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-enum-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-do.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-with-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-instanceof-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-null-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-function-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/vertical-tilde-continue-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-const-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-while.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-false-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-debugger-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-finally-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-if.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-void.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-instanceof.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-instanceof-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-export.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-extends.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-this-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-default.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-switch-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-try-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-delete-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-case-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-true-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-class-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-export-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-new.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-enum.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-debugger.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-typeof-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-void-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-super-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-typeof.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-for-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/start-zwnj-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-else-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-var.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-return-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-default-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-null-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/vertical-tilde-start-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-while-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-delete-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-for.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-null.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-else-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-case.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-break-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/vertical-tilde-start.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-typeof-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-return.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-import.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-this-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-import-via-escape-hex4.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-continue-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-yield-strict.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-var-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-extends-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-function.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-continue.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-import-via-escape-hex.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/identifiers/val-else.js",
+            "reason": "type: SyntaxError"
+        }
+    ],
+    "passed": [
+        {
+            "file": "test262/test/language/identifiers/start-escape-seq.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-rus-alpha-lower-via-escape-hex4.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-6.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-6.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-8.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-underscore.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-14.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-10.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-6.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-6.1.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-7.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-eng-alpha-upper.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-15.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-9.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-9.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-6.1.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-10.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/other_id_start-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-10.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-11.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/val-underscore-via-escape-hex.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-9.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/val-underscore.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-13.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-13.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-12.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-8.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-5.2.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-13.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-15.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-digits-via-escape-hex4.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-9.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-10.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-11.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-6.1.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-10.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/other_id_continue.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-15.1.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-8.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-cjk-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-rus-alpha-upper-via-escape-hex.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-15.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-13.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-digits-via-escape-hex.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-15.1.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-dollar-sign.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-14.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-11.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-12.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/val-dollar-sign-via-escape-hex4.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-rus-alpha-upper.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-9.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-9.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-10.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-13.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/val-underscore-via-escape-hex4.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-6.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-5.2.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-11.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-eng-alpha-upper-via-escape-hex4.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-eng-alpha-lower.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-11.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-6.1.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-9.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-cjk.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-15.1.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-15.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-rus-alpha-upper-via-escape-hex4.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-14.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-9.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-8.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-13.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-rus-alpha-lower-via-escape-hex.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-6.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-12.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-7.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-6.1.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-15.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-14.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-7.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-6.1.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-12.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-12.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-6.1.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-8.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-5.2.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-5.2.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-14.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-7.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-eng-alpha-upper-via-escape-hex.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-7.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-6.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/other_id_start.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-7.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-5.2.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-11.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-11.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-14.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-8.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-12.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-6.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-7.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-eng-alpha-lower-via-escape-hex.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-7.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-eng-alpha-lower-via-escape-hex4.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-15.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-15.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-ltr.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-14.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/vals-rus-alpha-lower.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-15.1.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-6.1.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-8.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-14.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/val-dollar-sign-via-escape-hex.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-15.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-5.2.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-5.2.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/val-dollar-sign.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-10.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-digits.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-12.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-12.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-10.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-5.2.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-zwj-zwnj-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-11.0.0-class-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-13.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-8.0.0-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/part-unicode-6.0.0-class.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/other_id_continue-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/identifiers/start-unicode-13.0.0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        }
+    ],
+    "failed": [],
+    "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js"
+}

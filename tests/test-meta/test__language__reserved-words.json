@@ -1,0 +1,116 @@
+{
+    "skipped": [
+        {
+            "file": "test262/test/language/reserved-words/label-ident-true.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-reference-null-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-reference-true-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/reserved-words/label-ident-null.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/reserved-words/await-module.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-reference-false-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/reserved-words/label-ident-false.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-reference-false.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/reserved-words/label-ident-null-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/reserved-words/label-ident-false-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-reference-null.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-reference-true.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/reserved-words/label-ident-true-escaped.js",
+            "reason": "type: SyntaxError"
+        }
+    ],
+    "passed": [
+        {
+            "file": "test262/test/language/reserved-words/ident-name-reserved-word-literal-memberexpr.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/reserved-words/await-script.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-name-keyword-memberexpr-str.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-name-keyword-prop-name.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-name-keyword-accessor.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-name-global-property-accessor.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-name-reserved-word-literal-accessor.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-name-global-property-memberexpr-str.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-name-global-property-prop-name.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-name-reserved-word-literal-prop-name.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/reserved-words/unreserved-words.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-name-reserved-word-literal-memberexpr-str.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-name-keyword-memberexpr.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/reserved-words/ident-name-global-property-memberexpr.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        }
+    ],
+    "failed": [],
+    "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js"
+}

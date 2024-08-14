@@ -6,6 +6,7 @@ tests/test262
 tests/folder_
 tests/failed
 tests/failing
+tests/failing-all
 
 
 # Outputs

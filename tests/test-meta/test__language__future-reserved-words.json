@@ -1,0 +1,228 @@
+{
+    "skipped": [
+        {
+            "file": "test262/test/language/future-reserved-words/debugger.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/export.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/extends.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/const.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/private-strict-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/package-strict-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/interface-strict-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/enum.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/private-strict.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/protected-strict.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/implements-strict-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/let-strict.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/super.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/yield-strict.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/protected-strict-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/import.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/let-strict-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/static-strict-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/interface-strict.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/yield-strict-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/implements-strict.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/static-strict.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/package-strict.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/public-strict-escaped.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/public-strict.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/class.js",
+            "reason": "type: SyntaxError"
+        }
+    ],
+    "passed": [
+        {
+            "file": "test262/test/language/future-reserved-words/goto.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/transient.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/synchronized.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/package.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/volatile.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/boolean.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/abstract.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/implement.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/char.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/float.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/_implements.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/implements0.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/private.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/native.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/byte.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/long.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/implements-titlecase.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/protected.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/implements-uppercase.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/throws.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/int.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/interface.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/implements.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/final.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/implementss.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/short.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/static.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/public.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/future-reserved-words/double.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        }
+    ],
+    "failed": [],
+    "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js"
+}

@@ -1,12 +1,12 @@
 // Generated on 7/8/2024, 5:50:38 pm, generated 16 handlers 
 
-import { BlockStatement, CatchClause, ExpressionStatement, FunctionDeclaration, IfStatement, isArrayPattern, isAssignmentPattern, isBlockStatement, isBreakStatement, isCatchClause, isClassDeclaration, isContinueStatement, isDebuggerStatement, isDeclareClass, isDeclaredPredicate, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isIdentifier, isIfStatement, isImportDeclaration, isInferredPredicate, isInterfaceDeclaration, isLabeledStatement, isNoop, isObjectPattern, isOpaqueType, isRestElement, isReturnStatement, isStatement, isSwitchStatement, isThrowStatement, isTryStatement, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSTypeAliasDeclaration, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTypeAlias, isTypeAnnotation, isTypeParameterDeclaration, isVariableDeclaration, isWhileStatement, isWithStatement, ReturnStatement, Statement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator } from "@babel/types";
+import { BlockStatement, booleanLiteral, CatchClause, ExpressionStatement, ForStatement, FunctionDeclaration, IfStatement, isArrayPattern, isAssignmentPattern, isBlockStatement, isBreakStatement, isCatchClause, isClassDeclaration, isContinueStatement, isDebuggerStatement, isDeclareClass, isDeclaredPredicate, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isIdentifier, isIfStatement, isImportDeclaration, isInferredPredicate, isInterfaceDeclaration, isLabeledStatement, isNoop, isObjectPattern, isOpaqueType, isRestElement, isReturnStatement, isStatement, isSwitchStatement, isThrowStatement, isTryStatement, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSTypeAliasDeclaration, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTypeAlias, isTypeAnnotation, isTypeParameterDeclaration, isVariableDeclaration, isWhileStatement, isWithStatement, ReturnStatement, Statement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator } from "@babel/types";
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
 import { JS3BlockStatement, JS3BlockStatement_body, JS3CatchClause_body, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3FunctionDeclaration, JS3FunctionDeclaration_body, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3ReturnStatement_argument, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
 import { handleExpression } from "./HandleExpression.ts";
-import { generateIdentifier, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3CatchClause, generateJS3ExpressionStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3ReturnStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarator } from "./JS3Constructors.ts";
+import { generateIdentifier, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatementfromBaseNode, generateJS3CatchClause, generateJS3ExpressionStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3ReturnStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarator, generateJS3WhileStatementfromBaseNode } from "./JS3Constructors.ts";
 
 import assert from 'node:assert';
 import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
@@ -33,7 +33,7 @@ export function handleBlockStatement(node: BlockStatement, otherProps: OtherProp
 
 export function handleStatement(node: Statement, otherProps: OtherProps) {
   if (isBlockStatement(node)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->BlockStatement");
+    otherProps.others.holder.push(handleBlockStatement(node, otherProps))
   } else if (isBreakStatement(node)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled Statement->BreakStatement");
   } else if (isContinueStatement(node)) {
@@ -51,7 +51,10 @@ export function handleStatement(node: Statement, otherProps: OtherProps) {
   } else if (isForInStatement(node)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled Statement->ForInStatement");
   } else if (isForStatement(node)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->ForStatement");
+    // ========================================================================================
+    handleForStatement(node, otherProps)
+    // ========================================================================================
+
   } else if (isFunctionDeclaration(node)) {
     // ========================================================================================
     handleFunctionDeclaration(node, otherProps)
@@ -426,4 +429,81 @@ export function handleFunctionDeclarationWithRet(node: FunctionDeclaration, othe
 
   let result: JS3FunctionDeclaration = generateJS3FunctionDeclaration(fin_id, fin_params, fin_body, fin_predicate, fin_returnType, fin_typeParameters, node);
   return result;
+}
+
+export function handleForStatement(node: ForStatement, otherProps: OtherProps) : JS3BlockStatement {
+  // 
+  // Input:
+  // for (expr1; expr2; expr3) {
+  //   ...
+  // }
+  // 
+  // Output
+  // {   <--- outerBlock
+  //   // Init
+  //   expr1
+  //   while(true) {  <--- whileBlockBodyHolder
+  //     // Condition Check
+  //     ...
+  //     expr2Res = expr2;
+  //     if (!expr2Res) break;
+  //     {
+  //       // Loop Body
+  //       ...
+  //     }
+  //     // Increment
+  //     ...
+  //     expr3
+  //     expr2Res = expr3;
+  //   }
+  // }
+  // 
+
+  const outerBlock : JS3BlockStatement_body = new Array()
+  let orig_init = node.init; // Handling prop init
+  if(isVariableDeclaration (orig_init)) {
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: outerBlock } }
+    handleVariableDeclaration(orig_init, updatedProps)
+  } else if(isExpression (orig_init)) {
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: outerBlock } }
+    handleExpression(orig_init, updatedProps)
+  }
+
+  // While block
+  const whileBlockBodyHolder : JS3BlockStatement_body = new Array()
+  const whileStatement = generateJS3WhileStatementfromBaseNode(booleanLiteral(true), generateJS3BlockStatementfromBaseNode(whileBlockBodyHolder, new Array(), node), node)
+  outerBlock.push(whileStatement)
+
+  let orig_test = node.test; // Handling prop test
+  if(isExpression (orig_test)) {
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: whileBlockBodyHolder } }
+    const testExpressionResult = handleExpression(orig_test, updatedProps)
+    
+    const ifStmtBody: JS3BlockStatement_body = new Array()
+    ifStmtBody.push(generateJS3BreakStatementfromBaseNode(null, orig_test))
+    
+    const ifStmt = generateJS3IfStatementfromBaseNode(testExpressionResult, generateJS3BlockStatementfromBaseNode(ifStmtBody, new Array(), node), null, orig_test);
+    whileBlockBodyHolder.push(ifStmt);
+  }
+
+  let orig_body = node.body; // Handling prop body
+  if(isStatement (orig_body)) {
+    const bodyBlockHolder : JS3BlockStatement_body = new Array()
+    const bodyBlock = generateJS3BlockStatementfromBaseNode(bodyBlockHolder, new Array(), node)
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: bodyBlockHolder } }
+    handleStatement(orig_body, updatedProps);
+
+    whileBlockBodyHolder.push(bodyBlock);
+  }
+
+
+  let orig_update = node.update; // Handling prop update
+  if(isExpression (orig_update)) {
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: whileBlockBodyHolder } }
+    handleExpression(orig_update, updatedProps)
+  }
+
+  let res =  generateJS3BlockStatementfromBaseNode(outerBlock, new Array(), node)
+  
+  otherProps.others.holder.push(res)
 }

@@ -1,0 +1,107 @@
+{
+    "skipped": [
+        {
+            "file": "test262/test/language/keywords/ident-ref-for.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-throw.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-instanceof.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-this.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-default.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-typeof.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-delete.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-case.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-void.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-finally.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-break.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-return.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-if.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-switch.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-else.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-var.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-while.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-do.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-continue.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-with.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-function.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-in.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-new.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-catch.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/keywords/ident-ref-try.js",
+            "reason": "type: SyntaxError"
+        }
+    ],
+    "passed": [],
+    "failed": [],
+    "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js"
+}
