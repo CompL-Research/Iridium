@@ -1,11 +1,12 @@
-import { ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isArrayPattern, isAssignmentPattern, isBigIntLiteral, isBlockStatement, isClassAccessorProperty, isClassBody, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecorator, isExpression, isIdentifier, isInterfaceExtends, isNoop, isNumericLiteral, isObjectPattern, isRestElement, isStaticBlock, isStringLiteral, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance } from "@babel/types";
-import { generateBaseNodeFrom, generateIdentifier, generateJS3BlockStatementfromBaseNode, generateJS3CallExpressionfromBaseNode, generateJS3ClassBody, generateJS3ClassDeclaration, generateJS3ClassMethod, generateJS3ClassPrivateMethod, generateJS3ClassPrivateProperty, generateJS3ClassProperty, generateJS3ExpressionStatementfromBaseNode, generateJS3FunctionExpressionfromBaseNode, generateJS3ReturnStatement } from "./JS3Constructors.ts";
-import { JS3BlockStatement_body, JS3ClassBody, JS3ClassBody_body, JS3ClassDeclaration, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superClass, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassPrivateMethod, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, JS3ClassPrivateProperty, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_variance, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_value, JS3ClassProperty_variance, JS3ReturnStatement } from "./JS3Types.ts";
+import { ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isArrayPattern, isAssignmentPattern, isBlockStatement, isClassAccessorProperty, isClassBody, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecorator, isExpression, isIdentifier, isInterfaceExtends, isNoop, isObjectPattern, isRestElement, isStaticBlock, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance } from "@babel/types";
+import { generateJS3ClassBody, generateJS3ClassDeclaration, generateJS3ClassMethod, generateJS3ClassPrivateMethod, generateJS3ClassPrivateProperty, generateJS3ClassProperty } from "./JS3Constructors.ts";
+import { JS3ClassBody, JS3ClassBody_body, JS3ClassDeclaration, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superClass, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassPrivateMethod, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, JS3ClassPrivateProperty, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_variance, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_value, JS3ClassProperty_variance } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
 import { JS3BuilderUtils } from "../JS3Builder.ts";
 
 import assert from 'node:assert';
+import { lowerComputedKey } from "./GenericConstructs.ts";
 import { handleBlockStatement } from "./HandleBlocks.ts";
 import { handleExpression } from "./HandleExpression.ts";
 
@@ -128,57 +129,13 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
 
   // 10 fallthrough props, 5 restricted props
   let orig_key = node.key; // Handling prop key
-  let fin_key: JS3ClassProperty_key; // Handling prop key
-  if (isIdentifier(orig_key)) {
-    otherProps.others.prefix = orig_key.name
-    fin_key = orig_key
-  } else if (isStringLiteral(orig_key)) {
-    otherProps.others.prefix = orig_key.value
-    fin_key = orig_key
-  } else if (isNumericLiteral(orig_key)) {
-    otherProps.others.prefix = `classProp$${orig_key.value}`
-    fin_key = orig_key
-  } else if (isBigIntLiteral(orig_key)) {
-    otherProps.others.prefix = `classProp$${orig_key.value}`
-    fin_key = orig_key
-  } else if (isExpression(orig_key)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled ClassProperty->key->Expression");
-  }
+  let fin_key: JS3ClassProperty_key = lowerComputedKey(orig_key, otherProps); // Handling prop key
+
+  
   let orig_value = node.value; // Handling prop value
-  let fin_value: JS3ClassProperty_value = null; // Handling prop value
-  if (isExpression(orig_value)) {
-    // Holder will hold all the spilled beans...
-    const holder: JS3BlockStatement_body = new Array()
-    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder } }
+  let fin_value: JS3ClassProperty_value = lowerComputedKey(orig_value, otherProps); // Handling prop value
 
-    const res = handleExpression(orig_value, updatedProps)
-
-    if (updatedProps.others.holder.length === 0) {
-      // In case of no spills, we dont need an enclosing function expression
-      fin_value = res;
-    } else {
-      // Create a call expression of the form
-      // (function() { Expression is evaluated and returned as a result of this function }())
-      // 
-      const dummyNode = generateBaseNodeFrom(orig_value)
-
-      const bodyOfTheFunc: JS3BlockStatement_body = updatedProps.others.holder;
-      const funcExprBody = generateJS3BlockStatementfromBaseNode(bodyOfTheFunc, new Array(), dummyNode); // BODY
-      const funcExpr = generateJS3FunctionExpressionfromBaseNode(null, new Array(), funcExprBody, null, null, null, false, false, dummyNode); // function {BODY}
-      const callFnExpr = generateJS3CallExpressionfromBaseNode(funcExpr, new Array(), null, null, null, dummyNode); // func()
-
-      const exprStmt = generateJS3ExpressionStatementfromBaseNode(callFnExpr, orig_value); // ( )
-
-      // Add a return statement
-      const retStmt = generateBaseNodeFrom(orig_value) as JS3ReturnStatement
-      retStmt.type = "ReturnStatement";
-      const js3RetStmt = generateJS3ReturnStatement(res, retStmt)
-      bodyOfTheFunc.push(js3RetStmt)
-
-      fin_value = exprStmt
-    }
-  }
-
+  
   let orig_typeAnnotation = node.typeAnnotation; // Handling prop typeAnnotation
   let fin_typeAnnotation: JS3ClassProperty_typeAnnotation = null; // Handling prop typeAnnotation
   if (isTypeAnnotation(orig_typeAnnotation)) {
@@ -214,41 +171,7 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
 export function handleClassPrivateProperty(node: ClassPrivateProperty, otherProps: OtherProps) {
   // 5 fallthrough props, 4 restricted props
   let orig_value = node.value; // Handling prop value
-  let fin_value: JS3ClassPrivateProperty_value = null; // Handling prop value
-  if (isExpression(orig_value)) {
-    // debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateProperty->value->Expression");
-    // Holder will hold all the spilled beans...
-    const holder: JS3BlockStatement_body = new Array()
-    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder } }
-
-    const res = handleExpression(orig_value, updatedProps)
-
-    if (updatedProps.others.holder.length === 0) {
-      // In case of no spills, we dont need an enclosing function expression
-      fin_value = res;
-    } else {
-      // Create a call expression of the form
-      // (function() { Expression is evaluated and returned as a result of this function }())
-      // 
-      const dummyNode = generateBaseNodeFrom(orig_value)
-
-      const bodyOfTheFunc: JS3BlockStatement_body = updatedProps.others.holder;
-      const funcExprBody = generateJS3BlockStatementfromBaseNode(bodyOfTheFunc, new Array(), dummyNode); // BODY
-      const funcExpr = generateJS3FunctionExpressionfromBaseNode(null, new Array(), funcExprBody, null, null, null, false, false, dummyNode); // function {BODY}
-      const callFnExpr = generateJS3CallExpressionfromBaseNode(funcExpr, new Array(), null, null, null, dummyNode); // func()
-
-      const exprStmt = generateJS3ExpressionStatementfromBaseNode(callFnExpr, orig_value); // ( )
-
-      // Add a return statement
-      const retStmt = generateBaseNodeFrom(orig_value) as JS3ReturnStatement
-      retStmt.type = "ReturnStatement";
-      const js3RetStmt = generateJS3ReturnStatement(res, retStmt)
-      bodyOfTheFunc.push(js3RetStmt)
-
-      fin_value = exprStmt
-    }
-  }
-
+  let fin_value: JS3ClassPrivateProperty_value = lowerComputedKey(orig_value, otherProps); // Handling prop value
 
   let orig_decorators = node.decorators; // Handling prop decorators
   let fin_decorators: JS3ClassPrivateProperty_decorators = null; // Handling prop decorators
@@ -284,53 +207,7 @@ export function handleClassMethod(node: ClassMethod, otherProps: OtherProps): JS
   const oldPrefix = otherProps.others.prefix
   // 11 fallthrough props, 6 restricted props
   let orig_key = node.key; // Handling prop key
-  let fin_key: JS3ClassMethod_key = generateIdentifier(orig_key, "$TODO"); // Handling prop key
-  if (isIdentifier(orig_key)) {
-    otherProps.others.prefix = orig_key.name
-    fin_key = orig_key
-  } else if (isStringLiteral(orig_key)) {
-    otherProps.others.prefix = orig_key.value
-    fin_key = orig_key
-  } else if (isNumericLiteral(orig_key)) {
-    otherProps.others.prefix = `numeric_${orig_key.value}`
-    fin_key = orig_key
-  } else if (isBigIntLiteral(orig_key)) {
-    otherProps.others.prefix = `numeric_${orig_key.value}`
-    fin_key = orig_key
-  } else if (isExpression(orig_key)) {
-
-    // debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateProperty->value->Expression");
-    // Holder will hold all the spilled beans...
-    const holder: JS3BlockStatement_body = new Array()
-    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder } }
-
-    const res = handleExpression(orig_key, updatedProps)
-
-    if (updatedProps.others.holder.length === 0) {
-      // In case of no spills, we dont need an enclosing function expression
-      fin_key = res;
-    } else {
-      // Create a call expression of the form
-      // (function() { Expression is evaluated and returned as a result of this function }())
-      // 
-      const dummyNode = generateBaseNodeFrom(orig_key)
-
-      const bodyOfTheFunc: JS3BlockStatement_body = updatedProps.others.holder;
-      const funcExprBody = generateJS3BlockStatementfromBaseNode(bodyOfTheFunc, new Array(), dummyNode); // BODY
-      const funcExpr = generateJS3FunctionExpressionfromBaseNode(null, new Array(), funcExprBody, null, null, null, false, false, dummyNode); // function {BODY}
-      const callFnExpr = generateJS3CallExpressionfromBaseNode(funcExpr, new Array(), null, null, null, dummyNode); // func()
-
-      // const exprStmt = generateJS3ExpressionStatementfromBaseNode(callFnExpr, orig_key); // ( )
-
-      // Add a return statement
-      const retStmt = generateBaseNodeFrom(orig_key) as JS3ReturnStatement
-      retStmt.type = "ReturnStatement";
-      const js3RetStmt = generateJS3ReturnStatement(res, retStmt)
-      bodyOfTheFunc.push(js3RetStmt)
-
-      fin_key = callFnExpr
-    }
-  }
+  let fin_key: JS3ClassMethod_key = lowerComputedKey(orig_key, otherProps); // Handling prop key
 
   let orig_params = node.params; // Handling prop params
   let fin_params: JS3ClassMethod_params = new Array(); // Handling prop params
@@ -412,7 +289,8 @@ export function handleClassPrivateMethod(node: ClassPrivateMethod, otherProps: O
         debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->[params]->TSParameterProperty");
       } 
     }
-  } 
+  }
+
   let orig_body = node.body; // Handling prop body
   let fin_body : JS3ClassPrivateMethod_body; // Handling prop body
   if(isBlockStatement (orig_body)) {
@@ -425,7 +303,7 @@ export function handleClassPrivateMethod(node: ClassPrivateMethod, otherProps: O
     for (const _arrProp of orig_decorators) {
       if(isDecorator (_arrProp)) {
         debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->[decorators]->Decorator");
-      } 
+      }
     }
   }
 
