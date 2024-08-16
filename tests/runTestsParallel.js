@@ -116,9 +116,9 @@ const directoryPath = process.argv[2];
 
           console.log("Failed Exec: ", FAILEDEXEC)
 
-          // for (const fPath of FAILEDJS3) {
-          //   await execAsync(`cp ${fPath} failing/${path.basename(fPath)}`);
-          // }
+          for (const fPath of FAILEDJS3) {
+            await execAsync(`cp ${fPath} failing/${path.basename(fPath)}`);
+          }
 
           for (const fPath of FAILEDEXEC) {
             await execAsync(`cp ${fPath} failing/${fPath.replace(/\//g, "_")}`);

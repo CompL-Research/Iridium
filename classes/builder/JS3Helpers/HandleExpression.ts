@@ -1,10 +1,10 @@
 
 import debugConfig from "#debugConfig";
-import { ArrayExpression, ArrowFunctionExpression, AssignmentExpression, BigIntLiteral, BinaryExpression, CallExpression, ClassExpression, DecimalLiteral, Expression, FunctionExpression, Identifier, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassBody, isClassExpression, isClassImplements, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDecorator, isDoExpression, isExpression, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isInterfaceExtends, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPatternLike, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSExpressionWithTypeArguments, isTSInstantiationExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSType, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, LogicalExpression, MemberExpression, NewExpression, NumericLiteral, ObjectExpression, ObjectMethod, PrivateName, SequenceExpression, SpreadElement, StringLiteral, TemplateLiteral, UnaryExpression, UpdateExpression } from "@babel/types";
+import { ArrayExpression, ArrowFunctionExpression, AssignmentExpression, BinaryExpression, CallExpression, ClassExpression, Expression, FunctionExpression, Identifier, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassBody, isClassExpression, isClassImplements, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDecorator, isDoExpression, isExpression, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isInterfaceExtends, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSExpressionWithTypeArguments, isTSInstantiationExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSType, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, LogicalExpression, MemberExpression, NewExpression, ObjectExpression, ObjectMethod, ObjectProperty, SequenceExpression, SpreadElement, TemplateLiteral, UnaryExpression, UpdateExpression, YieldExpression } from "@babel/types";
 import assert from 'node:assert';
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { generateBaseNodeFrom, generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3BinaryExpression, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3ClassExpression, generateJS3ExpressionStatementfromBaseNode, generateJS3FunctionExpression, generateJS3FunctionExpressionfromBaseNode, generateJS3LogicalExpression, generateJS3MemberExpression, generateJS3MemberExpressionfromBaseNode, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ReturnStatementfromBaseNode, generateJS3SequenceExpression, generateJS3SpreadElement, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "./JS3Constructors.ts";
-import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3LogicalExpression, JS3LogicalExpression_left, JS3LogicalExpression_right, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3SequenceExpression, JS3SequenceExpression_expressions, JS3SpreadElement, JS3SpreadElement_argument, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3VariableDeclaration_declarations } from "./JS3Types.ts";
+import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3BinaryExpression, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3ClassExpression, generateJS3FunctionExpression, generateJS3LogicalExpression, generateJS3MemberExpression, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3ReturnStatementfromBaseNode, generateJS3SequenceExpression, generateJS3SpreadElement, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3YieldExpression } from "./JS3Constructors.ts";
+import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3LogicalExpression, JS3LogicalExpression_left, JS3LogicalExpression_right, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3SequenceExpression, JS3SequenceExpression_expressions, JS3SpreadElement, JS3SpreadElement_argument, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
 
 import { isArgumentPlaceholder, isSpreadElement, isTSTypeParameterInstantiation, isTypeParameterInstantiation, isV8IntrinsicIdentifier } from "@babel/types";
 import { handleBlockStatement } from "./HandleBlocks.ts";
@@ -138,15 +138,11 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     // ========================================================================================
   } else if (isObjectExpression(node)) {
     // ========================================================================================
-    // $resultIdentifier = {} // All property declarations are spilled into the holder
+    // $resultIdentifier = {JS3ObjectExpression} // All property declarations are spilled into the holder
     resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-    const init = generateJS3ObjectExpression(new Array(), node)
+    const init = handleObjectExpression(node, otherProps)
     const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
     otherProps.others.holder.push(varDecl)
-
-    // This method spills all node properties into the holder
-    spillObjectExpression(resultIdentifier, node, otherProps)
-
     // ========================================================================================
   } else if (isSequenceExpression(node)) {
     // ========================================================================================
@@ -206,7 +202,15 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
   } else if (isMetaProperty(node)) {
     debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->MetaProperty`, otherProps.debugTrace);
   } else if (isSuper(node)) {
-    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->Super`, otherProps.debugTrace);
+    // ========================================================================================
+    // $resultIdentifier = super
+    resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+    const init = handleTemplateLiteral(node, otherProps)
+    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
+    otherProps.others.holder.push(varDecl)
+    // ========================================================================================  
+
+
   } else if (isTaggedTemplateExpression(node)) {
     debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TaggedTemplateExpression`, otherProps.debugTrace);
   } 
@@ -220,7 +224,13 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     otherProps.others.holder.push(varDecl)
     // ========================================================================================  
   } else if (isYieldExpression(node)) {
-    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->YieldExpression`, otherProps.debugTrace);
+    // ========================================================================================
+    // $resultIdentifier = yield ID
+    resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+    const init = handleYieldExpression(node, otherProps)
+    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
+    otherProps.others.holder.push(varDecl)
+    // ========================================================================================  
   } else if (isAwaitExpression(node)) {
     debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->AwaitExpression`, otherProps.debugTrace);
   } else if (isImport(node)) {
@@ -279,7 +289,11 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
   // 2 fallthrough props, 4 restricted props
   let orig_callee = node.callee; // Handling prop callee
   let fin_callee: JS3CallExpression_callee; // Handling prop callee
-  if (isExpression(orig_callee)) {
+  if (isSuper(orig_callee)) {
+    fin_callee = orig_callee
+  } else if (isV8IntrinsicIdentifier(orig_callee)) {
+    fin_callee = orig_callee
+  } else if (isExpression(orig_callee)) {
 
     // We would like to retain the context if the callee is a member expression
     // 
@@ -296,10 +310,6 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
       fin_callee = handleExpression(orig_callee, otherProps)
     }
 
-  } else if (isSuper(orig_callee)) {
-    fin_callee = orig_callee
-  } else if (isV8IntrinsicIdentifier(orig_callee)) {
-    fin_callee = orig_callee
   }
 
   let orig_arguments = node.arguments; // Handling prop arguments
@@ -337,11 +347,11 @@ export function handleMemberExpression(node: MemberExpression, otherProps: Other
   // 3 fallthrough props, 2 restricted props
   let orig_object = node.object; // Handling prop object
   let fin_object: JS3MemberExpression_object; // Handling prop object
-  if (isExpression(orig_object)) {
-    fin_object = handleExpression(orig_object, otherProps)
-  } else if (isSuper(orig_object)) {
+  if (isSuper(orig_object)) {
     fin_object = orig_object
-  }
+  } else if (isExpression(orig_object)) {
+    fin_object = handleExpression(orig_object, otherProps)
+  } 
 
   let orig_property = node.property; // Handling prop property
   let fin_property: JS3MemberExpression_property; // Handling prop property
@@ -357,93 +367,36 @@ export function handleMemberExpression(node: MemberExpression, otherProps: Other
   return result
 }
 
-export function spillObjectExpression(objectHolder: Identifier, node: ObjectExpression, otherProps: OtherProps) {
-  otherProps.debugTrace.push("ObjectExpression")
-  assert(Array.isArray(otherProps.others.holder), `handleObjectExpression expects an holder to spill intermediate values`);
 
+
+
+
+export function handleObjectExpression(node: ObjectExpression, otherProps: OtherProps) {
   // 1 fallthrough props, 1 restricted props
   let orig_properties = node.properties; // Handling prop properties
-  let fin_properties: JS3ObjectExpression_properties; // Handling prop properties
-  if (Array.isArray(orig_properties)) {
+  let fin_properties : JS3ObjectExpression_properties = new Array(); // Handling prop properties
+  if (Array.isArray ( orig_properties )) { 
     for (const _arrProp of orig_properties) {
-      if (isObjectMethod(_arrProp)) {
-        // let tempHolder: Identifier = value: JS3ObjectMethod
-        // objectHolder[key] = tempHolder
-        let key: Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | PrivateName;
-        let computed = false
-        if (isIdentifier(_arrProp.key)) {
-          key = _arrProp.key;
-        } else if (isPrivateName(_arrProp.key)) {
-          key = generateIdentifier(_arrProp.key, "$TODO")
-          debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectMethod [key is private name]");
-        } else {
-          key = handleExpression(_arrProp.key, otherProps);
-          computed = true
-        }
-
-        const dummyNode = generateBaseNodeFrom(_arrProp)
-        const tempHolder = generateIdentifier(dummyNode, otherProps.getNewTemporary(otherProps.others.prefix))
-
-        const objMeth = handleObjectMethod(_arrProp, otherProps)
-        const value = generateJS3FunctionExpressionfromBaseNode(null, objMeth.params, objMeth.body, null, objMeth.returnType, objMeth.typeParameters, objMeth.generator, objMeth.async, dummyNode)
-        
-        const _declarations: JS3VariableDeclaration_declarations = new Array()
-        _declarations.push(generateJS3VariableDeclaratorfromBaseNode(value, tempHolder, null, dummyNode))
-
-        otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(_declarations, "let", null, dummyNode))
-
-        
-        
-        const left = generateJS3MemberExpressionfromBaseNode(objectHolder, key, computed, null, dummyNode)
-        const assignmentExpression = generateJS3AssignmentExpressionfromBaseNode(left, tempHolder, "=", dummyNode)
-        const exprStmt = generateJS3ExpressionStatementfromBaseNode(assignmentExpression, dummyNode)
-        otherProps.others.holder.push(exprStmt)
-
-
-      } else if (isObjectProperty(_arrProp)) {
-
-        // objectHolder[key] = [value]
-        let key: Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | PrivateName;
-        let computed = false
-        if (isIdentifier(_arrProp.key)) {
-          key = _arrProp.key;
-        } else if (isPrivateName(_arrProp.key)) {
-          key = generateIdentifier(_arrProp.key, "$TODO")
-          debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectProperty [key is private name]");
-        } else {
-          key = handleExpression(_arrProp.key, otherProps);
-          computed = true
-        }
-
-        let value: Identifier
-        if (isExpression(_arrProp.value)) {
-          value = handleExpression(_arrProp.value, otherProps)
-        } else if (isPatternLike(_arrProp.value)) {
-          value = generateIdentifier(_arrProp.value, "$TODO")
-          debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectProperty [value is pattern like]");
-        }
-
-        const dummyNode = generateBaseNodeFrom(_arrProp)
-
-        const left = generateJS3MemberExpressionfromBaseNode(objectHolder, key, computed, null, dummyNode)
-        const right = value
-        const assignmentExpression = generateJS3AssignmentExpressionfromBaseNode(left, right, "=", dummyNode)
-        const exprStmt = generateJS3ExpressionStatementfromBaseNode(assignmentExpression, dummyNode)
-        otherProps.others.holder.push(exprStmt)
-      } else if (isSpreadElement(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->SpreadElement", [_arrProp]);
-      }
+      if(isObjectMethod (_arrProp)) {
+        fin_properties.push(handleObjectMethod(_arrProp, otherProps))
+      } else if(isObjectProperty (_arrProp)) {
+        fin_properties.push(handleObjectProperty(_arrProp, otherProps))
+      } else if(isSpreadElement (_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled ObjectExpression->[properties]->SpreadElement");
+      } 
     }
   }
+
+  let result: JS3ObjectExpression = generateJS3ObjectExpression(fin_properties, node);
+  return result
 }
 
 export function handleObjectMethod(node: ObjectMethod, otherProps: OtherProps) {
   // 5 fallthrough props, 6 restricted props
   let orig_key = node.key; // Handling prop key
   let fin_key : JS3ObjectMethod_key; // Handling prop key
-  if(isExpression (orig_key)) {
-    fin_key = handleExpression(orig_key, otherProps)
-  } else if(isIdentifier (orig_key)) {
+  
+  if(isIdentifier (orig_key)) {
     fin_key = orig_key
   } else if(isStringLiteral (orig_key)) {
     fin_key = orig_key
@@ -451,6 +404,8 @@ export function handleObjectMethod(node: ObjectMethod, otherProps: OtherProps) {
     fin_key = orig_key
   } else if(isBigIntLiteral (orig_key)) {
     fin_key = orig_key
+  } else {
+    fin_key = handleExpression(orig_key, otherProps)
   }
 
   let orig_params = node.params; // Handling prop params
@@ -474,7 +429,7 @@ export function handleObjectMethod(node: ObjectMethod, otherProps: OtherProps) {
   let orig_body = node.body; // Handling prop body
   let fin_body : JS3ObjectMethod_body; // Handling prop body
   if(isBlockStatement (orig_body)) {
-    fin_body = handleBlockStatement(orig_body, otherProps);
+    fin_body = handleBlockStatement(orig_body, otherProps)
   }
 
   let orig_decorators = node.decorators; // Handling prop decorators
@@ -510,6 +465,224 @@ export function handleObjectMethod(node: ObjectMethod, otherProps: OtherProps) {
   let result: JS3ObjectMethod = generateJS3ObjectMethod(fin_key, fin_params, fin_body, fin_decorators, fin_returnType, fin_typeParameters, node);
   return result
 }
+
+export function handleObjectProperty(node: ObjectProperty, otherProps: OtherProps) {
+  // 3 fallthrough props, 3 restricted props
+  let orig_key = node.key; // Handling prop key
+  let fin_key : JS3ObjectProperty_key; // Handling prop key
+  if(isIdentifier (orig_key)) {
+    fin_key = orig_key
+  } else if(isStringLiteral (orig_key)) {
+    fin_key = orig_key
+  } else if(isNumericLiteral (orig_key)) {
+    fin_key = orig_key
+  } else if(isBigIntLiteral (orig_key)) {
+    fin_key = orig_key
+  } else if(isDecimalLiteral (orig_key)) {
+    fin_key = orig_key
+  } else if(isPrivateName (orig_key)) {
+    fin_key = orig_key
+  } else {
+    fin_key = handleExpression(orig_key, otherProps)
+  }
+
+  let orig_value = node.value; // Handling prop value
+  let fin_value : JS3ObjectProperty_value; // Handling prop value
+  if(isIdentifier (orig_value)) {
+    fin_value = orig_value
+  } else if(isExpression (orig_value)) {
+    fin_value = handleExpression(orig_value, otherProps)
+  } else if(isRestElement (orig_value)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ObjectProperty->value->RestElement");
+  } else if(isAssignmentPattern (orig_value)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ObjectProperty->value->AssignmentPattern");
+  } else if(isArrayPattern (orig_value)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ObjectProperty->value->ArrayPattern");
+  } else if(isObjectPattern (orig_value)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ObjectProperty->value->ObjectPattern");
+  } else if(isTSAsExpression (orig_value)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ObjectProperty->value->TSAsExpression");
+  } else if(isTSSatisfiesExpression (orig_value)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ObjectProperty->value->TSSatisfiesExpression");
+  } else if(isTSTypeAssertion (orig_value)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ObjectProperty->value->TSTypeAssertion");
+  } else if(isTSNonNullExpression (orig_value)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled ObjectProperty->value->TSNonNullExpression");
+  }
+  
+  let orig_decorators = node.decorators; // Handling prop decorators
+  let fin_decorators : JS3ObjectProperty_decorators = null; // Handling prop decorators
+  if (Array.isArray ( orig_decorators )) { 
+    for (const _arrProp of orig_decorators) {
+      if(isDecorator (_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled ObjectProperty->[decorators]->Decorator");
+      } 
+    }
+  }
+
+  let result: JS3ObjectProperty = generateJS3ObjectProperty(fin_key, fin_value, fin_decorators, node);
+  return result
+}
+
+
+
+
+
+
+
+// export function spillObjectExpression(objectHolder: Identifier, node: ObjectExpression, otherProps: OtherProps) {
+//   otherProps.debugTrace.push("ObjectExpression")
+//   assert(Array.isArray(otherProps.others.holder), `handleObjectExpression expects an holder to spill intermediate values`);
+
+//   // 1 fallthrough props, 1 restricted props
+//   let orig_properties = node.properties; // Handling prop properties
+//   let fin_properties: JS3ObjectExpression_properties; // Handling prop properties
+//   if (Array.isArray(orig_properties)) {
+//     for (const _arrProp of orig_properties) {
+//       if (isObjectMethod(_arrProp)) {
+//         // let tempHolder: Identifier = value: JS3ObjectMethod
+//         // objectHolder[key] = tempHolder
+//         let key: Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | PrivateName;
+//         let computed = false
+//         if (isIdentifier(_arrProp.key)) {
+//           key = _arrProp.key;
+//         } else if (isPrivateName(_arrProp.key)) {
+//           key = generateIdentifier(_arrProp.key, "$TODO")
+//           debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectMethod [key is private name]");
+//         } else {
+//           key = handleExpression(_arrProp.key, otherProps);
+//           computed = true
+//         }
+
+//         const dummyNode = generateBaseNodeFrom(_arrProp)
+//         const tempHolder = generateIdentifier(dummyNode, otherProps.getNewTemporary(otherProps.others.prefix))
+
+//         const objMeth = handleObjectMethod(_arrProp, otherProps)
+//         const value = generateJS3FunctionExpressionfromBaseNode(null, objMeth.params, objMeth.body, null, objMeth.returnType, objMeth.typeParameters, objMeth.generator, objMeth.async, dummyNode)
+        
+//         const _declarations: JS3VariableDeclaration_declarations = new Array()
+//         _declarations.push(generateJS3VariableDeclaratorfromBaseNode(value, tempHolder, null, dummyNode))
+
+//         otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(_declarations, "let", null, dummyNode))
+
+        
+        
+//         const left = generateJS3MemberExpressionfromBaseNode(objectHolder, key, computed, null, dummyNode)
+//         const assignmentExpression = generateJS3AssignmentExpressionfromBaseNode(left, tempHolder, "=", dummyNode)
+//         const exprStmt = generateJS3ExpressionStatementfromBaseNode(assignmentExpression, dummyNode)
+//         otherProps.others.holder.push(exprStmt)
+
+
+//       } else if (isObjectProperty(_arrProp)) {
+
+//         // objectHolder[key] = [value]
+//         let key: Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | PrivateName;
+//         let computed = false
+//         if (isIdentifier(_arrProp.key)) {
+//           key = _arrProp.key;
+//         } else if (isPrivateName(_arrProp.key)) {
+//           key = generateIdentifier(_arrProp.key, "$TODO")
+//           debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectProperty [key is private name]");
+//         } else {
+//           key = handleExpression(_arrProp.key, otherProps);
+//           computed = true
+//         }
+
+//         let value: Identifier
+//         if (isExpression(_arrProp.value)) {
+//           value = handleExpression(_arrProp.value, otherProps)
+//         } else if (isPatternLike(_arrProp.value)) {
+//           value = generateIdentifier(_arrProp.value, "$TODO")
+//           debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectProperty [value is pattern like]");
+//         }
+
+//         const dummyNode = generateBaseNodeFrom(_arrProp)
+
+//         const left = generateJS3MemberExpressionfromBaseNode(objectHolder, key, computed, null, dummyNode)
+//         const right = value
+//         const assignmentExpression = generateJS3AssignmentExpressionfromBaseNode(left, right, "=", dummyNode)
+//         const exprStmt = generateJS3ExpressionStatementfromBaseNode(assignmentExpression, dummyNode)
+//         otherProps.others.holder.push(exprStmt)
+//       } else if (isSpreadElement(_arrProp)) {
+//         debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->SpreadElement", [_arrProp]);
+//       }
+//     }
+//   }
+// }
+
+// export function handleObjectMethod(node: ObjectMethod, otherProps: OtherProps) {
+//   // 5 fallthrough props, 6 restricted props
+//   let orig_key = node.key; // Handling prop key
+//   let fin_key : JS3ObjectMethod_key; // Handling prop key
+//   if(isExpression (orig_key)) {
+//     fin_key = handleExpression(orig_key, otherProps)
+//   } else if(isIdentifier (orig_key)) {
+//     fin_key = orig_key
+//   } else if(isStringLiteral (orig_key)) {
+//     fin_key = orig_key
+//   } else if(isNumericLiteral (orig_key)) {
+//     fin_key = orig_key
+//   } else if(isBigIntLiteral (orig_key)) {
+//     fin_key = orig_key
+//   }
+
+//   let orig_params = node.params; // Handling prop params
+//   let fin_params : JS3ObjectMethod_params = new Array(); // Handling prop params
+//   if (Array.isArray ( orig_params )) { 
+//     for (const _arrProp of orig_params) {
+//       if(isIdentifier (_arrProp)) {
+//         fin_params.push(_arrProp)
+//       } else if(isAssignmentPattern (_arrProp)) {
+//         debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[params]->AssignmentPattern");
+//       } else if(isArrayPattern (_arrProp)) {
+//         debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[params]->ArrayPattern");
+//       } else if(isObjectPattern (_arrProp)) {
+//         debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[params]->ObjectPattern");
+//       } else if(isRestElement (_arrProp)) {
+//         debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[params]->RestElement");
+//       } 
+//     }
+//   }
+
+//   let orig_body = node.body; // Handling prop body
+//   let fin_body : JS3ObjectMethod_body; // Handling prop body
+//   if(isBlockStatement (orig_body)) {
+//     fin_body = handleBlockStatement(orig_body, otherProps);
+//   }
+
+//   let orig_decorators = node.decorators; // Handling prop decorators
+//   let fin_decorators : JS3ObjectMethod_decorators = null; // Handling prop decorators
+//   if (Array.isArray ( orig_decorators )) { 
+//     for (const _arrProp of orig_decorators) {
+//       if(isDecorator (_arrProp)) {
+//         debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[decorators]->Decorator");
+//       } 
+//     }
+//   }
+
+//   let orig_returnType = node.returnType; // Handling prop returnType
+//   let fin_returnType : JS3ObjectMethod_returnType = null; // Handling prop returnType
+//   if(isTypeAnnotation (orig_returnType)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->returnType->TypeAnnotation");
+//   } else if(isTSTypeAnnotation (orig_returnType)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->returnType->TSTypeAnnotation");
+//   } else if(isNoop (orig_returnType)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->returnType->Noop");
+//   }
+
+//   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
+//   let fin_typeParameters : JS3ObjectMethod_typeParameters = null; // Handling prop typeParameters
+//   if(isTypeParameterDeclaration (orig_typeParameters)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->typeParameters->TypeParameterDeclaration");
+//   } else if(isTSTypeParameterDeclaration (orig_typeParameters)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->typeParameters->TSTypeParameterDeclaration");
+//   } else if(isNoop (orig_typeParameters)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->typeParameters->Noop");
+//   }
+
+//   let result: JS3ObjectMethod = generateJS3ObjectMethod(fin_key, fin_params, fin_body, fin_decorators, fin_returnType, fin_typeParameters, node);
+//   return result
+// }
 
 export function handleFunctionExpression(node: FunctionExpression, otherProps: OtherProps): JS3FunctionExpression {
   // 3 fallthrough props, 6 restricted props
@@ -936,4 +1109,16 @@ export function handleTemplateLiteral(node: TemplateLiteral, otherProps: OtherPr
   } 
   let result: JS3TemplateLiteral = generateJS3TemplateLiteral(fin_quasis, fin_expressions, node);
   return result
-} 
+}
+
+export function handleYieldExpression(node: YieldExpression, otherProps: OtherProps) {
+  // 2 fallthrough props, 1 restricted props
+  let orig_argument = node.argument; // Handling prop argument
+  let fin_argument : JS3YieldExpression_argument = null; // Handling prop argument
+  if(isExpression (orig_argument)) {
+    fin_argument = handleExpression(orig_argument, otherProps)
+  }
+
+  let result: JS3YieldExpression = generateJS3YieldExpression(fin_argument, node);
+  return result
+}
