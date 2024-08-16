@@ -1,6 +1,6 @@
 
 import debugConfig from "#debugConfig";
-import { ArrayExpression, ArrowFunctionExpression, AssignmentExpression, BinaryExpression, CallExpression, ClassExpression, Expression, FunctionExpression, Identifier, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassBody, isClassExpression, isClassImplements, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDecorator, isDoExpression, isExpression, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isInterfaceExtends, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSExpressionWithTypeArguments, isTSInstantiationExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSType, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, LogicalExpression, MemberExpression, NewExpression, ObjectExpression, ObjectMethod, ObjectProperty, SequenceExpression, SpreadElement, TemplateLiteral, UnaryExpression, UpdateExpression, YieldExpression } from "@babel/types";
+import { ArrayExpression, ArrowFunctionExpression, AssignmentExpression, BinaryExpression, CallExpression, ClassExpression, Expression, FunctionExpression, Identifier, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassBody, isClassExpression, isClassImplements, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDecorator, isDoExpression, isExpression, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isInterfaceExtends, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPattern, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSExpressionWithTypeArguments, isTSInstantiationExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSType, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, LogicalExpression, MemberExpression, NewExpression, ObjectExpression, ObjectMethod, ObjectProperty, SequenceExpression, SpreadElement, TemplateLiteral, UnaryExpression, UpdateExpression, YieldExpression } from "@babel/types";
 import assert from 'node:assert';
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
 import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3BinaryExpression, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3ClassExpression, generateJS3FunctionExpression, generateJS3LogicalExpression, generateJS3MemberExpression, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3ReturnStatementfromBaseNode, generateJS3SequenceExpression, generateJS3SpreadElement, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3YieldExpression } from "./JS3Constructors.ts";
@@ -203,14 +203,13 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->MetaProperty`, otherProps.debugTrace);
   } else if (isSuper(node)) {
     // ========================================================================================
+    // Calling this will cause a syntax error! it is by design.
     // $resultIdentifier = super
     resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-    const init = handleTemplateLiteral(node, otherProps)
+    const init = node
     const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
     otherProps.others.holder.push(varDecl)
     // ========================================================================================  
-
-
   } else if (isTaggedTemplateExpression(node)) {
     debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TaggedTemplateExpression`, otherProps.debugTrace);
   } 
@@ -414,14 +413,10 @@ export function handleObjectMethod(node: ObjectMethod, otherProps: OtherProps) {
     for (const _arrProp of orig_params) {
       if(isIdentifier (_arrProp)) {
         fin_params.push(_arrProp)
-      } else if(isAssignmentPattern (_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[params]->AssignmentPattern");
-      } else if(isArrayPattern (_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[params]->ArrayPattern");
-      } else if(isObjectPattern (_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[params]->ObjectPattern");
+      } else if(isPattern (_arrProp)) {
+        fin_params.push(_arrProp)
       } else if(isRestElement (_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[params]->RestElement");
+        fin_params.push(_arrProp)
       } 
     }
   }
@@ -698,14 +693,10 @@ export function handleFunctionExpression(node: FunctionExpression, otherProps: O
     for (const _arrProp of orig_params) {
       if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp)
-      } else if (isAssignmentPattern(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->[params]->AssignmentPattern");
-      } else if (isArrayPattern(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->[params]->ArrayPattern");
-      } else if (isObjectPattern(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->[params]->ObjectPattern");
+      } else if (isPattern(_arrProp)) {
+        fin_params.push(_arrProp)
       } else if (isRestElement(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->[params]->RestElement");
+        fin_params.push(_arrProp)
       }
     }
   }
@@ -907,14 +898,10 @@ export function handleArrowFunctionExpression(node: ArrowFunctionExpression, oth
     for (const _arrProp of orig_params) {
       if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp)
-      } else if (isAssignmentPattern(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->[params]->AssignmentPattern");
-      } else if (isArrayPattern(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->[params]->ArrayPattern");
-      } else if (isObjectPattern(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->[params]->ObjectPattern");
+      } else if (isPattern(_arrProp)) {
+        fin_params.push(_arrProp)
       } else if (isRestElement(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ArrowFunctionExpression->[params]->RestElement");
+        fin_params.push(_arrProp)
       }
     }
   }

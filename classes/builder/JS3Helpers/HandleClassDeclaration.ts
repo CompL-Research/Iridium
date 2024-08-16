@@ -1,4 +1,4 @@
-import { ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isArrayPattern, isAssignmentPattern, isBlockStatement, isClassAccessorProperty, isClassBody, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecorator, isExpression, isIdentifier, isInterfaceExtends, isNoop, isObjectPattern, isRestElement, isStaticBlock, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance } from "@babel/types";
+import { ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isBlockStatement, isClassAccessorProperty, isClassBody, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecorator, isExpression, isIdentifier, isInterfaceExtends, isNoop, isPattern, isRestElement, isStaticBlock, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance } from "@babel/types";
 import { generateJS3ClassBody, generateJS3ClassDeclaration, generateJS3ClassMethod, generateJS3ClassPrivateMethod, generateJS3ClassPrivateProperty, generateJS3ClassProperty } from "./JS3Constructors.ts";
 import { JS3ClassBody, JS3ClassBody_body, JS3ClassDeclaration, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superClass, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassPrivateMethod, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, JS3ClassPrivateProperty, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_variance, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_value, JS3ClassProperty_variance } from "./JS3Types.ts";
 
@@ -215,14 +215,10 @@ export function handleClassMethod(node: ClassMethod, otherProps: OtherProps): JS
     for (const _arrProp of orig_params) {
       if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp)
-      } else if (isAssignmentPattern(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->[params]->AssignmentPattern");
-      } else if (isArrayPattern(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->[params]->ArrayPattern");
-      } else if (isObjectPattern(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->[params]->ObjectPattern");
+      } else if (isPattern(_arrProp)) {
+        fin_params.push(_arrProp)
       } else if (isRestElement(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->[params]->RestElement");
+        fin_params.push(_arrProp)
       } else if (isTSParameterProperty(_arrProp)) {
         debugConfig.logger.throwJS3Error("TODO // unhandled ClassMethod->[params]->TSParameterProperty");
       }
@@ -277,17 +273,13 @@ export function handleClassPrivateMethod(node: ClassPrivateMethod, otherProps: O
     for (const _arrProp of orig_params) {
       if(isIdentifier (_arrProp)) {
         fin_params.push(_arrProp)
-      } else if(isAssignmentPattern (_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->[params]->AssignmentPattern");
-      } else if(isArrayPattern (_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->[params]->ArrayPattern");
-      } else if(isObjectPattern (_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->[params]->ObjectPattern");
+      } else if(isPattern (_arrProp)) {
+        fin_params.push(_arrProp)
       } else if(isRestElement (_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->[params]->RestElement");
+        fin_params.push(_arrProp)
       } else if(isTSParameterProperty (_arrProp)) {
         debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->[params]->TSParameterProperty");
-      } 
+      }
     }
   }
 

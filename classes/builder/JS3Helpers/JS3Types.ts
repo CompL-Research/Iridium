@@ -1,9 +1,10 @@
-// Generated on 16/8/2024, 9:38:20 am, extended 49 interfaces 
+// Generated on 16/8/2024, 10:04:07 am, extended 49 interfaces 
 
 import { TemplateElement, Expression, RestElement, ArrayPattern, ObjectPattern, AssignmentPattern, LVal, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ForOfStatement, ImportDeclaration, ClassMethod, TemplateLiteral, YieldExpression, ClassPrivateProperty, ClassPrivateMethod, } from "@babel/types";
 
 export type JS3AllowedBlockStatement = JS3VariableDeclaration | JS3ReturnStatement | JS3ExpressionStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement | JS3FunctionDeclaration | JS3AssignmentExpression | JS3ClassDeclaration | EmptyStatement | JS3WhileStatement | JS3BreakStatement | JS3ContinueStatement | JS3BlockStatement | JS3ForInStatement | JS3LabeledStatement | JS3ForStatement | JS3DoWhileStatement | JS3SwitchStatement | JS3ForOfStatement | JS3WithStatement;
 export type JS3ContainedExprKey = Identifier | JS3CallExpression | DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral;
+export type JS3AllowedFunctionArgs = Identifier | Pattern | RestElement;
 
 export type JS3ArrayExpression_elements = Array<null | Identifier | JS3SpreadElement>;
 export type JS3AssignmentExpression_left = JS3MemberExpression | Identifier;
@@ -29,13 +30,13 @@ export type JS3ForStatement_test = null;
 export type JS3ForStatement_update = Expression | null;
 export type JS3ForStatement_body = JS3BlockStatement;
 export type JS3FunctionDeclaration_id = null | undefined | Identifier;
-export type JS3FunctionDeclaration_params = Array<Identifier | AssignmentPattern | ArrayPattern | ObjectPattern | RestElement>;
+export type JS3FunctionDeclaration_params = Array<JS3AllowedFunctionArgs>;
 export type JS3FunctionDeclaration_body = JS3BlockStatement;
 export type JS3FunctionDeclaration_predicate = null;
 export type JS3FunctionDeclaration_returnType = null;
 export type JS3FunctionDeclaration_typeParameters = null;
 export type JS3FunctionExpression_id = null | Identifier | undefined;
-export type JS3FunctionExpression_params = Array<Identifier>;
+export type JS3FunctionExpression_params = Array<JS3AllowedFunctionArgs>;
 export type JS3FunctionExpression_body = JS3BlockStatement;
 export type JS3FunctionExpression_predicate = undefined | null;
 export type JS3FunctionExpression_returnType = undefined | null;
@@ -55,7 +56,7 @@ export type JS3NewExpression_typeParameters = null;
 export type JS3Program_body = Array< JS3ImportDeclaration | JS3ExportDefaultDeclaration | JS3AllowedBlockStatement >;
 export type JS3ObjectExpression_properties = Array<JS3ObjectMethod | JS3ObjectProperty | JS3SpreadElement>;
 export type JS3ObjectMethod_key = Identifier | StringLiteral | NumericLiteral | BigIntLiteral;
-export type JS3ObjectMethod_params = Array<Identifier>;
+export type JS3ObjectMethod_params = Array<JS3AllowedFunctionArgs>;
 export type JS3ObjectMethod_body = JS3BlockStatement;
 export type JS3ObjectMethod_decorators = null;
 export type JS3ObjectMethod_returnType = null;
@@ -76,12 +77,12 @@ export type JS3TryStatement_finalizer = null | undefined | JS3BlockStatement;
 export type JS3UnaryExpression_argument = Identifier | JS3MemberExpression;
 export type JS3UpdateExpression_argument = Identifier;
 export type JS3VariableDeclaration_declarations = Array<JS3VariableDeclarator>;
-export type JS3VariableDeclarator_init = JS3YieldExpression | JS3SequenceExpression | ThisExpression | JS3FunctionExpression | Identifier | BigIntLiteral | DecimalLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | JS3MemberExpression | JS3CallExpression | JS3ObjectExpression | JS3NewExpression | JS3BinaryExpression | JS3LogicalExpression | JS3AssignmentExpression | JS3UnaryExpression | JS3ArrowFunctionExpression | JS3ClassExpression | JS3ArrayExpression | JS3ObjectMethod | JS3UpdateExpression | JS3TemplateLiteral;
+export type JS3VariableDeclarator_init = Super | JS3YieldExpression | JS3SequenceExpression | ThisExpression | JS3FunctionExpression | Identifier | BigIntLiteral | DecimalLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | JS3MemberExpression | JS3CallExpression | JS3ObjectExpression | JS3NewExpression | JS3BinaryExpression | JS3LogicalExpression | JS3AssignmentExpression | JS3UnaryExpression | JS3ArrowFunctionExpression | JS3ClassExpression | JS3ArrayExpression | JS3ObjectMethod | JS3UpdateExpression | JS3TemplateLiteral;
 export type JS3WhileStatement_test = BooleanLiteral;
 export type JS3WhileStatement_body = JS3BlockStatement;
 export type JS3WithStatement_object = Identifier;
 export type JS3WithStatement_body = JS3BlockStatement;
-export type JS3ArrowFunctionExpression_params = Array<Identifier>;
+export type JS3ArrowFunctionExpression_params = Array<JS3AllowedFunctionArgs>;
 export type JS3ArrowFunctionExpression_body = JS3BlockStatement;
 export type JS3ArrowFunctionExpression_predicate = null;
 export type JS3ArrowFunctionExpression_returnType = null;
@@ -109,7 +110,7 @@ export type JS3ImportDeclaration_specifiers = Array<ImportSpecifier | ImportDefa
 export type JS3ImportDeclaration_assertions = undefined | null;
 export type JS3ImportDeclaration_attributes = undefined | null;
 export type JS3ClassMethod_key = JS3ContainedExprKey;
-export type JS3ClassMethod_params = Array<Identifier>;
+export type JS3ClassMethod_params = Array<JS3AllowedFunctionArgs>;
 export type JS3ClassMethod_body = JS3BlockStatement;
 export type JS3ClassMethod_decorators = null;
 export type JS3ClassMethod_returnType = null;
@@ -127,7 +128,7 @@ export type JS3ClassPrivateProperty_value = JS3ContainedExprKey;
 export type JS3ClassPrivateProperty_decorators = null;
 export type JS3ClassPrivateProperty_typeAnnotation = null;
 export type JS3ClassPrivateProperty_variance = null;
-export type JS3ClassPrivateMethod_params = Array<Identifier>;
+export type JS3ClassPrivateMethod_params = Array<JS3AllowedFunctionArgs>;
 export type JS3ClassPrivateMethod_body = JS3BlockStatement;
 export type JS3ClassPrivateMethod_decorators = null;
 export type JS3ClassPrivateMethod_returnType = null;
