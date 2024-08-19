@@ -7,7 +7,7 @@ tests/folder_
 tests/failed
 tests/failing
 tests/failing-all
-
+tests/*.json
 
 # Outputs
 outputs
