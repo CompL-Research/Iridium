@@ -74,8 +74,14 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     // ========================================================================================
   } else if (isIdentifier(node)) {
     // ========================================================================================
-    resultIdentifier = node
+    // $resultIdentifier = identifier
+    // This fixes 47 tests in expression, but breaks other tests!
+    resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+    const init = node
+    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
+    otherProps.others.holder.push(varDecl)
     // ========================================================================================
+    // resultIdentifier = node
   } else if (isStringLiteral(node)) {
     // ========================================================================================
     // $resultIdentifier = "abc"
@@ -292,6 +298,8 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
     fin_callee = orig_callee
   } else if (isV8IntrinsicIdentifier(orig_callee)) {
     fin_callee = orig_callee
+  } else if (isIdentifier(orig_callee)) {
+    fin_callee = orig_callee
   } else if (isExpression(orig_callee)) {
 
     // We would like to retain the context if the callee is a member expression
@@ -346,7 +354,9 @@ export function handleMemberExpression(node: MemberExpression, otherProps: Other
   // 3 fallthrough props, 2 restricted props
   let orig_object = node.object; // Handling prop object
   let fin_object: JS3MemberExpression_object; // Handling prop object
-  if (isSuper(orig_object)) {
+  if (isIdentifier(orig_object)) {
+    fin_object = orig_object
+  } else if (isSuper(orig_object)) {
     fin_object = orig_object
   } else if (isExpression(orig_object)) {
     fin_object = handleExpression(orig_object, otherProps)
@@ -354,10 +364,10 @@ export function handleMemberExpression(node: MemberExpression, otherProps: Other
 
   let orig_property = node.property; // Handling prop property
   let fin_property: JS3MemberExpression_property; // Handling prop property
-  if (isExpression(orig_property)) {
-    fin_property = handleExpression(orig_property, otherProps)
-  } else if (isIdentifier(orig_property)) {
+  if (isIdentifier(orig_property)) {
     fin_property = orig_property
+  } else if (isExpression(orig_property)) {
+    fin_property = handleExpression(orig_property, otherProps)
   } else if (isPrivateName(orig_property)) {
     fin_property = orig_property
   }
@@ -748,13 +758,16 @@ export function handleNewExpression(node: NewExpression, otherProps: OtherProps)
   // 2 fallthrough props, 4 restricted props
   let orig_callee = node.callee; // Handling prop callee
   let fin_callee: JS3NewExpression_callee; // Handling prop callee
-  if (isExpression(orig_callee)) {
-    fin_callee = handleExpression(orig_callee, otherProps)
+  
+  if (isIdentifier(orig_callee)) {
+    fin_callee = orig_callee
   } else if (isSuper(orig_callee)) {
     fin_callee = orig_callee
   } else if (isV8IntrinsicIdentifier(orig_callee)) {
     fin_callee = orig_callee
-  }
+  } else if (isExpression(orig_callee)) {
+    fin_callee = handleExpression(orig_callee, otherProps)
+  } 
 
   let orig_arguments = node.arguments; // Handling prop arguments
   let fin_arguments: JS3NewExpression_arguments = new Array(); // Handling prop arguments
@@ -881,6 +894,8 @@ export function handleUnaryExpression(node: UnaryExpression, otherProps: OtherPr
       } else {
         fin_argument = handleExpression(orig_argument, otherProps);
       }
+    } else if (isIdentifier(orig_argument)) {
+      fin_argument = orig_argument
     } else {
       fin_argument = handleExpression(orig_argument, otherProps);
     }
@@ -1050,7 +1065,9 @@ export function handleUpdateExpression(node: UpdateExpression, otherProps: Other
   // 3 fallthrough props, 1 restricted props
   let orig_argument = node.argument; // Handling prop argument
   let fin_argument : JS3UpdateExpression_argument; // Handling prop argument
-  if(isExpression (orig_argument)) {
+  if (isIdentifier(orig_argument)) {
+    fin_argument = orig_argument
+  } else if(isExpression (orig_argument)) {
     fin_argument = handleExpression(orig_argument, otherProps)
   }
 
