@@ -35,14 +35,17 @@ const directoryPath = process.argv[2];
       let FAILEDJS3 = [];
       let FAILEDEXEC = [];
       let SKIPPED = [];
-
+      
       // Check if the current path is a file and ends with .json
       if (fs.lstatSync(fullPath).isFile() && path.extname(file).toLowerCase() === '.json') {
-
+        
         console.log(`Working with file: ${path.basename(file)}`)
-
+        
         // Read and parse JSON file
         const data = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+        const failedData = {
+          passed: []
+        }
 
         try {
           const bar1 = new cliProgress.SingleBar({ stream: process.stdout }, cliProgress.Presets.shades_classic);
@@ -59,7 +62,7 @@ const directoryPath = process.argv[2];
               const ext = path.extname(o.file)
 
               if (ext !== ".js") {
-                SKIPPED.push(o.file)
+                SKIPPED.push(o)
                 return;
               }
 
@@ -74,6 +77,7 @@ const directoryPath = process.argv[2];
                 console.error(e);
                 console.error();
 
+                failedData.passed.push(o)
                 FAILEDJS3.push(o.file);
                 return;
               }
@@ -97,6 +101,7 @@ const directoryPath = process.argv[2];
                 console.error(e);
                 console.error();
 
+                failedData.passed.push(o)
                 FAILEDEXEC.push(o.file);
               }
               await execAsync(`rm -rf ${folderName}`);
@@ -125,6 +130,8 @@ const directoryPath = process.argv[2];
           }
 
           await execAsync(`rm -rf folder_*`);
+
+          fs.writeFileSync(`WIP_${file.replace(/\//g, "_")}`, JSON.stringify(failedData, null, 4))
 
         } catch (e) {
 
