@@ -2,19 +2,27 @@
     "skipped": [
         {
             "file": "test262/test/language/expressions/async-arrow-function/name.js",
-            "reason": "Loose semantics, not very useful: DOCUMENTED"
+            "reason": "UNSUPPORTED: #1"
         },
         {
             "file": "test262/test/language/expressions/arrow-function/name.js",
-            "reason": "Loose semantics, not very useful: DOCUMENTED"
+            "reason": "UNSUPPORTED: #1"
         },
         {
             "file": "test262/test/language/expressions/generators/name.js",
-            "reason": "Loose semantics, not very useful: DOCUMENTED"
+            "reason": "UNSUPPORTED: #1"
         },
         {
             "file": "test262/test/language/expressions/generators/implicit-name.js",
-            "reason": "Loose semantics, not very useful: DOCUMENTED"
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/generators/no-name.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/logical-assignment/lgcl-or-assignment-operator-namedevaluation-arrow-function.js",
+            "reason": "UNSUPPORTED: #1"
         }
     ],
     "passed": [
@@ -2422,10 +2430,6 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/generators/implicit-name.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/generators/yield-spread-obj.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
@@ -2433,10 +2437,7 @@
             "file": "test262/test/language/expressions/generators/static-init-await-reference.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/generators/no-name.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+        
         {
             "file": "test262/test/language/expressions/generators/yield-identifier-spread-non-strict.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
@@ -2549,10 +2550,7 @@
             "file": "test262/test/language/expressions/logical-assignment/lgcl-and-assignment-operator-bigint.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/logical-assignment/lgcl-or-assignment-operator-namedevaluation-arrow-function.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+
         {
             "file": "test262/test/language/expressions/logical-assignment/left-hand-side-private-reference-accessor-property-short-circuit-nullish.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "

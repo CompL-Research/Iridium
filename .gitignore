@@ -3,7 +3,7 @@ temp
 
 # Tests
 tests/test262
-tests/folder_
+tests/folder_*
 tests/failed
 tests/failing
 tests/failing-all
