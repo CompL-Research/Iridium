@@ -1067,6 +1067,8 @@ export function handleUpdateExpression(node: UpdateExpression, otherProps: Other
   let fin_argument : JS3UpdateExpression_argument; // Handling prop argument
   if (isIdentifier(orig_argument)) {
     fin_argument = orig_argument
+  } else if (isMemberExpression(orig_argument)) {
+    fin_argument = handleMemberExpression(orig_argument, otherProps)
   } else if(isExpression (orig_argument)) {
     fin_argument = handleExpression(orig_argument, otherProps)
   }
