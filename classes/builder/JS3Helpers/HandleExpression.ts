@@ -3,8 +3,8 @@ import debugConfig from "#debugConfig";
 import { ArrayExpression, ArrowFunctionExpression, AssignmentExpression, binaryExpression, BinaryExpression, CallExpression, ClassExpression, Expression, FunctionExpression, identifier, Identifier, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassBody, isClassExpression, isClassImplements, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDecorator, isDoExpression, isExpression, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isInterfaceExtends, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPattern, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSExpressionWithTypeArguments, isTSInstantiationExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSType, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, logicalExpression, LogicalExpression, MemberExpression, NewExpression, nullLiteral, ObjectExpression, ObjectMethod, ObjectProperty, SequenceExpression, SpreadElement, TemplateLiteral, unaryExpression, UnaryExpression, UpdateExpression, YieldExpression } from "@babel/types";
 import assert from 'node:assert';
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3BinaryExpression, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3ClassExpression, generateJS3FunctionExpression, generateJS3IfStatementfromBaseNode, generateJS3LogicalExpression, generateJS3MemberExpression, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3ReturnStatementfromBaseNode, generateJS3SequenceExpression, generateJS3SpreadElement, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3YieldExpression } from "./JS3Constructors.ts";
-import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3LogicalExpression, JS3LogicalExpression_left, JS3LogicalExpression_right, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3SequenceExpression, JS3SequenceExpression_expressions, JS3SpreadElement, JS3SpreadElement_argument, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
+import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3BinaryExpression, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3ClassExpression, generateJS3FunctionExpression, generateJS3IfStatementfromBaseNode, generateJS3MemberExpression, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3ReturnStatementfromBaseNode, generateJS3SequenceExpression, generateJS3SpreadElement, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3YieldExpression } from "./JS3Constructors.ts";
+import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3LogicalExpression_left, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3SequenceExpression, JS3SequenceExpression_expressions, JS3SpreadElement, JS3SpreadElement_argument, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
 
 import { isArgumentPlaceholder, isSpreadElement, isTSTypeParameterInstantiation, isTypeParameterInstantiation, isV8IntrinsicIdentifier } from "@babel/types";
 import { handleBlockStatement } from "./HandleBlocks.ts";
@@ -859,13 +859,106 @@ export function handleLogicalExpression(node: LogicalExpression, otherProps: Oth
   if (isExpression(orig_left)) {
     fin_left = handleExpression(orig_left, otherProps)
   }
-  let orig_right = node.right; // Handling prop right
-  let fin_right: JS3LogicalExpression_right; // Handling prop right
-  if (isExpression(orig_right)) {
-    fin_right = handleExpression(orig_right, otherProps)
+
+  const rValFinalResHolder = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+  const lValRes = fin_left;
+  const varDecl = generateDummyJS3VariableDeclaration(node, rValFinalResHolder, lValRes);
+  otherProps.others.holder.push(varDecl)
+
+  if (node.operator === "&&") {
+    // Spill RHS into a temporary block
+    // { BODY }
+    const blockHolder: JS3BlockStatement_body = new Array()
+    const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
+    
+    let rvalEvaled;
+    let orig_right = node.right; // Handling prop right
+    if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
+      rvalEvaled = orig_right
+    } else if (isExpression(orig_right)) {
+      rvalEvaled = handleExpression(node.right, updatedProps);
+    }
+    
+    // rVal$resHolder = rVal$res
+    const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
+    blockHolder.push(updateRes)
+
+    // If (lVal$res) { BODY }
+    const bCondTrue = handleExpression(lValRes, otherProps)
+    const ifStmt = generateJS3IfStatementfromBaseNode(bCondTrue, condBody, null, node)
+
+    otherProps.others.holder.push(ifStmt)
+  } else if (node.operator === "||") {
+    // Spill RHS into a temporary block
+    // { BODY }
+    const blockHolder: JS3BlockStatement_body = new Array()
+    const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
+    
+    let rvalEvaled;
+    let orig_right = node.right; // Handling prop right
+    if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
+      rvalEvaled = orig_right
+    } else if (isExpression(orig_right)) {
+      rvalEvaled = handleExpression(node.right, updatedProps);
+    }
+    
+    // rVal$resHolder = rVal$res
+    const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
+    blockHolder.push(updateRes)
+
+    // if ( !TEST1 ) { BODY }
+    const bCondFalse = handleExpression(unaryExpression("!", lValRes), otherProps)
+    const ifStmt = generateJS3IfStatementfromBaseNode(bCondFalse, condBody, null, node)
+
+    otherProps.others.holder.push(ifStmt)
+  } else if (node.operator === "??") {
+    // Spill RHS into a temporary block
+    // { BODY }
+    const blockHolder: JS3BlockStatement_body = new Array()
+    const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
+    
+    let rvalEvaled;
+    let orig_right = node.right; // Handling prop right
+    if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
+      rvalEvaled = orig_right
+    } else if (isExpression(orig_right)) {
+      rvalEvaled = handleExpression(node.right, updatedProps);
+    }
+    
+    // rVal$resHolder = rVal$res
+    const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
+    blockHolder.push(updateRes)
+
+    // if (TEST1 || TEST2) { BODY }
+    // 
+    // TEST1
+    const bCondTestUndef = handleExpression(
+      binaryExpression("===", fin_left, identifier("undefined")), otherProps
+    )
+    // TEST2
+    const bCondTestNull = handleExpression(
+      binaryExpression("===", fin_left, nullLiteral()), otherProps
+    )
+    // TEST1 || TEST2
+    const bCondTest = handleExpression(
+      logicalExpression("||", bCondTestUndef, bCondTestNull), otherProps
+    )
+
+    const ifStmt = generateJS3IfStatementfromBaseNode(bCondTest, condBody, null, node)
+
+    otherProps.others.holder.push(ifStmt)
   }
-  let result: JS3LogicalExpression = generateJS3LogicalExpression(fin_left, fin_right, node);
-  return result
+
+  // let orig_right = node.right; // Handling prop right
+  // let fin_right: JS3LogicalExpression_right; // Handling prop right
+  // if (isExpression(orig_right)) {
+  //   fin_right = handleExpression(orig_right, otherProps)
+  // }
+  // let result: JS3LogicalExpression = generateJS3LogicalExpression(fin_left, fin_right, node);
+  return rValFinalResHolder
 }
 
 export function handleAssignmentExpression(node: AssignmentExpression, otherProps: OtherProps) {
