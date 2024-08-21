@@ -1,4 +1,4 @@
-// Generated on 21/8/2024, 9:58:05 am, extended 49 interfaces 
+// Generated on 21/8/2024, 1:43:59 pm, extended 49 interfaces 
 
 import { TemplateElement, Expression, RestElement, ArrayPattern, ObjectPattern, AssignmentPattern, LVal, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ForOfStatement, ImportDeclaration, ClassMethod, TemplateLiteral, YieldExpression, ClassPrivateProperty, ClassPrivateMethod, } from "@babel/types";
 
@@ -9,7 +9,7 @@ export type JS3AllowedFunctionArgs = Identifier | Pattern | RestElement;
 
 export type JS3ArrayExpression_elements = Array<null | Identifier | JS3SpreadElement>;
 export type JS3AssignmentExpression_left = JS3MemberExpression | Identifier;
-export type JS3AssignmentExpression_right = Identifier | JS3Literals;
+export type JS3AssignmentExpression_right = Identifier | JS3CallExpression | JS3Literals;
 export type JS3BinaryExpression_left = Identifier | PrivateName;
 export type JS3BinaryExpression_right = Identifier;
 export type JS3BlockStatement_body = Array<JS3AllowedBlockStatement>;

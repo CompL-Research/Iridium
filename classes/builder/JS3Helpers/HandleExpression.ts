@@ -7,6 +7,7 @@ import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3Arr
 import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3LogicalExpression_left, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3SequenceExpression, JS3SequenceExpression_expressions, JS3SpreadElement, JS3SpreadElement_argument, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
 
 import { isArgumentPlaceholder, isSpreadElement, isTSTypeParameterInstantiation, isTypeParameterInstantiation, isV8IntrinsicIdentifier } from "@babel/types";
+import { lowerComputedKey } from "./GenericConstructs.ts";
 import { handleBlockStatement } from "./HandleBlocks.ts";
 import { handleClassBody } from "./HandleClassDeclaration.ts";
 import { JS3CallExpression_arguments, JS3CallExpression_typeArguments, JS3CallExpression_typeParameters } from "./JS3Types.ts";
@@ -43,7 +44,7 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     otherProps.others.holder.push(assnExpr)
 
     resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, assnExpr.left);
+    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, assnExpr.right);
     otherProps.others.holder.push(varDecl)
     // ========================================================================================
   } else if (isBinaryExpression(node)) {
@@ -963,9 +964,13 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
   // 2 fallthrough props, 2 restricted props
   let orig_left = node.left; // Handling prop left
   let fin_left: JS3AssignmentExpression_left; // Handling prop left
+
+  let isMemberExpressionContext = false
+
   if (isIdentifier(orig_left)) {
     fin_left = orig_left
   } else if (isMemberExpression(orig_left)) {
+    isMemberExpressionContext = true
     fin_left = handleMemberExpression(orig_left, otherProps)
   } else if (isRestElement(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->RestElement");
@@ -1060,12 +1065,15 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
     const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
     
-    let rvalEvaled;
+    let rvalEvaled : JS3AssignmentExpression_right;
     let orig_right = node.right; // Handling prop right
     if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
       rvalEvaled = orig_right
     } else if (isExpression(orig_right)) {
-      rvalEvaled = handleExpression(node.right, updatedProps);
+      if (isMemberExpressionContext)
+        rvalEvaled = lowerComputedKey(node.right, updatedProps);
+      else
+        rvalEvaled = handleExpression(node.right, updatedProps);
     }
     
     // rVal$resHolder = rVal$res
@@ -1097,7 +1105,10 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
     if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
       rvalEvaled = orig_right
     } else if (isExpression(orig_right)) {
-      rvalEvaled = handleExpression(node.right, updatedProps);
+      if (isMemberExpressionContext)
+        rvalEvaled = lowerComputedKey(node.right, updatedProps);
+      else
+        rvalEvaled = handleExpression(node.right, updatedProps);
     }
     
     // rVal$resHolder = rVal$res
@@ -1132,7 +1143,11 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
     if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
       rvalEvaled = orig_right
     } else if (isExpression(orig_right)) {
-      rvalEvaled = handleExpression(node.right, updatedProps);
+      if (isMemberExpressionContext)
+        rvalEvaled = lowerComputedKey(node.right, updatedProps);
+      else
+        rvalEvaled = handleExpression(node.right, updatedProps);
+      
     }
     
     // rVal$resHolder = rVal$res
@@ -1165,7 +1180,10 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
     if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
       fin_right = orig_right
     } else if (isExpression(orig_right)) {
-      fin_right = handleExpression(orig_right, otherProps)
+      if (isMemberExpressionContext)
+        fin_right = lowerComputedKey(node.right, otherProps);
+      else
+        fin_right = handleExpression(node.right, otherProps);
     }
     result = generateJS3AssignmentExpression(fin_left, fin_right, node);
   }
