@@ -323,10 +323,43 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
   let fin_arguments: JS3CallExpression_arguments = new Array(); // Handling prop arguments
   if (Array.isArray(orig_arguments)) {
     for (const _arrProp of orig_arguments) {
-      if (isExpression(_arrProp)) {
-        fin_arguments.push(handleExpression(_arrProp, otherProps))
+      
+      if (isDecimalLiteral(_arrProp) || isBigIntLiteral(_arrProp) || isStringLiteral(_arrProp) || isNumericLiteral(_arrProp) || isNullLiteral(_arrProp) || isBooleanLiteral(_arrProp)) {
+        fin_arguments.push(_arrProp)
       } else if (isSpreadElement(_arrProp)) {
         fin_arguments.push(handleSpreadElement(_arrProp, otherProps))
+      } else if (isExpression(_arrProp)) {
+
+        // 
+        // let arg_res_holder;
+        // 
+        // if (fin_callee) {
+        //   arg_res_holder = ..._arrProp
+        // }
+        // 
+        // ...
+        // 
+        // 
+        // fin_callee(arg_res_holder...)
+
+        const arg_res_holder = generateIdentifier(_arrProp, otherProps.getNewTemporary(otherProps.others.prefix))
+        const varDecl = generateDummyJS3VariableDeclaration(_arrProp, arg_res_holder, null);
+        otherProps.others.holder.push(varDecl)
+
+        const ifCondBody : JS3BlockStatement_body = new Array()
+        const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: ifCondBody } }
+        const arrPropRes = handleExpression(_arrProp, updatedProps)
+
+        const updateArgRes = generateJS3AssignmentExpressionfromBaseNode(arg_res_holder, arrPropRes, "=", _arrProp);
+        ifCondBody.push(updateArgRes)
+
+        const ifCondBodyNode = generateJS3BlockStatementfromBaseNode(ifCondBody, new Array(), _arrProp)
+        const ifStmt = generateJS3IfStatementfromBaseNode(fin_callee, ifCondBodyNode, null, _arrProp);
+
+        otherProps.others.holder.push(ifStmt)
+
+        fin_arguments.push(arg_res_holder)
+
       } else if (isArgumentPlaceholder(_arrProp)) {
         debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}[arguments]->ArgumentPlaceholder`);
       }
@@ -935,7 +968,15 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
     const blockHolder: JS3BlockStatement_body = new Array()
     const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
-    const rvalEvaled = handleExpression(node.right, updatedProps);
+    
+    let rvalEvaled;
+    let orig_right = node.right; // Handling prop right
+    if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
+      rvalEvaled = orig_right
+    } else if (isExpression(orig_right)) {
+      rvalEvaled = handleExpression(node.right, updatedProps);
+    }
+    
     // rVal$resHolder = rVal$res
     const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
     blockHolder.push(updateRes)
@@ -959,7 +1000,15 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
     const blockHolder: JS3BlockStatement_body = new Array()
     const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
-    const rvalEvaled = handleExpression(node.right, updatedProps);
+    
+    let rvalEvaled;
+    let orig_right = node.right; // Handling prop right
+    if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
+      rvalEvaled = orig_right
+    } else if (isExpression(orig_right)) {
+      rvalEvaled = handleExpression(node.right, updatedProps);
+    }
+    
     // rVal$resHolder = rVal$res
     const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
     blockHolder.push(updateRes)
@@ -986,7 +1035,15 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
     const blockHolder: JS3BlockStatement_body = new Array()
     const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
-    const rvalEvaled = handleExpression(node.right, updatedProps);
+    
+    let rvalEvaled;
+    let orig_right = node.right; // Handling prop right
+    if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
+      rvalEvaled = orig_right
+    } else if (isExpression(orig_right)) {
+      rvalEvaled = handleExpression(node.right, updatedProps);
+    }
+    
     // rVal$resHolder = rVal$res
     const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
     blockHolder.push(updateRes)
@@ -1014,7 +1071,9 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
   } else {
     let orig_right = node.right; // Handling prop right
     let fin_right: JS3AssignmentExpression_right; // Handling prop right
-    if (isExpression(orig_right)) {
+    if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
+      fin_right = orig_right
+    } else if (isExpression(orig_right)) {
       fin_right = handleExpression(orig_right, otherProps)
     }
     result = generateJS3AssignmentExpression(fin_left, fin_right, node);

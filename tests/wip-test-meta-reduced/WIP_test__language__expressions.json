@@ -26,15 +26,35 @@
         },
         {
             "file": "test262/test/language/expressions/logical-assignment/lgcl-nullish-assignment-operator-namedevaluation-function.js",
-            "cmd": "UNSUPPORTED: #1"
+            "reason": "UNSUPPORTED: #1"
         },
         {
             "file": "test262/test/language/expressions/logical-assignment/lgcl-nullish-assignment-operator-namedevaluation-arrow-function.js",
-            "cmd": "UNSUPPORTED: #1"
+            "reason": "UNSUPPORTED: #1"
         },
         {
             "file": "test262/test/language/expressions/logical-assignment/lgcl-and-assignment-operator-namedevaluation-class-expression.js",
-            "cmd": "UNSUPPORTED: #1"
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/logical-assignment/lgcl-or-assignment-operator-namedevaluation-class-expression.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/logical-assignment/lgcl-and-assignment-operator-namedevaluation-arrow-function.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/logical-assignment/lgcl-or-assignment-operator-namedevaluation-function.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/logical-assignment/lgcl-and-assignment-operator-namedevaluation-function.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/logical-assignment/lgcl-nullish-assignment-operator-namedevaluation-class-expression.js",
+            "reason": "UNSUPPORTED: #1"
         }
     ],
     "passed": [
@@ -2587,10 +2607,7 @@
             "file": "test262/test/language/expressions/logical-assignment/left-hand-side-private-reference-data-property-short-circuit-or.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/logical-assignment/lgcl-or-assignment-operator-namedevaluation-class-expression.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+        
         
         {
             "file": "test262/test/language/expressions/logical-assignment/left-hand-side-private-reference-accessor-property-or.js",
@@ -2625,14 +2642,8 @@
             "file": "test262/test/language/expressions/logical-assignment/left-hand-side-private-reference-readonly-accessor-property-short-circuit-or.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/logical-assignment/lgcl-or-assignment-operator-namedevaluation-function.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/logical-assignment/lgcl-and-assignment-operator-namedevaluation-arrow-function.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+        
+        
         {
             "file": "test262/test/language/expressions/logical-assignment/left-hand-side-private-reference-accessor-property-nullish.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
@@ -2641,10 +2652,7 @@
             "file": "test262/test/language/expressions/logical-assignment/left-hand-side-private-reference-method-short-circuit-nullish.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/logical-assignment/lgcl-and-assignment-operator-namedevaluation-function.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+        
         {
             "file": "test262/test/language/expressions/logical-assignment/lgcl-nullish-assignment-operator-lhs-before-rhs.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
@@ -2653,10 +2661,7 @@
             "file": "test262/test/language/expressions/logical-assignment/left-hand-side-private-reference-data-property-short-circuit-nullish.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/logical-assignment/lgcl-nullish-assignment-operator-namedevaluation-class-expression.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+        
         {
             "file": "test262/test/language/expressions/logical-assignment/left-hand-side-private-reference-accessor-property-and.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
