@@ -119,6 +119,10 @@
         {
             "file": "test262/test/language/expressions/object/fn-name-arrow.js",
             "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/class/elements/class-name-static-initializer-anonymous.js",
+            "reason": "UNSUPPORTED: #1"
         }
     ],
     "passed": [
@@ -6139,10 +6143,7 @@
             "file": "test262/test/language/expressions/class/elements/wrapped-in-sc-rs-field-identifier.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/class/elements/class-name-static-initializer-anonymous.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+        
         {
             "file": "test262/test/language/expressions/class/elements/after-same-line-gen-rs-field-identifier.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "

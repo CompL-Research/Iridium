@@ -1,6 +1,6 @@
 import { ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isBlockStatement, isClassAccessorProperty, isClassBody, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecorator, isExpression, isIdentifier, isInterfaceExtends, isNoop, isPattern, isRestElement, isStaticBlock, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance } from "@babel/types";
 import { generateJS3ClassBody, generateJS3ClassDeclaration, generateJS3ClassMethod, generateJS3ClassPrivateMethod, generateJS3ClassPrivateProperty, generateJS3ClassProperty } from "./JS3Constructors.ts";
-import { JS3ClassBody, JS3ClassBody_body, JS3ClassDeclaration, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superClass, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassPrivateMethod, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, JS3ClassPrivateProperty, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_variance, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_value, JS3ClassProperty_variance } from "./JS3Types.ts";
+import { JS3ClassBody, JS3ClassBody_body, JS3ClassDeclaration, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superClass, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassPrivateMethod, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, JS3ClassPrivateProperty, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_variance, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_variance } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
 import { JS3BuilderUtils } from "../JS3Builder.ts";
@@ -8,7 +8,6 @@ import { JS3BuilderUtils } from "../JS3Builder.ts";
 import assert from 'node:assert';
 import { lowerComputedKey } from "./GenericConstructs.ts";
 import { handleBlockStatement } from "./HandleBlocks.ts";
-import { handleExpression } from "./HandleExpression.ts";
 
 const isnull = (a) => a === null;
 const isundefined = (a) => a === undefined;
@@ -25,9 +24,17 @@ export function handleClassDeclaration(node: ClassDeclaration, otherProps: Other
   let orig_superClass = node.superClass; // Handling prop superClass
   let fin_superClass: JS3ClassDeclaration_superClass = null; // Handling prop superClass
   if (isExpression(orig_superClass)) {
-    // We can spill as directed by the parent class 
-    fin_superClass = handleExpression(orig_superClass, otherProps)
+    fin_superClass = orig_superClass
   }
+  //
+  // This mostly works but breaks a few tests, because spilling breaks scoping for functions :(
+  // Failing Test:
+  // https://github.com/tc39/test262/blob/main/test/language/expressions/class/scope-name-lex-open-heritage.js
+  // 
+  // if (isExpression(orig_superClass)) {
+  //   // We can spill as directed by the parent class 
+  //   fin_superClass = handleExpression(orig_superClass, otherProps)
+  // }
   let orig_body = node.body; // Handling prop body
   let fin_body: JS3ClassDeclaration_body; // Handling prop body
   if (isClassBody(orig_body)) {
@@ -133,7 +140,11 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
 
   
   let orig_value = node.value; // Handling prop value
-  let fin_value: JS3ClassProperty_value = lowerComputedKey(orig_value, otherProps); // Handling prop value
+  let fin_value: JS3ClassPrivateProperty_value = orig_value;
+  
+  // = lowerComputedKey(orig_value, otherProps); // <-- This mostly works but breaks super call, due to scoping 
+  // 
+  // test262/test/language/expressions/class/elements/private-derived-cls-direct-eval-contains-superproperty-2.js
 
   
   let orig_typeAnnotation = node.typeAnnotation; // Handling prop typeAnnotation
@@ -171,7 +182,11 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
 export function handleClassPrivateProperty(node: ClassPrivateProperty, otherProps: OtherProps) {
   // 5 fallthrough props, 4 restricted props
   let orig_value = node.value; // Handling prop value
-  let fin_value: JS3ClassPrivateProperty_value = lowerComputedKey(orig_value, otherProps); // Handling prop value
+  let fin_value: JS3ClassPrivateProperty_value = orig_value;
+  
+  // = lowerComputedKey(orig_value, otherProps); // <-- This mostly works but breaks super call, due to scoping 
+  // 
+  // test262/test/language/expressions/class/elements/private-derived-cls-direct-eval-contains-superproperty-2.js
 
   let orig_decorators = node.decorators; // Handling prop decorators
   let fin_decorators: JS3ClassPrivateProperty_decorators = null; // Handling prop decorators

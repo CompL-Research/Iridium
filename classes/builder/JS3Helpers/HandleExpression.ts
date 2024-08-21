@@ -39,12 +39,12 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
   } else if (isAssignmentExpression(node)) {
     // ========================================================================================
     // (LVal = init)
-    // $resultIdentifier = LVal
+    // $resultIdentifier = (LVal = init)
     const assnExpr = handleAssignmentExpression(node, otherProps)
-    otherProps.others.holder.push(assnExpr)
+    // otherProps.others.holder.push(assnExpr)
 
     resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, assnExpr.right);
+    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, assnExpr);
     otherProps.others.holder.push(varDecl)
     // ========================================================================================
   } else if (isBinaryExpression(node)) {
@@ -329,12 +329,14 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
         fin_arguments.push(_arrProp)
       } else if (isSpreadElement(_arrProp)) {
         fin_arguments.push(handleSpreadElement(_arrProp, otherProps))
+      } else if (isCallExpression(_arrProp)) {
+        fin_arguments.push(handleCallExpression(_arrProp, otherProps))
       } else if (isExpression(_arrProp)) {
 
         // 
         // let arg_res_holder;
         // 
-        // if (fin_callee) {
+        // if (fin_callee !== null) {
         //   arg_res_holder = ..._arrProp
         // }
         // 
@@ -355,7 +357,9 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
         ifCondBody.push(updateArgRes)
 
         const ifCondBodyNode = generateJS3BlockStatementfromBaseNode(ifCondBody, new Array(), _arrProp)
-        const ifStmt = generateJS3IfStatementfromBaseNode(fin_callee, ifCondBodyNode, null, _arrProp);
+        // @ts-ignore
+        const ifTest = handleExpression( binaryExpression("!==", fin_callee, nullLiteral()), otherProps )
+        const ifStmt = generateJS3IfStatementfromBaseNode(ifTest, ifCondBodyNode, null, _arrProp);
 
         otherProps.others.holder.push(ifStmt)
 
@@ -1209,8 +1213,11 @@ export function handleUnaryExpression(node: UnaryExpression, otherProps: OtherPr
     if (node.operator === "delete") {
       if (isMemberExpression(orig_argument)) {
         fin_argument = handleMemberExpression(orig_argument, otherProps);
+      } else if (isIdentifier(orig_argument) && orig_argument.name === "arguments") {
+        fin_argument = orig_argument
       } else {
-        fin_argument = handleExpression(orig_argument, otherProps);
+        debugConfig.logger.throwJS3Error("TODO // unsupported UnaryExpression->delete [forms other than member expressions to delete operator are often meaningless]");
+        // fin_argument = handleExpression(orig_argument, otherProps);
       }
     } else if (isIdentifier(orig_argument)) {
       fin_argument = orig_argument
@@ -1289,8 +1296,17 @@ export function handleClassExpression(node: ClassExpression, otherProps: OtherPr
   let orig_superClass = node.superClass; // Handling prop superClass
   let fin_superClass: JS3ClassExpression_superClass = null; // Handling prop superClass
   if (isExpression(orig_superClass)) {
-    fin_superClass = handleExpression(orig_superClass, otherProps)
+    fin_superClass = orig_superClass
   }
+  //
+  // This mostly works but breaks a few tests, because spilling breaks scoping for functions :(
+  // Failing Test:
+  // https://github.com/tc39/test262/blob/main/test/language/expressions/class/scope-name-lex-open-heritage.js
+  // 
+  // if (isExpression(orig_superClass)) {
+  //   // We can spill as directed by the parent class 
+  //   fin_superClass = handleExpression(orig_superClass, otherProps)
+  // }
 
   let orig_body = node.body; // Handling prop body
   let fin_body: JS3ClassExpression_body; // Handling prop body
