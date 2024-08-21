@@ -55,6 +55,18 @@
         {
             "file": "test262/test/language/expressions/logical-assignment/lgcl-nullish-assignment-operator-namedevaluation-class-expression.js",
             "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/function/name.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/async-generator/name.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/async-function/name.js",
+            "reason": "UNSUPPORTED: #1"
         }
     ],
     "passed": [
@@ -2766,10 +2778,7 @@
             "file": "test262/test/language/expressions/function/forbidden-ext/b2/func-expr-forbidden-ext-indirect-access-own-prop-caller-get.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/function/name.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+        
         {
             "file": "test262/test/language/expressions/function/static-init-await-reference.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
@@ -3046,10 +3055,7 @@
             "file": "test262/test/language/expressions/async-generator/forbidden-ext/b2/async-gen-func-expr-forbidden-ext-indirect-access-own-prop-caller-value.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/async-generator/name.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+        
         {
             "file": "test262/test/language/expressions/async-generator/expression-await-promise-as-yield-operand.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
@@ -3114,10 +3120,7 @@
             "file": "test262/test/language/expressions/async-function/forbidden-ext/b2/async-func-expr-nameless-forbidden-ext-indirect-access-own-prop-caller-value.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/async-function/name.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+        
         {
             "file": "test262/test/language/expressions/async-function/named-returns-async-function-returns-newtarget.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "

@@ -794,9 +794,7 @@ export function handleNewExpression(node: NewExpression, otherProps: OtherProps)
   let orig_callee = node.callee; // Handling prop callee
   let fin_callee: JS3NewExpression_callee; // Handling prop callee
 
-  if (isIdentifier(orig_callee)) {
-    fin_callee = orig_callee
-  } else if (isSuper(orig_callee)) {
+  if (isSuper(orig_callee)) {
     fin_callee = orig_callee
   } else if (isV8IntrinsicIdentifier(orig_callee)) {
     fin_callee = orig_callee
