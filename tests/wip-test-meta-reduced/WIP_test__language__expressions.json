@@ -67,6 +67,58 @@
         {
             "file": "test262/test/language/expressions/async-function/name.js",
             "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/fn-name-class.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/fn-name-gen.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/fn-name-fn.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/fn-name-cover.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/fn-name-lhs-member.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/fn-name-lhs-cover.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/fn-name-arrow.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/class/name.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/object/fn-name-gen.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/object/fn-name-fn.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/object/fn-name-class.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/object/fn-name-cover.js",
+            "reason": "UNSUPPORTED: #1"
+        },
+        {
+            "file": "test262/test/language/expressions/object/fn-name-arrow.js",
+            "reason": "UNSUPPORTED: #1"
         }
     ],
     "passed": [
@@ -3477,30 +3529,12 @@
             "file": "test262/test/language/expressions/logical-or/S11.11.2_A2.4_T1.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/assignment/fn-name-gen.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/fn-name-class.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/fn-name-fn.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/fn-name-lhs-member.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/fn-name-cover.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/fn-name-lhs-cover.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+        
+        
+        
+        
+        
+        
         {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-iter-thrw-close-skip.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
@@ -4671,10 +4705,6 @@
         },
         {
             "file": "test262/test/language/expressions/assignment/destructuring/keyed-destructuring-property-reference-target-evaluation-order.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/fn-name-arrow.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -7237,10 +7267,7 @@
             "file": "test262/test/language/expressions/class/async-method-static/forbidden-ext/b2/cls-expr-async-meth-static-forbidden-ext-indirect-access-own-prop-caller-get.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/class/name.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+        
         {
             "file": "test262/test/language/expressions/class/async-gen-method-static/forbidden-ext/b2/cls-expr-async-gen-meth-static-forbidden-ext-indirect-access-own-prop-caller-get.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
@@ -7457,18 +7484,9 @@
             "file": "test262/test/language/expressions/object/cpn-obj-lit-computed-property-name-from-condition-expression-false.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/object/fn-name-gen.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/object/fn-name-class.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/object/fn-name-fn.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+        
+        
+        
         {
             "file": "test262/test/language/expressions/object/identifier-shorthand-static-init-await-valid.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
@@ -7585,10 +7603,7 @@
             "file": "test262/test/language/expressions/object/method-definition/async-gen-yield-spread-obj.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
-        {
-            "file": "test262/test/language/expressions/object/fn-name-cover.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
+        
         {
             "file": "test262/test/language/expressions/object/cpn-obj-lit-computed-property-name-from-condition-expression-true.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
@@ -7600,10 +7615,7 @@
         {
             "file": "test262/test/language/expressions/object/cpn-obj-lit-computed-property-name-from-yield-expression.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/object/fn-name-arrow.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         }
+        
     ]
 }
