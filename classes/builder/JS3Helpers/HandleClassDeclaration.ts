@@ -1,4 +1,4 @@
-import { ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isBlockStatement, isClassAccessorProperty, isClassBody, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecorator, isExpression, isIdentifier, isInterfaceExtends, isNoop, isPattern, isRestElement, isStaticBlock, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance } from "@babel/types";
+import { ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isArrowFunctionExpression, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isClassAccessorProperty, isClassBody, isClassExpression, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecimalLiteral, isDecorator, isExpression, isFunctionExpression, isIdentifier, isInterfaceExtends, isNoop, isNullLiteral, isNumericLiteral, isPattern, isRestElement, isStaticBlock, isStringLiteral, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance } from "@babel/types";
 import { generateJS3ClassBody, generateJS3ClassDeclaration, generateJS3ClassMethod, generateJS3ClassPrivateMethod, generateJS3ClassPrivateProperty, generateJS3ClassProperty } from "./JS3Constructors.ts";
 import { JS3ClassBody, JS3ClassBody_body, JS3ClassDeclaration, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superClass, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassPrivateMethod, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, JS3ClassPrivateProperty, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_variance, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_value, JS3ClassProperty_variance } from "./JS3Types.ts";
 
@@ -8,6 +8,7 @@ import { JS3BuilderUtils } from "../JS3Builder.ts";
 import assert from 'node:assert';
 import { lowerComputedKey } from "./GenericConstructs.ts";
 import { handleBlockStatement } from "./HandleBlocks.ts";
+import { handleArrowFunctionExpression, handleClassExpression, handleFunctionExpression } from "./HandleExpression.ts";
 
 const isnull = (a) => a === null;
 const isundefined = (a) => a === undefined;
@@ -140,7 +141,30 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
 
   
   let orig_value = node.value; // Handling prop value
-  let fin_value: JS3ClassProperty_value = lowerComputedKey(orig_value, otherProps);
+  let fin_value: JS3ClassProperty_value = null
+
+  if (isClassExpression(orig_value)) {
+    fin_value = handleClassExpression(orig_value, otherProps)
+  } else if (isDecimalLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isBigIntLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isStringLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isNumericLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isNullLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isBooleanLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isArrowFunctionExpression(orig_value)) {
+    fin_value = handleArrowFunctionExpression(orig_value, otherProps)
+  } else if (isFunctionExpression(orig_value)) {
+    fin_value = handleFunctionExpression(orig_value, otherProps)
+  } else if (isExpression(orig_value)) {
+    fin_value = lowerComputedKey(orig_value, otherProps);
+  }
+  
   
   // = lowerComputedKey(orig_value, otherProps); // <-- This mostly works but breaks super call, due to scoping 
   // 
@@ -182,8 +206,30 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
 export function handleClassPrivateProperty(node: ClassPrivateProperty, otherProps: OtherProps) {
   // 5 fallthrough props, 4 restricted props
   let orig_value = node.value; // Handling prop value
-  let fin_value: JS3ClassPrivateProperty_value = lowerComputedKey(orig_value, otherProps); // <-- This mostly works but breaks super call, due to scoping 
-  // 
+  let fin_value: JS3ClassPrivateProperty_value = null;
+
+  if (isClassExpression(orig_value)) {
+    fin_value = handleClassExpression(orig_value, otherProps)
+  } else if (isDecimalLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isBigIntLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isStringLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isNumericLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isNullLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isBooleanLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isArrowFunctionExpression(orig_value)) {
+    fin_value = handleArrowFunctionExpression(orig_value, otherProps)
+  } else if (isFunctionExpression(orig_value)) {
+    fin_value = handleFunctionExpression(orig_value, otherProps)
+  } else if (isExpression(orig_value)) {
+    fin_value = lowerComputedKey(orig_value, otherProps);
+  }
+
   // test262/test/language/expressions/class/elements/private-derived-cls-direct-eval-contains-superproperty-2.js
 
   let orig_decorators = node.decorators; // Handling prop decorators

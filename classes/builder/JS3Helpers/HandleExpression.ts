@@ -1,10 +1,10 @@
 
 import debugConfig from "#debugConfig";
-import { ArrayExpression, ArrowFunctionExpression, AssignmentExpression, binaryExpression, BinaryExpression, CallExpression, ClassExpression, Expression, FunctionExpression, identifier, Identifier, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassBody, isClassExpression, isClassImplements, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDecorator, isDoExpression, isExpression, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isInterfaceExtends, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPattern, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSExpressionWithTypeArguments, isTSInstantiationExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSType, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, logicalExpression, LogicalExpression, MemberExpression, NewExpression, nullLiteral, ObjectExpression, ObjectMethod, ObjectProperty, SequenceExpression, SpreadElement, TemplateLiteral, unaryExpression, UnaryExpression, UpdateExpression, YieldExpression } from "@babel/types";
+import { ArrayExpression, ArrowFunctionExpression, AssignmentExpression, binaryExpression, BinaryExpression, CallExpression, ClassExpression, Expression, FunctionExpression, identifier, Identifier, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassBody, isClassExpression, isClassImplements, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDecorator, isDoExpression, isExpression, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isInterfaceExtends, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPattern, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSExpressionWithTypeArguments, isTSInstantiationExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSType, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, logicalExpression, LogicalExpression, MemberExpression, NewExpression, nullLiteral, numericLiteral, ObjectExpression, ObjectMethod, ObjectProperty, SequenceExpression, SpreadElement, TemplateLiteral, unaryExpression, UnaryExpression, UpdateExpression, YieldExpression } from "@babel/types";
 import assert from 'node:assert';
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3BinaryExpression, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3ClassExpression, generateJS3FunctionExpression, generateJS3IfStatementfromBaseNode, generateJS3MemberExpression, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3ReturnStatementfromBaseNode, generateJS3SequenceExpression, generateJS3SpreadElement, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3YieldExpression } from "./JS3Constructors.ts";
-import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3LogicalExpression_left, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3SequenceExpression, JS3SequenceExpression_expressions, JS3SpreadElement, JS3SpreadElement_argument, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
+import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AnonArrayExpressionfromBaseNode, generateJS3AnonMemberExpressionfromBaseNode, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3BinaryExpression, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3ClassExpression, generateJS3FunctionExpression, generateJS3IfStatementfromBaseNode, generateJS3MemberExpression, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3ReturnStatementfromBaseNode, generateJS3SequenceExpression, generateJS3SpreadElement, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3YieldExpression } from "./JS3Constructors.ts";
+import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3LogicalExpression_left, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3SequenceExpression, JS3SequenceExpression_expressions, JS3SpreadElement, JS3SpreadElement_argument, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
 
 import { isArgumentPlaceholder, isSpreadElement, isTSTypeParameterInstantiation, isTypeParameterInstantiation, isV8IntrinsicIdentifier } from "@babel/types";
 import { lowerComputedKey } from "./GenericConstructs.ts";
@@ -335,49 +335,97 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
         fin_arguments.push(handleSpreadElement(_arrProp, otherProps))
       } else if (isCallExpression(_arrProp)) {
         fin_arguments.push(handleCallExpression(_arrProp, otherProps))
+      } else if (isFunctionExpression(_arrProp)) {
+        // Translate it into a MemberExpression
+        const fnExpr = handleFunctionExpression(_arrProp, otherProps);
+
+        const holder: Array<JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression> = new Array();
+
+        holder.push(fnExpr);
+
+        // [ function { ... } ]
+        const arrNode = generateJS3AnonArrayExpressionfromBaseNode(holder, _arrProp)
+
+        // [ function { ... } ] [0]
+        const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, _arrProp)
+
+        fin_arguments.push(anonArrExpr)
+      } else if (isArrowFunctionExpression(_arrProp)) {
+        // Translate it into a MemberExpression
+        const arrfnExpr = handleArrowFunctionExpression(_arrProp, otherProps);
+
+        const holder: Array<JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression> = new Array();
+
+        holder.push(arrfnExpr);
+
+        // [ () => { ... } ]
+        const arrNode = generateJS3AnonArrayExpressionfromBaseNode(holder, _arrProp)
+
+        // [ () => { ... } ] [0]
+        const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, _arrProp)
+
+        fin_arguments.push(anonArrExpr)
+      } else if (isClassExpression(_arrProp)) {
+        // Translate it into a MemberExpression
+        const classExpr = handleClassExpression(_arrProp, otherProps);
+
+        const holder: Array<JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression> = new Array();
+
+        holder.push(classExpr);
+
+        // [ class x { ... } ]
+        const arrNode = generateJS3AnonArrayExpressionfromBaseNode(holder, _arrProp)
+
+        // [ class x { ... } ] [0]
+        const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, _arrProp)
+
+        fin_arguments.push(anonArrExpr)
       } else if (isExpression(_arrProp)) {
 
-        // 
-        // Super keyword does not support the current lowering scheme for arguments, we will keep this exception until things break
-        // 
-        // test262/test/language/expressions/super/call-proto-not-ctor.js
-        // 
-        if (isSuperCall) {
-          fin_arguments.push(handleExpression(_arrProp, otherProps))
-          continue;
-        }
+        // Holder
+        fin_arguments.push(lowerComputedKey(_arrProp, otherProps))
 
-        // 
-        // let arg_res_holder;
-        // 
-        // if (fin_callee !== null) {
-        //   arg_res_holder = ..._arrProp
+        // // 
+        // // Super keyword does not support the current lowering scheme for arguments, we will keep this exception until things break
+        // // 
+        // // test262/test/language/expressions/super/call-proto-not-ctor.js
+        // // 
+        // if (isSuperCall) {
+        //   fin_arguments.push(handleExpression(_arrProp, otherProps))
+        //   continue;
         // }
-        // 
-        // ...
-        // 
-        // 
-        // fin_callee(arg_res_holder...)
 
-        const arg_res_holder = generateIdentifier(_arrProp, otherProps.getNewTemporary(otherProps.others.prefix))
-        const varDecl = generateDummyJS3VariableDeclaration(_arrProp, arg_res_holder, null);
-        otherProps.others.holder.push(varDecl)
+        // // 
+        // // let arg_res_holder;
+        // // 
+        // // if (fin_callee !== null) {
+        // //   arg_res_holder = ..._arrProp
+        // // }
+        // // 
+        // // ...
+        // // 
+        // // 
+        // // fin_callee(arg_res_holder...)
 
-        const ifCondBody: JS3BlockStatement_body = new Array()
-        const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: ifCondBody } }
-        const arrPropRes = handleExpression(_arrProp, updatedProps)
+        // const arg_res_holder = generateIdentifier(_arrProp, otherProps.getNewTemporary(otherProps.others.prefix))
+        // const varDecl = generateDummyJS3VariableDeclaration(_arrProp, arg_res_holder, null);
+        // otherProps.others.holder.push(varDecl)
 
-        const updateArgRes = generateJS3AssignmentExpressionfromBaseNode(arg_res_holder, arrPropRes, "=", _arrProp);
-        ifCondBody.push(updateArgRes)
+        // const ifCondBody: JS3BlockStatement_body = new Array()
+        // const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: ifCondBody } }
+        // const arrPropRes = handleExpression(_arrProp, updatedProps)
 
-        const ifCondBodyNode = generateJS3BlockStatementfromBaseNode(ifCondBody, new Array(), _arrProp)
-        // @ts-ignore
-        const ifTest = handleExpression(binaryExpression("!==", fin_callee, nullLiteral()), otherProps)
-        const ifStmt = generateJS3IfStatementfromBaseNode(ifTest, ifCondBodyNode, null, _arrProp);
+        // const updateArgRes = generateJS3AssignmentExpressionfromBaseNode(arg_res_holder, arrPropRes, "=", _arrProp);
+        // ifCondBody.push(updateArgRes)
 
-        otherProps.others.holder.push(ifStmt)
+        // const ifCondBodyNode = generateJS3BlockStatementfromBaseNode(ifCondBody, new Array(), _arrProp)
+        // // @ts-ignore
+        // const ifTest = handleExpression(binaryExpression("!==", fin_callee, nullLiteral()), otherProps)
+        // const ifStmt = generateJS3IfStatementfromBaseNode(ifTest, ifCondBodyNode, null, _arrProp);
 
-        fin_arguments.push(arg_res_holder)
+        // otherProps.others.holder.push(ifStmt)
+
+        // fin_arguments.push(arg_res_holder)
 
       } else if (isArgumentPlaceholder(_arrProp)) {
         debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}[arguments]->ArgumentPlaceholder`);
@@ -549,6 +597,24 @@ export function handleObjectProperty(node: ObjectProperty, otherProps: OtherProp
   let fin_value: JS3ObjectProperty_value; // Handling prop value
   if (isIdentifier(orig_value)) {
     fin_value = orig_value
+  } else if (isClassExpression(orig_value)) {
+    fin_value = handleClassExpression(orig_value, otherProps)
+  } else if (isDecimalLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isBigIntLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isStringLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isNumericLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isNullLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isBooleanLiteral(orig_value)) {
+    fin_value = orig_value
+  } else if (isArrowFunctionExpression(orig_value)) {
+    fin_value = handleArrowFunctionExpression(orig_value, otherProps)
+  } else if (isFunctionExpression(orig_value)) {
+    fin_value = handleFunctionExpression(orig_value, otherProps)
   } else if (isExpression(orig_value)) {
     fin_value = handleExpression(orig_value, otherProps)
   } else if (isRestElement(orig_value)) {
@@ -1067,180 +1133,227 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
   //      rVal$resHolder = ...rVal
   //   }
   //   lVal$res = rVal$ResHolder
-  // 
+  //
 
-  let result: JS3AssignmentExpression;
-  if (node.operator === "&&=") {
-    // rVal$resHolder = lVal$res
-    const rValFinalResHolder = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-    const lValRes = fin_left;
-    const varDecl = generateDummyJS3VariableDeclaration(node, rValFinalResHolder, lValRes);
-    otherProps.others.holder.push(varDecl)
 
-    // Spill RHS into a temporary block
-    // { BODY }
-    const blockHolder: JS3BlockStatement_body = new Array()
-    const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
-    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
+  let orig_right = node.right; // Handling prop right
+  let fin_right: JS3AssignmentExpression_right; // Handling prop right
 
-    let rvalEvaled: JS3AssignmentExpression_right;
-    let orig_right = node.right; // Handling prop right
-    if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
-      rvalEvaled = orig_right
-    } else if (isArrowFunctionExpression(orig_right)) {
-      rvalEvaled = handleArrowFunctionExpression(orig_right, updatedProps);
-    } else if (isFunctionExpression(orig_right)) {
-      rvalEvaled = handleFunctionExpression(orig_right, updatedProps);
-    } else if (isClassExpression(orig_right)) {
-      rvalEvaled = handleClassExpression(orig_right, updatedProps);
-    } else if (isThisExpression(orig_right)) {
-      rvalEvaled = orig_right
-    } else if (isExpression(orig_right)) {
-      if (isMemberExpressionContext) {
-        rvalEvaled = lowerComputedKey(node.right, updatedProps);
-      } else {
-        rvalEvaled = handleExpression(node.right, updatedProps);
-      }
-    }
+  if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
+    fin_right = orig_right
+    return generateJS3AssignmentExpression(fin_left, fin_right, node);
+  } else if (isArrowFunctionExpression(orig_right)) {
+    fin_right = handleArrowFunctionExpression(orig_right, otherProps);
+    return generateJS3AssignmentExpression(fin_left, fin_right, node);
+  } else if (isFunctionExpression(orig_right)) {
+    fin_right = handleFunctionExpression(orig_right, otherProps);
+    return generateJS3AssignmentExpression(fin_left, fin_right, node);
+  } else if (isClassExpression(orig_right)) {
+    fin_right = handleClassExpression(orig_right, otherProps);
+    return generateJS3AssignmentExpression(fin_left, fin_right, node);
+  } else if (isThisExpression(orig_right)) {
+    fin_right = orig_right
+    return generateJS3AssignmentExpression(fin_left, fin_right, node);
+  } else if (isExpression(orig_right)) {
 
-    // rVal$resHolder = rVal$res
-    const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
-    blockHolder.push(updateRes)
-
-    // If (lVal$res) { BODY }
-    const bCondTrue = handleExpression(lValRes, otherProps)
-    const ifStmt = generateJS3IfStatementfromBaseNode(bCondTrue, condBody, null, node)
-
-    otherProps.others.holder.push(ifStmt)
-
-    result = generateJS3AssignmentExpression(lValRes, rValFinalResHolder, node);
-  } else if (node.operator === "||=") {
-    // rVal$resHolder = lVal$res
-    const rValFinalResHolder = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-    const lValRes = fin_left;
-    const varDecl = generateDummyJS3VariableDeclaration(node, rValFinalResHolder, lValRes);
-    otherProps.others.holder.push(varDecl)
-
-    // Spill RHS into a temporary block
-    // { BODY }
-    const blockHolder: JS3BlockStatement_body = new Array()
-    const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
-    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
-
-    let rvalEvaled;
-    let orig_right = node.right; // Handling prop right
-    if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
-      rvalEvaled = orig_right
-    } else if (isArrowFunctionExpression(orig_right)) {
-      rvalEvaled = handleArrowFunctionExpression(orig_right, updatedProps);
-    } else if (isFunctionExpression(orig_right)) {
-      rvalEvaled = handleFunctionExpression(orig_right, updatedProps);
-    } else if (isClassExpression(orig_right)) {
-      rvalEvaled = handleClassExpression(orig_right, updatedProps);
-    } else if (isThisExpression(orig_right)) {
-      rvalEvaled = orig_right
-    } else if (isExpression(orig_right)) {
-      if (isMemberExpressionContext) {
-        rvalEvaled = lowerComputedKey(node.right, updatedProps);
-      } else {
-        rvalEvaled = handleExpression(node.right, updatedProps);
-      }
-    }
-
-    // rVal$resHolder = rVal$res
-    const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
-    blockHolder.push(updateRes)
-
-    // if ( !TEST1 ) { BODY }
-    const bCondFalse = handleExpression(unaryExpression("!", lValRes), otherProps)
-    const ifStmt = generateJS3IfStatementfromBaseNode(bCondFalse, condBody, null, node)
-
-    otherProps.others.holder.push(ifStmt)
-
-    result = generateJS3AssignmentExpression(lValRes, rValFinalResHolder, node);
-  } else if (node.operator === "??=") {
-
-    // debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression: ??= operator");
-
-    // rVal$resHolder = lVal$res
-    const rValFinalResHolder = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-    const lValRes = fin_left;
-    const varDecl = generateDummyJS3VariableDeclaration(node, rValFinalResHolder, lValRes);
-    otherProps.others.holder.push(varDecl)
-
-    // Spill RHS into a temporary block
-    // { BODY }
-    const blockHolder: JS3BlockStatement_body = new Array()
-    const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
-    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
-
-    let rvalEvaled;
-    let orig_right = node.right; // Handling prop right
-    if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
-      rvalEvaled = orig_right
-    } else if (isArrowFunctionExpression(orig_right)) {
-      rvalEvaled = handleArrowFunctionExpression(orig_right, updatedProps);
-    } else if (isFunctionExpression(orig_right)) {
-      rvalEvaled = handleFunctionExpression(orig_right, updatedProps);
-    } else if (isClassExpression(orig_right)) {
-      rvalEvaled = handleClassExpression(orig_right, updatedProps);
-    } else if (isThisExpression(orig_right)) {
-      rvalEvaled = orig_right
-    } else if (isExpression(orig_right)) {
-      if (isMemberExpressionContext) {
-        rvalEvaled = lowerComputedKey(node.right, updatedProps);
-      } else {
-        rvalEvaled = handleExpression(node.right, updatedProps);
-      }
-    }
-
-    // rVal$resHolder = rVal$res
-    const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
-    blockHolder.push(updateRes)
-
-    // if (TEST1 || TEST2) { BODY }
-    // 
-    // TEST1
-    const bCondTestUndef = handleExpression(
-      binaryExpression("===", fin_left, identifier("undefined")), otherProps
-    )
-    // TEST2
-    const bCondTestNull = handleExpression(
-      binaryExpression("===", fin_left, nullLiteral()), otherProps
-    )
-    // TEST1 || TEST2
-    const bCondTest = handleExpression(
-      logicalExpression("||", bCondTestUndef, bCondTestNull), otherProps
-    )
-
-    const ifStmt = generateJS3IfStatementfromBaseNode(bCondTest, condBody, null, node)
-
-    otherProps.others.holder.push(ifStmt)
-
-    result = generateJS3AssignmentExpression(fin_left, rValFinalResHolder, node);
-  } else {
-    let orig_right = node.right; // Handling prop right
-    let fin_right: JS3AssignmentExpression_right; // Handling prop right
-    if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
-      fin_right = orig_right
-    } else if (isArrowFunctionExpression(orig_right)) {
-      fin_right = handleArrowFunctionExpression(orig_right, otherProps);
-    } else if (isFunctionExpression(orig_right)) {
-      fin_right = handleFunctionExpression(orig_right, otherProps);
-    } else if (isClassExpression(orig_right)) {
-      fin_right = handleClassExpression(orig_right, otherProps);
-    } else if (isThisExpression(orig_right)) {
-      fin_right = orig_right
-    } else if (isExpression(orig_right)) {
+    if (!(node.operator === "&&=" || node.operator === "||=" || node.operator === "??=")) {
+      let fin_right: JS3AssignmentExpression_right; // Handling prop right
       if (isMemberExpressionContext) {
         fin_right = lowerComputedKey(node.right, otherProps);
       } else {
         fin_right = handleExpression(node.right, otherProps);
       }
+
+      return generateJS3AssignmentExpression(fin_left, fin_right, node);
     }
-    result = generateJS3AssignmentExpression(fin_left, fin_right, node);
+
+    // rVal$resHolder = lVal$res
+    const rValFinalResHolder = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+    const lValRes = fin_left;
+    const varDecl = generateDummyJS3VariableDeclaration(node, rValFinalResHolder, lValRes);
+    otherProps.others.holder.push(varDecl)
+
+    // Spill RHS into a temporary block
+    // { BODY }
+    const blockHolder: JS3BlockStatement_body = new Array()
+    const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
+    let rvalEvaled: JS3AssignmentExpression_right;
+
+    if (isMemberExpressionContext) {
+      rvalEvaled = lowerComputedKey(node.right, updatedProps);
+    } else {
+      rvalEvaled = handleExpression(node.right, updatedProps);
+    }
+
+    // rVal$resHolder = rVal$res
+    const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
+    blockHolder.push(updateRes)
+
+    if (node.operator === "&&=") {
+      // If (lVal$res) { BODY }
+      const bCondTrue = handleExpression(lValRes, otherProps)
+      const ifStmt = generateJS3IfStatementfromBaseNode(bCondTrue, condBody, null, node)
+
+      otherProps.others.holder.push(ifStmt)
+      return generateJS3AssignmentExpression(lValRes, rValFinalResHolder, node);
+
+    } else if (node.operator === "||=") {
+      // if ( !TEST1 ) { BODY }
+      const bCondFalse = handleExpression(unaryExpression("!", lValRes), otherProps)
+      const ifStmt = generateJS3IfStatementfromBaseNode(bCondFalse, condBody, null, node)
+
+      otherProps.others.holder.push(ifStmt)
+      return generateJS3AssignmentExpression(lValRes, rValFinalResHolder, node);
+    } else if (node.operator === "??=") {
+      // if (TEST1 || TEST2) { BODY }
+      // TEST1
+      const bCondTestUndef = handleExpression(
+        binaryExpression("===", fin_left, identifier("undefined")), otherProps
+      )
+      // TEST2
+      const bCondTestNull = handleExpression(
+        binaryExpression("===", fin_left, nullLiteral()), otherProps
+      )
+      // TEST1 || TEST2
+      const bCondTest = handleExpression(
+        logicalExpression("||", bCondTestUndef, bCondTestNull), otherProps
+      )
+
+      const ifStmt = generateJS3IfStatementfromBaseNode(bCondTest, condBody, null, node)
+
+      otherProps.others.holder.push(ifStmt)
+      return generateJS3AssignmentExpression(fin_left, rValFinalResHolder, node);
+    }
   }
-  return result
+  // let result: JS3AssignmentExpression;
+  // if (node.operator === "||=") {
+  //   // rVal$resHolder = lVal$res
+  //   const rValFinalResHolder = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+  //   const lValRes = fin_left;
+  //   const varDecl = generateDummyJS3VariableDeclaration(node, rValFinalResHolder, lValRes);
+  //   otherProps.others.holder.push(varDecl)
+
+  //   // Spill RHS into a temporary block
+  //   // { BODY }
+  //   const blockHolder: JS3BlockStatement_body = new Array()
+  //   const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
+  //   const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
+
+  //   let rvalEvaled;
+  //   let orig_right = node.right; // Handling prop right
+  //   if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
+  //     rvalEvaled = orig_right
+  //   } else if (isArrowFunctionExpression(orig_right)) {
+  //     rvalEvaled = handleArrowFunctionExpression(orig_right, updatedProps);
+  //   } else if (isFunctionExpression(orig_right)) {
+  //     rvalEvaled = handleFunctionExpression(orig_right, updatedProps);
+  //   } else if (isClassExpression(orig_right)) {
+  //     rvalEvaled = handleClassExpression(orig_right, updatedProps);
+  //   } else if (isThisExpression(orig_right)) {
+  //     rvalEvaled = orig_right
+  //   } else if (isExpression(orig_right)) {
+  //     if (isMemberExpressionContext) {
+  //       rvalEvaled = lowerComputedKey(node.right, updatedProps);
+  //     } else {
+  //       rvalEvaled = handleExpression(node.right, updatedProps);
+  //     }
+  //   }
+
+  //   // rVal$resHolder = rVal$res
+  //   const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
+  //   blockHolder.push(updateRes)
+
+  //   // if ( !TEST1 ) { BODY }
+  //   const bCondFalse = handleExpression(unaryExpression("!", lValRes), otherProps)
+  //   const ifStmt = generateJS3IfStatementfromBaseNode(bCondFalse, condBody, null, node)
+
+  //   otherProps.others.holder.push(ifStmt)
+
+  //   result = generateJS3AssignmentExpression(lValRes, rValFinalResHolder, node);
+  // } else if (node.operator === "??=") {
+
+  //   // debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression: ??= operator");
+
+  //   // rVal$resHolder = lVal$res
+  //   const rValFinalResHolder = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+  //   const lValRes = fin_left;
+  //   const varDecl = generateDummyJS3VariableDeclaration(node, rValFinalResHolder, lValRes);
+  //   otherProps.others.holder.push(varDecl)
+
+  //   // Spill RHS into a temporary block
+  //   // { BODY }
+  //   const blockHolder: JS3BlockStatement_body = new Array()
+  //   const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
+  //   const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
+
+  //   let rvalEvaled;
+  //   let orig_right = node.right; // Handling prop right
+  //   if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
+  //     rvalEvaled = orig_right
+  //   } else if (isArrowFunctionExpression(orig_right)) {
+  //     rvalEvaled = handleArrowFunctionExpression(orig_right, updatedProps);
+  //   } else if (isFunctionExpression(orig_right)) {
+  //     rvalEvaled = handleFunctionExpression(orig_right, updatedProps);
+  //   } else if (isClassExpression(orig_right)) {
+  //     rvalEvaled = handleClassExpression(orig_right, updatedProps);
+  //   } else if (isThisExpression(orig_right)) {
+  //     rvalEvaled = orig_right
+  //   } else if (isExpression(orig_right)) {
+  //     if (isMemberExpressionContext) {
+  //       rvalEvaled = lowerComputedKey(node.right, updatedProps);
+  //     } else {
+  //       rvalEvaled = handleExpression(node.right, updatedProps);
+  //     }
+  //   }
+
+  //   // rVal$resHolder = rVal$res
+  //   const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
+  //   blockHolder.push(updateRes)
+
+  //   // if (TEST1 || TEST2) { BODY }
+  //   // 
+  //   // TEST1
+  //   const bCondTestUndef = handleExpression(
+  //     binaryExpression("===", fin_left, identifier("undefined")), otherProps
+  //   )
+  //   // TEST2
+  //   const bCondTestNull = handleExpression(
+  //     binaryExpression("===", fin_left, nullLiteral()), otherProps
+  //   )
+  //   // TEST1 || TEST2
+  //   const bCondTest = handleExpression(
+  //     logicalExpression("||", bCondTestUndef, bCondTestNull), otherProps
+  //   )
+
+  //   const ifStmt = generateJS3IfStatementfromBaseNode(bCondTest, condBody, null, node)
+
+  //   otherProps.others.holder.push(ifStmt)
+
+  //   result = generateJS3AssignmentExpression(fin_left, rValFinalResHolder, node);
+  // } else {
+  //   let orig_right = node.right; // Handling prop right
+  //   let fin_right: JS3AssignmentExpression_right; // Handling prop right
+  //   if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
+  //     fin_right = orig_right
+  //   } else if (isArrowFunctionExpression(orig_right)) {
+  //     fin_right = handleArrowFunctionExpression(orig_right, otherProps);
+  //   } else if (isFunctionExpression(orig_right)) {
+  //     fin_right = handleFunctionExpression(orig_right, otherProps);
+  //   } else if (isClassExpression(orig_right)) {
+  //     fin_right = handleClassExpression(orig_right, otherProps);
+  //   } else if (isThisExpression(orig_right)) {
+  //     fin_right = orig_right
+  //   } else if (isExpression(orig_right)) {
+  //     if (isMemberExpressionContext) {
+  //       fin_right = lowerComputedKey(node.right, otherProps);
+  //     } else {
+  //       fin_right = handleExpression(node.right, otherProps);
+  //     }
+  //   }
+  //   result = generateJS3AssignmentExpression(fin_left, fin_right, node);
+  // }
+  // return result
 }
 
 
@@ -1420,6 +1533,21 @@ export function handleArrayExpression(node: ArrayExpression, otherProps: OtherPr
     for (const _arrProp of orig_elements) {
       if (isnull(_arrProp)) {
         fin_elements.push(null);
+      } else if (isFunctionExpression(_arrProp)) {
+        // Translate it into a MemberExpression
+        const fnExpr = handleFunctionExpression(_arrProp, otherProps);
+
+        fin_elements.push(fnExpr)
+      } else if (isArrowFunctionExpression(_arrProp)) {
+        // Translate it into a MemberExpression
+        const arrfnExpr = handleArrowFunctionExpression(_arrProp, otherProps);
+
+        fin_elements.push(arrfnExpr)
+      } else if (isClassExpression(_arrProp)) {
+        // Translate it into a MemberExpression
+        const classExpr = handleClassExpression(_arrProp, otherProps);
+
+        fin_elements.push(classExpr)
       } else if (isExpression(_arrProp)) {
         const id = handleExpression(_arrProp, otherProps);
         fin_elements.push(id);
