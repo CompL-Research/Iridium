@@ -483,7 +483,7 @@ export function handleForStatement(node: ForStatement, otherProps: OtherProps) {
   if (isVariableDeclaration(orig_init)) {
     fin_init = orig_init
   } else if (isExpression(orig_init)) {
-    fin_init = orig_init
+    fin_init = lowerComputedKey(orig_init, otherProps)
   }
 
   // Body that holds the loop
@@ -515,7 +515,7 @@ export function handleForStatement(node: ForStatement, otherProps: OtherProps) {
   let orig_update = node.update; // Handling prop update
   let fin_update: JS3ForStatement_update = null; // Handling prop update
   if (isExpression(orig_update)) {
-    fin_update = orig_update
+    fin_update = lowerComputedKey(orig_update, otherProps)
   }
 
   let result: JS3ForStatement = generateJS3ForStatement(fin_init, fin_test, fin_update, fin_body, node);
@@ -524,14 +524,11 @@ export function handleForStatement(node: ForStatement, otherProps: OtherProps) {
 
 export function handleDoWhileStatement(node: DoWhileStatement, otherProps: OtherProps) {
 
-  
-  
-
   // 1 fallthrough props, 2 restricted props
   let orig_test = node.test; // Handling prop test
   let fin_test : JS3DoWhileStatement_test; // Handling prop test
   if(isExpression (orig_test)) {
-    fin_test = orig_test
+    fin_test = lowerComputedKey(orig_test, otherProps)
   }
 
   let orig_body = node.body; // Handling prop body

@@ -1345,7 +1345,7 @@ export function handleClassExpression(node: ClassExpression, otherProps: OtherPr
   let orig_superClass = node.superClass; // Handling prop superClass
   let fin_superClass: JS3ClassExpression_superClass = null; // Handling prop superClass
   if (isExpression(orig_superClass)) {
-    fin_superClass = orig_superClass
+    fin_superClass = lowerComputedKey(orig_superClass, otherProps)
   }
   //
   // This mostly works but breaks a few tests, because spilling breaks scoping for functions :(

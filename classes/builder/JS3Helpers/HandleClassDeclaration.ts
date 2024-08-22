@@ -24,7 +24,7 @@ export function handleClassDeclaration(node: ClassDeclaration, otherProps: Other
   let orig_superClass = node.superClass; // Handling prop superClass
   let fin_superClass: JS3ClassDeclaration_superClass = null; // Handling prop superClass
   if (isExpression(orig_superClass)) {
-    fin_superClass = orig_superClass
+    fin_superClass = lowerComputedKey(orig_superClass, otherProps)
   }
   //
   // This mostly works but breaks a few tests, because spilling breaks scoping for functions :(
@@ -140,7 +140,7 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
 
   
   let orig_value = node.value; // Handling prop value
-  let fin_value: JS3ClassProperty_value = orig_value;
+  let fin_value: JS3ClassProperty_value = lowerComputedKey(orig_value, otherProps);
   
   // = lowerComputedKey(orig_value, otherProps); // <-- This mostly works but breaks super call, due to scoping 
   // 
