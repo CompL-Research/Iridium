@@ -1,4 +1,4 @@
-// Generated on 21/8/2024, 6:05:13 pm, extended 49 interfaces 
+// Generated on 22/8/2024, 2:11:16 pm, extended 49 interfaces 
 
 import { TemplateElement, Expression, RestElement, ArrayPattern, ObjectPattern, AssignmentPattern, LVal, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ForOfStatement, ImportDeclaration, ClassMethod, TemplateLiteral, YieldExpression, ClassPrivateProperty, ClassPrivateMethod, } from "@babel/types";
 
@@ -9,12 +9,12 @@ export type JS3AllowedFunctionArgs = Identifier | Pattern | RestElement;
 
 export type JS3ArrayExpression_elements = Array<null | Identifier | JS3SpreadElement>;
 export type JS3AssignmentExpression_left = JS3MemberExpression | Identifier;
-export type JS3AssignmentExpression_right = Identifier | JS3CallExpression | JS3Literals;
+export type JS3AssignmentExpression_right = Identifier | JS3CallExpression | JS3Literals | JS3ArrowFunctionExpression | JS3FunctionExpression | ThisExpression | JS3ClassExpression;
 export type JS3BinaryExpression_left = Identifier | PrivateName;
 export type JS3BinaryExpression_right = Identifier;
 export type JS3BlockStatement_body = Array<JS3AllowedBlockStatement>;
 export type JS3BreakStatement_label = Identifier | null;
-export type JS3CallExpression_callee = JS3MemberExpression | Identifier | Super | V8IntrinsicIdentifier | JS3FunctionExpression;
+export type JS3CallExpression_callee = JS3MemberExpression | Identifier | Super | V8IntrinsicIdentifier | JS3FunctionExpression | JS3ArrowFunctionExpression;
 export type JS3CallExpression_arguments = Array < JS3ContainedExprKey | JS3CallExpression | JS3SpreadElement >;
 export type JS3CallExpression_typeArguments = null;
 export type JS3CallExpression_typeParameters = null;
@@ -67,9 +67,9 @@ export type JS3ObjectProperty_value = Identifier;
 export type JS3ObjectProperty_decorators = null;
 export type JS3ReturnStatement_argument = undefined | null | Identifier | DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral;
 export type JS3SequenceExpression_expressions = Array<Identifier>;
-export type JS3SwitchCase_test = Expression | null;
+export type JS3SwitchCase_test = JS3ContainedExprKey | null;
 export type JS3SwitchCase_consequent = Array<JS3AllowedBlockStatement>;
-export type JS3SwitchStatement_discriminant = Expression;
+export type JS3SwitchStatement_discriminant = JS3ContainedExprKey;
 export type JS3SwitchStatement_cases = Array<JS3SwitchCase>;
 export type JS3ThrowStatement_argument = Identifier;
 export type JS3TryStatement_block = JS3BlockStatement;
@@ -121,11 +121,11 @@ export type JS3TemplateLiteral_quasis = Array<TemplateElement>;
 export type JS3TemplateLiteral_expressions = Array<Identifier>;
 export type JS3YieldExpression_argument = Identifier | null;
 export type JS3ClassProperty_key = JS3ContainedExprKey;
-export type JS3ClassProperty_value = Expression;
+export type JS3ClassProperty_value = JS3ContainedExprKey;
 export type JS3ClassProperty_typeAnnotation = null;
 export type JS3ClassProperty_decorators = null;
 export type JS3ClassProperty_variance = null;
-export type JS3ClassPrivateProperty_value = Expression;
+export type JS3ClassPrivateProperty_value = JS3ContainedExprKey;
 export type JS3ClassPrivateProperty_decorators = null;
 export type JS3ClassPrivateProperty_typeAnnotation = null;
 export type JS3ClassPrivateProperty_variance = null;

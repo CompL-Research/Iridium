@@ -1,7 +1,7 @@
 import { Expression, isBigIntLiteral, isBooleanLiteral, isDecimalLiteral, isIdentifier, isNullLiteral, isNumericLiteral, isStringLiteral, isYieldExpression } from "@babel/types";
 import { JS3BuilderUtils } from "../JS3Builder.ts";
 import { handleExpression } from "./HandleExpression.ts";
-import { generateBaseNodeFrom, generateIdentifier, generateJS3BlockStatementfromBaseNode, generateJS3CallExpressionfromBaseNode, generateJS3FunctionExpressionfromBaseNode, generateJS3ReturnStatement } from "./JS3Constructors.ts";
+import { generateBaseNodeFrom, generateIdentifier, generateJS3ArrowFunctionExpressionfromBaseNode, generateJS3BlockStatementfromBaseNode, generateJS3CallExpressionfromBaseNode, generateJS3ReturnStatement } from "./JS3Constructors.ts";
 import { JS3BlockStatement_body, JS3ContainedExprKey, JS3ReturnStatement } from "./JS3Types.ts";
 
 
@@ -51,7 +51,11 @@ export function lowerComputedKey(node: Expression, otherProps: OtherProps): JS3C
   const js3RetStmt = generateJS3ReturnStatement(res, retStmt)
   bodyOfTheFunc.push(js3RetStmt)
 
-  const funcExpr = generateJS3FunctionExpressionfromBaseNode(null, new Array(), funcExprBody, null, null, null, false, false, dummyNode); // function {BODY}
+
+  const funcExpr = generateJS3ArrowFunctionExpressionfromBaseNode(new Array(), funcExprBody, null, null, null, false, true, false, dummyNode); // function {BODY}
+
+  // const funcExpr = generateJS3FunctionExpressionfromBaseNode(null, new Array(), funcExprBody, null, null, null, false, false, dummyNode); // function {BODY}
+  
   const callFnExpr = generateJS3CallExpressionfromBaseNode(funcExpr, new Array(), null, null, null, dummyNode); // func()
   
   return callFnExpr

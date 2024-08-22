@@ -1,15 +1,16 @@
 // Generated on 7/8/2024, 5:50:38 pm, generated 16 handlers 
 
-import { BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, EmptyStatement, ExpressionStatement, ForInStatement, ForOfStatement, ForStatement, FunctionDeclaration, IfStatement, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isBreakStatement, isCatchClause, isClassDeclaration, isContinueStatement, isDebuggerStatement, isDecimalLiteral, isDeclareClass, isDeclaredPredicate, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isIdentifier, isIfStatement, isImportDeclaration, isInferredPredicate, isInterfaceDeclaration, isLabeledStatement, isLVal, isNoop, isNullLiteral, isNumericLiteral, isOpaqueType, isPattern, isRestElement, isReturnStatement, isStatement, isStringLiteral, isSwitchStatement, isThrowStatement, isTryStatement, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSTypeAliasDeclaration, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTypeAlias, isTypeAnnotation, isTypeParameterDeclaration, isVariableDeclaration, isWhileStatement, isWithStatement, LabeledStatement, ReturnStatement, Statement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator, WithStatement } from "@babel/types";
+import { BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, EmptyStatement, ExpressionStatement, ForInStatement, ForOfStatement, ForStatement, FunctionDeclaration, IfStatement, isArrowFunctionExpression, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isBreakStatement, isCatchClause, isClassDeclaration, isClassExpression, isContinueStatement, isDebuggerStatement, isDecimalLiteral, isDeclareClass, isDeclaredPredicate, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isFunctionExpression, isIdentifier, isIfStatement, isImportDeclaration, isInferredPredicate, isInterfaceDeclaration, isLabeledStatement, isLVal, isNoop, isNullLiteral, isNumericLiteral, isOpaqueType, isPattern, isRestElement, isReturnStatement, isStatement, isStringLiteral, isSwitchStatement, isThrowStatement, isTryStatement, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSTypeAliasDeclaration, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTypeAlias, isTypeAnnotation, isTypeParameterDeclaration, isVariableDeclaration, isWhileStatement, isWithStatement, LabeledStatement, ReturnStatement, Statement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator, WithStatement } from "@babel/types";
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
 import { JS3AllowedBlockStatement, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3BreakStatement_label, JS3CatchClause_body, JS3ContinueStatement, JS3ContinueStatement_label, JS3DoWhileStatement, JS3DoWhileStatement_test, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3ForInStatement, JS3ForInStatement_body, JS3ForInStatement_left, JS3ForInStatement_right, JS3ForOfStatement, JS3ForOfStatement_left, JS3ForOfStatement_right, JS3ForStatement, JS3ForStatement_body, JS3ForStatement_init, JS3ForStatement_test, JS3ForStatement_update, JS3FunctionDeclaration, JS3FunctionDeclaration_body, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3LabeledStatement, JS3LabeledStatement_body, JS3ReturnStatement_argument, JS3SwitchCase, JS3SwitchCase_consequent, JS3SwitchCase_test, JS3SwitchStatement, JS3SwitchStatement_cases, JS3SwitchStatement_discriminant, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_init, JS3WithStatement, JS3WithStatement_body, JS3WithStatement_object } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
-import { handleExpression } from "./HandleExpression.ts";
+import { handleArrowFunctionExpression, handleClassExpression, handleExpression, handleFunctionExpression } from "./HandleExpression.ts";
 import { generateBaseNodeFrom, generateIdentifier, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3BreakStatementfromBaseNode, generateJS3CatchClause, generateJS3ContinueStatement, generateJS3DoWhileStatement, generateJS3ExpressionStatement, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3LabeledStatement, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3UnaryExpressionfromBaseNode, generateJS3VariableDeclaration, generateJS3VariableDeclarator, generateJS3WithStatement } from "./JS3Constructors.ts";
 
 import { generateCommentLine } from "#utils";
 import assert from 'node:assert';
+import { lowerComputedKey } from "./GenericConstructs.ts";
 import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
 
 const isnull = (a) => a === null;
@@ -303,11 +304,20 @@ export function handleVariableDeclarator(node: VariableDeclarator, otherProps: O
   // 3 fallthrough props, 1 restricted props
   let orig_init = node.init; // Handling prop init
   let fin_init: JS3VariableDeclarator_init = null; // Handling prop init
-  if (isExpression(orig_init)) {
+  
+  if (isIdentifier(orig_init) || isDecimalLiteral(orig_init) || isBigIntLiteral(orig_init) || isStringLiteral(orig_init) || isNumericLiteral(orig_init) || isNullLiteral(orig_init) || isBooleanLiteral(orig_init)) {
+    fin_init = orig_init
+  } else if (isArrowFunctionExpression(orig_init)) {
+    fin_init = handleArrowFunctionExpression(orig_init, otherProps);
+  } else if (isFunctionExpression(orig_init)) {
+    fin_init = handleFunctionExpression(orig_init, otherProps);
+  } else if (isClassExpression(orig_init)) {
+    fin_init = handleClassExpression(orig_init, otherProps);
+  } else if (isExpression(orig_init)) {
     fin_init = handleExpression(orig_init, otherProps)
   }
-  let result: JS3VariableDeclarator = generateJS3VariableDeclarator(fin_init, node);
 
+  let result: JS3VariableDeclarator = generateJS3VariableDeclarator(fin_init, node);
   otherProps.others.prefix = oldPrefix
   otherProps.debugTrace.pop()
   return result;
@@ -646,7 +656,7 @@ export function handleSwitchCase(node: SwitchCase, otherProps: OtherProps) {
   let orig_test = node.test; // Handling prop test
   let fin_test : JS3SwitchCase_test = null; // Handling prop test
   if(isExpression (orig_test)) {
-    fin_test = orig_test;
+    fin_test = lowerComputedKey(orig_test, otherProps);
   }
 
   let orig_consequent = node.consequent; // Handling prop consequent
@@ -671,8 +681,9 @@ export function handleSwitchStatement(node: SwitchStatement, otherProps: OtherPr
   let orig_discriminant = node.discriminant; // Handling prop discriminant
   let fin_discriminant : JS3SwitchStatement_discriminant; // Handling prop discriminant
   if(isExpression (orig_discriminant)) {
-    fin_discriminant = orig_discriminant;
-  } 
+    fin_discriminant = lowerComputedKey(orig_discriminant, otherProps);
+  }
+  
   let orig_cases = node.cases; // Handling prop cases
   let fin_cases : JS3SwitchStatement_cases = new Array(); // Handling prop cases
   if (Array.isArray ( orig_cases )) { 
