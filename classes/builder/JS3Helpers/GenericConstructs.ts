@@ -1,7 +1,7 @@
 import { Expression, isBigIntLiteral, isBooleanLiteral, isDecimalLiteral, isIdentifier, isNullLiteral, isNumericLiteral, isStringLiteral, isYieldExpression } from "@babel/types";
 import { JS3BuilderUtils } from "../JS3Builder.ts";
 import { handleExpression } from "./HandleExpression.ts";
-import { generateBaseNodeFrom, generateIdentifier, generateJS3ArrowFunctionExpressionfromBaseNode, generateJS3BlockStatementfromBaseNode, generateJS3CallExpressionfromBaseNode, generateJS3ReturnStatement } from "./JS3Constructors.ts";
+import { generateBaseNodeFrom, generateIdentifier, generateJS3ArrowFunctionExpressionfromBaseNode, generateJS3BlockStatementfromBaseNode, generateJS3CallExpressionfromBaseNode, generateJS3ReturnStatement, generateJS3YieldExpression } from "./JS3Constructors.ts";
 import { JS3BlockStatement_body, JS3ContainedExprKey, JS3ReturnStatement } from "./JS3Types.ts";
 
 
@@ -30,6 +30,11 @@ export function lowerComputedKey(node: Expression, otherProps: OtherProps): JS3C
     return node;
   } else if (isYieldExpression(node) && (!node.argument)) {
     return generateIdentifier(node, "yield")
+  } else if (isYieldExpression(node)) {
+
+    let loweredExpression = handleExpression(node.argument, otherProps)
+
+    return generateJS3YieldExpression(loweredExpression, node);
   }
   
   // Create a call expression of the form
