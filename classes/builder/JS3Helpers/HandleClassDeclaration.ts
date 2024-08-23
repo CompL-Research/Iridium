@@ -1,13 +1,13 @@
-import { ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isArrowFunctionExpression, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isClassAccessorProperty, isClassBody, isClassExpression, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecimalLiteral, isDecorator, isExpression, isFunctionExpression, isIdentifier, isInterfaceExtends, isNoop, isNullLiteral, isNumericLiteral, isPattern, isRestElement, isStaticBlock, isStringLiteral, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance } from "@babel/types";
-import { generateJS3ClassBody, generateJS3ClassDeclaration, generateJS3ClassMethod, generateJS3ClassPrivateMethod, generateJS3ClassPrivateProperty, generateJS3ClassProperty } from "./JS3Constructors.ts";
-import { JS3ClassBody, JS3ClassBody_body, JS3ClassDeclaration, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superClass, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassPrivateMethod, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, JS3ClassPrivateProperty, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_variance, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_value, JS3ClassProperty_variance } from "./JS3Types.ts";
+import { isStatement, StaticBlock, ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isArrowFunctionExpression, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isClassAccessorProperty, isClassBody, isClassExpression, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecimalLiteral, isDecorator, isExpression, isFunctionExpression, isIdentifier, isInterfaceExtends, isNoop, isNullLiteral, isNumericLiteral, isPattern, isRestElement, isStaticBlock, isStringLiteral, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance } from "@babel/types";
+import { generateJS3ClassBody, generateJS3ClassDeclaration, generateJS3ClassMethod, generateJS3ClassPrivateMethod, generateJS3ClassPrivateProperty, generateJS3ClassProperty, generateJS3StaticBlock } from "./JS3Constructors.ts";
+import { JS3AllowedBlockStatement, JS3ClassBody, JS3ClassBody_body, JS3ClassDeclaration, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superClass, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassPrivateMethod, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, JS3ClassPrivateProperty, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_variance, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_value, JS3ClassProperty_variance, JS3StaticBlock, JS3StaticBlock_body, JS3VariableDeclaration } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
 import { JS3BuilderUtils } from "../JS3Builder.ts";
 
 import assert from 'node:assert';
 import { lowerComputedKey } from "./GenericConstructs.ts";
-import { handleBlockStatement } from "./HandleBlocks.ts";
+import { handleBlockStatement, handleStatement } from "./HandleBlocks.ts";
 import { handleArrowFunctionExpression, handleClassExpression, handleFunctionExpression } from "./HandleExpression.ts";
 
 const isnull = (a) => a === null;
@@ -121,7 +121,9 @@ export function handleClassBody(node: ClassBody, otherProps: OtherProps): JS3Cla
       } else if (isTSIndexSignature(_arrProp)) {
         debugConfig.logger.throwJS3Error("TODO // unhandled ClassBody->[body]->TSIndexSignature");
       } else if (isStaticBlock(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ClassBody->[body]->StaticBlock");
+        // ========================================================================================
+        fin_body.push(handleStaticBlock(_arrProp, otherProps))
+        // ========================================================================================
       }
     }
   }
@@ -380,4 +382,22 @@ export function handleClassPrivateMethod(node: ClassPrivateMethod, otherProps: O
 
   let result: JS3ClassPrivateMethod = generateJS3ClassPrivateMethod(fin_params, fin_body, fin_decorators, fin_returnType, fin_typeParameters, node);
   return result
+}
+
+export function handleStaticBlock(node: StaticBlock, otherProps: OtherProps) {
+  // 1 fallthrough props, 1 restricted props
+  let orig_body = node.body; // Handling prop body
+  let fin_body : JS3StaticBlock_body = new Array(); // Handling prop body
+
+  // Block Scope
+  const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: fin_body } }
+
+  for (const stmt of orig_body) {
+    const blockStmt: JS3AllowedBlockStatement | Array<JS3VariableDeclaration> = handleStatement(stmt, updatedProps)
+    if (Array.isArray(blockStmt)) blockStmt.forEach(s => fin_body.push(s))
+    else fin_body.push(blockStmt)
+  }
+  
+  let result: JS3StaticBlock = generateJS3StaticBlock(fin_body, node);
+  return result;
 }

@@ -1,562 +1,6 @@
 {
     "passed": [
         {
-            "file": "test262/test/language/expressions/dynamic-import/usage/nested-while-import-then-eval-script-code-host-resolves-module-code.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/usage/nested-while-import-then-eval-gtbndng-indirect-update.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/usage/nested-while-import-then-eval-gtbndng-indirect-update-dflt.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/usage/nested-while-import-then-is-call-expression-square-brackets.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/usage/nested-while-import-then-returns-thenable.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/usage/nested-while-import-then-specifier-tostring.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-evaluation-abrupt-throw.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-get-with-error.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-with-value-abrupt.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-with-enumeration-abrupt.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-await-ident.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-trailing-comma-reject.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-yield-ident-valid.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-trailing-comma-fulfill.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/trailing-comma-reject.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-with-enumeration.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-yield-expr.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-with-non-object.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-evaluation-abrupt-return.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-evaluation-sequence.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-in.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-with-enumeration-enumerable.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-with-undefined.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-evaluation-abrupt-throw.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-with-value-non-string.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-await-expr.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-assert-value-abrupt.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/2nd-param-non-object.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-attributes/trailing-comma-fulfill.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-await-ident.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-assert-enumeration-abrupt.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-assert-non-object.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-trailing-comma-reject.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-yield-ident-valid.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-get-assert-error.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/trailing-comma-reject.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-evaluation-sequence.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-trailing-comma-fulfill.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-while-script-code-valid.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-yield-expr.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-assert-value-non-string.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-non-object.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-assert-undefined.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-in.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-evaluation-abrupt-return.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/trailing-comma-fulfill.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-await-expr.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/import-assertions/2nd-param-assert-enumeration.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-else-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-while-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-arrow-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-if-braceless-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-gen-await-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-block-labeled-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/top-level-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-arrow-function-return-await-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-else-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-function-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-else-braceless-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-do-while-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-function-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-arrow-function-await-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-arrow-assignment-expression-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-block-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-do-while-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-arrow-assignment-expression-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-function-return-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-while-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-with-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-block-labeled-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-with-expression-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-block-labeled-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-gen-await-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-block-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-with-expression-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-with-expression-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-arrow-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-else-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-if-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-function-await-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-arrow-function-await-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-do-while-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-arrow-function-await-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-function-return-await-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-else-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-function-return-await-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-block-labeled-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-block-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-if-braceless-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-arrow-function-return-await-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-function-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-with-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-function-return-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-do-while-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-function-await-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-if-braceless-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-function-await-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-if-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-if-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-arrow-function-return-await-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-arrow-function-await-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-function-return-await-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-arrow-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/catch/nested-while-import-catch-file-does-not-exist.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/top-level-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-else-braceless-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-function-return-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-if-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-while-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-if-braceless-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-with-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-function-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-function-await-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/top-level-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-function-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-gen-await-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-block-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-arrow-function-return-await-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-arrow-assignment-expression-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-with-expression-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-else-braceless-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-function-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-function-return-await-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-gen-await-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-function-return-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-else-braceless-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-arrow-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/catch/nested-while-import-catch-instn-iee-err-circular.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-function-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-while-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-async-function-import-assertions-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/top-level-import-attributes-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-with-import-assertions-trailing-comma-first.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-arrow-assignment-expression-import-attributes-trailing-comma-second.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/catch/nested-while-import-catch-eval-rqstd-abrupt-typeerror.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/catch/nested-while-import-catch-specifier-tostring-abrupt-rejects.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/catch/nested-while-import-catch-instn-iee-err-ambiguous-import.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/catch/nested-while-import-catch-eval-script-code-target.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/dynamic-import/catch/nested-while-import-catch-eval-rqstd-abrupt-urierror.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/generators/static-init-await-binding.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
@@ -581,11 +25,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/in/private-field-presence-accessor-shadowed.js",
+            "file": "test262/test/language/expressions/in/private-field-presence-method.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/in/private-field-presence-method.js",
+            "file": "test262/test/language/expressions/in/private-field-presence-accessor-shadowed.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -629,19 +73,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/await/for-await-of-interleaved.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-iter-thrw-close-skip.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-empty-obj.js",
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-static-escaped.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-static-escaped.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-empty-obj.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -681,11 +121,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-to-property-with-setter.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-init-fn-name-gen.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-init-fn-name-gen.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-to-property-with-setter.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -721,7 +161,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-package-escaped.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-nested-array.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -729,11 +169,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-nested-array.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-non-string-computed-property-1.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-non-string-computed-property-1.js",
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-package-escaped.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -742,10 +182,6 @@
         },
         {
             "file": "test262/test/language/expressions/assignment/dstr/array-empty-val-undef.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-switch-escaped.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -761,15 +197,19 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-switch-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-rest-rtrn-close-err.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-val-undefined.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-nested-array-null.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-nested-array-null.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-val-undefined.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -785,15 +225,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-evaluation.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/array-elision-iter-nrml-close-null.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-nested-array-yield-expr.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-evaluation.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -821,19 +261,19 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-prop-ref-user-err.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-nested-array-yield-ident-valid.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-target-obj-literal-prop-ref-init.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-prop-ref-user-err.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
             "file": "test262/test/language/expressions/assignment/dstr/array-rest-iter-rtrn-close-null.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-target-obj-literal-prop-ref-init.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -857,24 +297,20 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-elision-iter-abpt.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-descriptors.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-unresolvable-strict.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js --module"
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-elision-iter-abpt.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-nested-obj-yield-expr.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-getter-abrupt-get-error.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-descriptors.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-unresolvable-strict.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js --module"
         },
         {
             "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-extends-escaped.js",
@@ -885,12 +321,12 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-iter-get-err.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/obj-id-put-unresolvable-strict.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js --module"
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-iter-get-err.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
             "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-return-escaped.js",
@@ -901,23 +337,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-getter-abrupt-get-error.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/obj-id-identifier-resolution-last.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-prop-ref.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/array-rest-iter-thrw-close.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-symbol-val.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elision-iter-nrml-close.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -925,11 +349,23 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-symbol-val.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-prop-ref.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/array-elision-iter-nrml-close.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-init-fn-name-arrow.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-unresolvable-no-strict.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-rest-iter-thrw-close.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -937,7 +373,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-init-fn-name-class.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-unresolvable-no-strict.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -945,11 +381,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-put-prop-ref-user-err.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-init-fn-name-class.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
             "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-fn-name-gen.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-put-prop-ref-user-err.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -961,11 +401,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-rest-elision.js",
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-const-escaped.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-const-escaped.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-rest-elision.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -973,11 +413,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-val-null.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-rest-nested-array-yield-expr.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-rest-nested-array-yield-expr.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-val-null.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1001,23 +441,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-id-put-const.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-instanceof-escaped.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-init-in.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-computed-property-no-strict.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-rest-after-element.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-rest-after-element.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-id-put-const.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1029,11 +461,23 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-computed-property-no-strict.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-instanceof-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/obj-empty-bool.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
             "file": "test262/test/language/expressions/assignment/dstr/array-empty-val-symbol.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-put-let.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1045,7 +489,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-put-let.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-rest-nested-array-null.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1053,15 +497,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elision-iter-abpt.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/array-rest-nested-array-null.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-init-yield-expr.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/array-elision-iter-abpt.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1073,19 +513,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elision-val-undef.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/array-elision-iter-get-err.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-init-fn-name-cover.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-list-nrml-close-skip.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1093,7 +521,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-finally-escaped.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elision-val-undef.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-list-nrml-close-skip.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-init-fn-name-cover.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1101,15 +537,19 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-finally-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-nested-array-undefined-own.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-identifier-resolution-last.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-target-yield-expr.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-target-yield-expr.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-identifier-resolution-last.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1125,11 +565,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-init-yield-ident-valid.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/array-rest-nested-obj.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-init-yield-ident-valid.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-rest-elision-iter-abpt.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1141,11 +585,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-rest-elision-iter-abpt.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-list-thrw-close-err.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-target-obj-literal-prop-ref.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1153,7 +593,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-target-obj-literal-prop-ref.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-list-thrw-close-err.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1161,7 +601,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-elision-iter-nrml-close.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-init-fn-name-arrow.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1169,19 +609,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-void-escaped.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/array-rest-put-unresolvable-strict.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js --module"
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-init-fn-name-arrow.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-empty-string.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-elision-iter-nrml-close.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1189,7 +621,19 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-void-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-empty-string.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-fn-name-fn.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-extends.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1205,7 +649,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-extends.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-iter-nrml-close-err.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1214,10 +658,6 @@
         },
         {
             "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-export-escaped.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-iter-nrml-close-err.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1237,23 +677,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-yield-ident-valid.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-nested-obj-undefined-hole.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/array-rest-iter-thrw-close-skip.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-put-unresolvable-no-strict.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-nested-array-yield-expr.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1261,7 +685,19 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elision-iter-nrml-close-skip.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-yield-ident-valid.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/array-rest-iter-thrw-close-skip.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-nested-array-yield-expr.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-put-unresolvable-no-strict.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1277,7 +713,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-public-escaped.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elision-iter-nrml-close-skip.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1285,11 +721,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-public-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-target-identifier.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-iter-rtrn-close.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-assignment-undef.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1297,7 +737,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-assignment-undef.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-iter-rtrn-close.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-catch-escaped.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1309,10 +753,6 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-catch-escaped.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-var-escaped.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
@@ -1321,11 +761,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-obj-literal-prop-ref.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-nested-obj.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-nested-obj.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-obj-literal-prop-ref.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1341,11 +781,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-rest-nested-obj-undefined.js",
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-case-escaped.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-case-escaped.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-rest-nested-obj-undefined.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1357,7 +797,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-put-prop-ref.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-nested-obj-undefined-own.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1365,11 +805,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-nested-obj-undefined-own.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-fn-name-class.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-fn-name-class.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-put-prop-ref.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1381,6 +821,10 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-put-const.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-debugger-escaped.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
@@ -1389,11 +833,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-put-const.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-list-rtrn-close-null.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-target-yield-expr.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1401,7 +841,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-target-yield-expr.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-list-rtrn-close-null.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1421,15 +861,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-nested-array.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/array-empty-val-string.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elision-val-array.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-nested-array.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-non-string-computed-property-array-1.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1441,15 +881,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-non-string-computed-property-array-1.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-list-thrw-close.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-to-property.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elision-val-array.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1457,15 +893,19 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-to-property.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/obj-prop-nested-obj-null.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-with-escaped.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-empty-iter-close.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-empty-iter-close.js",
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-with-escaped.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1477,15 +917,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-init-let.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-while-escaped.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-iter-nrml-close.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-init-let.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1497,7 +933,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-iter-nrml-close.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-let.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-elision-iter-nrml-close-null.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1505,7 +949,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-elision-iter-nrml-close-null.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elision-iter-nrml-close-err.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1514,10 +958,6 @@
         },
         {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-nested-array-undefined-hole.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elision-iter-nrml-close-err.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1533,10 +973,6 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-nested-array-null.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/obj-rest-non-string-computed-property-1dot.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
@@ -1545,11 +981,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-rest-rtrn-close-null.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-nested-array-null.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-nested-obj-null.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-rest-rtrn-close-null.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1557,7 +993,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-rest-iter-get-err.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-nested-obj-null.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1565,11 +1001,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-rest-nested-array.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-list-nrml-close-null.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-list-nrml-close-null.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-rest-nested-array.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1577,15 +1013,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-rest-thrw-close-err.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-id-identifier-resolution-first.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-rest-iter-get-err.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
             "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-for-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-rest-thrw-close-err.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1597,15 +1033,19 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-id-identifier-resolution-first.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/obj-empty-num.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-private-escaped.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-const.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-const.js",
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-private-escaped.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1621,19 +1061,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-list-nrml-close.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-default.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-let-escaped.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-list-nrml-close.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-obj-literal-prop-ref-init-active.js",
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-let-escaped.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1645,7 +1081,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-rest-iter-thrw-close-err.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-put-obj-literal-prop-ref-init-active.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-let.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1653,7 +1093,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-let.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-rest-iter-thrw-close-err.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1665,10 +1105,6 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-rest-nested-obj-yield-expr.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-rest-thrw-close.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
@@ -1677,7 +1113,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/array-rest-nested-obj-yield-expr.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/obj-prop-elem-init-assignment-undef.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/array-empty-val-array.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1689,19 +1133,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-empty-val-array.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-iter-thrw-close-err.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-class-escaped.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
             "file": "test262/test/language/expressions/assignment/dstr/array-rest-nested-array-undefined-hole.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-iter-thrw-close-err.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1729,11 +1169,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-id-simple-no-strict.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-elision-iter-nrml-close-skip.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-elem-trlg-iter-elision-iter-nrml-close-skip.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-id-simple-no-strict.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1741,19 +1181,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-order.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/array-empty-iter-close-null.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-interface-escaped.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-assignment-null.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-id-init-assignment-null.js",
+            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-order.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1765,6 +1201,10 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/ident-name-prop-name-literal-interface-escaped.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/obj-prop-name-evaluation-error.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
@@ -1773,15 +1213,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/array-rest-after-elision.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/assignment/dstr/array-rest-nested-obj-undefined-own.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-number.js",
+            "file": "test262/test/language/expressions/assignment/dstr/array-rest-after-elision.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1789,15 +1225,19 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
+            "file": "test262/test/language/expressions/assignment/dstr/obj-rest-number.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
             "file": "test262/test/language/expressions/assignment/dstr/array-empty-val-num.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/destructuring/iterator-destructuring-property-reference-target-evaluation-order.js",
+            "file": "test262/test/language/expressions/assignment/destructuring/obj-prop-__proto__dup.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/assignment/destructuring/obj-prop-__proto__dup.js",
+            "file": "test262/test/language/expressions/assignment/destructuring/iterator-destructuring-property-reference-target-evaluation-order.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1809,11 +1249,7 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/optional-chaining/short-circuiting.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/optional-chaining/iteration-statement-for-in.js",
+            "file": "test262/test/language/expressions/optional-chaining/optional-chain-expression-optional-expression.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1825,7 +1261,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/optional-chaining/optional-chain-expression-optional-expression.js",
+            "file": "test262/test/language/expressions/optional-chaining/short-circuiting.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/optional-chaining/iteration-statement-for-in.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1865,11 +1305,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/optional-chaining/iteration-statement-for-of-type-error.js",
+            "file": "test262/test/language/expressions/optional-chaining/optional-chain.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/optional-chaining/optional-chain.js",
+            "file": "test262/test/language/expressions/optional-chaining/iteration-statement-for-of-type-error.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1917,11 +1357,11 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/delete/11.4.1-4.a-5.js",
+            "file": "test262/test/language/expressions/delete/11.4.1-4.a-13.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/delete/11.4.1-4.a-13.js",
+            "file": "test262/test/language/expressions/delete/11.4.1-4.a-5.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1957,15 +1397,15 @@
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
-            "file": "test262/test/language/expressions/delete/S11.4.1_A3.1.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
             "file": "test262/test/language/expressions/delete/11.4.1-3-1.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
             "file": "test262/test/language/expressions/delete/S11.4.1_A2.2_T1.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/expressions/delete/S11.4.1_A3.1.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {
@@ -1986,14 +1426,6 @@
         },
         {
             "file": "test262/test/language/expressions/class/cpn-class-expr-fields-computed-property-name-from-yield-expression.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/class/cpn-class-expr-fields-methods-computed-property-name-from-yield-expression.js",
-            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
-        },
-        {
-            "file": "test262/test/language/expressions/class/cpn-class-expr-computed-property-name-from-yield-expression.js",
             "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
         },
         {

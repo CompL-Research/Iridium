@@ -13,6 +13,11 @@ const execAsync = promisify(exec);
 const IRIDIUM_BIN = "/home/meetesh/wd/Iridium/iridium";
 const CONCURRENCY_LIMIT = 32; // Adjust concurrency level as needed
 
+const pathsToSkip = [
+  "test262/test/language/expressions/dynamic-import/import-attributes",
+  "test262/test/language/expressions/dynamic-import/import-assertions"
+]
+
 if (process.argv.length < 3) {
   console.error('Usage: node runTests.js <json-files-path>');
   console.error('Example: node runTests.js .');
@@ -28,6 +33,7 @@ const directoryPath = process.argv[2];
     const files = fs.readdirSync(directoryPath);
 
     for (const file of files) {
+
       // Create full path of the file
       const fullPath = path.join(directoryPath, file);
 
@@ -56,6 +62,23 @@ const directoryPath = process.argv[2];
           const tasks = data.passed.map(o =>
             limit(async () => {
               bar1.increment();
+
+              let toSkip = false
+              // Check if this file is part of an experimental feature that we dont care about currently
+              for (const toSkp of pathsToSkip) {
+                if (o.file.includes(toSkp)) {
+                  toSkip = true;
+                  break;
+                }
+              }
+
+              if (toSkip) {
+                SKIPPED.push({
+                  file: o.file,
+                  reason: "part of experimental features we do not test currently"
+                })
+                return;
+              }
 
               const folderName = `folder_${Math.random().toString(36).substring(2, 15)}`;
 
