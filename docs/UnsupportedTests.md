@@ -1,5 +1,49 @@
 # List of unsupported tests/features
 
+1. 'test262/test/language/expressions/await/await-non-promise-thenable.js', 'test262/test/language/expressions/await/await-monkey-patched-promise.js'
+
+Transformation of this form fails for `await` and `yield`. 
+
+**Source**
+
+```javascript
+async function trigger() {
+  actual.push('Await: ' + (await patched));
+  actual.push('Await: ' + (await patched));
+}
+```
+
+**Transformed**
+
+```javascript
+async function trigger() {
+  let js3$13 = actual.push((() => {
+    let js3$15 = 'Await: ';
+    let js3$17 = patched;
+    let js3$16 = await js3$17;
+    let js3$14 = js3$15 + js3$16;
+    return js3$14;
+  })());
+  js3$13;
+  let js3$18 = actual.push((() => {
+    let js3$20 = 'Await: ';
+    let js3$22 = patched;
+    let js3$21 = await js3$22;
+    let js3$19 = js3$20 + js3$21;
+    return js3$19;
+  })());
+  js3$18;
+}
+```
+
+We could transform this correctly by pushing the argument evaluation to happen before the call, but this breaks Javascript semantics.
+Evaluation of the callee must happen before the argument.
+
+There are two reasons for this
+
+1. Callee resolution can have side effects (`get` methods)
+2. Nullish callee, we could add an if condition check and conditionally resolve the arguments. But there are some cases where this is semantically invalid.
+
 
 
 # Handled
