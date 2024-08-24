@@ -1,6 +1,6 @@
-// Generated on 24/8/2024, 2:42:54 pm, extended 57 interfaces 
+// Generated on 24/8/2024, 5:36:11 pm, extended 58 interfaces 
 
-import { TemplateElement, RestElement, ArrayPattern, ObjectPattern, AssignmentPattern, LVal, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, PrivateName, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ConditionalExpression, ContinueStatement, DoWhileStatement, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, StaticBlock, } from "@babel/types";
+import { TemplateElement, RestElement, ArrayPattern, ObjectPattern, AssignmentPattern, LVal, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ConditionalExpression, ContinueStatement, DoWhileStatement, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
 export type JS3AllowedBlockStatement = JS3WhileStatement | JS3VariableDeclaration | JS3ReturnStatement | JS3ExpressionStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement | JS3FunctionDeclaration | JS3AssignmentExpression | JS3ClassDeclaration | EmptyStatement | JS3WhileStatement | JS3BreakStatement | JS3ContinueStatement | JS3BlockStatement | JS3ForInStatement | JS3LabeledStatement | JS3ForStatement | JS3DoWhileStatement | JS3SwitchStatement | JS3ForOfStatement | JS3WithStatement;
 export type JS3Literals = DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral;
@@ -24,7 +24,7 @@ export interface JS3AnonArrayExpression extends ArrayExpression {
 export type JS3ArrayExpression_elements = Array<null | JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression | Identifier | JS3SpreadElement>;
 export type JS3AssignmentExpression_left = JS3MemberExpression | Identifier;
 export type JS3AssignmentExpression_right = JS3AwaitExpression | JS3YieldExpression | Identifier | JS3CallExpression | JS3Literals | JS3ArrowFunctionExpression | JS3FunctionExpression | ThisExpression | JS3ClassExpression;
-export type JS3BinaryExpression_left = Identifier | PrivateName;
+export type JS3BinaryExpression_left = Identifier | JS3PrivateName;
 export type JS3BinaryExpression_right = Identifier;
 export type JS3BlockStatement_body = Array<JS3AllowedBlockStatement>;
 export type JS3BreakStatement_label = Identifier | null;
@@ -66,7 +66,7 @@ export type JS3LabeledStatement_body = JS3AllowedBlockStatement;
 export type JS3LogicalExpression_left = Identifier;
 export type JS3LogicalExpression_right = Identifier;
 export type JS3MemberExpression_object = Identifier | ThisExpression | Super;
-export type JS3MemberExpression_property = Identifier | PrivateName;
+export type JS3MemberExpression_property = Identifier | J3PrivateName;
 export type JS3NewExpression_callee = Identifier | Super | V8IntrinsicIdentifier;
 export type JS3NewExpression_arguments = Array<Identifier | SpreadElement | ArgumentPlaceholder>;
 export type JS3NewExpression_typeArguments = null;
@@ -79,7 +79,7 @@ export type JS3ObjectMethod_body = JS3BlockStatement;
 export type JS3ObjectMethod_decorators = null;
 export type JS3ObjectMethod_returnType = null;
 export type JS3ObjectMethod_typeParameters = null;
-export type JS3ObjectProperty_key = Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | PrivateName;
+export type JS3ObjectProperty_key = Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | JS3PrivateName;
 export type JS3ObjectProperty_value = Identifier | JS3ClassExpression | JS3Literals | JS3ArrowFunctionExpression | JS3FunctionExpression;
 export type JS3ObjectProperty_decorators = null;
 export type JS3ReturnStatement_argument = undefined | null | Identifier | DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral;
@@ -518,6 +518,10 @@ export interface JS3ClassPrivateMethod extends ClassPrivateMethod {
   decorators: JS3ClassPrivateMethod_decorators;
   returnType: JS3ClassPrivateMethod_returnType;
   typeParameters: JS3ClassPrivateMethod_typeParameters;
+}
+
+// @ts-ignore
+export interface JS3PrivateName extends PrivateName {
 }
 
 // @ts-ignore
