@@ -1,4 +1,4 @@
-// Generated on 24/8/2024, 5:36:11 pm, extended 58 interfaces 
+// Generated on 26/8/2024, 1:20:06 pm, extended 58 interfaces 
 
 import { TemplateElement, RestElement, ArrayPattern, ObjectPattern, AssignmentPattern, LVal, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ConditionalExpression, ContinueStatement, DoWhileStatement, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -66,7 +66,7 @@ export type JS3LabeledStatement_body = JS3AllowedBlockStatement;
 export type JS3LogicalExpression_left = Identifier;
 export type JS3LogicalExpression_right = Identifier;
 export type JS3MemberExpression_object = Identifier | ThisExpression | Super;
-export type JS3MemberExpression_property = Identifier | J3PrivateName;
+export type JS3MemberExpression_property = Identifier | JS3PrivateName;
 export type JS3NewExpression_callee = Identifier | Super | V8IntrinsicIdentifier;
 export type JS3NewExpression_arguments = Array<Identifier | SpreadElement | ArgumentPlaceholder>;
 export type JS3NewExpression_typeArguments = null;
