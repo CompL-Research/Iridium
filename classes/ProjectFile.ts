@@ -86,7 +86,9 @@ export class ProjectFile {
           that.initData.status = "loaded"
           that.initData.sourceCode = sourceCode
           that.initData.loc = sourceCode.split(/\r\n|\r|\n/).length
-          const sourceType = sourceCode.includes('noStrict') ? "script" : "unambiguous";
+          let sourceType = sourceCode.includes('noStrict') ? "script" : "unambiguous";
+          sourceType = sourceCode.includes('flags: [module') ? "module" : sourceType;
+          sourceType = sourceCode.includes('flags: [generated, module]') ? "module" : sourceType;
 
           // 2. Parse Source Code
           let presets: Array<Array<string | {}>> = [

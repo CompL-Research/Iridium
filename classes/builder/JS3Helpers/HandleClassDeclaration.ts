@@ -1,4 +1,4 @@
-import { isStatement, StaticBlock, ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isArrowFunctionExpression, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isClassAccessorProperty, isClassBody, isClassExpression, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecimalLiteral, isDecorator, isExpression, isFunctionExpression, isIdentifier, isInterfaceExtends, isNoop, isNullLiteral, isNumericLiteral, isPattern, isRestElement, isStaticBlock, isStringLiteral, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance } from "@babel/types";
+import { ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isArrowFunctionExpression, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isCallExpression, isClassAccessorProperty, isClassBody, isClassExpression, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecimalLiteral, isDecorator, isExpression, isFunctionExpression, isIdentifier, isInterfaceExtends, isNoop, isNullLiteral, isNumericLiteral, isPattern, isRestElement, isStaticBlock, isStringLiteral, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance, StaticBlock } from "@babel/types";
 import { generateJS3ClassBody, generateJS3ClassDeclaration, generateJS3ClassMethod, generateJS3ClassPrivateMethod, generateJS3ClassPrivateProperty, generateJS3ClassProperty, generateJS3StaticBlock } from "./JS3Constructors.ts";
 import { JS3AllowedBlockStatement, JS3ClassBody, JS3ClassBody_body, JS3ClassDeclaration, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superClass, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassPrivateMethod, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, JS3ClassPrivateProperty, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_variance, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_value, JS3ClassProperty_variance, JS3StaticBlock, JS3StaticBlock_body, JS3VariableDeclaration } from "./JS3Types.ts";
 
@@ -8,7 +8,7 @@ import { JS3BuilderUtils } from "../JS3Builder.ts";
 import assert from 'node:assert';
 import { lowerComputedKey } from "./GenericConstructs.ts";
 import { handleBlockStatement, handleStatement } from "./HandleBlocks.ts";
-import { handleArrowFunctionExpression, handleClassExpression, handleFunctionExpression } from "./HandleExpression.ts";
+import { handleArrowFunctionExpression, handleCallExpression, handleClassExpression, handleFunctionExpression } from "./HandleExpression.ts";
 
 const isnull = (a) => a === null;
 const isundefined = (a) => a === undefined;
@@ -24,7 +24,9 @@ export function handleClassDeclaration(node: ClassDeclaration, otherProps: Other
   // 4 fallthrough props, 7 restricted props
   let orig_superClass = node.superClass; // Handling prop superClass
   let fin_superClass: JS3ClassDeclaration_superClass = null; // Handling prop superClass
-  if (isExpression(orig_superClass)) {
+  if (isCallExpression(orig_superClass)) {
+    fin_superClass = handleCallExpression(orig_superClass, otherProps)
+  } else if (isExpression(orig_superClass)) {
     fin_superClass = lowerComputedKey(orig_superClass, otherProps)
   }
   //

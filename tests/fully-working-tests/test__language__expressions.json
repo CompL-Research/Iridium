@@ -360,78 +360,11 @@
         "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-arrow-assignment-expression-import-attributes-trailing-comma-second.js",
         "reason": "Babel does not support trailing commas in import call, this is inline with ECMA"
     },
+    
 
 
 
 
-
-
-
-
-
-
-
-
-    {
-        "file": "test262/test/language/expressions/dynamic-import/always-create-new-promise.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/for-await-resolution-and-error.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-else-braceless-script-code-valid.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-block-script-code-valid.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/callexpression-arguments.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-with-script-code-valid.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/top-level-script-code-valid.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-with-expression-script-code-valid.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-if-script-code-valid.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-block-labeled-script-code-valid.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-if-braceless-script-code-valid.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/callexpression-templateliteral.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-do-while-script-code-valid.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-else-script-code-valid.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
-    {
-        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-while-script-code-valid.js",
-        "reason": "files are valid, but import paths break as we move the files..."
-    },
     {
         "file": "test262/test/language/expressions/prefix-decrement/arguments.js",
         "reason": "type: SyntaxError"
@@ -8030,6 +7963,71 @@
     }
 ],
 "passed": [
+    {
+        "file": "test262/test/language/expressions/dynamic-import/always-create-new-promise.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+    {
+        "file": "test262/test/language/expressions/dynamic-import/for-await-resolution-and-error.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+    {
+        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-else-braceless-script-code-valid.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+    {
+        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-block-script-code-valid.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+    {
+        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/callexpression-arguments.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+    {
+        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-with-script-code-valid.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+    {
+        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/top-level-script-code-valid.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+    {
+        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-with-expression-script-code-valid.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+    {
+        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-if-script-code-valid.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+    {
+        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-block-labeled-script-code-valid.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+    {
+        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-if-braceless-script-code-valid.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+    {
+        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/callexpression-templateliteral.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+    {
+        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-do-while-script-code-valid.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+    {
+        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-while-script-code-valid.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+
+    {
+        "file": "test262/test/language/expressions/dynamic-import/syntax/valid/nested-else-script-code-valid.js",
+        "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+    },
+
+
+
+
     {
         "file": "test262/test/language/expressions/object/cpn-obj-lit-computed-property-name-from-function-expression.js",
         "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "

@@ -1,0 +1,177 @@
+{
+    "skipped": [
+        {
+            "file": "test262/test/language/global-code/export.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/decl-lex-restricted-global.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/super-prop-arrow.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/invalid-private-names-call-expression-this.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/invalid-private-names-call-expression-bad-reference.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/invalid-private-names-member-expression-this.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/invalid-private-names-member-expression-bad-reference.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/super-call-arrow.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/yield-strict.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/super-prop.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/import.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/new.target-arrow.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/super-call.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/return.js",
+            "reason": "type: SyntaxError"
+        },
+        {
+            "file": "test262/test/language/global-code/new.target.js",
+            "reason": "type: SyntaxError"
+        }
+    ],
+    "passed": [
+        {
+            "file": "test262/test/language/global-code/decl-lex-configurable-global.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/S10.1.7_A1_T1.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/switch-dflt-decl-strict.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js --module"
+        },
+        {
+            "file": "test262/test/language/global-code/decl-func.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/yield-non-strict.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/S10.4.1_A1_T1.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/decl-lex.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/decl-func-dup.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/S10.4.1_A1_T2.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/switch-case-decl-strict.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js --module"
+        },
+        {
+            "file": "test262/test/language/global-code/block-decl-strict.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js --module"
+        },
+        {
+            "file": "test262/test/language/global-code/decl-var.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/unscopables-ignored.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/decl-lex-deletion.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        }
+    ],
+    "failed": [
+        {
+            "file": "test262/test/language/global-code/script-decl-func-err-non-configurable.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/script-decl-lex-deletion.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/script-decl-lex-var-declared-via-eval.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/script-decl-lex.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/script-decl-lex-restricted-global.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/script-decl-lex-var.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/script-decl-func-err-non-extensible.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/script-decl-lex-lex.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/script-decl-var.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/script-decl-var-err.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/script-decl-func.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/script-decl-var-collision.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        },
+        {
+            "file": "test262/test/language/global-code/script-decl-func-dups.js",
+            "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js "
+        }
+    ],
+    "cmd": "/home/meetesh/wd/v8/v8/out/x64.release/d8 test262/harness/sta.js test262/harness/propertyHelper.js test262/harness/doneprintHandle.js test262/harness/assert.js test262/harness/compareArray.js test262/harness/tcoHelper.js"
+}

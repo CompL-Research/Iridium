@@ -1388,6 +1388,8 @@ export function handleUnaryExpression(node: UnaryExpression, otherProps: OtherPr
         fin_argument = handleCallExpression(orig_argument, otherProps)
       } else if (isNumericLiteral(orig_argument)) {
         fin_argument = orig_argument
+      } else if (isThisExpression(orig_argument)) {
+        fin_argument = orig_argument
       } else {
         debugConfig.logger.throwJS3Error("TODO // unsupported UnaryExpression->delete [forms other than member expressions to delete operator are often meaningless]", [orig_argument]);
         // fin_argument = handleExpression(orig_argument, otherProps);
@@ -1680,8 +1682,13 @@ export function handleAwaitExpression(node: AwaitExpression, otherProps: OtherPr
   // 1 fallthrough props, 1 restricted props
   let orig_argument = node.argument; // Handling prop argument
   let fin_argument: JS3AwaitExpression_argument; // Handling prop argument
-  if (isExpression(orig_argument)) {
-    fin_argument = handleExpression(orig_argument, otherProps)
+  // if (isDecimalLiteral(orig_argument) || isBigIntLiteral(orig_argument) || isStringLiteral(orig_argument) || isNumericLiteral(orig_argument) || isNullLiteral(orig_argument) || isBooleanLiteral(orig_argument)) {
+  //   fin_argument = orig_argument;
+  // } else 
+  if (isRegExpLiteral(orig_argument)) {
+    fin_argument = handleRegExpLiteral(orig_argument, otherProps)
+  } else if (isExpression(orig_argument)) {
+    fin_argument = lowerComputedKey(orig_argument, otherProps)
   }
   let result: JS3AwaitExpression = generateJS3AwaitExpression(fin_argument, node);
   return result

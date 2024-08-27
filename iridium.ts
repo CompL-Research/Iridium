@@ -277,6 +277,13 @@ const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
     typeLabel: '{underline path} ...'
   },
   {
+    name: 'js3-result-path',
+    description: 'Path to save the generated JS3 file (only works with the js3 command).',
+    alias: 'j',
+    type: String,
+    typeLabel: '{underline path} ...'
+  },
+  {
     name: 'enable-playground',
     description: `Enable interactive playground for Iridium (default: ${debugConfig.enablePlayground})`,
     alias: 'p',
@@ -507,6 +514,14 @@ if (mainOptions.command === 'analyze') {
         process.exit(1)
       }
       debugConfig.outputsPath = path.resolve("./" + js3Options["outputs-path"])
+    }
+
+    if ("js3-result-path" in js3Options) {
+      if (js3Options["js3-result-path"] === null) {
+        console.log(chalk.red("JS3 result path not provided"))
+        process.exit(1)
+      }
+      debugConfig.js3ResultPath = path.resolve("./" + js3Options["js3-result-path"])
     }
   }
 

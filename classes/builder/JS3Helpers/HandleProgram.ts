@@ -52,7 +52,7 @@ export function handleImportDeclaration(node: ImportDeclaration, otherProps: Oth
   otherProps.debugTrace.push("ImportDeclaration");
   // 5 fallthrough props, 3 restricted props
   let orig_assertions = node.assertions; // Handling prop assertions
-  let fin_assertions: JS3ImportDeclaration_assertions; // Handling prop assertions
+  let fin_assertions: JS3ImportDeclaration_assertions = null; // Handling prop assertions
   if (Array.isArray(orig_assertions)) {
     for (const _arrProp of orig_assertions) {
       if (isImportAttribute(_arrProp)) {
@@ -60,11 +60,10 @@ export function handleImportDeclaration(node: ImportDeclaration, otherProps: Oth
       }
     }
   }
-  if (isnull(orig_assertions)) {
-    fin_assertions = null
-  }
+
+
   let orig_attributes = node.attributes; // Handling prop attributes
-  let fin_attributes: JS3ImportDeclaration_attributes; // Handling prop attributes
+  let fin_attributes: JS3ImportDeclaration_attributes = null; // Handling prop attributes
   if (Array.isArray(orig_attributes)) {
     for (const _arrProp of orig_attributes) {
       if (isImportAttribute(_arrProp)) {
@@ -72,9 +71,7 @@ export function handleImportDeclaration(node: ImportDeclaration, otherProps: Oth
       }
     }
   }
-  if (isnull(orig_attributes)) {
-    fin_attributes = null
-  }
+  
 
   // All assertions that were not handled will be thrown by this point
 
@@ -105,6 +102,11 @@ export function handleImportDeclaration(node: ImportDeclaration, otherProps: Oth
       (otherProps.others.holder as JS3Program_body).push(duplicatedNode);
     }
   }
+
+  if (orig_specifiers.length === 0) {
+    (otherProps.others.holder as JS3Program_body).push(generateJS3ImportDeclaration(new Array(), fin_assertions, fin_attributes, node))
+  }
+
   otherProps.debugTrace.pop()
 }
 

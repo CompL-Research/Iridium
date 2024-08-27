@@ -3,7 +3,6 @@ import cliProgress from 'cli-progress';
 import fs from 'fs';
 import path from 'path';
 
-import { glob } from 'glob';
 import pLimit from 'p-limit';
 import { promisify } from 'util';
 
@@ -41,12 +40,12 @@ const directoryPath = process.argv[2];
       let FAILEDJS3 = [];
       let FAILEDEXEC = [];
       let SKIPPED = [];
-      
+
       // Check if the current path is a file and ends with .json
       if (fs.lstatSync(fullPath).isFile() && path.extname(file).toLowerCase() === '.json') {
-        
+
         console.log(`Working with file: ${path.basename(file)}`)
-        
+
         // Read and parse JSON file
         const data = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
         const failedData = {
@@ -89,8 +88,10 @@ const directoryPath = process.argv[2];
                 return;
               }
 
+              const generatedJS3Path = path.dirname(o.file) + "/JS3" + path.basename(o.file)
+
               // Generate JS3
-              const cmd = `${IRIDIUM_BIN} js3 ${o.file} -o ${folderName}`;
+              const cmd = `${IRIDIUM_BIN} js3 ${o.file} -o ${folderName} -j ${generatedJS3Path}`;
               try {
                 await execAsync(cmd);
               } catch (e) {
@@ -105,14 +106,21 @@ const directoryPath = process.argv[2];
                 return;
               }
 
-              const pattern = `./${folderName}/JS3/*.js`;
-              const files = await glob(pattern);
-              if (files.length !== 1) {
-                console.error(`Found more than one output file in JS3 path: JS3CMD: ${cmd}`, files);
+              // const pattern = `./${folderName}/JS3/*.js`;
+              // const files = await glob(pattern);
+              // if (files.length !== 1) {
+              //   console.error(`Found more than one output file in JS3 path: JS3CMD: ${cmd}`, files);
+              //   process.exit(1);
+              // }
+              // const myFile = files[0];
+              // Copy the file to the correct path
+
+              if (!fs.existsSync(generatedJS3Path)) {
+                console.error(`File not found: ${generatedJS3Path}`);
                 process.exit(1);
               }
-              const myFile = files[0];
-              const v8Cmd = `${o.cmd} ${myFile}`;
+
+              const v8Cmd = `${o.cmd} ${generatedJS3Path}`;
               try {
                 await execAsync(v8Cmd);
                 PASSED.push(o.file);
@@ -137,6 +145,8 @@ const directoryPath = process.argv[2];
           bar1.stop();
 
           console.log(`=== TEST SUMMARY (${data.passed.length} tests) ===`);
+          console.log(`Filename         : ${import.meta.filename}`);
+          console.log(`Dirname          : ${import.meta.dirname}`);
           console.log(`Passed           : ${PASSED.length}`);
           console.log(`Failed (JS3 Gen) : ${FAILEDJS3.length}`);
           console.log(`Failed (Runtime) : ${FAILEDEXEC.length}`);

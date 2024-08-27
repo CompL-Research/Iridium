@@ -120,6 +120,15 @@ export default class JS3Builder {
       debugConfig.logger.log(`[JS3 no code to save] JS3 generated AST is null`)
     }
 
+    if (debugConfig.js3ResultPath) {
+      // DEBUG
+      fs.writeFile(debugConfig.js3ResultPath, this.generatedCode, 'utf8', (err) => {
+        if (err) {
+          debugConfig.logger.error('Error writing to file', [err]);
+        }
+      });  
+    }
+
     // DEBUG
     fs.writeFile(debugConfig.js3DebugPath + "/JS3" + this.projectFile.uname, this.generatedCode, 'utf8', (err) => {
       if (err) {
