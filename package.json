@@ -25,6 +25,7 @@
     "p-limit": "^6.1.0",
     "shelljs": "^0.8.5",
     "socket.io": "^4.7.5",
+    "test262-stream": "^1.4.0",
     "tsx": "^4.16.5"
   },
   "optionalDependencies": {

@@ -1,6 +1,6 @@
-// Generated on 27/8/2024, 6:52:55 pm, extended 60 interfaces 
+// Generated on 28/8/2024, 1:50:14 pm, extended 61 interfaces 
 
-import { OptionalMemberExpression, TemplateElement, RestElement, ArrayPattern, ObjectPattern, AssignmentPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, Expression, ExpressionStatement, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ConditionalExpression, ContinueStatement, DoWhileStatement, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, OptionalCallExpression, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
+import { ExportSpecifier, ExportDefaultSpecifier, ExportNamespaceSpecifier, OptionalMemberExpression, TemplateElement, RestElement, ArrayPattern, ObjectPattern, AssignmentPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, Expression, ExpressionStatement, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ConditionalExpression, ContinueStatement, DoWhileStatement, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, OptionalCallExpression, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
 export type JS3AllowedBlockStatement = JS3WhileStatement | JS3VariableDeclaration | JS3ReturnStatement | JS3ExpressionStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement | JS3FunctionDeclaration | JS3AssignmentExpression | JS3ClassDeclaration | EmptyStatement | JS3WhileStatement | JS3BreakStatement | JS3ContinueStatement | JS3BlockStatement | JS3ForInStatement | JS3LabeledStatement | JS3ForStatement | JS3DoWhileStatement | JS3SwitchStatement | JS3ForOfStatement | JS3WithStatement;
 export type JS3Literals = DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral;
@@ -73,7 +73,7 @@ export type JS3NewExpression_callee = Identifier | Super | V8IntrinsicIdentifier
 export type JS3NewExpression_arguments = Array<Identifier | SpreadElement | ArgumentPlaceholder>;
 export type JS3NewExpression_typeArguments = null;
 export type JS3NewExpression_typeParameters = null;
-export type JS3Program_body = Array< JS3ImportDeclaration | JS3ExportDefaultDeclaration | JS3AllowedBlockStatement >;
+export type JS3Program_body = Array< JS3ImportDeclaration | JS3ExportDefaultDeclaration | JS3ExportNamedDeclaration | JS3AllowedBlockStatement >;
 export type JS3ObjectExpression_properties = Array<JS3ObjectMethod | JS3ObjectProperty | JS3SpreadElement>;
 export type JS3ObjectMethod_key = Identifier | StringLiteral | NumericLiteral | BigIntLiteral;
 export type JS3ObjectMethod_params = Array<JS3AllowedFunctionArgs>;
@@ -124,6 +124,10 @@ export type JS3ClassDeclaration_mixins = null;
 export type JS3ClassDeclaration_superTypeParameters = null;
 export type JS3ClassDeclaration_typeParameters = null;
 export type JS3ExportDefaultDeclaration_declaration = TSDeclareFunction | JS3FunctionDeclaration | JS3ClassDeclaration | Identifier | JS3FunctionDeclaration;
+export type JS3ExportNamedDeclaration_declaration = JS3VariableDeclaration | null;
+export type JS3ExportNamedDeclaration_specifiers = Array<ExportSpecifier | ExportDefaultSpecifier | ExportNamespaceSpecifier>;
+export type JS3ExportNamedDeclaration_assertions = null;
+export type JS3ExportNamedDeclaration_attributes = null;
 export type JS3ForOfStatement_left = VariableDeclaration | JS3LVal;
 export type JS3ForOfStatement_right = Identifier;
 export type JS3ForOfStatement_body = JS3BlockStatement;
@@ -436,6 +440,14 @@ export interface JS3ClassDeclaration extends ClassDeclaration {
 // @ts-ignore
 export interface JS3ExportDefaultDeclaration extends ExportDefaultDeclaration {
   declaration: JS3ExportDefaultDeclaration_declaration;
+}
+
+// @ts-ignore
+export interface JS3ExportNamedDeclaration extends ExportNamedDeclaration {
+  declaration: JS3ExportNamedDeclaration_declaration;
+  specifiers: JS3ExportNamedDeclaration_specifiers;
+  assertions: JS3ExportNamedDeclaration_assertions;
+  attributes: JS3ExportNamedDeclaration_attributes;
 }
 
 // @ts-ignore

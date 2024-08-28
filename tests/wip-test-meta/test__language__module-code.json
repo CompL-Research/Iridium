@@ -28,6 +28,10 @@
             "file": "test262/test/language/module-code/instn-named-bndng-dflt-expr.js",
             "reason": "Works, but breaks self import..."
         },
+        {
+            "file": "test262/test/language/module-code/instn-iee-bndng-let.js",
+            "reason": "Works, but breaks self import..."
+        },
 
         
 
