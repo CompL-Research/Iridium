@@ -124,7 +124,7 @@ export default class JS3Builder {
       // DEBUG
       fs.writeFile(debugConfig.js3ResultPath, this.generatedCode, 'utf8', (err) => {
         if (err) {
-          debugConfig.logger.error('Error writing to file', [err]);
+          debugConfig.logger.error('Error writing to file[1]', [err]);
         }
       });  
     }
@@ -132,14 +132,14 @@ export default class JS3Builder {
     // DEBUG
     fs.writeFile(debugConfig.js3DebugPath + "/JS3" + this.projectFile.uname, this.generatedCode, 'utf8', (err) => {
       if (err) {
-        debugConfig.logger.error('Error writing to file', [err]);
+        debugConfig.logger.error('Error writing to file[2]', [err]);
       }
     });
 
     // DEBUG
     fs.writeFile(debugConfig.js3DebugPath + "/JS3" + this.projectFile.uname + ".map", this.sourceMap, 'utf8', (err) => {
       if (err) {
-        debugConfig.logger.error('Error writing to file', [err]);
+        debugConfig.logger.error('Error writing to file[3]', [err]);
       }
     });
   }

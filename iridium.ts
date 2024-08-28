@@ -180,7 +180,7 @@ function genJS3(filePath) {
       process.exit(1)
     }
   }).catch((err) => {
-    debugConfig.logger.error("Failed to load project file")
+    debugConfig.logger.error("Failed to load project file", [err, filePath])
     process.exit(1)
   })
 }
@@ -521,7 +521,7 @@ if (mainOptions.command === 'analyze') {
         console.log(chalk.red("JS3 result path not provided"))
         process.exit(1)
       }
-      debugConfig.js3ResultPath = path.resolve("./" + js3Options["js3-result-path"])
+      debugConfig.js3ResultPath = path.resolve(js3Options["js3-result-path"])
     }
   }
 
