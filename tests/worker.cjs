@@ -24,15 +24,36 @@ exports.setup = function (opts) {
 const IRIDIUM_BIN = "/home/meetesh/wd/Iridium/iridium";
 const TESTS = path.resolve('./test262');
 
+function getFirstContinuousComments(jsFileContent) {
+  // Regular expression to match full-line comments
+  const fullLineCommentPattern = /^\s*(\/\/.*|\/\*[\s\S]*?\*\/)\s*$/gm;
+
+  // Split the content by lines
+  const lines = jsFileContent.split('\n');
+  const firstCommentBlock = [];
+
+  // Iterate over each line
+  for (let line of lines) {
+    if (fullLineCommentPattern.test(line)) {
+      firstCommentBlock.push(line.trim());
+    } else {
+      break; // Stop when a non-comment line is found
+    }
+  }
+
+  // Combine the comments into a single string with line breaks
+  return firstCommentBlock.join('\n');
+}
 
 exports.runTest = async function (test) {
   let { attrs, contents, file } = test;
+  let js3Content = "TODO"
 
   // Compile js3 inplace
   const folderName = `folder_${Math.random().toString(36).substring(2, 15)}`;
   const cmd = `${IRIDIUM_BIN} js3 ${TESTS}/${test.file} -o ${folderName} -j ${TESTS}/${test.file}`;
   try {
-    await childProcess.execSync(cmd);
+    js3Content = getFirstContinuousComments(contents) + await childProcess.execSync(cmd);
   } catch (e) {
     return { result: "js3 error", msg: e }
   }
@@ -44,7 +65,7 @@ exports.runTest = async function (test) {
     result = await Promise.race([
       agent.evalScript({
         attrs,
-        contents,
+        contents: js3Content,
         file: path.join(testRoot, file),
       }),
       timeout(file),
@@ -52,13 +73,13 @@ exports.runTest = async function (test) {
   } catch (error) {
     agent.stop(); // kill process avoid 100% cpu usage
 
-    return { result: "timeout error", msg: error };
+    return { result: "timeout error", msg: error, js3: js3Content };
   }
 
   if (result.error) {
-    ret = { result: "runtime error", msg: result.error };
+    ret = { result: "runtime error", msg: result.error, js3: js3Content };
   } else {
-    ret = { result: "success", msg: result.stdout };
+    ret = { result: "success", msg: result.stdout, js3: js3Content };
   }
 
   return ret;

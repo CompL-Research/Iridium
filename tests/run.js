@@ -173,15 +173,16 @@ async function executeTests(tests) {
       const actual = await worker.runTest(test);
       if (actual.result === "success") {
         SUCCESS++;
+        console.log(test.file, actual)
       } else if (actual.result === "js3 error") {
         JS3ERR++;
-        console.error(test, actual)
+        console.error(test.file, actual.msg)
       } else if (actual.result === "timeout error") {
         TIMEOUTERR++;
-        console.error(test, actual)
+        console.error(test.file, actual.msg)
       } else if (actual.result === "runtime error") {
         SEMANTICERR++;
-        console.error(test, actual)
+        console.error(test.file, actual.msg)
       }
       
     })(test)
@@ -200,13 +201,14 @@ function generateSummary() {
 
 // Main
 (async function () {
-  
+  execSync('rm -rf folder_*');
+  execSync('git stash -a', { cwd: TESTS });
   const allTests = await getAllTests();
   console.log(`Test filter  : ${fileFilter}`)
   console.log(`Tests to run : ${allTests.length}`)
-  // cleanup()
   compileFixtures()
   await executeTests(allTests)
   generateSummary()
+  execSync('rm -rf folder_*');
   process.exit(0)
 })()
