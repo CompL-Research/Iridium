@@ -40,7 +40,7 @@ export class ProjectFile {
     if (absoluteFilePath.startsWith(projectBasePath) === false) {
       debugConfig.logger.error("File path: ", absoluteFilePath)
       debugConfig.logger.error("Base path: ", projectBasePath)
-      debugConfig.logger.thrownError("File path does not start with project base path")
+      debugConfig.logger.throwJS3Error("File path does not start with project base path")
     }
     assert(absoluteFilePath.startsWith(projectBasePath) === true)
 

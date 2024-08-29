@@ -26,9 +26,8 @@
 import path from 'path';
 import { execSync } from 'child_process';
 import { Worker as JestWorker } from "jest-worker";
-import Test262Stream from "test262-stream";
-import NodeAgent from "eshost/lib/agents/node.js";
 
+import fs from 'fs'
 
 const IRIDIUM_BIN = "/home/meetesh/wd/Iridium/iridium";
 const NODE = "/home/meetesh/.nvm/versions/node/v20.16.0/bin/node"
@@ -57,8 +56,8 @@ worker.getStderr().pipe(process.stderr);
 
 
 
-function processTestResults(data) {
-  const lines = data.split('\n');
+function processTestResults(lines) {
+  // const lines = data.split('\n');
   const results = [];
   let currentTest = null;
   let isHeaderSkipped = false;
@@ -98,53 +97,58 @@ function processTestResults(data) {
   return results;
 }
 
-let tests = new Test262Stream(TESTS, {
-  paths: ["test/language", "test/harness", fileFilter],
-}).once("error", (err) => {
-  console.error(`Failed to create Test262Stream: ${err.message}`);
-  process.exit(1)
-});
+// let tests = new Test262Stream(TESTS, {
+//   paths: ["test/language", "test/harness", fileFilter],
+// }).once("error", (err) => {
+//   console.error(`Failed to create Test262Stream: ${err.message}`);
+//   process.exit(1)
+// });
 
-// 1. Get tests based on input argument and get test262 File Objects
+// 1. Get known working tests from the artifact
 async function getAllTests() {
-  const finalResult = []
   try {
-    const output = execSync(`cat ${babelTapFile} | grep ${fileFilter}`, { encoding: 'utf-8' });
-    const fileResults = processTestResults(output).filter(a => a.success)
-    const filesToTest = fileResults.map(a => a.path)
-    const alreadyAdded = new Set()
-    // console.log(filesToTest.length)
-    for await (const test of tests) {
-      if (alreadyAdded.has(test.file)) continue
-      if (!test.file.includes(fileFilter)) continue;
-      if (!filesToTest.includes(test.file)) continue;
+    const output = fs.readFileSync(babelTapFile, 'utf-8')
+      .split('\n')
+      .filter(line => line.includes(fileFilter))
 
-      finalResult.push(test)
-      alreadyAdded.add(test.file)
-    }
+    const fileResults = processTestResults(output).filter(a => a.status === "passed")
+    const finalRes = new Set()
+    fileResults.map(a => a.path).forEach(a => {
+      finalRes.add(a)
+    })
+    
+    return [...finalRes]
+
+    // for (const fPath of fileResults.map(a => a.path)) {
+    //   const b = createScenarios(builder(fPath, "var a;", { hostPath: NODE, shortName: "$262", testRoot: TESTS, test262Dir: TESTS }))
+    //   console.log("b", b)
+    //   // console.log(fPath, compile(fPath, { hostPath: NODE, shortName: "$262", testRoot: TESTS }))
+    //   // compile(fPath, { hostPath: NODE, shortName: "$262", testRoot: TESTS }, (prom) => {
+    //   //   console.log(fPath, prom)
+    //   // })
+    // }
+
+    // const filesToTest = fileResults.map(a => a.path)
+    // const alreadyAdded = new Set()
+    // console.log(filesToTest.length)
+    // for await (const test of tests) {
+    //   if (alreadyAdded.has(test.file)) continue
+    //   if (!test.file.includes(fileFilter)) continue;
+    //   if (!filesToTest.includes(test.file)) continue;
+
+    //   finalResult.push(test)
+    //   alreadyAdded.add(test.file)
+    // }
   } catch (error) {
     console.error(`Error getting tests: ${error.message}`);
     process.exit(1)
   }
-  return finalResult
 }
 
-
-// 3. Get a clean test262 directory
-// function cleanup() {
-//   execSync('rm -rf folder_*');
-//   execSync('git stash -a', { cwd: TESTS });
-//   execSync('git status test262');
-// }
-
-function getFileList(execOut) {
-  return execOut.split('\n');
-}
-
-// 4. Compile all fixtures in-place
+// 2. Compile all fixtures in-place
 function compileFixtures() {
   try {
-    let output = getFileList(execSync(`find ${TESTS}/${fileFilter} -type f -name "*_FIXTURE.js"`, { encoding: 'utf-8' }));
+    let output = execSync(`find ${TESTS}/${fileFilter} -type f -name "*_FIXTURE.js"`, { encoding: 'utf-8' }).split('\n');
     if (output.length === 1 && output[0] === '') return
     for (const fixture of output) {
       const folderName = `folder_${Math.random().toString(36).substring(2, 15)}`;
@@ -160,38 +164,29 @@ function compileFixtures() {
   }
 }
 
-// 5. Initialize counters
 let TOTAL = 0, SUCCESS = 0, JS3ERR = 0, TIMEOUTERR = 0, SEMANTICERR = 0;
 
-
-// 6. Execute and compile tests in parallel
+// 3. Execute and compile tests in parallel
 async function executeTests(tests) {
-
   TOTAL = tests.length
   const promises = tests.map( test =>
     (async test => {
       const actual = await worker.runTest(test);
       if (actual.result === "success") {
         SUCCESS++;
-        console.log(test.file, actual)
       } else if (actual.result === "js3 error") {
         JS3ERR++;
-        console.error(test.file, actual.msg)
-      } else if (actual.result === "timeout error") {
-        TIMEOUTERR++;
-        console.error(test.file, actual.msg)
-      } else if (actual.result === "runtime error") {
+        console.error(test, actual)
+      } else {
         SEMANTICERR++;
-        console.error(test.file, actual.msg)
+        console.error(test, actual)
       }
-      
     })(test)
   )
-
   await Promise.all(promises);
 }
 
-// 7. Generate Test summary
+// 4. Generate Test summary
 function generateSummary() {
   console.log(`Total Tests: ${TOTAL}`);
   console.log(`Successful: ${SUCCESS}`);
@@ -207,6 +202,7 @@ function generateSummary() {
   console.log(`Test filter  : ${fileFilter}`)
   console.log(`Tests to run : ${allTests.length}`)
   compileFixtures()
+  // console.log(`Compiling fixtures done`)
   await executeTests(allTests)
   generateSummary()
   execSync('rm -rf folder_*');

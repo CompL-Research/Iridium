@@ -29,6 +29,7 @@ export function handleBlockStatement(node: BlockStatement, otherProps: OtherProp
   for (const stmt of orig_body) {
     const blockStmt: JS3AllowedBlockStatement | Array<JS3VariableDeclaration> = handleStatement(stmt, updatedProps)
     if (Array.isArray(blockStmt)) blockStmt.forEach(s => fin_body.push(s))
+    else if (isExpressionStatement(stmt)) {}
     else fin_body.push(blockStmt)
   }
 
@@ -80,7 +81,7 @@ export function handleStatement(node: Statement, otherProps: OtherProps): JS3All
   else if (isClassDeclaration(node)) return handleClassDeclaration(node, otherProps)
 
   else if (isExportAllDeclaration(node)) return handleExportAllDeclaration(node, otherProps)
-    
+
   else if (isExportDefaultDeclaration(node)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled Statement->ExportDefaultDeclaration");
   } else if (isExportNamedDeclaration(node)) {
@@ -243,7 +244,7 @@ export function handleReturnStatement(node: ReturnStatement, otherProps: OtherPr
   // 1 fallthrough props, 1 restricted props
   let orig_argument = node.argument; // Handling prop argument
   let fin_argument: JS3ReturnStatement_argument = generateIdentifier(node, "$TODO"); // Handling prop argument
-  if (isIdentifier(orig_argument) ||  isDecimalLiteral(orig_argument) || isBigIntLiteral(orig_argument) || isStringLiteral(orig_argument) || isNumericLiteral(orig_argument) || isNullLiteral(orig_argument) || isBooleanLiteral(orig_argument) ) {
+  if (isIdentifier(orig_argument) || isDecimalLiteral(orig_argument) || isBigIntLiteral(orig_argument) || isStringLiteral(orig_argument) || isNumericLiteral(orig_argument) || isNullLiteral(orig_argument) || isBooleanLiteral(orig_argument)) {
     fin_argument = orig_argument
   } else if (isExpression(orig_argument)) {
     fin_argument = handleExpression(orig_argument, otherProps)
@@ -302,34 +303,34 @@ export function handleVariableDeclarator(node: VariableDeclarator, otherProps: O
   if (isIdentifier(node.id)) otherProps.others.prefix = node.id.name;
 
   let orig_id = node.id; // Handling prop id
-  let fin_id : JS3VariableDeclarator_id; // Handling prop id
-  if(isIdentifier (orig_id)) {
+  let fin_id: JS3VariableDeclarator_id; // Handling prop id
+  if (isIdentifier(orig_id)) {
     fin_id = orig_id
-  } else if(isMemberExpression (orig_id)) {
+  } else if (isMemberExpression(orig_id)) {
     fin_id = handleMemberExpression(orig_id, otherProps)
-  } else if(isRestElement (orig_id)) {
+  } else if (isRestElement(orig_id)) {
     fin_id = orig_id
-  } else if(isAssignmentPattern (orig_id)) {
+  } else if (isAssignmentPattern(orig_id)) {
     fin_id = orig_id
-  } else if(isArrayPattern (orig_id)) {
+  } else if (isArrayPattern(orig_id)) {
     fin_id = orig_id
-  } else if(isObjectPattern (orig_id)) {
+  } else if (isObjectPattern(orig_id)) {
     fin_id = orig_id
-  } else if(isTSParameterProperty (orig_id)) {
+  } else if (isTSParameterProperty(orig_id)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSParameterProperty");
-  } else if(isTSAsExpression (orig_id)) {
+  } else if (isTSAsExpression(orig_id)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSAsExpression");
-  } else if(isTSSatisfiesExpression (orig_id)) {
+  } else if (isTSSatisfiesExpression(orig_id)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSSatisfiesExpression");
-  } else if(isTSTypeAssertion (orig_id)) {
+  } else if (isTSTypeAssertion(orig_id)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSTypeAssertion");
-  } else if(isTSNonNullExpression (orig_id)) {
+  } else if (isTSNonNullExpression(orig_id)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSNonNullExpression");
   }
 
   let orig_init = node.init; // Handling prop init
   let fin_init: JS3VariableDeclarator_init = null; // Handling prop init
-  
+
   if (isIdentifier(orig_init) || isDecimalLiteral(orig_init) || isBigIntLiteral(orig_init) || isStringLiteral(orig_init) || isNumericLiteral(orig_init) || isNullLiteral(orig_init) || isBooleanLiteral(orig_init)) {
     fin_init = orig_init
   } else if (isArrowFunctionExpression(orig_init)) {
@@ -546,8 +547,8 @@ export function handleDoWhileStatement(node: DoWhileStatement, otherProps: Other
 
   // 1 fallthrough props, 2 restricted props
   let orig_test = node.test; // Handling prop test
-  let fin_test : JS3DoWhileStatement_test; // Handling prop test
-  if(isExpression (orig_test)) {
+  let fin_test: JS3DoWhileStatement_test; // Handling prop test
+  if (isExpression(orig_test)) {
     fin_test = lowerComputedKey(orig_test, otherProps)
   }
 
@@ -557,7 +558,7 @@ export function handleDoWhileStatement(node: DoWhileStatement, otherProps: Other
   const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: loopBodyHolder } }
   let fin_body: JS3ForStatement_body = generateJS3BlockStatementfromBaseNode(loopBodyHolder, new Array(), orig_body);
 
-  if(isStatement (orig_body)) {
+  if (isStatement(orig_body)) {
     const blockStmt: JS3AllowedBlockStatement | Array<JS3VariableDeclaration> = handleStatement(orig_body, updatedProps)
     if (Array.isArray(blockStmt)) blockStmt.forEach(s => loopBodyHolder.push(s))
     else loopBodyHolder.push(blockStmt)
@@ -570,43 +571,43 @@ export function handleDoWhileStatement(node: DoWhileStatement, otherProps: Other
 export function handleForInStatement(node: ForInStatement, otherProps: OtherProps) {
   // 1 fallthrough props, 3 restricted props
   let orig_left = node.left; // Handling prop left
-  let fin_left : JS3ForInStatement_left; // Handling prop left
-  if(isVariableDeclaration (orig_left)) {
+  let fin_left: JS3ForInStatement_left; // Handling prop left
+  if (isVariableDeclaration(orig_left)) {
     fin_left = orig_left
-  } else if(isIdentifier (orig_left)) {
+  } else if (isIdentifier(orig_left)) {
     fin_left = orig_left
-  } else if(isMemberExpression (orig_left)) {
+  } else if (isMemberExpression(orig_left)) {
     fin_left = handleMemberExpression(orig_left, otherProps)
-  } else if(isRestElement (orig_left)) {
+  } else if (isRestElement(orig_left)) {
     fin_left = orig_left
-  } else if(isAssignmentPattern (orig_left)) {
+  } else if (isAssignmentPattern(orig_left)) {
     fin_left = orig_left
-  } else if(isArrayPattern (orig_left)) {
+  } else if (isArrayPattern(orig_left)) {
     fin_left = orig_left
-  } else if(isObjectPattern (orig_left)) {
+  } else if (isObjectPattern(orig_left)) {
     fin_left = orig_left
-  } else if(isTSParameterProperty (orig_left)) {
+  } else if (isTSParameterProperty(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->TSParameterProperty");
-  } else if(isTSAsExpression (orig_left)) {
+  } else if (isTSAsExpression(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->TSAsExpression");
-  } else if(isTSSatisfiesExpression (orig_left)) {
+  } else if (isTSSatisfiesExpression(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->TSSatisfiesExpression");
-  } else if(isTSTypeAssertion (orig_left)) {
+  } else if (isTSTypeAssertion(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->TSTypeAssertion");
-  } else if(isTSNonNullExpression (orig_left)) {
+  } else if (isTSNonNullExpression(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->TSNonNullExpression");
   }
 
   let orig_right = node.right; // Handling prop right
-  let fin_right : JS3ForInStatement_right; // Handling prop right
-  if(isExpression (orig_right)) {
+  let fin_right: JS3ForInStatement_right; // Handling prop right
+  if (isExpression(orig_right)) {
     fin_right = handleExpression(orig_right, otherProps);
   }
 
   let orig_body = node.body; // Handling prop body
-  let fin_body : JS3ForInStatement_body; // Handling prop body
-  if(isStatement (orig_body)) {
-    const blockBody : JS3BlockStatement_body = new Array();
+  let fin_body: JS3ForInStatement_body; // Handling prop body
+  if (isStatement(orig_body)) {
+    const blockBody: JS3BlockStatement_body = new Array();
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockBody } }
 
     const blockStmt: JS3AllowedBlockStatement | Array<JS3VariableDeclaration> = handleStatement(orig_body, updatedProps)
@@ -623,43 +624,43 @@ export function handleForInStatement(node: ForInStatement, otherProps: OtherProp
 export function handleForOfStatement(node: ForOfStatement, otherProps: OtherProps) {
   // 2 fallthrough props, 3 restricted props
   let orig_left = node.left; // Handling prop left
-  let fin_left : JS3ForOfStatement_left; // Handling prop left
-  if(isVariableDeclaration (orig_left)) {
+  let fin_left: JS3ForOfStatement_left; // Handling prop left
+  if (isVariableDeclaration(orig_left)) {
     fin_left = orig_left
-  } else if(isIdentifier (orig_left)) {
+  } else if (isIdentifier(orig_left)) {
     fin_left = orig_left
-  } else if(isMemberExpression (orig_left)) {
+  } else if (isMemberExpression(orig_left)) {
     fin_left = handleMemberExpression(orig_left, otherProps)
-  } else if(isRestElement (orig_left)) {
+  } else if (isRestElement(orig_left)) {
     fin_left = orig_left
-  } else if(isAssignmentPattern (orig_left)) {
+  } else if (isAssignmentPattern(orig_left)) {
     fin_left = orig_left
-  } else if(isArrayPattern (orig_left)) {
+  } else if (isArrayPattern(orig_left)) {
     fin_left = orig_left
-  } else if(isObjectPattern (orig_left)) {
+  } else if (isObjectPattern(orig_left)) {
     fin_left = orig_left
-  } else if(isTSParameterProperty (orig_left)) {
+  } else if (isTSParameterProperty(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->TSParameterProperty");
-  } else if(isTSAsExpression (orig_left)) {
+  } else if (isTSAsExpression(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->TSAsExpression");
-  } else if(isTSSatisfiesExpression (orig_left)) {
+  } else if (isTSSatisfiesExpression(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->TSSatisfiesExpression");
-  } else if(isTSTypeAssertion (orig_left)) {
+  } else if (isTSTypeAssertion(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->TSTypeAssertion");
-  } else if(isTSNonNullExpression (orig_left)) {
+  } else if (isTSNonNullExpression(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->TSNonNullExpression");
   }
 
   let orig_right = node.right; // Handling prop right
-  let fin_right : JS3ForOfStatement_right; // Handling prop right
-  if(isExpression (orig_right)) {
+  let fin_right: JS3ForOfStatement_right; // Handling prop right
+  if (isExpression(orig_right)) {
     fin_right = handleExpression(orig_right, otherProps)
   }
 
   let orig_body = node.body; // Handling prop body
-  let fin_body : JS3ForInStatement_body; // Handling prop body
-  if(isStatement (orig_body)) {
-    const blockBody : JS3BlockStatement_body = new Array();
+  let fin_body: JS3ForInStatement_body; // Handling prop body
+  if (isStatement(orig_body)) {
+    const blockBody: JS3BlockStatement_body = new Array();
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockBody } }
 
     const blockStmt: JS3AllowedBlockStatement | Array<JS3VariableDeclaration> = handleStatement(orig_body, updatedProps)
@@ -668,7 +669,7 @@ export function handleForOfStatement(node: ForOfStatement, otherProps: OtherProp
 
     fin_body = generateJS3BlockStatementfromBaseNode(blockBody, new Array(), orig_body)
   }
-  
+
   let result: JS3ForOfStatement = generateJS3ForOfStatement(fin_left, fin_right, fin_body, node);
   return result;
 }
@@ -711,18 +712,18 @@ export function handleContinueStatement(node: ContinueStatement, otherProps: Oth
 export function handleSwitchCase(node: SwitchCase, otherProps: OtherProps) {
   // 1 fallthrough props, 2 restricted props
   let orig_test = node.test; // Handling prop test
-  let fin_test : JS3SwitchCase_test = null; // Handling prop test
-  if(isExpression (orig_test)) {
+  let fin_test: JS3SwitchCase_test = null; // Handling prop test
+  if (isExpression(orig_test)) {
     fin_test = lowerComputedKey(orig_test, otherProps);
   }
 
   let orig_consequent = node.consequent; // Handling prop consequent
-  let fin_consequent : JS3SwitchCase_consequent = new Array(); // Handling prop consequent
+  let fin_consequent: JS3SwitchCase_consequent = new Array(); // Handling prop consequent
 
   // Block Scope
   const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: fin_consequent } }
 
-  if (Array.isArray ( orig_consequent )) { 
+  if (Array.isArray(orig_consequent)) {
     for (const _arrProp of orig_consequent) {
       const blockStmt: JS3AllowedBlockStatement | Array<JS3VariableDeclaration> = handleStatement(_arrProp, updatedProps)
       if (Array.isArray(blockStmt)) blockStmt.forEach(s => fin_consequent.push(s))
@@ -736,18 +737,18 @@ export function handleSwitchCase(node: SwitchCase, otherProps: OtherProps) {
 export function handleSwitchStatement(node: SwitchStatement, otherProps: OtherProps) {
   // 1 fallthrough props, 2 restricted props
   let orig_discriminant = node.discriminant; // Handling prop discriminant
-  let fin_discriminant : JS3SwitchStatement_discriminant; // Handling prop discriminant
-  if(isExpression (orig_discriminant)) {
+  let fin_discriminant: JS3SwitchStatement_discriminant; // Handling prop discriminant
+  if (isExpression(orig_discriminant)) {
     fin_discriminant = lowerComputedKey(orig_discriminant, otherProps);
   }
-  
+
   let orig_cases = node.cases; // Handling prop cases
-  let fin_cases : JS3SwitchStatement_cases = new Array(); // Handling prop cases
-  if (Array.isArray ( orig_cases )) { 
+  let fin_cases: JS3SwitchStatement_cases = new Array(); // Handling prop cases
+  if (Array.isArray(orig_cases)) {
     for (const _arrProp of orig_cases) {
       fin_cases.push(handleSwitchCase(_arrProp, otherProps))
     }
-  } 
+  }
   let result: JS3SwitchStatement = generateJS3SwitchStatement(fin_discriminant, fin_cases, node);
   return result
 }
@@ -755,13 +756,13 @@ export function handleSwitchStatement(node: SwitchStatement, otherProps: OtherPr
 export function handleWithStatement(node: WithStatement, otherProps: OtherProps) {
   // 1 fallthrough props, 2 restricted props
   let orig_object = node.object; // Handling prop object
-  let fin_object : JS3WithStatement_object; // Handling prop object
-  if(isExpression (orig_object)) {
+  let fin_object: JS3WithStatement_object; // Handling prop object
+  if (isExpression(orig_object)) {
     fin_object = handleExpression(orig_object, otherProps);
-  } 
+  }
   let orig_body = node.body; // Handling prop body
-  let fin_body : JS3WithStatement_body; // Handling prop body
-  if(isStatement (orig_body)) {
+  let fin_body: JS3WithStatement_body; // Handling prop body
+  if (isStatement(orig_body)) {
     if (isBlockStatement(orig_body)) {
       fin_body = handleBlockStatement(orig_body, otherProps);
     } else {
@@ -777,7 +778,7 @@ export function handleWithStatement(node: WithStatement, otherProps: OtherProps)
       if (Array.isArray(blockStmt)) blockStmt.forEach(s => blockBody.push(s))
       else blockBody.push(blockStmt)
     }
-  } 
+  }
   let result: JS3WithStatement = generateJS3WithStatement(fin_object, fin_body, node);
   return result;
 }
@@ -785,14 +786,14 @@ export function handleWithStatement(node: WithStatement, otherProps: OtherProps)
 export function handleWhileStatement(node: WhileStatement, otherProps: OtherProps) {
   // 1 fallthrough props, 2 restricted props
   let orig_test = node.test; // Handling prop test
-  let fin_test : JS3WhileStatement_test; // Handling prop test
-  if(isExpression (orig_test)) {
+  let fin_test: JS3WhileStatement_test; // Handling prop test
+  if (isExpression(orig_test)) {
     fin_test = lowerComputedKey(orig_test, otherProps)
   }
 
   let orig_body = node.body; // Handling prop body
-  let fin_body : JS3WhileStatement_body; // Handling prop body
-  if(isStatement (orig_body)) {
+  let fin_body: JS3WhileStatement_body; // Handling prop body
+  if (isStatement(orig_body)) {
     if (isBlockStatement(orig_body)) {
       fin_body = handleBlockStatement(orig_body, otherProps);
     } else {
@@ -808,7 +809,7 @@ export function handleWhileStatement(node: WhileStatement, otherProps: OtherProp
       if (Array.isArray(blockStmt)) blockStmt.forEach(s => blockBody.push(s))
       else blockBody.push(blockStmt)
     }
-  } 
+  }
   let result: JS3WhileStatement = generateJS3WhileStatement(fin_test, fin_body, node);
   return result
 }
@@ -816,22 +817,22 @@ export function handleWhileStatement(node: WhileStatement, otherProps: OtherProp
 export function handleExportAllDeclaration(node: ExportAllDeclaration, otherProps: OtherProps) {
   // 3 fallthrough props, 2 restricted props
   let orig_assertions = node.assertions; // Handling prop assertions
-  let fin_assertions : JS3ExportAllDeclaration_assertions = null; // Handling prop assertions
-  if (Array.isArray ( orig_assertions )) { 
+  let fin_assertions: JS3ExportAllDeclaration_assertions = null; // Handling prop assertions
+  if (Array.isArray(orig_assertions)) {
     for (const _arrProp of orig_assertions) {
-      if(isImportAttribute (_arrProp)) {
+      if (isImportAttribute(_arrProp)) {
         debugConfig.logger.throwJS3Error("TODO // unhandled ExportAllDeclaration->[assertions]->ImportAttribute");
-      } 
+      }
     }
   }
 
   let orig_attributes = node.attributes; // Handling prop attributes
-  let fin_attributes : JS3ExportAllDeclaration_attributes = null; // Handling prop attributes
-  if (Array.isArray ( orig_attributes )) { 
+  let fin_attributes: JS3ExportAllDeclaration_attributes = null; // Handling prop attributes
+  if (Array.isArray(orig_attributes)) {
     for (const _arrProp of orig_attributes) {
-      if(isImportAttribute (_arrProp)) {
+      if (isImportAttribute(_arrProp)) {
         debugConfig.logger.throwJS3Error("TODO // unhandled ExportAllDeclaration->[attributes]->ImportAttribute");
-      } 
+      }
     }
   }
 

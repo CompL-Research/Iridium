@@ -6,7 +6,8 @@ import assert from "node:assert";
 import fs from "node:fs";
 import { ProjectFile } from "../ProjectFile.ts";
 import { handleProgram } from "./JS3Helpers/HandleProgram.ts";
-import { JS3AllowedBlockStatement, JS3Program, JS3Program_body } from "./JS3Helpers/JS3Types.ts";
+import { JS3AllowedBlockStatement, JS3File, JS3Program, JS3Program_body } from "./JS3Helpers/JS3Types.ts";
+import { generateJS3File } from "./JS3Helpers/JS3Constructors.ts";
 
 
 const generator = _generator["default"]
@@ -23,7 +24,7 @@ export type JS3BuilderUtils = {
 
 export default class JS3Builder {
   projectFile: ProjectFile
-  generatedProgram: JS3Program | null
+  generatedProgram: JS3File | null
   #varIdx: number = 0
   generatedCode: string = ""
   sourceMap: any = ""
@@ -45,10 +46,12 @@ export default class JS3Builder {
   }
 
   build() {
+    const file = this.projectFile.initData.parseResult
     const program = this.projectFile.initData.parseResult.program
     assert(program)
     try {
-      this.generatedProgram = handleProgram(program, this.utils)
+      const js3Program = handleProgram(program, this.utils)
+      this.generatedProgram = generateJS3File(js3Program, file)
     } catch (e) {
       this.generatedProgram = null;
       debugConfig.logger.error("[JS3 Builder] failed to generate JS3...", [e])
@@ -101,20 +104,44 @@ export default class JS3Builder {
         presets.push(['@babel/preset-typescript'])
       }
 
-      const transformedCode = babel.transformFromAst(this.generatedProgram, this.projectFile.initData.sourceCode, {
-        cwd: this.projectFile.projectBasePath,
-        filename: this.projectFile.uname,
-        // inputSourceMap: this.projectFile.sourceMap,
-        ast: true,
-        presets,
-        sourceMaps: true,
-        plugins: [
-          "@babel/plugin-syntax-jsx"
-        ],
-      });
+      this.generatedProgram.leadingComments = this.generatedProgram.comments
 
-      this.generatedCode = transformedCode.code;
-      this.sourceMap = JSON.stringify(transformedCode.map)
+      const generated = generator(
+        this.generatedProgram,
+        { sourceMaps: true, sourceFileName: this.projectFile.filename, shouldPrintComment: (c) => true },
+        this.projectFile.initData.sourceCode,
+      );
+
+      // For babel tests, we want to carry over starting comments into the body
+
+      // const transformedCode = babel.transformFromAstSync(this.generatedProgram, this.projectFile.initData.sourceCode, {
+      //   cwd: this.projectFile.projectBasePath,
+      //   filename: this.projectFile.uname,
+      //   // inputSourceMap: this.projectFile.sourceMap,
+      //   ast: true,
+      //   comments: true,
+      //   shouldPrintComment: (c) => true,
+      //   presets,
+      //   sourceMaps: true,
+      //   plugins: [
+      //     "@babel/plugin-syntax-jsx"
+      //   ],
+      // });
+
+      // const transformedCode = babel.transformFromAst(this.generatedProgram, this.projectFile.initData.sourceCode, {
+      //   cwd: this.projectFile.projectBasePath,
+      //   filename: this.projectFile.uname,
+      //   // inputSourceMap: this.projectFile.sourceMap,
+      //   ast: true,
+      //   presets,
+      //   sourceMaps: true,
+      //   plugins: [
+      //     "@babel/plugin-syntax-jsx"
+      //   ],
+      // });
+
+      this.generatedCode = generated.code;
+      this.sourceMap = JSON.stringify(generated.map)
     } else {
       this.generatedCode = "// JS3 generated AST is null"
       debugConfig.logger.log(`[JS3 no code to save] JS3 generated AST is null`)
