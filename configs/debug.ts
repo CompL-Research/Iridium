@@ -11,6 +11,7 @@ const config : {
   logger: Logger,
   versionNumber: string,
   throwJS3Errors: boolean,
+  js3SourceType: string
 } = {
   js3DebugPath: "./outputs/JS3",
   js3ResultPath: undefined,
@@ -21,7 +22,8 @@ const config : {
   playgroundPort: 4000,
   logger: new Logger(),
   versionNumber: "",
-  throwJS3Errors: false
+  throwJS3Errors: false,
+  js3SourceType: "unambiguous"
 }
 
 export default config;

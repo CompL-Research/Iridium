@@ -157,32 +157,33 @@ function main(mainProjectPath, analyzePath) {
 }
 
 function genJS3(filePath) {
-  // Ensure outputs directory
-  if (fs.existsSync(debugConfig.outputsPath)) {
-    fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
-  }
-
-  debugConfig.iridiumDebugPath = path.resolve(debugConfig.outputsPath + "/Iridium");
-  debugConfig.js3DebugPath = path.resolve(debugConfig.outputsPath + "/JS3");
-  fs.mkdirSync(debugConfig.outputsPath);
-  fs.mkdirSync(debugConfig.iridiumDebugPath);
-  fs.mkdirSync(debugConfig.js3DebugPath);
+  debugConfig.logger.printToConsole = false
+  // // Ensure outputs directory
+  // if (fs.existsSync(debugConfig.outputsPath)) {
+  //   fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
+  // }
+  // debugConfig.iridiumDebugPath = path.resolve("./JS3TMP/Iridium");
+  // debugConfig.js3DebugPath = path.resolve(debugConfig.outputsPath + "/JS3");
+  // fs.mkdirSync(debugConfig.outputsPath);
+  // fs.mkdirSync(debugConfig.iridiumDebugPath);
+  // fs.mkdirSync(debugConfig.js3DebugPath);
 
   const file = new ProjectFile(filePath, path.dirname(filePath))
-  file.init().then(() => {
+
+  try {
+    file.initSync(debugConfig.js3SourceType)
+    if (file.initData.parseStatus !== "parsed") 
+      debugConfig.logger.throwJS3Error("JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)")
+      
     const builder = new JS3Builder(file)
     builder.build()
-    if (builder.generatedProgram) {
-      builder.saveGeneratedFile()
-      console.log(builder.generatedCode)
-    } else {
-      debugConfig.logger.error("Failed to generate JS3 file")
-      process.exit(1)
-    }
-  }).catch((err) => {
-    debugConfig.logger.error("Failed to load project file", [err, filePath])
+    builder.generateCode()
+    console.log(builder.generatedCode)
+    process.exit(0)
+  } catch (e) {
+    console.error("Failed to generated JS3: ", e)
     process.exit(1)
-  })
+  }
 }
 
 function getAllFiles(dirPath, arrayOfFiles) {
@@ -315,6 +316,12 @@ const js3DefinitionsOptionList: Array<DefinitionsOption> = [
     alias: 'o',
     type: String,
     typeLabel: '{underline path} ...'
+  },
+  {
+    name: 'source-type',
+    description: 'Source Type ("module" | "script" | "unambigious" (default)).',
+    alias: 's',
+    type: String
   }
 ]
 
@@ -474,7 +481,7 @@ if (mainOptions.command === 'analyze') {
 } else if (mainOptions.command === 'help') {
   printUsage()
 } else if (mainOptions.command === "js3") {
-  const analyzemainDefinitions = [
+  const mainDefs = [
     { name: 'command', defaultOption: true }
   ]
 
@@ -485,11 +492,11 @@ if (mainOptions.command === 'analyze') {
         content: [
           `$ ./iridium js3 <js-file-path>`
         ]
-      }, analyzeDefinitions)
+      }, js3Definitions)
     process.exit(0)
   }
 
-  const js3MainOptions = commandLineArgs(analyzemainDefinitions, { argv, stopAtFirstUnknown: true })
+  const js3MainOptions = commandLineArgs(mainDefs, { argv, stopAtFirstUnknown: true })
   const js3Argv = js3MainOptions._unknown || []
 
   if (js3MainOptions.command === "help") {
@@ -499,22 +506,14 @@ if (mainOptions.command === 'analyze') {
         content: [
           `$ ./iridium js3 <js-file-path>`
         ]
-      }, analyzeDefinitions)
+      }, js3Definitions)
     process.exit(0)
   }
 
   debugConfig.throwJS3Errors = true
 
   if (js3Argv.length > 0) {
-    const js3Options = commandLineArgs(analyzeDefinitionsOptionList, { argv: js3Argv })
-
-    if ("outputs-path" in js3Options) {
-      if (js3Options["outputs-path"] === null) {
-        console.log(chalk.red("Outputs path not provided"))
-        process.exit(1)
-      }
-      debugConfig.outputsPath = path.resolve("./" + js3Options["outputs-path"])
-    }
+    const js3Options = commandLineArgs(js3DefinitionsOptionList, { argv: js3Argv })
 
     if ("js3-result-path" in js3Options) {
       if (js3Options["js3-result-path"] === null) {
@@ -522,6 +521,14 @@ if (mainOptions.command === 'analyze') {
         process.exit(1)
       }
       debugConfig.js3ResultPath = path.resolve(js3Options["js3-result-path"])
+    }
+
+    if ("source-type" in js3Options) {
+      if (js3Options["source-type"] === null) {
+        console.log(chalk.red("JS3 mode is not provided"))
+        process.exit(1)
+      }
+      debugConfig.js3SourceType = js3Options["source-type"]
     }
   }
 

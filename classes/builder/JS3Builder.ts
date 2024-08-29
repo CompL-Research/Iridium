@@ -39,6 +39,9 @@ export default class JS3Builder {
   }
 
   constructor(file: ProjectFile) {
+    if (file.initData.parseStatus !== "parsed") {
+      debugConfig.logger.throwJS3Error("JS3 Builder requires a parsed file as input, found unparsed file")
+    }
     assert(file.initData.parseStatus === "parsed")
     this.projectFile = file
     this.generatedProgram = null
@@ -49,16 +52,11 @@ export default class JS3Builder {
     const file = this.projectFile.initData.parseResult
     const program = this.projectFile.initData.parseResult.program
     assert(program)
-    try {
-      const js3Program = handleProgram(program, this.utils)
-      this.generatedProgram = generateJS3File(js3Program, file)
-    } catch (e) {
-      this.generatedProgram = null;
-      debugConfig.logger.error("[JS3 Builder] failed to generate JS3...", [e])
-    }
+    const js3Program = handleProgram(program, this.utils)
+    this.generatedProgram = generateJS3File(js3Program, file)
   }
 
-  generateURI() : null | string {
+  generateURI(): null | string {
     // https://github.com/facebook/react
     function utf16ToUTF8(s: string): string {
       return unescape(encodeURIComponent(s));
@@ -92,60 +90,67 @@ export default class JS3Builder {
     return null
   }
 
-  saveGeneratedFile() {
-    if (this.generatedProgram !== null) {
-      // More finetuned 
-      let presets: Array<Array<string | {}>> = [
-        ["@babel/preset-env", { targets: "last 2 Chrome versions", modules: false }],
-        // ['@babel/preset-react', { runtime: "automatic", importSource: true }]
-      ]
+  getGeneratedProgamString() {
 
-      if (this.projectFile.extension === 'ts' || this.projectFile.extension === 'tsx') {
-        presets.push(['@babel/preset-typescript'])
-      }
+    // More finetuned 
+    let presets: Array<Array<string | {}>> = [
+      ["@babel/preset-env", { targets: "last 2 Chrome versions", modules: false }],
+      // ['@babel/preset-react', { runtime: "automatic", importSource: true }]
+    ]
 
-      this.generatedProgram.leadingComments = this.generatedProgram.comments
-
-      const generated = generator(
-        this.generatedProgram,
-        { sourceMaps: true, sourceFileName: this.projectFile.filename, shouldPrintComment: (c) => true },
-        this.projectFile.initData.sourceCode,
-      );
-
-      // For babel tests, we want to carry over starting comments into the body
-
-      // const transformedCode = babel.transformFromAstSync(this.generatedProgram, this.projectFile.initData.sourceCode, {
-      //   cwd: this.projectFile.projectBasePath,
-      //   filename: this.projectFile.uname,
-      //   // inputSourceMap: this.projectFile.sourceMap,
-      //   ast: true,
-      //   comments: true,
-      //   shouldPrintComment: (c) => true,
-      //   presets,
-      //   sourceMaps: true,
-      //   plugins: [
-      //     "@babel/plugin-syntax-jsx"
-      //   ],
-      // });
-
-      // const transformedCode = babel.transformFromAst(this.generatedProgram, this.projectFile.initData.sourceCode, {
-      //   cwd: this.projectFile.projectBasePath,
-      //   filename: this.projectFile.uname,
-      //   // inputSourceMap: this.projectFile.sourceMap,
-      //   ast: true,
-      //   presets,
-      //   sourceMaps: true,
-      //   plugins: [
-      //     "@babel/plugin-syntax-jsx"
-      //   ],
-      // });
-
-      this.generatedCode = generated.code;
-      this.sourceMap = JSON.stringify(generated.map)
-    } else {
-      this.generatedCode = "// JS3 generated AST is null"
-      debugConfig.logger.log(`[JS3 no code to save] JS3 generated AST is null`)
+    if (this.projectFile.extension === 'ts' || this.projectFile.extension === 'tsx') {
+      presets.push(['@babel/preset-typescript'])
     }
+
+    this.generatedProgram.trailingComments = this.generatedProgram.comments
+
+
+    const transformedCode = babel.transformFromAst(this.generatedProgram, this.projectFile.initData.sourceCode, {
+      cwd: this.projectFile.projectBasePath,
+      filename: this.projectFile.uname,
+      // inputSourceMap: this.projectFile.sourceMap,
+      ast: true,
+      presets,
+      plugins: [
+        "@babel/plugin-syntax-jsx"
+      ],
+    });
+
+    return transformedCode.code
+
+  }
+
+  generateCode() {
+    // More finetuned 
+    let presets: Array<Array<string | {}>> = [
+      ["@babel/preset-env", { targets: "last 2 Chrome versions", modules: false }],
+      // ['@babel/preset-react', { runtime: "automatic", importSource: true }]
+    ]
+
+    if (this.projectFile.extension === 'ts' || this.projectFile.extension === 'tsx') {
+      presets.push(['@babel/preset-typescript'])
+    }
+
+    this.generatedProgram.trailingComments = this.generatedProgram.comments
+
+    const transformedCode = babel.transformFromAst(this.generatedProgram, this.projectFile.initData.sourceCode, {
+      cwd: this.projectFile.projectBasePath,
+      filename: this.projectFile.uname,
+      // inputSourceMap: this.projectFile.sourceMap,
+      ast: true,
+      presets,
+      sourceMaps: true,
+      plugins: [
+        "@babel/plugin-syntax-jsx"
+      ],
+    });
+
+    this.generatedCode = transformedCode.code;
+    this.sourceMap = JSON.stringify(transformedCode.map)
+  }
+
+  saveGeneratedFile() {
+
 
     if (debugConfig.js3ResultPath) {
       // DEBUG
@@ -153,7 +158,7 @@ export default class JS3Builder {
         if (err) {
           debugConfig.logger.error('Error writing to file[1]', [err]);
         }
-      });  
+      });
     }
 
     // DEBUG

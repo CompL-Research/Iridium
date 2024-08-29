@@ -30,7 +30,7 @@ import { Worker as JestWorker } from "jest-worker";
 import fs from 'fs'
 
 const IRIDIUM_BIN = "/home/meetesh/wd/Iridium/iridium";
-const NODE = "/home/meetesh/.nvm/versions/node/v20.16.0/bin/node"
+const NODE = "/home/meetesh/wd/babel-test262-runner/engine/node/bin/node"
 const TESTS = path.resolve('./test262');
 
 
@@ -119,26 +119,6 @@ async function getAllTests() {
     
     return [...finalRes]
 
-    // for (const fPath of fileResults.map(a => a.path)) {
-    //   const b = createScenarios(builder(fPath, "var a;", { hostPath: NODE, shortName: "$262", testRoot: TESTS, test262Dir: TESTS }))
-    //   console.log("b", b)
-    //   // console.log(fPath, compile(fPath, { hostPath: NODE, shortName: "$262", testRoot: TESTS }))
-    //   // compile(fPath, { hostPath: NODE, shortName: "$262", testRoot: TESTS }, (prom) => {
-    //   //   console.log(fPath, prom)
-    //   // })
-    // }
-
-    // const filesToTest = fileResults.map(a => a.path)
-    // const alreadyAdded = new Set()
-    // console.log(filesToTest.length)
-    // for await (const test of tests) {
-    //   if (alreadyAdded.has(test.file)) continue
-    //   if (!test.file.includes(fileFilter)) continue;
-    //   if (!filesToTest.includes(test.file)) continue;
-
-    //   finalResult.push(test)
-    //   alreadyAdded.add(test.file)
-    // }
   } catch (error) {
     console.error(`Error getting tests: ${error.message}`);
     process.exit(1)
@@ -174,12 +154,16 @@ async function executeTests(tests) {
       const actual = await worker.runTest(test);
       if (actual.result === "success") {
         SUCCESS++;
-      } else if (actual.result === "js3 error") {
-        JS3ERR++;
-        console.error(test, actual)
+      // } else if (actual.result === "js3 error") {
+      //   JS3ERR++;
+      //   console.error(test, actual)
       } else {
+        if (actual.result === "results mismatch") {
+          console.error(actual.js3Scenario.contents)
+        }
+        
         SEMANTICERR++;
-        console.error(test, actual)
+        console.error(actual)
       }
     })(test)
   )

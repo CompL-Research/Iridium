@@ -72,8 +72,45 @@ export class ProjectFile {
     }
   }
 
+  initSync(sourceType = "unambiguous", plugins = []) {
+    const sourceCode = fs.readFileSync(this.absoluteFilePath, 'utf-8');
+    // 1. Load Source Code
+    this.initData.status = "loaded"
+    this.initData.sourceCode = sourceCode
+    this.initData.loc = sourceCode.split(/\r\n|\r|\n/).length
+
+    // 2. Parse Source Code
+    let presets: Array<Array<string | {}>> = [
+      ["@babel/preset-env", { targets: "last 2 Chrome versions", modules: false }],
+      // ['@babel/preset-react', { runtime: "automatic" }]
+    ]
+
+    if (this.extension === 'ts' || this.extension === 'tsx') presets.push(['@babel/preset-typescript'])
+
+    const options = {
+      cwd: this.projectBasePath,
+      filename: this.filename,
+      sourceType,
+      ast: true,
+      presets,
+      sourceMaps: true,
+      plugins: [
+        "@babel/plugin-syntax-jsx",
+        ...plugins
+      ],
+    }
+
+    const result = babel.transformSync(sourceCode, options)
+    this.initData.parseStatus = "parsed"
+    this.initData.parseResult = result.ast
+    this.initData.sourceMap = result.map
+
+    // Resolve imports using the loaded file's AST
+    this.#transformImports(result.ast.program, this.initData.moduleImports)
+  }
+
   // Loads the file and creates an AST
-  init() {
+  init(sourceType = "unambiguous", plugins = []) {
     const that = this
     // This will return a promise
     return new Promise<void>((resolve,) => {
@@ -86,9 +123,9 @@ export class ProjectFile {
           that.initData.status = "loaded"
           that.initData.sourceCode = sourceCode
           that.initData.loc = sourceCode.split(/\r\n|\r|\n/).length
-          let sourceType = sourceCode.includes('noStrict') ? "script" : "unambiguous";
-          sourceType = sourceCode.includes('flags: [module') ? "module" : sourceType;
-          sourceType = sourceCode.includes('flags: [generated, module]') ? "module" : sourceType;
+          // let sourceType = sourceCode.includes('noStrict') ? "script" : "unambiguous";
+          // sourceType = sourceCode.includes('flags: [module') ? "module" : sourceType;
+          // sourceType = sourceCode.includes('flags: [generated, module]') ? "module" : sourceType;
 
           // 2. Parse Source Code
           let presets: Array<Array<string | {}>> = [
@@ -106,7 +143,8 @@ export class ProjectFile {
             presets,
             sourceMaps: true,
             plugins: [
-              "@babel/plugin-syntax-jsx"
+              "@babel/plugin-syntax-jsx",
+              ...plugins
             ],
           }
 
