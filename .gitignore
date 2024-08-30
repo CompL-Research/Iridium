@@ -8,6 +8,7 @@ tests/failed
 tests/failing
 tests/failing-all
 tests/*.json
+tests/tmp/*
 
 # Outputs
 outputs

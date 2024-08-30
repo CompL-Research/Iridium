@@ -1,0 +1,154 @@
+"use strict";
+// 
+// Inspired by babel-262 runner: https://github.com/babel/babel-test262-runner
+// 
+const path = require("path");
+const Test262Stream = require("test262-stream");
+const tap = require("make-tap-output")({ count: true });
+const { Worker: JestWorker } = require("jest-worker");
+
+const relative = file => path.resolve(process.cwd(), file);
+
+const D8 = "/home/meetesh/wd/v8/v8/out/x64.release/d8"
+
+const TESTS = path.resolve('./test262');
+// const THREADS = 16
+const THREADS = Number(process.env.THREADS) || require("os").cpus().length / 2;
+const { CHUNK, CHUNKS_FILE } = process.env;
+
+const chunk = CHUNKS_FILE ? new Set(require(relative(CHUNKS_FILE))[CHUNK]) : undefined;
+
+const worker = new JestWorker(require.resolve("./worker.cjs"), {
+  numWorkers: THREADS,
+  exposedMethods: ["runTest", "getBaseline"],
+  // enableWorkerThreads: true,
+  setupArgs: [{ hostPath: D8, shortName: "$262", testRoot: TESTS }],
+});
+worker.getStdout().pipe(process.stdout);
+worker.getStderr().pipe(process.stderr);
+
+tap.pipe(process.stdout);
+
+async function main() {
+  const filter = process.argv[2];
+  if (!filter) {
+    throw new Error(
+      "If you really want to run all the tests, use\n\tnode run.cjs I_AM_SURE"
+    );
+  }
+
+  const tests = new Test262Stream(TESTS, {
+    paths: ["test/language", "test/harness"],
+  }).once("error", () => {
+    process.exitCode = 1;
+  });
+
+  tap.diag(`Using ${THREADS} threads.`);
+
+  let passed = 0;
+  let run = 0;
+  let total = 0;
+
+  const tasks = [];
+
+  for await (const test of tests) {
+    total++;
+    const file = `${test.file} ${test.scenario}`;
+
+    if (filter !== "I_AM_SURE" && !test.file.includes(filter)) continue;
+    if (chunk && !chunk.has(test.file)) continue;
+    const baseExpectedRes = getExpected(test)
+    if (baseExpectedRes !== "success") continue;
+
+    // To run an individual test file (will usually be run in two modes, default and strict)
+    // if (!test.file.includes("test/language/module-code/instn-local-bndng-export-fun.js")) continue;
+
+    run++;
+    tasks.push(
+      (async test => {
+
+        // If expected result is negative
+        const baselineRes = await worker.getBaseline(test);
+        const expected = baselineRes.result
+        const actual = await worker.runTest(test);
+
+        if (actual.result === expected) {
+          passed++;
+          tap.pass(file, `(${expected})`);
+        } else {
+          tap.fail(
+            file,
+            `(expected ${expected}, got ${actual.result})`,
+            actual.error
+              ? new RethrownError(actual.error)
+              : new Error("[no error]")
+          );
+        }
+      })(test)
+    );
+  }
+
+  await Promise.all(tasks);
+
+  tap.diag("\n\n");
+  tap.diag(`Run ${run} out of ${total} tests.`);
+  tap.diag(`Passed ${passed} out of ${run} tests.`);
+  // Creating promises based timeouts per test prevents node from exiting
+  // causing an unparseable failure in CircleCI. Here we're forcing an exit
+  // with an exit code 0. tap-mocha-reporter will parse the tap output
+  // and output the correct exit code.
+  process.exit(0);
+}
+main().catch(error => {
+  process.exitCode = 1;
+  throw error;
+});
+
+function getExpected({ attrs }) {
+  if (attrs.negative) {
+    const { phase } = attrs.negative;
+    if (phase === "early" || phase === "parse") {
+      return "parser error";
+    } else {
+      return "runtime error";
+    }
+  } else {
+    return "success";
+  }
+}
+
+class ExtendedError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = this.constructor.name;
+    this.message = message;
+    if (typeof Error.captureStackTrace === "function") {
+      Error.captureStackTrace(this, this.constructor);
+    } else {
+      this.stack = new Error(message).stack;
+    }
+  }
+}
+
+class RethrownError extends ExtendedError {
+  constructor(error) {
+    if (!error) {
+      throw new Error("RethrownError requires an error with a message");
+    }
+    super(error.message || "[no message]");
+
+    this.name = error.name;
+    this.original = error;
+    this.new_stack = this.stack;
+    const errorStackString =
+      error.stack &&
+      (typeof error.stack === "string"
+        ? error.stack
+        : error.stack.map(location => location.source).join("\n"));
+    let message_lines = (this.message.match(/\n/g) || []).length + 1;
+    this.stack = `${this.name}: ${this.message}\n${this.stack
+      .split("\n")
+      .slice(0, message_lines + 1)
+      .join("\n")}\n${errorStackString}`;
+  }
+}
