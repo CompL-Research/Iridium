@@ -101,7 +101,7 @@ function main(mainProjectPath, analyzePath) {
   const fileInitPromises = new Array<Promise<void>>()
   // Initialize all project files
   for (const [, projectFile] of project.files) {
-    fileInitPromises.push(projectFile.init())
+    fileInitPromises.push(projectFile.initAsync())
   }
 
   Promise.all(fileInitPromises).then(() => {
@@ -158,15 +158,6 @@ function main(mainProjectPath, analyzePath) {
 
 function genJS3(filePath) {
   debugConfig.logger.printToConsole = false
-  // // Ensure outputs directory
-  // if (fs.existsSync(debugConfig.outputsPath)) {
-  //   fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
-  // }
-  // debugConfig.iridiumDebugPath = path.resolve("./JS3TMP/Iridium");
-  // debugConfig.js3DebugPath = path.resolve(debugConfig.outputsPath + "/JS3");
-  // fs.mkdirSync(debugConfig.outputsPath);
-  // fs.mkdirSync(debugConfig.iridiumDebugPath);
-  // fs.mkdirSync(debugConfig.js3DebugPath);
 
   const file = new ProjectFile(filePath, path.dirname(filePath))
 

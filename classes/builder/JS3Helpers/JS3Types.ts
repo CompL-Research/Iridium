@@ -1,4 +1,4 @@
-// Generated on 29/8/2024, 12:53:57 pm, extended 63 interfaces 
+// Generated on 2/9/2024, 6:18:44 pm, extended 65 interfaces 
 
 import { ExportSpecifier, ExportDefaultSpecifier, ExportNamespaceSpecifier, OptionalMemberExpression, TemplateElement, RestElement, ArrayPattern, ObjectPattern, AssignmentPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, Expression, ExpressionStatement, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ConditionalExpression, ContinueStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, OptionalCallExpression, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -127,8 +127,8 @@ export type JS3ClassDeclaration_typeParameters = null;
 export type JS3ExportAllDeclaration_assertions = null;
 export type JS3ExportAllDeclaration_attributes = null;
 export type JS3ExportDefaultDeclaration_declaration = TSDeclareFunction | JS3FunctionDeclaration | JS3ClassDeclaration | Identifier | JS3FunctionDeclaration;
-export type JS3ExportNamedDeclaration_declaration = JS3VariableDeclaration | null;
-export type JS3ExportNamedDeclaration_specifiers = Array<ExportSpecifier | ExportDefaultSpecifier | ExportNamespaceSpecifier>;
+export type JS3ExportNamedDeclaration_declaration = JS3FunctionDeclaration | JS3ClassDeclaration | JS3VariableDeclaration | null;
+export type JS3ExportNamedDeclaration_specifiers = Array<JS3ExportSpecifier | ExportDefaultSpecifier | JS3ExportNamespaceSpecifier>;
 export type JS3ExportNamedDeclaration_assertions = null;
 export type JS3ExportNamedDeclaration_attributes = null;
 export type JS3ForOfStatement_left = VariableDeclaration | JS3LVal;
@@ -465,6 +465,10 @@ export interface JS3ExportNamedDeclaration extends ExportNamedDeclaration {
 }
 
 // @ts-ignore
+export interface JS3ExportSpecifier extends ExportSpecifier {
+}
+
+// @ts-ignore
 export interface JS3ForOfStatement extends ForOfStatement {
   left: JS3ForOfStatement_left;
   right: JS3ForOfStatement_right;
@@ -528,6 +532,10 @@ export interface JS3AwaitExpression extends AwaitExpression {
 
 // @ts-ignore
 export interface JS3Import extends Import {
+}
+
+// @ts-ignore
+export interface JS3ExportNamespaceSpecifier extends ExportNamespaceSpecifier {
 }
 
 // @ts-ignore

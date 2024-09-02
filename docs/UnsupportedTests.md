@@ -1,6 +1,9 @@
+
+
+
 # List of unsupported tests/features
 
-1. 'test262/test/language/expressions/await/await-non-promise-thenable.js', 'test262/test/language/expressions/await/await-monkey-patched-promise.js'
+1. `test262/test/language/expressions/await/await-non-promise-thenable.js`, `test262/test/language/expressions/await/await-monkey-patched-promise.js`
 
 Transformation of this form fails for `await` and `yield`. 
 
@@ -44,7 +47,22 @@ There are two reasons for this
 1. Callee resolution can have side effects (`get` methods)
 2. Nullish callee, we could add an if condition check and conditionally resolve the arguments. But there are some cases where this is semantically invalid.
 
+# Others
 
+1. `test/language/module-code/export-expname-from-string-string.js`
+
+The babel generator produces wrong output for this node currently.
+Even though this is a problem, the babel262 tests seem to pass anyway, noted here for reference.
+
+**Input Code**
+```javascript
+export { "☿" as "Ami" } from "./export-expname_FIXTURE.js";
+```
+
+**Output Code**
+```javascript
+export { "☿" } from "./export-expname_FIXTURE.js";
+```
 
 # Handled
 1. `language/expressions/async-arrow-function/name.js`
