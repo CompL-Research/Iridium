@@ -1,0 +1,16 @@
+test/language/expressions/async-generator/named-no-strict-reassign-fn-name-in-body-in-arrow.js
+test/language/expressions/async-generator/named-no-strict-reassign-fn-name-in-body.js
+test/language/expressions/async-generator/named-strict-error-reassign-fn-name-in-body-in-eval.js
+test/language/expressions/async-generator/named-no-strict-reassign-fn-name-in-body-in-eval.js
+test/language/expressions/async-generator/named-strict-error-reassign-fn-name-in-body-in-arrow.js
+test/language/expressions/async-generator/named-strict-error-reassign-fn-name-in-body.js
+test/language/expressions/await/await-monkey-patched-promise.js
+test/language/expressions/await/await-non-promise-thenable.js
+test/language/expressions/class/cpn-class-expr-accessors-computed-property-name-from-await-expression.js
+test/language/expressions/class/cpn-class-expr-accessors-computed-property-name-from-yield-expression.js
+test/language/expressions/class/cpn-class-expr-accessors-computed-property-name-from-await-expression.js
+test/language/expressions/class/cpn-class-expr-accessors-computed-property-name-from-yield-expression.js
+test/language/expressions/class/cpn-class-expr-fields-computed-property-name-from-await-expression.js
+test/language/expressions/class/cpn-class-expr-fields-computed-property-name-from-yield-expression.js
+test/language/expressions/class/cpn-class-expr-fields-computed-property-name-from-yield-expression.js
+test/language/expressions/class/cpn-class-expr-fields-computed-property-name-from-await-expression.js

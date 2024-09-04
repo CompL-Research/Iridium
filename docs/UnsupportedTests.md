@@ -1,9 +1,27 @@
-
-
-
 # List of unsupported tests/features
 
-1. `test262/test/language/expressions/await/await-non-promise-thenable.js`, `test262/test/language/expressions/await/await-monkey-patched-promise.js`
+1. cannot lower expressions in arrow scope that contain `await` or `yield` expressions.
+
+```bash
+not ok 598 test/language/expressions/async-generator/named-no-strict-reassign-fn-name-in-body-in-arrow.js default # (expected success, got parser error)
+not ok 640 test/language/expressions/async-generator/named-no-strict-reassign-fn-name-in-body.js default # (expected success, got parser error)
+not ok 641 test/language/expressions/async-generator/named-strict-error-reassign-fn-name-in-body-in-eval.js strict mode # (expected success, got parser error)
+not ok 645 test/language/expressions/async-generator/named-no-strict-reassign-fn-name-in-body-in-eval.js default # (expected success, got parser error)
+not ok 663 test/language/expressions/async-generator/named-strict-error-reassign-fn-name-in-body-in-arrow.js strict mode # (expected success, got parser error)
+not ok 674 test/language/expressions/async-generator/named-strict-error-reassign-fn-name-in-body.js strict mode # (expected success, got parser error)
+not ok 928 test/language/expressions/await/await-monkey-patched-promise.js default # (expected success, got parser error)
+not ok 962 test/language/expressions/await/await-non-promise-thenable.js default # (expected success, got parser error)
+not ok 1002 test/language/expressions/await/await-non-promise-thenable.js strict mode # (expected success, got parser error)
+not ok 1368 test/language/expressions/class/cpn-class-expr-accessors-computed-property-name-from-await-expression.js strict mode # (expected success, got parser error)
+not ok 1379 test/language/expressions/class/cpn-class-expr-accessors-computed-property-name-from-yield-expression.js strict mode # (expected success, got parser error)
+not ok 1383 test/language/expressions/class/cpn-class-expr-accessors-computed-property-name-from-await-expression.js default # (expected success, got parser error)
+not ok 1447 test/language/expressions/class/cpn-class-expr-accessors-computed-property-name-from-yield-expression.js default # (expected success, got parser error)
+not ok 1457 test/language/expressions/class/cpn-class-expr-fields-computed-property-name-from-await-expression.js strict mode # (expected success, got parser error)
+not ok 1512 test/language/expressions/class/cpn-class-expr-fields-computed-property-name-from-yield-expression.js default # (expected success, got parser error)
+not ok 1525 test/language/expressions/class/cpn-class-expr-fields-computed-property-name-from-yield-expression.js strict mode # (expected success, got parser error)
+not ok 1580 test/language/expressions/class/cpn-class-expr-fields-computed-property-name-from-await-expression.js default # (expected success, got parser error)
+
+```
 
 Transformation of this form fails for `await` and `yield`. 
 
