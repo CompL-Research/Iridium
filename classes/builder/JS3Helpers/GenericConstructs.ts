@@ -42,7 +42,11 @@ export function lowerComputedKey(node: Expression, otherProps: OtherProps): JS3C
     return generateJS3AwaitExpressionfromBaseNode(loweredExpression, node);
   }
 
-  const countAwaitYield = walk.recursive({
+  type WalkState = {
+    counter: number,
+  }
+
+  const countAwaitYield = walk.recursive<WalkState>({
     AwaitExpression(node, state, c) {
       state.counter++;
     },
@@ -50,9 +54,9 @@ export function lowerComputedKey(node: Expression, otherProps: OtherProps): JS3C
       state.counter++;
     }
   });
-  
+
   function containsAwaitOrYield(node) {
-    const state = {
+    const state: WalkState = {
       counter: 0,
     };
     countAwaitYield(node, state);
