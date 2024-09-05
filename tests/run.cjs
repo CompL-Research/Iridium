@@ -11,6 +11,9 @@ const relative = file => path.resolve(process.cwd(), file);
 
 const D8 = "/home/meetesh/wd/v8/v8/out/x64.release/d8"
 
+const UNSUPPORTED_FEATURES = ["import-attributes", "decorators"]
+
+
 const TESTS = path.resolve('./test262');
 // const THREADS = 16
 const THREADS = Number(process.env.THREADS) || require("os").cpus().length / 2;
@@ -59,9 +62,20 @@ async function main() {
     if (chunk && !chunk.has(test.file)) continue;
     const baseExpectedRes = getExpected(test)
     if (baseExpectedRes !== "success") continue;
-
+    
     // To run an individual test file (will usually be run in two modes, default and strict)
-    // if (!test.file.includes("test/language/module-code/instn-local-bndng-export-fun.js")) continue;
+    // if (!test.file.includes("test/language/expressions/await/await-monkey-patched-promise.js")) continue;
+    
+    // If there are attributes that we do not plan to support right now, we will skip those tests as-well
+    let toSkip = false
+    let features = test.attrs.features ?? []
+    for (const tf of features) {
+      if (UNSUPPORTED_FEATURES.includes(tf)) {
+        // console.log("Skipping test with feature")
+        toSkip = true
+      }
+    }
+    if (toSkip) continue
 
     run++;
     tasks.push(

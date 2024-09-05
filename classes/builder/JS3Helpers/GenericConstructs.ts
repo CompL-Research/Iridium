@@ -43,59 +43,105 @@ export function lowerComputedKey(node: Expression, otherProps: OtherProps): JS3C
   }
 
   type WalkState = {
-    counter: number,
+    yield: number,
+    await: number
   }
 
-  const countAwaitYield = walk.recursive<WalkState>({
+  const countNodes = walk.recursive<WalkState>({
     AwaitExpression(node, state, c) {
-      state.counter++;
+      state.await++;
     },
     YieldExpression(node, state, c) {
-      state.counter++;
+      state.yield++;
     }
   });
 
-  function containsAwaitOrYield(node) {
-    const state: WalkState = {
-      counter: 0,
-    };
-    countAwaitYield(node, state);
-    return state.counter > 0;
+
+  const state: WalkState = {
+    yield: 0,
+    await: 0,
+  };
+
+  countNodes(node, state);
+
+  const hasYield = state.yield > 0;
+
+  if (hasYield) {
+    debugConfig.logger.throwJS3Error("lowerComputeKey error: cannot lower expressions to keys that have 'yield'")
   }
 
-  const hasAwaitOrYield = containsAwaitOrYield(node);
+  const hasAwait = state.await > 0;
+  
+  // 
+  // If we have an expression that has await, let us consider the following
+  // 
+  // EXPR: "a" + (await abv) + "d"
+  // 
+  // f ("a" + (await abv) + "d")
+  // 
+  // We could lower it down as follows:
+  // 
+  // f (
+  //    await ((async () => {
+  //    $res = lower expression...
+  //    return $res
+  //    })())
+  // )
+  // 
 
-  if (hasAwaitOrYield) {
-    debugConfig.logger.throwJS3Error("cannot lower expressions in arrow scope that contain `await` or `yield` expressions.")
+
+  if (hasAwait) {
+    // Evaluate the expression and get all its spills
+    const holder: JS3BlockStatement_body = new Array()
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder } }
+    const res = handleExpression(node, updatedProps)
+  
+  
+    const dummyNode = generateBaseNodeFrom(node)
+  
+    const bodyOfTheFunc: JS3BlockStatement_body = updatedProps.others.holder;
+    const funcExprBody = generateJS3BlockStatementfromBaseNode(bodyOfTheFunc, new Array(), dummyNode); // Function block
+  
+    const retStmt = generateBaseNodeFrom(node) as JS3ReturnStatement                                   // Add a return statement
+    retStmt.type = "ReturnStatement";
+    const js3RetStmt = generateJS3ReturnStatement(res, retStmt)
+    bodyOfTheFunc.push(js3RetStmt)
+  
+  
+    const funcExpr = generateJS3ArrowFunctionExpressionfromBaseNode(new Array(), funcExprBody, null, null, null, true, true, false, dummyNode); // async () => {BODY}
+
+    const awaitExpr = generateJS3AwaitExpressionfromBaseNode(funcExpr, dummyNode) // await (async () => {BODY})
+    const callFnExpr = generateJS3CallExpressionfromBaseNode(awaitExpr, new Array(), null, null, null, dummyNode); // (await (async () => {BODY}))()
+    return callFnExpr
+  } else {
+    // Create a call expression of the form
+    // (function() { Expression is evaluated and returned as a result of this function }())
+  
+    // Evaluate the expression and get all its spills
+    const holder: JS3BlockStatement_body = new Array()
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder } }
+    const res = handleExpression(node, updatedProps)
+  
+  
+    const dummyNode = generateBaseNodeFrom(node)
+  
+    const bodyOfTheFunc: JS3BlockStatement_body = updatedProps.others.holder;
+    const funcExprBody = generateJS3BlockStatementfromBaseNode(bodyOfTheFunc, new Array(), dummyNode); // Function block
+  
+    const retStmt = generateBaseNodeFrom(node) as JS3ReturnStatement                                   // Add a return statement
+    retStmt.type = "ReturnStatement";
+    const js3RetStmt = generateJS3ReturnStatement(res, retStmt)
+    bodyOfTheFunc.push(js3RetStmt)
+  
+  
+    const funcExpr = generateJS3ArrowFunctionExpressionfromBaseNode(new Array(), funcExprBody, null, null, null, false, true, false, dummyNode); // () => {BODY}
+  
+    // const funcExpr = generateJS3FunctionExpressionfromBaseNode(null, new Array(), funcExprBody, null, null, null, false, false, dummyNode); // function {BODY}
+  
+    const callFnExpr = generateJS3CallExpressionfromBaseNode(funcExpr, new Array(), null, null, null, dummyNode); // func()
+  
+    return callFnExpr
   }
 
 
-
-  // Create a call expression of the form
-  // (function() { Expression is evaluated and returned as a result of this function }())
-
-  // Evaluate the expression and get all its spills
-  const holder: JS3BlockStatement_body = new Array()
-  const updatedProps = { ...otherProps, others: { ...otherProps.others, holder } }
-  const res = handleExpression(node, updatedProps)
-
-
-  const dummyNode = generateBaseNodeFrom(node)
-
-  const bodyOfTheFunc: JS3BlockStatement_body = updatedProps.others.holder;
-  const funcExprBody = generateJS3BlockStatementfromBaseNode(bodyOfTheFunc, new Array(), dummyNode); // Function block
-
-  const retStmt = generateBaseNodeFrom(node) as JS3ReturnStatement                                   // Add a return statement
-  retStmt.type = "ReturnStatement";
-  const js3RetStmt = generateJS3ReturnStatement(res, retStmt)
-  bodyOfTheFunc.push(js3RetStmt)
-
-
-  const funcExpr = generateJS3ArrowFunctionExpressionfromBaseNode(new Array(), funcExprBody, null, null, null, false, true, false, dummyNode); // function {BODY}
-
-  // const funcExpr = generateJS3FunctionExpressionfromBaseNode(null, new Array(), funcExprBody, null, null, null, false, false, dummyNode); // function {BODY}
-
-  const callFnExpr = generateJS3CallExpressionfromBaseNode(funcExpr, new Array(), null, null, null, dummyNode); // func()
-
-  return callFnExpr
 }
