@@ -1,7 +1,7 @@
 // Generated on 6/8/2024, 10:15:01 am, generated 1 handlers 
-import { ExportNamespaceSpecifier, ExportSpecifier, isExpressionStatement, ExportDefaultDeclaration, ExportNamedDeclaration, ImportDeclaration, Program, isClassDeclaration, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportDefaultSpecifier, isExportNamedDeclaration, isExportNamespaceSpecifier, isExportSpecifier, isExpression, isFunctionDeclaration, isImportAttribute, isImportDeclaration, isInterfaceDeclaration, isOpaqueType, isTSDeclareFunction, isTSEnumDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration } from "@babel/types";
-import { generateJS3ExportDefaultDeclaration, generateJS3ExportNamedDeclaration, generateJS3ExportNamespaceSpecifier, generateJS3ExportSpecifier, generateJS3ImportDeclaration, generateJS3Program } from "./JS3Constructors.ts";
-import { JS3AllowedBlockStatement, JS3ExportDefaultDeclaration_declaration, JS3ExportNamedDeclaration_assertions, JS3ExportNamedDeclaration_attributes, JS3ExportNamedDeclaration_specifiers, JS3ExportNamespaceSpecifier, JS3ExportSpecifier, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body, JS3VariableDeclaration } from "./JS3Types.ts";
+import {ExportAllDeclaration, ExportNamespaceSpecifier, ExportSpecifier, isExpressionStatement, ExportDefaultDeclaration, ExportNamedDeclaration, ImportDeclaration, Program, isClassDeclaration, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportDefaultSpecifier, isExportNamedDeclaration, isExportNamespaceSpecifier, isExportSpecifier, isExpression, isFunctionDeclaration, isImportAttribute, isImportDeclaration, isInterfaceDeclaration, isOpaqueType, isTSDeclareFunction, isTSEnumDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration } from "@babel/types";
+import { generateJS3ExportAllDeclaration, generateJS3ExportDefaultDeclaration, generateJS3ExportNamedDeclaration, generateJS3ExportNamespaceSpecifier, generateJS3ExportSpecifier, generateJS3ImportDeclaration, generateJS3Program } from "./JS3Constructors.ts";
+import { JS3AllowedBlockStatement, JS3ExportAllDeclaration, JS3ExportAllDeclaration_assertions, JS3ExportAllDeclaration_attributes, JS3ExportDefaultDeclaration_declaration, JS3ExportNamedDeclaration_assertions, JS3ExportNamedDeclaration_attributes, JS3ExportNamedDeclaration_specifiers, JS3ExportNamespaceSpecifier, JS3ExportSpecifier, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body, JS3VariableDeclaration } from "./JS3Types.ts";
 
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
 
@@ -38,7 +38,13 @@ export function handleProgram(node: Program, otherProps: OtherProps): JS3Program
       // ========================================================================================
       handleExportNamedDeclaration(_arrProp, updatedProps)
       // ========================================================================================
-    } else {
+    } else if (isExportAllDeclaration(_arrProp)) {
+      // ========================================================================================
+      handleExportAllDeclaration(_arrProp, updatedProps)
+      // ========================================================================================
+    }
+    
+    else {
       // ========================================================================================
       const blockStmt: JS3AllowedBlockStatement | Array<JS3VariableDeclaration> = handleStatement(_arrProp, updatedProps)
       if (Array.isArray(blockStmt)) blockStmt.forEach(s => fin_body.push(s))
@@ -273,4 +279,31 @@ export function handleExportNamespaceSpecifier(node: ExportNamespaceSpecifier, o
   // 2 fallthrough props, 0 restricted props
   let result: JS3ExportNamespaceSpecifier = generateJS3ExportNamespaceSpecifier(node);
   return result
+}
+
+export function handleExportAllDeclaration(node: ExportAllDeclaration, otherProps: OtherProps) {
+  // 3 fallthrough props, 2 restricted props
+  let orig_assertions = node.assertions; // Handling prop assertions
+  let fin_assertions: JS3ExportAllDeclaration_assertions = null; // Handling prop assertions
+  if (Array.isArray(orig_assertions)) {
+    for (const _arrProp of orig_assertions) {
+      if (isImportAttribute(_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled ExportAllDeclaration->[assertions]->ImportAttribute");
+      }
+    }
+  }
+
+  let orig_attributes = node.attributes; // Handling prop attributes
+  let fin_attributes: JS3ExportAllDeclaration_attributes = null; // Handling prop attributes
+  if (Array.isArray(orig_attributes)) {
+    for (const _arrProp of orig_attributes) {
+      if (isImportAttribute(_arrProp)) {
+        debugConfig.logger.throwJS3Error("TODO // unhandled ExportAllDeclaration->[attributes]->ImportAttribute");
+      }
+    }
+  }
+
+  let result: JS3ExportAllDeclaration = generateJS3ExportAllDeclaration(fin_assertions, fin_attributes, node);
+  // Generate a export default statement and push it into the holder
+  (otherProps.others.holder as JS3Program_body).push(result)
 }

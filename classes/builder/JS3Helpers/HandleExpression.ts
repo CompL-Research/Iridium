@@ -233,16 +233,10 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
     otherProps.others.holder.push(varDecl)
     // ========================================================================================
-
   } else if (isSuper(node)) {
     // ========================================================================================
-    // Calling this will cause a syntax error! it is by design.
-    // $resultIdentifier = super
-    resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-    const init = node
-    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
-    otherProps.others.holder.push(varDecl)
-    // ========================================================================================  
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->Super [UNSUPPORTED BY DESIGN, will cause a syntax error, adjust case in callee]`, otherProps.debugTrace);
+    // ========================================================================================
   } else if (isTaggedTemplateExpression(node)) {
     // ========================================================================================
     // Calling this will cause a syntax error! it is by design.
