@@ -76,7 +76,12 @@ export function handleStatement(node: Statement, otherProps: OtherProps): JS3All
 
   else if (isWhileStatement(node)) return handleWhileStatement(node, otherProps)
 
-  else if (isWithStatement(node)) debugConfig.logger.throwJS3Error("TODO // unhandled Statement->WithStatement [REMOVED SUPPORT]");
+  else if (isWithStatement(node)) {
+    if (debugConfig.allowLangWithSupport)
+      return handleWithStatement(node, otherProps);
+    else 
+      debugConfig.logger.throwJS3Error("TODO // unhandled Statement->WithStatement [REMOVED SUPPORT]");
+  }
 
   else if (isClassDeclaration(node)) return handleClassDeclaration(node, otherProps)
 

@@ -290,6 +290,11 @@ const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
     name: 'port',
     description: `The port used by Iridium backend server (Default: ${debugConfig.playgroundPort})`,
     type: Number,
+  },
+  {
+    name: 'allow-lang-with-support',
+    description: 'Allow syntax support for `with` (going to be deprecated soon by ECMA).',
+    type: Boolean
   }
 ]
 
@@ -313,6 +318,11 @@ const js3DefinitionsOptionList: Array<DefinitionsOption> = [
     description: 'Source Type ("module" | "script" | "unambigious" (default)).',
     alias: 's',
     type: String
+  },
+  {
+    name: 'allow-lang-with-support',
+    description: 'Allow syntax support for `with` (going to be deprecated soon by ECMA).',
+    type: Boolean
   }
 ]
 
@@ -463,6 +473,10 @@ if (mainOptions.command === 'analyze') {
     if ("playground-port" in analyzeOptions) {
       debugConfig.playgroundPort = analyzeOptions["playground-port"]
     }
+
+    if ("allow-lang-with-support" in analyzeOptions) {
+      debugConfig.allowLangWithSupport = true
+    }
   }
 
   main(projectPath, analyzePath)
@@ -520,6 +534,10 @@ if (mainOptions.command === 'analyze') {
         process.exit(1)
       }
       debugConfig.js3SourceType = js3Options["source-type"]
+    }
+
+    if ("allow-lang-with-support" in js3Options) {
+      debugConfig.allowLangWithSupport = true
     }
   }
 

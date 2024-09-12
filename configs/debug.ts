@@ -11,7 +11,8 @@ const config : {
   logger: Logger,
   versionNumber: string,
   throwJS3Errors: boolean,
-  js3SourceType: string
+  js3SourceType: string,
+  allowLangWithSupport: boolean
 } = {
   js3DebugPath: "./outputs/JS3",
   js3ResultPath: undefined,
@@ -23,7 +24,8 @@ const config : {
   logger: new Logger(),
   versionNumber: "",
   throwJS3Errors: false,
-  js3SourceType: "unambiguous"
+  js3SourceType: "unambiguous",
+  allowLangWithSupport: false
 }
 
 export default config;
