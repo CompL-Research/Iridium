@@ -110,6 +110,7 @@ function main(mainProjectPath, analyzePath) {
     project.processImportsGraph()
     project.importsGraph.generateRootNodes()
     project.printStats()
+    project.importsGraph.dumpDOT();
 
     for (const [f, file] of project.files) {
       // const importsGraphProp = project.importsGraph.getNodeProp(f); 
