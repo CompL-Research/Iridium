@@ -28,6 +28,7 @@ export default class JS3Builder {
   #varIdx: number = 0
   generatedCode: string = ""
   sourceMap: any = ""
+  uri: string = ""
 
   utils: JS3BuilderUtils = {
     getNewTemporary: (prefix: string | undefined) => `${prefix ? prefix : "js3"}$${++this.#varIdx}`,
@@ -54,70 +55,8 @@ export default class JS3Builder {
     assert(program)
     const js3Program = handleProgram(program, this.utils)
     this.generatedProgram = generateJS3File(js3Program, file)
-  }
-
-  generateURI(): null | string {
-    // https://github.com/facebook/react
-    function utf16ToUTF8(s: string): string {
-      return unescape(encodeURIComponent(s));
-    }
-
-    function getSourceMapUrl(code: string, map: string): string | null {
-      code = utf16ToUTF8(code);
-      map = utf16ToUTF8(map);
-      return `https://evanw.github.io/source-map-visualization/#${btoa(
-        `${code.length}\0${code}${map.length}\0${map}`,
-      )}`;
-    }
-
-    const ast = this.generatedProgram
-    const source = this.projectFile.initData.sourceCode
-    const sourceFileName = this.projectFile.filename
-
-    if (ast) {
-      const generated = generator(
-        ast,
-        { sourceMaps: true, sourceFileName },
-        source,
-      );
-      const sourceMapUrl = getSourceMapUrl(
-        generated.code,
-        JSON.stringify(generated.map),
-      );
-      return sourceMapUrl
-    }
-
-    return null
-  }
-
-  getGeneratedProgamString() {
-
-    // More finetuned 
-    let presets: Array<Array<string | {}>> = [
-      ["@babel/preset-env", { targets: "last 2 Chrome versions", modules: false }],
-      // ['@babel/preset-react', { runtime: "automatic", importSource: true }]
-    ]
-
-    if (this.projectFile.extension === 'ts' || this.projectFile.extension === 'tsx') {
-      presets.push(['@babel/preset-typescript'])
-    }
-
-    this.generatedProgram.trailingComments = this.generatedProgram.comments
-
-
-    const transformedCode = babel.transformFromAst(this.generatedProgram, this.projectFile.initData.sourceCode, {
-      cwd: this.projectFile.projectBasePath,
-      filename: this.projectFile.uname,
-      // inputSourceMap: this.projectFile.sourceMap,
-      ast: true,
-      presets,
-      plugins: [
-        "@babel/plugin-syntax-jsx"
-      ],
-    });
-
-    return transformedCode.code
-
+    this.generateCode()
+    this.generateURI()
   }
 
   generateCode() {
@@ -149,9 +88,31 @@ export default class JS3Builder {
     this.sourceMap = JSON.stringify(transformedCode.map)
   }
 
+  generateURI() {
+    // https://github.com/facebook/react
+    function utf16ToUTF8(s: string): string {
+      return unescape(encodeURIComponent(s));
+    }
+
+    function getSourceMapUrl(code: string, map: string): string | null {
+      code = utf16ToUTF8(code);
+      map = utf16ToUTF8(map);
+      return `https://evanw.github.io/source-map-visualization/#${btoa(
+        `${code.length}\0${code}${map.length}\0${map}`,
+      )}`;
+    }
+
+    const ast = this.generatedProgram
+    if (ast) {
+      const sourceMapUrl = getSourceMapUrl(
+        this.generatedCode,
+        JSON.stringify(this.sourceMap),
+      );
+      this.uri = sourceMapUrl
+    }
+  }
+
   saveGeneratedFile() {
-
-
     if (debugConfig.js3ResultPath) {
       // DEBUG
       fs.writeFile(debugConfig.js3ResultPath, this.generatedCode, 'utf8', (err) => {

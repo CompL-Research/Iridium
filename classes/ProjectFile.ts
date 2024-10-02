@@ -52,8 +52,6 @@ export class ProjectFile {
     this.filename = path.basename(absoluteFilePath)
     this.filepath = path.dirname(absoluteFilePath)
     this.initData = new InitData()
-
-    debugConfig.logger.log(`[Created Project File ${this.filename}]`)
   }
 
   #transformImports(program: Program, result: Map<t.Node, string | null>) {

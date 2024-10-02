@@ -91,6 +91,7 @@ export class ImportsGraph {
   }
 
   generateRootNodes() {
+
     // Might be slowwww....
     const nodes = this.#nodes
     const edges = this.#edges
@@ -101,6 +102,9 @@ export class ImportsGraph {
   
     // Set difference -> Root Nodes
     this.rootNodes = Array.from(nodes).filter(x => !setOfNodesWithIncomingEdges.has(x));
+
+    debugConfig.logger.log(`[Imports Graph] Found ${this.rootNodes.length} root nodes`)
+
   }
 
   colorRootNodes() {

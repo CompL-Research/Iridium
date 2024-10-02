@@ -10,7 +10,7 @@ import JS3Builder from 'classes/builder/JS3Builder.ts'
 import { ProjectFile } from 'classes/ProjectFile.ts'
 import { Project } from './classes/Project.ts'
 
-const VERSION = "0.2a"
+const VERSION = "0.3a"
 const directories = ['./classes', './configs', './docs'];
 
 debugConfig.versionNumber = `Iridium ${VERSION}`
@@ -99,6 +99,7 @@ function main(mainProjectPath, analyzePath) {
 
 
   const fileInitPromises = new Array<Promise<void>>()
+
   // Initialize all project files
   for (const [, projectFile] of project.files) {
     fileInitPromises.push(projectFile.initAsync())
@@ -106,55 +107,34 @@ function main(mainProjectPath, analyzePath) {
 
   Promise.all(fileInitPromises).then(() => {
     debugConfig.logger.log("[All Project Files Were Initialized]")
+    project.printStats()
 
     project.processImportsGraph()
     project.importsGraph.generateRootNodes()
-    project.printStats()
     project.importsGraph.dumpDOT();
 
     for (const [f, file] of project.files) {
-      // const importsGraphProp = project.importsGraph.getNodeProp(f); 
-      // assert(importsGraphProp);
-      // if (!importsGraphProp.sourceFile) {
-      //   debugConfig.logger.log(`Skipping: ${importsGraphProp.}`)
-      // } 
-      // const file = importsGraphProp.sourceFile
-
       if (file.initData.status === "loaded" && file.initData.parseStatus === "parsed") {
-        const js3Builder = new JS3Builder(file)
-        js3Builder.build()
-        const uri = js3Builder.generateURI()
-        if (uri) {
-          debugConfig.logger.log(`[JS3 ${file.filename}]`)
+
+        try {
+          const js3Builder = new JS3Builder(file)
+          js3Builder.build()
+          js3Builder.saveGeneratedFile()
+          const uri = js3Builder.uri
+          debugConfig.logger.log(`[JS3Builder] Processed ${file.filename}`)
+          debugConfig.logger.printToConsole = false
           debugConfig.logger.log(`${uri}`)
-        } else {
-          debugConfig.logger.error(`[Failed to generate JS3 URI for ${file.filename}]`)
+          debugConfig.logger.printToConsole = true          
+        } catch (e) { 
+          debugConfig.logger.error(`[JS3Builder] Failed to process ${file.filename}`, [e])
         }
+        
+        
       } else {
-        debugConfig.logger.error(`[Not generating JS3 for ${file.uname}, Status: ${file.initData.status}, ParseStatus: ${file.initData.parseStatus}]`)
+        debugConfig.logger.error(`[JS3Builder] Skipping ${file.uname} -- Status: ${file.initData.status}, ParseStatus: ${file.initData.parseStatus} `)
       }
     }
   })
-
-
-  // debugConfig.logger.log("[Starting to process imports graph]")
-  // project.generateImportsGraph()
-  // project.importsGraph.generateRootNodes()
-
-  // project.printStats()
-
-  // if (debugConfig.dontColorRootNodes === false) {
-  //   project.importsGraph.colorRootNodes()
-  // }
-  // project.importsGraphProcessed = true
-
-  // debugConfig.logger.log("[Processing imports graph completed]")
-
-  // project.importsGraph.dumpDOT();
-
-  // const builder = new IridiumBuilder(project)
-  // builder.start()
-
 }
 
 function genJS3(filePath) {
@@ -169,7 +149,6 @@ function genJS3(filePath) {
       
     const builder = new JS3Builder(file)
     builder.build()
-    builder.generateCode()
     console.log(builder.generatedCode)
     process.exit(0)
   } catch (e) {
@@ -257,7 +236,7 @@ type DefinitionsOption = {
 const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
   {
     name: 'folder',
-    description: 'Folder where the analysis should begin (relative path such as {italic ./app}, {italic ./src}, {italic ./src/pages/}).',
+    description: 'Specify a folder where the analysis should begin (relative path such as {italic ./app}, {italic ./src}, {italic ./src/pages/}).',
     alias: 'f',
     type: String,
     typeLabel: '{underline path} ...'
@@ -266,13 +245,6 @@ const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
     name: 'outputs-path',
     description: 'Path to outputs directory (relative to cwd).',
     alias: 'o',
-    type: String,
-    typeLabel: '{underline path} ...'
-  },
-  {
-    name: 'js3-result-path',
-    description: 'Path to save the generated JS3 file (only works with the js3 command).',
-    alias: 'j',
     type: String,
     typeLabel: '{underline path} ...'
   },
@@ -294,7 +266,7 @@ const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
   },
   {
     name: 'allow-lang-with-support',
-    description: 'Allow syntax support for `with` (going to be deprecated soon by ECMA).',
+    description: 'Allow js3 syntax support for `with`',
     type: Boolean
   }
 ]
@@ -322,7 +294,7 @@ const js3DefinitionsOptionList: Array<DefinitionsOption> = [
   },
   {
     name: 'allow-lang-with-support',
-    description: 'Allow syntax support for `with` (going to be deprecated soon by ECMA).',
+    description: 'Allow js3 syntax support for `with`',
     type: Boolean
   }
 ]
@@ -396,7 +368,7 @@ if (mainOptions.command === 'analyze') {
       {
         header: "=== Error: Please provide a path to the project to analyze ===",
         content: [
-          `$ ./iridium analyze <path-to-project> [OPTIONS]`
+          `$ ./iridium analyze {bold <path-to-project>} [OPTIONS]`
         ]
       },
       analyzeDefinitions)
@@ -411,7 +383,7 @@ if (mainOptions.command === 'analyze') {
       {
         header: "=== Analyze Usage ===",
         content: [
-          `$ ./iridium analyze <path-to-project> [OPTIONS]`
+          `$ ./iridium analyze {bold <path-to-project>} [OPTIONS]`
         ]
       },
       analyzeDefinitions)
@@ -484,8 +456,6 @@ if (mainOptions.command === 'analyze') {
 
 } else if (mainOptions.command === 'version') {
   console.log(`Iridium Version: ${chalk.red(VERSION)}`)
-} else if (mainOptions.command === 'help') {
-  printUsage()
 } else if (mainOptions.command === "js3") {
   const mainDefs = [
     { name: 'command', defaultOption: true }
@@ -508,7 +478,7 @@ if (mainOptions.command === 'analyze') {
   if (js3MainOptions.command === "help") {
     printUsage(
       {
-        header: "=== Analyze Usage ===",
+        header: "=== JS3 Usage ===",
         content: [
           `$ ./iridium js3 <js-file-path>`
         ]
@@ -559,9 +529,6 @@ if (mainOptions.command === 'analyze') {
     {
       content: chalk.red(header),
       raw: true
-    },
-    {
-      header: chalk.red('Unknown command used!'),
     },
     ...commandList
   ]

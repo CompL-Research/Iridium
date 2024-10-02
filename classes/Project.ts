@@ -26,7 +26,7 @@ export class Project {
   init() {
     debugConfig.logger.log(`[Initializing Project]`)
     this.#populateJSFiles(this.files, this.analyzePath, this.base)
-    debugConfig.logger.log(`[Finished Initializing Project] Loaded ${this.files.size} files`)
+    debugConfig.logger.log(`[Processing ${this.files.size} files]`)
   }
 
   #handleFileImport = (results: Files, file: string, projectBase: string): ProjectFile | undefined => {
@@ -61,7 +61,7 @@ export class Project {
     const processNewImport = this.#handleFileImport
     const oldFiles: Files = new Map(this.files)
     const result: Files = this.files
-    debugConfig.logger.log("[Processing imports graph]")
+    debugConfig.logger.log("[Imports Graph] Started Processing")
 
     for (const [, file] of oldFiles) {
       importsGraph.addNode(file.uname)
@@ -99,7 +99,7 @@ export class Project {
     }
 
     if (result.size !== oldFiles.size) { // Recurse until all imports have been processed
-      debugConfig.logger.log(`[Expanding import scope] ${oldFiles.size} -> ${result.size}`)
+      debugConfig.logger.log(`[Imports Graph] expanding scope ${oldFiles.size} -> ${result.size}`)
       return this.processImportsGraph()
     }
     this.importsGraphProcessed = true
@@ -132,7 +132,8 @@ export class Project {
       }
     })
 
+    debugConfig.logger.log(`Total: ${loadedFiles.size} files`)
     debugConfig.logger.log(`Loaded: ${loaded} files (LOC: ${LOC})`)
-    debugConfig.logger.error(`Failed to process ${failed.length} imports`, failed)
+    debugConfig.logger.error(`Failed: ${failed.length} imports`, failed)
   }
 }
