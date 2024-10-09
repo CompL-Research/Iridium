@@ -1,6 +1,6 @@
 // Generated on 6/8/2024, 10:15:01 am, generated 1 handlers 
-import {ExportAllDeclaration, ExportNamespaceSpecifier, ExportSpecifier, isExpressionStatement, ExportDefaultDeclaration, ExportNamedDeclaration, ImportDeclaration, Program, isClassDeclaration, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportDefaultSpecifier, isExportNamedDeclaration, isExportNamespaceSpecifier, isExportSpecifier, isExpression, isFunctionDeclaration, isImportAttribute, isImportDeclaration, isInterfaceDeclaration, isOpaqueType, isTSDeclareFunction, isTSEnumDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration, isIdentifier, FunctionExpression, numericLiteral } from "@babel/types";
-import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AnonArrayExpressionfromBaseNode, generateJS3AnonMemberExpressionfromBaseNode, generateJS3ExportAllDeclaration, generateJS3ExportDefaultDeclaration, generateJS3ExportNamedDeclaration, generateJS3ExportNamespaceSpecifier, generateJS3ExportSpecifier, generateJS3FunctionExpressionfromBaseNode, generateJS3ImportDeclaration, generateJS3Program } from "./JS3Constructors.ts";
+import {ExportAllDeclaration, ExportNamespaceSpecifier, ExportSpecifier, isExpressionStatement, ExportDefaultDeclaration, ExportNamedDeclaration, ImportDeclaration, Program, isClassDeclaration, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportDefaultSpecifier, isExportNamedDeclaration, isExportNamespaceSpecifier, isExportSpecifier, isExpression, isFunctionDeclaration, isImportAttribute, isImportDeclaration, isInterfaceDeclaration, isOpaqueType, isTSDeclareFunction, isTSEnumDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration, isIdentifier, FunctionExpression, numericLiteral, classExpression } from "@babel/types";
+import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AnonArrayExpressionfromBaseNode, generateJS3AnonMemberExpressionfromBaseNode, generateJS3ClassExpressionfromBaseNode, generateJS3ExportAllDeclaration, generateJS3ExportDefaultDeclaration, generateJS3ExportNamedDeclaration, generateJS3ExportNamespaceSpecifier, generateJS3ExportSpecifier, generateJS3FunctionExpressionfromBaseNode, generateJS3ImportDeclaration, generateJS3Program } from "./JS3Constructors.ts";
 import { JS3AllowedBlockStatement, JS3ArrowFunctionExpression, JS3ClassExpression, JS3ExportAllDeclaration, JS3ExportAllDeclaration_assertions, JS3ExportAllDeclaration_attributes, JS3ExportDefaultDeclaration_declaration, JS3ExportNamedDeclaration_assertions, JS3ExportNamedDeclaration_attributes, JS3ExportNamedDeclaration_specifiers, JS3ExportNamespaceSpecifier, JS3ExportSpecifier, JS3FunctionExpression, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body, JS3VariableDeclaration } from "./JS3Types.ts";
 
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
@@ -10,7 +10,7 @@ import { generateCommentLine } from "#utils";
 
 import { handleBlockStatement, handleFunctionDeclaration, handleStatement, handleVariableDeclaration } from "./HandleBlocks.ts";
 import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
-import { handleExpression, handleFunctionExpression } from "./HandleExpression.ts";
+import { handleClassExpression, handleExpression, handleFunctionExpression } from "./HandleExpression.ts";
 
 type OtherProps = JS3BuilderUtils;
 
@@ -151,27 +151,36 @@ export function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, o
 
     // let temp = [func...][0]
     let resHolder = generateIdentifier(orig_declaration, otherProps.getNewTemporary(otherProps.others.prefix))
-    otherProps.others.holder.push(generateDummyJS3VariableDeclaration(orig_declaration, resHolder, fnExpr, "let", null, null))
+    otherProps.others.holder.push(generateDummyJS3VariableDeclaration(orig_declaration, resHolder, anonArrExpr, "let", null, null))
 
     fin_declaration = resHolder
     // ========================================================================================
   } else if (isClassDeclaration(orig_declaration)) {
     // ========================================================================================
 
-    // Translate it into a MemberExpression
-    const classExpr = handleClassExpression(_arrProp, otherProps);
+    //@ts-ignore
+    orig_declaration.type = "ClassExpression"
 
+    //@ts-ignore
+    const classExpr = handleClassExpression(orig_declaration, otherProps);
+
+    //@ts-ignore
+    orig_declaration.type = "ClassDeclaration"
+    
     const holder: Array<JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression> = new Array();
-
     holder.push(classExpr);
 
     // [ class x { ... } ]
-    const arrNode = generateJS3AnonArrayExpressionfromBaseNode(holder, _arrProp)
+    const arrNode = generateJS3AnonArrayExpressionfromBaseNode(holder, orig_declaration)
 
     // [ class x { ... } ] [0]
-    const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, _arrProp)
+    const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, orig_declaration)
     
-    fin_declaration = handleClassDeclaration(orig_declaration, otherProps)
+    // let temp = [class...][0]
+    let resHolder = generateIdentifier(orig_declaration, otherProps.getNewTemporary(otherProps.others.prefix))
+    otherProps.others.holder.push(generateDummyJS3VariableDeclaration(orig_declaration, resHolder, anonArrExpr, "let", null, null))
+
+    fin_declaration = resHolder
     // ========================================================================================
   } else if (isExpression(orig_declaration)) {
     // ========================================================================================

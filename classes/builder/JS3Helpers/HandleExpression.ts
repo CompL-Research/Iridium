@@ -411,7 +411,11 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
         // [ function { ... } ] [0]
         const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, _arrProp)
 
-        fin_arguments.push(anonArrExpr)
+        // let temp = [func...][0]
+        let resHolder = generateIdentifier(_arrProp, otherProps.getNewTemporary(otherProps.others.prefix))
+        otherProps.others.holder.push(generateDummyJS3VariableDeclaration(_arrProp, resHolder, anonArrExpr, "let", null, null))
+
+        fin_arguments.push(resHolder)
       } else if (isArrowFunctionExpression(_arrProp)) {
         // Translate it into a MemberExpression
         const arrfnExpr = handleArrowFunctionExpression(_arrProp, otherProps);
@@ -426,7 +430,11 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
         // [ () => { ... } ] [0]
         const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, _arrProp)
 
-        fin_arguments.push(anonArrExpr)
+        // let temp = [()...][0]
+        let resHolder = generateIdentifier(_arrProp, otherProps.getNewTemporary(otherProps.others.prefix))
+        otherProps.others.holder.push(generateDummyJS3VariableDeclaration(_arrProp, resHolder, anonArrExpr, "let", null, null))
+
+        fin_arguments.push(resHolder)
       } else if (isClassExpression(_arrProp)) {
         // Translate it into a MemberExpression
         const classExpr = handleClassExpression(_arrProp, otherProps);
@@ -441,7 +449,11 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
         // [ class x { ... } ] [0]
         const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, _arrProp)
 
-        fin_arguments.push(anonArrExpr)
+         // let temp = [class...][0]
+         let resHolder = generateIdentifier(_arrProp, otherProps.getNewTemporary(otherProps.others.prefix))
+         otherProps.others.holder.push(generateDummyJS3VariableDeclaration(_arrProp, resHolder, anonArrExpr, "let", null, null))
+ 
+         fin_arguments.push(resHolder)
       } else if (isExpression(_arrProp)) {
 
         // if (isImportCall) {
