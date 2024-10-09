@@ -149,6 +149,7 @@ function genJS3(filePath) {
       
     const builder = new JS3Builder(file)
     builder.build()
+    builder.saveGeneratedFile()
     console.log(builder.generatedCode)
     process.exit(0)
   } catch (e) {

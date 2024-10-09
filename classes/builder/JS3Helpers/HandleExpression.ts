@@ -19,6 +19,15 @@ const isnull = (a) => a === null;
 const isundefined = (a) => a === undefined;
 
 
+// // 
+// // Reduce an expression without affecting the named nature
+// // 
+// export function handleExpressionNameless(node: Expression, otherProps: OtherProps): Identifier {
+
+//   // TODO
+
+// }
+
 //
 // Reduces expressions to an Identifier
 //
@@ -389,7 +398,7 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
       } else if (isCallExpression(_arrProp)) {
         fin_arguments.push(handleCallExpression(_arrProp, otherProps))
       } else if (isFunctionExpression(_arrProp)) {
-        // Translate it into a MemberExpression
+        // Translate it into a FunctionExpression
         const fnExpr = handleFunctionExpression(_arrProp, otherProps);
 
         const holder: Array<JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression> = new Array();
