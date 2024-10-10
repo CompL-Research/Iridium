@@ -1,12 +1,12 @@
 // Generated on 7/8/2024, 5:50:38 pm, generated 16 handlers 
 
-import { isImportAttribute, ExportAllDeclaration, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, EmptyStatement, ExpressionStatement, ForInStatement, ForOfStatement, ForStatement, FunctionDeclaration, IfStatement, isArrayPattern, isArrowFunctionExpression, isAssignmentPattern, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isBreakStatement, isCatchClause, isClassDeclaration, isClassExpression, isContinueStatement, isDebuggerStatement, isDecimalLiteral, isDeclareClass, isDeclaredPredicate, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isFunctionExpression, isIdentifier, isIfStatement, isImportDeclaration, isInferredPredicate, isInterfaceDeclaration, isLabeledStatement, isMemberExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectPattern, isOpaqueType, isPattern, isRestElement, isReturnStatement, isStatement, isStringLiteral, isSwitchStatement, isThrowStatement, isTryStatement, isTSAsExpression, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSTypeAliasDeclaration, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTypeAlias, isTypeAnnotation, isTypeParameterDeclaration, isVariableDeclaration, isWhileStatement, isWithStatement, LabeledStatement, ReturnStatement, Statement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement } from "@babel/types";
+import { identifier, stringLiteral, isPrivateName, Identifier, isObjectProperty, ObjectProperty, ObjectPattern, isImportAttribute, ExportAllDeclaration, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, EmptyStatement, ExpressionStatement, ForInStatement, ForOfStatement, ForStatement, FunctionDeclaration, IfStatement, isArrayPattern, isArrowFunctionExpression, isAssignmentPattern, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isBreakStatement, isCatchClause, isClassDeclaration, isClassExpression, isContinueStatement, isDebuggerStatement, isDecimalLiteral, isDeclareClass, isDeclaredPredicate, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isFunctionExpression, isIdentifier, isIfStatement, isImportDeclaration, isInferredPredicate, isInterfaceDeclaration, isLabeledStatement, isMemberExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectPattern, isOpaqueType, isPattern, isRestElement, isReturnStatement, isStatement, isStringLiteral, isSwitchStatement, isThrowStatement, isTryStatement, isTSAsExpression, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSTypeAliasDeclaration, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTypeAlias, isTypeAnnotation, isTypeParameterDeclaration, isVariableDeclaration, isWhileStatement, isWithStatement, LabeledStatement, ReturnStatement, Statement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement } from "@babel/types";
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
 import { JS3AllowedBlockStatement, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3BreakStatement_label, JS3CatchClause_body, JS3ContinueStatement, JS3ContinueStatement_label, JS3DoWhileStatement, JS3DoWhileStatement_test, JS3ExportAllDeclaration, JS3ExportAllDeclaration_assertions, JS3ExportAllDeclaration_attributes, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3ForInStatement, JS3ForInStatement_body, JS3ForInStatement_left, JS3ForInStatement_right, JS3ForOfStatement, JS3ForOfStatement_left, JS3ForOfStatement_right, JS3ForStatement, JS3ForStatement_body, JS3ForStatement_init, JS3ForStatement_test, JS3ForStatement_update, JS3FunctionDeclaration, JS3FunctionDeclaration_body, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3LabeledStatement, JS3LabeledStatement_body, JS3Program_body, JS3ReturnStatement_argument, JS3SwitchCase, JS3SwitchCase_consequent, JS3SwitchCase_test, JS3SwitchStatement, JS3SwitchStatement_cases, JS3SwitchStatement_discriminant, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_id, JS3VariableDeclarator_init, JS3WhileStatement, JS3WhileStatement_body, JS3WhileStatement_test, JS3WithStatement, JS3WithStatement_body, JS3WithStatement_object } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
 import { handleArrowFunctionExpression, handleClassExpression, handleExpression, handleFunctionExpression, handleMemberExpression } from "./HandleExpression.ts";
-import { generateBaseNodeFrom, generateIdentifier, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3CatchClause, generateJS3ContinueStatement, generateJS3DoWhileStatement, generateJS3ExportAllDeclaration, generateJS3ExpressionStatement, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3LabeledStatement, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarator, generateJS3WhileStatement, generateJS3WithStatement } from "./JS3Constructors.ts";
+import { generateBaseNodeFrom, generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AssignmentExpressionfromBaseNode, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3CallExpressionfromBaseNode, generateJS3CatchClause, generateJS3ContinueStatement, generateJS3DoWhileStatement, generateJS3ExportAllDeclaration, generateJS3ExpressionStatement, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3LabeledStatement, generateJS3MemberExpressionfromBaseNode, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarator, generateJS3WhileStatement, generateJS3WithStatement } from "./JS3Constructors.ts";
 
 import { generateCommentLine } from "#utils";
 import assert from 'node:assert';
@@ -294,6 +294,129 @@ export function handleVariableDeclaration(node: VariableDeclaration, otherProps:
   otherProps.debugTrace.pop()
   return finalResult
 }
+
+// 
+// :::WIP:::
+// 
+// export function lowerObjectProperty(node: ObjectProperty, otherProps: OtherProps, workingWith: Identifier) {
+//   if (isPrivateName(node.key)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->ObjectPattern->ObjectProperty->PrivateName");
+//     return;
+//   }
+
+//   let propToGetId = handleExpression(node.key, otherProps)
+
+//   // Value can be: Identifier | ObjectPattern | ArrayPattern | MemberExpression | TSAsExpression | TSSatisfiesExpression | TSTypeAssertion | TSNonNullExpression
+  
+//   // Trivial Case: Binding to set is an identifier
+//   if (isIdentifier(node.value)) {
+//     otherProps.others.bindingsToMake.push(node.value.name)
+//     let init = generateJS3MemberExpressionfromBaseNode(workingWith, propToGetId, true, null, node.value)
+//     otherProps.others.holder.push(generateJS3AssignmentExpressionfromBaseNode(node.value, init, "=", node))
+//   } 
+//   // Recursive Case: Object Pattern
+//   else if (isObjectPattern(node.value)) {
+//     let init = generateJS3MemberExpressionfromBaseNode(workingWith, propToGetId, true, null, node.value)
+//     lowerObjectPattern(node.value, otherProps, init)
+//   } else {
+//     debugConfig.logger.throwJS3Error(`TODO // unhandled VariableDeclarator->id->ObjectPattern->ObjectProperty->Value = ${node.value.type}`);
+//   }
+
+// }
+
+// export function lowerObjectPattern(node: ObjectPattern, otherProps: OtherProps, workingWithId: Identifier) {
+  
+//   const spillHolder: JS3BlockStatement_body = new Array()
+//   const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: spillHolder, bindingsToMake: new Array() } }
+
+//   for (let p of node.properties) {
+//     if (isObjectProperty(p)) {
+//       // lowerObjectProperty(p, updatedProps, workingWithId)
+//     } else {
+//       debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->ObjectPattern->RestElement");
+//     }
+//   }
+
+//   otherProps.others.bindingsToMake = null
+
+// }
+
+// //
+// // (4.1) VariableDeclarator: LVal = Expression
+// // 
+// // Spill: init --> otherProps.others.holder
+// // Result: LVal = JS3VariableDeclarator_init
+// //
+// export function handleVariableDeclarator(node: VariableDeclarator, otherProps: OtherProps) {
+//   otherProps.debugTrace.push("VariableDeclarator");
+//   assert(Array.isArray(otherProps.others.holder), "handleVariableDeclarator expects an holder to spill intermediate values");
+
+//   let orig_init = node.init; // Handling prop init
+//   let fin_init: JS3VariableDeclarator_init = null; // Handling prop init
+
+//   if (isIdentifier(orig_init) || isDecimalLiteral(orig_init) || isBigIntLiteral(orig_init) || isStringLiteral(orig_init) || isNumericLiteral(orig_init) || isNullLiteral(orig_init) || isBooleanLiteral(orig_init)) {
+//     fin_init = orig_init
+//   } else if (isArrowFunctionExpression(orig_init)) {
+//     fin_init = handleArrowFunctionExpression(orig_init, otherProps);
+//   } else if (isFunctionExpression(orig_init)) {
+//     fin_init = handleFunctionExpression(orig_init, otherProps);
+//   } else if (isClassExpression(orig_init)) {
+//     fin_init = handleClassExpression(orig_init, otherProps);
+//   } else if (isExpression(orig_init)) {
+//     fin_init = handleExpression(orig_init, otherProps)
+//   }
+
+//   const oldPrefix = otherProps.others.prefix
+//   if (isIdentifier(node.id)) otherProps.others.prefix = node.id.name;
+
+//   let orig_id = node.id; // Handling prop id
+//   let fin_id: JS3VariableDeclarator_id; // Handling prop id
+//   if (isIdentifier(orig_id)) {
+//     fin_id = orig_id
+//   } else if (isMemberExpression(orig_id)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->MemberExpression");
+//     // fin_id = handleMemberExpression(orig_id, otherProps)
+//   } else if (isRestElement(orig_id)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->RestElement");
+//     // fin_id = orig_id
+//   } else if (isAssignmentPattern(orig_id)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->AssignmentPattern");
+//     // fin_id = orig_id
+//   } else if (isArrayPattern(orig_id)) {
+//     fin_id = orig_id
+//   } else if (isObjectPattern(orig_id)) {
+//     let workingWithId = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+//     otherProps.others.holder.push(generateDummyJS3VariableDeclaration(node, workingWithId, fin_init, "let", null, null))
+
+//     lowerObjectPattern(orig_id, otherProps, workingWithId)
+
+//     // let result: JS3VariableDeclarator = generateJS3VariableDeclarator(workingWithId, fin_init, node);
+//     // otherProps.debugTrace.pop()
+//     return null
+//     // 
+//     // {  }
+//     // 
+
+//     // fin_id = orig_id
+//   } else if (isTSParameterProperty(orig_id)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSParameterProperty");
+//   } else if (isTSAsExpression(orig_id)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSAsExpression");
+//   } else if (isTSSatisfiesExpression(orig_id)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSSatisfiesExpression");
+//   } else if (isTSTypeAssertion(orig_id)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSTypeAssertion");
+//   } else if (isTSNonNullExpression(orig_id)) {
+//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSNonNullExpression");
+//   }
+
+  
+
+//   let result: JS3VariableDeclarator = generateJS3VariableDeclarator(fin_id, fin_init, node);
+//   otherProps.others.prefix = oldPrefix
+//   otherProps.debugTrace.pop()
+//   return result;
+// }
 
 //
 // (4.1) VariableDeclarator: LVal = Expression

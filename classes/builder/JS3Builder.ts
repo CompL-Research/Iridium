@@ -18,7 +18,8 @@ export type JS3BuilderUtils = {
   debugTrace: Array<string>
   others?: {
     holder: JS3Program_body | Array<JS3AllowedBlockStatement> | null,
-    prefix?: string
+    prefix?: string,
+    bindingsToMake?: Array<String>
   }
 }
 

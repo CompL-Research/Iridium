@@ -1,6 +1,6 @@
 // Generated on 6/8/2024, 10:15:01 am, generated 1 handlers 
 import {ExportAllDeclaration, ExportNamespaceSpecifier, ExportSpecifier, isExpressionStatement, ExportDefaultDeclaration, ExportNamedDeclaration, ImportDeclaration, Program, isClassDeclaration, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportDefaultSpecifier, isExportNamedDeclaration, isExportNamespaceSpecifier, isExportSpecifier, isExpression, isFunctionDeclaration, isImportAttribute, isImportDeclaration, isInterfaceDeclaration, isOpaqueType, isTSDeclareFunction, isTSEnumDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration, isIdentifier, FunctionExpression, numericLiteral, classExpression } from "@babel/types";
-import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AnonArrayExpressionfromBaseNode, generateJS3AnonMemberExpressionfromBaseNode, generateJS3ClassExpressionfromBaseNode, generateJS3ExportAllDeclaration, generateJS3ExportDefaultDeclaration, generateJS3ExportNamedDeclaration, generateJS3ExportNamespaceSpecifier, generateJS3ExportSpecifier, generateJS3FunctionExpressionfromBaseNode, generateJS3ImportDeclaration, generateJS3Program } from "./JS3Constructors.ts";
+import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AnonArrayExpressionfromBaseNode, generateJS3AnonMemberExpressionfromBaseNode, generateJS3ClassExpressionfromBaseNode, generateJS3ExportAllDeclaration, generateJS3ExportDefaultDeclaration, generateJS3ExportNamedDeclaration, generateJS3ExportNamespaceSpecifier, generateJS3ExportSpecifier, generateJS3ExportSpecifierfromBaseNode, generateJS3FunctionExpressionfromBaseNode, generateJS3ImportDeclaration, generateJS3Program } from "./JS3Constructors.ts";
 import { JS3AllowedBlockStatement, JS3ArrowFunctionExpression, JS3ClassExpression, JS3ExportAllDeclaration, JS3ExportAllDeclaration_assertions, JS3ExportAllDeclaration_attributes, JS3ExportDefaultDeclaration_declaration, JS3ExportNamedDeclaration_assertions, JS3ExportNamedDeclaration_attributes, JS3ExportNamedDeclaration_specifiers, JS3ExportNamespaceSpecifier, JS3ExportSpecifier, JS3FunctionExpression, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body, JS3VariableDeclaration } from "./JS3Types.ts";
 
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
@@ -131,56 +131,67 @@ export function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, o
     debugConfig.logger.throwJS3Error("TODO // unhandled ExportDefaultDeclaration->declaration->TSDeclareFunction");
   } else if (isFunctionDeclaration(orig_declaration)) {
     // ========================================================================================
-    //@ts-ignore
-    orig_declaration.type = "FunctionExpression"
+    // Case 1: It has a name
+    if (isIdentifier(orig_declaration.id)) {
+      let js3FnDecl = handleFunctionDeclaration(orig_declaration, otherProps)
+      otherProps.others.holder.push(js3FnDecl)
+      fin_declaration = orig_declaration.id
+    }
+    // Case 2: it is anonymous
+    else {
+      //@ts-ignore
+      orig_declaration.type = "FunctionExpression"
+      //@ts-ignore
+      const fnExpr = handleFunctionExpression(orig_declaration, otherProps);
+      //@ts-ignore
+      orig_declaration.type = "FunctionDeclaration"
 
-    //@ts-ignore
-    const fnExpr = handleFunctionExpression(orig_declaration, otherProps);
+      const holder: Array<JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression> = new Array();
+      holder.push(fnExpr);
 
-    //@ts-ignore
-    orig_declaration.type = "FunctionDeclaration"
+      // [ function { ... } ]
+      const arrNode = generateJS3AnonArrayExpressionfromBaseNode(holder, orig_declaration)
 
-    const holder: Array<JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression> = new Array();
-    holder.push(fnExpr);
+      // [ function { ... } ] [0]
+      const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, orig_declaration)
 
-    // [ function { ... } ]
-    const arrNode = generateJS3AnonArrayExpressionfromBaseNode(holder, orig_declaration)
-
-    // [ function { ... } ] [0]
-    const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, orig_declaration)
-
-    // let temp = [func...][0]
-    let resHolder = generateIdentifier(orig_declaration, otherProps.getNewTemporary(otherProps.others.prefix))
-    otherProps.others.holder.push(generateDummyJS3VariableDeclaration(orig_declaration, resHolder, anonArrExpr, "let", null, null))
-
-    fin_declaration = resHolder
+      // let temp = [func...][0]
+      let resHolder = generateIdentifier(orig_declaration, otherProps.getNewTemporary(otherProps.others.prefix))
+      otherProps.others.holder.push(generateDummyJS3VariableDeclaration(orig_declaration, resHolder, anonArrExpr, "let", null, null))
+      fin_declaration = resHolder
+    }
     // ========================================================================================
   } else if (isClassDeclaration(orig_declaration)) {
     // ========================================================================================
+    // Case 1: It has a name
+    if (isIdentifier(orig_declaration.id)) {
+      let js3ClassDecl = handleClassDeclaration(orig_declaration, otherProps)
+      otherProps.others.holder.push(js3ClassDecl)
+      fin_declaration = orig_declaration.id
+    }
+    // Case 2: it is anonymous
+    else {
+      //@ts-ignore
+      orig_declaration.type = "ClassExpression"
+      //@ts-ignore
+      const fnExpr = handleFunctionExpression(orig_declaration, otherProps);
+      //@ts-ignore
+      orig_declaration.type = "ClassDeclaration"
 
-    //@ts-ignore
-    orig_declaration.type = "ClassExpression"
+      const holder: Array<JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression> = new Array();
+      holder.push(fnExpr);
 
-    //@ts-ignore
-    const classExpr = handleClassExpression(orig_declaration, otherProps);
+      // [ class { ... } ]
+      const arrNode = generateJS3AnonArrayExpressionfromBaseNode(holder, orig_declaration)
 
-    //@ts-ignore
-    orig_declaration.type = "ClassDeclaration"
-    
-    const holder: Array<JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression> = new Array();
-    holder.push(classExpr);
+      // [ class { ... } ] [0]
+      const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, orig_declaration)
 
-    // [ class x { ... } ]
-    const arrNode = generateJS3AnonArrayExpressionfromBaseNode(holder, orig_declaration)
-
-    // [ class x { ... } ] [0]
-    const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, orig_declaration)
-    
-    // let temp = [class...][0]
-    let resHolder = generateIdentifier(orig_declaration, otherProps.getNewTemporary(otherProps.others.prefix))
-    otherProps.others.holder.push(generateDummyJS3VariableDeclaration(orig_declaration, resHolder, anonArrExpr, "let", null, null))
-
-    fin_declaration = resHolder
+      // let temp = [class...][0]
+      let resHolder = generateIdentifier(orig_declaration, otherProps.getNewTemporary(otherProps.others.prefix))
+      otherProps.others.holder.push(generateDummyJS3VariableDeclaration(orig_declaration, resHolder, anonArrExpr, "let", null, null))
+      fin_declaration = resHolder
+    }
     // ========================================================================================
   } else if (isExpression(orig_declaration)) {
     // ========================================================================================
@@ -221,23 +232,41 @@ export function handleExportNamedDeclaration(node: ExportNamedDeclaration, other
   let orig_declaration = node.declaration; // Handling prop declaration
   // let fin_declaration : JS3ExportNamedDeclaration_declaration = null; // Handling prop declaration
   if (isFunctionDeclaration(orig_declaration)) {
-    const funcDecl = handleFunctionDeclaration(orig_declaration, otherProps)
-    const duplicatedExportNamedDecl = generateJS3ExportNamedDeclaration(funcDecl, new Array(), fin_assertions, fin_attributes, node);
+    // ========================================================================================
+    let js3FnDecl = handleFunctionDeclaration(orig_declaration, otherProps)
+    otherProps.others.holder.push(js3FnDecl)
+    let specifierArray = new Array()
+    let specifier = generateJS3ExportSpecifierfromBaseNode(js3FnDecl.id, js3FnDecl.id, "value", orig_declaration)
+    specifierArray.push(specifier)
+    const duplicatedExportNamedDecl = generateJS3ExportNamedDeclaration(null, specifierArray, fin_assertions, fin_attributes, node);
     (otherProps.others.holder as JS3Program_body).push(duplicatedExportNamedDecl)
+    // ========================================================================================
   } else if (isVariableDeclaration(orig_declaration)) {
 
     const fin_declarations = handleVariableDeclaration(orig_declaration, otherProps)
-    for (const dec of fin_declarations) {
-      if (node.specifiers.length !== 0) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ExportNamedDeclaration->declaration->VariableDeclaration: node.specifiers.length !== 0");
-      }
-      const duplicatedExportNamedDecl = generateJS3ExportNamedDeclaration(dec, new Array(), fin_assertions, fin_attributes, node);
+    fin_declarations.forEach(s => {
+      if (!isIdentifier(s.declarations[0].id)) {
+        const duplicatedExportNamedDecl = generateJS3ExportNamedDeclaration(s, new Array(), fin_assertions, fin_attributes, node);
       (otherProps.others.holder as JS3Program_body).push(duplicatedExportNamedDecl)
-    }
+        // debugConfig.logger.throwJS3Error(`TODO // unhandled ExportNamedDeclaration->declaration->VariableDeclaration: declaration id is non Identifier ${JSON.stringify([orig_declaration, s])}`, [orig_declaration, s]);
+      } else {
+        otherProps.others.holder.push(s);
+        let specifierArray = new Array()
+        let specifier = generateJS3ExportSpecifierfromBaseNode(s.declarations[0].id, s.declarations[0].id, "value", orig_declaration)
+        specifierArray.push(specifier)
+  
+        const duplicatedExportNamedDecl = generateJS3ExportNamedDeclaration(null, specifierArray, fin_assertions, fin_attributes, node);
+        (otherProps.others.holder as JS3Program_body).push(duplicatedExportNamedDecl)
+      }
+    })
 
   } else if (isClassDeclaration(orig_declaration)) {
-    const classDecl = handleClassDeclaration(orig_declaration, otherProps)
-    const duplicatedExportNamedDecl = generateJS3ExportNamedDeclaration(classDecl, new Array(), fin_assertions, fin_attributes, node);
+    let js3ClassDecl = handleClassDeclaration(orig_declaration, otherProps)
+    otherProps.others.holder.push(js3ClassDecl)
+    let specifierArray = new Array()
+    let specifier = generateJS3ExportSpecifierfromBaseNode(js3ClassDecl.id, js3ClassDecl.id, "value", orig_declaration)
+    specifierArray.push(specifier)
+    const duplicatedExportNamedDecl = generateJS3ExportNamedDeclaration(null, specifierArray, fin_assertions, fin_attributes, node);
     (otherProps.others.holder as JS3Program_body).push(duplicatedExportNamedDecl)
   } else if (isExportAllDeclaration(orig_declaration)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled ExportNamedDeclaration->declaration->ExportAllDeclaration");

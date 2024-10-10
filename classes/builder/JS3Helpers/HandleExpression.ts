@@ -3,8 +3,8 @@ import debugConfig from "#debugConfig";
 import { ArrayExpression, ArrowFunctionExpression, AssignmentExpression, AwaitExpression, binaryExpression, BinaryExpression, CallExpression, ClassExpression, ConditionalExpression, Expression, FunctionExpression, identifier, Identifier, Import, ImportExpression, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassBody, isClassExpression, isClassImplements, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDecorator, isDoExpression, isExpression, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isInterfaceExtends, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPattern, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSExpressionWithTypeArguments, isTSInstantiationExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSType, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, logicalExpression, LogicalExpression, MemberExpression, MetaProperty, NewExpression, nullLiteral, numericLiteral, ObjectExpression, ObjectMethod, ObjectProperty, OptionalCallExpression, OptionalMemberExpression, PrivateName, RegExpLiteral, SequenceExpression, SpreadElement, TaggedTemplateExpression, TemplateLiteral, unaryExpression, UnaryExpression, UpdateExpression, YieldExpression } from "@babel/types";
 import assert from 'node:assert';
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AnonArrayExpressionfromBaseNode, generateJS3AnonMemberExpressionfromBaseNode, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3AwaitExpression, generateJS3BinaryExpression, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3ClassExpression, generateJS3ConditionalExpression, generateJS3FunctionExpression, generateJS3IfStatementfromBaseNode, generateJS3Import, generateJS3ImportExpression, generateJS3MemberExpression, generateJS3MetaProperty, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3OptionalCallExpression, generateJS3OptionalMemberExpression, generateJS3PrivateName, generateJS3RegExpLiteral, generateJS3ReturnStatementfromBaseNode, generateJS3SequenceExpression, generateJS3SpreadElement, generateJS3TaggedTemplateExpression, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3YieldExpression } from "./JS3Constructors.ts";
-import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3AwaitExpression, JS3AwaitExpression_argument, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3ConditionalExpression, JS3ConditionalExpression_alternate, JS3ConditionalExpression_consequent, JS3ConditionalExpression_test, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3Import, JS3ImportExpression, JS3ImportExpression_options, JS3ImportExpression_source, JS3LogicalExpression_left, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3MetaProperty, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3OptionalCallExpression, JS3OptionalCallExpression_arguments, JS3OptionalCallExpression_callee, JS3OptionalCallExpression_typeArguments, JS3OptionalCallExpression_typeParameters, JS3OptionalMemberExpression, JS3OptionalMemberExpression_object, JS3OptionalMemberExpression_property, JS3PrivateName, JS3RegExpLiteral, JS3SequenceExpression, JS3SequenceExpression_expressions, JS3SpreadElement, JS3SpreadElement_argument, JS3TaggedTemplateExpression, JS3TaggedTemplateExpression_quasi, JS3TaggedTemplateExpression_tag, JS3TaggedTemplateExpression_typeParameters, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
+import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AnonArrayExpressionfromBaseNode, generateJS3AnonMemberExpressionfromBaseNode, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3AwaitExpression, generateJS3BinaryExpression, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3ClassExpression, generateJS3FunctionExpression, generateJS3IfStatementfromBaseNode, generateJS3Import, generateJS3ImportExpression, generateJS3MemberExpression, generateJS3MetaProperty, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3OptionalCallExpression, generateJS3OptionalMemberExpression, generateJS3PrivateName, generateJS3RegExpLiteral, generateJS3ReturnStatementfromBaseNode, generateJS3SequenceExpression, generateJS3SpreadElement, generateJS3TaggedTemplateExpression, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3YieldExpression } from "./JS3Constructors.ts";
+import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3AwaitExpression, JS3AwaitExpression_argument, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3Import, JS3ImportExpression, JS3ImportExpression_options, JS3ImportExpression_source, JS3LogicalExpression_left, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3MetaProperty, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3OptionalCallExpression, JS3OptionalCallExpression_arguments, JS3OptionalCallExpression_callee, JS3OptionalCallExpression_typeArguments, JS3OptionalCallExpression_typeParameters, JS3OptionalMemberExpression, JS3OptionalMemberExpression_object, JS3OptionalMemberExpression_property, JS3PrivateName, JS3RegExpLiteral, JS3SequenceExpression, JS3SequenceExpression_expressions, JS3SpreadElement, JS3SpreadElement_argument, JS3TaggedTemplateExpression, JS3TaggedTemplateExpression_quasi, JS3TaggedTemplateExpression_tag, JS3TaggedTemplateExpression_typeParameters, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
 
 import { isArgumentPlaceholder, isSpreadElement, isTSTypeParameterInstantiation, isTypeParameterInstantiation, isV8IntrinsicIdentifier } from "@babel/types";
 import { lowerComputedKey } from "./GenericConstructs.ts";
@@ -75,10 +75,13 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
   } else if (isConditionalExpression(node)) {
     // ========================================================================================
     // $resultIdentifier = JS3ConditionalExpr
-    resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-    const init = handleConditionalExpression(node, otherProps)
-    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
-    otherProps.others.holder.push(varDecl)
+    // resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+    // const init = handleConditionalExpression(node, otherProps)
+    // const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
+    // otherProps.others.holder.push(varDecl)
+
+    resultIdentifier = handleConditionalExpression(node, otherProps)
+
     // ========================================================================================
   } else if (isFunctionExpression(node)) {
     // ========================================================================================
@@ -1668,29 +1671,51 @@ export function handleYieldExpression(node: YieldExpression, otherProps: OtherPr
   return result
 }
 
-export function handleConditionalExpression(node: ConditionalExpression, otherProps: OtherProps) {
+export function handleConditionalExpression(node: ConditionalExpression, otherProps: OtherProps) : Identifier {
+  // 
+  // Simplify this into an if condition check
+  // 
+
   // 1 fallthrough props, 3 restricted props
   let orig_test = node.test; // Handling prop test
-  let fin_test: JS3ConditionalExpression_test; // Handling prop test
+  let fin_test: Identifier; // Handling prop test
   if (isExpression(orig_test)) {
     fin_test = handleExpression(orig_test, otherProps)
   }
 
-  let orig_consequent = node.consequent; // Handling prop consequent
-  let fin_consequent: JS3ConditionalExpression_consequent; // Handling prop consequent
+  // let result;
+  let resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+  otherProps.others.holder.push(generateDummyJS3VariableDeclaration(node, resultIdentifier, null, "let", null, null))
 
+  // if (fin_test) { result = ...consequent } else { result = ...alternate }
+  let consequentBodyHolder = new Array()
+  let alternateBodyHolder = new Array()
+  let consequentBody = generateJS3BlockStatementfromBaseNode(consequentBodyHolder, new Array(), node)
+  let alternateBody = generateJS3BlockStatementfromBaseNode(alternateBodyHolder, new Array(), node)
+  let ifCond = generateJS3IfStatementfromBaseNode(fin_test, consequentBody, alternateBody, node)
+  otherProps.others.holder.push(ifCond)
+
+  let orig_consequent = node.consequent; // Handling prop consequent
   if (isExpression(orig_consequent)) {
-    fin_consequent = lowerComputedKey(orig_consequent, otherProps)
+    let fin_consequent: Identifier; // Handling prop consequent
+    // temp = ...consequent
+    // result = temp
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: consequentBodyHolder } }
+    fin_consequent = handleExpression(orig_consequent, updatedProps)
+    consequentBodyHolder.push(generateJS3AssignmentExpressionfromBaseNode(resultIdentifier, fin_consequent, "=", orig_consequent));
   }
 
   let orig_alternate = node.alternate; // Handling prop alternate
-  let fin_alternate: JS3ConditionalExpression_alternate; // Handling prop alternate
   if (isExpression(orig_alternate)) {
-    fin_alternate = lowerComputedKey(orig_alternate, otherProps)
+    let fin_alternate: Identifier; // Handling prop alternate
+    // temp = ...alternate
+    // result = temp
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: alternateBodyHolder } }
+    fin_alternate = handleExpression(orig_alternate, updatedProps)
+    alternateBodyHolder.push(generateJS3AssignmentExpressionfromBaseNode(resultIdentifier, fin_alternate, "=", orig_alternate));
   }
-
-  let result: JS3ConditionalExpression = generateJS3ConditionalExpression(fin_test, fin_consequent, fin_alternate, node);
-  return result;
+  
+  return resultIdentifier;
 }
 
 export function handleAwaitExpression(node: AwaitExpression, otherProps: OtherProps) {
