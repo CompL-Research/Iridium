@@ -27,7 +27,6 @@ export class F_Value {
 
 export const KEYWORDS = {
 	effectful_import: "EFF_IMPORT",
-	default_import: "DEF_IMPORT",
 	binding_import: "BIN_IMPORT",
 	ns_import: "NS_IMPORT"
 	

@@ -1,48 +1,6 @@
 import { F_Instruction, F_Value, KEYWORDS } from './General.ts'
 import * as t from '@babel/types'
 
-// 1. import "source"
-export class F_EffectfulImport extends F_Instruction {
-	source: String
-	constructor(n: t.Node, source: String) {
-		super(n, "F_EffectfulImport")
-		this.source = source
-	}
-	toString() {
-		return `${KEYWORDS.effectful_import} "${this.source}"`
-	}
-}
-const isF_EffectfulImport = (node: any): node is F_EffectfulImport => node && node.tag === "F_EffectfulImport"
-
-// 2. import a from "source"
-export class V_DefImport extends F_Value {
-	source: String
-	constructor(n: t.Node, source: String) {
-		super(n)
-		this.source = source
-	}
-
-	toString() {
-		return `${KEYWORDS.default_import} "${this.source}"`
-	}
-}
-
-export class F_ImportDefault extends F_Instruction {
-	left: String
-	right: V_DefImport
-	constructor(n: t.Node, local: String, source: String) {
-		super(n, "F_ImportDefault")
-		this.left = local
-		this.right = new V_DefImport(n, source)
-	}
-
-	toString() {
-		return `${this.left} = ${this.right.toString()}`
-	}
-}
-export const isF_ImportDefault = (node: any): node is F_ImportDefault => node && node.tag === "F_ImportDefault"
-
-// 3. import { x as y } from "source"
 export class V_BindingImport extends F_Value {
 	source: String
 	binding: String
@@ -57,13 +15,30 @@ export class V_BindingImport extends F_Value {
 	}
 }
 
+
+// 1. import "source"
+export class F_EffectfulImport extends F_Instruction {
+	source: String
+	constructor(n: t.Node, source: String) {
+		super(n, "F_EffectfulImport")
+		this.source = source
+	}
+	toString() {
+		return `${KEYWORDS.effectful_import} "${this.source}"`
+	}
+}
+const isF_EffectfulImport = (node: any): node is F_EffectfulImport => node && node.tag === "F_EffectfulImport"
+
+// 2. 
+// import x from "source"
+// import { x as y } from "source"
 export class F_Import extends F_Instruction {
 	left: String
 	right: V_BindingImport
-	constructor(n: t.Node, local: String, imported: String, source: String) {
+	constructor(n: t.Node, local: String, binding: String, source: String) {
 		super(n, "F_Import")
 		this.left = local
-		this.right = new V_BindingImport(n, source, imported)
+		this.right = new V_BindingImport(n, source, binding)
 	}
 
 	toString() {
