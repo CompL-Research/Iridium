@@ -9,6 +9,7 @@ const config : {
   logger: Logger,
   versionNumber: string,
   throwJS3Errors: boolean,
+  throwIRIErrors: boolean,
   js3SourceType: string,
   allowLangWithSupport: boolean
 } = {
@@ -20,6 +21,7 @@ const config : {
   logger: new Logger(),
   versionNumber: "",
   throwJS3Errors: false,
+  throwIRIErrors: false,
   js3SourceType: "unambiguous",
   allowLangWithSupport: false
 }

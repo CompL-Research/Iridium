@@ -10,7 +10,8 @@ import JS3Builder from 'classes/builder/JS3Builder.ts'
 import { ProjectFile } from 'classes/ProjectFile.ts'
 import { Project } from './classes/Project.ts'
 import { projectStats } from './configs/projectStats.ts'
-import { analyzeUsageInfo, js3UsageInfo, printAnalyzeUsage, printDefaultUsage, printJS3Usage } from './configs/printUsage.ts'
+import { analyzeUsageInfo, js3UsageInfo, printAnalyzeUsage, printDefaultUsage, printIRIUsage, printJS3Usage } from './configs/printUsage.ts'
+import { IridiumBuilder } from 'classes/builder/IridiumBuilder.ts'
 
 const VERSION = "0.3a"
 const directories = ['./classes', './configs', './docs'];
@@ -138,8 +139,35 @@ function js3(filePath) {
       
     const builder = new JS3Builder(file)
     builder.build()
-    builder.saveGeneratedFile()
+    if (debugConfig.outputsPath !== "") {
+      builder.saveGeneratedFile()
+    }
+    
     console.log(builder.generatedCode)
+    process.exit(0)
+  } catch (e) {
+    console.error("Failed to generated JS3: ", e)
+    process.exit(1)
+  }
+}
+
+function iri(filePath) {
+  debugConfig.logger.printToConsole = false
+  const file = new ProjectFile(filePath, path.dirname(filePath))
+  try {
+    file.initSync(debugConfig.js3SourceType)
+    if (file.initData.parseStatus !== "parsed") 
+      debugConfig.logger.throwJS3Error("JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)")
+      
+    const js3Builder = new JS3Builder(file)
+    js3Builder.build()
+    if (debugConfig.outputsPath !== "") {
+      js3Builder.saveGeneratedFile()
+    }
+    
+    const iriBuilder = new IridiumBuilder(js3Builder.generatedProgram)
+    iriBuilder.build()
+    console.log(iriBuilder.toString())
     process.exit(0)
   } catch (e) {
     console.error("Failed to generated JS3: ", e)
@@ -152,6 +180,7 @@ const mainOptions = commandLineArgs(getFirstCommand, { stopAtFirstUnknown: true 
 const mainCommand = mainOptions.command
 
 if (mainCommand === 'analyze') {
+  debugConfig.operationMode = "analyze"
   let argv = mainOptions._unknown || []
   if (argv.length === 0) {
     printAnalyzeUsage(header)
@@ -216,6 +245,7 @@ if (mainCommand === 'analyze') {
   fs.mkdirSync(debugConfig.outputsPath);
   analyze(PATH_TO_PROJECT, ANALYZE_PATH)
 } else if (mainCommand === "js3") {
+  debugConfig.operationMode = "js3"
   let argv = mainOptions._unknown || []
   if (argv.length === 0) {
     printJS3Usage(header)
@@ -232,7 +262,6 @@ if (mainCommand === 'analyze') {
     console.error(chalk.red(`[ERROR] File does not exist: ${PATH_TO_JS}`))
     process.exit(1)
   }
-  debugConfig.outputsPath = path.resolve("./outputs")
   debugConfig.throwJS3Errors = true
   if (argv.length > 0) {
     const options = commandLineArgs(js3UsageInfo[1].optionList, { argv })
@@ -242,6 +271,10 @@ if (mainCommand === 'analyze') {
         process.exit(1)
       }
       debugConfig.outputsPath = path.resolve(options["outputs-path"])
+      if (fs.existsSync(debugConfig.outputsPath)) {
+        fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
+      }
+      fs.mkdirSync(debugConfig.outputsPath);
     }
     if ("source-type" in options) {
       if (options["source-type"] === null) {
@@ -254,11 +287,51 @@ if (mainCommand === 'analyze') {
       debugConfig.allowLangWithSupport = true
     }
   }
-  if (fs.existsSync(debugConfig.outputsPath)) {
-    fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
-  }
-  fs.mkdirSync(debugConfig.outputsPath);
   js3(PATH_TO_JS)
+} else if (mainCommand === "iri") {
+  debugConfig.operationMode = "iri"
+  let argv = mainOptions._unknown || []
+  if (argv.length === 0) {
+    printIRIUsage(header)
+    process.exit(0)
+  }
+  const iriMainOptions = commandLineArgs(getFirstCommand, { argv, stopAtFirstUnknown: true })
+  argv = iriMainOptions._unknown || []
+  if (iriMainOptions.command === "help") {
+    printIRIUsage(header)
+    process.exit(0)
+  }
+  const PATH_TO_JS = path.resolve(iriMainOptions.command)
+  if (!fs.existsSync(PATH_TO_JS)) {
+    console.error(chalk.red(`[ERROR] File does not exist: ${PATH_TO_JS}`))
+    process.exit(1)
+  }
+  debugConfig.throwJS3Errors = true
+  if (argv.length > 0) {
+    const options = commandLineArgs(js3UsageInfo[1].optionList, { argv })
+    if ("outputs-path" in options) {
+      if (options["outputs-path"] === null) {
+        console.log(chalk.red("JS3 result path not provided"))
+        process.exit(1)
+      }
+      debugConfig.outputsPath = path.resolve(options["outputs-path"])
+      if (fs.existsSync(debugConfig.outputsPath)) {
+        fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
+      }
+      fs.mkdirSync(debugConfig.outputsPath);
+    }
+    if ("source-type" in options) {
+      if (options["source-type"] === null) {
+        console.log(chalk.red("JS3 mode is not provided"))
+        process.exit(1)
+      }
+      debugConfig.js3SourceType = options["source-type"]
+    }
+    if ("allow-lang-with-support" in options) {
+      debugConfig.allowLangWithSupport = true
+    }
+  }
+  iri(PATH_TO_JS)
 } else if (mainCommand === 'version') {
   console.log(`Iridium Version: ${chalk.red(VERSION)}`)
 } else if (mainCommand === "stats") {

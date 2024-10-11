@@ -1,4 +1,5 @@
 import * as t from '@babel/types'
+import debugConfig from "#debugConfig";
 
 //
 // An instruction of the form: a = F_Value
@@ -13,6 +14,10 @@ export class F_Instruction {
 		this.tag = tag
 		this.effects = {}
 	}
+
+  toString() {
+    debugConfig.logger.throwIriError(`All Iridium Instructions must override the toString method: ${this.tag}`)
+  }
 }
 
 //
@@ -28,6 +33,20 @@ export class F_Value {
 export const KEYWORDS = {
 	effectful_import: "EFF_IMPORT",
 	binding_import: "BIN_IMPORT",
-	ns_import: "NS_IMPORT"
+	ns_import: "NS_IMPORT",
+  unhandled: "UNHANDLED"
 	
+}
+
+//
+// Unhandled
+//
+export class F_Unhandled extends F_Instruction {
+	constructor(n: t.Node) {
+    super(n, "F_Unhandled")
+	}
+
+  toString() {
+    return `${KEYWORDS.unhandled} { type: ${this.node.type} }`
+  }
 }

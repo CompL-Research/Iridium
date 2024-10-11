@@ -13,7 +13,7 @@ type UsageSectionsArray = Array<UsageSectionObject>
 const COMMON_OPTIONS = [
   {
     name: 'outputs-path',
-    description: 'Path to outputs directory (relative to cwd).',
+    description: 'Path to outputs directory (For JS3 this must be an file path).',
     alias: 'o',
     type: String,
     typeLabel: '{underline path} ...'
@@ -97,7 +97,29 @@ export const js3UsageInfo : UsageSectionsArray= [
     ]
   },
   {
-    header: 'Analyze Options',
+    header: 'JS3 Options',
+    optionList: [
+      ...COMMON_OPTIONS,
+      {
+        name: 'source-type',
+        description: 'Source Type ("module" | "script" | "unambigious" (default)).',
+        alias: 's',
+        type: String
+      },
+      ...JS3_OPTIONAL_LANGUAGE_SUPPORT
+    ]
+  }
+]
+
+export const iriUsageInfo : UsageSectionsArray= [
+  {
+    header: "=== IRI ===",
+    content: [
+      `$ ./iridium iri {bold <path-to-js-file>} [OPTIONS]`
+    ]
+  },
+  {
+    header: 'Iridium Options',
     optionList: [
       ...COMMON_OPTIONS,
       {
@@ -145,6 +167,19 @@ export function printJS3Usage(header: String) {
     },
 
     ...js3UsageInfo
+  ]
+  const usage = commandLineUsage(sections)
+  console.log(usage)
+}
+
+export function printIRIUsage(header: String) {
+  let sections: UsageSectionsArray = [ // Sometimes the type system is just annoying
+    {
+      content: chalk.red(header),
+      raw: true
+    },
+
+    ...iriUsageInfo
   ]
   const usage = commandLineUsage(sections)
   console.log(usage)

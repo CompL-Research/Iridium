@@ -15,8 +15,8 @@ const UNSUPPORTED_FEATURES = ["import-attributes", "decorators"]
 
 
 const TESTS = path.resolve('./test262');
-// const THREADS = 16
-const THREADS = Number(process.env.THREADS) || require("os").cpus().length / 2;
+const THREADS = 64
+// const THREADS = Number(process.env.THREADS) || require("os").cpus().length / 2;
 const { CHUNK, CHUNKS_FILE } = process.env;
 
 const chunk = CHUNKS_FILE ? new Set(require(relative(CHUNKS_FILE))[CHUNK]) : undefined;

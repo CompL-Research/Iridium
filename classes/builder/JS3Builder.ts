@@ -114,6 +114,15 @@ export default class JS3Builder {
   }
 
   saveGeneratedFile() {
+
+    if (debugConfig.operationMode === "js3") {
+      fs.writeFile(debugConfig.outputsPath, this.generatedCode, 'utf8', (err) => {
+        if (err) {
+          debugConfig.logger.error(`[JS3 Builder] Error writing to file at path: ${debugConfig.outputsPath}`, [err]);
+        }
+      });
+    }
+
     // if (debugConfig.js3ResultPath) {
     //   // DEBUG
     //   fs.writeFile(debugConfig.js3ResultPath, this.generatedCode, 'utf8', (err) => {

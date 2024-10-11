@@ -83,4 +83,16 @@ export default class Logger {
     if (debugConfig.throwJS3Errors) throw new Error(message)
   }
 
+  throwIriError(message: string, objects: Array<any> = []) {
+    const timestamp = new Date().valueOf()
+    const data: LogItem = {
+      timestamp: this.getTimestampSinceEpoch(timestamp),
+      level: "error",
+      message,
+      objects
+    }
+    this.#generateLog(data)
+    if (debugConfig.throwIRIErrors) throw new Error(message)
+  }
+
 };
