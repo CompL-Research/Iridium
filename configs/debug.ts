@@ -1,9 +1,7 @@
 import Logger from "../classes/debugger/Logger.ts";
 
 const config : {
-  js3DebugPath: string,
-  js3ResultPath: string | undefined,
-  iridiumDebugPath: string,
+  operationMode: "analyze" | "js3" | "iri",
   outputsPath: string,
   printModuleGraphPng: boolean,
   enablePlayground: boolean,
@@ -14,10 +12,8 @@ const config : {
   js3SourceType: string,
   allowLangWithSupport: boolean
 } = {
-  js3DebugPath: "./outputs/JS3",
-  js3ResultPath: undefined,
-  iridiumDebugPath: "./outputs/IRIDIUM",
-  outputsPath: "./outputs",
+  operationMode: "analyze",
+  outputsPath: "",
   printModuleGraphPng: false,
   enablePlayground: false,
   playgroundPort: 4000,

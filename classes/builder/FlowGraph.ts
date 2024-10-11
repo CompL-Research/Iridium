@@ -3,7 +3,7 @@ import * as t from '@babel/types'
 import { isJS3ImportDeclaration, JS3File, JS3AllowedProgStatement, JS3Program, JS3ImportDeclaration, JS3RegExpLiteral, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportAllDeclaration } from './JS3Helpers/JS3Types.ts'
 import assert from 'node:assert/strict'
 import debugConfig from "#debugConfig";
-import { F_EffectfulImport, F_Import, F_ImportDefault, F_ImportNS } from './IridiumHelpers/Imports.ts';
+import { F_EffectfulImport, F_Import, F_ImportNS } from './IridiumHelpers/Imports.ts';
 import { F_Instruction } from './IridiumHelpers/General.ts';
 
 class F_Program {
@@ -33,7 +33,7 @@ class F_Program {
 				if (t.isImportNamespaceSpecifier(specifier)) {
 					return new F_ImportNS(n, specifier.local.name, n.source.value)
 				} else if (t.isImportDefaultSpecifier(specifier)) {
-					return new F_ImportDefault(n, specifier.local.name, n.source.value)
+          return new F_Import(n, specifier.local.name, specifier.local.name, n.source.value)
 				} else if (t.isImportSpecifier) {
 					if (t.isIdentifier(specifier.imported))
 						return new F_Import(n, specifier.local.name, specifier.imported.name, n.source.value)

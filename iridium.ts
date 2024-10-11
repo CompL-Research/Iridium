@@ -9,6 +9,8 @@ import debugConfig from "#debugConfig"
 import JS3Builder from 'classes/builder/JS3Builder.ts'
 import { ProjectFile } from 'classes/ProjectFile.ts'
 import { Project } from './classes/Project.ts'
+import { projectStats } from './configs/projectStats.ts'
+import { analyzeUsageInfo, js3UsageInfo, printAnalyzeUsage, printDefaultUsage, printJS3Usage } from './configs/printUsage.ts'
 
 const VERSION = "0.3a"
 const directories = ['./classes', './configs', './docs'];
@@ -26,7 +28,7 @@ const header = `
 Iridium Version: ${chalk.red(VERSION)}
 `
 
-function main(mainProjectPath, analyzePath) {
+function analyze(mainProjectPath, analyzePath) {
   debugConfig.logger.log(`[IRIDIUM STARTING] ${mainProjectPath}`)
 
   // Iridium Playground
@@ -83,17 +85,6 @@ function main(mainProjectPath, analyzePath) {
     debugConfig.logger.log(`[IRIDIUM PLAYGROUND] Listening on port: ${port}`)
   }
 
-  // Ensure outputs directory
-  if (fs.existsSync(debugConfig.outputsPath)) {
-    fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
-  }
-
-  debugConfig.iridiumDebugPath = path.resolve(debugConfig.outputsPath + "/Iridium");
-  debugConfig.js3DebugPath = path.resolve(debugConfig.outputsPath + "/JS3");
-  fs.mkdirSync(debugConfig.outputsPath);
-  fs.mkdirSync(debugConfig.iridiumDebugPath);
-  fs.mkdirSync(debugConfig.js3DebugPath);
-
   const project = new Project(mainProjectPath, analyzePath)
   project.init();
 
@@ -137,11 +128,9 @@ function main(mainProjectPath, analyzePath) {
   })
 }
 
-function genJS3(filePath) {
+function js3(filePath) {
   debugConfig.logger.printToConsole = false
-
   const file = new ProjectFile(filePath, path.dirname(filePath))
-
   try {
     file.initSync(debugConfig.js3SourceType)
     if (file.initData.parseStatus !== "parsed") 
@@ -158,365 +147,121 @@ function genJS3(filePath) {
   }
 }
 
-function getAllFiles(dirPath, arrayOfFiles) {
-  const files = fs.readdirSync(dirPath);
+const getFirstCommand = [{ name: 'command', defaultOption: true }]
+const mainOptions = commandLineArgs(getFirstCommand, { stopAtFirstUnknown: true })
+const mainCommand = mainOptions.command
 
-  arrayOfFiles = arrayOfFiles || [];
-
-  files.forEach(function (file) {
-    if (fs.statSync(dirPath + "/" + file).isDirectory()) {
-      arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles);
-    } else {
-      arrayOfFiles.push(path.join(dirPath, "/", file));
-    }
-  });
-
-  return arrayOfFiles;
-}
-
-function getFileExtension(fileName) {
-  return path.extname(fileName).toLowerCase();
-}
-
-function isImageFile(extension) {
-  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'];
-  return imageExtensions.includes(extension);
-}
-
-
-function countLinesInFile(filePath) {
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  return fileContent.split('\n').length;
-}
-
-function analyzeFiles(filePaths) {
-  let totalFiles = 0;
-  let extensions = new Set();
-  let totalLinesOfCode = 0;
-
-  filePaths.forEach(filePath => {
-    // @ts-ignore
-    const files = getAllFiles(filePath);
-    totalFiles += files.length;
-    files.forEach(file => {
-      const ext = getFileExtension(file);
-      extensions.add(ext);
-      if (!isImageFile(ext)) {
-        totalLinesOfCode += countLinesInFile(file);
-      }
-    });
-  });
-
-  debugConfig.logger.log(`Total Files  : ${totalFiles}`);
-  debugConfig.logger.log(`LOC          : ${totalLinesOfCode}`);
-  debugConfig.logger.log(`Extensions   : ${Array.from(extensions).join(', ')}`);
-}
-
-
-const commandList = [
-  {
-    header: 'Command List',
-    content: [
-      { name: 'help', summary: 'Display help information about iridium.' },
-      { name: 'analyze', summary: 'Run static analysis over a project.' },
-      { name: 'js3', summary: 'Generate JS3 file and print to stdout' },
-      { name: 'stats', summary: 'Codespace stats.' },
-      { name: 'version', summary: 'Print the version.' }
-    ]
-  },
-]
-
-type DefinitionsOption = {
-  name: string,
-  description: string,
-  alias?: string,
-  type: any,
-  typeLabel?: string
-}
-
-const analyzeDefinitionsOptionList: Array<DefinitionsOption> = [
-  {
-    name: 'folder',
-    description: 'Specify a folder where the analysis should begin (relative path such as {italic ./app}, {italic ./src}, {italic ./src/pages/}).',
-    alias: 'f',
-    type: String,
-    typeLabel: '{underline path} ...'
-  },
-  {
-    name: 'outputs-path',
-    description: 'Path to outputs directory (relative to cwd).',
-    alias: 'o',
-    type: String,
-    typeLabel: '{underline path} ...'
-  },
-  {
-    name: 'enable-playground',
-    description: `Enable interactive playground for Iridium (default: ${debugConfig.enablePlayground})`,
-    alias: 'p',
-    type: Boolean,
-  },
-  {
-    name: 'module-graph-png',
-    description: `Save the generated module graph as a png (default: ${debugConfig.printModuleGraphPng})`,
-    type: Boolean,
-  },
-  {
-    name: 'port',
-    description: `The port used by Iridium backend server (Default: ${debugConfig.playgroundPort})`,
-    type: Number,
-  },
-  {
-    name: 'allow-lang-with-support',
-    description: 'Allow js3 syntax support for `with`',
-    type: Boolean
-  }
-]
-
-const analyzeDefinitions = [
-  {
-    header: 'Options',
-    optionList: analyzeDefinitionsOptionList
-  }
-]
-
-const js3DefinitionsOptionList: Array<DefinitionsOption> = [
-  {
-    name: 'outputs-path',
-    description: 'Path to outputs directory (relative to cwd).',
-    alias: 'o',
-    type: String,
-    typeLabel: '{underline path} ...'
-  },
-  {
-    name: 'source-type',
-    description: 'Source Type ("module" | "script" | "unambigious" (default)).',
-    alias: 's',
-    type: String
-  },
-  {
-    name: 'allow-lang-with-support',
-    description: 'Allow js3 syntax support for `with`',
-    type: Boolean
-  }
-]
-
-const js3Definitions = [
-  {
-    header: 'Options',
-    optionList: js3DefinitionsOptionList
-  }
-]
-
-type UsageOptions = typeof analyzeDefinitions;
-
-type UsageHeader = {
-  header: string,
-  content: string[]
-}
-
-function printUsage(altHeader: undefined | UsageHeader = undefined, otherOpts: UsageOptions = []) {
-  let sections: any = [ // Sometimes the type system is just annoying
-    {
-      content: chalk.red(header),
-      raw: true
-    },
-    {
-      header: 'About',
-      content: [
-        'This project provides infrastructure to allow static analysis of {italic react} based applications.',
-        '$ ./iridium <command> [OPTIONS]',
-        '$ ./iridium help',
-        '$ ./iridium analyze help'
-      ]
-    },
-    ...commandList,
-  ]
-
-  if (otherOpts || altHeader) {
-    // assert(typeof altHeader !== "undefined");
-    sections = [
-      {
-        content: chalk.red(header),
-        raw: true
-      },
-      {
-        ...altHeader,
-      },
-      ...otherOpts,
-    ]
-  }
-  const usage = commandLineUsage(sections)
-  console.log(usage)
-}
-
-////////////////////////////////////////// START //////////////////////////////////////////
-
-const mainDefinitions = [
-  { name: 'command', defaultOption: true }
-]
-
-const mainOptions = commandLineArgs(mainDefinitions, { stopAtFirstUnknown: true })
-const argv = mainOptions._unknown || []
-
-
-if (mainOptions.command === 'analyze') {
-  const analyzemainDefinitions = [
-    { name: 'command', defaultOption: true }
-  ]
-
+if (mainCommand === 'analyze') {
+  let argv = mainOptions._unknown || []
   if (argv.length === 0) {
-    printUsage(
-      {
-        header: "=== Error: Please provide a path to the project to analyze ===",
-        content: [
-          `$ ./iridium analyze {bold <path-to-project>} [OPTIONS]`
-        ]
-      },
-      analyzeDefinitions)
+    printAnalyzeUsage(header)
     process.exit(0)
   }
-
-  const analyzeMainOptions = commandLineArgs(analyzemainDefinitions, { argv, stopAtFirstUnknown: true })
-  const analyzeArgv = analyzeMainOptions._unknown || []
-
+  const analyzeMainOptions = commandLineArgs(getFirstCommand, { argv, stopAtFirstUnknown: true })
+  argv = analyzeMainOptions._unknown || []
   if (analyzeMainOptions.command === "help") {
-    printUsage(
-      {
-        header: "=== Analyze Usage ===",
-        content: [
-          `$ ./iridium analyze {bold <path-to-project>} [OPTIONS]`
-        ]
-      },
-      analyzeDefinitions)
+    printAnalyzeUsage(header)
     process.exit(0)
   }
-
-  // Process options if they were passed
-  const projectPath = path.resolve(analyzeMainOptions.command)
-
-  if (!fs.existsSync(projectPath)) {
-    console.error(`[ERROR] Project path does not exist: ${projectPath}`)
+  const PATH_TO_PROJECT = path.resolve(analyzeMainOptions.command)
+  let ANALYZE_PATH      = PATH_TO_PROJECT
+  if (!fs.existsSync(PATH_TO_PROJECT)) {
+    console.error(chalk.red(`[ERROR] Project path does not exist: ${PATH_TO_PROJECT}`))
     process.exit(1)
   }
-
-  // Initialize Output path
   debugConfig.outputsPath = path.resolve("./outputs")
-
-  let analyzePath = analyzeMainOptions.command
-  if (analyzeArgv.length > 0) {
-    const analyzeOptions = commandLineArgs(analyzeDefinitionsOptionList, { argv: analyzeArgv })
-
-    if ("folder" in analyzeOptions) {
-      if (analyzeOptions.folder === null) {
+  if (argv.length > 0) {
+    const options = commandLineArgs(analyzeUsageInfo[1].optionList, { argv })
+    if ("outputs-path" in options) {
+      if (options["outputs-path"] === null) {
+        console.log(chalk.red("Outputs path not provided"))
+        process.exit(1)
+      }
+      debugConfig.outputsPath = path.resolve("./" + options["outputs-path"])
+    }
+    if ("folder" in options) {
+      if (options.folder === null) {
         console.log(chalk.red("Folder path not provided"))
         process.exit(1)
       }
       try {
-        analyzePath = path.resolve(projectPath + "/" + analyzeOptions.folder)
+        ANALYZE_PATH = path.resolve(PATH_TO_PROJECT + "/" + options.folder)
       } catch (e) {
-        console.log(chalk.red(`Could not find folder path: ${projectPath + analyzeOptions.folder}`))
+        console.log(chalk.red(`Invalid Path: ${ANALYZE_PATH}`))
         process.exit(1)
       }
-      if (!fs.existsSync(analyzePath)) {
-        console.warn(`[INFO] Project Path: ${projectPath}`)
-        console.warn(`[INFO] Analysis Folder: ${analyzeOptions.folder}`)
-        console.error(`[ERROR] Analysis path does not exist: ${analyzePath}`)
+      if (!fs.existsSync(ANALYZE_PATH)) {
+        console.warn(`[INFO] Project Path: ${PATH_TO_PROJECT}`)
+        console.warn(`[INFO] Analysis Folder: ${ANALYZE_PATH}`)
+        console.error(`[ERROR] Analysis path does not exist: ${ANALYZE_PATH}`)
         process.exit(1)
       }
     }
-
-
-
-    if ("outputs-path" in analyzeOptions) {
-      if (analyzeOptions["outputs-path"] === null) {
-        console.log(chalk.red("Outputs path not provided"))
-        process.exit(1)
-      }
-      debugConfig.outputsPath = path.resolve("./" + analyzeOptions["outputs-path"])
-    }
-
-    if ("module-graph-png" in analyzeOptions) {
+    if ("module-graph-png" in options) {
       debugConfig.printModuleGraphPng = true
     }
-
-
-    if ("enable-playground" in analyzeOptions) {
+    if ("enable-playground" in options) {
       debugConfig.enablePlayground = true
     }
-
-    if ("playground-port" in analyzeOptions) {
-      debugConfig.playgroundPort = analyzeOptions["playground-port"]
+    if ("playground-port" in options) {
+      debugConfig.playgroundPort = options["playground-port"]
     }
-
-    if ("allow-lang-with-support" in analyzeOptions) {
+    if ("allow-lang-with-support" in options) {
       debugConfig.allowLangWithSupport = true
     }
   }
-
-  main(projectPath, analyzePath)
-
-} else if (mainOptions.command === 'version') {
-  console.log(`Iridium Version: ${chalk.red(VERSION)}`)
-} else if (mainOptions.command === "js3") {
-  const mainDefs = [
-    { name: 'command', defaultOption: true }
-  ]
-
+  if (fs.existsSync(debugConfig.outputsPath)) {
+    fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
+  }
+  fs.mkdirSync(debugConfig.outputsPath);
+  analyze(PATH_TO_PROJECT, ANALYZE_PATH)
+} else if (mainCommand === "js3") {
+  let argv = mainOptions._unknown || []
   if (argv.length === 0) {
-    printUsage(
-      {
-        header: "=== Error: Please provide a file path for js3 builder ===",
-        content: [
-          `$ ./iridium js3 <js-file-path>`
-        ]
-      }, js3Definitions)
+    printJS3Usage(header)
     process.exit(0)
   }
-
-  const js3MainOptions = commandLineArgs(mainDefs, { argv, stopAtFirstUnknown: true })
-  const js3Argv = js3MainOptions._unknown || []
-
+  const js3MainOptions = commandLineArgs(getFirstCommand, { argv, stopAtFirstUnknown: true })
+  argv = js3MainOptions._unknown || []
   if (js3MainOptions.command === "help") {
-    printUsage(
-      {
-        header: "=== JS3 Usage ===",
-        content: [
-          `$ ./iridium js3 <js-file-path>`
-        ]
-      }, js3Definitions)
+    printJS3Usage(header)
     process.exit(0)
   }
-
+  const PATH_TO_JS = path.resolve(js3MainOptions.command)
+  if (!fs.existsSync(PATH_TO_JS)) {
+    console.error(chalk.red(`[ERROR] File does not exist: ${PATH_TO_JS}`))
+    process.exit(1)
+  }
+  debugConfig.outputsPath = path.resolve("./outputs")
   debugConfig.throwJS3Errors = true
-
-  if (js3Argv.length > 0) {
-    const js3Options = commandLineArgs(js3DefinitionsOptionList, { argv: js3Argv })
-
-    if ("js3-result-path" in js3Options) {
-      if (js3Options["js3-result-path"] === null) {
+  if (argv.length > 0) {
+    const options = commandLineArgs(js3UsageInfo[1].optionList, { argv })
+    if ("outputs-path" in options) {
+      if (options["outputs-path"] === null) {
         console.log(chalk.red("JS3 result path not provided"))
         process.exit(1)
       }
-      debugConfig.js3ResultPath = path.resolve(js3Options["js3-result-path"])
+      debugConfig.outputsPath = path.resolve(options["outputs-path"])
     }
-
-    if ("source-type" in js3Options) {
-      if (js3Options["source-type"] === null) {
+    if ("source-type" in options) {
+      if (options["source-type"] === null) {
         console.log(chalk.red("JS3 mode is not provided"))
         process.exit(1)
       }
-      debugConfig.js3SourceType = js3Options["source-type"]
+      debugConfig.js3SourceType = options["source-type"]
     }
-
-    if ("allow-lang-with-support" in js3Options) {
+    if ("allow-lang-with-support" in options) {
       debugConfig.allowLangWithSupport = true
     }
   }
-
-  // Process options if they were passed
-  const filePath = path.resolve(js3MainOptions.command)
-  genJS3(filePath)
-} else if (mainOptions.command === "stats") {
+  if (fs.existsSync(debugConfig.outputsPath)) {
+    fs.rmSync(debugConfig.outputsPath, { recursive: true, force: true });
+  }
+  fs.mkdirSync(debugConfig.outputsPath);
+  js3(PATH_TO_JS)
+} else if (mainCommand === 'version') {
+  console.log(`Iridium Version: ${chalk.red(VERSION)}`)
+} else if (mainCommand === "stats") {
   const sections = [
     {
       header: chalk.red(`Iridium ${VERSION} Stats`),
@@ -524,15 +269,7 @@ if (mainOptions.command === 'analyze') {
   ]
   const usage = commandLineUsage(sections)
   console.log(usage)
-  analyzeFiles(directories);
+  projectStats(directories);
 } else {
-  const sections = [
-    {
-      content: chalk.red(header),
-      raw: true
-    },
-    ...commandList
-  ]
-  const usage = commandLineUsage(sections)
-  console.log(usage)
+  printDefaultUsage(header)
 }
