@@ -1,5 +1,7 @@
+import { JS3ImportDeclaration } from '../JS3Helpers/JS3Types.ts'
 import { F_Instruction, F_Value, KEYWORDS } from './General.ts'
 import * as t from '@babel/types'
+import assert from 'node:assert/strict'
 
 export class V_BindingImport extends F_Value {
 	source: String
@@ -47,7 +49,7 @@ export class F_Import extends F_Instruction {
 }
 export const isF_Import = (node: any): node is F_Import => node && node.tag === "F_Import"
 
-// 4. import * as x from "source"
+// 3. import * as x from "source"
 export class V_NSImport extends F_Value {
 	source: String
 	constructor(n: t.Node, source: String) {
@@ -73,3 +75,23 @@ export class F_ImportNS extends F_Instruction {
 	}
 }
 export const isF_ImportNS = (node: any): node is F_ImportNS => node && node.tag === "F_ImportNS"
+
+export function handleJS3ImportDeclaration(node: JS3ImportDeclaration) {
+	if (node.specifiers.length === 0) {
+		this.current.pushInstruction(new F_EffectfulImport(node, node.source.value))
+	} else {
+		// Assert JS3 Spec
+		assert(node.specifiers.length === 1)
+		let specifier = node.specifiers[0]
+		if (t.isImportNamespaceSpecifier(specifier)) {
+			this.current.pushInstruction(new F_ImportNS(node, specifier.local.name, node.source.value))
+		} else if (t.isImportDefaultSpecifier(specifier)) {
+			this.current.pushInstruction(new F_Import(node, specifier.local.name, "default", node.source.value))
+		} else if (t.isImportSpecifier) {
+			if (t.isIdentifier(specifier.imported))
+				this.current.pushInstruction(new F_Import(node, specifier.local.name, specifier.imported.name, node.source.value))
+			else
+			this.current.pushInstruction(new F_Import(node, specifier.local.name, specifier.imported.value, node.source.value))
+		}
+	}
+}

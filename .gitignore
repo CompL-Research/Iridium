@@ -7,11 +7,6 @@ temp
 
 # Tests
 tests/test262
-tests/folder_*
-tests/failed
-tests/failing
-tests/failing-all
-tests/*.json
 tests/tmp/*
 
 # Outputs

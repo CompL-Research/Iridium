@@ -38,36 +38,26 @@ class F_BlockMeta {
 //  4. incoming: Incoming edges
 // 	5. 
 // 
-class F_Block  {
+export class F_Block  {
+  static id = 0
+  idx
+	name: undefined | String
 	meta: F_BlockMeta
 	instructions: Array<F_Instruction>
-	successors: Array<F_Block>
-	predecessors: Array<F_Block> 
+	successors: Set<F_Block>
+	predecessors: Set<F_Block> 
 
 	constructor() {
+    this.idx = F_Block.id++
 		this.meta = new F_BlockMeta()
 		this.instructions = new Array()
-		this.successors = new Array()
-		this.predecessors = new Array()
+		this.successors = new Set()
+		this.predecessors = new Set()
 	}
 
-	setSuccessors(s: Array<F_Block>) {
-		this.successors = s
-	}
-
-	getSuccessors(s: Array<F_Block>) {
-		return this.successors
-	}
-
-	setPredecessors(p: Array<F_Block>) {
-		this.predecessors = p
-	}
-
-	getPredecessors(s: Array<F_Block>) {
-		return this.predecessors
-	}
-
-
+  pushInstruction(i : F_Instruction) {
+    this.instructions.push(i)
+  }
 
 	markAsLoopHead() {
 		return this.meta.isLoopHead = true
@@ -85,4 +75,28 @@ class F_Block  {
 		return this.meta.isContainedExpression 
 	}
 
+  toString(space = 0) {
+    let res = []
+		let preds = ""
+		this.predecessors.forEach(p => {
+			preds += `BB${p.idx} `
+		})
+
+		let succs = ""
+		this.successors.forEach(s => {
+			succs += `BB${s.idx} `
+		})
+    res.push(`${" ".repeat(space)}BB${this.idx} ${this.name ? `(${this.name})` : ""}: ${preds}`)
+    for (let i of this.instructions) {
+      res.push(`${" ".repeat(space+2)}${i.toString()}`)
+    }
+		res.push(`${" ".repeat(space+2)}__SUCC__: ${succs}`)
+    return res.join("\n")
+  }
+
+}
+
+export function createBackLink(from: F_Block, to: F_Block) {
+	from.successors.add(to)
+	to.predecessors.add(from)
 }
