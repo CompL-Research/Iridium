@@ -242,13 +242,29 @@ export function handleExportNamedDeclaration(node: ExportNamedDeclaration, other
     (otherProps.others.holder as JS3Program_body).push(duplicatedExportNamedDecl)
     // ========================================================================================
   } else if (isVariableDeclaration(orig_declaration)) {
-
+    // 
+    // Input:
+    // export let {a, b: foo} = { a: 1, b: 121 }
+    // export let x = 121, y = 11.2
+    // 
+    // Output:
+    // let js3$1 = {
+    //   a: 1,
+    //   b: 121
+    // };
+    // export let {
+    //   a,
+    //   b: foo
+    // } = js3$1;
+    // let x = 121;
+    // export { x };
+    // let y = 11.2;
+    // export { y }; 
     const fin_declarations = handleVariableDeclaration(orig_declaration, otherProps)
     fin_declarations.forEach(s => {
       if (!isIdentifier(s.declarations[0].id)) {
         const duplicatedExportNamedDecl = generateJS3ExportNamedDeclaration(s, new Array(), fin_assertions, fin_attributes, node);
       (otherProps.others.holder as JS3Program_body).push(duplicatedExportNamedDecl)
-        // debugConfig.logger.throwJS3Error(`TODO // unhandled ExportNamedDeclaration->declaration->VariableDeclaration: declaration id is non Identifier ${JSON.stringify([orig_declaration, s])}`, [orig_declaration, s]);
       } else {
         otherProps.others.holder.push(s);
         let specifierArray = new Array()

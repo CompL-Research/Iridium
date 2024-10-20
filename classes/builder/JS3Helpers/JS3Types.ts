@@ -1,4 +1,4 @@
-// Generated on 12/10/2024, 12:28:31 pm, extended 65 interfaces 
+// Generated on 20/10/2024, 2:49:54 pm, extended 65 interfaces 
 
 import { ExportSpecifier, ExportNamespaceSpecifier, OptionalMemberExpression, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, Expression, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, OptionalCallExpression, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -48,7 +48,7 @@ export type JS3BinaryExpression_left = Identifier | JS3PrivateName;
 export type JS3BinaryExpression_right = Identifier;
 export type JS3BlockStatement_body = Array<JS3AllowedBlockStatement>;
 export type JS3BreakStatement_label = Identifier | null;
-export type JS3CallExpression_callee = JS3OptionalMemberExpression | JS3Import | JS3MemberExpression | Identifier | Super | V8IntrinsicIdentifier | JS3FunctionExpression | JS3ArrowFunctionExpression | JS3AwaitExpression;
+export type JS3CallExpression_callee = JS3OptionalMemberExpression | JS3Import | JS3MemberExpression | Identifier | Super | V8IntrinsicIdentifier | JS3ArrowFunctionExpression | JS3AwaitExpression;
 export type JS3CallExpression_arguments = Array < JS3ContainedExprKey | JS3CallExpression | JS3SpreadElement >;
 export type JS3CallExpression_typeArguments = null;
 export type JS3CallExpression_typeParameters = null;
@@ -100,8 +100,8 @@ export type JS3ObjectMethod_typeParameters = null;
 export type JS3ObjectProperty_key = Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | JS3PrivateName;
 export type JS3ObjectProperty_value = Identifier | JS3ClassExpression | JS3Literals | JS3ArrowFunctionExpression | JS3FunctionExpression;
 export type JS3ObjectProperty_decorators = null;
-export type JS3ReturnStatement_argument = undefined | null | Identifier | DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral;
-export type JS3SequenceExpression_expressions = Array<Identifier>;
+export type JS3ReturnStatement_argument = undefined | null | Identifier;
+export type JS3SequenceExpression_expressions = Array<Identifier | JS3FunctionExpression | JS3ArrowFunctionExpression | JS3ClassExpression>;
 export type JS3SwitchCase_test = JS3ContainedExprKey | null;
 export type JS3SwitchCase_consequent = Array<JS3AllowedBlockStatement>;
 export type JS3SwitchStatement_discriminant = JS3ContainedExprKey;

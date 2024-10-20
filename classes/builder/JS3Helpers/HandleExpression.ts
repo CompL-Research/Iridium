@@ -1625,7 +1625,16 @@ export function handleSequenceExpression(node: SequenceExpression, otherProps: O
   let fin_expressions: JS3SequenceExpression_expressions = new Array(); // Handling prop expressions
   if (Array.isArray(orig_expressions)) {
     for (const _arrProp of orig_expressions) {
-      fin_expressions.push(handleExpression(_arrProp, otherProps))
+
+      if (isFunctionExpression(_arrProp)) {
+        fin_expressions.push(handleFunctionExpression(_arrProp, otherProps))
+      } else if (isArrowFunctionExpression(_arrProp)) {
+        fin_expressions.push(handleArrowFunctionExpression(_arrProp, otherProps))
+      } else if (isClassExpression(_arrProp)) {
+        fin_expressions.push(handleClassExpression(_arrProp, otherProps))
+      } else {
+        fin_expressions.push(handleExpression(_arrProp, otherProps))
+      }
     }
   }
   let result: JS3SequenceExpression = generateJS3SequenceExpression(fin_expressions, node);

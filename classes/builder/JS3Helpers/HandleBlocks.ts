@@ -255,13 +255,9 @@ export function handleReturnStatement(node: ReturnStatement, otherProps: OtherPr
 
   // 1 fallthrough props, 1 restricted props
   let orig_argument = node.argument; // Handling prop argument
-  let fin_argument: JS3ReturnStatement_argument = generateIdentifier(node, "$TODO"); // Handling prop argument
-  if (isIdentifier(orig_argument) || isDecimalLiteral(orig_argument) || isBigIntLiteral(orig_argument) || isStringLiteral(orig_argument) || isNumericLiteral(orig_argument) || isNullLiteral(orig_argument) || isBooleanLiteral(orig_argument)) {
-    fin_argument = orig_argument
-  } else if (isExpression(orig_argument)) {
+  let fin_argument: JS3ReturnStatement_argument = null; // Handling prop argument
+  if (isExpression(orig_argument)) {
     fin_argument = handleExpression(orig_argument, otherProps)
-  } else if (isnull(orig_argument)) {
-    fin_argument = null;
   }
 
   otherProps.others.prefix = oldPrefix
