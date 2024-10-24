@@ -13,6 +13,7 @@ import { projectStats } from './configs/projectStats.ts'
 import { analyzeUsageInfo, js3UsageInfo, printAnalyzeUsage, printDefaultUsage, printIRIUsage, printJS3Usage } from './configs/printUsage.ts'
 import { IridiumBuilder } from 'classes/builder/IridiumBuilder.ts'
 
+
 const VERSION = "0.3a"
 const directories = ['./classes', './configs', './docs'];
 
@@ -164,6 +165,8 @@ function iri(filePath) {
     if (debugConfig.outputsPath !== "") {
       js3Builder.saveGeneratedFile()
     }
+
+    
     
     const iriBuilder = new IridiumBuilder(js3Builder.generatedProgram)
     iriBuilder.build()

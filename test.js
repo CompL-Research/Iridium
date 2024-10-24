@@ -85,3 +85,80 @@
 //  - No hoisting, behaves like let bindings
 // 6. Imports
 //  - Can be hoisted to the top of the file
+
+
+// // CASE 1: a is undefined
+// console.log(a) // ReferenceError: a is not defined
+
+// // CASE 2: b may be defined somewhere down the line
+// console.log(b) // undefined
+// if (b) {
+//   if (b) {
+//     if (b) {
+//       var b = 100;
+//     }
+//   }
+// }
+
+// // CASE 3: c may be defined in a function scope
+// console.log(c) // ReferenceError: c is not defined
+// (() => { var c = 100 })()
+
+// // CASE 4: switch case
+// console.log(d) // undefined
+
+// switch(true) {
+//   case 1:
+//     var d = 100;
+//     break;
+//   default:
+//     var d = 11;
+// }
+
+// // CASE 5: while loop
+// console.log(e) // undefined
+
+// while (false) {
+//   var e = 121
+// }
+
+// // CASE 6: For loop
+// console.log(f) // undefined
+// for (;;) {
+//   var f = 121
+//   break;
+// }
+
+// // CASE 7: While/do While loop
+// console.log(g) // undefined
+// console.log(h) // undefined
+// while (false) {
+//   var g = 11
+// }
+
+// do {
+//   var h = 11
+// } while (false)
+
+
+// CASE 8: for in and for of loop
+
+// let obj = []
+// console.log(i) // undefined
+// console.log(j) // undefined
+
+// for (let _ in obj) {
+//   var i = 10
+// }
+
+// for (let _ of obj) {
+//   var j = 10
+// }
+
+
+// CASE 1: Optional Member Expr
+
+// let a = { t: { f: function() { console.log(this.data) }, data: 101 } };
+
+// let t = a.t?.[[(console.log("side effect"), "f")]]
+// t.call(a.t);

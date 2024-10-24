@@ -3,8 +3,8 @@ import debugConfig from "#debugConfig";
 import { ArrayExpression, ArrowFunctionExpression, AssignmentExpression, AwaitExpression, binaryExpression, BinaryExpression, CallExpression, ClassExpression, ConditionalExpression, Expression, FunctionExpression, identifier, Identifier, Import, ImportExpression, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassBody, isClassExpression, isClassImplements, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDecorator, isDoExpression, isExpression, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isInterfaceExtends, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPattern, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSExpressionWithTypeArguments, isTSInstantiationExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSType, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, logicalExpression, LogicalExpression, MemberExpression, MetaProperty, NewExpression, nullLiteral, numericLiteral, ObjectExpression, ObjectMethod, ObjectProperty, OptionalCallExpression, OptionalMemberExpression, PrivateName, RegExpLiteral, SequenceExpression, SpreadElement, TaggedTemplateExpression, TemplateLiteral, unaryExpression, UnaryExpression, UpdateExpression, YieldExpression } from "@babel/types";
 import assert from 'node:assert';
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AnonArrayExpressionfromBaseNode, generateJS3AnonMemberExpressionfromBaseNode, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3AwaitExpression, generateJS3BinaryExpression, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3ClassExpression, generateJS3FunctionExpression, generateJS3IfStatementfromBaseNode, generateJS3Import, generateJS3ImportExpression, generateJS3MemberExpression, generateJS3MetaProperty, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3OptionalCallExpression, generateJS3OptionalMemberExpression, generateJS3PrivateName, generateJS3RegExpLiteral, generateJS3ReturnStatementfromBaseNode, generateJS3SequenceExpression, generateJS3SpreadElement, generateJS3TaggedTemplateExpression, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3YieldExpression } from "./JS3Constructors.ts";
-import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3AwaitExpression, JS3AwaitExpression_argument, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3Import, JS3ImportExpression, JS3ImportExpression_options, JS3ImportExpression_source, JS3LogicalExpression_left, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3MetaProperty, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3OptionalCallExpression, JS3OptionalCallExpression_arguments, JS3OptionalCallExpression_callee, JS3OptionalCallExpression_typeArguments, JS3OptionalCallExpression_typeParameters, JS3OptionalMemberExpression, JS3OptionalMemberExpression_object, JS3OptionalMemberExpression_property, JS3PrivateName, JS3RegExpLiteral, JS3SequenceExpression, JS3SequenceExpression_expressions, JS3SpreadElement, JS3SpreadElement_argument, JS3TaggedTemplateExpression, JS3TaggedTemplateExpression_quasi, JS3TaggedTemplateExpression_tag, JS3TaggedTemplateExpression_typeParameters, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
+import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AnonArrayExpressionfromBaseNode, generateJS3AnonMemberExpressionfromBaseNode, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3AwaitExpression, generateJS3BinaryExpression, generateJS3BinaryExpressionfromBaseNode, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3CallExpressionfromBaseNode, generateJS3ClassExpression, generateJS3FunctionExpression, generateJS3IfStatementfromBaseNode, generateJS3Import, generateJS3ImportExpression, generateJS3LogicalExpressionfromBaseNode, generateJS3MemberExpression, generateJS3MemberExpressionfromBaseNode, generateJS3MetaProperty, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3PrivateName, generateJS3RegExpLiteral, generateJS3ReturnStatementfromBaseNode, generateJS3SequenceExpression, generateJS3SpreadElement, generateJS3TaggedTemplateExpression, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode, generateJS3YieldExpression } from "./JS3Constructors.ts";
+import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3AwaitExpression, JS3AwaitExpression_argument, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3Import, JS3ImportExpression, JS3ImportExpression_options, JS3ImportExpression_source, JS3LogicalExpression_left, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3MetaProperty, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3PrivateName, JS3RegExpLiteral, JS3SequenceExpression, JS3SequenceExpression_expressions, JS3SpreadElement, JS3SpreadElement_argument, JS3TaggedTemplateExpression, JS3TaggedTemplateExpression_quasi, JS3TaggedTemplateExpression_tag, JS3TaggedTemplateExpression_typeParameters, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
 
 import { isArgumentPlaceholder, isSpreadElement, isTSTypeParameterInstantiation, isTypeParameterInstantiation, isV8IntrinsicIdentifier } from "@babel/types";
 import { lowerComputedKey } from "./GenericConstructs.ts";
@@ -296,19 +296,19 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     // ========================================================================================  
   } else if (isOptionalMemberExpression(node)) {
     // ========================================================================================
-    // $resultIdentifier = o?.b
-    resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-    const init = handleOptionalMemberExpression(node, otherProps)
-    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
-    otherProps.others.holder.push(varDecl)
+    // $resultIdentifier = o?.b --> Deprecated
+    // $resultIdentifier = ...res
+    resultIdentifier = handleOptionalMemberExpression(node, otherProps).evalResId
     // ========================================================================================  
   } else if (isOptionalCallExpression(node)) {
     // ========================================================================================
-    // $resultIdentifier = o?.b
-    resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-    const init = handleOptionalCallExpression(node, otherProps)
-    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
-    otherProps.others.holder.push(varDecl)
+    // $resultIdentifier = o.b?.() --> Deprecated
+    // $resultIdentifier = ...res
+    resultIdentifier = handleOptionalCallExpression(node, otherProps)
+    // resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+    // const init = handleOptionalCallExpression(node, otherProps)
+    // const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
+    // otherProps.others.holder.push(varDecl)
     // ========================================================================================  
   } else if (isTypeCastExpression(node)) {
     debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->TypeCastExpression`, otherProps.debugTrace);
@@ -354,40 +354,6 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
 export function handleCallExpression(node: CallExpression, otherProps: OtherProps) {
   otherProps.debugTrace.push("CallExpression")
   assert(Array.isArray(otherProps.others.holder), `handleCallExpression expects an holder to spill intermediate values`);
-
-  // 2 fallthrough props, 4 restricted props
-  let orig_callee = node.callee; // Handling prop callee
-  let fin_callee: JS3CallExpression_callee; // Handling prop callee
-
-  let isSuperCall = false;
-  let isImportCall = false
-
-  if (isSuper(orig_callee)) {
-    isSuperCall = true;
-    fin_callee = orig_callee
-  } else if (isV8IntrinsicIdentifier(orig_callee)) {
-    fin_callee = orig_callee
-  } else if (isIdentifier(orig_callee)) {
-    fin_callee = orig_callee
-  } else if (isOptionalMemberExpression(orig_callee)) {
-    fin_callee = handleOptionalMemberExpression(orig_callee, otherProps)
-  } else if (isMemberExpression(orig_callee)) {
-    // We would like to retain the context if the callee is a member expression
-    // 
-    // Input:
-    // a.b.next()
-    // 
-    // Output:
-    // t1 = a.b
-    // t1.next()
-    // 
-    fin_callee = handleMemberExpression(orig_callee, otherProps)
-  } else if (isImport(orig_callee)) {
-    isImportCall = true
-    fin_callee = handleImport(orig_callee, otherProps)
-  } else if (isExpression(orig_callee)) {
-    fin_callee = handleExpression(orig_callee, otherProps)
-  }
 
   let orig_arguments = node.arguments; // Handling prop arguments
   let fin_arguments: JS3CallExpression_arguments = new Array(); // Handling prop arguments
@@ -452,68 +418,67 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
         // [ class x { ... } ] [0]
         const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, _arrProp)
 
-         // let temp = [class...][0]
-         let resHolder = generateIdentifier(_arrProp, otherProps.getNewTemporary(otherProps.others.prefix))
-         otherProps.others.holder.push(generateDummyJS3VariableDeclaration(_arrProp, resHolder, anonArrExpr, "let", null, null))
- 
-         fin_arguments.push(resHolder)
+        // let temp = [class...][0]
+        let resHolder = generateIdentifier(_arrProp, otherProps.getNewTemporary(otherProps.others.prefix))
+        otherProps.others.holder.push(generateDummyJS3VariableDeclaration(_arrProp, resHolder, anonArrExpr, "let", null, null))
+
+        fin_arguments.push(resHolder)
       } else if (isExpression(_arrProp)) {
-
-        // if (isImportCall) {
-        //   // Import call prolly has no side effects on the callee side...
-        //   fin_arguments.push(handleExpression(_arrProp, otherProps))
-        //   continue
-        // }
         fin_arguments.push(lowerComputedKey(_arrProp, otherProps))
-
-
-        // // 
-        // // Super keyword does not support the current lowering scheme for arguments, we will keep this exception until things break
-        // // 
-        // // test262/test/language/expressions/super/call-proto-not-ctor.js
-        // // 
-        // if (isSuperCall) {
-        //   fin_arguments.push(handleExpression(_arrProp, otherProps))
-        //   continue;
-        // }
-
-        // // 
-        // // let arg_res_holder;
-        // // 
-        // // if (fin_callee !== null) {
-        // //   arg_res_holder = ..._arrProp
-        // // }
-        // // 
-        // // ...
-        // // 
-        // // 
-        // // fin_callee(arg_res_holder...)
-
-        // const arg_res_holder = generateIdentifier(_arrProp, otherProps.getNewTemporary(otherProps.others.prefix))
-        // const varDecl = generateDummyJS3VariableDeclaration(_arrProp, arg_res_holder, null);
-        // otherProps.others.holder.push(varDecl)
-
-        // const ifCondBody: JS3BlockStatement_body = new Array()
-        // const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: ifCondBody } }
-        // const arrPropRes = handleExpression(_arrProp, updatedProps)
-
-        // const updateArgRes = generateJS3AssignmentExpressionfromBaseNode(arg_res_holder, arrPropRes, "=", _arrProp);
-        // ifCondBody.push(updateArgRes)
-
-        // const ifCondBodyNode = generateJS3BlockStatementfromBaseNode(ifCondBody, new Array(), _arrProp)
-        // // @ts-ignore
-        // const ifTest = handleExpression(binaryExpression("!==", fin_callee, nullLiteral()), otherProps)
-        // const ifStmt = generateJS3IfStatementfromBaseNode(ifTest, ifCondBodyNode, null, _arrProp);
-
-        // otherProps.others.holder.push(ifStmt)
-
-        // fin_arguments.push(arg_res_holder)
-
       } else if (isArgumentPlaceholder(_arrProp)) {
         debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}[arguments]->ArgumentPlaceholder`);
       }
     }
   }
+
+
+  // 2 fallthrough props, 4 restricted props
+  let orig_callee = node.callee; // Handling prop callee
+  let fin_callee: JS3CallExpression_callee; // Handling prop callee
+
+  if (isSuper(orig_callee)) {
+    fin_callee = orig_callee
+  } else if (isV8IntrinsicIdentifier(orig_callee)) {
+    fin_callee = orig_callee
+  } else if (isIdentifier(orig_callee)) {
+    fin_callee = orig_callee
+  } else if (isOptionalMemberExpression(orig_callee)) {
+
+    // This needs special handling to retain context.
+    // 
+    // Input:
+    // (a.b?.foo)(a1, a2, a3...)
+    // 
+    // Output:
+    // let eval$res = ...a.b?.foo
+    // let contextObjId = ...a.b
+    // 
+    // (eval$res.call)(contextObjId, ...args)
+    // 
+
+    let { evalResId, contextObjId } = handleOptionalMemberExpression(orig_callee, otherProps)
+    fin_callee = generateJS3MemberExpressionfromBaseNode(evalResId, generateIdentifier(node.callee, "call"), false, null, node.callee)
+    // Add the context as the first argument to the call...
+    fin_arguments = [contextObjId, ...fin_arguments]
+
+  } else if (isMemberExpression(orig_callee)) {
+    // We would like to retain the context if the callee is a member expression
+    // 
+    // Input:
+    // a.b.next()
+    // 
+    // Output:
+    // t1 = a.b
+    // t1.next()
+    // 
+    fin_callee = handleMemberExpression(orig_callee, otherProps)
+  } else if (isImport(orig_callee)) {
+    fin_callee = handleImport(orig_callee, otherProps)
+  } else if (isExpression(orig_callee)) {
+    fin_callee = handleExpression(orig_callee, otherProps)
+  }
+
+
 
   let orig_typeArguments = node.typeArguments; // Handling prop typeArguments
   let fin_typeArguments: JS3CallExpression_typeArguments = null; // Handling prop typeArguments
@@ -559,56 +524,317 @@ export function handleMemberExpression(node: MemberExpression, otherProps: Other
   return result
 }
 
-export function handleOptionalMemberExpression(node: OptionalMemberExpression, otherProps: OtherProps): JS3OptionalMemberExpression {
-  // 3 fallthrough props, 2 restricted props
+export function handleOptionalMemberExpression(node: OptionalMemberExpression, otherProps: OtherProps): { evalResId: Identifier, contextObjId: Identifier } {
+  let fin$res = generateIdentifier(node, otherProps.getNewTemporary("OPTE_RESULT"))
+
+  // let fin$res = undefined 
+  otherProps.others.holder.push(generateDummyJS3VariableDeclaration(node, fin$res, generateIdentifier(node, "undefined"), "let", null, null))
+
   let orig_object = node.object; // Handling prop object
-  let fin_object: JS3OptionalMemberExpression_object; // Handling prop object
-  fin_object = orig_object
 
-  let orig_property = node.property; // Handling prop property
-  let fin_property: JS3OptionalMemberExpression_property; // Handling prop property
-  fin_property = orig_property
+  // let obj$res = ...obj
+  let obj$res = handleExpression(orig_object, otherProps)
 
-  let result: JS3OptionalMemberExpression = generateJS3OptionalMemberExpression(fin_object, fin_property, node);
-  return result
-}
+  // let first$cond = obj$res !== undefined
+  let first$cond = generateIdentifier(node, otherProps.getNewTemporary("OPTE_C1"))
+  let decl = new Array()
+  decl.push(generateJS3VariableDeclaratorfromBaseNode(first$cond, // first$cond = 
+    generateJS3BinaryExpressionfromBaseNode(obj$res, generateIdentifier(node.object, "undefined"), "!==", node.object), // obj$res !== undefined 
+    null, node.object))
+  otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(decl, "let", null, node.object)) // let first$cond = obj$res !== undefined
 
-export function handleOptionalCallExpression(node: OptionalCallExpression, otherProps: OtherProps) {
-  // 2 fallthrough props, 4 restricted props
-  let orig_callee = node.callee; // Handling prop callee
-  let fin_callee : JS3OptionalCallExpression_callee; // Handling prop callee
-  if(isExpression (orig_callee)) {
-    fin_callee = orig_callee
-  }
+  // let null$literal = null
+  let null$literal = generateIdentifier(node, otherProps.getNewTemporary("OPTE_NULL"))
+  let declNull = new Array()
+  declNull.push(generateJS3VariableDeclaratorfromBaseNode(null$literal, // null$literal = 
+    nullLiteral(), // null 
+    null, node.object))
+  otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(declNull, "let", null, node.object)) // let null$literal = null
 
-  let orig_arguments = node.arguments; // Handling prop arguments
-  let fin_arguments : JS3OptionalCallExpression_arguments = new Array(); // Handling prop arguments
-  if (Array.isArray ( orig_arguments )) { 
-    for (const _arrProp of orig_arguments) {
-      if(isExpression (_arrProp)) {
-        fin_arguments.push(_arrProp)
-      } else if(isSpreadElement (_arrProp)) {
-        fin_arguments.push(_arrProp)
-      } else if(isArgumentPlaceholder (_arrProp)) {
-        fin_arguments.push(_arrProp)
-      } 
+  // let second$cond = obj$res !== undefined
+  let second$cond = generateIdentifier(node, otherProps.getNewTemporary("OPTE_C2"))
+  let declSecond = new Array()
+  declSecond.push(generateJS3VariableDeclaratorfromBaseNode(second$cond, // second$cond = 
+    generateJS3BinaryExpressionfromBaseNode(obj$res, null$literal, "!==", node.object), // obj$res !== null$literal 
+    null, node.object))
+  otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(declSecond, "let", null, node.object)) // let second$cond = obj$res !== null$literal 
+
+  // COND_BODY == { 
+  //   let prop$res = ...evalProp
+  //   fin$res = obj$res[prop$res]
+  // }
+  const blockHolder: JS3BlockStatement_body = new Array()
+  const COND_BODY = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.property)
+  const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder, prefix: "OPTE_PROP" } }
+
+  if (node.computed) {
+    let prop$res = handleExpression(node.property, updatedProps);
+    blockHolder.push(generateJS3AssignmentExpressionfromBaseNode(fin$res, generateJS3MemberExpressionfromBaseNode(obj$res, prop$res, true, null, node.property), "=", node.property))
+  } else {
+
+    if (isIdentifier(node.property) || isPrivateName(node.property)) {
+      blockHolder.push(generateJS3AssignmentExpressionfromBaseNode(fin$res, generateJS3MemberExpressionfromBaseNode(obj$res, node.property, false, null, node.property), "=", node.property))
+    } else {
+      debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}!computed->Not an identifier!`);
     }
   }
 
-  let orig_typeArguments = node.typeArguments; // Handling prop typeArguments
-  let fin_typeArguments : JS3OptionalCallExpression_typeArguments = null; // Handling prop typeArguments
-  if(isTypeParameterInstantiation (orig_typeArguments)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled OptionalCallExpression->typeArguments->TypeParameterInstantiation");
+  // let final$cond = first$cond && second$cond
+  let final$cond = generateIdentifier(node, otherProps.getNewTemporary("OPTE_CFIN"))
+  let declFinal = new Array()
+  declFinal.push(generateJS3VariableDeclaratorfromBaseNode(final$cond, // final$cond = 
+    generateJS3LogicalExpressionfromBaseNode(first$cond, second$cond, "&&", node.object), // first$cond && second$cond 
+    null, node.object))
+  otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(declFinal, "let", null, node.object))
+
+  // if (final$cond) COND_BODY
+  otherProps.others.holder.push(generateJS3IfStatementfromBaseNode(final$cond, COND_BODY, null, node))
+
+  return { evalResId: fin$res, contextObjId: obj$res }
+}
+
+export function handleOptionalCallExpression(node: OptionalCallExpression, otherProps: OtherProps): Identifier { 
+  // a.b?.()
+  // 
+  // let fin$res = undefined
+  // 
+  // let callee$res = ...callee
+  // let callee$cond1 = callee$res !== undefined
+  // let callee$cond2 = callee$res !== null
+  // let callee$condfin = callee$cond1 && callee$cond2
+  // if (callee$cond) {
+  //   fin$res = ID(...args) | ID.X(...args) | ID.call(CONTEXT,...args)
+  // }
+  
+  let fin$res = generateIdentifier(node, otherProps.getNewTemporary("OPTE_RESULT"))
+
+  // let fin$res = undefined 
+  otherProps.others.holder.push(generateDummyJS3VariableDeclaration(node, fin$res, generateIdentifier(node, "undefined"), "let", null, null))
+
+  // ...args
+  let orig_arguments = node.arguments; // Handling prop arguments
+  let fin_arguments: JS3CallExpression_arguments = new Array(); // Handling prop arguments
+  if (Array.isArray(orig_arguments)) {
+    for (const _arrProp of orig_arguments) {
+      if (isDecimalLiteral(_arrProp) || isBigIntLiteral(_arrProp) || isStringLiteral(_arrProp) || isNumericLiteral(_arrProp) || isNullLiteral(_arrProp) || isBooleanLiteral(_arrProp)) {
+        fin_arguments.push(_arrProp)
+      } else if (isSpreadElement(_arrProp)) {
+        fin_arguments.push(handleSpreadElement(_arrProp, otherProps))
+      } else if (isCallExpression(_arrProp)) {
+        fin_arguments.push(handleCallExpression(_arrProp, otherProps))
+      } else if (isFunctionExpression(_arrProp)) {
+        // Translate it into a FunctionExpression
+        const fnExpr = handleFunctionExpression(_arrProp, otherProps);
+
+        const holder: Array<JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression> = new Array();
+
+        holder.push(fnExpr);
+
+        // [ function { ... } ]
+        const arrNode = generateJS3AnonArrayExpressionfromBaseNode(holder, _arrProp)
+
+        // [ function { ... } ] [0]
+        const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, _arrProp)
+
+        // let temp = [func...][0]
+        let resHolder = generateIdentifier(_arrProp, otherProps.getNewTemporary(otherProps.others.prefix))
+        otherProps.others.holder.push(generateDummyJS3VariableDeclaration(_arrProp, resHolder, anonArrExpr, "let", null, null))
+
+        fin_arguments.push(resHolder)
+      } else if (isArrowFunctionExpression(_arrProp)) {
+        // Translate it into a MemberExpression
+        const arrfnExpr = handleArrowFunctionExpression(_arrProp, otherProps);
+
+        const holder: Array<JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression> = new Array();
+
+        holder.push(arrfnExpr);
+
+        // [ () => { ... } ]
+        const arrNode = generateJS3AnonArrayExpressionfromBaseNode(holder, _arrProp)
+
+        // [ () => { ... } ] [0]
+        const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, _arrProp)
+
+        // let temp = [()...][0]
+        let resHolder = generateIdentifier(_arrProp, otherProps.getNewTemporary(otherProps.others.prefix))
+        otherProps.others.holder.push(generateDummyJS3VariableDeclaration(_arrProp, resHolder, anonArrExpr, "let", null, null))
+
+        fin_arguments.push(resHolder)
+      } else if (isClassExpression(_arrProp)) {
+        // Translate it into a MemberExpression
+        const classExpr = handleClassExpression(_arrProp, otherProps);
+
+        const holder: Array<JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression> = new Array();
+
+        holder.push(classExpr);
+
+        // [ class x { ... } ]
+        const arrNode = generateJS3AnonArrayExpressionfromBaseNode(holder, _arrProp)
+
+        // [ class x { ... } ] [0]
+        const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, _arrProp)
+
+        // let temp = [class...][0]
+        let resHolder = generateIdentifier(_arrProp, otherProps.getNewTemporary(otherProps.others.prefix))
+        otherProps.others.holder.push(generateDummyJS3VariableDeclaration(_arrProp, resHolder, anonArrExpr, "let", null, null))
+
+        fin_arguments.push(resHolder)
+      } else if (isExpression(_arrProp)) {
+        fin_arguments.push(lowerComputedKey(_arrProp, otherProps))
+      } else if (isArgumentPlaceholder(_arrProp)) {
+        debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}[arguments]->ArgumentPlaceholder`);
+      }
+    }
   }
 
-  let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
-  let fin_typeParameters : JS3OptionalCallExpression_typeParameters = null; // Handling prop typeParameters
-  if(isTSTypeParameterInstantiation (orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled OptionalCallExpression->typeParameters->TSTypeParameterInstantiation");
+  // 2 fallthrough props, 4 restricted props
+  let orig_callee = node.callee; // Handling prop callee
+  let callee$res: Identifier; // Handling prop callee
+  let CALLEE_CONTEXT = null
+  let IS_SUPER_CONTEXT = false
+
+  if (isSuper(orig_callee)) {
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}!callee->SUPER not handled`);
+  } else if (isV8IntrinsicIdentifier(orig_callee)) {
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}!callee->V8 Intrinsic not handled`);
+  } else if (isIdentifier(orig_callee)) {
+    callee$res = orig_callee
+  } else if (isOptionalMemberExpression(orig_callee)) {
+
+    // This needs special handling to retain context.
+    // 
+    // Input:
+    // a.b?.foo
+    // 
+    // Output:
+    // let t1 = ...a.b == CALLEE_CONTEXT
+    // let t2 = ...a.b?.foo == CALLEE
+    // 
+    // 
+
+    let { evalResId, contextObjId } = handleOptionalMemberExpression(orig_callee, otherProps)
+    callee$res = evalResId
+    CALLEE_CONTEXT = contextObjId
+
+  } else if (isMemberExpression(orig_callee)) {
+    // We would like to retain the context if the callee is a member expression
+    // 
+    // Input:
+    // a.boo()
+    // 
+    // Output:
+    // t1 = a <- t1 == CALLEE_CONTEXT
+    // t2 = t1.boo <- t2 == CALLEE
+    // 
+    let mExpr = handleMemberExpression(orig_callee, otherProps)
+    callee$res = generateIdentifier(node, otherProps.getNewTemporary("OPTCE_CALLEE"))
+
+    let declarator = generateJS3VariableDeclaratorfromBaseNode(callee$res, mExpr, null, orig_callee)
+    let decl = new Array()
+    decl.push(declarator)
+    otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(decl, "let", null, orig_callee))
+    
+    if (isIdentifier(mExpr.object)) {
+      CALLEE_CONTEXT = generateIdentifier(node, otherProps.getNewTemporary("OPTCE_CALLEE_CON"))
+      otherProps.others.holder.push(generateJS3AssignmentExpressionfromBaseNode(CALLEE_CONTEXT, mExpr.object, "=", orig_callee))
+    } else if (isSuper(mExpr.object)) {
+      IS_SUPER_CONTEXT = true
+    } else {
+      debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}!callee object is not an Identifier`);
+    }
+
+  } else if (isImport(orig_callee)) {
+    debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}!callee->import not handled`);
+  } else if (isExpression(orig_callee)) {
+    callee$res = handleExpression(orig_callee, otherProps)
   }
 
-  let result: JS3OptionalCallExpression = generateJS3OptionalCallExpression(fin_callee, fin_arguments, fin_typeArguments, fin_typeParameters, node);
-  return result
+  // let first$cond = callee$res !== undefined
+  let first$cond = generateIdentifier(node, otherProps.getNewTemporary("OPTCE_C1"))
+  let decl = new Array()
+  decl.push(generateJS3VariableDeclaratorfromBaseNode(first$cond, // first$cond = 
+    generateJS3BinaryExpressionfromBaseNode(callee$res, generateIdentifier(node.callee, "undefined"), "!==", node.callee), // callee$res !== undefined 
+    null, node.callee))
+  otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(decl, "let", null, node.callee)) // let first$cond = obj$res !== undefined
+
+  // let null$literal = null
+  let null$literal = generateIdentifier(node, otherProps.getNewTemporary("OPTCE_NULL"))
+  let declNull = new Array()
+  declNull.push(generateJS3VariableDeclaratorfromBaseNode(null$literal, // null$literal = 
+    nullLiteral(), // null 
+    null, node.callee))
+  otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(declNull, "let", null, node.callee)) // let null$literal = null
+
+  // let second$cond = obj$res !== undefined
+  let second$cond = generateIdentifier(node, otherProps.getNewTemporary("OPTCE_C2"))
+  let declSecond = new Array()
+  declSecond.push(generateJS3VariableDeclaratorfromBaseNode(second$cond, // second$cond = 
+    generateJS3BinaryExpressionfromBaseNode(callee$res, null$literal, "!==", node.callee), // callee$res !== null$literal 
+    null, node.callee))
+  otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(declSecond, "let", null, node.callee)) // let second$cond = obj$res !== null$literal 
+
+  // COND_BODY == { 
+  //   fin$res = ID (...args) | ID.call(CONTEXT, ...args)
+  // }
+  const blockHolder: JS3BlockStatement_body = new Array()
+  const COND_BODY = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node)
+
+  if (CALLEE_CONTEXT || IS_SUPER_CONTEXT) {
+    let fin_callee = generateJS3MemberExpressionfromBaseNode(callee$res, generateIdentifier(node.callee, "call"), false, null, node.callee)
+    if (IS_SUPER_CONTEXT) {
+      CALLEE_CONTEXT = generateIdentifier(node.callee, "this")
+    }
+    let fin_arguments_new = [CALLEE_CONTEXT, ...fin_arguments]
+
+    let orig_typeArguments = node.typeArguments; // Handling prop typeArguments
+    let fin_typeArguments = null; // Handling prop typeArguments
+    if (isTypeParameterInstantiation(orig_typeArguments)) {
+      debugConfig.logger.throwJS3Error("TODO // unhandled OptionalCallExpression->typeArguments->TypeParameterInstantiation");
+    }
+
+    let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
+    let fin_typeParameters = null; // Handling prop typeParameters
+    if (isTSTypeParameterInstantiation(orig_typeParameters)) {
+      debugConfig.logger.throwJS3Error("TODO // unhandled OptionalCallExpression->typeParameters->TSTypeParameterInstantiation");
+    }
+
+    let result: JS3CallExpression = generateJS3CallExpressionfromBaseNode(fin_callee, fin_arguments_new, fin_typeArguments, fin_typeArguments, null, node);
+
+    blockHolder.push(generateJS3AssignmentExpressionfromBaseNode(fin$res, result, "=", node))
+  } else {
+    let fin_callee = callee$res
+    let fin_arguments_new = fin_arguments
+
+    let orig_typeArguments = node.typeArguments; // Handling prop typeArguments
+    let fin_typeArguments = null; // Handling prop typeArguments
+    if (isTypeParameterInstantiation(orig_typeArguments)) {
+      debugConfig.logger.throwJS3Error("TODO // unhandled OptionalCallExpression->typeArguments->TypeParameterInstantiation");
+    }
+
+    let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
+    let fin_typeParameters = null; // Handling prop typeParameters
+    if (isTSTypeParameterInstantiation(orig_typeParameters)) {
+      debugConfig.logger.throwJS3Error("TODO // unhandled OptionalCallExpression->typeParameters->TSTypeParameterInstantiation");
+    }
+
+    let result: JS3CallExpression = generateJS3CallExpressionfromBaseNode(fin_callee, fin_arguments_new, fin_typeArguments, fin_typeArguments, null, node);
+
+    blockHolder.push(generateJS3AssignmentExpressionfromBaseNode(fin$res, result, "=", node))
+  }
+
+  
+  // let final$cond = first$cond && second$cond
+  let final$cond = generateIdentifier(node, otherProps.getNewTemporary("OPTE_CFIN"))
+  let declFinal = new Array()
+  declFinal.push(generateJS3VariableDeclaratorfromBaseNode(final$cond, // final$cond = 
+    generateJS3LogicalExpressionfromBaseNode(first$cond, second$cond, "&&", node.callee), // first$cond && second$cond 
+    null, node.callee))
+  otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(declFinal, "let", null, node.callee))
+
+  // if (final$cond) COND_BODY
+  otherProps.others.holder.push(generateJS3IfStatementfromBaseNode(final$cond, COND_BODY, null, node))
+
+  return fin$res
 }
 
 
@@ -1205,7 +1431,7 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
   } else if (isTSNonNullExpression(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->TSNonNullExpression");
   } else if (isOptionalMemberExpression(orig_left)) {
-    fin_left = handleOptionalMemberExpression(orig_left, otherProps)
+    debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->OptionalMemberExpression");
   }
 
   // 
@@ -1680,7 +1906,7 @@ export function handleYieldExpression(node: YieldExpression, otherProps: OtherPr
   return result
 }
 
-export function handleConditionalExpression(node: ConditionalExpression, otherProps: OtherProps) : Identifier {
+export function handleConditionalExpression(node: ConditionalExpression, otherProps: OtherProps): Identifier {
   // 
   // Simplify this into an if condition check
   // 
@@ -1723,7 +1949,7 @@ export function handleConditionalExpression(node: ConditionalExpression, otherPr
     fin_alternate = handleExpression(orig_alternate, updatedProps)
     alternateBodyHolder.push(generateJS3AssignmentExpressionfromBaseNode(resultIdentifier, fin_alternate, "=", orig_alternate));
   }
-  
+
   return resultIdentifier;
 }
 

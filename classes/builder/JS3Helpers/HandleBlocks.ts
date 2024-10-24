@@ -737,7 +737,9 @@ export function handleForInStatement(node: ForInStatement, otherProps: OtherProp
 
   let orig_body = node.body; // Handling prop body
   let fin_body: JS3ForInStatement_body; // Handling prop body
-  if (isStatement(orig_body)) {
+  if (isBlockStatement(orig_body)) {
+    fin_body = handleBlockStatement(orig_body, otherProps)
+  } else if (isStatement(orig_body)) {
     const blockBody: JS3BlockStatement_body = new Array();
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockBody } }
 
@@ -790,7 +792,9 @@ export function handleForOfStatement(node: ForOfStatement, otherProps: OtherProp
 
   let orig_body = node.body; // Handling prop body
   let fin_body: JS3ForInStatement_body; // Handling prop body
-  if (isStatement(orig_body)) {
+  if (isBlockStatement(orig_body)) {
+    fin_body = handleBlockStatement(orig_body, otherProps)
+  } else if (isStatement(orig_body)) {
     const blockBody: JS3BlockStatement_body = new Array();
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockBody } }
 

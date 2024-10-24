@@ -8,6 +8,8 @@ import { ProjectFile } from "../ProjectFile.ts";
 import { handleProgram } from "./JS3Helpers/HandleProgram.ts";
 import { JS3AllowedBlockStatement, JS3File, JS3Program, JS3Program_body } from "./JS3Helpers/JS3Types.ts";
 import { generateJS3File } from "./JS3Helpers/JS3Constructors.ts";
+import { transform as hoistImportsAndFnDecls } from 'classes/builder/JS3Helpers/passes/HoistImportsAndFnDeclarations.ts'
+import { transform as hoistVarDeclarations } from 'classes/builder/JS3Helpers/passes/HoistVarDeclarations.ts'
 
 
 const generator = _generator["default"]
@@ -56,6 +58,11 @@ export default class JS3Builder {
     assert(program)
     const js3Program = handleProgram(program, this.utils)
     this.generatedProgram = generateJS3File(js3Program, file)
+    this.generateCode()
+    this.generateURI()
+
+    hoistImportsAndFnDecls(this.generatedProgram)
+    hoistVarDeclarations(this.generatedProgram)
     this.generateCode()
     this.generateURI()
   }
