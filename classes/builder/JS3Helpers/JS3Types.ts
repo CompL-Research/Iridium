@@ -1,4 +1,4 @@
-// Generated on 24/10/2024, 8:33:37 pm, extended 63 interfaces 
+// Generated on 25/10/2024, 2:14:18 pm, extended 63 interfaces 
 
 import { ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -8,7 +8,7 @@ export type JS3ContainedExprKey = Identifier | JS3YieldExpression | JS3CallExpre
 export type JS3AllowedFunctionArgs = Identifier | Pattern | RestElement;
 export type JS3VarDeclLVal = Identifier | ArrayPattern | ObjectPattern;
 export type JS3LVal = Identifier | JS3MemberExpression | RestElement | Pattern;
-export type JS3AssnInit = JS3Literals | JS3RegExpLiteral | JS3ImportExpression | JS3TaggedTemplateExpression | JS3MetaProperty | JS3YieldExpression | JS3SequenceExpression | ThisExpression | JS3FunctionExpression | Identifier | JS3MemberExpression | JS3CallExpression | JS3ObjectExpression | JS3NewExpression | JS3BinaryExpression | JS3LogicalExpression | JS3AssignmentExpression | JS3UnaryExpression | JS3ArrowFunctionExpression | JS3ClassExpression | JS3ArrayExpression | JS3UpdateExpression | JS3TemplateLiteral | JS3AwaitExpression | JS3AnonMemberExpression;
+export type JS3AssnInit = JS3Literals | JS3RegExpLiteral | JS3TemplateLiteral | JS3ImportExpression | JS3TaggedTemplateExpression | JS3MetaProperty | JS3YieldExpression | JS3SequenceExpression | ThisExpression | JS3FunctionExpression | Identifier | JS3MemberExpression | JS3CallExpression | JS3ObjectExpression | JS3NewExpression | JS3BinaryExpression | JS3LogicalExpression | JS3AssignmentExpression | JS3UnaryExpression | JS3ArrowFunctionExpression | JS3ClassExpression | JS3ArrayExpression | JS3UpdateExpression | JS3AwaitExpression | JS3AnonMemberExpression;
 export type JS3AllowedProgStatement = JS3ImportDeclaration | JS3ExportDefaultDeclaration | JS3ExportNamedDeclaration | JS3ExportAllDeclaration | JS3AllowedBlockStatement;
 
 /// CUSTOM INTERFACES START
@@ -41,7 +41,7 @@ export function isJS3AnonArrayExpression(node: any): node is JS3AnonArrayExpress
 }
 
 /// CUSTOM INTERFACES END
-export type JS3ArrayExpression_elements = Array<null | JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression | Identifier | JS3SpreadElement>;
+export type JS3ArrayExpression_elements = Array<null | Identifier | JS3SpreadElement>;
 export type JS3AssignmentExpression_left = JS3LVal;
 export type JS3AssignmentExpression_right = JS3AssnInit;
 export type JS3BinaryExpression_left = Identifier | JS3PrivateName;
@@ -101,7 +101,7 @@ export type JS3ObjectProperty_key = Identifier | StringLiteral | NumericLiteral 
 export type JS3ObjectProperty_value = Identifier | JS3ClassExpression | JS3Literals | JS3ArrowFunctionExpression | JS3FunctionExpression;
 export type JS3ObjectProperty_decorators = null;
 export type JS3ReturnStatement_argument = undefined | null | Identifier;
-export type JS3SequenceExpression_expressions = Array<Identifier | JS3FunctionExpression | JS3ArrowFunctionExpression | JS3ClassExpression>;
+export type JS3SequenceExpression_expressions = Array<Identifier | JS3MemberExpression | JS3FunctionExpression | JS3ArrowFunctionExpression | JS3ClassExpression>;
 export type JS3SwitchCase_test = JS3ContainedExprKey | null;
 export type JS3SwitchCase_consequent = Array<JS3AllowedBlockStatement>;
 export type JS3SwitchStatement_discriminant = JS3ContainedExprKey;

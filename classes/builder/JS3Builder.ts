@@ -21,7 +21,8 @@ export type JS3BuilderUtils = {
   others?: {
     holder: JS3Program_body | Array<JS3AllowedBlockStatement> | null,
     prefix?: string,
-    bindingsToMake?: Array<String>
+    bindingsToMake?: Array<String>,
+    isNamedEvalContext?: string // This is very error prone, I added it only to break down sequence expressions while retaining named property of anon func/classes...
   }
 }
 

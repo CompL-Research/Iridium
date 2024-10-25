@@ -297,129 +297,6 @@ export function handleVariableDeclaration(node: VariableDeclaration, otherProps:
   return finalResult
 }
 
-// 
-// :::WIP:::
-// 
-// export function lowerObjectProperty(node: ObjectProperty, otherProps: OtherProps, workingWith: Identifier) {
-//   if (isPrivateName(node.key)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->ObjectPattern->ObjectProperty->PrivateName");
-//     return;
-//   }
-
-//   let propToGetId = handleExpression(node.key, otherProps)
-
-//   // Value can be: Identifier | ObjectPattern | ArrayPattern | MemberExpression | TSAsExpression | TSSatisfiesExpression | TSTypeAssertion | TSNonNullExpression
-  
-//   // Trivial Case: Binding to set is an identifier
-//   if (isIdentifier(node.value)) {
-//     otherProps.others.bindingsToMake.push(node.value.name)
-//     let init = generateJS3MemberExpressionfromBaseNode(workingWith, propToGetId, true, null, node.value)
-//     otherProps.others.holder.push(generateJS3AssignmentExpressionfromBaseNode(node.value, init, "=", node))
-//   } 
-//   // Recursive Case: Object Pattern
-//   else if (isObjectPattern(node.value)) {
-//     let init = generateJS3MemberExpressionfromBaseNode(workingWith, propToGetId, true, null, node.value)
-//     lowerObjectPattern(node.value, otherProps, init)
-//   } else {
-//     debugConfig.logger.throwJS3Error(`TODO // unhandled VariableDeclarator->id->ObjectPattern->ObjectProperty->Value = ${node.value.type}`);
-//   }
-
-// }
-
-// export function lowerObjectPattern(node: ObjectPattern, otherProps: OtherProps, workingWithId: Identifier) {
-  
-//   const spillHolder: JS3BlockStatement_body = new Array()
-//   const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: spillHolder, bindingsToMake: new Array() } }
-
-//   for (let p of node.properties) {
-//     if (isObjectProperty(p)) {
-//       // lowerObjectProperty(p, updatedProps, workingWithId)
-//     } else {
-//       debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->ObjectPattern->RestElement");
-//     }
-//   }
-
-//   otherProps.others.bindingsToMake = null
-
-// }
-
-// //
-// // (4.1) VariableDeclarator: LVal = Expression
-// // 
-// // Spill: init --> otherProps.others.holder
-// // Result: LVal = JS3VariableDeclarator_init
-// //
-// export function handleVariableDeclarator(node: VariableDeclarator, otherProps: OtherProps) {
-//   otherProps.debugTrace.push("VariableDeclarator");
-//   assert(Array.isArray(otherProps.others.holder), "handleVariableDeclarator expects an holder to spill intermediate values");
-
-//   let orig_init = node.init; // Handling prop init
-//   let fin_init: JS3VariableDeclarator_init = null; // Handling prop init
-
-//   if (isIdentifier(orig_init) || isDecimalLiteral(orig_init) || isBigIntLiteral(orig_init) || isStringLiteral(orig_init) || isNumericLiteral(orig_init) || isNullLiteral(orig_init) || isBooleanLiteral(orig_init)) {
-//     fin_init = orig_init
-//   } else if (isArrowFunctionExpression(orig_init)) {
-//     fin_init = handleArrowFunctionExpression(orig_init, otherProps);
-//   } else if (isFunctionExpression(orig_init)) {
-//     fin_init = handleFunctionExpression(orig_init, otherProps);
-//   } else if (isClassExpression(orig_init)) {
-//     fin_init = handleClassExpression(orig_init, otherProps);
-//   } else if (isExpression(orig_init)) {
-//     fin_init = handleExpression(orig_init, otherProps)
-//   }
-
-//   const oldPrefix = otherProps.others.prefix
-//   if (isIdentifier(node.id)) otherProps.others.prefix = node.id.name;
-
-//   let orig_id = node.id; // Handling prop id
-//   let fin_id: JS3VariableDeclarator_id; // Handling prop id
-//   if (isIdentifier(orig_id)) {
-//     fin_id = orig_id
-//   } else if (isMemberExpression(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->MemberExpression");
-//     // fin_id = handleMemberExpression(orig_id, otherProps)
-//   } else if (isRestElement(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->RestElement");
-//     // fin_id = orig_id
-//   } else if (isAssignmentPattern(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->AssignmentPattern");
-//     // fin_id = orig_id
-//   } else if (isArrayPattern(orig_id)) {
-//     fin_id = orig_id
-//   } else if (isObjectPattern(orig_id)) {
-//     let workingWithId = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-//     otherProps.others.holder.push(generateDummyJS3VariableDeclaration(node, workingWithId, fin_init, "let", null, null))
-
-//     lowerObjectPattern(orig_id, otherProps, workingWithId)
-
-//     // let result: JS3VariableDeclarator = generateJS3VariableDeclarator(workingWithId, fin_init, node);
-//     // otherProps.debugTrace.pop()
-//     return null
-//     // 
-//     // {  }
-//     // 
-
-//     // fin_id = orig_id
-//   } else if (isTSParameterProperty(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSParameterProperty");
-//   } else if (isTSAsExpression(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSAsExpression");
-//   } else if (isTSSatisfiesExpression(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSSatisfiesExpression");
-//   } else if (isTSTypeAssertion(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSTypeAssertion");
-//   } else if (isTSNonNullExpression(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSNonNullExpression");
-//   }
-
-  
-
-//   let result: JS3VariableDeclarator = generateJS3VariableDeclarator(fin_id, fin_init, node);
-//   otherProps.others.prefix = oldPrefix
-//   otherProps.debugTrace.pop()
-//   return result;
-// }
-
 //
 // (4.1) VariableDeclarator: LVal = Expression
 // 
@@ -430,12 +307,15 @@ export function handleVariableDeclarator(node: VariableDeclarator, otherProps: O
   otherProps.debugTrace.push("VariableDeclarator");
   assert(Array.isArray(otherProps.others.holder), "handleVariableDeclarator expects an holder to spill intermediate values");
 
+  let oldEvalContext = otherProps.others.isNamedEvalContext
+
   const oldPrefix = otherProps.others.prefix
   if (isIdentifier(node.id)) otherProps.others.prefix = node.id.name;
 
   let orig_id = node.id; // Handling prop id
   let fin_id: JS3VariableDeclarator_id; // Handling prop id
   if (isIdentifier(orig_id)) {
+    otherProps.others.isNamedEvalContext = orig_id.name
     fin_id = orig_id
   } else if (isArrayPattern(orig_id)) {
     fin_id = orig_id
@@ -473,6 +353,8 @@ export function handleVariableDeclarator(node: VariableDeclarator, otherProps: O
   } else if (isExpression(orig_init)) {
     fin_init = handleExpression(orig_init, otherProps)
   }
+
+  otherProps.others.isNamedEvalContext = oldEvalContext
 
   let result: JS3VariableDeclarator = generateJS3VariableDeclarator(fin_id, fin_init, node);
   otherProps.others.prefix = oldPrefix
