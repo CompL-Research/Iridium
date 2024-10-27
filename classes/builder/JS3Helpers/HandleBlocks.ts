@@ -5,12 +5,12 @@ import { JS3BuilderUtils, } from "../JS3Builder.ts";
 import { JS3AllowedBlockStatement, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3BreakStatement_label, JS3CatchClause_body, JS3ContinueStatement, JS3ContinueStatement_label, JS3DoWhileStatement, JS3DoWhileStatement_test, JS3EmptyStatement, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3ForInStatement, JS3ForInStatement_body, JS3ForInStatement_left, JS3ForInStatement_right, JS3ForOfStatement, JS3ForOfStatement_left, JS3ForOfStatement_right, JS3ForStatement, JS3ForStatement_body, JS3ForStatement_init, JS3ForStatement_test, JS3ForStatement_update, JS3FunctionDeclaration, JS3FunctionDeclaration_body, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3LabeledStatement, JS3LabeledStatement_body, JS3ReturnStatement_argument, JS3SwitchCase, JS3SwitchCase_consequent, JS3SwitchCase_test, JS3SwitchStatement, JS3SwitchStatement_cases, JS3SwitchStatement_discriminant, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration, JS3VariableDeclaration_declarations, JS3VariableDeclarator, JS3VariableDeclarator_id, JS3VariableDeclarator_init, JS3WhileStatement, JS3WhileStatement_body, JS3WhileStatement_test, JS3WithStatement, JS3WithStatement_body, JS3WithStatement_object } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
-import { handleArrowFunctionExpression, handleClassExpression, handleExpression, handleFunctionExpression, handleMemberExpression } from "./HandleExpression.ts";
+import { handleArrowFunctionExpression, handleClassExpression, handleExpression, handleFunctionExpression, handleMemberExpression, lowerToAnonArrayExpr } from "./HandleExpression.ts";
 import { generateBaseNodeFrom, generateIdentifier, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3CatchClause, generateJS3ContinueStatement, generateJS3DoWhileStatement, generateJS3EmptyStatement, generateJS3ExpressionStatement, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3LabeledStatement, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarator, generateJS3WhileStatement, generateJS3WithStatement } from "./JS3Constructors.ts";
 
 import { generateCommentLine } from "#utils";
 import assert from 'node:assert';
-import { lowerComputedKey } from "./GenericConstructs.ts";
+import { handleLoopDeclaration, lowerComputedKey } from "./GenericConstructs.ts";
 import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
 
 const isnull = (a) => a === null;
@@ -29,7 +29,7 @@ export function handleBlockStatement(node: BlockStatement, otherProps: OtherProp
   for (const stmt of orig_body) {
     const blockStmt: JS3AllowedBlockStatement | Array<JS3VariableDeclaration> = handleStatement(stmt, updatedProps)
     if (Array.isArray(blockStmt)) blockStmt.forEach(s => fin_body.push(s))
-    else if (isExpressionStatement(stmt)) {}
+    else if (isExpressionStatement(stmt)) {} // The expression was already evalauted, its result is discarded, no need to print
     else fin_body.push(blockStmt)
   }
 
@@ -167,7 +167,9 @@ export function handleExpressionStatement(node: ExpressionStatement, otherProps:
   // 1 fallthrough props, 1 restricted props
   let orig_expression = node.expression; // Handling prop expression
   let fin_expression: JS3ExpressionStatement_expression; // Handling prop expression
-  if (isExpression(orig_expression)) {
+  if (isFunctionExpression(orig_expression) || isArrowFunctionExpression(orig_expression) || isClassExpression(orig_expression)) {
+    fin_expression = lowerToAnonArrayExpr(orig_expression, otherProps)
+  } else if (isExpression(orig_expression)) {
     fin_expression = handleExpression(orig_expression, otherProps)
   }
   let result: JS3ExpressionStatement = generateJS3ExpressionStatement(fin_expression, node);
@@ -191,7 +193,9 @@ export function handleIfStatement(node: IfStatement, otherProps: OtherProps) {
   // 1 fallthrough props, 3 restricted props
   let orig_test = node.test; // Handling prop test
   let fin_test: JS3IfStatement_test; // Handling prop test
-  if (isExpression(orig_test)) {
+  if (isFunctionExpression(orig_test) || isArrowFunctionExpression(orig_test) || isClassExpression(orig_test)) {
+    fin_test = lowerToAnonArrayExpr(orig_test, otherProps)
+  } else if (isExpression(orig_test)) {
     fin_test = handleExpression(orig_test, otherProps)
   }
 
@@ -256,7 +260,9 @@ export function handleReturnStatement(node: ReturnStatement, otherProps: OtherPr
   // 1 fallthrough props, 1 restricted props
   let orig_argument = node.argument; // Handling prop argument
   let fin_argument: JS3ReturnStatement_argument = null; // Handling prop argument
-  if (isExpression(orig_argument)) {
+  if (isFunctionExpression(orig_argument) || isArrowFunctionExpression(orig_argument) || isClassExpression(orig_argument)) {
+    fin_argument = lowerToAnonArrayExpr(orig_argument, otherProps)
+  } else if (isExpression(orig_argument)) {
     fin_argument = handleExpression(orig_argument, otherProps)
   }
 
@@ -409,7 +415,9 @@ export function handleThrowStatement(node: ThrowStatement, otherProps: OtherProp
   // 1 fallthrough props, 1 restricted props
   let orig_argument = node.argument; // Handling prop argument
   let fin_argument: JS3ThrowStatement_argument; // Handling prop argument
-  if (isExpression(orig_argument)) {
+  if (isFunctionExpression(orig_argument) || isArrowFunctionExpression(orig_argument) || isClassExpression(orig_argument)) {
+    fin_argument = lowerToAnonArrayExpr(orig_argument, otherProps)
+  } else if (isExpression(orig_argument)) {
     fin_argument = handleExpression(orig_argument, otherProps)
   }
   const result = generateJS3ThrowStatement(fin_argument, node)
@@ -520,7 +528,7 @@ export function handleForStatement(node: ForStatement, otherProps: OtherProps) {
   let orig_init = node.init; // Handling prop init
   let fin_init: JS3ForStatement_init = null; // Handling prop init
   if (isVariableDeclaration(orig_init)) {
-    fin_init = orig_init
+    fin_init = handleLoopDeclaration(orig_init, otherProps)
   } else if (isExpression(orig_init)) {
     fin_init = lowerComputedKey(orig_init, otherProps)
   }
@@ -586,7 +594,7 @@ export function handleForInStatement(node: ForInStatement, otherProps: OtherProp
   let orig_left = node.left; // Handling prop left
   let fin_left: JS3ForInStatement_left; // Handling prop left
   if (isVariableDeclaration(orig_left)) {
-    fin_left = orig_left
+    fin_left = handleLoopDeclaration(orig_left, otherProps)
   } else if (isIdentifier(orig_left)) {
     fin_left = orig_left
   } else if (isMemberExpression(orig_left)) {
@@ -613,7 +621,9 @@ export function handleForInStatement(node: ForInStatement, otherProps: OtherProp
 
   let orig_right = node.right; // Handling prop right
   let fin_right: JS3ForInStatement_right; // Handling prop right
-  if (isExpression(orig_right)) {
+  if (isFunctionExpression(orig_right) || isArrowFunctionExpression(orig_right) || isClassExpression(orig_right)) {
+    fin_right = lowerToAnonArrayExpr(orig_right, otherProps)
+  } else if (isExpression(orig_right)) {
     fin_right = handleExpression(orig_right, otherProps);
   }
 
@@ -641,7 +651,7 @@ export function handleForOfStatement(node: ForOfStatement, otherProps: OtherProp
   let orig_left = node.left; // Handling prop left
   let fin_left: JS3ForOfStatement_left; // Handling prop left
   if (isVariableDeclaration(orig_left)) {
-    fin_left = orig_left
+    fin_left = handleLoopDeclaration(orig_left, otherProps)
   } else if (isIdentifier(orig_left)) {
     fin_left = orig_left
   } else if (isMemberExpression(orig_left)) {
@@ -668,7 +678,9 @@ export function handleForOfStatement(node: ForOfStatement, otherProps: OtherProp
 
   let orig_right = node.right; // Handling prop right
   let fin_right: JS3ForOfStatement_right; // Handling prop right
-  if (isExpression(orig_right)) {
+  if (isFunctionExpression(orig_right) || isArrowFunctionExpression(orig_right) || isClassExpression(orig_right)) {
+    fin_right = lowerToAnonArrayExpr(orig_right, otherProps)
+  } else if (isExpression(orig_right)) {
     fin_right = handleExpression(orig_right, otherProps)
   }
 
@@ -774,7 +786,9 @@ export function handleWithStatement(node: WithStatement, otherProps: OtherProps)
   // 1 fallthrough props, 2 restricted props
   let orig_object = node.object; // Handling prop object
   let fin_object: JS3WithStatement_object; // Handling prop object
-  if (isExpression(orig_object)) {
+  if (isFunctionExpression(orig_object) || isArrowFunctionExpression(orig_object) || isClassExpression(orig_object)) {
+    fin_object = lowerToAnonArrayExpr(orig_object, otherProps)
+  } else if (isExpression(orig_object)) {
     fin_object = handleExpression(orig_object, otherProps);
   }
   let orig_body = node.body; // Handling prop body

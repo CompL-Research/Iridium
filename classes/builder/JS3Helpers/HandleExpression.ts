@@ -1,10 +1,10 @@
 
 import debugConfig from "#debugConfig";
-import { ArrayExpression, ArrowFunctionExpression, AssignmentExpression, AwaitExpression, binaryExpression, BinaryExpression, CallExpression, ClassDeclaration, ClassExpression, ConditionalExpression, Expression, FunctionDeclaration, FunctionExpression, identifier, Identifier, Import, ImportExpression, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassBody, isClassExpression, isClassImplements, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDecorator, isDoExpression, isExpression, isFunctionDeclaration, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isInterfaceExtends, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPattern, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSExpressionWithTypeArguments, isTSInstantiationExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSType, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, logicalExpression, LogicalExpression, MemberExpression, MetaProperty, NewExpression, nullLiteral, numericLiteral, ObjectExpression, ObjectMethod, ObjectProperty, OptionalCallExpression, OptionalMemberExpression, PrivateName, RegExpLiteral, SequenceExpression, SpreadElement, TaggedTemplateExpression, TemplateLiteral, unaryExpression, UnaryExpression, UpdateExpression, YieldExpression } from "@babel/types";
+import { ArrayExpression, ArrowFunctionExpression, AssignmentExpression, AwaitExpression, binaryExpression, BinaryExpression, CallExpression, ClassExpression, ConditionalExpression, Expression, FunctionExpression, identifier, Identifier, Import, ImportExpression, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassBody, isClassExpression, isClassImplements, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDecorator, isDoExpression, isExpression, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isInterfaceExtends, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPattern, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSExpressionWithTypeArguments, isTSInstantiationExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSType, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, logicalExpression, LogicalExpression, MemberExpression, MetaProperty, NewExpression, nullLiteral, numericLiteral, ObjectExpression, ObjectMethod, ObjectProperty, OptionalCallExpression, OptionalMemberExpression, PrivateName, RegExpLiteral, SequenceExpression, SpreadElement, TaggedTemplateExpression, TemplateLiteral, unaryExpression, UnaryExpression, UpdateExpression, YieldExpression } from "@babel/types";
 import assert from 'node:assert';
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AnonArrayExpressionfromBaseNode, generateJS3AnonMemberExpressionfromBaseNode, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3AwaitExpression, generateJS3BinaryExpression, generateJS3BinaryExpressionfromBaseNode, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3CallExpressionfromBaseNode, generateJS3ClassExpression, generateJS3FunctionExpression, generateJS3IfStatementfromBaseNode, generateJS3Import, generateJS3ImportExpression, generateJS3LogicalExpressionfromBaseNode, generateJS3MemberExpression, generateJS3MemberExpressionfromBaseNode, generateJS3MetaProperty, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3PrivateName, generateJS3RegExpLiteral, generateJS3ReturnStatementfromBaseNode, generateJS3SequenceExpression, generateJS3SpreadElement, generateJS3TaggedTemplateExpression, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode, generateJS3YieldExpression } from "./JS3Constructors.ts";
-import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3AwaitExpression, JS3AwaitExpression_argument, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3Import, JS3ImportExpression, JS3ImportExpression_options, JS3ImportExpression_source, JS3LogicalExpression_left, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3MetaProperty, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3PrivateName, JS3RegExpLiteral, JS3SequenceExpression, JS3SequenceExpression_expressions, JS3SpreadElement, JS3SpreadElement_argument, JS3TaggedTemplateExpression, JS3TaggedTemplateExpression_quasi, JS3TaggedTemplateExpression_tag, JS3TaggedTemplateExpression_typeParameters, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
+import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AnonArrayExpressionfromBaseNode, generateJS3AnonMemberExpressionfromBaseNode, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3AwaitExpression, generateJS3BinaryExpression, generateJS3BinaryExpressionfromBaseNode, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3CallExpressionfromBaseNode, generateJS3ClassExpression, generateJS3FunctionExpression, generateJS3IfStatementfromBaseNode, generateJS3Import, generateJS3ImportExpression, generateJS3LogicalExpressionfromBaseNode, generateJS3MemberExpression, generateJS3MemberExpressionfromBaseNode, generateJS3MetaProperty, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3PrivateName, generateJS3RegExpLiteral, generateJS3ReturnStatementfromBaseNode, generateJS3SpreadElement, generateJS3TaggedTemplateExpression, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode, generateJS3YieldExpression } from "./JS3Constructors.ts";
+import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AssignmentExpression, JS3AssignmentExpression_left, JS3AssignmentExpression_right, JS3AwaitExpression, JS3AwaitExpression_argument, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3Import, JS3ImportExpression, JS3ImportExpression_options, JS3ImportExpression_source, JS3LogicalExpression_left, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3MetaProperty, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3PrivateName, JS3RegExpLiteral, JS3SpreadElement, JS3SpreadElement_argument, JS3TaggedTemplateExpression, JS3TaggedTemplateExpression_quasi, JS3TaggedTemplateExpression_tag, JS3TaggedTemplateExpression_typeParameters, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
 
 import { isArgumentPlaceholder, isSpreadElement, isTSTypeParameterInstantiation, isTypeParameterInstantiation, isV8IntrinsicIdentifier } from "@babel/types";
 import { lowerComputedKey } from "./GenericConstructs.ts";
@@ -17,16 +17,6 @@ type OtherProps = JS3BuilderUtils;
 
 const isnull = (a) => a === null;
 const isundefined = (a) => a === undefined;
-
-
-// // 
-// // Reduce an expression without affecting the named nature
-// // 
-// export function handleExpressionNameless(node: Expression, otherProps: OtherProps): Identifier {
-
-//   // TODO
-
-// }
 
 //
 // Reduces expressions to an Identifier
@@ -177,11 +167,13 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
     // ========================================================================================
   } else if (isSequenceExpression(node)) {
     // ========================================================================================
-    // $resultIdentifier = (seq1Res, seq2Res, seq3Res...)
-    resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-    const init = handleSequenceExpression(node, otherProps)
-    const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
-    otherProps.others.holder.push(varDecl)
+    // // $resultIdentifier = (seq1Res, seq2Res, seq3Res...) <- Deprecated...
+    // resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+    // const init = handleSequenceExpression(node, otherProps)
+    // const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
+    // otherProps.others.holder.push(varDecl)
+    
+    resultIdentifier = handleSequenceExpression(node, otherProps)
     // ========================================================================================
   } else if (isParenthesizedExpression(node)) {
     debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}->ParenthesizedExpression`, otherProps.debugTrace);
@@ -352,7 +344,6 @@ export function handleExpression(node: Expression, otherProps: OtherProps): Iden
 }
 
 export function lowerToAnonArrayExpr(node: FunctionExpression | ArrowFunctionExpression | ClassExpression, otherProps: OtherProps) : Identifier {
-
   // All this drama is needed if the function/class is nameless, otherwise normal lowering is fine
   // function foo() { ... }
   if (isFunctionExpression(node) && isIdentifier(node.id)) {
@@ -463,6 +454,8 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
     fin_callee = handleMemberExpression(orig_callee, otherProps)
   } else if (isImport(orig_callee)) {
     fin_callee = handleImport(orig_callee, otherProps)
+  } else if (isFunctionExpression(orig_callee) || isArrowFunctionExpression(orig_callee) || isClassExpression(orig_callee)) {
+    fin_callee = lowerToAnonArrayExpr(orig_callee, otherProps)
   } else if (isExpression(orig_callee)) {
     fin_callee = handleExpression(orig_callee, otherProps)
   }
@@ -495,6 +488,8 @@ export function handleMemberExpression(node: MemberExpression, otherProps: Other
     fin_object = orig_object
   } else if (isThisExpression(orig_object)) {
     fin_object = orig_object
+  } else if (isFunctionExpression(orig_object) || isArrowFunctionExpression(orig_object) || isClassExpression(orig_object)) {
+    fin_object = lowerToAnonArrayExpr(orig_object, otherProps)
   } else if (isExpression(orig_object)) {
     fin_object = handleExpression(orig_object, otherProps)
   }
@@ -503,6 +498,8 @@ export function handleMemberExpression(node: MemberExpression, otherProps: Other
   let fin_property: JS3MemberExpression_property; // Handling prop property
   if (isIdentifier(orig_property)) {
     fin_property = orig_property
+  } else if (isFunctionExpression(orig_property) || isArrowFunctionExpression(orig_property) || isClassExpression(orig_property)) {
+    fin_property = lowerToAnonArrayExpr(orig_property, otherProps)
   } else if (isExpression(orig_property)) {
     fin_property = handleExpression(orig_property, otherProps)
   } else if (isPrivateName(orig_property)) {
@@ -520,9 +517,20 @@ export function handleOptionalMemberExpression(node: OptionalMemberExpression, o
   otherProps.others.holder.push(generateDummyJS3VariableDeclaration(node, fin$res, generateIdentifier(node, "undefined"), "let", null, null))
 
   let orig_object = node.object; // Handling prop object
-
   // let obj$res = ...obj
-  let obj$res = handleExpression(orig_object, otherProps)
+  let obj$res;
+
+  if (isIdentifier(orig_object)) {
+    obj$res = orig_object
+  } else if (isSuper(orig_object)) {
+    obj$res = orig_object
+  } else if (isThisExpression(orig_object)) {
+    obj$res = orig_object
+  } else if (isFunctionExpression(orig_object) || isArrowFunctionExpression(orig_object) || isClassExpression(orig_object)) {
+    obj$res = lowerToAnonArrayExpr(orig_object, otherProps)
+  } else if (isExpression(orig_object)) {
+    obj$res = handleExpression(orig_object, otherProps)
+  }
 
   // let first$cond = obj$res !== undefined
   let first$cond = generateIdentifier(node, otherProps.getNewTemporary("OPTE_C1"))
@@ -557,7 +565,13 @@ export function handleOptionalMemberExpression(node: OptionalMemberExpression, o
   const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder, prefix: "OPTE_PROP" } }
 
   if (node.computed) {
-    let prop$res = handleExpression(node.property, updatedProps);
+    let prop$res : Identifier
+    if (isFunctionExpression(node.property) || isArrowFunctionExpression(node.property) || isClassExpression(node.property)) { 
+      prop$res = lowerToAnonArrayExpr(node.property, updatedProps)
+    } else {
+      prop$res = handleExpression(node.property, updatedProps)
+    }
+
     blockHolder.push(generateJS3AssignmentExpressionfromBaseNode(fin$res, generateJS3MemberExpressionfromBaseNode(obj$res, prop$res, true, null, node.property), "=", node.property))
   } else {
 
@@ -679,6 +693,8 @@ export function handleOptionalCallExpression(node: OptionalCallExpression, other
 
   } else if (isImport(orig_callee)) {
     debugConfig.logger.throwJS3Error(`TODO // unhandled ${otherProps.debugTrace.reduce((acc, curr) => acc + "->" + curr)}!callee->import not handled`);
+  } else if (isFunctionExpression(orig_callee) || isArrowFunctionExpression(orig_callee) || isClassExpression(orig_callee)) {
+    callee$res = lowerToAnonArrayExpr(orig_callee, otherProps)
   } else if (isExpression(orig_callee)) {
     callee$res = handleExpression(orig_callee, otherProps)
   }
@@ -806,6 +822,8 @@ export function handleObjectMethod(node: ObjectMethod, otherProps: OtherProps) {
     fin_key = orig_key
   } else if (isBigIntLiteral(orig_key)) {
     fin_key = orig_key
+  } else if (isFunctionExpression(orig_key) || isArrowFunctionExpression(orig_key) || isClassExpression(orig_key)) { 
+    fin_key = lowerToAnonArrayExpr(orig_key, otherProps)
   } else {
     fin_key = handleExpression(orig_key, otherProps)
   }
@@ -880,6 +898,8 @@ export function handleObjectProperty(node: ObjectProperty, otherProps: OtherProp
     fin_key = orig_key
   } else if (isPrivateName(orig_key)) {
     fin_key = handlePrivateName(orig_key, otherProps)
+  } else if (isFunctionExpression(orig_key) || isArrowFunctionExpression(orig_key) || isClassExpression(orig_key)) { 
+    fin_key = lowerToAnonArrayExpr(orig_key, otherProps)
   } else {
     fin_key = handleExpression(orig_key, otherProps)
   }
@@ -1174,7 +1194,9 @@ export function handleNewExpression(node: NewExpression, otherProps: OtherProps)
     fin_callee = orig_callee
   } else if (isV8IntrinsicIdentifier(orig_callee)) {
     fin_callee = orig_callee
-  } else if (isExpression(orig_callee)) {
+  } else if (isFunctionExpression(orig_callee) || isArrowFunctionExpression(orig_callee) || isClassExpression(orig_callee)) { 
+    fin_callee = lowerToAnonArrayExpr(orig_callee, otherProps)
+  } else {
     fin_callee = handleExpression(orig_callee, otherProps)
   }
 
@@ -1182,7 +1204,9 @@ export function handleNewExpression(node: NewExpression, otherProps: OtherProps)
   let fin_arguments: JS3NewExpression_arguments = new Array(); // Handling prop arguments
   if (Array.isArray(orig_arguments)) {
     for (const _arrProp of orig_arguments) {
-      if (isExpression(_arrProp)) {
+      if (isFunctionExpression(_arrProp) || isArrowFunctionExpression(_arrProp) || isClassExpression(_arrProp)) { 
+        fin_arguments.push(lowerToAnonArrayExpr(_arrProp, otherProps))
+      } else if (isExpression(_arrProp)) {
         fin_arguments.push(handleExpression(_arrProp, otherProps))
       } else if (isSpreadElement(_arrProp)) {
         fin_arguments.push(_arrProp)
@@ -1212,14 +1236,20 @@ export function handleBinaryExpression(node: BinaryExpression, otherProps: Other
   // 2 fallthrough props, 2 restricted props
   let orig_left = node.left; // Handling prop left
   let fin_left: JS3BinaryExpression_left; // Handling prop left
-  if (isExpression(orig_left)) {
+  
+  if (isFunctionExpression(orig_left) || isArrowFunctionExpression(orig_left) || isClassExpression(orig_left)) { // Probably redundant but keep it for consistency
+    fin_left = lowerToAnonArrayExpr(orig_left, otherProps)
+  } else if (isExpression(orig_left)) {
     fin_left = handleExpression(orig_left, otherProps)
   } else if (isPrivateName(orig_left)) {
     fin_left = handlePrivateName(orig_left, otherProps)
   }
   let orig_right = node.right; // Handling prop right
   let fin_right: JS3BinaryExpression_right; // Handling prop right
-  if (isExpression(orig_right)) {
+  
+  if (isFunctionExpression(orig_right) || isArrowFunctionExpression(orig_right) || isClassExpression(orig_right)) { // Probably redundant but keep it for consistency
+    fin_right = lowerToAnonArrayExpr(orig_right, otherProps)
+  } else if (isExpression(orig_right)) {
     fin_right = handleExpression(orig_right, otherProps)
   }
   let result: JS3BinaryExpression = generateJS3BinaryExpression(fin_left, fin_right, node);
@@ -1230,7 +1260,9 @@ export function handleLogicalExpression(node: LogicalExpression, otherProps: Oth
   // 2 fallthrough props, 2 restricted props
   let orig_left = node.left; // Handling prop left
   let fin_left: JS3LogicalExpression_left; // Handling prop left
-  if (isExpression(orig_left)) {
+  if (isFunctionExpression(orig_left) || isArrowFunctionExpression(orig_left) || isClassExpression(orig_left)) { // Probably redundant but keep it for consistency
+    fin_left = lowerToAnonArrayExpr(orig_left, otherProps)
+  } else if (isExpression(orig_left)) {
     fin_left = handleExpression(orig_left, otherProps)
   }
 
@@ -1250,6 +1282,8 @@ export function handleLogicalExpression(node: LogicalExpression, otherProps: Oth
     let orig_right = node.right; // Handling prop right
     if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
       rvalEvaled = orig_right
+    } else if (isFunctionExpression(node.right) || isArrowFunctionExpression(node.right) || isClassExpression(node.right)) { // Probably redundant but keep it for consistency
+      rvalEvaled = lowerToAnonArrayExpr(node.right, updatedProps);
     } else if (isExpression(orig_right)) {
       rvalEvaled = handleExpression(node.right, updatedProps);
     }
@@ -1259,7 +1293,12 @@ export function handleLogicalExpression(node: LogicalExpression, otherProps: Oth
     blockHolder.push(updateRes)
 
     // If (lVal$res) { BODY }
-    const bCondTrue = handleExpression(lValRes, otherProps)
+    let bCondTrue : Identifier
+    if (isFunctionExpression(lValRes) || isArrowFunctionExpression(lValRes) || isClassExpression(lValRes)) { // Probably redundant but keep it for consistency
+      bCondTrue = lowerToAnonArrayExpr(lValRes, otherProps)
+    } else {
+      bCondTrue = handleExpression(lValRes, otherProps)
+    }
     const ifStmt = generateJS3IfStatementfromBaseNode(bCondTrue, condBody, null, node)
 
     otherProps.others.holder.push(ifStmt)
@@ -1274,6 +1313,8 @@ export function handleLogicalExpression(node: LogicalExpression, otherProps: Oth
     let orig_right = node.right; // Handling prop right
     if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
       rvalEvaled = orig_right
+    } else if (isFunctionExpression(node.right) || isArrowFunctionExpression(node.right) || isClassExpression(node.right)) { // Probably redundant but keep it for consistency
+      rvalEvaled = lowerToAnonArrayExpr(node.right, updatedProps);
     } else if (isExpression(orig_right)) {
       rvalEvaled = handleExpression(node.right, updatedProps);
     }
@@ -1298,6 +1339,8 @@ export function handleLogicalExpression(node: LogicalExpression, otherProps: Oth
     let orig_right = node.right; // Handling prop right
     if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
       rvalEvaled = orig_right
+    } else if (isFunctionExpression(node.right) || isArrowFunctionExpression(node.right) || isClassExpression(node.right)) {
+      rvalEvaled = lowerToAnonArrayExpr(node.right, updatedProps);
     } else if (isExpression(orig_right)) {
       rvalEvaled = handleExpression(node.right, updatedProps);
     }
@@ -1450,6 +1493,8 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
       let fin_right: JS3AssignmentExpression_right; // Handling prop right
       if (isMemberExpressionContext) {
         fin_right = lowerComputedKey(node.right, otherProps);
+      } else if (isFunctionExpression(node.right) || isArrowFunctionExpression(node.right) || isClassExpression(node.right)) { // Probably redundant but keep it for consistency
+        fin_right = lowerToAnonArrayExpr(node.right, otherProps);
       } else {
         fin_right = handleExpression(node.right, otherProps);
       }
@@ -1480,7 +1525,11 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
     if (isMemberExpressionContext) {
       rvalEvaled = lowerComputedKey(node.right, updatedProps);
     } else {
-      rvalEvaled = handleExpression(node.right, updatedProps);
+      if (isFunctionExpression(node.right) || isArrowFunctionExpression(node.right) || isClassExpression(node.right)) { // Probably redundant but keep it for consistency
+        rvalEvaled = lowerToAnonArrayExpr(node.right, updatedProps);
+      } else {
+        rvalEvaled = handleExpression(node.right, updatedProps);
+      }
     }
 
     // rVal$resHolder = rVal$res
@@ -1570,10 +1619,11 @@ export function handleUnaryExpression(node: UnaryExpression, otherProps: OtherPr
         fin_argument = orig_argument
       } else {
         debugConfig.logger.throwJS3Error("TODO // unsupported UnaryExpression->delete [forms other than member expressions to delete operator are often meaningless]", [orig_argument]);
-        // fin_argument = handleExpression(orig_argument, otherProps);
       }
     } else if (isIdentifier(orig_argument)) {
       fin_argument = orig_argument
+    } else if (isFunctionExpression(orig_argument) || isArrowFunctionExpression(orig_argument) || isClassExpression(orig_argument)) { // Probably redundant but keep it for consistency
+      fin_argument = lowerToAnonArrayExpr(orig_argument, otherProps)
     } else {
       fin_argument = handleExpression(orig_argument, otherProps);
     }
@@ -1607,7 +1657,12 @@ export function handleArrowFunctionExpression(node: ArrowFunctionExpression, oth
     const body: JS3BlockStatement_body = new Array()
     fin_body = generateJS3BlockStatementfromBaseNode(body, new Array(), orig_body);
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: body } }
-    const resultId = handleExpression(orig_body, updatedProps);
+    let resultId : Identifier
+    if (isFunctionExpression(orig_body) || isArrowFunctionExpression(orig_body) || isClassExpression(orig_body)) { // Probably redundant but keep it for consistency
+      resultId = lowerToAnonArrayExpr(orig_body, updatedProps)
+    } else {
+      resultId = handleExpression(orig_body, updatedProps);
+    }
     const retStmt = generateJS3ReturnStatementfromBaseNode(resultId, orig_body)
     body.push(retStmt)
   }
@@ -1727,8 +1782,7 @@ export function handleArrayExpression(node: ArrayExpression, otherProps: OtherPr
       } else if (isFunctionExpression(_arrProp) || isArrowFunctionExpression(_arrProp) || isClassExpression(_arrProp)) {
         fin_elements.push(lowerToAnonArrayExpr(_arrProp, otherProps))
       } else if (isExpression(_arrProp)) {
-        const id = handleExpression(_arrProp, otherProps);
-        fin_elements.push(id);
+        fin_elements.push(handleExpression(_arrProp, otherProps));
       } else if (isSpreadElement(_arrProp)) {
         const se = handleSpreadElement(_arrProp, otherProps);
         fin_elements.push(se);
@@ -1743,7 +1797,9 @@ export function handleSpreadElement(node: SpreadElement, otherProps: OtherProps)
   // 1 fallthrough props, 1 restricted props
   let orig_argument = node.argument; // Handling prop argument
   let fin_argument: JS3SpreadElement_argument; // Handling prop argument
-  if (isExpression(orig_argument)) {
+  if (isFunctionExpression(orig_argument) || isArrowFunctionExpression(orig_argument) || isClassExpression(orig_argument)) {
+    fin_argument = lowerToAnonArrayExpr(orig_argument, otherProps)
+  } else if (isExpression(orig_argument)) {
     fin_argument = handleExpression(orig_argument, otherProps);
   }
   let result: JS3SpreadElement = generateJS3SpreadElement(fin_argument, node);
@@ -1758,6 +1814,8 @@ export function handleUpdateExpression(node: UpdateExpression, otherProps: Other
     fin_argument = orig_argument
   } else if (isMemberExpression(orig_argument)) {
     fin_argument = handleMemberExpression(orig_argument, otherProps)
+  } else if (isFunctionExpression(orig_argument) || isArrowFunctionExpression(orig_argument) || isClassExpression(orig_argument)) {
+    fin_argument = lowerToAnonArrayExpr(orig_argument, otherProps)
   } else if (isExpression(orig_argument)) {
     fin_argument = handleExpression(orig_argument, otherProps)
   }
@@ -1766,27 +1824,19 @@ export function handleUpdateExpression(node: UpdateExpression, otherProps: Other
   return result
 }
 
-export function handleSequenceExpression(node: SequenceExpression, otherProps: OtherProps) {
+export function handleSequenceExpression(node: SequenceExpression, otherProps: OtherProps) : Identifier {
   // 1 fallthrough props, 1 restricted props
   let orig_expressions = node.expressions; // Handling prop expressions
-  let fin_expressions: JS3SequenceExpression_expressions = new Array(); // Handling prop expressions
+  let result;
   if (Array.isArray(orig_expressions)) {
     for (const _arrProp of orig_expressions) {
-
-      if (isFunctionExpression(_arrProp)) {
-        fin_expressions.push(handleFunctionExpression(_arrProp, otherProps))
-      } else if (isArrowFunctionExpression(_arrProp)) {
-        fin_expressions.push(handleArrowFunctionExpression(_arrProp, otherProps))
-      } else if (isClassExpression(_arrProp)) {
-        fin_expressions.push(handleClassExpression(_arrProp, otherProps))
-      } else if (isMemberExpression(_arrProp)) {
-        fin_expressions.push(handleMemberExpression(_arrProp, otherProps))
-      } else {
-        fin_expressions.push(handleExpression(_arrProp, otherProps))
+      if (isFunctionExpression(_arrProp) || isArrowFunctionExpression(_arrProp) || isClassExpression(_arrProp)) {
+        result = lowerToAnonArrayExpr(_arrProp, otherProps)
+      } else if (isExpression(_arrProp)) {
+        result = handleExpression(_arrProp, otherProps)
       }
     }
   }
-  let result: JS3SequenceExpression = generateJS3SequenceExpression(fin_expressions, node);
   return result
 }
 
@@ -1806,7 +1856,9 @@ export function handleTemplateLiteral(node: TemplateLiteral, otherProps: OtherPr
   let fin_expressions: JS3TemplateLiteral_expressions = new Array(); // Handling prop expressions
   if (Array.isArray(orig_expressions)) {
     for (const _arrProp of orig_expressions) {
-      if (isExpression(_arrProp)) {
+      if (isFunctionExpression(_arrProp) || isArrowFunctionExpression(_arrProp) || isClassExpression(_arrProp)) {
+        fin_expressions.push(lowerToAnonArrayExpr(_arrProp, otherProps))
+      } else if (isExpression(_arrProp)) {
         fin_expressions.push(handleExpression(_arrProp, otherProps))
       } else if (isTSType(_arrProp)) {
         debugConfig.logger.throwJS3Error("TODO // unhandled TemplateLiteral->[expressions]->TSType");
@@ -1821,7 +1873,9 @@ export function handleYieldExpression(node: YieldExpression, otherProps: OtherPr
   // 2 fallthrough props, 1 restricted props
   let orig_argument = node.argument; // Handling prop argument
   let fin_argument: JS3YieldExpression_argument = null; // Handling prop argument
-  if (isExpression(orig_argument)) {
+  if (isFunctionExpression(orig_argument) || isArrowFunctionExpression(orig_argument) || isClassExpression(orig_argument)) {
+    fin_argument = lowerToAnonArrayExpr(orig_argument, otherProps)
+  } else if (isExpression(orig_argument)) {
     fin_argument = handleExpression(orig_argument, otherProps)
   }
 
@@ -1837,7 +1891,9 @@ export function handleConditionalExpression(node: ConditionalExpression, otherPr
   // 1 fallthrough props, 3 restricted props
   let orig_test = node.test; // Handling prop test
   let fin_test: Identifier; // Handling prop test
-  if (isExpression(orig_test)) {
+  if (isFunctionExpression(orig_test) || isArrowFunctionExpression(orig_test) || isClassExpression(orig_test)) {
+    fin_test = lowerToAnonArrayExpr(orig_test, otherProps)
+  } else if (isExpression(orig_test)) {
     fin_test = handleExpression(orig_test, otherProps)
   }
 
@@ -1859,7 +1915,13 @@ export function handleConditionalExpression(node: ConditionalExpression, otherPr
     // temp = ...consequent
     // result = temp
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: consequentBodyHolder } }
-    fin_consequent = handleExpression(orig_consequent, updatedProps)
+
+    if (isFunctionExpression(orig_consequent) || isArrowFunctionExpression(orig_consequent) || isClassExpression(orig_consequent)) {
+      fin_consequent = lowerToAnonArrayExpr(orig_consequent, updatedProps)
+    } else {
+      fin_consequent = handleExpression(orig_consequent, updatedProps)
+    }
+
     consequentBodyHolder.push(generateJS3AssignmentExpressionfromBaseNode(resultIdentifier, fin_consequent, "=", orig_consequent));
   }
 
@@ -1869,7 +1931,13 @@ export function handleConditionalExpression(node: ConditionalExpression, otherPr
     // temp = ...alternate
     // result = temp
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: alternateBodyHolder } }
-    fin_alternate = handleExpression(orig_alternate, updatedProps)
+
+    if (isFunctionExpression(orig_alternate) || isArrowFunctionExpression(orig_alternate) || isClassExpression(orig_alternate)) {
+      fin_alternate = lowerToAnonArrayExpr(orig_alternate, updatedProps)
+    } else {
+      fin_alternate = handleExpression(orig_alternate, updatedProps)
+    }
+    
     alternateBodyHolder.push(generateJS3AssignmentExpressionfromBaseNode(resultIdentifier, fin_alternate, "=", orig_alternate));
   }
 
@@ -1905,6 +1973,8 @@ export function handleTaggedTemplateExpression(node: TaggedTemplateExpression, o
 
   if (isMemberExpression(orig_tag)) {
     fin_tag = handleMemberExpression(orig_tag, otherProps)
+  } else if (isFunctionExpression(orig_tag) || isArrowFunctionExpression(orig_tag) || isClassExpression(orig_tag)) {
+    fin_tag = lowerToAnonArrayExpr(orig_tag, otherProps)
   } else if (isExpression(orig_tag)) {
     fin_tag = handleExpression(orig_tag, otherProps)
   }
@@ -1931,13 +2001,17 @@ export function handleImportExpression(node: ImportExpression, otherProps: Other
   // 2 fallthrough props, 2 restricted props
   let orig_source = node.source; // Handling prop source
   let fin_source: JS3ImportExpression_source; // Handling prop source
-  if (isExpression(orig_source)) {
+  if (isFunctionExpression(orig_source) || isArrowFunctionExpression(orig_source) || isClassExpression(orig_source)) {
+    fin_source = lowerToAnonArrayExpr(orig_source, otherProps)
+  } else if (isExpression(orig_source)) {
     fin_source = handleExpression(orig_source, otherProps)
   }
 
   let orig_options = node.options; // Handling prop options
   let fin_options: JS3ImportExpression_options = null; // Handling prop options
-  if (isExpression(orig_options)) {
+  if (isFunctionExpression(orig_options) || isArrowFunctionExpression(orig_options) || isClassExpression(orig_options)) {
+    fin_options = lowerToAnonArrayExpr(orig_options, otherProps)
+  } else if (isExpression(orig_options)) {
     fin_options = handleExpression(orig_options, otherProps)
   }
 
