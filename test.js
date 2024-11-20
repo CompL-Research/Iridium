@@ -1,3 +1,4 @@
+"use strict";
 // // 1. Let bindings are unusable before init
 // console.log(pokemon)
 // let pokemon = "Pikachu"
@@ -162,3 +163,104 @@
 
 // let t = a.t?.[[(console.log("side effect"), "f")]]
 // t.call(a.t);
+
+
+// let i = 0
+// console.log(`[Set Interval] ${i++}`);
+// setInterval(() => {
+//   console.log(`[DOPE] ${i++}`);
+// }, 1000)
+
+// new Promise((resolve, reject)=> {
+//   console.log("[I PROMISE TO BEHAVE]")
+// })
+
+// async function foo() {
+//   console.log(`[Foo starting] ${i++}`)
+
+//   let p = new Promise((resolve, reject)=> {
+//     setTimeout(() => {
+//       console.log(`[TIMEOUT] ${i++}`);
+//       resolve()
+//     }, 5000)
+//   })
+
+//   await p;
+//   console.log(`[Foo ending] ${i++}`)
+
+// }
+
+// foo()
+
+// // Ordinary Object
+// let o1 = { boo: 100 }
+// let o2 = {}
+// Object.setPrototypeOf(o2, o1);
+// // o2.prototype = o1
+// console.log(o2.boo)
+
+// // function object
+// function f() {
+// }
+
+// // array exotic object
+// let o3 = [1,2,3]
+
+
+// ArrayBuffer
+// let ab = new ArrayBuffer(2); // 2 bytes
+// let dataView = new DataView(ab);
+// dataView.setInt8(0, 100);
+// dataView.setInt8(1, 101);
+// console.log(ab)
+// console.log(dataView)
+// console.log(new Uint8Array(ab).toString())
+
+// let f = (a) => {
+//   console.log("Final res: ",a)
+// }
+
+// let abv = new Promise((resolve, reject) => {
+//   setTimeout(() => { resolve("bc"); }, 1000)
+// })
+
+// f ("a" + (await abv) + "d")
+
+// let f = a => {
+//   let f$1 = console.log("Final res: ", a);
+// };
+// let abv$3 = Promise;
+// let NAMELESS_ANON_FN$7 = [(resolve, reject) => {
+//   let NAMELESS_ANON_FN$6 = [() => {
+//     let abv$5 = resolve("bc");
+//   }][0];
+//   let abv$4 = setTimeout(NAMELESS_ANON_FN$6, 1000);
+// }][0];
+// let abv$2 = new abv$3(NAMELESS_ANON_FN$7);
+// let abv = abv$2;
+// let js3$8 = f(await (async () => {
+//   let js3$11 = "a";
+//   let js3$12 = await abv;
+//   let js3$10 = js3$11 + js3$12;
+//   let js3$13 = "d";
+//   let js3$9 = js3$10 + js3$13;
+//   return js3$9;
+// })());
+
+// let b = new Promise((resolve, reject) => {
+//   setTimeout(() => { resolve("234") }, 1000);
+// });
+// let res = "1" + (await ((async () => await b )())) + "5"
+// console.log(res)
+
+// export * as b from "test.js"
+// let a = 1
+// export {a}
+
+
+// console.log(a)
+// export const a = 10
+
+export var { b, c: { d: e } } = { b: 1, c: { d: 121 } }
+
+console.log(b, e)

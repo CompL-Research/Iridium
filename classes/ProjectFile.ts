@@ -10,7 +10,6 @@ import path from 'path'
 import debugConfig from "#debugConfig"
 import { resolveModuleImport } from "#utils"
 import { isImportDeclaration } from '@babel/types'
-const generate = _generate["default"];
 
 
 export class InitData {
@@ -86,12 +85,12 @@ export class ProjectFile {
     if (this.extension === 'ts' || this.extension === 'tsx') presets.push(['@babel/preset-typescript'])
 
     const options = {
-      cwd: this.projectBasePath,
+      // cwd: this.projectBasePath,
       filename: this.filename,
       sourceType,
       ast: true,
       presets,
-      sourceMaps: true,
+      // sourceMaps: true,
       plugins: [
         "@babel/plugin-syntax-jsx",
         ...plugins

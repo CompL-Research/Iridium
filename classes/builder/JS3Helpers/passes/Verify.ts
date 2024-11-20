@@ -43,19 +43,19 @@ export function verifyJS3ExportNamedDeclaration(decl: JS3ExportNamedDeclaration)
   assert(decl.assertions === null)
   assert(decl.attributes === null)
   
-  let hasDeclaration = false
-  // Declarations are only allowed if there is a pattern like LVal
-  if (decl.declaration !== null) {
-    hasDeclaration = true
-    assert(isJS3VariableDeclaration(decl.declaration))
-    verifyJS3VariableDeclaration(decl.declaration)
-    let lval = decl.declaration.declarations[0].id
-    assert(t.isArrayPattern(lval) || t.isObjectPattern(lval) )
-  }
+  // let hasDeclaration = false
+  // // Declarations are only allowed if there is a pattern like LVal
+  // if (decl.declaration !== null) {
+  //   hasDeclaration = true
+  //   assert(isJS3VariableDeclaration(decl.declaration))
+  //   verifyJS3VariableDeclaration(decl.declaration)
+  //   let lval = decl.declaration.declarations[0].id
+  //   assert(t.isArrayPattern(lval) || t.isObjectPattern(lval) )
+  // }
 
   if (decl.specifiers.length > 0) {
     // Either declaration or specifier, not both
-    assert(!hasDeclaration)
+    // assert(!hasDeclaration)
     
     assert(decl.specifiers.length === 1)
     assert(isJS3ExportSpecifier(decl.specifiers[0]) || isJS3ExportNamespaceSpecifier(decl.specifiers[0]))

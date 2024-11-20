@@ -158,9 +158,11 @@ export function lowerComputedKey(node: Expression, otherProps: OtherProps): JS3C
   
     const funcExpr = generateJS3ArrowFunctionExpressionfromBaseNode(new Array(), funcExprBody, null, null, null, true, true, false, dummyNode); // async () => {BODY}
 
-    const awaitExpr = generateJS3AwaitExpressionfromBaseNode(funcExpr, dummyNode) // await (async () => {BODY})
-    const callFnExpr = generateJS3CallExpressionfromBaseNode(awaitExpr, new Array(), null, null, null, dummyNode); // (await (async () => {BODY}))()
-    return callFnExpr
+    const callFnExpr = generateJS3CallExpressionfromBaseNode(funcExpr, new Array(), null, null, null, dummyNode); // (async () => {BODY})()
+
+    const awaitExpr = generateJS3AwaitExpressionfromBaseNode(callFnExpr, dummyNode) // await ((async () => {BODY})())
+    
+    return awaitExpr
   } else {
     // Create a call expression of the form
     // (function() { Expression is evaluated and returned as a result of this function }())
@@ -190,7 +192,7 @@ export function lowerComputedKey(node: Expression, otherProps: OtherProps): JS3C
   
     const funcExpr = generateJS3ArrowFunctionExpressionfromBaseNode(new Array(), funcExprBody, null, null, null, false, true, false, dummyNode); // () => {BODY}
     
-    const callFnExpr = generateJS3CallExpressionfromBaseNode(funcExpr, new Array(), null, null, null, dummyNode); // func()
+    const callFnExpr = generateJS3CallExpressionfromBaseNode(funcExpr, new Array(), null, null, null, dummyNode); // (() => {BODY})()
   
     return callFnExpr
   }

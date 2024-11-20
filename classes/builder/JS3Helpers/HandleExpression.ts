@@ -1951,9 +1951,10 @@ export function handleAwaitExpression(node: AwaitExpression, otherProps: OtherPr
   // if (isDecimalLiteral(orig_argument) || isBigIntLiteral(orig_argument) || isStringLiteral(orig_argument) || isNumericLiteral(orig_argument) || isNullLiteral(orig_argument) || isBooleanLiteral(orig_argument)) {
   //   fin_argument = orig_argument;
   // } else 
-  if (isRegExpLiteral(orig_argument)) {
-    fin_argument = handleRegExpLiteral(orig_argument, otherProps)
-  } else if (isExpression(orig_argument)) {
+  // if (isRegExpLiteral(orig_argument)) {
+  //   fin_argument = handleRegExpLiteral(orig_argument, otherProps)
+  // } else 
+  if (isExpression(orig_argument)) {
     fin_argument = lowerComputedKey(orig_argument, otherProps)
   }
   let result: JS3AwaitExpression = generateJS3AwaitExpression(fin_argument, node);

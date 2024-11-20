@@ -82,7 +82,7 @@ export default class JS3Builder {
     this.generatedProgram.trailingComments = this.generatedProgram.comments
 
     const transformedCode = babel.transformFromAst(this.generatedProgram, this.projectFile.initData.sourceCode, {
-      cwd: this.projectFile.projectBasePath,
+      // cwd: this.projectFile.projectBasePath,
       filename: this.projectFile.uname,
       // inputSourceMap: this.projectFile.sourceMap,
       ast: true,

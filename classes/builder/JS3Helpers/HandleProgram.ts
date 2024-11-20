@@ -1,6 +1,6 @@
 // Generated on 6/8/2024, 10:15:01 am, generated 1 handlers 
 import { ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ExportNamespaceSpecifier, ExportSpecifier, ImportDeclaration, Program, isArrowFunctionExpression, isClassDeclaration, isClassExpression, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportDefaultSpecifier, isExportNamedDeclaration, isExportNamespaceSpecifier, isExportSpecifier, isExpression, isExpressionStatement, isFunctionDeclaration, isFunctionExpression, isIdentifier, isImportAttribute, isImportDeclaration, isInterfaceDeclaration, isOpaqueType, isTSDeclareFunction, isTSEnumDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration } from "@babel/types";
-import { generateJS3ExportAllDeclaration, generateJS3ExportDefaultDeclaration, generateJS3ExportNamedDeclaration, generateJS3ExportNamespaceSpecifier, generateJS3ExportSpecifier, generateJS3ExportSpecifierfromBaseNode, generateJS3ImportDeclaration, generateJS3Program } from "./JS3Constructors.ts";
+import { generateIdentifier, generateJS3ExportAllDeclaration, generateJS3ExportDefaultDeclaration, generateJS3ExportNamedDeclaration, generateJS3ExportNamespaceSpecifier, generateJS3ExportSpecifier, generateJS3ExportSpecifierfromBaseNode, generateJS3ImportDeclaration, generateJS3Program, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "./JS3Constructors.ts";
 import { JS3AllowedBlockStatement, JS3ExportAllDeclaration, JS3ExportAllDeclaration_assertions, JS3ExportAllDeclaration_attributes, JS3ExportDefaultDeclaration_declaration, JS3ExportNamedDeclaration_assertions, JS3ExportNamedDeclaration_attributes, JS3ExportNamedDeclaration_specifiers, JS3ExportNamespaceSpecifier, JS3ExportSpecifier, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body, JS3VariableDeclaration } from "./JS3Types.ts";
 
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
@@ -11,6 +11,13 @@ import { generateCommentLine } from "#utils";
 import { handleFunctionDeclaration, handleStatement, handleVariableDeclaration } from "./HandleBlocks.ts";
 import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
 import { handleExpression, lowerToAnonArrayExpr } from "./HandleExpression.ts";
+
+import _generate from "@babel/generator";
+import _traverse from "@babel/traverse";
+
+const generate = _generate.default
+const traverse = _traverse.default
+import babel from '@babel/core'
 
 type OtherProps = JS3BuilderUtils;
 
@@ -238,13 +245,53 @@ export function handleExportNamedDeclaration(node: ExportNamedDeclaration, other
     // export { y }; 
     const fin_declarations = handleVariableDeclaration(orig_declaration, otherProps)
     fin_declarations.forEach(s => {
+      const declaredBindings = []
+
       if (!isIdentifier(s.declarations[0].id)) {
-        const duplicatedExportNamedDecl = generateJS3ExportNamedDeclaration(s, new Array(), fin_assertions, fin_attributes, node);
-      (otherProps.others.holder as JS3Program_body).push(duplicatedExportNamedDecl)
+        // Find the identifiers created by this assignment pattern.
+        try {
+          // Generate a temp assignment of the form
+          //  [a, ...rest] = undefined
+          //  {a, b: { d: e }} = undefined
+          let tempVarDeclarator = generateJS3VariableDeclaratorfromBaseNode(s.declarations[0].id, generateIdentifier(orig_declaration, "undefined"), null, orig_declaration);
+          let tempVarDecl = generateJS3VariableDeclarationfromBaseNode([tempVarDeclarator], orig_declaration.kind, orig_declaration.declare, orig_declaration)
+
+          // Generate source string
+          const output = generate(
+            tempVarDecl,
+          );
+
+
+          // Generate AST
+          const options = {
+            ast: true
+          };
+          const result = babel.transformSync(output.code, options)
+          
+
+          // Populate generated bindings
+          traverse(result.ast, {
+            Program(path) {
+              for (let key in path.scope.bindings) {
+                let b = path.scope.bindings[key]
+                declaredBindings.push(b.identifier.name)
+              }
+            },
+          });
+        } catch(e) {
+          debugConfig.logger.throwJS3Error("Failed lowering export declaration pattern", [s, declaredBindings])
+        }
       } else {
-        otherProps.others.holder.push(s);
+        // Trivial case
+        declaredBindings.push(s.declarations[0].id.name)
+      }
+
+      // Push declaration to the body
+      otherProps.others.holder.push(s);
+
+      for (let b of declaredBindings) {
         let specifierArray = new Array()
-        let specifier = generateJS3ExportSpecifierfromBaseNode(s.declarations[0].id, s.declarations[0].id, "value", orig_declaration)
+        let specifier = generateJS3ExportSpecifierfromBaseNode(generateIdentifier(orig_declaration, b), generateIdentifier(orig_declaration, b), "value", orig_declaration)
         specifierArray.push(specifier)
   
         const duplicatedExportNamedDecl = generateJS3ExportNamedDeclaration(null, specifierArray, fin_assertions, fin_attributes, node);

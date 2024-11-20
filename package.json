@@ -15,6 +15,7 @@
     "@babel/plugin-syntax-jsx": "^7.24.7",
     "@babel/preset-env": "^7.25.3",
     "@babel/preset-react": "^7.24.7",
+    "@babel/preset-typescript": "^7.26.0",
     "babel-plugin-jsx": "^1.2.0",
     "babel-walk": "^3.0.1",
     "chalk": "^5.3.0",

@@ -1,4 +1,4 @@
-// Generated on 27/10/2024, 12:18:01 pm, extended 62 interfaces 
+// Generated on 20/11/2024, 7:43:33 am, extended 62 interfaces 
 
 import { ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -192,7 +192,7 @@ export type JS3ClassDeclaration_typeParameters = null;
 export type JS3ExportAllDeclaration_assertions = null;
 export type JS3ExportAllDeclaration_attributes = null;
 export type JS3ExportDefaultDeclaration_declaration = Identifier;
-export type JS3ExportNamedDeclaration_declaration = JS3VariableDeclaration | null;
+export type JS3ExportNamedDeclaration_declaration = null;
 export type JS3ExportNamedDeclaration_specifiers = Array<JS3ExportSpecifier | JS3ExportNamespaceSpecifier>;
 export type JS3ExportNamedDeclaration_assertions = null;
 export type JS3ExportNamedDeclaration_attributes = null;
@@ -217,7 +217,7 @@ export type JS3TaggedTemplateExpression_typeParameters = null;
 export type JS3TemplateLiteral_quasis = Array<TemplateElement>;
 export type JS3TemplateLiteral_expressions = Array<Identifier>;
 export type JS3YieldExpression_argument = JS3ContainedExprKey | Identifier | null;
-export type JS3AwaitExpression_argument = JS3RegExpLiteral | JS3ContainedExprKey | JS3ArrowFunctionExpression | Identifier;
+export type JS3AwaitExpression_argument = JS3ContainedExprKey | Identifier;
 export type JS3ClassProperty_key = JS3ContainedExprKey;
 export type JS3ClassProperty_value = JS3ClassExpression | JS3Literals | JS3ArrowFunctionExpression | JS3FunctionExpression | JS3ContainedExprKey | null;
 export type JS3ClassProperty_typeAnnotation = null;

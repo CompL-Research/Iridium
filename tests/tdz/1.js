@@ -1,12 +1,15 @@
 var x = 100
 
 function foo() {
-  let f = () => {
-    console.log(x)
-  }
+  
   console.log(x)
   var x = 101
   f()
+
+
+  function f() {
+    console.log(x)
+  }
 }
 
 foo()
