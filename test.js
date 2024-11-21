@@ -261,6 +261,13 @@
 // console.log(a)
 // export const a = 10
 
-export var { b, c: { d: e } } = { b: 1, c: { d: 121 } }
+// export var { b, c: { d: e } } = { b: 1, c: { d: 121 } }
 
-console.log(b, e)
+// console.log(b, e)
+
+// let [[[a],b,c] = [[11],12,13]] = [undefined, 2, 3, 4]
+// console.log(a,b,c)
+
+// let k = ""
+// let { ["a" + k] : [a, b, c] = [1,2,3], d, ...e } = { a: undefined, d: 4, e: 11, f: 12, g: 13 }
+// console.log(a, b, c, d, e)
