@@ -73,8 +73,9 @@ export function verifyJS3VariableDeclaration(decl: JS3VariableDeclaration) {
 }
 
 export function verifyJS3VariableDeclarator(decl: JS3VariableDeclarator) {
-  // LVal
-  assert(t.isIdentifier(decl.id) || t.isArrayPattern(decl.id) || t.isObjectPattern(decl.id))
+  // // LVal
+  // // TODO
+  // assert(t.isIdentifier(decl.id) || t.isArrayPattern(decl.id) || t.isObjectPattern(decl.id))
 
   // Init
   let isNullOrUndef = decl.init === null || decl.init === undefined

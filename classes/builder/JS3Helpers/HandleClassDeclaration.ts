@@ -395,7 +395,7 @@ export function handleStaticBlock(node: StaticBlock, otherProps: OtherProps) {
   const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: fin_body } }
 
   for (const stmt of orig_body) {
-    const blockStmt: JS3AllowedBlockStatement | Array<JS3VariableDeclaration> = handleStatement(stmt, updatedProps)
+    const blockStmt: JS3AllowedBlockStatement | Array<JS3AllowedBlockStatement> = handleStatement(stmt, updatedProps)
     if (Array.isArray(blockStmt)) blockStmt.forEach(s => fin_body.push(s))
     else fin_body.push(blockStmt)
   }

@@ -905,7 +905,7 @@ export function handleForInStatement(node: ForInStatement, otherProps: OtherProp
   } else if (isMemberExpression(orig_left)) {
     fin_left = handleMemberExpression(orig_left, otherProps)
   } else if (isRestElement(orig_left)) {
-    fin_left = orig_left
+    debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->RestElement");
   } else if (isAssignmentPattern(orig_left)) {
     fin_left = orig_left
   } else if (isArrayPattern(orig_left)) {
@@ -962,7 +962,7 @@ export function handleForOfStatement(node: ForOfStatement, otherProps: OtherProp
   } else if (isMemberExpression(orig_left)) {
     fin_left = handleMemberExpression(orig_left, otherProps)
   } else if (isRestElement(orig_left)) {
-    fin_left = orig_left
+    debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->RestElement");
   } else if (isAssignmentPattern(orig_left)) {
     fin_left = orig_left
   } else if (isArrayPattern(orig_left)) {
