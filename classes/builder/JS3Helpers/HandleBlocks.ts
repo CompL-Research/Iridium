@@ -2,7 +2,7 @@
 
 import { BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, EmptyStatement, Expression, ExpressionStatement, ForInStatement, ForOfStatement, ForStatement, FunctionDeclaration, Identifier, IfStatement, isArrayPattern, isArrowFunctionExpression, isAssignmentPattern, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isBreakStatement, isCatchClause, isClassDeclaration, isClassExpression, isContinueStatement, isDebuggerStatement, isDecimalLiteral, isDeclareClass, isDeclaredPredicate, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isFunctionExpression, isIdentifier, isIfStatement, isImportDeclaration, isInferredPredicate, isInterfaceDeclaration, isLabeledStatement, isMemberExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectPattern, isObjectProperty, isOpaqueType, isPattern, isPrivateName, isRestElement, isReturnStatement, isStatement, isStringLiteral, isSwitchStatement, isThrowStatement, isTryStatement, isTSAsExpression, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSTypeAliasDeclaration, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTypeAlias, isTypeAnnotation, isTypeParameterDeclaration, isVariableDeclaration, isWhileStatement, isWithStatement, LabeledStatement, LVal, RestElement, restElement, ReturnStatement, Statement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement } from "@babel/types";
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { isJS3ObjectProperty, JS3AllowedBlockStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3BreakStatement_label, JS3CatchClause_body, JS3ContinueStatement, JS3ContinueStatement_label, JS3DoWhileStatement, JS3DoWhileStatement_test, JS3EmptyStatement, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3ForInStatement, JS3ForInStatement_body, JS3ForInStatement_left, JS3ForInStatement_right, JS3ForOfStatement, JS3ForOfStatement_left, JS3ForOfStatement_right, JS3ForStatement, JS3ForStatement_body, JS3ForStatement_init, JS3ForStatement_test, JS3ForStatement_update, JS3FunctionDeclaration, JS3FunctionDeclaration_body, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3LabeledStatement, JS3LabeledStatement_body, JS3ObjectPattern, JS3ObjectProperty, JS3ReturnStatement_argument, JS3SwitchCase, JS3SwitchCase_consequent, JS3SwitchCase_test, JS3SwitchStatement, JS3SwitchStatement_cases, JS3SwitchStatement_discriminant, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration_declarations, JS3VariableDeclarator_init, JS3WhileStatement, JS3WhileStatement_body, JS3WhileStatement_test, JS3WithStatement, JS3WithStatement_body, JS3WithStatement_object } from "./JS3Types.ts";
+import { isJS3MemberExpression, isJS3ObjectProperty, JS3AllowedBlockStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3BreakStatement_label, JS3CatchClause_body, JS3ContinueStatement, JS3ContinueStatement_label, JS3DoWhileStatement, JS3DoWhileStatement_test, JS3EmptyStatement, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3ForInStatement, JS3ForInStatement_body, JS3ForInStatement_left, JS3ForInStatement_right, JS3ForOfStatement, JS3ForOfStatement_left, JS3ForOfStatement_right, JS3ForStatement, JS3ForStatement_body, JS3ForStatement_init, JS3ForStatement_test, JS3ForStatement_update, JS3FunctionDeclaration, JS3FunctionDeclaration_body, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3LabeledStatement, JS3LabeledStatement_body, JS3MemberExpression, JS3ObjectPattern, JS3ObjectProperty, JS3ReturnStatement_argument, JS3SwitchCase, JS3SwitchCase_consequent, JS3SwitchCase_test, JS3SwitchStatement, JS3SwitchStatement_cases, JS3SwitchStatement_discriminant, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration_declarations, JS3VariableDeclarator_init, JS3WhileStatement, JS3WhileStatement_body, JS3WhileStatement_test, JS3WithStatement, JS3WithStatement_body, JS3WithStatement_object } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
 import { handleArrowFunctionExpression, handleClassExpression, handleExpression, handleFunctionExpression, handleMemberExpression, lowerToAnonArrayExpr } from "./HandleExpression.ts";
@@ -286,9 +286,12 @@ export function handleVariableDeclaration(node: VariableDeclaration, otherProps:
   const updatedProps = { ...otherProps, others: { ...otherProps.others, holder } }
 
   for (const _arrProp of node.declarations) {
-    let generator = (LVal: JS3ArrayPattern | JS3ObjectPattern | Identifier, RVal: null | JS3VariableDeclarator_init) => {
-      let declarator = generateJS3VariableDeclarator(LVal, RVal, _arrProp)
-      return generateJS3VariableDeclaration([declarator], node)  
+    let generator = (LVal: JS3MemberExpression | JS3ArrayPattern | JS3ObjectPattern | Identifier, RVal: null | JS3VariableDeclarator_init) => {
+      if (isJS3MemberExpression(LVal)) debugConfig.logger.log("LVal cannot be JS3MemberExpression in case of variable declarator...")
+      else {
+        let declarator = generateJS3VariableDeclarator(LVal, RVal, _arrProp)
+        return generateJS3VariableDeclaration([declarator], node)
+      }
     }
     handleDeclaratorRec(_arrProp.id, _arrProp.init, updatedProps, generator)
   }
@@ -305,7 +308,7 @@ export function handleDeclaratorRec(
   LVal: LVal,
   RVal: Expression,
   otherProps: OtherProps,
-  generator: (LVal: JS3ArrayPattern | JS3ObjectPattern | Identifier, RVal: null | JS3VariableDeclarator_init) => JS3AllowedBlockStatement,
+  generator: (LVal: JS3MemberExpression | JS3ArrayPattern | JS3ObjectPattern | Identifier, RVal: null | JS3VariableDeclarator_init) => JS3AllowedBlockStatement,
   ) {
   
   
@@ -333,6 +336,14 @@ export function handleDeclaratorRec(
     // RVal = JS3VariableDeclarator_init | null
     // 
     otherProps.others.holder.push(generator(LVal, fin_init))
+  } else if (isMemberExpression(LVal)) {
+    // 
+    // Second base case... this is only possible in case of assignment expressions...
+    // 
+    // LVal = (EXPR)*.ID
+    // RVal = JS3VariableDeclarator_init
+    // 
+    otherProps.others.holder.push(generator(handleMemberExpression(LVal, otherProps), fin_init))
   } else if (isArrayPattern(LVal)) {
     // 
     // ArrayPattern case...
@@ -567,12 +578,14 @@ export function handleDeclaratorRec(
       if (isObjectProperty(p)) {
         if (isJS3ObjectProperty(currTemp) && currTemp.value.type === "Identifier") {
           let tempVar = currTemp.value;
-
-          if (isObjectPattern(p.value) || isArrayPattern(p.value) || isAssignmentPattern(p.value)) {
+          // 
+          // Member expression is needed to support code like this...
+          // test262/test/language/expressions/assignment/destructuring/keyed-destructuring-property-reference-target-evaluation-order.js
+          // 
+          if (isMemberExpression(p.value) || isObjectPattern(p.value) || isArrayPattern(p.value) || isAssignmentPattern(p.value)) {
             // Recurse: (LVal: COMPLEX, RVal: TEMP)
             handleDeclaratorRec(p.value, tempVar, otherProps, generator);
           } else {
-            console.log(JSON.stringify(p))
             debugConfig.logger.throwJS3Error(`IMPOSSIBLE destructure objpattern reduction case... LVAL is ${p.value.type}`, [currTemp])
           }
         } else {
@@ -585,11 +598,13 @@ export function handleDeclaratorRec(
         if (currTemp.type === "RestElement" && currTemp.argument.type === "Identifier") {
           let tempVar = currTemp.argument;
 
-          if (isObjectPattern(p.argument) || isArrayPattern(p.argument) || isAssignmentPattern(p.argument)) {
+          // 
+          // Member expression is needed to support code like this...
+          // test262/test/language/expressions/assignment/dstr/obj-rest-to-property-with-setter.js
+          if (isMemberExpression(p.argument) || isObjectPattern(p.argument) || isArrayPattern(p.argument) || isAssignmentPattern(p.argument)) {
             // Recurse: (LVal: COMPLEX, RVal: TEMP)
             handleDeclaratorRec(p.argument, tempVar, otherProps, generator);
           } else {
-            console.log(currTemp)
             debugConfig.logger.throwJS3Error(`IMPOSSIBLE destructure objpattern reduction case-1... LVAL is ${p.argument.type}`, [currTemp])
           }
         } else {

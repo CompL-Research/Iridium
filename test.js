@@ -271,3 +271,27 @@
 // let k = ""
 // let { ["a" + k] : [a, b, c] = [1,2,3], d, ...e } = { a: undefined, d: 4, e: 11, f: 12, g: 13 }
 // console.log(a, b, c, d, e)
+
+
+// let a, b, c, d;
+// [a, b, c, d] = [1,2,3,4];
+// console.log(a,b,c,d);
+
+
+// let k = 1;
+// let a;
+// console.log(1 + ({["" + k]: a } = [1,2,3,4]))
+
+
+// let a = 12;
+// let b = 13;
+// let c = 14;
+// let d = 15;
+// let e = 1;
+// e *= b/c+d;
+// console.log(a,b,c,d,e)
+
+// const a = { duration: 50 };
+// a.speed ??= 25;
+// console.log(a.speed);
+
