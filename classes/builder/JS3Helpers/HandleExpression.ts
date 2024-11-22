@@ -1379,6 +1379,19 @@ export function handleLogicalExpression(node: LogicalExpression, otherProps: Oth
 }
 
 export function handleAssignmentExpression(node: AssignmentExpression, otherProps: OtherProps) {
+
+  // 
+  // There are two major cases, one where the LVal is allowed to be destructured and other where it
+  // is not.
+  // 
+  // Destructuring is only allowed for the "=" operator; this can reuse the reduction logic used for
+  // variable declaration
+  // 
+
+
+
+
+  
   // 2 fallthrough props, 2 restricted props
 
   let isMemberExpressionContext = false
@@ -1392,7 +1405,7 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
   } else if (isRestElement(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->RestElement");
   } else if (isAssignmentPattern(orig_left)) {
-    fin_left = orig_left
+    debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->AssignmentPattern");
   } else if (isArrayPattern(orig_left)) {
     fin_left = orig_left
   } else if (isObjectPattern(orig_left)) {

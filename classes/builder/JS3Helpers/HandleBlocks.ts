@@ -2,7 +2,7 @@
 
 import { BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, EmptyStatement, Expression, ExpressionStatement, ForInStatement, ForOfStatement, ForStatement, FunctionDeclaration, Identifier, IfStatement, isArrayPattern, isArrowFunctionExpression, isAssignmentPattern, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isBreakStatement, isCatchClause, isClassDeclaration, isClassExpression, isContinueStatement, isDebuggerStatement, isDecimalLiteral, isDeclareClass, isDeclaredPredicate, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isFunctionExpression, isIdentifier, isIfStatement, isImportDeclaration, isInferredPredicate, isInterfaceDeclaration, isLabeledStatement, isMemberExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectPattern, isObjectProperty, isOpaqueType, isPattern, isPrivateName, isRestElement, isReturnStatement, isStatement, isStringLiteral, isSwitchStatement, isThrowStatement, isTryStatement, isTSAsExpression, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSTypeAliasDeclaration, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTypeAlias, isTypeAnnotation, isTypeParameterDeclaration, isVariableDeclaration, isWhileStatement, isWithStatement, LabeledStatement, LVal, RestElement, restElement, ReturnStatement, Statement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement } from "@babel/types";
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { isJS3ObjectProperty, JS3AllowedBlockStatement, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3BreakStatement_label, JS3CatchClause_body, JS3ContinueStatement, JS3ContinueStatement_label, JS3DoWhileStatement, JS3DoWhileStatement_test, JS3EmptyStatement, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3ForInStatement, JS3ForInStatement_body, JS3ForInStatement_left, JS3ForInStatement_right, JS3ForOfStatement, JS3ForOfStatement_left, JS3ForOfStatement_right, JS3ForStatement, JS3ForStatement_body, JS3ForStatement_init, JS3ForStatement_test, JS3ForStatement_update, JS3FunctionDeclaration, JS3FunctionDeclaration_body, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3LabeledStatement, JS3LabeledStatement_body, JS3ObjectProperty, JS3ReturnStatement_argument, JS3SwitchCase, JS3SwitchCase_consequent, JS3SwitchCase_test, JS3SwitchStatement, JS3SwitchStatement_cases, JS3SwitchStatement_discriminant, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration_declarations, JS3VariableDeclarator_init, JS3WhileStatement, JS3WhileStatement_body, JS3WhileStatement_test, JS3WithStatement, JS3WithStatement_body, JS3WithStatement_object } from "./JS3Types.ts";
+import { isJS3ObjectProperty, JS3AllowedBlockStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3BreakStatement_label, JS3CatchClause_body, JS3ContinueStatement, JS3ContinueStatement_label, JS3DoWhileStatement, JS3DoWhileStatement_test, JS3EmptyStatement, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3ForInStatement, JS3ForInStatement_body, JS3ForInStatement_left, JS3ForInStatement_right, JS3ForOfStatement, JS3ForOfStatement_left, JS3ForOfStatement_right, JS3ForStatement, JS3ForStatement_body, JS3ForStatement_init, JS3ForStatement_test, JS3ForStatement_update, JS3FunctionDeclaration, JS3FunctionDeclaration_body, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3LabeledStatement, JS3LabeledStatement_body, JS3ObjectPattern, JS3ObjectProperty, JS3ReturnStatement_argument, JS3SwitchCase, JS3SwitchCase_consequent, JS3SwitchCase_test, JS3SwitchStatement, JS3SwitchStatement_cases, JS3SwitchStatement_discriminant, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration_declarations, JS3VariableDeclarator_init, JS3WhileStatement, JS3WhileStatement_body, JS3WhileStatement_test, JS3WithStatement, JS3WithStatement_body, JS3WithStatement_object } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
 import { handleArrowFunctionExpression, handleClassExpression, handleExpression, handleFunctionExpression, handleMemberExpression, lowerToAnonArrayExpr } from "./HandleExpression.ts";
@@ -286,20 +286,29 @@ export function handleVariableDeclaration(node: VariableDeclaration, otherProps:
   const updatedProps = { ...otherProps, others: { ...otherProps.others, holder } }
 
   for (const _arrProp of node.declarations) {
-    handleDeclaratorRec(node, updatedProps, _arrProp, _arrProp.id, _arrProp.init)
+    let generator = (LVal: JS3ArrayPattern | JS3ObjectPattern | Identifier, RVal: null | JS3VariableDeclarator_init) => {
+      let declarator = generateJS3VariableDeclarator(LVal, RVal, _arrProp)
+      return generateJS3VariableDeclaration([declarator], node)  
+    }
+    handleDeclaratorRec(_arrProp.id, _arrProp.init, updatedProps, generator)
   }
 
   otherProps.debugTrace.pop()
   return holder
 }
 
+// 
+// Take LVal, RVal, otherProps, f(ID | JS3ArrayPattern | JS3ObjectPattern,null | JS3VariableDeclarator_init) -> pushable
+// 
 
 export function handleDeclaratorRec(
-  parentNode: VariableDeclaration,
-  otherProps: OtherProps,
-  varDecl: VariableDeclarator,
   LVal: LVal,
-  RVal: Expression) {
+  RVal: Expression,
+  otherProps: OtherProps,
+  generator: (LVal: JS3ArrayPattern | JS3ObjectPattern | Identifier, RVal: null | JS3VariableDeclarator_init) => JS3AllowedBlockStatement,
+  ) {
+  
+  
   // Spill RVal
   let fin_init: JS3VariableDeclarator_init = null;
   if (isIdentifier(RVal) || isDecimalLiteral(RVal) || isBigIntLiteral(RVal) || isStringLiteral(RVal) || isNumericLiteral(RVal) || isNullLiteral(RVal) || isBooleanLiteral(RVal)) {
@@ -320,14 +329,10 @@ export function handleDeclaratorRec(
     // 
     // Base case...
     // 
-    // a = RVal
+    // LVal = ID
+    // RVal = JS3VariableDeclarator_init | null
     // 
-
-    const fin_declarations: JS3VariableDeclaration_declarations = new Array()
-    fin_declarations.push(generateJS3VariableDeclarator(LVal, fin_init, varDecl))
-
-    // (let|const|...) a = RVal
-    otherProps.others.holder.push(generateJS3VariableDeclaration(fin_declarations, parentNode))
+    otherProps.others.holder.push(generator(LVal, fin_init))
   } else if (isArrayPattern(LVal)) {
     // 
     // ArrayPattern case...
@@ -349,7 +354,7 @@ export function handleDeclaratorRec(
         temporaries.push(e);
         continue;
       }
-      let temporary = generateIdentifier(varDecl, otherProps.getNewTemporary("arraPat"))
+      let temporary = generateIdentifier(LVal, otherProps.getNewTemporary("arraPat"))
 
       if (isRestElement(e)) {
         // ...REST_ELEMENT
@@ -371,16 +376,10 @@ export function handleDeclaratorRec(
 
     // 2. Generate simplified assignment pattern
     // [a, b, t$3, ...c]
-    let assnPattern = generateJS3ArrayPatternfromBaseNode(temporaries, null, null, null, varDecl);
-
-    // 3. Generate Declarator
-    // [a, b, t$3, ...c] = [1,2,3,4]
-    let declarator = generateJS3VariableDeclarator(assnPattern, fin_init, varDecl);
-
-    // 4. Generate and spill declaration
-    // let|const... [a, b, t$3, ...c] = [1,2,3,4]
-    let declaration = generateJS3VariableDeclaration([declarator], parentNode)
-    otherProps.others.holder.push(declaration)
+    let assnPattern = generateJS3ArrayPatternfromBaseNode(temporaries, null, null, null, LVal);
+    
+    // 3. Call generator: VarDecl or Assn or other...
+    otherProps.others.holder.push(generator(assnPattern, fin_init))
 
     // 
     // Recursively solve cases that need to be reduced further
@@ -410,7 +409,7 @@ export function handleDeclaratorRec(
           // (let...) f(EXPR) = TEMP
           // 
           if (isRestElement(temporaryHolder) && isIdentifier(temporaryHolder.argument)) {
-            handleDeclaratorRec(parentNode, otherProps, varDecl, e, temporaryHolder.argument)
+            handleDeclaratorRec(e, temporaryHolder.argument, otherProps, generator)
           } else {
             debugConfig.logger.throwJS3Error("IMPOSSIBLE destructure pattern reduction case... expected rest element with Identifier", [temporaryHolder])
           }
@@ -422,7 +421,7 @@ export function handleDeclaratorRec(
         // (let...) f(COMPLEX_PATT) = TEMP
         // 
         if (isIdentifier(temporaryHolder)) {
-          handleDeclaratorRec(parentNode, otherProps, varDecl, e, temporaryHolder)
+          handleDeclaratorRec(e, temporaryHolder, otherProps, generator)
         } else {
           debugConfig.logger.throwJS3Error("IMPOSSIBLE destructure pattern reduction case... expected Identifier", [temporaryHolder])
         }
@@ -439,21 +438,21 @@ export function handleDeclaratorRec(
     // if (cond$res) { fin$res = ...right }
     // 
     // Recurse: 
-    //  (let...) left = fin$res
+    //  left = fin$res
     // 
 
-    let fin$res = generateIdentifier(varDecl, otherProps.getNewTemporary("assnPat"))
-    let cond$res = generateIdentifier(varDecl, otherProps.getNewTemporary("condRes"))
+    let fin$res = generateIdentifier(LVal, otherProps.getNewTemporary("assnPat"))
+    let cond$res = generateIdentifier(LVal, otherProps.getNewTemporary("condRes"))
 
     // let fin$res = RVal
-    let declarator = generateJS3VariableDeclaratorfromBaseNode(fin$res, fin_init, null, varDecl)
-    otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode([declarator], "let", null, parentNode))
+    let declarator = generateJS3VariableDeclaratorfromBaseNode(fin$res, fin_init, null, LVal)
+    otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode([declarator], "let", null, LVal))
 
     // fin$res === undefined
-    let binop = generateJS3BinaryExpressionfromBaseNode(fin$res, generateIdentifier(varDecl, "undefined"), "===", parentNode);
+    let binop = generateJS3BinaryExpressionfromBaseNode(fin$res, generateIdentifier(LVal, "undefined"), "===", LVal);
     // let cond$res = fin$res === undefined
-    let declaratorCondRes = generateJS3VariableDeclaratorfromBaseNode(cond$res, binop, null, varDecl)
-    otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode([declaratorCondRes], "let", null, parentNode))
+    let declaratorCondRes = generateJS3VariableDeclaratorfromBaseNode(cond$res, binop, null, LVal)
+    otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode([declaratorCondRes], "let", null, LVal))
 
     // Spill right into conseq
     let conseq : Array<JS3AllowedBlockStatement> = new Array()
@@ -461,15 +460,15 @@ export function handleDeclaratorRec(
 
     // rightspill$res = ...EXPR
     let rightspill$res = handleExpression(LVal.right, updatedProps)
-    conseq.push(generateJS3AssignmentExpressionfromBaseNode(fin$res, rightspill$res, "=", varDecl))  
+    conseq.push(generateJS3AssignmentExpressionfromBaseNode(fin$res, rightspill$res, "=", LVal))  
     
     // if (cond$res) { conseq }
-    let ifCond = generateJS3IfStatementfromBaseNode(cond$res, generateJS3BlockStatementfromBaseNode(conseq, [], parentNode), null, parentNode)
+    let ifCond = generateJS3IfStatementfromBaseNode(cond$res, generateJS3BlockStatementfromBaseNode(conseq, [], LVal), null, LVal)
     otherProps.others.holder.push(ifCond)
 
     // Recursive case
     // (let...) left = fin$res
-    handleDeclaratorRec(parentNode, otherProps, varDecl, LVal.left, fin$res)
+    handleDeclaratorRec(LVal.left, fin$res, otherProps, generator)
   } else if (isObjectPattern(LVal)) {
     // 
     // Object pattern case...
@@ -521,7 +520,7 @@ export function handleDeclaratorRec(
 
       reassigned.push(true)
 
-      let temporary = generateIdentifier(varDecl, otherProps.getNewTemporary("objPat"));
+      let temporary = generateIdentifier(LVal, otherProps.getNewTemporary("objPat"));
 
       if (isObjectProperty(p)) {
         if (isPrivateName(p.key)) {
@@ -547,14 +546,7 @@ export function handleDeclaratorRec(
     // { [t$1] : t$2, d, ...e }
     let objectPattern = generateJS3ObjectPattern(temporaries, LVal)
 
-    // 3. Generate Declarator
-    // { [t$1] : t$2, d, ...e } = fin_init
-    let declarator = generateJS3VariableDeclarator(objectPattern, fin_init, varDecl);
-
-    // 4. Generate and spill declaration
-    // let|const... [a, b, t$3, ...c] = [1,2,3,4]
-    let declaration = generateJS3VariableDeclaration([declarator], parentNode)
-    otherProps.others.holder.push(declaration)
+    otherProps.others.holder.push(generator(objectPattern, fin_init))
 
     // 
     // Recursively solve cases that need to be reduced further
@@ -578,7 +570,7 @@ export function handleDeclaratorRec(
 
           if (isObjectPattern(p.value) || isArrayPattern(p.value) || isAssignmentPattern(p.value)) {
             // Recurse: (LVal: COMPLEX, RVal: TEMP)
-            handleDeclaratorRec(parentNode, otherProps, varDecl, p.value, tempVar);
+            handleDeclaratorRec(p.value, tempVar, otherProps, generator);
           } else {
             console.log(JSON.stringify(p))
             debugConfig.logger.throwJS3Error(`IMPOSSIBLE destructure objpattern reduction case... LVAL is ${p.value.type}`, [currTemp])
@@ -595,7 +587,7 @@ export function handleDeclaratorRec(
 
           if (isObjectPattern(p.argument) || isArrayPattern(p.argument) || isAssignmentPattern(p.argument)) {
             // Recurse: (LVal: COMPLEX, RVal: TEMP)
-            handleDeclaratorRec(parentNode, otherProps, varDecl, p.argument, tempVar);
+            handleDeclaratorRec(p.argument, tempVar, otherProps, generator);
           } else {
             console.log(currTemp)
             debugConfig.logger.throwJS3Error(`IMPOSSIBLE destructure objpattern reduction case-1... LVAL is ${p.argument.type}`, [currTemp])
@@ -907,7 +899,7 @@ export function handleForInStatement(node: ForInStatement, otherProps: OtherProp
   } else if (isRestElement(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->RestElement");
   } else if (isAssignmentPattern(orig_left)) {
-    fin_left = orig_left
+    debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->AssignmentPattern");
   } else if (isArrayPattern(orig_left)) {
     fin_left = orig_left
   } else if (isObjectPattern(orig_left)) {
@@ -964,7 +956,7 @@ export function handleForOfStatement(node: ForOfStatement, otherProps: OtherProp
   } else if (isRestElement(orig_left)) {
     debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->RestElement");
   } else if (isAssignmentPattern(orig_left)) {
-    fin_left = orig_left
+    debugConfig.logger.throwJS3Error("TODO // unhandled ForOfStatement->left->AssignmentPattern");
   } else if (isArrayPattern(orig_left)) {
     fin_left = orig_left
   } else if (isObjectPattern(orig_left)) {
