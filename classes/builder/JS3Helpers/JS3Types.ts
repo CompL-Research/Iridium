@@ -1,4 +1,4 @@
-// Generated on 22/11/2024, 7:35:38 am, extended 65 interfaces 
+// Generated on 23/11/2024, 3:27:50 am, extended 65 interfaces 
 
 import { AssignmentPattern, ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DebuggerStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -128,7 +128,7 @@ export type JS3FunctionExpression_body = JS3BlockStatement;
 export type JS3FunctionExpression_predicate = undefined | null;
 export type JS3FunctionExpression_returnType = undefined | null;
 export type JS3FunctionExpression_typeParameters = undefined | null;
-export type JS3IfStatement_test = JS3CallExpression_callee;
+export type JS3IfStatement_test = Identifier;
 export type JS3IfStatement_consequent = JS3BlockStatement;
 export type JS3IfStatement_alternate = null | undefined | JS3BlockStatement;
 export type JS3LabeledStatement_body = JS3AllowedBlockStatement;
