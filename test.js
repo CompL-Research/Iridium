@@ -295,3 +295,8 @@
 // a.speed ??= 25;
 // console.log(a.speed);
 
+// export default function xx() {
+
+// }
+
+let { b, c: { d: e } } = undefined

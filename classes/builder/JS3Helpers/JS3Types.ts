@@ -1,4 +1,4 @@
-// Generated on 23/11/2024, 3:27:50 am, extended 65 interfaces 
+// Generated on 25/11/2024, 11:53:09 am, extended 66 interfaces 
 
 import { AssignmentPattern, ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DebuggerStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -12,6 +12,43 @@ export type JS3AssnInit = JS3Literals | JS3RegExpLiteral | JS3TemplateLiteral | 
 export type JS3AllowedProgStatement = JS3ImportDeclaration | JS3ExportDefaultDeclaration | JS3ExportNamedDeclaration | JS3ExportAllDeclaration | JS3AllowedBlockStatement;
 
 /// CUSTOM INTERFACES START
+
+// "JS3AssnObjectProperty" node is used to limit the RValues for Object pattern found 
+// variable assignment and assignment expressions.
+// 
+// Basically limits the Object Property value, { ID: EXPR } ==> { ID: ID }
+// 
+// Before:
+// let { b, c: { d: e } } = undefined
+// 
+// After:
+// let {
+//   b,
+//   c: objPat$1
+// } = undefined;
+// let {
+//   d: e
+// } = objPat$1;
+// 
+
+export type JS3AssnObjectProperty_key = Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | JS3PrivateName;
+export type JS3AssnObjectProperty_value = Identifier;
+export type JS3AssnObjectProperty_decorators = null;
+
+// @ts-ignore
+export interface JS3AssnObjectProperty extends ObjectProperty {
+  key: JS3AssnObjectProperty_key;
+  value: JS3AssnObjectProperty_value;
+  decorators: JS3AssnObjectProperty_decorators;
+  js3type: "JS3AssnObjectProperty";
+}
+
+// @ts-ignore
+export function isJS3AssnObjectProperty(node: any): node is JS3AssnObjectProperty {
+  // @ts-ignore
+  if (node && node.js3type === "JS3AssnObjectProperty") return true;
+  return false;
+}
 
 // 
 // "JS3AnonMemberExpression" is used to provide an anonymous namespace for function/arrow fn/classe expressions 
@@ -116,7 +153,7 @@ export type JS3ForStatement_init = JS3LoopDeclaration | JS3ContainedExprKey | nu
 export type JS3ForStatement_test = JS3ContainedExprKey | null;
 export type JS3ForStatement_update = JS3ContainedExprKey | null;
 export type JS3ForStatement_body = JS3BlockStatement;
-export type JS3FunctionDeclaration_id = null | undefined | Identifier;
+export type JS3FunctionDeclaration_id = Identifier;
 export type JS3FunctionDeclaration_params = Array<JS3AllowedFunctionArgs>;
 export type JS3FunctionDeclaration_body = JS3BlockStatement;
 export type JS3FunctionDeclaration_predicate = undefined | null;
@@ -151,6 +188,7 @@ export type JS3ObjectMethod_typeParameters = null;
 export type JS3ObjectProperty_key = Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | JS3PrivateName;
 export type JS3ObjectProperty_value = Identifier | JS3ClassExpression | JS3Literals | JS3ArrowFunctionExpression | JS3FunctionExpression;
 export type JS3ObjectProperty_decorators = null;
+export type JS3RestElement_argument = Identifier;
 export type JS3ReturnStatement_argument = undefined | null | Identifier;
 export type JS3SwitchCase_test = JS3ContainedExprKey | null;
 export type JS3SwitchCase_consequent = Array<JS3AllowedBlockStatement>;
@@ -169,7 +207,7 @@ export type JS3WhileStatement_test = JS3ContainedExprKey;
 export type JS3WhileStatement_body = JS3BlockStatement;
 export type JS3WithStatement_object = Identifier;
 export type JS3WithStatement_body = JS3BlockStatement;
-export type JS3ArrayPattern_elements = Array<Identifier | RestElement>;
+export type JS3ArrayPattern_elements = Array<Identifier | JS3RestElement>;
 export type JS3ArrowFunctionExpression_params = Array<JS3AllowedFunctionArgs>;
 export type JS3ArrowFunctionExpression_body = JS3BlockStatement;
 export type JS3ArrowFunctionExpression_predicate = null;
@@ -211,7 +249,7 @@ export type JS3ClassMethod_body = JS3BlockStatement;
 export type JS3ClassMethod_decorators = null;
 export type JS3ClassMethod_returnType = null;
 export type JS3ClassMethod_typeParameters = null;
-export type JS3ObjectPattern_properties = Array<JS3ObjectProperty | RestElement>;
+export type JS3ObjectPattern_properties = Array<JS3AssnObjectProperty | JS3RestElement>;
 export type JS3SpreadElement_argument = Identifier;
 export type JS3TaggedTemplateExpression_tag = JS3MemberExpression | Identifier;
 export type JS3TaggedTemplateExpression_quasi = JS3TemplateLiteral;
@@ -617,6 +655,19 @@ export interface JS3ObjectProperty extends ObjectProperty {
 export function isJS3ObjectProperty(node: any): node is JS3ObjectProperty {
   // @ts-ignore
   if (node && node.js3type === "JS3ObjectProperty") return true;
+  return false;
+}
+
+// @ts-ignore
+export interface JS3RestElement extends RestElement {
+  argument: JS3RestElement_argument;
+  js3type: "JS3RestElement";
+}
+
+// @ts-ignore
+export function isJS3RestElement(node: any): node is JS3RestElement {
+  // @ts-ignore
+  if (node && node.js3type === "JS3RestElement") return true;
   return false;
 }
 

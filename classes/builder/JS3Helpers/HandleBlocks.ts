@@ -2,11 +2,11 @@
 
 import { BlockStatement, BreakStatement, CatchClause, ContinueStatement, DoWhileStatement, EmptyStatement, Expression, ExpressionStatement, ForInStatement, ForOfStatement, ForStatement, FunctionDeclaration, Identifier, IfStatement, isArrayPattern, isArrowFunctionExpression, isAssignmentPattern, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isBreakStatement, isCatchClause, isClassDeclaration, isClassExpression, isContinueStatement, isDebuggerStatement, isDecimalLiteral, isDeclareClass, isDeclaredPredicate, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isDoWhileStatement, isEmptyStatement, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportNamedDeclaration, isExpression, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement, isFunctionDeclaration, isFunctionExpression, isIdentifier, isIfStatement, isImportDeclaration, isInferredPredicate, isInterfaceDeclaration, isLabeledStatement, isMemberExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectPattern, isObjectProperty, isOpaqueType, isPattern, isPrivateName, isRestElement, isReturnStatement, isStatement, isStringLiteral, isSwitchStatement, isThrowStatement, isTryStatement, isTSAsExpression, isTSDeclareFunction, isTSEnumDeclaration, isTSExportAssignment, isTSImportEqualsDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSNamespaceExportDeclaration, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSTypeAliasDeclaration, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTypeAlias, isTypeAnnotation, isTypeParameterDeclaration, isVariableDeclaration, isWhileStatement, isWithStatement, LabeledStatement, LVal, RestElement, restElement, ReturnStatement, Statement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement } from "@babel/types";
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { isJS3MemberExpression, isJS3ObjectProperty, JS3AllowedBlockStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3BreakStatement_label, JS3CatchClause_body, JS3ContinueStatement, JS3ContinueStatement_label, JS3DoWhileStatement, JS3DoWhileStatement_test, JS3EmptyStatement, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3ForInStatement, JS3ForInStatement_body, JS3ForInStatement_left, JS3ForInStatement_right, JS3ForOfStatement, JS3ForOfStatement_left, JS3ForOfStatement_right, JS3ForStatement, JS3ForStatement_body, JS3ForStatement_init, JS3ForStatement_test, JS3ForStatement_update, JS3FunctionDeclaration, JS3FunctionDeclaration_body, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3LabeledStatement, JS3LabeledStatement_body, JS3MemberExpression, JS3ObjectPattern, JS3ObjectProperty, JS3ReturnStatement_argument, JS3SwitchCase, JS3SwitchCase_consequent, JS3SwitchCase_test, JS3SwitchStatement, JS3SwitchStatement_cases, JS3SwitchStatement_discriminant, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration_declarations, JS3VariableDeclarator_init, JS3WhileStatement, JS3WhileStatement_body, JS3WhileStatement_test, JS3WithStatement, JS3WithStatement_body, JS3WithStatement_object } from "./JS3Types.ts";
+import { isJS3AssnObjectProperty, isJS3MemberExpression, isJS3ObjectProperty, JS3AllowedBlockStatement, JS3ArrayPattern, JS3AssnObjectProperty, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3BreakStatement_label, JS3CatchClause_body, JS3ContinueStatement, JS3ContinueStatement_label, JS3DoWhileStatement, JS3DoWhileStatement_test, JS3EmptyStatement, JS3ExpressionStatement, JS3ExpressionStatement_expression, JS3ForInStatement, JS3ForInStatement_body, JS3ForInStatement_left, JS3ForInStatement_right, JS3ForOfStatement, JS3ForOfStatement_left, JS3ForOfStatement_right, JS3ForStatement, JS3ForStatement_body, JS3ForStatement_init, JS3ForStatement_test, JS3ForStatement_update, JS3FunctionDeclaration, JS3FunctionDeclaration_body, JS3FunctionDeclaration_id, JS3FunctionDeclaration_params, JS3FunctionDeclaration_predicate, JS3FunctionDeclaration_returnType, JS3FunctionDeclaration_typeParameters, JS3IfStatement_alternate, JS3IfStatement_consequent, JS3IfStatement_test, JS3LabeledStatement, JS3LabeledStatement_body, JS3MemberExpression, JS3ObjectPattern, JS3ObjectProperty, JS3RestElement, JS3ReturnStatement_argument, JS3SwitchCase, JS3SwitchCase_consequent, JS3SwitchCase_test, JS3SwitchStatement, JS3SwitchStatement_cases, JS3SwitchStatement_discriminant, JS3ThrowStatement_argument, JS3TryStatement_block, JS3TryStatement_finalizer, JS3TryStatement_handler, JS3VariableDeclaration_declarations, JS3VariableDeclarator_init, JS3WhileStatement, JS3WhileStatement_body, JS3WhileStatement_test, JS3WithStatement, JS3WithStatement_body, JS3WithStatement_object } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
 import { handleArrowFunctionExpression, handleClassExpression, handleExpression, handleFunctionExpression, handleMemberExpression, lowerToAnonArrayExpr } from "./HandleExpression.ts";
-import { generateBaseNodeFrom, generateIdentifier, generateJS3ArrayPatternfromBaseNode, generateJS3AssignmentExpressionfromBaseNode, generateJS3BinaryExpressionfromBaseNode, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3CatchClause, generateJS3ContinueStatement, generateJS3DebuggerStatement, generateJS3DoWhileStatement, generateJS3EmptyStatement, generateJS3ExpressionStatement, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3LabeledStatement, generateJS3ObjectPattern, generateJS3ObjectProperty, generateJS3PrivateName, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclarator, generateJS3VariableDeclaratorfromBaseNode, generateJS3WhileStatement, generateJS3WithStatement } from "./JS3Constructors.ts";
+import { generateBaseNodeFrom, generateIdentifier, generateJS3ArrayPatternfromBaseNode, generateJS3AssignmentExpressionfromBaseNode, generateJS3AssnObjectPropertyfromBaseNode, generateJS3BinaryExpressionfromBaseNode, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3CatchClause, generateJS3ContinueStatement, generateJS3DebuggerStatement, generateJS3DoWhileStatement, generateJS3EmptyStatement, generateJS3ExpressionStatement, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3LabeledStatement, generateJS3ObjectExpressionfromBaseNode, generateJS3ObjectPattern, generateJS3ObjectProperty, generateJS3PrivateName, generateJS3RestElement, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclarator, generateJS3VariableDeclaratorfromBaseNode, generateJS3WhileStatement, generateJS3WithStatement } from "./JS3Constructors.ts";
 
 import { generateCommentLine } from "#utils";
 import assert from 'node:assert';
@@ -353,7 +353,7 @@ export function handleDeclaratorRec(
 
     let elements = LVal.elements
 
-    let temporaries: Array<Identifier | RestElement> = []
+    let temporaries: Array<Identifier | JS3RestElement> = []
 
     // 1. Generate temporaries for each element
     // [a, b, { x }, ...c] = RVal
@@ -373,11 +373,11 @@ export function handleDeclaratorRec(
         if (isIdentifier(e.argument)) {
           // CASE: 1
           // ...ID
-          temporaries.push(e)
+          temporaries.push(generateJS3RestElement(e.argument, e))
         } else {
           // CASE: 2
           // ...EXPR
-          temporaries.push(restElement(temporary))
+          temporaries.push(generateJS3RestElement(temporary, e))
         }
       } else {
         // ...COMPLEX_PATT
@@ -493,7 +493,7 @@ export function handleDeclaratorRec(
     // 
 
     let properties = LVal.properties
-    let temporaries: Array<JS3ObjectProperty | RestElement> = []
+    let temporaries: Array<JS3AssnObjectProperty | JS3RestElement> = []
 
     // 1. Generate temporaries for each property
     // let { ["a" + k] : [a, b, c] = [1,2,3], d, ...e } = RVal
@@ -511,11 +511,11 @@ export function handleDeclaratorRec(
       if (isObjectProperty(p) && isIdentifier(p.value)) {
         reassigned.push(false);
         if (isTrivialKey(p.key)) {
-          temporaries.push(generateJS3ObjectProperty(p.key, p.value, null, p));
+          temporaries.push(generateJS3AssnObjectPropertyfromBaseNode(p.key, p.value, null, p.computed, p.shorthand, p)); // p.key, p.value, null, p
         } else if (isPrivateName(p.key)) {
-          temporaries.push(generateJS3ObjectProperty(generateJS3PrivateName(p.key), p.value, null, p));
+          temporaries.push(generateJS3AssnObjectPropertyfromBaseNode(generateJS3PrivateName(p.key), p.value, null, p.computed, p.shorthand, p)); // generateJS3PrivateName(p.key), p.value, null, p
         } else {
-          temporaries.push(generateJS3ObjectProperty(handleExpression(p.key, otherProps), p.value, null, p));
+          temporaries.push(generateJS3AssnObjectPropertyfromBaseNode(handleExpression(p.key, otherProps), p.value, null, p.computed, p.shorthand, p)); // handleExpression(p.key, otherProps), p.value, null, p
         }
         continue;
       }
@@ -525,7 +525,7 @@ export function handleDeclaratorRec(
       // 
       if (isRestElement(p) && isIdentifier(p.argument)) {
         reassigned.push(false)
-        temporaries.push(p);
+        temporaries.push(generateJS3RestElement(p.argument, p));
         continue;
       }
 
@@ -534,22 +534,29 @@ export function handleDeclaratorRec(
       let temporary = generateIdentifier(LVal, otherProps.getNewTemporary("objPat"));
 
       if (isObjectProperty(p)) {
-        if (isPrivateName(p.key)) {
+
+        if (isTrivialKey(p.key)) {
+          // 
+          // { ID : COMPLEX }   -> { ID : TEMP }
+          // 
+          temporaries.push(generateJS3AssnObjectPropertyfromBaseNode(p.key, temporary, null, p.computed, p.shorthand, p)) // p.key, temporary, null, p
+
+        } else if (isPrivateName(p.key)) {
           // 
           // { #PVT : COMPLEX } -> { #PVT : TEMP }
           // 
-          temporaries.push(generateJS3ObjectProperty(generateJS3PrivateName(p.key), temporary, null, p))
+          temporaries.push(generateJS3AssnObjectPropertyfromBaseNode(generateJS3PrivateName(p.key), temporary, null, p.computed, p.shorthand, p)) // generateJS3PrivateName(p.key), temporary, null, p
         } else {
           // 
-          // { ID : COMPLEX } -> { ID : TEMP }
+          // { EXPR : COMPLEX } -> { ID : TEMP }
           // 
-          temporaries.push(generateJS3ObjectProperty(handleExpression(p.key, otherProps), temporary, null, p))
+          temporaries.push(generateJS3AssnObjectPropertyfromBaseNode(handleExpression(p.key, otherProps), temporary, null, p.computed, p.shorthand, p)) // handleExpression(p.key, otherProps), temporary, null, p
         }
       } else {
         // 
-        // { ...COMPLEX } -> { ...TEMP }
+        // { ...COMPLEX }       -> { ...TEMP }
         // 
-        temporaries.push(restElement(temporary))
+        temporaries.push(generateJS3RestElement(temporary, p))
       }
     }
 
@@ -576,7 +583,7 @@ export function handleDeclaratorRec(
       
       
       if (isObjectProperty(p)) {
-        if (isJS3ObjectProperty(currTemp) && currTemp.value.type === "Identifier") {
+        if (isJS3AssnObjectProperty(currTemp) && currTemp.value.type === "Identifier") {
           let tempVar = currTemp.value;
           // 
           // Member expression is needed to support code like this...
@@ -744,9 +751,11 @@ export function handleThrowStatement(node: ThrowStatement, otherProps: OtherProp
 export function handleFunctionDeclaration(node: FunctionDeclaration, otherProps: OtherProps): JS3FunctionDeclaration {
   // 4 fallthrough props, 6 restricted props
   let orig_id = node.id; // Handling prop id
-  let fin_id: JS3FunctionDeclaration_id = null; // Handling prop id
+  let fin_id: JS3FunctionDeclaration_id; // Handling prop id
   if (isIdentifier(orig_id)) {
     fin_id = orig_id
+  } else {
+    debugConfig.logger.throwJS3Error("TODO // nameless FunctionDeclaration do not exist in JS3");
   }
 
   let orig_params = node.params; // Handling prop params
