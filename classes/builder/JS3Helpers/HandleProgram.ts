@@ -1,7 +1,7 @@
 // Generated on 6/8/2024, 10:15:01 am, generated 1 handlers 
-import { ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ExportNamespaceSpecifier, ExportSpecifier, ImportDeclaration, Program, isArrowFunctionExpression, isClassDeclaration, isClassExpression, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportDefaultSpecifier, isExportNamedDeclaration, isExportNamespaceSpecifier, isExportSpecifier, isExpression, isExpressionStatement, isFunctionDeclaration, isFunctionExpression, isIdentifier, isImportAttribute, isImportDeclaration, isInterfaceDeclaration, isOpaqueType, isTSDeclareFunction, isTSEnumDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration } from "@babel/types";
+import { ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ExportNamespaceSpecifier, ExportSpecifier, ImportDeclaration, Program, importSpecifier, isArrowFunctionExpression, isClassDeclaration, isClassExpression, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportDefaultSpecifier, isExportNamedDeclaration, isExportNamespaceSpecifier, isExportSpecifier, isExpression, isExpressionStatement, isFunctionDeclaration, isFunctionExpression, isIdentifier, isImportAttribute, isImportDeclaration, isImportDefaultSpecifier, isInterfaceDeclaration, isInterpreterDirective, isOpaqueType, isTSDeclareFunction, isTSEnumDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration } from "@babel/types";
 import { generateIdentifier, generateJS3ExportAllDeclaration, generateJS3ExportDefaultDeclaration, generateJS3ExportNamedDeclaration, generateJS3ExportNamespaceSpecifier, generateJS3ExportSpecifier, generateJS3ExportSpecifierfromBaseNode, generateJS3ImportDeclaration, generateJS3Program, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "./JS3Constructors.ts";
-import { isJS3VariableDeclaration, JS3AllowedBlockStatement, JS3ExportAllDeclaration, JS3ExportAllDeclaration_assertions, JS3ExportAllDeclaration_attributes, JS3ExportDefaultDeclaration_declaration, JS3ExportNamedDeclaration_assertions, JS3ExportNamedDeclaration_attributes, JS3ExportNamedDeclaration_specifiers, JS3ExportNamespaceSpecifier, JS3ExportSpecifier, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body, JS3VariableDeclaration } from "./JS3Types.ts";
+import { isJS3VariableDeclaration, JS3AllowedBlockStatement, JS3ExportAllDeclaration, JS3ExportAllDeclaration_assertions, JS3ExportAllDeclaration_attributes, JS3ExportDefaultDeclaration_declaration, JS3ExportNamedDeclaration_assertions, JS3ExportNamedDeclaration_attributes, JS3ExportNamedDeclaration_specifiers, JS3ExportNamespaceSpecifier, JS3ExportSpecifier, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body, JS3Program_interpreter, JS3VariableDeclaration } from "./JS3Types.ts";
 
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
 
@@ -60,7 +60,14 @@ export function handleProgram(node: Program, otherProps: OtherProps): JS3Program
       // ========================================================================================
     }
   }
-  let result: JS3Program = generateJS3Program(fin_body, node);
+
+  let orig_interpreter = node.interpreter; // Handling prop interpreter
+  let fin_interpreter : JS3Program_interpreter = null; // Handling prop interpreter
+  if(isInterpreterDirective (orig_interpreter)) {
+    debugConfig.logger.throwJS3Error("TODO // unhandled Program->interpreter->InterpreterDirective");
+  } 
+
+  let result: JS3Program = generateJS3Program(fin_body, fin_interpreter, node);
   otherProps.debugTrace.pop()
   return result
 }
@@ -112,8 +119,19 @@ export function handleImportDeclaration(node: ImportDeclaration, otherProps: Oth
       duplicatedNode.trailingComments = []
       duplicatedNode.trailingComments.push(generateCommentLine(resolvedPath ? " Resolved: " + resolvedPath : " Unresolved"))
 
-      // We dont care about the kind of specifier, only one per node is the restriction
-      duplicatedNode.specifiers.push(_arrProp);
+      // 
+      // If the specifier is ImportDefaultSpecifier we make it a ImportSpecifier
+      // Basically, 
+      //   import x from "source" -> import { default as x } from "source";
+      // 
+
+      if (isImportDefaultSpecifier(_arrProp)) {
+        duplicatedNode.specifiers.push(importSpecifier(_arrProp.local, generateIdentifier(_arrProp, "default")));
+      } else {
+        duplicatedNode.specifiers.push(_arrProp);
+      }
+
+      
 
       // Add duplicated node to the resultArray
       (otherProps.others.holder as JS3Program_body).push(duplicatedNode);

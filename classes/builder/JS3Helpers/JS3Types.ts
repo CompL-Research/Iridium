@@ -1,8 +1,8 @@
-// Generated on 25/11/2024, 11:53:09 am, extended 66 interfaces 
+// Generated on 26/11/2024, 9:22:00 am, extended 65 interfaces 
 
 import { AssignmentPattern, ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DebuggerStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
-export type JS3AllowedBlockStatement = JS3DebuggerStatement | JS3WithStatement | JS3VariableDeclaration | JS3ReturnStatement | JS3ExpressionStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement | JS3FunctionDeclaration | JS3AssignmentExpression | JS3ClassDeclaration | JS3EmptyStatement | JS3WhileStatement | JS3BreakStatement | JS3ContinueStatement | JS3BlockStatement | JS3ForInStatement | JS3LabeledStatement | JS3ForStatement | JS3DoWhileStatement | JS3SwitchStatement | JS3ForOfStatement;
+export type JS3AllowedBlockStatement = JS3DebuggerStatement | JS3WithStatement | JS3VariableDeclaration | JS3ReturnStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement | JS3FunctionDeclaration | JS3AssignmentExpression | JS3ClassDeclaration | JS3EmptyStatement | JS3WhileStatement | JS3BreakStatement | JS3ContinueStatement | JS3BlockStatement | JS3ForInStatement | JS3LabeledStatement | JS3ForStatement | JS3DoWhileStatement | JS3SwitchStatement | JS3ForOfStatement;
 export type JS3Literals = DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral;
 export type JS3ContainedExprKey = Identifier | JS3YieldExpression | JS3CallExpression | JS3Literals | JS3AwaitExpression;
 export type JS3AllowedFunctionArgs = Identifier | Pattern | RestElement;
@@ -144,7 +144,6 @@ export type JS3CatchClause_body = JS3BlockStatement;
 export type JS3ContinueStatement_label = Identifier | null;
 export type JS3DoWhileStatement_test = JS3ContainedExprKey;
 export type JS3DoWhileStatement_body = JS3BlockStatement;
-export type JS3ExpressionStatement_expression = JS3AssignmentExpression | JS3CallExpression | Identifier;
 export type JS3File_program = JS3Program;
 export type JS3ForInStatement_left = JS3LoopDeclaration | JS3MemberExpression | ArrayPattern | ObjectPattern | Identifier;
 export type JS3ForInStatement_right = Identifier;
@@ -178,6 +177,7 @@ export type JS3NewExpression_arguments = Array<Identifier | SpreadElement | Argu
 export type JS3NewExpression_typeArguments = null;
 export type JS3NewExpression_typeParameters = null;
 export type JS3Program_body = Array< JS3AllowedProgStatement >;
+export type JS3Program_interpreter = null;
 export type JS3ObjectExpression_properties = Array<JS3ObjectMethod | JS3ObjectProperty | JS3SpreadElement>;
 export type JS3ObjectMethod_key = Identifier | StringLiteral | NumericLiteral | BigIntLiteral;
 export type JS3ObjectMethod_params = Array<JS3AllowedFunctionArgs>;
@@ -221,6 +221,7 @@ export type JS3ClassExpression_implements = null;
 export type JS3ClassExpression_mixins = null;
 export type JS3ClassExpression_superTypeParameters = null;
 export type JS3ClassExpression_typeParameters = null;
+export type JS3ClassDeclaration_id = Identifier;
 export type JS3ClassDeclaration_superClass = null | undefined | JS3ContainedExprKey;
 export type JS3ClassDeclaration_body = JS3ClassBody;
 export type JS3ClassDeclaration_decorators = null;
@@ -238,7 +239,7 @@ export type JS3ExportNamedDeclaration_attributes = null;
 export type JS3ForOfStatement_left = JS3LoopDeclaration | JS3MemberExpression | ArrayPattern | ObjectPattern | Identifier;
 export type JS3ForOfStatement_right = Identifier;
 export type JS3ForOfStatement_body = JS3BlockStatement;
-export type JS3ImportDeclaration_specifiers = Array<ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier>;
+export type JS3ImportDeclaration_specifiers = Array<ImportSpecifier | ImportNamespaceSpecifier>;
 export type JS3ImportDeclaration_assertions = undefined | null;
 export type JS3ImportDeclaration_attributes = undefined | null;
 export type JS3ImportExpression_source = Identifier;
@@ -423,19 +424,6 @@ export function isJS3EmptyStatement(node: any): node is JS3EmptyStatement {
 }
 
 // @ts-ignore
-export interface JS3ExpressionStatement extends ExpressionStatement {
-  expression: JS3ExpressionStatement_expression;
-  js3type: "JS3ExpressionStatement";
-}
-
-// @ts-ignore
-export function isJS3ExpressionStatement(node: any): node is JS3ExpressionStatement {
-  // @ts-ignore
-  if (node && node.js3type === "JS3ExpressionStatement") return true;
-  return false;
-}
-
-// @ts-ignore
 export interface JS3File extends File {
   program: JS3File_program;
   js3type: "JS3File";
@@ -602,6 +590,7 @@ export function isJS3NewExpression(node: any): node is JS3NewExpression {
 // @ts-ignore
 export interface JS3Program extends Program {
   body: JS3Program_body;
+  interpreter: JS3Program_interpreter;
   js3type: "JS3Program";
 }
 
@@ -885,6 +874,7 @@ export function isJS3ClassExpression(node: any): node is JS3ClassExpression {
 
 // @ts-ignore
 export interface JS3ClassDeclaration extends ClassDeclaration {
+  id: JS3ClassDeclaration_id;
   superClass: JS3ClassDeclaration_superClass;
   body: JS3ClassDeclaration_body;
   decorators: JS3ClassDeclaration_decorators;
