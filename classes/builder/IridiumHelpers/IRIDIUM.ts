@@ -1,12 +1,14 @@
-import { isJS3ArrayPattern, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3ImportDeclaration, isJS3ObjectPattern, JS3AllowedProgStatement, JS3DebuggerStatement, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3ImportDeclaration, JS3Program, JS3ReturnStatement, JS3ThrowStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
-import { BB, ModuleBB, ScriptBB } from "./BB.ts";
 import debugConfig from "#debugConfig";
-import { IS_AExport, IS_AImport, IS_BExport, IS_BImport, IS_CExport, IS_CImport, IS_DExport } from "./ALL_IS/IS_Imports_Exports.ts";
-import { IV_StringLiteral } from "./ALL_RVal/IV_StringLiteral.ts";
-import { isExportDefaultDeclaration, isIdentifier, isImportNamespaceSpecifier, isImportSpecifier, isStringLiteral } from "@babel/types"
-import { IV_Identifer } from "./ALL_RVal/IV_Identifier.ts";
+import { isIdentifier, isImportSpecifier, isStringLiteral } from "@babel/types";
+import { isJS3ArrayPattern, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3ImportDeclaration, isJS3ObjectPattern, isJS3ReturnStatement, isJS3ThrowStatement, isJS3VariableDeclaration, JS3AllowedProgStatement, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3File, JS3FunctionDeclaration, JS3ImportDeclaration, JS3Program, JS3ReturnStatement, JS3ThrowStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
 import { IS_Debugger, IS_Return, IS_Throw } from "./ALL_IS/IS_Debugger_Return_Throw.ts";
+import { IS_FunDecl } from "./ALL_IS/IS_FunDecl.ts";
+import { IS_AExport, IS_AImport, IS_BExport, IS_BImport, IS_CExport, IS_CImport, IS_DExport, IS_EExport } from "./ALL_IS/IS_Imports_Exports.ts";
 import { IS_ArrPatVarDecl, IS_ObjPatVarDecl, IS_SimpleVarDecl } from "./ALL_IS/IS_VarDecl.ts";
+import { IV_Identifer } from "./ALL_RVal/IV_Identifier.ts";
+import { IV_StringLiteral } from "./ALL_RVal/IV_StringLiteral.ts";
+import { BB, FunctionBB, ModuleBB, ScriptBB } from "./BB.ts";
+import { I_File } from "./I_GENERAL/I_File.ts";
 
 export class IRIDIUM_FG {
   bb: BB
@@ -21,16 +23,22 @@ export default class IRIDIUM {
 
   errors: Array<IRI_ERROR>
 
+  // Static Constructor...
+  static create(file: JS3File) {
+    return new I_File(file)
+  }
+
   constructor(node: JS3Program) {
     this.node = node
+    this.errors = []
     this.initialize();
   }
 
   initialize() {
     if (this.node.sourceType === "module") {
-      this.setCurrentBB(new ModuleBB());
+      this.setCurrentBB(new ModuleBB(this.node));
     } else {
-      this.setCurrentBB(new ScriptBB());
+      this.setCurrentBB(new ScriptBB(this.node));
     }
   }
 
@@ -42,6 +50,17 @@ export default class IRIDIUM {
     if      (isJS3ImportDeclaration(stmt))        this.handleJS3ImportDeclaration(stmt)
     else if (isJS3ExportDefaultDeclaration(stmt)) this.handleJS3ExportDefaultDeclaration(stmt)
     else if (isJS3ExportNamedDeclaration(stmt))   this.handleJS3ExportNamedDeclaration(stmt)
+    else if (isJS3ExportAllDeclaration(stmt))     this.handleJS3ExportAllDeclaration(stmt)
+
+    else if (isJS3DebuggerStatement(stmt))        this.handleJS3DebuggerStatement(stmt)
+    else if (isJS3ReturnStatement(stmt))          this.handleJS3ReturnStatement(stmt)
+    else if (isJS3ThrowStatement(stmt))           this.handleJS3ThrowStatement(stmt)
+
+    else if (isJS3VariableDeclaration(stmt))      this.handleJS3VariableDeclaration(stmt)
+
+    else if (isJS3FunctionDeclaration(stmt))      this.handleJS3FunctionDeclaration(stmt)
+    
+    else debugConfig.logger.throwIriError(`IRIDIUM: Unhandled Statement ${stmt.type}, ${stmt.js3type}`)
   }
 
   handleJS3ProgramBody(body: Array<JS3AllowedProgStatement>) {
@@ -57,10 +76,26 @@ export default class IRIDIUM {
     return body
   }
 
+  // *********************** Iridium_FunctionDeclaration *********************** 
+  
+  handleJS3FunctionDeclaration(stmt: JS3FunctionDeclaration) {
+    let curr = this.getCurrentBB()
+
+    // Lower function body
+    let funBB = new FunctionBB()
+    this.setCurrentBB(funBB)
+    this.handleJS3AllowedProgStatement(stmt.body)
+
+    this.setCurrentBB(curr)
+    curr.statements.push(new IS_FunDecl(stmt, funBB))
+  }
+
   // *********************** Iridium_VariableDeclarations ***********************  
 
   handleJS3VariableDeclaration(stmt: JS3VariableDeclaration) {
     let curr = this.getCurrentBB()
+
+    
 
     // Assert that only one specifier exists
     if (stmt.kind === "using" || stmt.kind === "await using") {
@@ -70,7 +105,7 @@ export default class IRIDIUM {
     }
 
     // Assert that only one specifier exists
-    if (stmt.declarations.length === 1) {
+    if (stmt.declarations.length !== 1) {
       this.errors.push(new JS3_ASSERTION_FAILED("JS3VariableDeclaration: expecting exactly one declaration in JS3", [stmt]))
       debugConfig.logger.throwIriError("JS3VariableDeclaration: expecting exactly one declaration in JS3")
       return;
@@ -101,6 +136,7 @@ export default class IRIDIUM {
     // case c.
     // KIND { TRIV_KEY: ID, ...ID } = RVal
     if (isJS3ObjectPattern(declaration.id)) {
+      
       let LVal = declaration.id
       let RVal = new IV_StringLiteral(undefined, "TODO") // TODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODO
       curr.statements.push(new IS_ObjPatVarDecl(stmt, KIND, LVal, RVal))
@@ -150,7 +186,7 @@ export default class IRIDIUM {
     }
 
     // Assert that only one specifier exists
-    if (stmt.specifiers.length !== 0) {
+    if (stmt.specifiers.length !== 1) {
       this.errors.push(new JS3_ASSERTION_FAILED("JS3ImportDeclaration: Expected a single specifier in JS3", [stmt]))
       debugConfig.logger.throwIriError("JS3ImportDeclaration: Expected a single specifier in JS3")
       return;
@@ -193,7 +229,7 @@ export default class IRIDIUM {
     let curr = this.getCurrentBB()
 
     // Assert that only one specifier exists
-    if (stmt.specifiers.length !== 0) {
+    if (stmt.specifiers.length !== 1) {
       this.errors.push(new JS3_ASSERTION_FAILED("JS3ExportNamedDeclaration: Expected a single specifier in JS3", [stmt]))
       debugConfig.logger.throwIriError("JS3ExportNamedDeclaration: Expected a single specifier in JS3")
       return;
@@ -243,6 +279,12 @@ export default class IRIDIUM {
     debugConfig.logger.throwIriError("JS3ExportNamedDeclaration: UNHANDLED")
     return;
 
+  }
+
+  handleJS3ExportAllDeclaration(stmt: JS3ExportAllDeclaration) {
+    let curr = this.getCurrentBB()
+    let FROM = new IV_StringLiteral(stmt.source, stmt.source.value)
+    curr.statements.push(new IS_EExport(stmt, FROM))
   }
 }
 

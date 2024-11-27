@@ -1,5 +1,4 @@
 import { JS3File, JS3Program } from "classes/builder/JS3Helpers/JS3Types.ts";
-import { ALL_IS } from "../ALL_IS/ALL_IS.ts";
 import IRIDIUM, { IRIDIUM_FG } from "../IRIDIUM.ts";
 
 
@@ -11,6 +10,13 @@ export class I_File {
   constructor(node: JS3File) {
     this.node = node;
     this.program = new I_Program(node.program)
+  }
+
+  toString(space = 0) {
+    let stmts = []
+    stmts.push(`${" ".repeat(space)}I_File:`)
+    stmts.push(this.program.toString(space + 2))
+    return stmts.join("\n")
   }
 }
 
@@ -33,6 +39,13 @@ export class I_Program {
     this.body = builder.build()
     this.directives = directives
     this.sourceType = node.sourceType
+  }
+
+  toString(space = 0) {
+    let stmts = []
+    stmts.push(`${" ".repeat(space)}I_Program:`)
+    stmts.push(this.body.bb.toString(space + 2))
+    return stmts.join("\n")
   }
 
 }

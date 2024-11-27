@@ -15,7 +15,7 @@ export function generateCommentLine(comment: string): CommentLine {
 export function resolveModuleImport(source: string, absoluteFilePath: string, projectBasePath: string): string | undefined {
   let nodeResolutionError
   // Try resolving using node.resolve
-  const command = `node -e "process.stdout.write(require.resolve('${source}', { paths: [ '${path.dirname(absoluteFilePath)}' ] }))"`
+  const command = `node -e "process.stdout.write(require.resolve('${source}', { paths: [ '${path.dirname(absoluteFilePath)}' ] }))" 2>/dev/null`
   try {
     
     // Execute the command synchronously with the specified working directory

@@ -5,4 +5,11 @@ export class ALL_RVal {
   constructor(node: JS3AssnInit | undefined) {
     this.node = node
   }
+
+  toString(space = 0) {
+    if (this.node) {
+      return `${" ".repeat(space)}RVAL_TODO(${this.node.type})`; 
+    }
+    return `${" ".repeat(space)}RVAL_TODO(UKN)`;
+  }
 }

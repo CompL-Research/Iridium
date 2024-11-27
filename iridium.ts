@@ -6,12 +6,13 @@ import path from 'path'
 import { Server } from "socket.io"
 
 import debugConfig from "#debugConfig"
+import { I_File } from 'classes/builder/IridiumHelpers/I_GENERAL/I_File.ts'
 import JS3Builder from 'classes/builder/JS3Builder.ts'
 import { ProjectFile } from 'classes/ProjectFile.ts'
 import { Project } from './classes/Project.ts'
-import { projectStats } from './configs/projectStats.ts'
 import { analyzeUsageInfo, js3UsageInfo, printAnalyzeUsage, printDefaultUsage, printIRIUsage, printJS3Usage } from './configs/printUsage.ts'
-import { IridiumBuilder } from 'classes/builder/IridiumBuilder.ts'
+import { projectStats } from './configs/projectStats.ts'
+import IRIDIUM from 'classes/builder/IridiumHelpers/IRIDIUM.ts'
 
 
 const VERSION = "0.3a"
@@ -147,7 +148,7 @@ function js3(filePath) {
     console.log(builder.generatedCode)
     process.exit(0)
   } catch (e) {
-    console.error("Failed to generated JS3: ", e)
+    console.error("Failed to generate JS3: ", e)
     process.exit(1)
   }
 }
@@ -166,14 +167,11 @@ function iri(filePath) {
       js3Builder.saveGeneratedFile()
     }
 
-    
-    
-    const iriBuilder = new IridiumBuilder(js3Builder.generatedProgram)
-    iriBuilder.build()
-    console.log(iriBuilder.toString())
+    const ir = IRIDIUM.create(js3Builder.generatedProgram)
+    console.log(ir.toString())
     process.exit(0)
   } catch (e) {
-    console.error("Failed to generated JS3: ", e)
+    console.error("Failed to generate Iridium: ", e)
     process.exit(1)
   }
 }
@@ -310,6 +308,7 @@ if (mainCommand === 'analyze') {
     process.exit(1)
   }
   debugConfig.throwJS3Errors = true
+  debugConfig.throwIRIErrors = true
   if (argv.length > 0) {
     const options = commandLineArgs(js3UsageInfo[1].optionList, { argv })
     if ("outputs-path" in options) {

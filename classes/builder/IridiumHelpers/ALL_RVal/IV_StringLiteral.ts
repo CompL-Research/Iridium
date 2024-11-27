@@ -7,4 +7,8 @@ export class IV_StringLiteral extends ALL_RVal {
     super(node);
     this.value = value
   }
+
+  toString() {
+    return `"${this.value}"`
+  }
 }

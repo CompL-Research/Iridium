@@ -5,4 +5,8 @@ export class ALL_IS {
   constructor(node: JS3AllowedProgStatement | undefined) {
     this.node = node
   }
+
+  toString(space = 0) {
+    throw new Error("ALL_IS: toString not implemented!!");
+  }
 }
