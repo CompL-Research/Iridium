@@ -23,7 +23,7 @@ export class IS_SimpleVarDecl extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}SIMPLE_VAR_DECL ${this.KIND} ${this.LVal.toString()} = ${this.RVal.toString()};`
+    return `${" ".repeat(space)}${this.KIND} ${this.LVal.toString()} = ${this.RVal.toString()};`
   }
 }
 
@@ -69,7 +69,7 @@ export class IS_ArrPatVarDecl extends ALL_IS {
     })
     lval += "]"
 
-    return `${" ".repeat(space)}ARRPAT_VAR_DECL ${this.KIND} ${lval} = ${this.RVal.toString()};`
+    return `${" ".repeat(space)}${this.KIND} ${lval} = ${this.RVal.toString()};`
   }
 }
 
@@ -125,6 +125,6 @@ export class IS_ObjPatVarDecl extends ALL_IS {
     })
     lval += "]"
 
-    return `${" ".repeat(space)}ARRPAT_VAR_DECL ${this.KIND} ${lval} = ${this.RVal.toString()};`
+    return `${" ".repeat(space)}${this.KIND} ${lval} = ${this.RVal.toString()};`
   }
 }

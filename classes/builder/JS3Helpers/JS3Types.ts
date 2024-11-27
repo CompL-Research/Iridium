@@ -1,4 +1,4 @@
-// Generated on 27/11/2024, 5:05:13 am, extended 65 interfaces 
+// Generated on 27/11/2024, 10:44:30 am, extended 65 interfaces 
 
 import { AssignmentPattern, ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DebuggerStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, LogicalExpression, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ClassDeclaration, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -140,6 +140,7 @@ export type JS3CallExpression_callee = JS3Import | JS3MemberExpression | Identif
 export type JS3CallExpression_arguments = Array < JS3ContainedExprKey | JS3SpreadElement >;
 export type JS3CallExpression_typeArguments = null;
 export type JS3CallExpression_typeParameters = null;
+export type JS3CatchClause_param = Identifier | null;
 export type JS3CatchClause_body = JS3BlockStatement;
 export type JS3ContinueStatement_label = Identifier | null;
 export type JS3DoWhileStatement_test = JS3ContainedExprKey;
@@ -361,6 +362,7 @@ export function isJS3CallExpression(node: any): node is JS3CallExpression {
 
 // @ts-ignore
 export interface JS3CatchClause extends CatchClause {
+  param: JS3CatchClause_param;
   body: JS3CatchClause_body;
   js3type: "JS3CatchClause";
 }

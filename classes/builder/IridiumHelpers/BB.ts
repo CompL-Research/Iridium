@@ -1,9 +1,9 @@
 import { recursivelyTraverseAllBBs } from "#utils"
-import { JS3FunctionDeclaration, JS3IfStatement, JS3Program } from "../JS3Helpers/JS3Types.ts"
+import { JS3BlockStatement, JS3CatchClause, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3TryStatement, JS3TryStatement_block } from "../JS3Helpers/JS3Types.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
 import { IV_Identifer } from "./ALL_RVal/IV_Identifier.ts"
 
-type BBScopes = "Script" | "Module" | "Function" | "AnonFunction" | "Block" | "CKE"
+type BBScopes = "Script" | "Module" | "Function" | "AnonFunction" | "Block" | "CKE" | "Catch" | "Try"
 
 export class BBTerminal {
 
@@ -55,6 +55,25 @@ export class UnconditionalGoto extends BBTerminal {
   }
 }
 
+export class TryCatchConditionalGoto extends BBTerminal {
+  handler: BB
+  finalizer: BB
+  
+  constructor(handler: BB, finalizer: BB) {
+    super();
+    this.handler = handler;
+    this.finalizer = finalizer;
+  }
+
+  getSuccessors() {
+    return [this.handler, this.finalizer]
+  }
+
+  toString(space = 0) {
+    return `${" ".repeat(space)}::TERM::ERR_BRANCH ERR: (BB${this.handler.idx}) NORM: (BB${this.finalizer.idx})`
+  }
+}
+
 export class ExitNode extends BBTerminal {
   toString(space = 0) {
     return `${" ".repeat(space)}::TERM::EXIT`
@@ -81,7 +100,8 @@ export class BB {
     let BBs = recursivelyTraverseAllBBs(this)
 
     for (let bb of BBs) {
-      stmts.push(`${" ".repeat(space)}BB${bb.idx} [${bb.scope}]:`)
+      stmts.push(`${" ".repeat(space)}${bb.printHeader()}`)
+      // stmts.push(`${" ".repeat(space)}BB${bb.idx} [${bb.scope}]:`)
       bb.statements.forEach(s => {
         stmts.push(s.toString(space + 2))
       })
@@ -95,6 +115,44 @@ export class BB {
     throw new Error("BB: create not implemented!!");
   }
 
+  printHeader() {
+    return `BB${this.idx} [${this.scope}]`
+  }
+
+}
+
+export class CatchBB extends BB {
+  arg: IV_Identifer | null
+
+  constructor(arg: IV_Identifer) {
+    super("Catch")
+    this.arg = arg
+  }
+
+  toString(space = 0) {
+    let stmts = []
+
+    // Traverse all BB's
+    let BBs = recursivelyTraverseAllBBs(this)
+
+    for (let bb of BBs) {
+      stmts.push(`${" ".repeat(space)}BB${bb.idx} [${bb.scope}] (${this.arg}):`)
+      bb.statements.forEach(s => {
+        stmts.push(s.toString(space + 2))
+      })
+      stmts.push(bb.terminal.toString(space + 2))
+    }
+
+    return stmts.join("\n")
+  }
+
+  create() {
+    return new CatchBB(this.arg);
+  }
+
+  printHeader() {
+    return `BB${this.idx} [${this.scope}] (${this.arg ? this.arg.toString() : ""})`
+  }
 }
 
 export class ScriptBB extends BB {
@@ -159,7 +217,19 @@ export class BlockBB extends BB {
   create() {
     return new BlockBB(this.node);
   }
+}
 
+export class TryBlockBB extends BB {
+  node: JS3BlockStatement
+
+  constructor(node: JS3BlockStatement = undefined) {
+    super("Try")
+    this.node = node
+  }
+
+  create() {
+    return new TryBlockBB(this.node);
+  }
 }
 
 export class CKEBB extends BB {
