@@ -1,9 +1,31 @@
 import debugConfig from '#debugConfig';
 import { CommentLine  } from '@babel/types';
 import { execSync } from 'child_process';
+import { BB, BranchTerminal, ExitNode, UnconditionalGoto } from 'classes/builder/IridiumHelpers/BB.ts';
 import fs from 'fs';
 import path from 'path';
 export class JS3GenerationError extends Error { }
+
+export function recursivelyTraverseAllBBs(bb: BB, visited: Set<BB> = new Set()) {
+  visited.add(bb);
+  if (bb.terminal instanceof UnconditionalGoto) {
+    recursivelyTraverseAllBBs(bb.terminal.to, visited);
+  } else if (bb.terminal instanceof BranchTerminal) {
+    recursivelyTraverseAllBBs(bb.terminal.t, visited);
+    recursivelyTraverseAllBBs(bb.terminal.f, visited);
+  } else if (bb.terminal instanceof ExitNode) {
+    // NOOP
+  } else {
+    console.log(bb, bb.terminal)
+    throw new Error("recursivelyTraverseAllBBs: unhandled BB Type")
+  }
+  return visited
+}
+
+export function getRandomElement(set) {
+  const array = Array.from(set);
+  return array[Math.floor(Math.random() * array.length)];
+}
 
 export function generateCommentLine(comment: string): CommentLine {
   return {

@@ -1,10 +1,10 @@
 import { isJS3FunctionDeclaration, JS3FunctionDeclaration } from "classes/builder/JS3Helpers/JS3Types.ts";
-import { FunctionBB } from "../BB.ts";
+import { FunctionDeclBB } from "../BB.ts";
 import { ALL_IS } from "./ALL_IS.ts";
 
 export class IS_FunDecl extends ALL_IS {
-  funBody: FunctionBB
-  constructor(node: JS3FunctionDeclaration | undefined = undefined, funBody: FunctionBB) {
+  funBody: FunctionDeclBB
+  constructor(node: JS3FunctionDeclaration | undefined = undefined, funBody: FunctionDeclBB) {
     super(node);
     this.funBody = funBody;
   }
@@ -17,7 +17,7 @@ export class IS_FunDecl extends ALL_IS {
       stmts.push(`${" ".repeat(space)}FUNCDECL { name: NA, params: NA }`)
     }
 
-    stmts = [...stmts, ...this.funBody.toString(space + 2)]
+    stmts.push(this.funBody.toString(space + 2))
     
     return stmts.join("\n")
   }

@@ -1,13 +1,13 @@
 import debugConfig from "#debugConfig";
 import { isIdentifier, isImportSpecifier, isStringLiteral } from "@babel/types";
-import { isJS3ArrayPattern, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3ImportDeclaration, isJS3ObjectPattern, isJS3ReturnStatement, isJS3ThrowStatement, isJS3VariableDeclaration, JS3AllowedProgStatement, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3File, JS3FunctionDeclaration, JS3ImportDeclaration, JS3Program, JS3ReturnStatement, JS3ThrowStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
+import { isJS3ArrayPattern, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3ObjectPattern, isJS3ReturnStatement, isJS3ThrowStatement, isJS3VariableDeclaration, JS3AllowedProgStatement, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3File, JS3FunctionDeclaration, JS3IfStatement, JS3ImportDeclaration, JS3Program, JS3ReturnStatement, JS3ThrowStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
 import { IS_Debugger, IS_Return, IS_Throw } from "./ALL_IS/IS_Debugger_Return_Throw.ts";
 import { IS_FunDecl } from "./ALL_IS/IS_FunDecl.ts";
 import { IS_AExport, IS_AImport, IS_BExport, IS_BImport, IS_CExport, IS_CImport, IS_DExport, IS_EExport } from "./ALL_IS/IS_Imports_Exports.ts";
 import { IS_ArrPatVarDecl, IS_ObjPatVarDecl, IS_SimpleVarDecl } from "./ALL_IS/IS_VarDecl.ts";
 import { IV_Identifer } from "./ALL_RVal/IV_Identifier.ts";
 import { IV_StringLiteral } from "./ALL_RVal/IV_StringLiteral.ts";
-import { BB, FunctionBB, ModuleBB, ScriptBB } from "./BB.ts";
+import { BB, BlockBB, BranchTerminal, ExitNode, FunctionDeclBB, ModuleBB, ScriptBB, UnconditionalGoto } from "./BB.ts";
 import { I_File } from "./I_GENERAL/I_File.ts";
 
 export class IRIDIUM_FG {
@@ -36,9 +36,13 @@ export default class IRIDIUM {
 
   initialize() {
     if (this.node.sourceType === "module") {
-      this.setCurrentBB(new ModuleBB(this.node));
+      let bb = new ModuleBB(this.node)
+      bb.terminal = new ExitNode()
+      this.setCurrentBB(bb);
     } else {
-      this.setCurrentBB(new ScriptBB(this.node));
+      let bb = new ScriptBB(this.node)
+      bb.terminal = new ExitNode()
+      this.setCurrentBB(bb);
     }
   }
 
@@ -59,7 +63,10 @@ export default class IRIDIUM {
     else if (isJS3VariableDeclaration(stmt))      this.handleJS3VariableDeclaration(stmt)
 
     else if (isJS3FunctionDeclaration(stmt))      this.handleJS3FunctionDeclaration(stmt)
-    
+
+    else if (isJS3IfStatement(stmt))              this.handleJS3IfStatement(stmt)
+
+
     else debugConfig.logger.throwIriError(`IRIDIUM: Unhandled Statement ${stmt.type}, ${stmt.js3type}`)
   }
 
@@ -76,15 +83,70 @@ export default class IRIDIUM {
     return body
   }
 
+  // *********************** Iridium_IfStatement ***********************
+
+  handleJS3IfStatement(stmt: JS3IfStatement) {
+    if (!stmt.alternate) {
+      // Case a.
+      // if (ID) { CONSEQ }
+      let curr = this.getCurrentBB()
+      let TrueBB = new BlockBB()
+      let PostBB : BB = curr.create() // Create a continuation...
+      PostBB.terminal = curr.terminal
+
+      let ID = new IV_Identifer(stmt.test, stmt.test.name)
+      curr.terminal = new BranchTerminal(stmt, ID, TrueBB, PostBB)
+      TrueBB.terminal = new UnconditionalGoto(PostBB)
+      
+
+      this.setCurrentBB(TrueBB)
+      stmt.consequent.body.forEach(s => {
+        this.handleJS3AllowedProgStatement(s);
+      })
+
+      this.setCurrentBB(PostBB)
+    } else {
+      // Case a.
+      // if (ID) { CONSEQ } else { ALT }
+      let curr = this.getCurrentBB()
+      let TrueBB = new BlockBB()
+      let FalseBB = new BlockBB()
+      let PostBB : BB = curr.create() // Create a continuation...
+      PostBB.terminal = curr.terminal
+
+      let ID = new IV_Identifer(stmt.test, stmt.test.name)
+      
+      curr.terminal = new BranchTerminal(stmt, ID, TrueBB, FalseBB)
+      TrueBB.terminal = new UnconditionalGoto(PostBB)
+      FalseBB.terminal = new UnconditionalGoto(PostBB)
+
+      this.setCurrentBB(TrueBB)
+      stmt.consequent.body.forEach(s => {
+        this.handleJS3AllowedProgStatement(s);
+      })
+
+      this.setCurrentBB(FalseBB)
+      stmt.alternate.body.forEach(s => {
+        this.handleJS3AllowedProgStatement(s);
+      })
+
+      this.setCurrentBB(PostBB)
+    }
+  }
+
   // *********************** Iridium_FunctionDeclaration *********************** 
   
   handleJS3FunctionDeclaration(stmt: JS3FunctionDeclaration) {
     let curr = this.getCurrentBB()
 
     // Lower function body
-    let funBB = new FunctionBB()
+    let funBB = new FunctionDeclBB(stmt)
+    funBB.terminal = new ExitNode()
     this.setCurrentBB(funBB)
-    this.handleJS3AllowedProgStatement(stmt.body)
+
+    for (let s of stmt.body.body) {
+      this.handleJS3AllowedProgStatement(s)
+    }
 
     this.setCurrentBB(curr)
     curr.statements.push(new IS_FunDecl(stmt, funBB))
