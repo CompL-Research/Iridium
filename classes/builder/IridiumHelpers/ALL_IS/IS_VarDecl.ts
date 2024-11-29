@@ -2,7 +2,7 @@ import { isBigIntLiteral, isDecimalLiteral, isIdentifier, isNumericLiteral, isRe
 import { isJS3AssnObjectProperty, JS3ArrayPattern, JS3AssnObjectProperty_key, JS3ObjectPattern, JS3VarDeclLVal, JS3VariableDeclaration } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { ALL_RVal } from "../ALL_RVal/ALL_RVal.ts";
 import { ALL_IS } from "./ALL_IS.ts";
-import { IV_Identifer } from "../ALL_RVal/IV_Identifier.ts";
+import { IV_Identifer } from "../ALL_RVal/IV_Identifier_Literals.ts";
 
 export type IS_VAR_DECL_KIND = "var" | "let" | "const"
 

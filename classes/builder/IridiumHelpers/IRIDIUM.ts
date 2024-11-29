@@ -1,12 +1,11 @@
 import debugConfig from "#debugConfig";
 import { isIdentifier, isImportSpecifier, isStringLiteral } from "@babel/types";
-import { isJS3ArrayPattern, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3ObjectPattern, isJS3ReturnStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, JS3AllowedProgStatement, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3File, JS3FunctionDeclaration, JS3IfStatement, JS3ImportDeclaration, JS3Program, JS3ReturnStatement, JS3ThrowStatement, JS3TryStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
+import { isJS3ArrayPattern, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3ObjectPattern, isJS3ReturnStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, JS3AllowedProgStatement, JS3AssnInit, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3File, JS3FunctionDeclaration, JS3IfStatement, JS3ImportDeclaration, JS3Program, JS3ReturnStatement, JS3ThrowStatement, JS3TryStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
 import { IS_Debugger, IS_Return, IS_Throw } from "./ALL_IS/IS_Debugger_Return_Throw.ts";
 import { IS_FunDecl } from "./ALL_IS/IS_FunDecl.ts";
 import { IS_AExport, IS_AImport, IS_BExport, IS_BImport, IS_CExport, IS_CImport, IS_DExport, IS_EExport } from "./ALL_IS/IS_Imports_Exports.ts";
 import { IS_ArrPatVarDecl, IS_ObjPatVarDecl, IS_SimpleVarDecl } from "./ALL_IS/IS_VarDecl.ts";
-import { IV_Identifer } from "./ALL_RVal/IV_Identifier.ts";
-import { IV_StringLiteral } from "./ALL_RVal/IV_StringLiteral.ts";
+import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_Identifer, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "./ALL_RVal/IV_Identifier_Literals.ts";
 import { BB, BlockBB, BranchTerminal, CatchBB, ExitNode, FunctionDeclBB, ModuleBB, ScriptBB, TryBlockBB, TryCatchConditionalGoto, UnconditionalGoto } from "./BB.ts";
 import { I_File } from "./I_GENERAL/I_File.ts";
 
@@ -67,10 +66,28 @@ export default class IRIDIUM {
     else if (isJS3IfStatement(stmt))              this.handleJS3IfStatement(stmt)
     
     else if (isJS3TryStatement(stmt))             this.handleJS3TryStatement(stmt)
-    
-
 
     else debugConfig.logger.throwIriError(`IRIDIUM: Unhandled Statement ${stmt.type}, ${stmt.js3type}`)
+  }
+
+  handleJS3AssnInit(init: JS3AssnInit) {
+    if (init.type === "DecimalLiteral") {
+      return new IV_DecimalLiteral(init, init.value);
+    } else if (init.type === "BigIntLiteral") {
+      return new IV_BigIntLiteral(init, init.value);
+    } else if (init.type === "StringLiteral") {
+      return new IV_StringLiteral(init, init.value);
+    } else if (init.type === "NumericLiteral") {
+      return new IV_NumericLiteral(init, init.value);
+    } else if (init.type === "NullLiteral") {
+      return new IV_NullLiteral(init);
+    } else if (init.type === "BooleanLiteral") {
+      return new IV_BooleanLiteral(init, init.value);
+    } else if (init.type === "Identifier") {
+      return new IV_Identifer(init, init.name);
+    } else {
+      return new IV_StringLiteral(undefined, "~~TODO~~");
+    }
   }
 
   handleJS3ProgramBody(body: Array<JS3AllowedProgStatement>) {
@@ -85,6 +102,16 @@ export default class IRIDIUM {
     this.handleJS3ProgramBody(this.node.body)
     return body
   }
+
+  // ***********************       RVALUES        ***********************
+
+  // *********************** Iridium_Literals ***********************
+
+  handle
+
+
+
+  // *********************** STATEMENTS ***********************
 
   // *********************** Iridium_TryStatement ***********************
 
@@ -282,7 +309,7 @@ export default class IRIDIUM {
     
     if (isIdentifier(declaration.id)) {
       let LVal = new IV_Identifer(declaration.id, declaration.id.name)
-      let RVal = new IV_StringLiteral(undefined, "TODO") // TODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODO
+      let RVal = this.handleJS3AssnInit(declaration.init)
       curr.statements.push(new IS_SimpleVarDecl(stmt, KIND, LVal, RVal))
       return;
     }
@@ -291,7 +318,7 @@ export default class IRIDIUM {
     // KIND [ ID, ...ID ] = RVal
     if (isJS3ArrayPattern(declaration.id)) {
       let LVal = declaration.id
-      let RVal = new IV_StringLiteral(undefined, "TODO") // TODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODO
+      let RVal = this.handleJS3AssnInit(declaration.init)
       curr.statements.push(new IS_ArrPatVarDecl(stmt, KIND, LVal, RVal))
       return;
     }
@@ -301,7 +328,7 @@ export default class IRIDIUM {
     if (isJS3ObjectPattern(declaration.id)) {
       
       let LVal = declaration.id
-      let RVal = new IV_StringLiteral(undefined, "TODO") // TODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODO
+      let RVal = this.handleJS3AssnInit(declaration.init)
       curr.statements.push(new IS_ObjPatVarDecl(stmt, KIND, LVal, RVal))
       return;
     }

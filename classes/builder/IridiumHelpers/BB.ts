@@ -1,7 +1,7 @@
 import { recursivelyTraverseAllBBs } from "#utils"
-import { JS3BlockStatement, JS3CatchClause, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3TryStatement, JS3TryStatement_block } from "../JS3Helpers/JS3Types.ts"
+import { JS3BlockStatement, JS3FunctionDeclaration, JS3IfStatement, JS3Program } from "../JS3Helpers/JS3Types.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
-import { IV_Identifer } from "./ALL_RVal/IV_Identifier.ts"
+import { IV_Identifer } from "./ALL_RVal/IV_Identifier_Literals.ts"
 
 type BBScopes = "Script" | "Module" | "Function" | "AnonFunction" | "Block" | "CKE" | "Catch" | "Try"
 

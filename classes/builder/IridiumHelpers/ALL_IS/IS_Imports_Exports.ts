@@ -1,7 +1,6 @@
 import { JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3ImportDeclaration } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { ALL_IS } from "./ALL_IS.ts";
-import { IV_StringLiteral } from "../ALL_RVal/IV_StringLiteral.ts";
-import { IV_Identifer } from "../ALL_RVal/IV_Identifier.ts";
+import { IV_StringLiteral, IV_Identifer } from "../ALL_RVal/IV_Identifier_Literals.ts";
 
 // 
 // Imports

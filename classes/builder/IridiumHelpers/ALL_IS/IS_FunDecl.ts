@@ -21,5 +21,4 @@ export class IS_FunDecl extends ALL_IS {
     
     return stmts.join("\n")
   }
-  
 }
