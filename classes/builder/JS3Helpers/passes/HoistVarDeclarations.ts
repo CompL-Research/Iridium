@@ -44,7 +44,8 @@ export function transform(node : JS3File) {
     Function(path) {
       // Only do this on functions that are in JS3 format, it is possible that default arguments to a functions have not been simplified to JS3
       // TEST: tests/test262/test/language/eval-code/direct/arrow-fn-body-cntns-arguments-func-decl-arrow-func-declare-arguments-assign-incl-def-param-arrow-arguments.js
-      if (path.node.js3type === undefined) return; 
+      // if (path.node.js3type === undefined) return; 
+      if (!Array.isArray(path.node.body.body)) return;
 
       // Hoist function declarations
       let fnNode = path.node

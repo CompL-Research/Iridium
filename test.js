@@ -73,3 +73,10 @@ try {
 // } finally {
 //   let c = 3;
 // }
+
+
+let x = { a: { b() { return this.xx; }, xx: 10 } }
+x.a.b.bind = 10;
+
+let res = (x?.a?.b)()
+console.log(res)

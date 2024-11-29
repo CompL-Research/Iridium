@@ -1,5 +1,5 @@
 import debugConfig from '#debugConfig';
-import { CommentLine  } from '@babel/types';
+import { CommentBlock, CommentLine  } from '@babel/types';
 import { execSync } from 'child_process';
 import { BB, BranchTerminal, ExitNode, TryCatchConditionalGoto, UnconditionalGoto } from 'classes/builder/IridiumHelpers/BB.ts';
 import fs from 'fs';
@@ -35,6 +35,13 @@ export function generateCommentLine(comment: string): CommentLine {
     type: "CommentLine",
     value: comment,
   } as CommentLine
+}
+
+export function generateCommentBlock(comment: string): CommentBlock {
+  return {
+    type: "CommentBlock",
+    value: comment,
+  } as CommentBlock
 }
 
 export function resolveModuleImport(source: string, absoluteFilePath: string, projectBasePath: string): string | undefined {

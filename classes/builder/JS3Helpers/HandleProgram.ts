@@ -1,7 +1,7 @@
 // Generated on 6/8/2024, 10:15:01 am, generated 1 handlers 
-import { ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ExportNamespaceSpecifier, ExportSpecifier, ImportDeclaration, Program, importSpecifier, isArrowFunctionExpression, isClassDeclaration, isClassExpression, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportDefaultSpecifier, isExportNamedDeclaration, isExportNamespaceSpecifier, isExportSpecifier, isExpression, isExpressionStatement, isFunctionDeclaration, isFunctionExpression, isIdentifier, isImportAttribute, isImportDeclaration, isImportDefaultSpecifier, isInterfaceDeclaration, isInterpreterDirective, isOpaqueType, isTSDeclareFunction, isTSEnumDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration } from "@babel/types";
+import { ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ExportNamespaceSpecifier, ExportSpecifier, ImportDeclaration, importSpecifier, isArrowFunctionExpression, isClassDeclaration, isClassExpression, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportDefaultSpecifier, isExportNamedDeclaration, isExportNamespaceSpecifier, isExportSpecifier, isExpression, isExpressionStatement, isFunctionDeclaration, isFunctionExpression, isIdentifier, isImportAttribute, isImportDeclaration, isImportDefaultSpecifier, isInterfaceDeclaration, isOpaqueType, isTSDeclareFunction, isTSEnumDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration, Program } from "@babel/types";
 import { generateIdentifier, generateJS3ExportAllDeclaration, generateJS3ExportDefaultDeclaration, generateJS3ExportNamedDeclaration, generateJS3ExportNamespaceSpecifier, generateJS3ExportSpecifier, generateJS3ExportSpecifierfromBaseNode, generateJS3ImportDeclaration, generateJS3Program, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "./JS3Constructors.ts";
-import { isJS3VariableDeclaration, JS3AllowedBlockStatement, JS3ExportAllDeclaration, JS3ExportAllDeclaration_assertions, JS3ExportAllDeclaration_attributes, JS3ExportDefaultDeclaration_declaration, JS3ExportNamedDeclaration_assertions, JS3ExportNamedDeclaration_attributes, JS3ExportNamedDeclaration_specifiers, JS3ExportNamespaceSpecifier, JS3ExportSpecifier, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body, JS3Program_interpreter, JS3VariableDeclaration } from "./JS3Types.ts";
+import { isJS3VariableDeclaration, JS3AllowedBlockStatement, JS3ExportAllDeclaration, JS3ExportAllDeclaration_assertions, JS3ExportAllDeclaration_attributes, JS3ExportDefaultDeclaration_declaration, JS3ExportNamedDeclaration_assertions, JS3ExportNamedDeclaration_attributes, JS3ExportNamedDeclaration_specifiers, JS3ExportNamespaceSpecifier, JS3ExportSpecifier, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body } from "./JS3Types.ts";
 
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
 
@@ -12,12 +12,12 @@ import { handleFunctionDeclaration, handleStatement, handleVariableDeclaration }
 import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
 import { handleExpression, lowerToAnonArrayExpr } from "./HandleExpression.ts";
 
+import babel from '@babel/core';
 import _generate from "@babel/generator";
 import _traverse from "@babel/traverse";
 
 const generate = _generate.default
 const traverse = _traverse.default
-import babel from '@babel/core'
 
 type OtherProps = JS3BuilderUtils;
 
@@ -60,14 +60,10 @@ export function handleProgram(node: Program, otherProps: OtherProps): JS3Program
       // ========================================================================================
     }
   }
-
-  let orig_interpreter = node.interpreter; // Handling prop interpreter
-  let fin_interpreter : JS3Program_interpreter = null; // Handling prop interpreter
-  if(isInterpreterDirective (orig_interpreter)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled Program->interpreter->InterpreterDirective");
-  } 
-
-  let result: JS3Program = generateJS3Program(fin_body, fin_interpreter, node);
+  // InterpreterDirective Example...
+  // test262/test/language/comments/hashbang/line-terminator-carriage-return.js
+  // 
+  let result: JS3Program = generateJS3Program(fin_body, node);
   otherProps.debugTrace.pop()
   return result
 }
