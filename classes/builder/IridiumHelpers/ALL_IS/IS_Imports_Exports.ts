@@ -16,7 +16,7 @@ export class IS_AImport extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}AIMPORT ${this.FROM.toString()};`
+    return `${" ".repeat(space)}█ AIMPORT ${this.FROM.toString()};`
   }
 }
 
@@ -35,7 +35,7 @@ export class IS_BImport extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}BIMPORT { ${this.remote.toString()} as ${this.local.toString()} } from ${this.FROM.toString()};`
+    return `${" ".repeat(space)}█ BIMPORT { ${this.remote.toString()} as ${this.local.toString()} } from ${this.FROM.toString()};`
   }
 }
 
@@ -50,7 +50,7 @@ export class IS_CImport extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}CIMPORT * as ${this.local.toString()} from ${this.FROM.toString()};`
+    return `${" ".repeat(space)}█ CIMPORT * as ${this.local.toString()} from ${this.FROM.toString()};`
   }
 }
 
@@ -67,7 +67,7 @@ export class IS_AExport extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}AEXPORT ${this.id.toString()};`
+    return `${" ".repeat(space)}█ AEXPORT ${this.id.toString()};`
   }
 }
 
@@ -82,7 +82,7 @@ export class IS_BExport extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}BEXPORT { ${this.local.toString()} as ${this.remote.toString()} };`
+    return `${" ".repeat(space)}█ BEXPORT { ${this.local.toString()} as ${this.remote.toString()} };`
   }
 }
 
@@ -99,7 +99,7 @@ export class IS_CExport extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}CEXPORT { ${this.local.toString()} as ${this.remote.toString()} } from ${this.FROM.toString()};`
+    return `${" ".repeat(space)}█ CEXPORT { ${this.local.toString()} as ${this.remote.toString()} } from ${this.FROM.toString()};`
   }
 }
 
@@ -114,7 +114,7 @@ export class IS_DExport extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}DEXPORT * as ${this.remote.toString()} from ${this.FROM.toString()};`
+    return `${" ".repeat(space)}█ DEXPORT * as ${this.remote.toString()} from ${this.FROM.toString()};`
   }
 }
 
@@ -127,6 +127,6 @@ export class IS_EExport extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}EEXPORT * from ${this.FROM.toString()};`
+    return `${" ".repeat(space)}█ EEXPORT * from ${this.FROM.toString()};`
   }
 }

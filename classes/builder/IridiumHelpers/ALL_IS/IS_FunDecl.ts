@@ -12,9 +12,9 @@ export class IS_FunDecl extends ALL_IS {
   toString(space = 0) {
     let stmts = []
     if (isJS3FunctionDeclaration(this.node)) {
-      stmts.push(`${" ".repeat(space)}FUNCDECL { name: ${this.node.id}, params: ${this.node.params} }`)
+      stmts.push(`${" ".repeat(space)}█ FUNCDECL { name: ${this.node.id.name}, params: ${this.node.params.length} }`)
     } else {
-      stmts.push(`${" ".repeat(space)}FUNCDECL { name: NA, params: NA }`)
+      stmts.push(`${" ".repeat(space)}█ FUNCDECL { name: NA, params: NA }`)
     }
 
     stmts.push(this.funBody.toString(space + 2))

@@ -35,7 +35,7 @@ export class BranchTerminal extends BBTerminal {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}::TERM::BRANCH(${this.on}) T: (BB${this.t.idx}) F: (BB${this.f.idx})`
+    return `${" ".repeat(space)}███ BRANCH(${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
   }
 }
 
@@ -51,7 +51,7 @@ export class UnconditionalGoto extends BBTerminal {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}::TERM::GOTO BB${this.to.idx}`
+    return `${" ".repeat(space)}███ GOTO BB${this.to.idx}`
   }
 }
 
@@ -70,13 +70,13 @@ export class TryCatchConditionalGoto extends BBTerminal {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}::TERM::ERR_BRANCH ERR: (BB${this.handler.idx}) NORM: (BB${this.finalizer.idx})`
+    return `${" ".repeat(space)}███ ERR_BRANCH ERR: (BB${this.handler.idx}) NORM: (BB${this.finalizer.idx})`
   }
 }
 
 export class ExitNode extends BBTerminal {
   toString(space = 0) {
-    return `${" ".repeat(space)}::TERM::EXIT`
+    return `${" ".repeat(space)}███ EXIT`
   }
 }
 
@@ -100,12 +100,13 @@ export class BB {
     let BBs = recursivelyTraverseAllBBs(this)
 
     for (let bb of BBs) {
-      stmts.push(`${" ".repeat(space)}${bb.printHeader()}`)
+      stmts.push(`${" ".repeat(space)}  ███ ${bb.printHeader()}`)
       // stmts.push(`${" ".repeat(space)}BB${bb.idx} [${bb.scope}]:`)
       bb.statements.forEach(s => {
         stmts.push(s.toString(space + 2))
       })
       stmts.push(bb.terminal.toString(space + 2))
+      stmts.push(``)
     }
 
     return stmts.join("\n")

@@ -8,7 +8,7 @@ export class IS_Debugger extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}DEBUGGER;`
+    return `${" ".repeat(space)}█ DEBUGGER;`
   }
 }
 
@@ -22,9 +22,9 @@ export class IS_Return extends ALL_IS {
 
   toString(space = 0) {
     if (this.argument) {
-      return `${" ".repeat(space)}RETURN ${this.argument.toString()};`
+      return `${" ".repeat(space)}█ RETURN ${this.argument.toString()};`
     } else {
-      return `${" ".repeat(space)}RETURN;`
+      return `${" ".repeat(space)}█ RETURN;`
     }
   }
 }
@@ -38,6 +38,6 @@ export class IS_Throw extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}THROW ${this.argument.toString()};`
+    return `${" ".repeat(space)}█ THROW ${this.argument.toString()};`
   }
 }

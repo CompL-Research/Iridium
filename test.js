@@ -1,6 +1,6 @@
 // // 1.
 // import "source";
-// import { x as y } from "source";
+// import { zxx as y } from "source";
 // import * as x from "source";
 // import z from "source";
 
@@ -23,24 +23,24 @@
 //   let test = "foo";
 // }
 
-// // 5. Ifstmt
-// let t = false;
-// if (t) {
-//   let a = 1;
-// }
-// if (t) {
-//   let a = 123;
-//   if (!t) {
-//     let b = 121;
-//   }
-// } else {
-//   let b = 123;
-//   if (b) {
-//     let x = 14;
-//   } else {
-//     let x = 1;
-//   }
-// }
+// 5. Ifstmt
+let t = false;
+if (t) {
+  let a = 1;
+}
+if (t) {
+  let a = 123;
+  if (!t) {
+    let b = 121;
+  }
+} else {
+  let b = 123;
+  if (b) {
+    let x = 14;
+  } else {
+    let x = 1;
+  }
+}
 
 // function fn() {
 //   var a = 1;
@@ -54,11 +54,11 @@
 // }
 // fn()
 
-try {
-  let a = 1;
-} catch([a, ...{x: { y: boo }}]) {
-  let b = 2;
-}
+// try {
+//   let a = 1;
+// } catch([a, ...{x: { y: boo }}]) {
+//   let b = 2;
+// }
 
 // try {
 //   let a = 1;
@@ -75,8 +75,8 @@ try {
 // }
 
 
-let x = { a: { b() { return this.xx; }, xx: 10 } }
-x.a.b.bind = 10;
+// let x = { a: { b() { return this.xx; }, xx: 10 } }
+// x.a.b.bind = 10;
 
-let res = (x?.a?.b)()
-console.log(res)
+// let res = (x?.a?.b)()
+// console.log(res)
