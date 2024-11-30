@@ -5,11 +5,12 @@ import { printScopedSpace } from "../IRIDIUM.ts";
 type IRI_ASSN_TYPE = IV_Literals 
                    | IV_Regexp 
                    | IV_Templates 
+                   | IV_Call
 
 type IV_Literals = "DecimalLiteral" | "BigIntLiteral" | "StringLiteral" | "NumericLiteral" | "NullLiteral" | "BooleanLiteral"
 type IV_Regexp = "Regexp"
 type IV_Templates = "TemplateLiteral" | "TaggedTemplateCall"
-
+type IV_Call = "ImportCall" | "Call" | "SuperCall" | "V8IntrinsicCall" 
 
 
 export class ALL_RVal {

@@ -1,13 +1,15 @@
 import { JS3MemberExpression, JS3PrivateName } from "classes/builder/JS3Helpers/JS3Types.ts";
 
-import { Identifier } from "@babel/types";
+import { Identifier, isV8IntrinsicIdentifier, V8IntrinsicIdentifier } from "@babel/types";
 import { printScopedSpace } from "../IRIDIUM.ts";
 
 type AmphibiousNodes = JS3MemberExpression 
                      | Identifier
+                     | V8IntrinsicIdentifier
                      | JS3PrivateName
 
-type IRI_AMP_TYPE =  "Identifier" 
+type IRI_AMP_TYPE = "Identifier"
+                  | "V8IntrinsicIdentifier"
                   | "PrivateName"
                   | "MemberExpression"
                   | "ThisLookup"
@@ -32,9 +34,9 @@ export class ALL_AMP {
 
 export class IV_Identifier extends ALL_AMP {
   name: string
-  constructor(node: Identifier | undefined = undefined, name: string) {
-    super(node, "Identifier");
-    this.name = name
+  constructor(node: Identifier | V8IntrinsicIdentifier | undefined = undefined, name: string) {
+    super(node, isV8IntrinsicIdentifier(node) ? "V8IntrinsicIdentifier" : "Identifier");
+    this.name = name;
   }
 
   toString() {

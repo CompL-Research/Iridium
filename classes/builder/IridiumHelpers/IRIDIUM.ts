@@ -1,17 +1,18 @@
 import debugConfig from "#debugConfig";
-import { isIdentifier, isImportSpecifier, isStringLiteral, isThisExpression } from "@babel/types";
-import { isJS3ArrayPattern, isJS3AssignmentExpression, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3MemberExpression, isJS3ObjectPattern, isJS3RegExpLiteral, isJS3ReturnStatement, isJS3TaggedTemplateExpression, isJS3TemplateLiteral, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, JS3AllowedProgStatement, JS3AssnInit, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3File, JS3FunctionDeclaration, JS3IfStatement, JS3ImportDeclaration, JS3MemberExpression, JS3Program, JS3RegExpLiteral, JS3ReturnStatement, JS3TaggedTemplateExpression, JS3TemplateLiteral, JS3ThrowStatement, JS3TryStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
+import { isIdentifier, isImportSpecifier, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier } from "@babel/types";
+import { isJS3ArrayPattern, isJS3CallExpression, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3IfStatement, isJS3Import, isJS3ImportDeclaration, isJS3MemberExpression, isJS3ObjectPattern, isJS3RegExpLiteral, isJS3ReturnStatement, isJS3TaggedTemplateExpression, isJS3TemplateLiteral, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, JS3AllowedProgStatement, JS3AssnInit, JS3CallExpression, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3File, JS3FunctionDeclaration, JS3IfStatement, JS3ImportDeclaration, JS3MemberExpression, JS3Program, JS3RegExpLiteral, JS3ReturnStatement, JS3TaggedTemplateExpression, JS3TemplateLiteral, JS3ThrowStatement, JS3TryStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
+import { IV_Identifier, IV_MemberExpression, IV_PrivateName, IV_SuperLookup, IV_ThisLookup } from "./ALL_AMP/ALL_AMP.ts";
 import { IS_Debugger, IS_Return, IS_Throw } from "./ALL_IS/IS_Debugger_Return_Throw.ts";
 import { IS_FunDecl } from "./ALL_IS/IS_FunDecl.ts";
 import { IS_AExport, IS_AImport, IS_BExport, IS_BImport, IS_CExport, IS_CImport, IS_DExport, IS_EExport } from "./ALL_IS/IS_Imports_Exports.ts";
 import { IS_ArrPatVarDecl, IS_ObjPatVarDecl, IS_SimpleVarDecl } from "./ALL_IS/IS_VarDecl.ts";
+import { IV_ASSIGNABLE } from "./ALL_RVal/ALL_RVal.ts";
+import { IV_ArgSpread, IV_Call, IV_ImportCall, IV_SuperCall, IV_V8IntrinsicCall } from "./ALL_RVal/IV_Call.ts";
 import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "./ALL_RVal/IV_Literals.ts";
-import { BB, BlockBB, BranchTerminal, CatchBB, ExitNode, FunctionDeclBB, ModuleBB, ScriptBB, TryBlockBB, TryCatchConditionalGoto, UnconditionalGoto } from "./BB.ts";
-import { I_File } from "./I_GENERAL/I_File.ts";
-import { ALL_RVal, IV_ASSIGNABLE } from "./ALL_RVal/ALL_RVal.ts";
 import { IV_Regexp } from "./ALL_RVal/IV_Regexp.ts";
 import { IV_TaggedTemplateCall, IV_TemplateLiteral } from "./ALL_RVal/IV_Templates.ts";
-import { IV_Identifier, IV_MemberExpression, IV_PrivateName, IV_SuperLookup, IV_ThisLookup } from "./ALL_AMP/ALL_AMP.ts";
+import { BB, BlockBB, BranchTerminal, CatchBB, ExitNode, FunctionDeclBB, ModuleBB, ScriptBB, TryBlockBB, TryCatchConditionalGoto, UnconditionalGoto } from "./BB.ts";
+import { I_File } from "./I_GENERAL/I_File.ts";
 
 export class IRIDIUM_FG {
   bb: BB
@@ -104,6 +105,8 @@ export default class IRIDIUM {
       return this.handleJS3MemberExpression(init);
     } else if (isJS3TaggedTemplateExpression(init)) {
       return this.handleJS3TaggedTemplateExpression(init);
+    } else if (isJS3CallExpression(init)) {
+      return this.handleJS3CallExpression(init);
     }
     
     else {
@@ -144,6 +147,29 @@ export default class IRIDIUM {
 
 
   // ***********************       RVALUES        ***********************
+
+
+  handleJS3CallExpression(node: JS3CallExpression) {    
+    let args : Array<IV_Identifier | IV_ArgSpread> = new Array()
+
+    for (let a of node.arguments) {
+      if (isIdentifier(a)) {
+        args.push(new IV_Identifier(a, a.name))
+      } else {
+        args.push(new IV_ArgSpread(a, new IV_Identifier(a.argument, a.argument.name)))
+      }
+    }
+    
+    if (isJS3Import(node.callee)) {
+      return new IV_ImportCall(node, args)
+    } else if (isSuper(node.callee)) {
+      return new IV_SuperCall(node, args)
+    } else if (isV8IntrinsicIdentifier(node.callee)) {
+      return new IV_V8IntrinsicCall(node, new IV_Identifier(node.callee, node.callee.name), args)
+    } else {
+      return new IV_Call(node, new IV_Identifier(node.callee, node.callee.name), args)
+    }
+  }
 
   
   // *********************** Iridium_TemplateLiteral ***********************

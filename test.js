@@ -85,9 +85,15 @@
 // let b = tag`a,b,c${g}da`
 
 
-// 9. Call Expression
-let f = function(a,b,c) {  }
+// // 9. Call Expression
+// let f = function(a,b,c) {  }
 
-f(a,b*c,(b*c,6,7) );
-g.h.i(a,b*c,(b*c,6,7) );
-(g?.h)?.i(a,b*c,(b*c,6,7) );
+// f(a,b*c,(b*c,6,7) );
+// g.h.i(a,b*c,(b*c,6,7) );
+// (g?.h)?.i(a,b*c,(b*c,6,7) );
+
+// 10. CallExpressions
+import("boo");
+f(a,b*c,(b*c,6,7));
+// c. Super [ID,...ID]
+// d. V8IntrinsicIdentifier [ID,...ID]
