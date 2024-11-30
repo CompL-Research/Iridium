@@ -1,9 +1,12 @@
 import { recursivelyTraverseAllBBs } from "#utils"
 import { JS3BlockStatement, JS3FunctionDeclaration, JS3IfStatement, JS3Program } from "../JS3Helpers/JS3Types.ts"
+import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
-import { IV_Identifer } from "./ALL_RVal/IV_Identifier_Literals.ts"
+import { printScopedSpace } from "./IRIDIUM.ts"
 
 type BBScopes = "Script" | "Module" | "Function" | "AnonFunction" | "Block" | "CKE" | "Catch" | "Try"
+
+
 
 export class BBTerminal {
 
@@ -18,11 +21,11 @@ export class BBTerminal {
 
 export class BranchTerminal extends BBTerminal {
   node?: JS3IfStatement
-  on: IV_Identifer
+  on: IV_Identifier
   t: BB
   f: BB
 
-  constructor(node: JS3IfStatement | undefined, on: IV_Identifer, t: BB, f: BB) {
+  constructor(node: JS3IfStatement | undefined, on: IV_Identifier, t: BB, f: BB) {
     super();
     this.node = node;
     this.on = on
@@ -35,7 +38,7 @@ export class BranchTerminal extends BBTerminal {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}███ BRANCH(${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
+    return `${printScopedSpace(space)}███ 🤔 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
   }
 }
 
@@ -51,7 +54,7 @@ export class UnconditionalGoto extends BBTerminal {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}███ GOTO BB${this.to.idx}`
+    return `${printScopedSpace(space)}███ 🥔 BB${this.to.idx}`
   }
 }
 
@@ -70,13 +73,13 @@ export class TryCatchConditionalGoto extends BBTerminal {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}███ ERR_BRANCH ERR: (BB${this.handler.idx}) NORM: (BB${this.finalizer.idx})`
+    return `${printScopedSpace(space)}███ 👮 🚨: (BB${this.handler.idx}) 👍: (BB${this.finalizer.idx})`
   }
 }
 
 export class ExitNode extends BBTerminal {
   toString(space = 0) {
-    return `${" ".repeat(space)}███ EXIT`
+    return `${printScopedSpace(space)}███ 👋 Exit`
   }
 }
 
@@ -100,13 +103,13 @@ export class BB {
     let BBs = recursivelyTraverseAllBBs(this)
 
     for (let bb of BBs) {
-      stmts.push(`${" ".repeat(space)}  ███ ${bb.printHeader()}`)
-      // stmts.push(`${" ".repeat(space)}BB${bb.idx} [${bb.scope}]:`)
+      stmts.push(`${printScopedSpace(space)}`)
+      stmts.push(`${printScopedSpace(space)}███ ${bb.printHeader()}`)
+      // stmts.push(`${printScopedSpace(space)}BB${bb.idx} [${bb.scope}]:`)
       bb.statements.forEach(s => {
-        stmts.push(s.toString(space + 2))
+        stmts.push(s.toString(space))
       })
-      stmts.push(bb.terminal.toString(space + 2))
-      stmts.push(``)
+      stmts.push(bb.terminal.toString(space))
     }
 
     return stmts.join("\n")
@@ -123,9 +126,9 @@ export class BB {
 }
 
 export class CatchBB extends BB {
-  arg: IV_Identifer | null
+  arg: IV_Identifier | null
 
-  constructor(arg: IV_Identifer) {
+  constructor(arg: IV_Identifier) {
     super("Catch")
     this.arg = arg
   }
@@ -137,7 +140,8 @@ export class CatchBB extends BB {
     let BBs = recursivelyTraverseAllBBs(this)
 
     for (let bb of BBs) {
-      stmts.push(`${" ".repeat(space)}BB${bb.idx} [${bb.scope}] (${this.arg}):`)
+      stmts.push(`${printScopedSpace(space)}`)
+      stmts.push(`${printScopedSpace(space)}BB${bb.idx} [${bb.scope}] (${this.arg}):`)
       bb.statements.forEach(s => {
         stmts.push(s.toString(space + 2))
       })

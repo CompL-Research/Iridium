@@ -11,7 +11,8 @@ const config : {
   throwJS3Errors: boolean,
   throwIRIErrors: boolean,
   js3SourceType: string,
-  allowLangWithSupport: boolean
+  allowLangWithSupport: boolean,
+  test262: boolean
 } = {
   operationMode: "analyze",
   outputsPath: "",
@@ -23,7 +24,8 @@ const config : {
   throwJS3Errors: false,
   throwIRIErrors: false,
   js3SourceType: "unambiguous",
-  allowLangWithSupport: false
+  allowLangWithSupport: false,
+  test262: false
 }
 
 export default config;

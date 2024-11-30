@@ -1,18 +1,19 @@
 import { isBigIntLiteral, isDecimalLiteral, isIdentifier, isNumericLiteral, isRestElement, isStringLiteral } from "@babel/types";
 import { isJS3AssnObjectProperty, JS3ArrayPattern, JS3AssnObjectProperty_key, JS3ObjectPattern, JS3VarDeclLVal, JS3VariableDeclaration } from "classes/builder/JS3Helpers/JS3Types.ts";
-import { ALL_RVal } from "../ALL_RVal/ALL_RVal.ts";
+import { IV_ASSIGNABLE } from "../ALL_RVal/ALL_RVal.ts";
 import { ALL_IS } from "./ALL_IS.ts";
-import { IV_Identifer } from "../ALL_RVal/IV_Identifier_Literals.ts";
+import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
+import { printScopedSpace } from "../IRIDIUM.ts";
 
 export type IS_VAR_DECL_KIND = "var" | "let" | "const"
 
 export class IS_SimpleVarDecl extends ALL_IS {
   KIND: IS_VAR_DECL_KIND
-  LVal: IV_Identifer
-  RVal: ALL_RVal
-  generatedBindings: Set<IV_Identifer>
+  LVal: IV_Identifier
+  RVal: IV_ASSIGNABLE
+  generatedBindings: Set<IV_Identifier>
 
-  constructor(node: JS3VariableDeclaration | undefined = undefined, KIND: IS_VAR_DECL_KIND, ID: IV_Identifer, RVal: ALL_RVal) {
+  constructor(node: JS3VariableDeclaration | undefined = undefined, KIND: IS_VAR_DECL_KIND, ID: IV_Identifier, RVal: IV_ASSIGNABLE) {
     super(node);
     this.KIND = KIND
     this.LVal = ID
@@ -23,17 +24,17 @@ export class IS_SimpleVarDecl extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}█ ${this.KIND} ${this.LVal.toString()} = ${this.RVal.toString()};`
+    return `${printScopedSpace(space)}█ ${this.KIND} ${this.LVal.name} = ${this.RVal.toString()};`
   }
 }
 
 export class IS_ArrPatVarDecl extends ALL_IS {
   KIND: IS_VAR_DECL_KIND
   LVal: JS3ArrayPattern
-  RVal: ALL_RVal
-  generatedBindings: Set<IV_Identifer>
+  RVal: IV_ASSIGNABLE
+  generatedBindings: Set<IV_Identifier>
 
-  constructor(node: JS3VariableDeclaration | undefined = undefined, KIND: IS_VAR_DECL_KIND, LVal: JS3ArrayPattern, RVal: ALL_RVal) {
+  constructor(node: JS3VariableDeclaration | undefined = undefined, KIND: IS_VAR_DECL_KIND, LVal: JS3ArrayPattern, RVal: IV_ASSIGNABLE) {
     super(node);
     this.KIND = KIND
     this.LVal = LVal
@@ -42,9 +43,9 @@ export class IS_ArrPatVarDecl extends ALL_IS {
     this.generatedBindings = new Set()
     for (let id of LVal.elements) {
       if (isIdentifier(id)) {
-        this.generatedBindings.add(new IV_Identifer(id, id.name))
+        this.generatedBindings.add(new IV_Identifier(id, id.name))
       } else {
-        this.generatedBindings.add(new IV_Identifer(id.argument, id.argument.name))
+        this.generatedBindings.add(new IV_Identifier(id.argument, id.argument.name))
       }
     }
   }
@@ -69,17 +70,17 @@ export class IS_ArrPatVarDecl extends ALL_IS {
     })
     lval += "]"
 
-    return `${" ".repeat(space)}█ ${this.KIND} ${lval} = ${this.RVal.toString()};`
+    return `${printScopedSpace(space)}█ ${this.KIND} ${lval} = ${this.RVal.toString()};`
   }
 }
 
 export class IS_ObjPatVarDecl extends ALL_IS {
   KIND: IS_VAR_DECL_KIND
   LVal: JS3ObjectPattern
-  RVal: ALL_RVal
+  RVal: IV_ASSIGNABLE
   generatedBindings: Set<string>
 
-  constructor(node: JS3VariableDeclaration | undefined = undefined, KIND: IS_VAR_DECL_KIND, LVal: JS3ObjectPattern, RVal: ALL_RVal) {
+  constructor(node: JS3VariableDeclaration | undefined = undefined, KIND: IS_VAR_DECL_KIND, LVal: JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
     super(node);
     this.KIND = KIND
     this.LVal = LVal
@@ -125,6 +126,6 @@ export class IS_ObjPatVarDecl extends ALL_IS {
     })
     lval += "]"
 
-    return `${" ".repeat(space)}█ ${this.KIND} ${lval} = ${this.RVal.toString()};`
+    return `${printScopedSpace(space)}█ ${this.KIND} ${lval} = ${this.RVal.toString()};`
   }
 }

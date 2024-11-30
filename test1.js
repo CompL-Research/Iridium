@@ -319,4 +319,16 @@
 
 // 2.
 
-export default ID
+// export default ID
+
+
+// let k = 1;
+// let a;
+// console.log(1 + ({["" + k]: a } = [1,2,3,4]))
+
+
+try {
+  let a = 1;
+} catch([a, ...{x: { y: boo }}]) {
+  let b = 2;
+}

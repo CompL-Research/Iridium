@@ -1,13 +1,17 @@
 import debugConfig from "#debugConfig";
-import { isIdentifier, isImportSpecifier, isStringLiteral } from "@babel/types";
-import { isJS3ArrayPattern, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3ObjectPattern, isJS3ReturnStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, JS3AllowedProgStatement, JS3AssnInit, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3File, JS3FunctionDeclaration, JS3IfStatement, JS3ImportDeclaration, JS3Program, JS3ReturnStatement, JS3ThrowStatement, JS3TryStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
+import { isIdentifier, isImportSpecifier, isStringLiteral, isThisExpression } from "@babel/types";
+import { isJS3ArrayPattern, isJS3AssignmentExpression, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3MemberExpression, isJS3ObjectPattern, isJS3RegExpLiteral, isJS3ReturnStatement, isJS3TaggedTemplateExpression, isJS3TemplateLiteral, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, JS3AllowedProgStatement, JS3AssnInit, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3File, JS3FunctionDeclaration, JS3IfStatement, JS3ImportDeclaration, JS3MemberExpression, JS3Program, JS3RegExpLiteral, JS3ReturnStatement, JS3TaggedTemplateExpression, JS3TemplateLiteral, JS3ThrowStatement, JS3TryStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
 import { IS_Debugger, IS_Return, IS_Throw } from "./ALL_IS/IS_Debugger_Return_Throw.ts";
 import { IS_FunDecl } from "./ALL_IS/IS_FunDecl.ts";
 import { IS_AExport, IS_AImport, IS_BExport, IS_BImport, IS_CExport, IS_CImport, IS_DExport, IS_EExport } from "./ALL_IS/IS_Imports_Exports.ts";
 import { IS_ArrPatVarDecl, IS_ObjPatVarDecl, IS_SimpleVarDecl } from "./ALL_IS/IS_VarDecl.ts";
-import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_Identifer, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "./ALL_RVal/IV_Identifier_Literals.ts";
+import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "./ALL_RVal/IV_Literals.ts";
 import { BB, BlockBB, BranchTerminal, CatchBB, ExitNode, FunctionDeclBB, ModuleBB, ScriptBB, TryBlockBB, TryCatchConditionalGoto, UnconditionalGoto } from "./BB.ts";
 import { I_File } from "./I_GENERAL/I_File.ts";
+import { ALL_RVal, IV_ASSIGNABLE } from "./ALL_RVal/ALL_RVal.ts";
+import { IV_Regexp } from "./ALL_RVal/IV_Regexp.ts";
+import { IV_TaggedTemplateCall, IV_TemplateLiteral } from "./ALL_RVal/IV_Templates.ts";
+import { IV_Identifier, IV_MemberExpression, IV_PrivateName, IV_SuperLookup, IV_ThisLookup } from "./ALL_AMP/ALL_AMP.ts";
 
 export class IRIDIUM_FG {
   bb: BB
@@ -15,6 +19,13 @@ export class IRIDIUM_FG {
   constructor(bb: BB) { this.bb = bb; }
 }
 
+export function printScopedSpace(space) {
+  let res = "";
+  for (let i = 0; i < space; i++) {
+    res += (i >= 4 && (i % 2 === 0)) ?  "░" : " "
+  }
+  return res;
+}
 
 export default class IRIDIUM {
   node: JS3Program
@@ -70,7 +81,7 @@ export default class IRIDIUM {
     else debugConfig.logger.throwIriError(`IRIDIUM: Unhandled Statement ${stmt.type}, ${stmt.js3type}`)
   }
 
-  handleJS3AssnInit(init: JS3AssnInit) {
+  handleJS3AssnInit(init: JS3AssnInit) : IV_ASSIGNABLE {
     if (init.type === "DecimalLiteral") {
       return new IV_DecimalLiteral(init, init.value);
     } else if (init.type === "BigIntLiteral") {
@@ -84,9 +95,21 @@ export default class IRIDIUM {
     } else if (init.type === "BooleanLiteral") {
       return new IV_BooleanLiteral(init, init.value);
     } else if (init.type === "Identifier") {
-      return new IV_Identifer(init, init.name);
-    } else {
-      return new IV_StringLiteral(undefined, "~~TODO~~");
+      return new IV_Identifier(init, init.name);
+    } else if (isJS3RegExpLiteral(init)) {
+      return this.handleJS3RegExpLiteral(init);
+    } else if (isJS3TemplateLiteral(init)) {
+      return this.handleJS3TemplateLiteral(init);
+    } else if (isJS3MemberExpression(init)) {
+      return this.handleJS3MemberExpression(init);
+    } else if (isJS3TaggedTemplateExpression(init)) {
+      return this.handleJS3TaggedTemplateExpression(init);
+    }
+    
+    else {
+      return new IV_StringLiteral(undefined, `😞💔(${init.type})`);
+      // // @ts-ignore
+      // debugConfig.logger.throwIriError(`IRIDIUM: Unhandled Statement ${init.type}, ${init.js3type ? init.js3type : undefined}`)
     }
   }
 
@@ -103,13 +126,45 @@ export default class IRIDIUM {
     return body
   }
 
+  // ***********************        AMP          ***********************
+
+  handleJS3MemberExpression(node: JS3MemberExpression) {
+    let prop : IV_Identifier | IV_PrivateName
+    if (isIdentifier(node.property)) prop = new IV_Identifier(node.property, node.property.name)
+    else prop = new IV_PrivateName(node.property, new IV_Identifier(node.property.id, node.property.id.name))
+
+    if (isIdentifier(node.object)) {
+      return new IV_MemberExpression(node, new IV_Identifier(node.object, node.object.name), prop)
+    } else if (isThisExpression(node.object)) {
+      return new IV_ThisLookup(node, prop)
+    } else {
+      return new IV_SuperLookup(node, prop)
+    }
+  }
+
+
   // ***********************       RVALUES        ***********************
 
-  // *********************** Iridium_Literals ***********************
+  
+  // *********************** Iridium_TemplateLiteral ***********************
 
-  handle
+  handleJS3TemplateLiteral(node: JS3TemplateLiteral) {
+    return IV_TemplateLiteral.from(node)
+  }
 
+  handleJS3TaggedTemplateExpression(node: JS3TaggedTemplateExpression) {
+    if (isIdentifier(node.tag)) {
+      return new IV_TaggedTemplateCall(node, new IV_Identifier(node.tag, node.tag.name), this.handleJS3TemplateLiteral(node.quasi))
+    } else {
+      return new IV_TaggedTemplateCall(node, this.handleJS3MemberExpression(node.tag), this.handleJS3TemplateLiteral(node.quasi))
+    }
+  }
 
+  // *********************** Iridium_Regexp ***********************
+  
+  handleJS3RegExpLiteral(init: JS3RegExpLiteral) {
+    return new IV_Regexp(init, init.pattern, init.flags);
+  }
 
   // *********************** STATEMENTS ***********************
 
@@ -122,7 +177,7 @@ export default class IRIDIUM {
       //   try { BLOCK } catch(?ID) { HANDLER }
       let curr           = this.getCurrentBB()
       let TryBB          = new TryBlockBB(stmt.block)
-      let CatchHandlerBB = new CatchBB(stmt.handler.param ? new IV_Identifer(stmt.handler.param, stmt.handler.param.name) : undefined)
+      let CatchHandlerBB = new CatchBB(stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
       let PostBB         = curr.create()
       PostBB.terminal    = curr.terminal
 
@@ -177,7 +232,7 @@ export default class IRIDIUM {
 
       let curr           = this.getCurrentBB()
       let TryBB          = new TryBlockBB(stmt.block)
-      let CatchHandlerBB = new CatchBB(stmt.handler.param ? new IV_Identifer(stmt.handler.param, stmt.handler.param.name) : undefined)
+      let CatchHandlerBB = new CatchBB(stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
       let FinallyBB      = new BlockBB(stmt.finalizer)
       let PostBB         = curr.create()
       PostBB.terminal    = curr.terminal
@@ -223,7 +278,7 @@ export default class IRIDIUM {
       let PostBB : BB = curr.create() // Create a continuation...
       PostBB.terminal = curr.terminal
 
-      let ID = new IV_Identifer(stmt.test, stmt.test.name)
+      let ID = new IV_Identifier(stmt.test, stmt.test.name)
       curr.terminal = new BranchTerminal(stmt, ID, TrueBB, PostBB)
       TrueBB.terminal = new UnconditionalGoto(PostBB)
 
@@ -242,7 +297,7 @@ export default class IRIDIUM {
       let PostBB : BB = curr.create() // Create a continuation...
       PostBB.terminal = curr.terminal
 
-      let ID = new IV_Identifer(stmt.test, stmt.test.name)
+      let ID = new IV_Identifier(stmt.test, stmt.test.name)
       
       curr.terminal = new BranchTerminal(stmt, ID, TrueBB, FalseBB)
       TrueBB.terminal = new UnconditionalGoto(PostBB)
@@ -308,7 +363,7 @@ export default class IRIDIUM {
     // KIND ID = RVal
     
     if (isIdentifier(declaration.id)) {
-      let LVal = new IV_Identifer(declaration.id, declaration.id.name)
+      let LVal = new IV_Identifier(declaration.id, declaration.id.name)
       let RVal = this.handleJS3AssnInit(declaration.init)
       curr.statements.push(new IS_SimpleVarDecl(stmt, KIND, LVal, RVal))
       return;
@@ -351,7 +406,7 @@ export default class IRIDIUM {
     let curr = this.getCurrentBB()
     // return | return ID
     if (stmt.argument) {
-      curr.statements.push(new IS_Return(stmt, new IV_Identifer(stmt.argument, stmt.argument.name)))
+      curr.statements.push(new IS_Return(stmt, new IV_Identifier(stmt.argument, stmt.argument.name)))
     } else {
       curr.statements.push(new IS_Return(stmt, null))
     }
@@ -360,7 +415,7 @@ export default class IRIDIUM {
   handleJS3ThrowStatement(stmt: JS3ThrowStatement) {
     let curr = this.getCurrentBB()
     // throw ID
-    curr.statements.push(new IS_Throw(stmt, new IV_Identifer(stmt.argument, stmt.argument.name)))
+    curr.statements.push(new IS_Throw(stmt, new IV_Identifier(stmt.argument, stmt.argument.name)))
   }
 
   // *********************** Iridium_Imports_Exports ***********************  
@@ -387,13 +442,13 @@ export default class IRIDIUM {
     // case b.
     // import { X as Y } from "FROM"
     if (isImportSpecifier(specifier)) {
-      let remote: IV_Identifer | IV_StringLiteral
+      let remote: IV_Identifier | IV_StringLiteral
       if (isIdentifier(specifier.imported)) {
-        remote = new IV_Identifer(specifier.imported, specifier.imported.name)
+        remote = new IV_Identifier(specifier.imported, specifier.imported.name)
       } else {
         remote = new IV_StringLiteral(specifier.imported, specifier.imported.value)
       }
-      let local = new IV_Identifer(specifier.local, specifier.local.name)
+      let local = new IV_Identifier(specifier.local, specifier.local.name)
       let FROM = new IV_StringLiteral(stmt.source, stmt.source.value)
       curr.statements.push(new IS_BImport(stmt, remote, local, FROM));
       return;
@@ -402,7 +457,7 @@ export default class IRIDIUM {
     // case c.
     // import * as X from "FROM"
     else {
-      let local = new IV_Identifer(specifier.local, specifier.local.name)
+      let local = new IV_Identifier(specifier.local, specifier.local.name)
       let FROM = new IV_StringLiteral(stmt.source, stmt.source.value)
       curr.statements.push(new IS_CImport(stmt, local, FROM));
       return;
@@ -412,7 +467,7 @@ export default class IRIDIUM {
   handleJS3ExportDefaultDeclaration(stmt: JS3ExportDefaultDeclaration) {
     let curr = this.getCurrentBB()
     // export default ID
-    curr.statements.push(new IS_AExport(stmt, new IV_Identifer(stmt.declaration, stmt.declaration.name)))
+    curr.statements.push(new IS_AExport(stmt, new IV_Identifier(stmt.declaration, stmt.declaration.name)))
   }
 
   handleJS3ExportNamedDeclaration(stmt: JS3ExportNamedDeclaration) {
@@ -430,10 +485,10 @@ export default class IRIDIUM {
     if (isJS3ExportSpecifier(specifier) && !isStringLiteral(stmt.source)) {
       // case a.
       // export {LOCAL as REMOTE}
-      let local = new IV_Identifer(specifier.local, specifier.local.name)
-      let remote: IV_Identifer | IV_StringLiteral
+      let local = new IV_Identifier(specifier.local, specifier.local.name)
+      let remote: IV_Identifier | IV_StringLiteral
       if (isIdentifier(specifier.exported)) {
-        remote = new IV_Identifer(specifier.exported, specifier.exported.name)
+        remote = new IV_Identifier(specifier.exported, specifier.exported.name)
       } else {
         remote = new IV_StringLiteral(specifier.exported, specifier.exported.value)
       }
@@ -444,10 +499,10 @@ export default class IRIDIUM {
     if (isJS3ExportSpecifier(specifier) && isStringLiteral(stmt.source)) {
       // case b.
       // export {LOCAL as REMOTE} from FROM
-      let local = new IV_Identifer(specifier.local, specifier.local.name)
-      let remote: IV_Identifer | IV_StringLiteral
+      let local = new IV_Identifier(specifier.local, specifier.local.name)
+      let remote: IV_Identifier | IV_StringLiteral
       if (isIdentifier(specifier.exported)) {
-        remote = new IV_Identifer(specifier.exported, specifier.exported.name)
+        remote = new IV_Identifier(specifier.exported, specifier.exported.name)
       } else {
         remote = new IV_StringLiteral(specifier.exported, specifier.exported.value)
       }
@@ -459,7 +514,7 @@ export default class IRIDIUM {
     if (isJS3ExportNamespaceSpecifier(specifier) && isIdentifier(specifier.exported)) {
       // case c.
       // export * as REMOTE FROM
-      let remote = new IV_Identifer(specifier.exported, specifier.exported.name)
+      let remote = new IV_Identifier(specifier.exported, specifier.exported.name)
       let FROM = new IV_StringLiteral(stmt.source, stmt.source.value)
       curr.statements.push(new IS_DExport(stmt, remote, FROM))
       return;

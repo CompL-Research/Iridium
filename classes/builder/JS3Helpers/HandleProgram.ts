@@ -25,7 +25,6 @@ const isnull = (a) => a === null;
 const isundefined = (a) => a === undefined;
 
 export function handleProgram(node: Program, otherProps: OtherProps): JS3Program {
-  otherProps.debugTrace.push("Program");
   // 4 fallthrough props, 1 restricted props
   let orig_body = node.body; // Handling prop body
   let fin_body: JS3Program_body = new Array(); // Handling prop body
@@ -64,13 +63,11 @@ export function handleProgram(node: Program, otherProps: OtherProps): JS3Program
   // test262/test/language/comments/hashbang/line-terminator-carriage-return.js
   // 
   let result: JS3Program = generateJS3Program(fin_body, node);
-  otherProps.debugTrace.pop()
   return result
 }
 
 // Import Declarations
 export function handleImportDeclaration(node: ImportDeclaration, otherProps: OtherProps) {
-  otherProps.debugTrace.push("ImportDeclaration");
   // 5 fallthrough props, 3 restricted props
   let orig_assertions = node.assertions; // Handling prop assertions
   let fin_assertions: JS3ImportDeclaration_assertions = null; // Handling prop assertions
@@ -138,12 +135,10 @@ export function handleImportDeclaration(node: ImportDeclaration, otherProps: Oth
     (otherProps.others.holder as JS3Program_body).push(generateJS3ImportDeclaration(new Array(), fin_assertions, fin_attributes, node))
   }
 
-  otherProps.debugTrace.pop()
 }
 
 // Export Default Declaration, returns a list of declarations (may be caused by spilling) and finally a ExportDefaultDeclaration
 export function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, otherProps: OtherProps) {
-  otherProps.debugTrace.push("ExportDefaultDeclaration");
 
   // 2 fallthrough props, 1 restricted props
   let orig_declaration = node.declaration; // Handling prop declaration
@@ -199,7 +194,6 @@ export function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, o
 
   // Generate a export default statement and push it into the holder
   (otherProps.others.holder as JS3Program_body).push(generateJS3ExportDefaultDeclaration(fin_declaration, node))
-  otherProps.debugTrace.pop()
 }
 
 export function handleExportNamedDeclaration(node: ExportNamedDeclaration, otherProps: OtherProps) {

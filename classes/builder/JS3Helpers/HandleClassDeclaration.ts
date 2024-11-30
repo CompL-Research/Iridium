@@ -18,7 +18,6 @@ type OtherProps = JS3BuilderUtils;
 
 
 export function handleClassDeclaration(node: ClassDeclaration, otherProps: OtherProps): JS3ClassDeclaration {
-  otherProps.debugTrace.push("ClassDeclaration")
   assert(Array.isArray(otherProps.others.holder), "handleClassDeclaration expects an holder to spill intermediate values");
 
   // 4 fallthrough props, 7 restricted props
@@ -98,12 +97,10 @@ export function handleClassDeclaration(node: ClassDeclaration, otherProps: Other
     debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->typeParameters->Noop");
   }
   let result: JS3ClassDeclaration = generateJS3ClassDeclaration(fin_id, fin_superClass, fin_body, fin_decorators, fin_implements, fin_mixins, fin_superTypeParameters, fin_typeParameters, node);
-  otherProps.debugTrace.pop()
   return result
 }
 
 export function handleClassBody(node: ClassBody, otherProps: OtherProps): JS3ClassBody {
-  otherProps.debugTrace.push("ClassBody")
   // 1 fallthrough props, 1 restricted props
   let orig_body = node.body; // Handling prop body
   let fin_body: JS3ClassBody_body = new Array(); // Handling prop body
@@ -139,12 +136,10 @@ export function handleClassBody(node: ClassBody, otherProps: OtherProps): JS3Cla
     }
   }
   let result: JS3ClassBody = generateJS3ClassBody(fin_body, node);
-  otherProps.debugTrace.pop()
   return result
 }
 
 export function handleClassProperty(node: ClassProperty, otherProps: OtherProps): JS3ClassProperty {
-  otherProps.debugTrace.push("ClassProperty")
 
   const oldPrefix = otherProps.others.prefix
 
@@ -211,7 +206,6 @@ export function handleClassProperty(node: ClassProperty, otherProps: OtherProps)
   }
 
   let result: JS3ClassProperty = generateJS3ClassProperty(fin_key, fin_value, fin_typeAnnotation, fin_decorators, fin_variance, node);
-  otherProps.debugTrace.pop()
   otherProps.others.prefix = oldPrefix
   return result
 }

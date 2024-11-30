@@ -4,12 +4,12 @@ import { ALL_RVal } from "./ALL_RVal.ts";
 export class IV_DecimalLiteral extends ALL_RVal {
   value: string
   constructor(node: DecimalLiteral | undefined = undefined, value: string) {
-    super(node);
+    super(node, "DecimalLiteral");
     this.value = value
   }
 
   toString() {
-    return `${this.value}`
+    return `<${this.type}> ${this.value}`
   }
 }
 
@@ -17,69 +17,58 @@ export class IV_DecimalLiteral extends ALL_RVal {
 export class IV_BigIntLiteral extends ALL_RVal {
   value: string
   constructor(node: BigIntLiteral | undefined = undefined, value: string) {
-    super(node);
+    super(node, "BigIntLiteral");
     this.value = value
   }
 
   toString() {
-    return `${this.value}`
+    return `<${this.type}> ${this.value}`
   }
 }
 
 export class IV_StringLiteral extends ALL_RVal {
   value: string
   constructor(node: StringLiteral | undefined = undefined, value: string) {
-    super(node);
+    super(node, "StringLiteral");
     this.value = value
   }
 
   toString() {
-    return `"${this.value}"`
+    return `<${this.type}> "${this.value}"`
   }
 }
 
 export class IV_NumericLiteral extends ALL_RVal {
   value: number
   constructor(node: NumericLiteral | undefined = undefined, value: number) {
-    super(node);
+    super(node, "NumericLiteral");
     this.value = value
   }
 
   toString() {
-    return `${this.value}`
+    return `<${this.type}> ${this.value}`
   }
 }
 
 export class IV_NullLiteral extends ALL_RVal {
   constructor(node: NullLiteral | undefined = undefined) {
-    super(node);
+    super(node, "NullLiteral");
   }
 
   toString() {
-    return `NULL`
+    return `<${this.type}> NULL`
   }
 }
 
 export class IV_BooleanLiteral extends ALL_RVal {
   value: boolean
   constructor(node: BooleanLiteral | undefined = undefined, value : boolean) {
-    super(node);
+    super(node, "BooleanLiteral");
     this.value = value
   }
 
   toString() {
-    return `${this.value}`
+    return `<${this.type}> ${this.value}`
   }
 }
 
-export class IV_Identifer extends ALL_RVal {
-  name: string
-  constructor(node: Identifier | undefined = undefined, name: string) {
-    super(node);
-    this.name = name
-  }
-
-  toString() {
-    return `${this.name}`
-  }
-}

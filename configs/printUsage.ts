@@ -18,6 +18,11 @@ const COMMON_OPTIONS = [
     type: String,
     typeLabel: '{underline path} ...'
   },
+  {
+    name: 'test-262',
+    description: 'Preserves comments when translating to JS3 (needed for test262 tests to run).',
+    type: Boolean
+  },
 ]
 
 const JS3_OPTIONAL_LANGUAGE_SUPPORT = [
