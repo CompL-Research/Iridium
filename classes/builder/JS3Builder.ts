@@ -79,7 +79,8 @@ export default class JS3Builder {
       presets.push(['@babel/preset-typescript'])
     }
 
-    this.generatedProgram.trailingComments = this.generatedProgram.comments
+    if (debugConfig.test262) 
+      this.generatedProgram.trailingComments = this.generatedProgram.comments
 
     const transformedCode = babel.transformFromAst(this.generatedProgram, this.projectFile.initData.sourceCode, {
       // cwd: this.projectFile.projectBasePath,

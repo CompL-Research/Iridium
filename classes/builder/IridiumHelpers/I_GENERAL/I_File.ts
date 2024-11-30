@@ -1,5 +1,5 @@
 import { JS3File, JS3Program } from "classes/builder/JS3Helpers/JS3Types.ts";
-import IRIDIUM, { IRIDIUM_FG } from "../IRIDIUM.ts";
+import IRIDIUM, { IRIDIUM_FG, printScopedSpace } from "../IRIDIUM.ts";
 
 
 export class I_File {
@@ -14,7 +14,7 @@ export class I_File {
 
   toString(space = 0) {
     let stmts = []
-    stmts.push(`${" ".repeat(space)}I_File:`)
+    stmts.push(`${printScopedSpace(space)}I_File:`)
     stmts.push(this.program.toString(space + 2))
     return stmts.join("\n")
   }
@@ -43,7 +43,7 @@ export class I_Program {
 
   toString(space = 0) {
     let stmts = []
-    stmts.push(`${" ".repeat(space)}I_Program:`)
+    stmts.push(`${printScopedSpace(space)}I_Program:`)
     stmts.push(this.body.bb.toString(space + 2))
     return stmts.join("\n")
   }

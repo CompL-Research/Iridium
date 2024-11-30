@@ -1,6 +1,6 @@
 // // 1.
 // import "source";
-// import { x as y } from "source";
+// import { zxx as y } from "source";
 // import * as x from "source";
 // import z from "source";
 
@@ -23,10 +23,11 @@
 //   let test = "foo";
 // }
 
+
 // // 5. Ifstmt
 // let t = false;
 // if (t) {
-//   let a = 1;
+//   let a = `ABC${t}def`;
 // }
 // if (t) {
 //   let a = 123;
@@ -42,30 +43,33 @@
 //   }
 // }
 
+// // 6. FunctionScope
 // function fn() {
 //   var a = 1;
 //   try {
 //     throw 'stuff3';
+//     return;
 //   } catch (a) {
 //     // catch parameter shadowing var variable
 //     console.log(a, 'stuff3');
 //   }
 //   console.log(a, 1);
+//   return foo;
 // }
 // fn()
 
-try {
-  let a = 1;
-} catch([a, ...{x: { y: boo }}]) {
-  let b = 2;
-}
 
+// // 7.Try Catch
+// try {
+//   let a = 1;
+// } catch([a, ...{x: { y: boo }}]) {
+//   let b = 2;
+// }
 // try {
 //   let a = 1;
 // } finally {
 //   let b = 2;
 // }
-
 // try {
 //   let a = 1;
 // } catch {
@@ -73,3 +77,23 @@ try {
 // } finally {
 //   let c = 3;
 // }
+
+
+
+// 8. Template Literals
+// let a = `a,b,c${g}da`
+// let b = tag`a,b,c${g}da`
+
+
+// // 9. Call Expression
+// let f = function(a,b,c) {  }
+
+// f(a,b*c,(b*c,6,7) );
+// g.h.i(a,b*c,(b*c,6,7) );
+// (g?.h)?.i(a,b*c,(b*c,6,7) );
+
+// 10. CallExpressions
+import("boo");
+f(a,b*c,(b*c,6,7));
+// c. Super [ID,...ID]
+// d. V8IntrinsicIdentifier [ID,...ID]

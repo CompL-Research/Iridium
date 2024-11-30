@@ -11,7 +11,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@babel/core": "^7.25.2",
     "@babel/plugin-syntax-jsx": "^7.24.7",
     "@babel/preset-env": "^7.25.3",
     "@babel/preset-react": "^7.24.7",
@@ -39,5 +38,9 @@
   "imports": {
     "#debugConfig": "./configs/debug.ts",
     "#utils": "./classes/utils/utils.ts"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.25.9",
+    "@babel/core": "^7.26.0"
   }
 }

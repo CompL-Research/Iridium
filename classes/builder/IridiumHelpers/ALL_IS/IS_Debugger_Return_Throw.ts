@@ -1,6 +1,7 @@
 import { JS3DebuggerStatement, JS3ReturnStatement, JS3ThrowStatement } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { ALL_IS } from "./ALL_IS.ts";
-import { IV_Identifer } from "../ALL_RVal/IV_Identifier.ts";
+import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
+import { printScopedSpace } from "../IRIDIUM.ts";
 
 export class IS_Debugger extends ALL_IS {
   constructor(node: JS3DebuggerStatement | undefined = undefined) {
@@ -8,36 +9,36 @@ export class IS_Debugger extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}DEBUGGER;`
+    return `${printScopedSpace(space)}█ DEBUGGER;`
   }
 }
 
 export class IS_Return extends ALL_IS {
-  argument : null | IV_Identifer
+  argument : null | IV_Identifier
 
-  constructor(node: JS3ReturnStatement | undefined = undefined, argument: IV_Identifer | null) {
+  constructor(node: JS3ReturnStatement | undefined = undefined, argument: IV_Identifier | null) {
     super(node);
     this.argument = argument
   }
 
   toString(space = 0) {
     if (this.argument) {
-      return `${" ".repeat(space)}RETURN ${this.argument.toString()};`
+      return `${printScopedSpace(space)}█ RETURN ${this.argument.toString()};`
     } else {
-      return `${" ".repeat(space)}RETURN;`
+      return `${printScopedSpace(space)}█ RETURN;`
     }
   }
 }
 
 export class IS_Throw extends ALL_IS {
-  argument : IV_Identifer
+  argument : IV_Identifier
 
-  constructor(node: JS3ThrowStatement | undefined = undefined, argument: IV_Identifer) {
+  constructor(node: JS3ThrowStatement | undefined = undefined, argument: IV_Identifier) {
     super(node);
     this.argument = argument
   }
 
   toString(space = 0) {
-    return `${" ".repeat(space)}THROW ${this.argument.toString()};`
+    return `${printScopedSpace(space)}█ THROW ${this.argument.toString()};`
   }
 }

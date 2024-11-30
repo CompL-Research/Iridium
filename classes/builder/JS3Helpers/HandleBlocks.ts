@@ -175,7 +175,6 @@ export function handleExpressionStatement(node: ExpressionStatement, otherProps:
 // Result: If (Identifier) [JS3BlockStatement] [? Else] [JS3BlockStatement]
 //
 export function handleIfStatement(node: IfStatement, otherProps: OtherProps) {
-  otherProps.debugTrace.push("IfStatement")
   assert(Array.isArray(otherProps.others.holder), `handleIfStatement expects an holder to spill intermediate values`);
 
   const oldPrefix = otherProps.others.prefix
@@ -231,7 +230,6 @@ export function handleIfStatement(node: IfStatement, otherProps: OtherProps) {
   }
   otherProps.others.prefix = oldPrefix
   const result = generateJS3IfStatement(fin_test, fin_consequent, fin_alternate, node)
-  otherProps.debugTrace.pop()
   return result
 }
 
@@ -242,7 +240,6 @@ export function handleIfStatement(node: IfStatement, otherProps: OtherProps) {
 // Result: Return [? Identifier]
 //
 export function handleReturnStatement(node: ReturnStatement, otherProps: OtherProps) {
-  otherProps.debugTrace.push("ReturnStatement")
   assert(Array.isArray(otherProps.others.holder), `handleReturnStatement expects an holder to spill intermediate values`);
 
   const oldPrefix = otherProps.others.prefix
@@ -259,7 +256,6 @@ export function handleReturnStatement(node: ReturnStatement, otherProps: OtherPr
 
   otherProps.others.prefix = oldPrefix
   const result = generateJS3ReturnStatement(fin_argument, node)
-  otherProps.debugTrace.pop()
   return result
 }
 
@@ -270,7 +266,6 @@ export function handleReturnStatement(node: ReturnStatement, otherProps: OtherPr
 // Result: [let|const|... declaration1, let|const|... declaration2, let|const|... declaration3,...]
 //
 export function handleVariableDeclaration(node: VariableDeclaration, otherProps: OtherProps): Array<JS3AllowedBlockStatement> {
-  otherProps.debugTrace.push("VariableDeclaration")
   assert(Array.isArray(otherProps.others.holder), `handleVariableDeclaration expects an holder to spill intermediate values`);
 
   const holder: JS3BlockStatement_body = new Array()
@@ -287,7 +282,6 @@ export function handleVariableDeclaration(node: VariableDeclaration, otherProps:
     handleDeclaratorRec(_arrProp.id, _arrProp.init, updatedProps, generator)
   }
 
-  otherProps.debugTrace.pop()
   return holder
 }
 
@@ -620,7 +614,6 @@ export function handleDeclaratorRec(
 // // Result: LVal = JS3VariableDeclarator_init
 // //
 // export function handleVariableDeclarator(node: VariableDeclarator, otherProps: OtherProps) {
-//   otherProps.debugTrace.push("VariableDeclarator");
 //   assert(Array.isArray(otherProps.others.holder), "handleVariableDeclarator expects an holder to spill intermediate values");
 
 //   let oldEvalContext = otherProps.others.isNamedEvalContext
@@ -674,7 +667,6 @@ export function handleDeclaratorRec(
 
 //   let result: JS3VariableDeclarator = generateJS3VariableDeclarator(fin_id, fin_init, node);
 //   otherProps.others.prefix = oldPrefix
-//   otherProps.debugTrace.pop()
 //   return result;
 // }
 

@@ -209,6 +209,7 @@ if (mainCommand === 'analyze') {
       }
       debugConfig.outputsPath = path.resolve("./" + options["outputs-path"])
     }
+    if ("test-262" in options) debugConfig.test262 = true;
     if ("folder" in options) {
       if (options.folder === null) {
         console.log(chalk.red("Folder path not provided"))
@@ -277,6 +278,7 @@ if (mainCommand === 'analyze') {
       }
       fs.mkdirSync(debugConfig.outputsPath);
     }
+    if ("test-262" in options) debugConfig.test262 = true;
     if ("source-type" in options) {
       if (options["source-type"] === null) {
         console.log(chalk.red("JS3 mode is not provided"))
@@ -322,6 +324,7 @@ if (mainCommand === 'analyze') {
       }
       fs.mkdirSync(debugConfig.outputsPath);
     }
+    if ("test-262" in options) debugConfig.test262 = true;
     if ("source-type" in options) {
       if (options["source-type"] === null) {
         console.log(chalk.red("JS3 mode is not provided"))
