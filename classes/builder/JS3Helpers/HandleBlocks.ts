@@ -6,7 +6,7 @@ import { isJS3AssnObjectProperty, isJS3MemberExpression, JS3AllowedBlockStatemen
 
 import debugConfig from "#debugConfig";
 import { handleArrowFunctionExpression, handleClassExpression, handleExpression, handleFunctionExpression, handleMemberExpression, lowerToAnonArrayExpr } from "./HandleExpression.ts";
-import { generateBaseNodeFrom, generateIdentifier, generateJS3ArrayPatternfromBaseNode, generateJS3AssignmentExpressionfromBaseNode, generateJS3AssnObjectPropertyfromBaseNode, generateJS3BinaryExpressionfromBaseNode, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3CatchClause, generateJS3ContinueStatement, generateJS3DebuggerStatement, generateJS3DoWhileStatement, generateJS3EmptyStatement, generateJS3EmptyStatementfromBaseNode, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3LabeledStatement, generateJS3ObjectPattern, generateJS3PrivateName, generateJS3RestElement, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclarator, generateJS3VariableDeclaratorfromBaseNode, generateJS3WhileStatement, generateJS3WithStatement } from "./JS3Constructors.ts";
+import { generateBaseNodeFrom, generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrayPatternfromBaseNode, generateJS3AssignmentExpressionfromBaseNode, generateJS3AssnObjectPropertyfromBaseNode, generateJS3BinaryExpressionfromBaseNode, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3CatchClause, generateJS3ContinueStatement, generateJS3DebuggerStatement, generateJS3DoWhileStatement, generateJS3EmptyStatement, generateJS3EmptyStatementfromBaseNode, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3LabeledStatement, generateJS3ObjectPattern, generateJS3PrivateName, generateJS3RestElement, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclarator, generateJS3VariableDeclaratorfromBaseNode, generateJS3WhileStatement, generateJS3WithStatement } from "./JS3Constructors.ts";
 
 import { generateCommentLine } from "#utils";
 import assert from 'node:assert';
@@ -294,6 +294,7 @@ export function handleDeclaratorRec(
   RVal: Expression,
   otherProps: OtherProps,
   generator: (LVal: JS3MemberExpression | JS3ArrayPattern | JS3ObjectPattern | Identifier, RVal: null | JS3VariableDeclarator_init) => JS3AllowedBlockStatement,
+  generateIntermediateBindings = false
   ) {
   
   
@@ -350,7 +351,12 @@ export function handleDeclaratorRec(
         temporaries.push(e);
         continue;
       }
+
       let temporary = generateIdentifier(LVal, otherProps.getNewTemporary("arraPat"))
+
+      if (generateIntermediateBindings) {
+        otherProps.others.holder.push(generateDummyJS3VariableDeclaration(LVal, temporary, null, "let", null, null))
+      }
 
       if (isRestElement(e)) {
         // ...REST_ELEMENT
@@ -427,7 +433,7 @@ export function handleDeclaratorRec(
     // 
     // Assignment pattern case
     // 
-    // left = right
+    // left = RVal !== undefined ? RVal : right  
     // 
     // let fin$res = RVal
     // let cond$res = fin$res === undefined
@@ -456,7 +462,7 @@ export function handleDeclaratorRec(
 
     // rightspill$res = ...EXPR
     let rightspill$res = handleExpression(LVal.right, updatedProps)
-    conseq.push(generateJS3AssignmentExpressionfromBaseNode(fin$res, rightspill$res, "=", LVal))  
+    conseq.push(generateJS3AssignmentExpressionfromBaseNode("=", fin$res, rightspill$res, LVal))  
     
     // if (cond$res) { conseq }
     let ifCond = generateJS3IfStatementfromBaseNode(cond$res, generateJS3BlockStatementfromBaseNode(conseq, [], LVal), null, LVal)
@@ -517,6 +523,11 @@ export function handleDeclaratorRec(
       reassigned.push(true)
 
       let temporary = generateIdentifier(LVal, otherProps.getNewTemporary("objPat"));
+
+      if (generateIntermediateBindings) {
+        otherProps.others.holder.push(generateDummyJS3VariableDeclaration(LVal, temporary, null, "let", null, null))
+      }
+
 
       if (isObjectProperty(p)) {
 

@@ -11,9 +11,9 @@ type AmphibiousNodes = JS3MemberExpression
 type IRI_AMP_TYPE = "Identifier"
                   | "V8IntrinsicIdentifier"
                   | "PrivateName"
-                  | "MemberExpression"
-                  | "ThisLookup"
-                  | "SuperLookup"
+                  | "MemberExpressionPA"
+                  | "ThisPA"
+                  | "SuperPA"
 
 
 export class ALL_AMP {
@@ -56,43 +56,53 @@ export class IV_PrivateName extends ALL_AMP {
   }
 }
 
-export class IV_MemberExpression extends ALL_AMP {
+export class IV_MemberExpressionPA extends ALL_AMP {
   object: IV_Identifier
   property: IV_Identifier | IV_PrivateName
+  computed: boolean
 
-  constructor(node: JS3MemberExpression | undefined = undefined, object: IV_Identifier, property: IV_Identifier | IV_PrivateName) {
-    super(node, "MemberExpression");
+  constructor(node: JS3MemberExpression | undefined = undefined, object: IV_Identifier, property: IV_Identifier | IV_PrivateName, computed: boolean) {
+    super(node, "MemberExpressionPA");
     this.object = object
     this.property = property
+    this.computed = computed
   }
 
   toString() {
-    return `<ObjectLookup> ${this.object.name}.${this.property.toString()}`
+    if (this.computed) return `<MemberExpressionPA> ${this.object.name}[${this.property.toString()}]`
+    return `<MemberExpressionPA> ${this.object.name}.${this.property.toString()}`
   }
 }
 
-export class IV_ThisLookup extends ALL_AMP {
+export class IV_ThisLookupPA extends ALL_AMP {
   property: IV_Identifier | IV_PrivateName
+  computed: boolean
 
-  constructor(node: JS3MemberExpression | undefined = undefined, property: IV_Identifier | IV_PrivateName) {
-    super(node, "ThisLookup");
+  constructor(node: JS3MemberExpression | undefined = undefined, property: IV_Identifier | IV_PrivateName, computed: boolean) {
+    super(node, "ThisPA");
     this.property = property
+    this.computed = computed
   }
 
   toString() {
-    return `<THISLookup> THIS.${this.property.toString()}`
+    if (this.computed) return `<THISPA> THIS[${this.property.toString()}]`
+    return `<THISPA> THIS.${this.property.toString()}`
   }
 }
 
-export class IV_SuperLookup extends ALL_AMP {
+export class IV_SuperLookupPA extends ALL_AMP {
   property: IV_Identifier | IV_PrivateName
+  computed: boolean
 
-  constructor(node: JS3MemberExpression | undefined = undefined, property: IV_Identifier | IV_PrivateName) {
-    super(node, "SuperLookup");
+  constructor(node: JS3MemberExpression | undefined = undefined, property: IV_Identifier | IV_PrivateName, computed: boolean) {
+    super(node, "SuperPA");
     this.property = property
+    this.computed = computed
+
   }
 
   toString() {
-    return `<SuperLookup> SUPER.${this.property.toString()}`
+    if (this.computed) return `<SuperPA> SUPER[${this.property.toString()}]`
+    return `<SuperPA> SUPER.${this.property.toString()}`
   }
 }

@@ -1,7 +1,7 @@
 import { JS3TaggedTemplateExpression, JS3TemplateLiteral } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { ALL_RVal } from "./ALL_RVal.ts";
 import { TemplateElement } from "@babel/types";
-import { IV_Identifier, IV_MemberExpression, IV_SuperLookup, IV_ThisLookup } from "../ALL_AMP/ALL_AMP.ts";
+import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../ALL_AMP/ALL_AMP.ts";
 
 export class IV_TemplateLiteral extends ALL_RVal {
   quasis: Array<TemplateElement>
@@ -42,10 +42,10 @@ export class IV_TemplateLiteral extends ALL_RVal {
 }
 
 export class IV_TaggedTemplateCall extends ALL_RVal {
-  tag: IV_Identifier | IV_MemberExpression | IV_SuperLookup | IV_ThisLookup
+  tag: IV_Identifier | IV_MemberExpressionPA | IV_SuperLookupPA | IV_ThisLookupPA
   template: IV_TemplateLiteral
   
-  constructor(node: JS3TaggedTemplateExpression | undefined = undefined, tag: IV_Identifier | IV_MemberExpression | IV_SuperLookup | IV_ThisLookup, template: IV_TemplateLiteral) {
+  constructor(node: JS3TaggedTemplateExpression | undefined = undefined, tag: IV_Identifier | IV_MemberExpressionPA | IV_SuperLookupPA | IV_ThisLookupPA, template: IV_TemplateLiteral) {
     super(node, "TaggedTemplateCall");
     this.tag = tag
     this.template = template

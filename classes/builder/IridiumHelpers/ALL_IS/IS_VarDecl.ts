@@ -10,10 +10,10 @@ export type IS_VAR_DECL_KIND = "var" | "let" | "const"
 export class IS_SimpleVarDecl extends ALL_IS {
   KIND: IS_VAR_DECL_KIND
   LVal: IV_Identifier
-  RVal: IV_ASSIGNABLE
+  RVal: IV_ASSIGNABLE | null
   generatedBindings: Set<IV_Identifier>
 
-  constructor(node: JS3VariableDeclaration | undefined = undefined, KIND: IS_VAR_DECL_KIND, ID: IV_Identifier, RVal: IV_ASSIGNABLE) {
+  constructor(node: JS3VariableDeclaration | undefined = undefined, KIND: IS_VAR_DECL_KIND, ID: IV_Identifier, RVal: IV_ASSIGNABLE | null = null) {
     super(node);
     this.KIND = KIND
     this.LVal = ID
@@ -24,6 +24,9 @@ export class IS_SimpleVarDecl extends ALL_IS {
   }
 
   toString(space = 0) {
+    if (!this.RVal) {
+      return `${printScopedSpace(space)}█ ${this.KIND} ${this.LVal.name};`
+    }
     return `${printScopedSpace(space)}█ ${this.KIND} ${this.LVal.name} = ${this.RVal.toString()};`
   }
 }
@@ -31,10 +34,10 @@ export class IS_SimpleVarDecl extends ALL_IS {
 export class IS_ArrPatVarDecl extends ALL_IS {
   KIND: IS_VAR_DECL_KIND
   LVal: JS3ArrayPattern
-  RVal: IV_ASSIGNABLE
+  RVal: IV_ASSIGNABLE | null
   generatedBindings: Set<IV_Identifier>
 
-  constructor(node: JS3VariableDeclaration | undefined = undefined, KIND: IS_VAR_DECL_KIND, LVal: JS3ArrayPattern, RVal: IV_ASSIGNABLE) {
+  constructor(node: JS3VariableDeclaration | undefined = undefined, KIND: IS_VAR_DECL_KIND, LVal: JS3ArrayPattern, RVal: IV_ASSIGNABLE | null = null) {
     super(node);
     this.KIND = KIND
     this.LVal = LVal
@@ -59,7 +62,7 @@ export class IS_ArrPatVarDecl extends ALL_IS {
       if (isRestElement(e)) {
         lval += `...${e.argument}`
       } else {
-        lval += `${e.name} `
+        lval += `${e.name}`
       }
 
       if (i !== len) {
@@ -70,6 +73,10 @@ export class IS_ArrPatVarDecl extends ALL_IS {
     })
     lval += "]"
 
+    if (!this.RVal) {
+      return `${printScopedSpace(space)}█ ${this.KIND} ${lval};`
+    }
+
     return `${printScopedSpace(space)}█ ${this.KIND} ${lval} = ${this.RVal.toString()};`
   }
 }
@@ -77,10 +84,10 @@ export class IS_ArrPatVarDecl extends ALL_IS {
 export class IS_ObjPatVarDecl extends ALL_IS {
   KIND: IS_VAR_DECL_KIND
   LVal: JS3ObjectPattern
-  RVal: IV_ASSIGNABLE
+  RVal: IV_ASSIGNABLE | null
   generatedBindings: Set<string>
 
-  constructor(node: JS3VariableDeclaration | undefined = undefined, KIND: IS_VAR_DECL_KIND, LVal: JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
+  constructor(node: JS3VariableDeclaration | undefined = undefined, KIND: IS_VAR_DECL_KIND, LVal: JS3ObjectPattern, RVal: IV_ASSIGNABLE | null = null) {
     super(node);
     this.KIND = KIND
     this.LVal = LVal
@@ -125,6 +132,10 @@ export class IS_ObjPatVarDecl extends ALL_IS {
       }
     })
     lval += "]"
+
+    if (!this.RVal) {
+      return `${printScopedSpace(space)}█ ${this.KIND} ${lval};`
+    }
 
     return `${printScopedSpace(space)}█ ${this.KIND} ${lval} = ${this.RVal.toString()};`
   }

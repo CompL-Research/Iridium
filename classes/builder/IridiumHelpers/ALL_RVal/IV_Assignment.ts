@@ -1,0 +1,142 @@
+import { isBigIntLiteral, isDecimalLiteral, isIdentifier, isNumericLiteral, isRestElement, isStringLiteral } from "@babel/types";
+import { JS3ArrayPattern, JS3AssignmentExpression, JS3AssnObjectProperty_key, JS3ObjectPattern } from "classes/builder/JS3Helpers/JS3Types.ts";
+import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../ALL_AMP/ALL_AMP.ts";
+import { ALL_RVal, IV_ASSIGNABLE } from "../ALL_RVal/ALL_RVal.ts";
+
+export class IV_SimpleAssn extends ALL_RVal {
+  LVal: IV_Identifier
+  RVal: IV_ASSIGNABLE
+
+  constructor(node: JS3AssignmentExpression | undefined = undefined, ID: IV_Identifier, RVal: IV_ASSIGNABLE) {
+    super(node, "SimpleAssn");
+    this.LVal = ID
+    this.RVal = RVal
+  }
+
+  toString() {
+    return `${this.LVal.toString()} = ${this.RVal.toString()}`
+  }
+}
+
+export class IV_MemberAssn extends ALL_RVal {
+  LVal: IV_MemberExpressionPA
+  RVal: IV_ASSIGNABLE
+
+  constructor(node: JS3AssignmentExpression | undefined = undefined, LVal: IV_MemberExpressionPA, RVal: IV_ASSIGNABLE) {
+    super(node, "MemberAssn");
+    this.LVal = LVal
+    this.RVal = RVal
+  }
+
+  toString() {
+    return `${this.LVal.toString()} = ${this.RVal.toString()}`
+  }
+}
+
+export class IV_ThisAssn extends ALL_RVal {
+  LVal: IV_ThisLookupPA
+  RVal: IV_ASSIGNABLE
+
+  constructor(node: JS3AssignmentExpression | undefined = undefined, LVal: IV_ThisLookupPA, RVal: IV_ASSIGNABLE) {
+    super(node, "ThisAssn");
+    this.LVal = LVal
+    this.RVal = RVal
+  }
+
+  toString() {
+    return `${this.LVal.toString()} = ${this.RVal.toString()}`
+  }
+}
+
+export class IV_SuperAssn extends ALL_RVal {
+  LVal: IV_SuperLookupPA
+  RVal: IV_ASSIGNABLE
+
+  constructor(node: JS3AssignmentExpression | undefined = undefined, LVal: IV_SuperLookupPA, RVal: IV_ASSIGNABLE) {
+    super(node, "SuperAssn");
+    this.LVal = LVal
+    this.RVal = RVal
+  }
+
+  toString() {
+    return `${this.LVal.toString()} = ${this.RVal.toString()}`
+  }
+}
+
+export class IV_ArrPatAssn extends ALL_RVal {
+  LVal: JS3ArrayPattern
+  RVal: IV_ASSIGNABLE
+
+  constructor(node: JS3AssignmentExpression | undefined = undefined, LVal: JS3ArrayPattern, RVal: IV_ASSIGNABLE) {
+    super(node, "ArrPatAssn");
+    this.LVal = LVal
+    this.RVal = RVal
+  }
+
+  toString() {
+    let lval = "[ "
+    let len = this.LVal.elements.length
+    let i = 0
+    this.LVal.elements.forEach(e => {
+      i++;
+      if (isRestElement(e)) {
+        lval += `...${e.argument}`
+      } else {
+        lval += `${e.name}`
+      }
+
+      if (i !== len) {
+        lval += `, `
+      } else {
+        lval += ` `
+      }
+    })
+    lval += "]"
+
+    return `${lval} = ${this.RVal.toString()}`
+  }
+}
+
+export class IV_ObjPatAssn extends ALL_RVal {
+  LVal: JS3ObjectPattern
+  RVal: IV_ASSIGNABLE
+
+  constructor(node: JS3AssignmentExpression | undefined = undefined, LVal: JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
+    super(node, "ObjPatAssn");
+    this.LVal = LVal
+    this.RVal = RVal
+  }
+
+  toString() {
+
+    let keyToString = (p: JS3AssnObjectProperty_key) => {
+      if (isIdentifier(p)) return p.name
+      else if (isStringLiteral(p)) return `"${p.value}"`
+      else if (isNumericLiteral(p)) return `${p.value}`
+      else if (isBigIntLiteral(p)) return `${p.value}`
+      else if (isDecimalLiteral(p)) return `${p.value}`
+      else return `#${p.id.name}`
+    }
+
+    let lval = "[ "
+    let len = this.LVal.properties.length
+    let i = 0
+    this.LVal.properties.forEach(p => {
+      i++;
+      if (isRestElement(p)) {
+        lval += `...${p.argument}`
+      } else {
+        lval += `${keyToString(p.key)} : ${p.value.name}`
+      }
+
+      if (i !== len) {
+        lval += `, `
+      } else {
+        lval += ` `
+      }
+    })
+    lval += "]"
+
+    return `${lval} = ${this.RVal.toString()}`
+  }
+}

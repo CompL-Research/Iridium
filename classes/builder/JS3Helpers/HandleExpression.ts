@@ -3,8 +3,8 @@ import debugConfig from "#debugConfig";
 import { ArrayExpression, ArrowFunctionExpression, assignmentExpression, AssignmentExpression, AwaitExpression, binaryExpression, BinaryExpression, CallExpression, ClassExpression, ConditionalExpression, Expression, FunctionExpression, identifier, Identifier, Import, ImportExpression, isArrayExpression, isArrayPattern, isArrowFunctionExpression, isAssignmentExpression, isAssignmentPattern, isAwaitExpression, isBigIntLiteral, isBinaryExpression, isBindExpression, isBlockStatement, isBooleanLiteral, isCallExpression, isClassBody, isClassExpression, isClassImplements, isConditionalExpression, isDecimalLiteral, isDeclaredPredicate, isDecorator, isDoExpression, isExpression, isFunctionExpression, isIdentifier, isImport, isImportExpression, isInferredPredicate, isInterfaceExtends, isJSXElement, isJSXFragment, isLogicalExpression, isMemberExpression, isMetaProperty, isModuleExpression, isNewExpression, isNoop, isNullLiteral, isNumericLiteral, isObjectExpression, isObjectMethod, isObjectPattern, isObjectProperty, isOptionalCallExpression, isOptionalMemberExpression, isParenthesizedExpression, isPattern, isPipelineBareFunction, isPipelinePrimaryTopicReference, isPipelineTopicExpression, isPrivateName, isRecordExpression, isRegExpLiteral, isRestElement, isSequenceExpression, isStringLiteral, isSuper, isTaggedTemplateExpression, isTemplateLiteral, isThisExpression, isTopicReference, isTSAsExpression, isTSExpressionWithTypeArguments, isTSInstantiationExpression, isTSNonNullExpression, isTSSatisfiesExpression, isTSType, isTSTypeAnnotation, isTSTypeAssertion, isTSTypeParameterDeclaration, isTupleExpression, isTypeAnnotation, isTypeCastExpression, isTypeParameterDeclaration, isUnaryExpression, isUpdateExpression, isYieldExpression, logicalExpression, LogicalExpression, MemberExpression, MetaProperty, NewExpression, nullLiteral, numericLiteral, ObjectExpression, ObjectMethod, ObjectProperty, PrivateName, RegExpLiteral, SequenceExpression, SpreadElement, TaggedTemplateExpression, TemplateLiteral, unaryExpression, UnaryExpression, UpdateExpression, YieldExpression } from "@babel/types";
 import assert from 'node:assert';
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
-import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AnonArrayExpressionfromBaseNode, generateJS3AnonMemberExpressionfromBaseNode, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3AwaitExpression, generateJS3BinaryExpression, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3ClassExpression, generateJS3ContextualCallExpressionfromBaseNode, generateJS3FunctionExpression, generateJS3IfStatementfromBaseNode, generateJS3Import, generateJS3ImportExpression, generateJS3MemberExpression, generateJS3MetaProperty, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3PrivateName, generateJS3RegExpLiteral, generateJS3ReturnStatementfromBaseNode, generateJS3SpreadElement, generateJS3SpreadElementfromBaseNode, generateJS3TaggedTemplateExpression, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3YieldExpression } from "./JS3Constructors.ts";
-import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrayPattern, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AwaitExpression, JS3AwaitExpression_argument, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3ContextualCallExpression, JS3ContextualCallExpression_arguments, JS3ContextualCallExpression_callee, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3Import, JS3ImportExpression, JS3ImportExpression_options, JS3ImportExpression_source, JS3LogicalExpression_left, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3MetaProperty, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectPattern, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3PrivateName, JS3RegExpLiteral, JS3SpreadElement, JS3SpreadElement_argument, JS3TaggedTemplateExpression, JS3TaggedTemplateExpression_quasi, JS3TaggedTemplateExpression_tag, JS3TaggedTemplateExpression_typeParameters, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3VariableDeclarator_init, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
+import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AnonArrayExpressionfromBaseNode, generateJS3AnonMemberExpressionfromBaseNode, generateJS3ArrayExpression, generateJS3ArrowFunctionExpression, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3AwaitExpression, generateJS3BinaryExpression, generateJS3BlockStatementfromBaseNode, generateJS3CallExpression, generateJS3ClassExpression, generateJS3ContextualCallExpressionfromBaseNode, generateJS3FunctionExpression, generateJS3IfStatementfromBaseNode, generateJS3Import, generateJS3ImportExpression, generateJS3MemberExpression, generateJS3MetaProperty, generateJS3NewExpression, generateJS3ObjectExpression, generateJS3ObjectMethod, generateJS3ObjectProperty, generateJS3PrivateName, generateJS3RegExpLiteral, generateJS3ReturnStatementfromBaseNode, generateJS3SpreadElement, generateJS3TaggedTemplateExpression, generateJS3TemplateLiteral, generateJS3UnaryExpression, generateJS3UpdateExpression, generateJS3YieldExpression } from "./JS3Constructors.ts";
+import { JS3ArrayExpression, JS3ArrayExpression_elements, JS3ArrayPattern, JS3ArrowFunctionExpression, JS3ArrowFunctionExpression_body, JS3ArrowFunctionExpression_params, JS3ArrowFunctionExpression_predicate, JS3ArrowFunctionExpression_returnType, JS3ArrowFunctionExpression_typeParameters, JS3AwaitExpression, JS3AwaitExpression_argument, JS3BinaryExpression, JS3BinaryExpression_left, JS3BinaryExpression_right, JS3BlockStatement_body, JS3CallExpression, JS3CallExpression_callee, JS3ClassExpression, JS3ClassExpression_body, JS3ClassExpression_decorators, JS3ClassExpression_implements, JS3ClassExpression_mixins, JS3ClassExpression_superClass, JS3ClassExpression_superTypeParameters, JS3ClassExpression_typeParameters, JS3ContextualCallExpression, JS3ContextualCallExpression_arguments, JS3ContextualCallExpression_callee, JS3FunctionExpression, JS3FunctionExpression_body, JS3FunctionExpression_id, JS3FunctionExpression_params, JS3FunctionExpression_predicate, JS3FunctionExpression_returnType, JS3FunctionExpression_typeParameters, JS3Import, JS3ImportExpression, JS3ImportExpression_options, JS3ImportExpression_source, JS3MemberExpression, JS3MemberExpression_object, JS3MemberExpression_property, JS3MetaProperty, JS3NewExpression, JS3NewExpression_arguments, JS3NewExpression_callee, JS3NewExpression_typeArguments, JS3NewExpression_typeParameters, JS3ObjectExpression, JS3ObjectExpression_properties, JS3ObjectMethod, JS3ObjectMethod_body, JS3ObjectMethod_decorators, JS3ObjectMethod_key, JS3ObjectMethod_params, JS3ObjectMethod_returnType, JS3ObjectMethod_typeParameters, JS3ObjectPattern, JS3ObjectProperty, JS3ObjectProperty_decorators, JS3ObjectProperty_key, JS3ObjectProperty_value, JS3PrivateName, JS3RegExpLiteral, JS3SpreadElement, JS3SpreadElement_argument, JS3TaggedTemplateExpression, JS3TaggedTemplateExpression_quasi, JS3TaggedTemplateExpression_tag, JS3TaggedTemplateExpression_typeParameters, JS3TemplateLiteral, JS3TemplateLiteral_expressions, JS3TemplateLiteral_quasis, JS3UnaryExpression, JS3UnaryExpression_argument, JS3UpdateExpression, JS3UpdateExpression_argument, JS3VariableDeclarator_init, JS3YieldExpression, JS3YieldExpression_argument } from "./JS3Types.ts";
 
 import { isArgumentPlaceholder, isSpreadElement, isTSTypeParameterInstantiation, isTypeParameterInstantiation, isV8IntrinsicIdentifier } from "@babel/types";
 import { lowerComputedKey } from "./GenericConstructs.ts";
@@ -1375,6 +1375,8 @@ export function handleBinaryExpression(node: BinaryExpression, otherProps: Other
   } else if (isExpression(orig_left)) {
     fin_left = handleExpression(orig_left, otherProps)
   } else if (isPrivateName(orig_left)) {
+    // This is how it works:
+    //  test262/test/language/expressions/in/private-field-presence-method-shadowed.js
     fin_left = handlePrivateName(orig_left, otherProps)
   }
   let orig_right = node.right; // Handling prop right
@@ -1392,7 +1394,7 @@ export function handleBinaryExpression(node: BinaryExpression, otherProps: Other
 export function handleLogicalExpression(node: LogicalExpression, otherProps: OtherProps) {
   // 2 fallthrough props, 2 restricted props
   let orig_left = node.left; // Handling prop left
-  let fin_left: JS3LogicalExpression_left; // Handling prop left
+  let fin_left : Identifier; // Handling prop left
   if (isFunctionExpression(orig_left) || isArrowFunctionExpression(orig_left) || isClassExpression(orig_left)) { // Probably redundant but keep it for consistency
     fin_left = lowerToAnonArrayExpr(orig_left, otherProps)
   } else if (isExpression(orig_left)) {
@@ -1422,7 +1424,7 @@ export function handleLogicalExpression(node: LogicalExpression, otherProps: Oth
     }
 
     // rVal$resHolder = rVal$res
-    const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
+    const updateRes = generateJS3AssignmentExpressionfromBaseNode("=", rValFinalResHolder, rvalEvaled, node.right);
     blockHolder.push(updateRes)
 
     // If (lVal$res) { BODY }
@@ -1453,7 +1455,7 @@ export function handleLogicalExpression(node: LogicalExpression, otherProps: Oth
     }
 
     // rVal$resHolder = rVal$res
-    const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
+    const updateRes = generateJS3AssignmentExpressionfromBaseNode("=", rValFinalResHolder, rvalEvaled, node.right);
     blockHolder.push(updateRes)
 
     // if ( !TEST1 ) { BODY }
@@ -1479,7 +1481,7 @@ export function handleLogicalExpression(node: LogicalExpression, otherProps: Oth
     }
 
     // rVal$resHolder = rVal$res
-    const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
+    const updateRes = generateJS3AssignmentExpressionfromBaseNode("=", rValFinalResHolder, rvalEvaled, node.right);
     blockHolder.push(updateRes)
 
     // if (TEST1 || TEST2) { BODY }
@@ -1502,12 +1504,6 @@ export function handleLogicalExpression(node: LogicalExpression, otherProps: Oth
     otherProps.others.holder.push(ifStmt)
   }
 
-  // let orig_right = node.right; // Handling prop right
-  // let fin_right: JS3LogicalExpression_right; // Handling prop right
-  // if (isExpression(orig_right)) {
-  //   fin_right = handleExpression(orig_right, otherProps)
-  // }
-  // let result: JS3LogicalExpression = generateJS3LogicalExpression(fin_left, fin_right, node);
   return rValFinalResHolder
 }
 
@@ -1545,11 +1541,12 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
       if (alreadyCalled === false) {
         alreadyCalled = true;
         // We care about the first call to generator; the value of RVal is be the one will be
-        let assnExpr = generateJS3AssignmentExpression(LVal, RVal, node);
+        let assnExpr = generateJS3AssignmentExpression("=", LVal, RVal, node);
         init$res = generateIdentifier(node, otherProps.getNewTemporary("AssnRes"));
         return generateDummyJS3VariableDeclaration(node, init$res, assnExpr);
       } else {
-        return generateJS3AssignmentExpression(LVal, RVal, node);
+        let rr = generateJS3AssignmentExpression("=", LVal, RVal, node);
+        return generateDummyJS3VariableDeclaration(node, generateIdentifier(node, otherProps.getNewTemporary("throwaway")), rr, "let", null, null);
       }
     }
 
@@ -1557,7 +1554,7 @@ export function handleAssignmentExpression(node: AssignmentExpression, otherProp
     if (isOptionalMemberExpression(node.left)) {
       debugConfig.logger.throwJS3Error("LVal of assignment is not allowed to be an optional member expression (this is experimental syntax)");
     } else {
-      handleDeclaratorRec(node.left, node.right, otherProps, generator);
+      handleDeclaratorRec(node.left, node.right, otherProps, generator, true);
     }
 
     if (!init$res) debugConfig.logger.throwJS3Error("Assignment Expression, the resultant value is undefined, expected Identifier");
@@ -2218,7 +2215,7 @@ export function handleConditionalExpression(node: ConditionalExpression, otherPr
       fin_consequent = handleExpression(orig_consequent, updatedProps)
     }
 
-    consequentBodyHolder.push(generateJS3AssignmentExpressionfromBaseNode(resultIdentifier, fin_consequent, "=", orig_consequent));
+    consequentBodyHolder.push(generateJS3AssignmentExpressionfromBaseNode("=", resultIdentifier, fin_consequent, orig_consequent));
   }
 
   let orig_alternate = node.alternate; // Handling prop alternate
@@ -2234,7 +2231,7 @@ export function handleConditionalExpression(node: ConditionalExpression, otherPr
       fin_alternate = handleExpression(orig_alternate, updatedProps)
     }
 
-    alternateBodyHolder.push(generateJS3AssignmentExpressionfromBaseNode(resultIdentifier, fin_alternate, "=", orig_alternate));
+    alternateBodyHolder.push(generateJS3AssignmentExpressionfromBaseNode("=", resultIdentifier, fin_alternate, orig_alternate));
   }
 
   return resultIdentifier;

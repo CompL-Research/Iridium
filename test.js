@@ -124,4 +124,65 @@
 //   this.boo;
 // }
 
-// 14. 
+// // 14. Binops
+// // OPA = "+" | "-" | "/" | "%" | "*" | "**"
+// var a = 1 + 1;
+// var a = 1 - 1;
+// var a = 1 / 1;
+// var a = 1 % 1;
+// var a = 1 * 1;
+// var a = 1 ** 1;
+
+// // OPB = "&" | "|" | ">>" | ">>>" | "<<" | "^"
+// var a = 1 & 1;
+// var a = 1 | 1;
+// var a = 1 >> 1;
+// var a = 1 >>> 1;
+// var a = 1 << 1;
+// var a = 1 ^ 1;
+
+// // OPC =  "==" | "===" | "!=" | "!==" 
+// var a = 1 == 1;
+// var a = 1 === 1;
+// var a = 1 != 1;
+// var a = 1 !== 1;
+
+// // OPD = "in"
+// var a = class boo {
+//   #boo = 1
+//   test() {
+//     #boo in { boo: 1 };
+//   }
+// }
+// var a = "boo" in { boo: 1 };
+
+// // OPE = "instanceof" 
+// var a = a instanceof boo;
+
+// // OPF = ">" | "<" | ">=" | "<="
+// var a = 1 > 1;
+// var a = 1 < 1;
+// var a = 1 >= 1;
+// var a = 1 <= 1;
+
+// // 15. Assignments
+// var a, b, c, d = { e: 1, f: { g: 2 } }, pokemon;
+// // simple assn
+// a = b = c = d;
+
+// // member assn
+// d.e = d.f
+
+// // this assn
+// globalThis.boo = a;
+
+// // super assn.
+// // 
+// // 
+
+// // arrpatassn
+// [a, b] = [b, a];
+
+// // objpatassn
+// ({ f: { g: pokemon } } = d);
+// console.log(a, b, c, d, pokemon)

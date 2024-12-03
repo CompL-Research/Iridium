@@ -1,21 +1,23 @@
 import debugConfig from "#debugConfig";
-import { isIdentifier, isImportSpecifier, isMetaProperty, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, ThisExpression } from "@babel/types";
-import { isJS3ArrayPattern, isJS3AwaitExpression, isJS3CallExpression, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3IfStatement, isJS3Import, isJS3ImportDeclaration, isJS3MemberExpression, isJS3MetaProperty, isJS3ObjectPattern, isJS3RegExpLiteral, isJS3ReturnStatement, isJS3TaggedTemplateExpression, isJS3TemplateLiteral, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3YieldExpression, JS3AllowedProgStatement, JS3AssnInit, JS3AwaitExpression, JS3CallExpression, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3File, JS3FunctionDeclaration, JS3IfStatement, JS3ImportDeclaration, JS3MemberExpression, JS3MetaProperty, JS3Program, JS3RegExpLiteral, JS3ReturnStatement, JS3TaggedTemplateExpression, JS3TemplateLiteral, JS3ThrowStatement, JS3TryStatement, JS3VariableDeclaration, JS3YieldExpression } from "../JS3Helpers/JS3Types.ts";
-import { IV_Identifier, IV_MemberExpression, IV_PrivateName, IV_SuperLookup, IV_ThisLookup } from "./ALL_AMP/ALL_AMP.ts";
+import { isIdentifier, isImportSpecifier, isPrivateName, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, ThisExpression } from "@babel/types";
+import { isJS3ArrayPattern, isJS3AssignmentExpression, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3IfStatement, isJS3Import, isJS3ImportDeclaration, isJS3MemberExpression, isJS3MetaProperty, isJS3ObjectPattern, isJS3RegExpLiteral, isJS3ReturnStatement, isJS3TaggedTemplateExpression, isJS3TemplateLiteral, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3YieldExpression, JS3AllowedProgStatement, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BinaryExpression, JS3CallExpression, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3File, JS3FunctionDeclaration, JS3IfStatement, JS3ImportDeclaration, JS3MemberExpression, JS3MetaProperty, JS3Program, JS3RegExpLiteral, JS3ReturnStatement, JS3TaggedTemplateExpression, JS3TemplateLiteral, JS3ThrowStatement, JS3TryStatement, JS3VariableDeclaration, JS3YieldExpression } from "../JS3Helpers/JS3Types.ts";
+import { IV_Identifier, IV_MemberExpressionPA, IV_PrivateName, IV_SuperLookupPA, IV_ThisLookupPA } from "./ALL_AMP/ALL_AMP.ts";
 import { IS_Debugger, IS_Return, IS_Throw } from "./ALL_IS/IS_Debugger_Return_Throw.ts";
 import { IS_FunDecl } from "./ALL_IS/IS_FunDecl.ts";
 import { IS_AExport, IS_AImport, IS_BExport, IS_BImport, IS_CExport, IS_CImport, IS_DExport, IS_EExport } from "./ALL_IS/IS_Imports_Exports.ts";
 import { IS_ArrPatVarDecl, IS_ObjPatVarDecl, IS_SimpleVarDecl } from "./ALL_IS/IS_VarDecl.ts";
 import { IV_ASSIGNABLE } from "./ALL_RVal/ALL_RVal.ts";
+import { IV_ArrPatAssn, IV_MemberAssn, IV_ObjPatAssn, IV_SimpleAssn, IV_SuperAssn, IV_ThisAssn } from "./ALL_RVal/IV_Assignment.ts";
+import { IV_ABINOP, IV_BBINOP, IV_CBINOP, IV_DBINOP, IV_EBINOP, IV_FBINOP, OPA, OPB, OPC, OPD, OPE, OPF } from "./ALL_RVal/IV_Binop.ts";
 import { IV_ArgSpread, IV_Call, IV_ImportCall, IV_SuperCall, IV_V8IntrinsicCall } from "./ALL_RVal/IV_Call.ts";
 import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "./ALL_RVal/IV_Literals.ts";
+import { IV_ModuleMeta, IV_NewTarget } from "./ALL_RVal/IV_META.ts";
 import { IV_Regexp } from "./ALL_RVal/IV_Regexp.ts";
 import { IV_TaggedTemplateCall, IV_TemplateLiteral } from "./ALL_RVal/IV_Templates.ts";
+import { IV_This } from "./ALL_RVal/IV_This.ts";
+import { IV_AWAIT, IV_YIELD } from "./ALL_RVal/IV_YIELD_AWAIT.ts";
 import { BB, BlockBB, BranchTerminal, CatchBB, ExitNode, FunctionDeclBB, ModuleBB, ScriptBB, TryBlockBB, TryCatchConditionalGoto, UnconditionalGoto } from "./BB.ts";
 import { I_File } from "./I_GENERAL/I_File.ts";
-import { IV_ModuleMeta, IV_NewTarget } from "./ALL_RVal/IV_META.ts";
-import { IV_AWAIT, IV_YIELD } from "./ALL_RVal/IV_YIELD_AWAIT.ts";
-import { IV_This } from "./ALL_RVal/IV_This.ts";
 
 export class IRIDIUM_FG {
   bb: BB
@@ -118,6 +120,10 @@ export default class IRIDIUM {
       return this.handleJS3AwaitExpression(init);
     } else if (init.type === "ThisExpression") {
       return this.handleThisExpression(init)
+    } else if (isJS3BinaryExpression(init)) {
+      return this.handleJS3BinaryExpression(init);
+    } else if (isJS3AssignmentExpression(init)) {
+      return this.handleJS3AssignmentExpression(init);
     }
     
     else {
@@ -148,21 +154,126 @@ export default class IRIDIUM {
     else prop = new IV_PrivateName(node.property, new IV_Identifier(node.property.id, node.property.id.name))
 
     if (isIdentifier(node.object)) {
-      return new IV_MemberExpression(node, new IV_Identifier(node.object, node.object.name), prop)
+      return new IV_MemberExpressionPA(node, new IV_Identifier(node.object, node.object.name), prop, node.computed)
     } else if (isThisExpression(node.object)) {
-      return new IV_ThisLookup(node, prop)
+      return new IV_ThisLookupPA(node, prop, node.computed)
     } else {
-      return new IV_SuperLookup(node, prop)
+      return new IV_SuperLookupPA(node, prop, node.computed)
     }
   }
 
 
   // ***********************       RVALUES        ***********************
 
+  // *********************** Iridium_AssignmentExpression ***********************
+  handleJS3AssignmentExpression(node: JS3AssignmentExpression) {
+
+    let left = node.left
+
+    // case a.
+    // ID = RVal
+    if (isIdentifier(left)) {
+      let LVal = new IV_Identifier(left, left.name)
+      let RVal = this.handleJS3AssnInit(node.right)
+      return new IV_SimpleAssn(node, LVal, RVal)
+    }
+
+    // case b.
+    // ID.ID = RVal
+    if (isJS3MemberExpression(left)) {
+      let LValRes = this.handleJS3MemberExpression(left)
+      let RVal = this.handleJS3AssnInit(node.right)
+      
+      if (LValRes instanceof IV_MemberExpressionPA) {
+        return new IV_MemberAssn(node, LValRes, RVal)
+      } else if (LValRes instanceof IV_ThisLookupPA) {
+        return new IV_ThisAssn(node, LValRes, RVal)
+      } else {
+        return new IV_SuperAssn(node, LValRes, RVal)
+      }
+    }
+
+    // case c.
+    // [ ID, ...ID ] = RVal
+    if (isJS3ArrayPattern(left)) {
+      let LVal = left
+      let RVal = this.handleJS3AssnInit(node.right)
+      return new IV_ArrPatAssn(node, LVal, RVal)
+    }
+
+    // case d.
+    // { TRIV_KEY: ID, ...ID } = RVal
+    if (isJS3ObjectPattern(left)) {
+      let LVal = left
+      let RVal = this.handleJS3AssnInit(node.right)
+      return new IV_ObjPatAssn(node, LVal, RVal);
+    }
+
+
+    this.errors.push(new JS3_ASSERTION_FAILED("JS3AssignmentExpression: UNHANDLED", [node]))
+    debugConfig.logger.throwIriError("JS3AssignmentExpression: UNHANDLED")
+    return;
+  }
+
+  // *********************** Iridium_BinaryExpression ***********************
+
+  handleJS3BinaryExpression(node: JS3BinaryExpression) {
+    let OPAs = ["+","-","/","%","*","**"]
+    let OPBs = ["&","|",">>",">>>","<<","^"]
+    let OPCs = ["==","===","!=","!=="]
+    let OPDs = ["in"]
+    let OPEs = ["instanceof"]
+    let OPFs = [">","<",">=","<="]
+
+    if (OPAs.includes(node.operator)) {
+      if (isIdentifier(node.left) && isIdentifier(node.right)) {
+        return new IV_ABINOP(node, new IV_Identifier(node.left, node.left.name), new IV_Identifier(node.right, node.right.name), node.operator as OPA)
+      } else debugConfig.logger.throwIriError(`Iridium: BINOP OPA expects left and right to be Identifiers`)
+    }
+
+    if (OPBs.includes(node.operator)) {
+      if (isIdentifier(node.left) && isIdentifier(node.right)) {
+        return new IV_BBINOP(node, new IV_Identifier(node.left, node.left.name), new IV_Identifier(node.right, node.right.name), node.operator as OPB)
+      } else debugConfig.logger.throwIriError(`Iridium: BINOP OPB expects left and right to be Identifiers`)
+    }
+
+    if (OPCs.includes(node.operator)) {
+      if (isIdentifier(node.left) && isIdentifier(node.right)) {
+        return new IV_CBINOP(node, new IV_Identifier(node.left, node.left.name), new IV_Identifier(node.right, node.right.name), node.operator as OPC)
+      } else debugConfig.logger.throwIriError(`Iridium: BINOP OPC expects left and right to be Identifiers`)
+    }
+
+    if (OPDs.includes(node.operator)) {
+      if (isIdentifier(node.left) && isIdentifier(node.right)) {
+        return new IV_DBINOP(node, new IV_Identifier(node.left, node.left.name), new IV_Identifier(node.right, node.right.name), node.operator as OPD)
+      } else if (isPrivateName(node.left) && isIdentifier(node.right)) {
+        return new IV_DBINOP(node, new IV_PrivateName(node.left, new IV_Identifier(node.left.id, node.left.id.name)), new IV_Identifier(node.right, node.right.name), node.operator as OPD)
+
+      } else debugConfig.logger.throwIriError(`Iridium: BINOP OPD expects left=(Identifier | JS3PrivateName) and right=(Identifier)`)
+    }
+
+    if (OPEs.includes(node.operator)) {
+      if (isIdentifier(node.left) && isIdentifier(node.right)) {
+        return new IV_EBINOP(node, new IV_Identifier(node.left, node.left.name), new IV_Identifier(node.right, node.right.name), node.operator as OPE)
+      } else debugConfig.logger.throwIriError(`Iridium: BINOP OPE expects left and right to be Identifiers`)
+    }
+
+    if (OPFs.includes(node.operator)) {
+      if (isIdentifier(node.left) && isIdentifier(node.right)) {
+        return new IV_FBINOP(node, new IV_Identifier(node.left, node.left.name), new IV_Identifier(node.right, node.right.name), node.operator as OPF)
+      } else debugConfig.logger.throwIriError(`Iridium: BINOP OPF expects left and right to be Identifiers`)
+    }
+
+    this.errors.push(new JS3_ASSERTION_FAILED("JS3BinaryExpression: UNHANDLED", [node]))
+    debugConfig.logger.throwIriError("JS3BinaryExpression: UNHANDLED")
+    return;
+  }
+  
+
   // *********************** Iridium_This ***********************
 
   handleThisExpression(node: ThisExpression) {
-    return new IV_This();
+    return new IV_This(node);
   }
 
   // *********************** Iridium_YIELD_AWAIT ***********************
@@ -183,9 +294,9 @@ export default class IRIDIUM {
 
   handleJS3MetaProperty(node: JS3MetaProperty) {
     if (node.meta.name === "import") {
-      return new IV_ModuleMeta();
+      return new IV_ModuleMeta(node);
     } else {
-      return new IV_NewTarget();
+      return new IV_NewTarget(node);
     }
   }
 
@@ -405,8 +516,6 @@ export default class IRIDIUM {
   handleJS3VariableDeclaration(stmt: JS3VariableDeclaration) {
     let curr = this.getCurrentBB()
 
-    
-
     // Assert that only one specifier exists
     if (stmt.kind === "using" || stmt.kind === "await using") {
       this.errors.push(new JS3_ASSERTION_FAILED("JS3VariableDeclaration: 'using' and 'await using' not supported in JS3", [stmt]))
@@ -426,10 +535,9 @@ export default class IRIDIUM {
 
     // case a.
     // KIND ID = RVal
-    
     if (isIdentifier(declaration.id)) {
       let LVal = new IV_Identifier(declaration.id, declaration.id.name)
-      let RVal = this.handleJS3AssnInit(declaration.init)
+      let RVal = declaration.init ? this.handleJS3AssnInit(declaration.init) : null
       curr.statements.push(new IS_SimpleVarDecl(stmt, KIND, LVal, RVal))
       return;
     }
@@ -438,7 +546,7 @@ export default class IRIDIUM {
     // KIND [ ID, ...ID ] = RVal
     if (isJS3ArrayPattern(declaration.id)) {
       let LVal = declaration.id
-      let RVal = this.handleJS3AssnInit(declaration.init)
+      let RVal = declaration.init ? this.handleJS3AssnInit(declaration.init) : null
       curr.statements.push(new IS_ArrPatVarDecl(stmt, KIND, LVal, RVal))
       return;
     }
@@ -448,7 +556,7 @@ export default class IRIDIUM {
     if (isJS3ObjectPattern(declaration.id)) {
       
       let LVal = declaration.id
-      let RVal = this.handleJS3AssnInit(declaration.init)
+      let RVal = declaration.init ? this.handleJS3AssnInit(declaration.init) : null
       curr.statements.push(new IS_ObjPatVarDecl(stmt, KIND, LVal, RVal))
       return;
     }
