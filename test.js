@@ -93,7 +93,35 @@
 // (g?.h)?.i(a,b*c,(b*c,6,7) );
 
 // 10. CallExpressions
-import("boo");
-f(a,b*c,(b*c,6,7));
+// import("boo");
+// f(a,b*c,(b*c,6,7));
 // c. Super [ID,...ID]
 // d. V8IntrinsicIdentifier [ID,...ID]
+
+
+// // 11. Meta Property
+// function Foo() {
+//   import.meta
+//   if (!new.target) {
+//     throw new Error("Foo() must be called with new");
+//   }
+//   console.log("Foo instantiated with new");
+// }
+// new Foo(); // Logs "Foo instantiated with new"
+// Foo(); // Throws "Foo() must be called with new"
+
+
+// // 12. Yield/Await
+// async function* Foo() {
+//   yield 
+//   yield 10;
+//   await 10;
+// }
+
+// // 13. ThisExpression
+// function foo() {
+//   let b = this;
+//   this.boo;
+// }
+
+// 14. 

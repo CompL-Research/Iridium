@@ -67,7 +67,7 @@ export class IV_MemberExpression extends ALL_AMP {
   }
 
   toString() {
-    return `<> ${this.object.name}.${this.property.toString()}`
+    return `<ObjectLookup> ${this.object.name}.${this.property.toString()}`
   }
 }
 
@@ -80,7 +80,7 @@ export class IV_ThisLookup extends ALL_AMP {
   }
 
   toString() {
-    return `<> THIS.${this.property.toString()}`
+    return `<THISLookup> THIS.${this.property.toString()}`
   }
 }
 
@@ -93,6 +93,6 @@ export class IV_SuperLookup extends ALL_AMP {
   }
 
   toString() {
-    return `<> SUPER.${this.property.toString()}`
+    return `<SuperLookup> SUPER.${this.property.toString()}`
   }
 }

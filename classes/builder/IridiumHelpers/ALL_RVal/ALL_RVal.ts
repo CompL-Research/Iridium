@@ -6,12 +6,18 @@ type IRI_ASSN_TYPE = IV_Literals
                    | IV_Regexp 
                    | IV_Templates 
                    | IV_Call
+                   | IV_META
+                   | IV_YIELD_AWAIT
+                   | IV_THISEXPRESSION
 
 type IV_Literals = "DecimalLiteral" | "BigIntLiteral" | "StringLiteral" | "NumericLiteral" | "NullLiteral" | "BooleanLiteral"
 type IV_Regexp = "Regexp"
 type IV_Templates = "TemplateLiteral" | "TaggedTemplateCall"
 type IV_Call = "ImportCall" | "Call" | "SuperCall" | "V8IntrinsicCall" 
 
+type IV_META = "ModuleMeta" | "NewTarget"
+type IV_YIELD_AWAIT = "YieldExpression" | "AwaitExpression"
+type IV_THISEXPRESSION = "ThisExpression"
 
 export class ALL_RVal {
   node : JS3AssnInit | undefined
