@@ -462,7 +462,12 @@ export function handleDeclaratorRec(
 
     // rightspill$res = ...EXPR
     let rightspill$res = handleExpression(LVal.right, updatedProps)
-    conseq.push(generateJS3AssignmentExpressionfromBaseNode("=", fin$res, rightspill$res, LVal))  
+    conseq.push(generateDummyJS3VariableDeclaration(
+      LVal, 
+      generateIdentifier(LVal, otherProps.getNewTemporary("throwaway")),
+      generateJS3AssignmentExpressionfromBaseNode("=", fin$res, rightspill$res, LVal)
+      )
+    )  
     
     // if (cond$res) { conseq }
     let ifCond = generateJS3IfStatementfromBaseNode(cond$res, generateJS3BlockStatementfromBaseNode(conseq, [], LVal), null, LVal)

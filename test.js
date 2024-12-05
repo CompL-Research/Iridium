@@ -186,3 +186,23 @@
 // // objpatassn
 // ({ f: { g: pokemon } } = d);
 // console.log(a, b, c, d, pokemon)
+
+
+// 16. Optional Chaining
+
+// let a;
+// a = a.b.c.d?.e; // Optional chain at terminals
+// a = a.b.c.d?.e();   // Optional chain at terminals
+// a = a.b.c?.d.e;     // One intermediate optional chain
+// a = a.b.c?.d().e;     // One intermediate optional chain
+// a = a.b.c?.d().e();     // One intermediate optional chain
+// a = a.b.c?.d.e();     // One intermediate optional chain
+
+// a = a.b.c?.().b?.c;
+// a = a.b.c?.().d.e.f?.g;
+
+export default function MyApp() {
+  let a;
+  a = a[(test) ? 1 : 2].c?.().d.e.f?.g;
+  return a;
+}

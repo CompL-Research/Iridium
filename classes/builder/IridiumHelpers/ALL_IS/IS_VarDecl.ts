@@ -5,7 +5,7 @@ import { ALL_IS } from "./ALL_IS.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { printScopedSpace } from "../IRIDIUM.ts";
 
-export type IS_VAR_DECL_KIND = "var" | "let" | "const"
+export type IS_VAR_DECL_KIND = "var" | "let" | "const" | "VALUE"
 
 export class IS_SimpleVarDecl extends ALL_IS {
   KIND: IS_VAR_DECL_KIND

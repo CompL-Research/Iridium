@@ -1,7 +1,7 @@
 import debugConfig from '#debugConfig';
 import { CommentBlock, CommentLine  } from '@babel/types';
 import { execSync } from 'child_process';
-import { BB, BranchTerminal, ExitNode, TryCatchConditionalGoto, UnconditionalGoto } from 'classes/builder/IridiumHelpers/BB.ts';
+import { BB, BranchTerminal, ExitNode, OptionalBranchTerminal, TryCatchConditionalGoto, UnconditionalGoto } from 'classes/builder/IridiumHelpers/BB.ts';
 import fs from 'fs';
 import path from 'path';
 export class JS3GenerationError extends Error { }
@@ -18,8 +18,11 @@ export function recursivelyTraverseAllBBs(bb: BB, visited: Set<BB> = new Set()) 
   } else if (bb.terminal instanceof TryCatchConditionalGoto) {
     recursivelyTraverseAllBBs(bb.terminal.handler, visited);
     recursivelyTraverseAllBBs(bb.terminal.finalizer, visited);
+  } else if (bb.terminal instanceof OptionalBranchTerminal) {
+    recursivelyTraverseAllBBs(bb.terminal.t, visited);
+    recursivelyTraverseAllBBs(bb.terminal.f, visited);
   } else {
-    console.log(bb, bb.terminal)
+    console.log(visited)
     throw new Error("recursivelyTraverseAllBBs: unhandled BB Type")
   }
   return visited

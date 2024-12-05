@@ -167,7 +167,7 @@ function iri(filePath) {
       js3Builder.saveGeneratedFile()
     }
 
-    const ir = IRIDIUM.create(js3Builder.generatedProgram)
+    const ir = IRIDIUM.create(js3Builder)
     console.log(ir.toString())
     process.exit(0)
   } catch (e) {

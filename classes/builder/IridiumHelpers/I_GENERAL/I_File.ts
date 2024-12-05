@@ -1,5 +1,6 @@
 import { JS3File, JS3Program } from "classes/builder/JS3Helpers/JS3Types.ts";
 import IRIDIUM, { IRIDIUM_FG, printScopedSpace } from "../IRIDIUM.ts";
+import JS3Builder from "classes/builder/JS3Builder.ts";
 
 
 export class I_File {
@@ -7,9 +8,9 @@ export class I_File {
 
   program: I_Program
 
-  constructor(node: JS3File) {
-    this.node = node;
-    this.program = new I_Program(node.program)
+  constructor(js3builder: JS3Builder) {
+    this.node = js3builder.generatedProgram;
+    this.program = new I_Program(js3builder)
   }
 
   toString(space = 0) {
@@ -27,13 +28,14 @@ export class I_Program {
   directives: Array<string>
   sourceType: "script" | "module"
 
-  constructor(node: JS3Program) {
+  constructor(js3builder: JS3Builder) {
     // Directives
     let directives = new Array<string>()
+    let node = js3builder.generatedProgram.program
     node.directives.forEach((d) => directives.push(d.value.value))
 
     // Build CFG
-    let builder = new IRIDIUM(node)
+    let builder = new IRIDIUM(js3builder)
 
     this.node = node
     this.body = builder.build()

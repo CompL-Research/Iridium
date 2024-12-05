@@ -4,7 +4,9 @@ import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
 import { printScopedSpace } from "./IRIDIUM.ts"
 
-type BBScopes = "Script" | "Module" | "Function" | "AnonFunction" | "Block" | "CKE" | "Catch" | "Try"
+import { OptionalMemberExpression, OptionalCallExpression } from "@babel/types"
+
+type BBScopes = "Script" | "Module" | "Function" | "AnonFunction" | "Block" | "CKE" | "Catch" | "Try" | "Value" | "OptionalChainTest"
 
 
 
@@ -26,6 +28,29 @@ export class BranchTerminal extends BBTerminal {
   f: BB
 
   constructor(node: JS3IfStatement | undefined, on: IV_Identifier, t: BB, f: BB) {
+    super();
+    this.node = node;
+    this.on = on
+    this.t = t;
+    this.f = f;
+  }
+
+  getSuccessors() {
+    return [this.t, this.f]
+  }
+
+  toString(space = 0) {
+    return `${printScopedSpace(space)}███ 🤔 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
+  }
+}
+
+export class OptionalBranchTerminal extends BBTerminal {
+  node?: OptionalCallExpression | OptionalMemberExpression
+  on: IV_Identifier
+  t: BB
+  f: BB
+
+  constructor(node: OptionalCallExpression | OptionalMemberExpression | undefined, on: IV_Identifier, t: BB, f: BB) {
     super();
     this.node = node;
     this.on = on
@@ -80,6 +105,12 @@ export class TryCatchConditionalGoto extends BBTerminal {
 export class ExitNode extends BBTerminal {
   toString(space = 0) {
     return `${printScopedSpace(space)}███ 👋 Exit`
+  }
+}
+
+export class ErrorNode extends BBTerminal {
+  toString(space = 0) {
+    return `${printScopedSpace(space)}███ 🚨🚨 ERROR 🚨🚨`
   }
 }
 
@@ -241,6 +272,41 @@ export class CKEBB extends BB {
 
   constructor() {
     super("CKE")
+  }
+
+}
+
+export class ValueBB extends BB {
+  node: OptionalMemberExpression | OptionalCallExpression
+
+  constructor(node: OptionalMemberExpression | OptionalCallExpression) {
+    super("Value")
+    this.node = node
+  }
+
+  create() {
+    return new ValueBB(this.node);
+  }
+
+}
+
+export class OptionalChainTestBB extends BB {
+  node: OptionalMemberExpression | OptionalCallExpression
+  optional: boolean
+  comment: string
+
+  constructor(node: OptionalMemberExpression | OptionalCallExpression, optional: boolean, comment = "") {
+    super("OptionalChainTest")
+    this.optional = optional
+    this.comment = comment
+  }
+
+  create() {
+    return new OptionalChainTestBB(this.node, this.optional, this.comment);
+  }
+
+  printHeader() {
+    return `BB${this.idx} [${this.scope}] // ${this.comment}`
   }
 
 }

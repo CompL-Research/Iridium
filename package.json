@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "./iridium analyze tests/MMem-Sim/ -f src"
+    "test-iri": "./iridium iri test.js"
   },
   "keywords": [],
   "author": "mee",
