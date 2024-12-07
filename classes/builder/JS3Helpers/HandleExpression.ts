@@ -425,7 +425,7 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
     if (Array.isArray(orig_arguments)) {
       for (const _arrProp of orig_arguments) {
         if (isSpreadElement(_arrProp)) {
-          fin_arguments.push(lowerComputedKey(_arrProp.argument, otherProps));
+          fin_arguments.push(_arrProp);
         } else if (isArgumentPlaceholder(_arrProp)) {
           debugConfig.logger.throwJS3Error(`TODO // unhandled ${node.type}[arguments]->ArgumentPlaceholder`);
         } else {
@@ -1308,7 +1308,6 @@ export function handleFunctionExpression(node: FunctionExpression, otherProps: O
 
   if (isBlockStatement(orig_body)) {
     fin_body = handleBlockStatement(orig_body, otherProps)
-    // debugConfig.logger.throwJS3Error("TODO // unhandled FunctionExpression->body->BlockStatement");
   }
   let orig_predicate = node.predicate; // Handling prop predicate
   let fin_predicate: JS3FunctionExpression_predicate; // Handling prop predicate

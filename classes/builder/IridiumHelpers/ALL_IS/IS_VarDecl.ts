@@ -114,7 +114,7 @@ export class IS_ObjPatVarDecl extends ALL_IS {
       else return `#${p.id.name}`
     }
 
-    let lval = "[ "
+    let lval = "{ "
     let len = this.LVal.properties.length
     let i = 0
     this.LVal.properties.forEach(p => {
@@ -131,7 +131,7 @@ export class IS_ObjPatVarDecl extends ALL_IS {
         lval += ` `
       }
     })
-    lval += "]"
+    lval += "}"
 
     if (!this.RVal) {
       return `${printScopedSpace(space)}█ ${this.KIND} ${lval};`

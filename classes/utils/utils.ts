@@ -22,7 +22,7 @@ export function recursivelyTraverseAllBBs(bb: BB, visited: Set<BB> = new Set()) 
     recursivelyTraverseAllBBs(bb.terminal.t, visited);
     recursivelyTraverseAllBBs(bb.terminal.f, visited);
   } else {
-    console.log(visited)
+    console.log(visited, bb.terminal)
     throw new Error("recursivelyTraverseAllBBs: unhandled BB Type")
   }
   return visited

@@ -327,8 +327,9 @@
 // console.log(1 + ({["" + k]: a } = [1,2,3,4]))
 
 
-try {
-  let a = 1;
-} catch([a, ...{x: { y: boo }}]) {
-  let b = 2;
-}
+// try {
+//   let a = 1;
+// } catch([a, ...{x: { y: boo }}]) {
+//   let b = 2;
+// }
+

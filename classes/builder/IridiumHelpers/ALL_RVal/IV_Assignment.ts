@@ -118,7 +118,7 @@ export class IV_ObjPatAssn extends ALL_RVal {
       else return `#${p.id.name}`
     }
 
-    let lval = "[ "
+    let lval = "{ "
     let len = this.LVal.properties.length
     let i = 0
     this.LVal.properties.forEach(p => {
@@ -135,7 +135,7 @@ export class IV_ObjPatAssn extends ALL_RVal {
         lval += ` `
       }
     })
-    lval += "]"
+    lval += "}"
 
     return `${lval} = ${this.RVal.toString()}`
   }

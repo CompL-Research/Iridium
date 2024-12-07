@@ -1,3 +1,5 @@
+"use strict";
+
 // // 1.
 // import "source";
 // import { zxx as y } from "source";
@@ -22,7 +24,6 @@
 // function foo() {
 //   let test = "foo";
 // }
-
 
 // // 5. Ifstmt
 // let t = false;
@@ -58,7 +59,6 @@
 // }
 // fn()
 
-
 // // 7.Try Catch
 // try {
 //   let a = 1;
@@ -78,12 +78,9 @@
 //   let c = 3;
 // }
 
-
-
 // 8. Template Literals
 // let a = `a,b,c${g}da`
 // let b = tag`a,b,c${g}da`
-
 
 // // 9. Call Expression
 // let f = function(a,b,c) {  }
@@ -98,7 +95,6 @@
 // c. Super [ID,...ID]
 // d. V8IntrinsicIdentifier [ID,...ID]
 
-
 // // 11. Meta Property
 // function Foo() {
 //   import.meta
@@ -109,7 +105,6 @@
 // }
 // new Foo(); // Logs "Foo instantiated with new"
 // Foo(); // Throws "Foo() must be called with new"
-
 
 // // 12. Yield/Await
 // async function* Foo() {
@@ -187,7 +182,6 @@
 // ({ f: { g: pokemon } } = d);
 // console.log(a, b, c, d, pokemon)
 
-
 // 16. Optional Chaining
 
 // let a;
@@ -225,9 +219,6 @@
 // }
 // console.log(a("Ba", "", { x: "a", y: 1, z: 2 }))
 
-
-
-
 // console.log(("B" + "a" + +"b" + "a" ).toLowerCase())
 
 // function Test() { console.log("Outer Test", this); }
@@ -237,7 +228,6 @@
 // }
 
 // foo()
-
 
 // // 
 // // 1. Argument: a = Test, "Test is a let binding"
@@ -252,7 +242,6 @@
 //   return a;
 // }
 // console.log(f1()) // Test uninit error
-
 
 // // 
 // // 2. Argument: (a, a, a=1)
@@ -290,20 +279,21 @@
 
 // console.log(f3(10)) // 10
 
-
-// function f3({ f: { g: a } }) {
-//   var a;
-//   try {
-//     eval('var a');
-//     console.log("a was a var")
-//   } catch (error) {
-//     console.log("a was a let/const")
-//   }
-
-//   return a;
-// }
-
-// console.log(f3({ f: { g: 12 } })) // 10
+function f3(_ref) {
+  var a = _ref.f.g;
+  try {
+    eval('var a');
+    console.log("a was a var");
+  } catch (error) {
+    console.log("a was a let/const");
+  }
+  return a;
+}
+console.log(f3({
+  f: {
+    g: 12
+  }
+})); // 10
 
 // // 
 // // Semantics of arguments most closely resemble "var", 
@@ -316,30 +306,14 @@
 
 // console.log(f4({ f: { g: 12 } })) // 10
 
+function f4(_ref2, test) {
+  var _ref2$f$g = _ref2.f.g,
+    a = _ref2$f$g === void 0 ? test : _ref2$f$g;
+  return test;
+}
+console.log(f4({
+  f: {
+    gg: 12
+  }
+})); // 10
 
-// // 
-// // Code that breaks after babel
-// // 
-// var test = 100
-// function f4({ f: { g: a = test } }, test) {
-//   return a;
-// }
-
-// console.log(f4({ f: { gg: 12 } })) // 10
-
-
-// // Transformation that might work, but doesnt...
-// var test = 100
-// function f4_patched(arg1, arg2) {
-//   var { f: temp1 } = arg1
-//   var { g: a = test } = temp1
-
-//   return ((arg2) => {
-//     var test = arg2;
-//     return (() => {
-//       return a;
-//     })()
-//   })(arg2)
-// }
-
-// console.log(f4_patched({ f: { gg: 12 } })) // 10

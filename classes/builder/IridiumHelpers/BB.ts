@@ -1,5 +1,5 @@
 import { recursivelyTraverseAllBBs } from "#utils"
-import { JS3BlockStatement, JS3FunctionDeclaration, JS3IfStatement, JS3Program } from "../JS3Helpers/JS3Types.ts"
+import { JS3BlockStatement, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3SpreadElement } from "../JS3Helpers/JS3Types.ts"
 import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
 import { printScopedSpace } from "./IRIDIUM.ts"
@@ -219,7 +219,7 @@ export class ModuleBB extends BB {
 
 }
 
-export class FunctionDeclBB extends BB {
+export class FunctionInitBB extends BB {
 
   node: JS3FunctionDeclaration
 
@@ -229,7 +229,7 @@ export class FunctionDeclBB extends BB {
   }
 
   create() {
-    return new FunctionDeclBB(this.node);
+    return new FunctionInitBB(this.node);
   }
 
 }
@@ -277,9 +277,9 @@ export class CKEBB extends BB {
 }
 
 export class ValueBB extends BB {
-  node: OptionalMemberExpression | OptionalCallExpression
+  node: OptionalMemberExpression | OptionalCallExpression | undefined 
 
-  constructor(node: OptionalMemberExpression | OptionalCallExpression) {
+  constructor(node: OptionalMemberExpression | OptionalCallExpression | undefined = undefined) {
     super("Value")
     this.node = node
   }

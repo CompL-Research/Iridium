@@ -36,7 +36,7 @@ export function transform(node : JS3File) {
 
       for (let binding of moduleVarBindings) {
         let declarators = new Array()
-        declarators.push(generateJS3VariableDeclaratorfromBaseNode(generateIdentifier(path.node, binding), generateIdentifier(path.node, "undefined"), null, path.node))
+        declarators.push(generateJS3VariableDeclaratorfromBaseNode(generateIdentifier(path.node, binding), null, null, path.node))
         let toPush = generateJS3VariableDeclarationfromBaseNode(declarators, "var", null, path.node)
         programNode.body.splice(i++, 0, toPush);
       }
@@ -71,7 +71,7 @@ export function transform(node : JS3File) {
       let fnVarBindings = varBindings.map(a => a.identifier.name)
       for (let binding of fnVarBindings) {
         let declarators = new Array()
-        declarators.push(generateJS3VariableDeclaratorfromBaseNode(generateIdentifier(path.node, binding), generateIdentifier(path.node, "undefined"), null, path.node))
+        declarators.push(generateJS3VariableDeclaratorfromBaseNode(generateIdentifier(path.node, binding), null, null, path.node))
         let toPush = generateJS3VariableDeclarationfromBaseNode(declarators, "var", null, path.node)
         path.node.body.body.splice(i++, 0, toPush);
       }
