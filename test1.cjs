@@ -334,4 +334,11 @@
 // }
 
 
-export default function() { console.log("test1.js"); }
+// export default function() { console.log("test1.js"); }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = _default;
+function _default() {
+  console.log("test1.js");
+}

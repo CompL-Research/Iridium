@@ -343,3 +343,45 @@
 // }
 
 // console.log(f4_patched({ f: { gg: 12 } })) // 10
+
+// var test = 100
+// function f4({ f: { g: a = test } }, test) {
+//   return a;
+// }
+// console.log(f4({f:{}}))
+
+// import a from "./test1.js"
+// import b from "./test1.cjs"
+// console.log(a, b)
+
+// const x = {
+//   get value() {
+//     console.log("value getter called")
+//     return { get boo() { console.log("boo getter called"); return undefined; }, set boo(a) { console.log("boo setter called"); }  };
+//   },
+//   set value(v) {
+//     console.log("value setter called");
+//   },
+// };
+
+// x.value.boo ??= 2;
+
+let log = console.log
+// let a = 3;
+// let b = -2;
+// log(a > 0 && b > 0);
+// // Expected output: false
+
+// let a = 3;
+// let b = -2;
+// log(a > 0 || b > 0);
+// Expected output: true
+
+const foo = null ?? 'default string';
+log(foo);
+// Expected output: "default string"
+
+const baz = 0 ?? 42;
+log(baz);
+// Expected output: 0
+

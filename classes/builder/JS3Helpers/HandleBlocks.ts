@@ -6,7 +6,7 @@ import { isJS3AssnObjectProperty, isJS3MemberExpression, JS3AllowedBlockStatemen
 
 import debugConfig from "#debugConfig";
 import { handleArrowFunctionExpression, handleClassExpression, handleExpression, handleFunctionExpression, handleMemberExpression, lowerToAnonArrayExpr } from "./HandleExpression.ts";
-import { generateBaseNodeFrom, generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrayPatternfromBaseNode, generateJS3AssignmentExpressionfromBaseNode, generateJS3AssnObjectPropertyfromBaseNode, generateJS3BinaryExpressionfromBaseNode, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3CatchClause, generateJS3ContinueStatement, generateJS3DebuggerStatement, generateJS3DoWhileStatement, generateJS3EmptyStatement, generateJS3EmptyStatementfromBaseNode, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3LabeledStatement, generateJS3ObjectPattern, generateJS3PrivateName, generateJS3RestElement, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclarator, generateJS3VariableDeclaratorfromBaseNode, generateJS3WhileStatement, generateJS3WithStatement } from "./JS3Constructors.ts";
+import { generateBaseNodeFrom, generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrayPatternfromBaseNode, generateJS3AssignmentExpressionfromBaseNode, generateJS3AssnObjectPropertyfromBaseNode, generateJS3BinaryExpressionfromBaseNode, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3CatchClause, generateJS3ConditionalExpressionfromBaseNode, generateJS3ContinueStatement, generateJS3DebuggerStatement, generateJS3DoWhileStatement, generateJS3EmptyStatement, generateJS3EmptyStatementfromBaseNode, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3LabeledStatement, generateJS3ObjectPattern, generateJS3PrivateName, generateJS3RestElement, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclarator, generateJS3VariableDeclaratorfromBaseNode, generateJS3WhileStatement, generateJS3WithStatement } from "./JS3Constructors.ts";
 
 import { generateCommentLine } from "#utils";
 import assert from 'node:assert';
@@ -445,33 +445,21 @@ export function handleDeclaratorRec(
 
     let fin$res = generateIdentifier(LVal, otherProps.getNewTemporary("assnPat"))
     let cond$res = generateIdentifier(LVal, otherProps.getNewTemporary("condRes"))
+    let undefID = generateIdentifier(LVal, "undefined")
 
     // let fin$res = RVal
     let declarator = generateJS3VariableDeclaratorfromBaseNode(fin$res, fin_init, null, LVal)
     otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode([declarator], "let", null, LVal))
 
     // fin$res === undefined
-    let binop = generateJS3BinaryExpressionfromBaseNode(fin$res, generateIdentifier(LVal, "undefined"), "===", LVal);
+    let binop = generateJS3BinaryExpressionfromBaseNode(fin$res, undefID, "===", LVal);
     // let cond$res = fin$res === undefined
     let declaratorCondRes = generateJS3VariableDeclaratorfromBaseNode(cond$res, binop, null, LVal)
     otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode([declaratorCondRes], "let", null, LVal))
 
-    // Spill right into conseq
-    let conseq : Array<JS3AllowedBlockStatement> = new Array()
-    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: conseq } }
-
-    // rightspill$res = ...EXPR
-    let rightspill$res = handleExpression(LVal.right, updatedProps)
-    conseq.push(generateDummyJS3VariableDeclaration(
-      LVal, 
-      generateIdentifier(LVal, otherProps.getNewTemporary("throwaway")),
-      generateJS3AssignmentExpressionfromBaseNode("=", fin$res, rightspill$res, LVal)
-      )
-    )  
-    
-    // if (cond$res) { conseq }
-    let ifCond = generateJS3IfStatementfromBaseNode(cond$res, generateJS3BlockStatementfromBaseNode(conseq, [], LVal), null, LVal)
-    otherProps.others.holder.push(ifCond)
+    // let fin$res = cond$res ? EXPR1 : EXPR2
+    let condExpr = generateJS3ConditionalExpressionfromBaseNode(cond$res, lowerComputedKey(LVal.right, otherProps), undefID, LVal)
+    otherProps.others.holder.push(generateDummyJS3VariableDeclaration(LVal, fin$res, condExpr))
 
     // Recursive case
     // (let...) left = fin$res

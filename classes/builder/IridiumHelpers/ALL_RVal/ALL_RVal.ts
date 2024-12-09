@@ -2,27 +2,30 @@ import { JS3AssnInit } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../ALL_AMP/ALL_AMP.ts";
 import { printScopedSpace } from "../IRIDIUM.ts";
 
-type IRI_ASSN_TYPE = IV_Literals 
-                   | IV_Regexp 
-                   | IV_Templates 
-                   | IV_Call
-                   | IV_META
-                   | IV_YIELD_AWAIT
-                   | IV_THISEXPRESSION
-                   | IV_BINOP
-                   | IV_ASSN
+type IRI_ASSN_TYPE = t_IV_Literals 
+                   | t_IV_Regexp 
+                   | t_IV_Templates 
+                   | t_IV_Call
+                   | t_IV_META
+                   | t_IV_YIELD_AWAIT
+                   | t_IV_THISEXPRESSION
+                   | t_IV_BINOP
+                   | t_IV_ASSN
+                   | t_IV_NonLang
 
-type IV_Literals = "DecimalLiteral" | "BigIntLiteral" | "StringLiteral" | "NumericLiteral" | "NullLiteral" | "BooleanLiteral"
-type IV_Regexp = "Regexp"
-type IV_Templates = "TemplateLiteral" | "TaggedTemplateCall"
-type IV_Call = "ImportCall" | "Call" | "SuperCall" | "V8IntrinsicCall" 
+type t_IV_Literals = "DecimalLiteral" | "BigIntLiteral" | "StringLiteral" | "NumericLiteral" | "NullLiteral" | "BooleanLiteral"
+type t_IV_Regexp = "Regexp"
+type t_IV_Templates = "TemplateLiteral" | "TaggedTemplateCall"
+type t_IV_Call = "ImportCall" | "Call" | "SuperCall" | "V8IntrinsicCall" 
 
-type IV_META = "ModuleMeta" | "NewTarget"
-type IV_YIELD_AWAIT = "YieldExpression" | "AwaitExpression"
-type IV_THISEXPRESSION = "ThisExpression"
+type t_IV_META = "ModuleMeta" | "NewTarget"
+type t_IV_YIELD_AWAIT = "YieldExpression" | "AwaitExpression"
+type t_IV_THISEXPRESSION = "ThisExpression"
 
-type IV_BINOP = "ArtihOP" | "BitwiseOP" | "CheckOP" | "PropCheckOP" | "NarrowingOP" | "CompOP"
-type IV_ASSN = "SimpleAssn" | "MemberAssn" | "ThisAssn" | "SuperAssn" | "ArrPatAssn" | "ObjPatAssn"
+type t_IV_BINOP = "ArtihOP" | "BitwiseOP" | "CheckOP" | "PropCheckOP" | "NarrowingOP" | "CompOP"
+type t_IV_ASSN = "SimpleAssn" | "MemberAssn" | "ThisAssn" | "SuperAssn" | "ArrPatAssn" | "ObjPatAssn"
+
+type t_IV_NonLang = "NUBD"
 
 export class ALL_RVal {
   node : JS3AssnInit | undefined
