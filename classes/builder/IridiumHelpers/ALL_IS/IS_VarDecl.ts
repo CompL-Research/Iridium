@@ -60,7 +60,7 @@ export class IS_ArrPatVarDecl extends ALL_IS {
     this.LVal.elements.forEach(e => {
       i++;
       if (isRestElement(e)) {
-        lval += `...${e.argument}`
+        lval += `...${e.argument.name}`
       } else {
         lval += `${e.name}`
       }

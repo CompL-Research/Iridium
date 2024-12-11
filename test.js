@@ -61,7 +61,7 @@
 
 // // 7.Try Catch
 // try {
-//   let a = 1;
+//   var xxa = 1;
 // } catch([a, ...{x: { y: boo }}]) {
 //   let b = 2;
 // }
@@ -75,7 +75,7 @@
 // } catch {
 //   let b = 2;
 // } finally {
-//   let c = 3;
+//   var caas = 3;
 // }
 
 
@@ -205,7 +205,7 @@
 
 // export default function MyApp() {
 //   let a;
-//   a = a[(test) ? 1 : 2].c?.().d.e.f?.g;
+//   a = a?.v[(test) ? 1 : 2].c?.().d.e.f?.g;
 //   return a;
 // }
 
@@ -366,7 +366,7 @@
 
 // x.value.boo ??= 2;
 
-let log = console.log
+// let log = console.log
 // let a = 3;
 // let b = -2;
 // log(a > 0 && b > 0);
@@ -377,11 +377,18 @@ let log = console.log
 // log(a > 0 || b > 0);
 // Expected output: true
 
-const foo = null ?? 'default string';
-log(foo);
-// Expected output: "default string"
+// const foo = null ?? 'default string';
+// log(foo);
+// // Expected output: "default string"
 
-const baz = 0 ?? 42;
-log(baz);
-// Expected output: 0
+// const baz = 0 ?? 42;
+// log(baz);
+// // Expected output: 0
 
+// export default function test(arg) {
+//   let a = {}
+//   let b = test ? a?.b() : tt;
+// }
+
+
+a.x(function foo() { var a, b, c; console.log(a, b, c); })

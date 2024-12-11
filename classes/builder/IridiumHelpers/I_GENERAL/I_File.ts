@@ -9,7 +9,7 @@ export class I_File {
   program: I_Program
 
   constructor(js3builder: JS3Builder) {
-    this.node = js3builder.generatedProgram;
+    this.node = js3builder.generatedAST;
     this.program = new I_Program(js3builder)
   }
 
@@ -31,7 +31,7 @@ export class I_Program {
   constructor(js3builder: JS3Builder) {
     // Directives
     let directives = new Array<string>()
-    let node = js3builder.generatedProgram.program
+    let node = js3builder.generatedAST.program
     node.directives.forEach((d) => directives.push(d.value.value))
 
     // Build CFG

@@ -1,10 +1,15 @@
 import debugConfig from "#debugConfig";
 import _generate from "@babel/generator";
-import { assignmentExpression, callExpression, Expression, Identifier, isArrayPattern, isArrowFunctionExpression, isClassExpression, isFunctionExpression, isIdentifier, isImportSpecifier, isObjectPattern, isOptionalCallExpression, isOptionalMemberExpression, isPrivateName, isRestElement, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, Node, OptionalCallExpression, optionalCallExpression, OptionalMemberExpression, optionalMemberExpression, ThisExpression } from "@babel/types";
+import { assignmentExpression, callExpression, Expression, identifier, Identifier, isArrayPattern, isArrowFunctionExpression, isClassExpression, isFunctionExpression, isIdentifier, isImportSpecifier, isObjectPattern, isOptionalCallExpression, isOptionalMemberExpression, isPrivateName, isRestElement, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, Node, OptionalCallExpression, optionalCallExpression, OptionalMemberExpression, optionalMemberExpression, ThisExpression } from "@babel/types";
+import _traverse from "@babel/traverse";
+
+const traverse = _traverse.default
+
 import JS3Builder from "../JS3Builder.ts";
+import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
 import { handleExpression, handleSpreadElement, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpression.ts";
-import { generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3AssignmentExpression, generateJS3AssignmentExpressionfromBaseNode, generateJS3RestElement, generateJS3RestElementfromBaseNode, generateJS3VariableDeclaration, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclarator, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
-import { isJS3ArrayPattern, isJS3AssignmentExpression, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ContextualCallExpression, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3IfStatement, isJS3Import, isJS3ImportDeclaration, isJS3MemberExpression, isJS3MetaProperty, isJS3ObjectPattern, isJS3RegExpLiteral, isJS3ReturnStatement, isJS3TaggedTemplateExpression, isJS3TemplateLiteral, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3YieldExpression, JS3AllowedProgStatement, JS3ArrayPattern, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BinaryExpression, JS3BlockStatement_body, JS3CallExpression, JS3ContextualCallExpression, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3FunctionDeclaration, JS3IfStatement, JS3ImportDeclaration, JS3MemberExpression, JS3MetaProperty, JS3ObjectPattern, JS3Program, JS3RegExpLiteral, JS3ReturnStatement, JS3SpreadElement, JS3TaggedTemplateExpression, JS3TemplateLiteral, JS3ThrowStatement, JS3TryStatement, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3YieldExpression } from "../JS3Helpers/JS3Types.ts";
+import { generateIdentifier, generateJS3RestElement, generateJS3RestElementfromBaseNode, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
+import { isJS3ArrayPattern, isJS3AssignmentExpression, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3FunctionExpression, isJS3IfStatement, isJS3Import, isJS3ImportDeclaration, isJS3MemberExpression, isJS3MetaProperty, isJS3ObjectPattern, isJS3RegExpLiteral, isJS3ReturnStatement, isJS3TaggedTemplateExpression, isJS3TemplateLiteral, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3YieldExpression, JS3AllowedProgStatement, JS3ArrayPattern, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BinaryExpression, JS3BlockStatement_body, JS3CallExpression, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3FunctionDeclaration, JS3FunctionExpression, JS3IfStatement, JS3ImportDeclaration, JS3MemberExpression, JS3MetaProperty, JS3ObjectPattern, JS3Program, JS3RegExpLiteral, JS3ReturnStatement, JS3SpreadElement, JS3TaggedTemplateExpression, JS3TemplateLiteral, JS3ThrowStatement, JS3TryStatement, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3YieldExpression } from "../JS3Helpers/JS3Types.ts";
 import { IV_Identifier, IV_MemberExpressionPA, IV_PrivateName, IV_SuperLookupPA, IV_ThisLookupPA } from "./ALL_AMP/ALL_AMP.ts";
 import { IS_Debugger, IS_Return, IS_Throw } from "./ALL_IS/IS_Debugger_Return_Throw.ts";
 import { IS_FunDecl } from "./ALL_IS/IS_FunDecl.ts";
@@ -21,9 +26,8 @@ import { IV_Regexp } from "./ALL_RVal/IV_Regexp.ts";
 import { IV_TaggedTemplateCall, IV_TemplateLiteral } from "./ALL_RVal/IV_Templates.ts";
 import { IV_This } from "./ALL_RVal/IV_This.ts";
 import { IV_AWAIT, IV_YIELD } from "./ALL_RVal/IV_YIELD_AWAIT.ts";
-import { BB, BlockBB, BranchTerminal, CatchBB, ExitNode, FunctionInitBB, ModuleBB, OptionalBranchTerminal, OptionalChainTestBB, ScriptBB, TryBlockBB, TryCatchConditionalGoto, UnconditionalGoto, ValueBB } from "./BB.ts";
+import { BB, BlockBB, BranchTerminal, CatchBB, ContainedBB, ExitNode, FunctionInitBB, ModuleBB, OptionalBranchTerminal, ScriptBB, TryBB, TryCatchConditionalGoto, UnconditionalGoto } from "./BB.ts";
 import { I_File } from "./I_GENERAL/I_File.ts";
-import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
 
 const generate = _generate.default
 
@@ -57,7 +61,7 @@ export default class IRIDIUM {
   }
 
   constructor(js3builder: JS3Builder) {
-    this.node = js3builder.generatedProgram.program
+    this.node = js3builder.generatedAST.program
     this.js3builder = js3builder
     this.errors = []
     this.initialize();
@@ -156,6 +160,8 @@ export default class IRIDIUM {
       return this.handleOptionalChainExpression(init)
     } else if (isJS3ContextualCallExpression(init)) {
       return this.handleJS3ContextualCallExpression(init)
+    } else if (isJS3ConditionalExpression(init)) {
+      return this.handleJS3ConditionalExpression(init);
     }
 
     else {
@@ -169,13 +175,34 @@ export default class IRIDIUM {
     for (let _st of body) {
       this.handleJS3AllowedProgStatement(_st)
     }
-
   }
 
   build() {
     let body = new IRIDIUM_FG(this.currentBB)
     this.handleJS3ProgramBody(this.node.body)
     return body
+  }
+
+  lowerExprToValueBlock(from : JS3ContainedExprKey, block: BB, resID : IV_Identifier) {
+    // Generate 3JS code
+    let otherProps = this.js3builder.utils
+    let js3SpillHolder: JS3BlockStatement_body = new Array()
+    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: js3SpillHolder } }
+    let exprRes = handleExpression(from, updatedProps);
+    
+    // Start value block context
+    let oldVal = this.getValueBlockContext()
+    this.setValueBlockContext(true)
+
+    this.setCurrentBB(block)
+    this.handleJS3ProgramBody(js3SpillHolder)
+    
+    // resID = ...exprRes
+    this.getCurrentBB().statements.push(new IS_SimpleVarDecl(undefined, "VALUE", resID, new IV_Identifier(exprRes, exprRes.name)));
+
+    // Restore old context
+    this.setValueBlockContext(oldVal)
+    
   }
 
   // ***********************        AMP          ***********************
@@ -196,6 +223,31 @@ export default class IRIDIUM {
 
 
   // ***********************       RVALUES        ***********************
+
+  // *********************** Iridium_ConditionalExpression ***********************
+
+  handleJS3ConditionalExpression(node: JS3ConditionalExpression) {
+    let curr = this.getCurrentBB()
+    let postBB = curr.create()
+    postBB.terminal = curr.terminal
+
+    let finRes = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("condRes"))
+
+    let test = new IV_Identifier(node.test, node.test.name)
+
+    let TrueBB  = new ContainedBB(node.consequent, "CondExpr: T")
+    TrueBB.terminal = new UnconditionalGoto(postBB)
+    let FalseBB  = new ContainedBB(node.alternate, "CondExpr: F")
+    FalseBB.terminal = new UnconditionalGoto(postBB)
+
+    curr.terminal = new BranchTerminal(node, test, TrueBB, FalseBB)
+
+    this.lowerExprToValueBlock(node.consequent, TrueBB, finRes)
+    this.lowerExprToValueBlock(node.alternate, FalseBB, finRes)
+    this.setCurrentBB(postBB)
+
+    return finRes;
+  }
 
   // *********************** Iridium_CCall ***********************
 
@@ -229,7 +281,7 @@ export default class IRIDIUM {
       let curr = this.getCurrentBB()
       let postBB = curr.create()
       postBB.terminal = curr.terminal
-      let argSpillBB = new ValueBB()
+      let argSpillBB = new ContainedBB()
 
       curr.terminal = new UnconditionalGoto(argSpillBB)
       argSpillBB.terminal = new UnconditionalGoto(postBB)
@@ -284,44 +336,51 @@ export default class IRIDIUM {
     // 
     // 2. Spill the genesis object part in the current scope 
     // 
-    // Generate 3JS
-    let otherProps = this.js3builder.utils
-    let js3SpillHolder: JS3BlockStatement_body = new Array()
-    const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: js3SpillHolder } }
-    let res$genesis = handleExpression(objectToSpill, updatedProps);
+    let genesisTestRes = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("genesisTestRes"))
+    let genesisTestBB : BB;
 
-    let IV_res$genesis = new IV_Identifier(res$genesis, res$genesis.name);
-
-    let curr = this.getCurrentBB()
-    let postBB = curr.create()
-    postBB.terminal = curr.terminal
-
+    
     // Base Case, initialize existing state for recursive calls
     if (!existingState) {
-      let fallthrough = new ValueBB(parentNode)
-      let fallthrough_assn = new IS_SimpleVarDecl(undefined, "VALUE", IV_res$genesis, new IV_Identifier(undefined, "undefined"))
-      fallthrough.statements.push(fallthrough_assn)
-      fallthrough.terminal = new UnconditionalGoto(postBB)
-      existingState = { resID: IV_res$genesis, fallthruBlock: fallthrough, postBB }
+      let curr = this.getCurrentBB()
+      let postBB = curr.create()
+      postBB.terminal = curr.terminal
+      
+      let resID = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("chainRes"))
+      let fallthruBlock = new ContainedBB(parentNode, "Chained Short-Circuit Terminal")
+      let fallthrough_assn = new IS_SimpleVarDecl(undefined, "VALUE", resID, new IV_Identifier(undefined, "undefined"))
+      fallthruBlock.statements.push(fallthrough_assn)
+      fallthruBlock.terminal = new UnconditionalGoto(postBB)
+      existingState = { resID, fallthruBlock, postBB }
+
+      // 
+      //    CURR --GOTO--> genesisTestBB
+
+      // CURR --GOTO--> genesisTestBB
+      genesisTestBB = new ContainedBB(genesisNode, `Chain Expression: ${generate(parentNode).code}`)
+      curr.terminal = new UnconditionalGoto(genesisTestBB)
+
+    } else {
+      genesisTestBB = this.getCurrentBB()
+      if (genesisTestBB instanceof ContainedBB) {
+      } else debugConfig.logger.throwIriError("For recursive case, basic block is expected to be a value block")
     }
 
-    // Add iridium code to Test BB and set terminals
-    //    CURR --GOTO--> genesisTestBB
     //    genesisTestBB --TEST--> chainBB --GOTO--> postBB (contextual)
-    //                      |---> fallthruBlock (contextual)
-    let chainBB = new ValueBB(parentNode)
+    //                      |---> fallthruBlock (contextual) 
+    
+    // chainBB --GOTO--> postBB
+    let chainBB = new ContainedBB(parentNode)
     chainBB.terminal = new UnconditionalGoto(existingState.postBB);
 
-    let genesisTestBB = new OptionalChainTestBB(genesisNode, true, `parent: ${generate(parentNode).code}, genesis: ${generate(genesisNode).code}, spilled: ${generate(objectToSpill).code}`)
-    curr.terminal = new UnconditionalGoto(genesisTestBB)
-    genesisTestBB.terminal = new OptionalBranchTerminal(parentNode, IV_res$genesis, chainBB, existingState.fallthruBlock);
+    // genesisTestBB --TEST--> chainBB
+    //                   |---> fallthruBlock
+    genesisTestBB.terminal = new OptionalBranchTerminal(parentNode, genesisTestRes, chainBB, existingState.fallthruBlock);
 
-    this.setCurrentBB(genesisTestBB)
-    this.setValueBlockContext(true)
+    let immediateCallContext = this.getImmediateCallContext()
     this.setImmediateCallContext(true)
-    this.handleJS3ProgramBody(js3SpillHolder)
-    this.setImmediateCallContext(false)
-    this.setValueBlockContext(false)
+    this.lowerExprToValueBlock(objectToSpill, genesisTestBB, genesisTestRes)
+    this.setImmediateCallContext(immediateCallContext)
 
     this.setCurrentBB(chainBB)
 
@@ -344,8 +403,6 @@ export default class IRIDIUM {
         return n;
       }
     };
-
-
     let findAndPatch = (n: Node, toFind: Node, toReplaceWith: Identifier) => {
       if (n === toFind) {
         // 1. "left" of toFind is set to "toReplaceWith"
@@ -379,7 +436,7 @@ export default class IRIDIUM {
       }
     };
 
-    let { value: patchedNode } = findAndPatch(parentNode, genesisNode, res$genesis);
+    let { value: patchedNode } = findAndPatch(parentNode, genesisNode, identifier(genesisTestRes.name));
 
     // 
     // 5. Check if we have reached chain termination
@@ -400,31 +457,23 @@ export default class IRIDIUM {
     let containsOptionalNode = containsOptionalNodeCheck(patchedNode)
 
     if (!containsOptionalNode) { // Chain termination, all optional = true node were eliminated...
-
+      
       // Get rid of all optional nodes
       patchedNode = patchRecursively(patchedNode);
 
-      // Generate 3JS
-      let otherProps = this.js3builder.utils
-      let js3SpillHolder: JS3BlockStatement_body = new Array()
-      const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: js3SpillHolder } }
-      let res$chain = handleExpression(patchedNode, updatedProps);
-
-      // Spill chain result
-      this.setCurrentBB(chainBB)
-      this.setValueBlockContext(true)
-      this.handleJS3ProgramBody(js3SpillHolder)
-      this.setValueBlockContext(false)
-
-      // Create assignment for final chain result, to final result
-      let IV_res$chain = new IV_Identifier(res$chain, res$chain.name);
-      let chain_res_assn = new IS_SimpleVarDecl(undefined, "VALUE", existingState.resID, IV_res$chain)
-      this.getCurrentBB().statements.push(chain_res_assn)
-
+      chainBB.comment = `Terminal node: ${generate(patchedNode).code}`
+      
+      // Handle Chain termination.
+      // resID = ...terminal_expr
+      let immediateCallContext = this.getImmediateCallContext()
+      this.setImmediateCallContext(true)
+      this.lowerExprToValueBlock(patchedNode, chainBB, existingState.resID)
+      this.setImmediateCallContext(immediateCallContext)
       this.setCurrentBB(existingState.postBB)
 
       return existingState.resID
     } else {
+      chainBB.comment = `Recursive case: ${generate(patchedNode).code}`
       // Recursive case
       return this.handleOptionalChainExpression(patchedNode, existingState)
     }
@@ -619,16 +668,16 @@ export default class IRIDIUM {
       // Case a. 
       //   try { BLOCK } catch(?ID) { HANDLER }
       let curr = this.getCurrentBB()
-      let TryBB = new TryBlockBB(stmt.block)
-      let CatchHandlerBB = new CatchBB(stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
+      let TryBlockBB = new TryBB(stmt)
+      let CatchHandlerBB = new CatchBB(stmt.handler, stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
       let PostBB = curr.create()
       PostBB.terminal = curr.terminal
 
-      curr.terminal = new UnconditionalGoto(TryBB)
-      TryBB.terminal = new TryCatchConditionalGoto(CatchHandlerBB, PostBB)
+      curr.terminal = new UnconditionalGoto(TryBlockBB)
+      TryBlockBB.terminal = new TryCatchConditionalGoto(CatchHandlerBB, PostBB)
       CatchHandlerBB.terminal = new UnconditionalGoto(PostBB)
 
-      this.setCurrentBB(TryBB)
+      this.setCurrentBB(TryBlockBB)
       stmt.block.body.forEach(s => {
         this.handleJS3AllowedProgStatement(s);
       })
@@ -646,16 +695,16 @@ export default class IRIDIUM {
       // Case b.
       //   try { BLOCK } finally { FINALIZER }
       let curr = this.getCurrentBB()
-      let TryBB = new TryBlockBB(stmt.block)
+      let TryBlockBB = new TryBB(stmt)
       let FinallyBB = new BlockBB(stmt.finalizer)
       let PostBB = curr.create()
       PostBB.terminal = curr.terminal
 
-      curr.terminal = new UnconditionalGoto(TryBB)
-      TryBB.terminal = new UnconditionalGoto(FinallyBB)
+      curr.terminal = new UnconditionalGoto(TryBlockBB)
+      TryBlockBB.terminal = new UnconditionalGoto(FinallyBB)
       FinallyBB.terminal = new UnconditionalGoto(PostBB)
 
-      this.setCurrentBB(TryBB)
+      this.setCurrentBB(TryBlockBB)
       stmt.block.body.forEach(s => {
         this.handleJS3AllowedProgStatement(s);
       })
@@ -674,19 +723,19 @@ export default class IRIDIUM {
       //   try { BLOCK } catch { HANDLER } finally { FINALIZER }
 
       let curr = this.getCurrentBB()
-      let TryBB = new TryBlockBB(stmt.block)
-      let CatchHandlerBB = new CatchBB(stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
+      let TryBlockBB = new TryBB(stmt)
+      let CatchHandlerBB = new CatchBB(stmt.handler, stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
       let FinallyBB = new BlockBB(stmt.finalizer)
       let PostBB = curr.create()
       PostBB.terminal = curr.terminal
 
-      curr.terminal = new UnconditionalGoto(TryBB)
-      TryBB.terminal = new TryCatchConditionalGoto(CatchHandlerBB, FinallyBB)
+      curr.terminal = new UnconditionalGoto(TryBlockBB)
+      TryBlockBB.terminal = new TryCatchConditionalGoto(CatchHandlerBB, FinallyBB)
       CatchHandlerBB.terminal = new UnconditionalGoto(FinallyBB)
       FinallyBB.terminal = new UnconditionalGoto(PostBB)
 
 
-      this.setCurrentBB(TryBB)
+      this.setCurrentBB(TryBlockBB)
       stmt.block.body.forEach(s => {
         this.handleJS3AllowedProgStatement(s);
       })

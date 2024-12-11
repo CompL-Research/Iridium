@@ -124,7 +124,7 @@ export class IV_ObjPatAssn extends ALL_RVal {
     this.LVal.properties.forEach(p => {
       i++;
       if (isRestElement(p)) {
-        lval += `...${p.argument}`
+        lval += `...${p.argument.name}`
       } else {
         lval += `${keyToString(p.key)} : ${p.value.name}`
       }

@@ -28,7 +28,7 @@ export type JS3BuilderUtils = {
 
 export default class JS3Builder {
   projectFile: ProjectFile
-  generatedProgram: JS3File | null
+  generatedAST: JS3File | null
   #varIdx: number = 0
   generatedCode: string = ""
   sourceMap: any = ""
@@ -49,7 +49,7 @@ export default class JS3Builder {
     }
     assert(file.initData.parseStatus === "parsed")
     this.projectFile = file
-    this.generatedProgram = null
+    this.generatedAST = null
     this.generatedCode = "// NOPE"
   }
 
@@ -58,12 +58,7 @@ export default class JS3Builder {
     const program = this.projectFile.initData.parseResult.program
     assert(program)
     const js3Program = handleProgram(program, this.utils)
-    this.generatedProgram = generateJS3File(js3Program, file)
-    this.generateCode()
-    this.generateURI()
-
-    hoistImportsAndFnDecls(this.generatedProgram)
-    hoistVarDeclarations(this.generatedProgram)
+    this.generatedAST = generateJS3File(js3Program, file)
     this.generateCode()
     this.generateURI()
   }
@@ -80,9 +75,9 @@ export default class JS3Builder {
     }
 
     if (debugConfig.test262) 
-      this.generatedProgram.trailingComments = this.generatedProgram.comments
+      this.generatedAST.trailingComments = this.generatedAST.comments
 
-    const transformedCode = babel.transformFromAst(this.generatedProgram, this.projectFile.initData.sourceCode, {
+    const { code, map, ast } = babel.transformFromAstSync(this.generatedAST, this.projectFile.initData.sourceCode, {
       // cwd: this.projectFile.projectBasePath,
       filename: this.projectFile.uname,
       // inputSourceMap: this.projectFile.sourceMap,
@@ -94,8 +89,9 @@ export default class JS3Builder {
       ],
     });
 
-    this.generatedCode = transformedCode.code;
-    this.sourceMap = JSON.stringify(transformedCode.map)
+    this.generatedCode = code;
+    this.sourceMap = JSON.stringify(map)
+    this.generatedAST  = ast
   }
 
   generateURI() {
@@ -112,7 +108,7 @@ export default class JS3Builder {
       )}`;
     }
 
-    const ast = this.generatedProgram
+    const ast = this.generatedAST
     if (ast) {
       const sourceMapUrl = getSourceMapUrl(
         this.generatedCode,

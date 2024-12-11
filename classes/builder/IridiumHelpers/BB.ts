@@ -1,13 +1,12 @@
 import { recursivelyTraverseAllBBs } from "#utils"
-import { JS3BlockStatement, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3SpreadElement } from "../JS3Helpers/JS3Types.ts"
+import { JS3CatchClause, JS3ConditionalExpression, JS3ContainedExprKey, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3TryStatement } from "../JS3Helpers/JS3Types.ts"
 import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
 import { printScopedSpace } from "./IRIDIUM.ts"
 
-import { OptionalMemberExpression, OptionalCallExpression } from "@babel/types"
+import { OptionalCallExpression, OptionalMemberExpression } from "@babel/types"
 
-type BBScopes = "Script" | "Module" | "Function" | "AnonFunction" | "Block" | "CKE" | "Catch" | "Try" | "Value" | "OptionalChainTest"
-
+type BBScopes = "Script" | "Module" | "Function" | "Block" | "Contained"
 
 
 export class BBTerminal {
@@ -22,12 +21,12 @@ export class BBTerminal {
 }
 
 export class BranchTerminal extends BBTerminal {
-  node?: JS3IfStatement
+  node?: JS3IfStatement | JS3ConditionalExpression
   on: IV_Identifier
   t: BB
   f: BB
 
-  constructor(node: JS3IfStatement | undefined, on: IV_Identifier, t: BB, f: BB) {
+  constructor(node: JS3IfStatement | JS3ConditionalExpression | undefined, on: IV_Identifier, t: BB, f: BB) {
     super();
     this.node = node;
     this.on = on
@@ -156,40 +155,7 @@ export class BB {
 
 }
 
-export class CatchBB extends BB {
-  arg: IV_Identifier | null
-
-  constructor(arg: IV_Identifier) {
-    super("Catch")
-    this.arg = arg
-  }
-
-  toString(space = 0) {
-    let stmts = []
-
-    // Traverse all BB's
-    let BBs = recursivelyTraverseAllBBs(this)
-
-    for (let bb of BBs) {
-      stmts.push(`${printScopedSpace(space)}`)
-      stmts.push(`${printScopedSpace(space)}BB${bb.idx} [${bb.scope}] (${this.arg}):`)
-      bb.statements.forEach(s => {
-        stmts.push(s.toString(space + 2))
-      })
-      stmts.push(bb.terminal.toString(space + 2))
-    }
-
-    return stmts.join("\n")
-  }
-
-  create() {
-    return new CatchBB(this.arg);
-  }
-
-  printHeader() {
-    return `BB${this.idx} [${this.scope}] (${this.arg ? this.arg.toString() : ""})`
-  }
-}
+// ************************** TOP LEVEL **************************
 
 export class ScriptBB extends BB {
   node: JS3Program
@@ -219,6 +185,8 @@ export class ModuleBB extends BB {
 
 }
 
+// ************************** FUNCTION LEVEL **************************
+
 export class FunctionInitBB extends BB {
 
   node: JS3FunctionDeclaration
@@ -234,13 +202,7 @@ export class FunctionInitBB extends BB {
 
 }
 
-export class AnonFunctionBB extends BB {
-
-  constructor() {
-    super("AnonFunction")
-  }
-
-}
+// ************************** BLOCK LEVEL **************************
 
 export class BlockBB extends BB {
   node?: any
@@ -255,54 +217,54 @@ export class BlockBB extends BB {
   }
 }
 
-export class TryBlockBB extends BB {
-  node: JS3BlockStatement
+export class TryBB extends BlockBB {
 
-  constructor(node: JS3BlockStatement = undefined) {
-    super("Try")
+  constructor(node: JS3TryStatement = undefined) {
+    super(node)
     this.node = node
   }
 
   create() {
-    return new TryBlockBB(this.node);
+    return new TryBB(this.node);
   }
-}
 
-export class CKEBB extends BB {
-
-  constructor() {
-    super("CKE")
+  printHeader() {
+    return `BB${this.idx} [${this.scope} ~ Try]`
   }
 
 }
 
-export class ValueBB extends BB {
-  node: OptionalMemberExpression | OptionalCallExpression | undefined 
+export class CatchBB extends BlockBB {
+  arg: IV_Identifier | null
 
-  constructor(node: OptionalMemberExpression | OptionalCallExpression | undefined = undefined) {
-    super("Value")
-    this.node = node
+  constructor(node: JS3CatchClause = undefined, arg: IV_Identifier) {
+    super(node)
+    this.arg = arg
   }
 
   create() {
-    return new ValueBB(this.node);
+    return new CatchBB(this.node, this.arg);
   }
 
+  printHeader() {
+    return `BB${this.idx} [${this.scope} ~ Catch(${this.arg ? this.arg.toString() : ""})] `
+  }
 }
 
-export class OptionalChainTestBB extends BB {
-  node: OptionalMemberExpression | OptionalCallExpression
-  optional: boolean
+// ************************** CONTAINED **************************
+
+export class ContainedBB extends BB {
+  node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined 
   comment: string
 
-  constructor(node: OptionalMemberExpression | OptionalCallExpression, optional: boolean, comment = "") {
-    super("OptionalChainTest")
-    this.optional = optional
+  constructor(node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined = undefined, comment = "") {
+    super("Contained")
+    this.node = node
     this.comment = comment
   }
 
   create() {
-    return new OptionalChainTestBB(this.node, this.optional, this.comment);
+    return new ContainedBB(this.node, this.comment);
   }
 
   printHeader() {
