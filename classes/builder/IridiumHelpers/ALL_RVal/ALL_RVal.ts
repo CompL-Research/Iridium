@@ -12,6 +12,8 @@ type IRI_ASSN_TYPE = t_IV_Literals
                    | t_IV_BINOP
                    | t_IV_ASSN
                    | t_IV_NonLang
+                   | t_IV_OBJECTEXPRESSION
+                   | t_IV_ConditionalExpression
 
 type t_IV_Literals = "DecimalLiteral" | "BigIntLiteral" | "StringLiteral" | "NumericLiteral" | "NullLiteral" | "BooleanLiteral"
 type t_IV_Regexp = "Regexp"
@@ -25,7 +27,11 @@ type t_IV_THISEXPRESSION = "ThisExpression"
 type t_IV_BINOP = "ArtihOP" | "BitwiseOP" | "CheckOP" | "PropCheckOP" | "NarrowingOP" | "CompOP"
 type t_IV_ASSN = "SimpleAssn" | "MemberAssn" | "ThisAssn" | "SuperAssn" | "ArrPatAssn" | "ObjPatAssn"
 
+type t_IV_OBJECTEXPRESSION = "ObjectExpression"
+
 type t_IV_NonLang = "NUBD"
+
+type t_IV_ConditionalExpression = "ConditionalExpression"
 
 export class ALL_RVal {
   node : JS3AssnInit | undefined

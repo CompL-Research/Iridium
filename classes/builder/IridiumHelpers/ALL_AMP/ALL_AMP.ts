@@ -34,12 +34,14 @@ export class ALL_AMP {
 
 export class IV_Identifier extends ALL_AMP {
   name: string
+  isValue: boolean = false
   constructor(node: Identifier | V8IntrinsicIdentifier | undefined = undefined, name: string) {
     super(node, isV8IntrinsicIdentifier(node) ? "V8IntrinsicIdentifier" : "Identifier");
     this.name = name;
   }
 
   toString() {
+    if (this.isValue) return `<Value>${this.name}`;
     return `${this.name}`
   }
 }

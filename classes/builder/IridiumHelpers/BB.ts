@@ -1,12 +1,12 @@
 import { recursivelyTraverseAllBBs } from "#utils"
-import { JS3CatchClause, JS3ConditionalExpression, JS3ContainedExprKey, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3TryStatement } from "../JS3Helpers/JS3Types.ts"
+import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ConditionalExpression, JS3ContainedExprKey, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3TryStatement } from "../JS3Helpers/JS3Types.ts"
 import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
 import { printScopedSpace } from "./IRIDIUM.ts"
 
 import { OptionalCallExpression, OptionalMemberExpression } from "@babel/types"
 
-type BBScopes = "Script" | "Module" | "Function" | "Block" | "Contained"
+type BBScopes = "Script" | "Module" | "Function" | "Block" | "Contained" | "FunctionArgInit"
 
 
 export class BBTerminal {
@@ -39,7 +39,7 @@ export class BranchTerminal extends BBTerminal {
   }
 
   toString(space = 0) {
-    return `${printScopedSpace(space)}███ 🤔 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
+    return `${printScopedSpace(space)}🬲 🤔 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
   }
 }
 
@@ -62,7 +62,7 @@ export class OptionalBranchTerminal extends BBTerminal {
   }
 
   toString(space = 0) {
-    return `${printScopedSpace(space)}███ 🤔 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
+    return `${printScopedSpace(space)}🬲 🤔 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
   }
 }
 
@@ -78,7 +78,7 @@ export class UnconditionalGoto extends BBTerminal {
   }
 
   toString(space = 0) {
-    return `${printScopedSpace(space)}███ 🥔 BB${this.to.idx}`
+    return `${printScopedSpace(space)}🬲 🥔 BB${this.to.idx}`
   }
 }
 
@@ -97,19 +97,19 @@ export class TryCatchConditionalGoto extends BBTerminal {
   }
 
   toString(space = 0) {
-    return `${printScopedSpace(space)}███ 👮 🚨: (BB${this.handler.idx}) 👍: (BB${this.finalizer.idx})`
+    return `${printScopedSpace(space)}🬲 👮 🚨: (BB${this.handler.idx}) 👍: (BB${this.finalizer.idx})`
   }
 }
 
 export class ExitNode extends BBTerminal {
   toString(space = 0) {
-    return `${printScopedSpace(space)}███ 👋 Exit`
+    return `${printScopedSpace(space)}🬲 👋 Exit`
   }
 }
 
 export class ErrorNode extends BBTerminal {
   toString(space = 0) {
-    return `${printScopedSpace(space)}███ 🚨🚨 ERROR 🚨🚨`
+    return `${printScopedSpace(space)}🬲 🚨🚨 ERROR 🚨🚨`
   }
 }
 
@@ -134,7 +134,7 @@ export class BB {
 
     for (let bb of BBs) {
       stmts.push(`${printScopedSpace(space)}`)
-      stmts.push(`${printScopedSpace(space)}███ ${bb.printHeader()}`)
+      stmts.push(`${printScopedSpace(space)}🬕 ${bb.printHeader()}`)
       // stmts.push(`${printScopedSpace(space)}BB${bb.idx} [${bb.scope}]:`)
       bb.statements.forEach(s => {
         stmts.push(s.toString(space))
@@ -187,19 +187,37 @@ export class ModuleBB extends BB {
 
 // ************************** FUNCTION LEVEL **************************
 
-export class FunctionInitBB extends BB {
+export class FunctionBB extends BB {
 
-  node: JS3FunctionDeclaration
+  node: JS3FunctionDeclaration | JS3BlockStatement
 
-  constructor(node: JS3FunctionDeclaration) {
+  constructor(node: JS3FunctionDeclaration | JS3BlockStatement) {
     super("Function")
     this.node = node
   }
 
   create() {
-    return new FunctionInitBB(this.node);
+    return new FunctionBB(this.node);
   }
 
+}
+
+export class FunctionArgInitBB extends BB {
+  
+  args: Array<JS3AllowedFunctionArgs>
+
+  constructor(args: Array<JS3AllowedFunctionArgs>) {
+    super("FunctionArgInit")
+    this.args = args
+  }
+
+  create() {
+    return new FunctionArgInitBB(this.args);
+  }
+
+  printHeader() {
+    return `BB${this.idx} [${this.scope}] { args: ${this.args.length} }`
+  }
 }
 
 // ************************** BLOCK LEVEL **************************
@@ -269,6 +287,29 @@ export class ContainedBB extends BB {
 
   printHeader() {
     return `BB${this.idx} [${this.scope}] // ${this.comment}`
+  }
+
+}
+
+export class ContainedOptionalChainBB extends ContainedBB {
+  node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined 
+  isOptional: boolean
+  isTerminal: boolean
+  isShortcircuit: boolean
+
+  constructor(node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined = undefined,comment = "", isOptional: boolean, isTerminal: boolean = false, isShortcircuit = false) {
+    super(node, comment)
+    this.isOptional = isOptional
+    this.isTerminal = isTerminal
+    this.isShortcircuit = isShortcircuit
+  }
+
+  create() {
+    return new ContainedOptionalChainBB(this.node, this.comment, this.isOptional, this.isTerminal, this.isShortcircuit);
+  }
+
+  printHeader() {
+    return `BB${this.idx} [${this.scope} ~ Optional=${this.isOptional}, Terminal=${this.isTerminal}, Shortcircuit=${this.isShortcircuit}] // ${this.comment}`
   }
 
 }

@@ -190,7 +190,7 @@
 
 // 16. Optional Chaining
 
-// let a;
+let a;
 // a = a.b.c.d?.e; // Optional chain at terminals
 // a = a.b.c.d?.e();   // Optional chain at terminals
 // a = a.b.c?.d.e;     // One intermediate optional chain
@@ -201,13 +201,14 @@
 // a = a?.()
 
 // a = a.b().c?.().b?.c;
-// a = a.b.c?.().d.e.f?.g;
+a = a[a?.a()].c?.().d?.[e].f?.g;
 
-// export default function MyApp() {
-//   let a;
-//   a = a?.v[(test) ? 1 : 2].c?.().d.e.f?.g;
-//   return a;
-// }
+
+export default function MyApp() {
+  let a;
+  a = a?.v[(test) ? 1 : 2].c?.().d.e.f?.g;
+  return a;
+}
 
 // foo.b.x(() => { console.log("Boo") },23)
 
@@ -249,9 +250,9 @@
 // var Test = "outer"
 // function f1(a = Test, Test = "args") {
 //   var Test = "inner" 
-//   return a;
+//   return a + Test;
 // }
-// console.log(f1()) // Test uninit error
+// console.log(f1()) // Test uninit error, undefinedinner in babel
 
 
 // // 
@@ -391,4 +392,15 @@
 // }
 
 
-a.x(function foo() { var a, b, c; console.log(a, b, c); })
+// a.x(function foo() { var a, b, c; console.log(a, b, c); })
+
+// let a;
+// a = {
+//   f1(a = Test) {
+//     return a;
+//   },
+//   moo(a, b, c,) {
+//   },
+//   [a]: a,
+//   ...a
+// }

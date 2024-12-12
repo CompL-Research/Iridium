@@ -13,8 +13,8 @@ export class IV_SimpleAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
-  toString() {
-    return `${this.LVal.toString()} = ${this.RVal.toString()}`
+  toString(space = 0) {
+    return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
   }
 }
 
@@ -28,8 +28,8 @@ export class IV_MemberAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
-  toString() {
-    return `${this.LVal.toString()} = ${this.RVal.toString()}`
+  toString(space = 0) {
+    return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
   }
 }
 
@@ -43,8 +43,8 @@ export class IV_ThisAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
-  toString() {
-    return `${this.LVal.toString()} = ${this.RVal.toString()}`
+  toString(space = 0) {
+    return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
   }
 }
 
@@ -58,8 +58,8 @@ export class IV_SuperAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
-  toString() {
-    return `${this.LVal.toString()} = ${this.RVal.toString()}`
+  toString(space = 0) {
+    return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
   }
 }
 
@@ -73,7 +73,7 @@ export class IV_ArrPatAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
-  toString() {
+  toString(space = 0) {
     let lval = "[ "
     let len = this.LVal.elements.length
     let i = 0
@@ -93,7 +93,7 @@ export class IV_ArrPatAssn extends ALL_RVal {
     })
     lval += "]"
 
-    return `${lval} = ${this.RVal.toString()}`
+    return `${lval} = ${this.RVal.toString(space + 2)}`
   }
 }
 
@@ -107,7 +107,7 @@ export class IV_ObjPatAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
-  toString() {
+  toString(space = 0) {
 
     let keyToString = (p: JS3AssnObjectProperty_key) => {
       if (isIdentifier(p)) return p.name
@@ -137,6 +137,6 @@ export class IV_ObjPatAssn extends ALL_RVal {
     })
     lval += "}"
 
-    return `${lval} = ${this.RVal.toString()}`
+    return `${lval} = ${this.RVal.toString(space + 2)}`
   }
 }

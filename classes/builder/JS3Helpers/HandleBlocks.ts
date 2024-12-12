@@ -437,7 +437,7 @@ export function handleDeclaratorRec(
     // 
     // let fin$res = RVal
     // let cond$res = fin$res === undefined
-    // if (cond$res) { fin$res = ...right }
+    // fin$res = cond$res ? 
     // 
     // Recurse: 
     //  left = fin$res
@@ -458,7 +458,7 @@ export function handleDeclaratorRec(
     otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode([declaratorCondRes], "let", null, LVal))
 
     // let fin$res = cond$res ? EXPR1 : EXPR2
-    let condExpr = generateJS3ConditionalExpressionfromBaseNode(cond$res, lowerComputedKey(LVal.right, otherProps), undefID, LVal)
+    let condExpr = generateJS3ConditionalExpressionfromBaseNode(cond$res, lowerComputedKey(LVal.right, otherProps), fin$res, LVal)
     otherProps.others.holder.push(generateDummyJS3VariableDeclaration(LVal, fin$res, condExpr))
 
     // Recursive case

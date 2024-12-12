@@ -1,9 +1,10 @@
-import { JS3ObjectMethod, JS3ObjectProperty, JS3RestElement, JS3SpreadElement } from "classes/builder/JS3Helpers/JS3Types.ts"
-import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts"
-import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_Literals, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "./IV_Literals.ts"
-import debugConfig from "#debugConfig";
+import { JS3ObjectMethod, JS3ObjectProperty, JS3RestElement, JS3SpreadElement } from "classes/builder/JS3Helpers/JS3Types.ts";
+import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
+import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_Literals, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "./IV_Literals.ts";
 
-import { isBigIntLiteral, isBooleanLiteral, isDecimalLiteral, isIdentifier, isNullLiteral, isNumericLiteral, isStringLiteral } from "@babel/types"
+import { isBigIntLiteral, isBooleanLiteral, isDecimalLiteral, isIdentifier, isNullLiteral, isNumericLiteral, isStringLiteral } from "@babel/types";
+import { FunctionArgInitBB } from "../BB.ts";
+import { I_Function } from "../I_GENERAL/I_Function.ts";
 
 // ISP = Iridium SPecial; values that appear as a part of an R Value but never as R_Values directly.
 
@@ -31,13 +32,26 @@ export class ISP_RestElement {
     return `...${this.arg.toString()}`
   }
 }
+export type ISP_ObjectMethod_key = IV_Identifier | IV_StringLiteral | IV_NumericLiteral | IV_BigIntLiteral
+export class ISP_ObjectMethod extends I_Function {
+  kind: "method" | "get" | "set"
+  key: ISP_ObjectMethod_key
+  computed: boolean;
 
-export class ISP_ObjectMethod {
-  node: JS3ObjectMethod
-
-  constructor(node: JS3ObjectMethod, arg: IV_Identifier) {
+  constructor(node: JS3ObjectMethod, kind: "method" | "get" | "set", key: ISP_ObjectMethod_key, params: Array<IV_Identifier | ISP_RestElement>, funBody: FunctionArgInitBB, computed: boolean, generator: boolean, async: boolean) {
+    super(node, params, funBody, generator, async)
     this.node = node
-    debugConfig.logger.throwIriError("JS3ObjectMethod: Unimplemented")
+    this.kind = kind
+    this.key = key
+    this.computed = computed
+  }
+
+  toString(space = 0) {
+    let params = this.params.map(i => i.toString()).join(",")
+    let stmts = []
+    stmts.push(`<ObjMethod> { kind: ${this.kind}, name: ${this.computed ? "[" + this.key.toString() + "" : this.key.toString() }, params: [${params}], async: ${this.async}, generator: ${this.generator} }`)
+    stmts.push(this.funBody.toString(space))
+    return stmts.join("\n")
   }
 }
 
@@ -56,7 +70,7 @@ export class ISP_ObjectProperty {
     this.computed = computed
   }
 
-  from(node: JS3ObjectProperty) {
+  static from(node: JS3ObjectProperty) {
     let orig_key = node.key
     let fin_key : ISP_ObjectProperty_key
     if (isIdentifier(orig_key)) {
@@ -90,6 +104,6 @@ export class ISP_ObjectProperty {
   }
 
   toString() {
-    return `<ObjProp> ${this.key.toString()}: ${this.value.toString()}`
+    return `<ObjProp> ${this.computed ? "[" + this.key.toString() + "]" : this.key.toString()} : ${this.value.toString()}`
   }
 }

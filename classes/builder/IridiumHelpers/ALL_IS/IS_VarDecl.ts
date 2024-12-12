@@ -5,7 +5,7 @@ import { ALL_IS } from "./ALL_IS.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { printScopedSpace } from "../IRIDIUM.ts";
 
-export type IS_VAR_DECL_KIND = "var" | "let" | "const" | "VALUE"
+export type IS_VAR_DECL_KIND = "var" | "let" | "const"
 
 export class IS_SimpleVarDecl extends ALL_IS {
   KIND: IS_VAR_DECL_KIND
@@ -25,9 +25,9 @@ export class IS_SimpleVarDecl extends ALL_IS {
 
   toString(space = 0) {
     if (!this.RVal) {
-      return `${printScopedSpace(space)}█ ${this.KIND} ${this.LVal.name};`
+      return `${printScopedSpace(space)}▏ ${this.KIND} ${this.LVal.name};`
     }
-    return `${printScopedSpace(space)}█ ${this.KIND} ${this.LVal.name} = ${this.RVal.toString()};`
+    return `${printScopedSpace(space)}▏ ${this.KIND} ${this.LVal.name} = ${this.RVal.toString(space + 2)};`
   }
 }
 
@@ -74,10 +74,10 @@ export class IS_ArrPatVarDecl extends ALL_IS {
     lval += "]"
 
     if (!this.RVal) {
-      return `${printScopedSpace(space)}█ ${this.KIND} ${lval};`
+      return `${printScopedSpace(space)}▏ ${this.KIND} ${lval};`
     }
 
-    return `${printScopedSpace(space)}█ ${this.KIND} ${lval} = ${this.RVal.toString()};`
+    return `${printScopedSpace(space)}▏ ${this.KIND} ${lval} = ${this.RVal.toString(space + 2)};`
   }
 }
 
@@ -134,9 +134,9 @@ export class IS_ObjPatVarDecl extends ALL_IS {
     lval += "}"
 
     if (!this.RVal) {
-      return `${printScopedSpace(space)}█ ${this.KIND} ${lval};`
+      return `${printScopedSpace(space)}▏ ${this.KIND} ${lval};`
     }
 
-    return `${printScopedSpace(space)}█ ${this.KIND} ${lval} = ${this.RVal.toString()};`
+    return `${printScopedSpace(space)}▏ ${this.KIND} ${lval} = ${this.RVal.toString(space + 2)};`
   }
 }
