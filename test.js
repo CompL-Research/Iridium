@@ -190,7 +190,7 @@
 
 // 16. Optional Chaining
 
-let a;
+// let a;
 // a = a.b.c.d?.e; // Optional chain at terminals
 // a = a.b.c.d?.e();   // Optional chain at terminals
 // a = a.b.c?.d.e;     // One intermediate optional chain
@@ -201,14 +201,14 @@ let a;
 // a = a?.()
 
 // a = a.b().c?.().b?.c;
-a = a[a?.a()].c?.().d?.[e].f?.g;
+// a = a[a?.a()].c?.().d?.[e].f?.g;
 
 
-export default function MyApp() {
-  let a;
-  a = a?.v[(test) ? 1 : 2].c?.().d.e.f?.g;
-  return a;
-}
+// export default function MyApp() {
+//   let a;
+//   a = a?.v[(test) ? 1 : 2].c?.().d.e.f?.g;
+//   return a;
+// }
 
 // foo.b.x(() => { console.log("Boo") },23)
 
@@ -404,3 +404,32 @@ export default function MyApp() {
 //   [a]: a,
 //   ...a
 // }
+
+
+// a = function() {
+//   a = {
+//     f1(a = Test) {
+//       return a;
+//     },
+//     moo(a, b, c,) {
+//     },
+//     [a]: a,
+//     ...a
+//   }
+// }
+
+// let b;
+
+
+// let foo = (a) => {
+//   console.log(a.name)
+// }
+
+// foo(() => { console.log("boo") }, [1,2,,3,,,4])
+
+// // a[a?.a()].c?.().d?.[e].f?.g;
+
+
+// let a = new Array(() => { console.log("boo") }, [1,2,,3,,,4])
+
+let a = delete ((a * b + c) == 6)

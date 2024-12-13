@@ -1367,7 +1367,7 @@ export function handleNewExpression(node: NewExpression, otherProps: OtherProps)
       } else if (isSpreadElement(_arrProp)) {
         fin_arguments.push(handleSpreadElement(_arrProp, otherProps))
       } else if (isArgumentPlaceholder(_arrProp)) {
-        fin_arguments.push(_arrProp)
+        debugConfig.logger.throwJS3Error("TODO // unhandled NewExpression->[arguments]->ArgumentPlaceholder");
       }
     }
   }

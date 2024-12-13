@@ -1,11 +1,12 @@
 import { recursivelyTraverseAllBBs } from "#utils"
-import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ConditionalExpression, JS3ContainedExprKey, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3TryStatement } from "../JS3Helpers/JS3Types.ts"
+import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ConditionalExpression, JS3ContainedExprKey, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3TryStatement, JS3UnaryExpression } from "../JS3Helpers/JS3Types.ts"
 import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
 import { printScopedSpace } from "./IRIDIUM.ts"
-
+import _generator from "@babel/generator"
 import { OptionalCallExpression, OptionalMemberExpression } from "@babel/types"
 
+const generator = _generator["default"]
 type BBScopes = "Script" | "Module" | "Function" | "Block" | "Contained" | "FunctionArgInit"
 
 
@@ -62,7 +63,7 @@ export class OptionalBranchTerminal extends BBTerminal {
   }
 
   toString(space = 0) {
-    return `${printScopedSpace(space)}🬲 🤔 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
+    return `${printScopedSpace(space)}🬲 🤔 (${this.on}) 👍: (BB${this.t.idx}) 🔗: (BB${this.f.idx})`
   }
 }
 
@@ -81,6 +82,17 @@ export class UnconditionalGoto extends BBTerminal {
     return `${printScopedSpace(space)}🬲 🥔 BB${this.to.idx}`
   }
 }
+
+export class GotoFunctionBody extends UnconditionalGoto {
+  constructor(to: BB) {
+    super(to);
+  }
+
+  toString(space = 0) {
+    return `${printScopedSpace(space)}🬲 🔔 BB${this.to.idx}`
+  }
+}
+
 
 export class TryCatchConditionalGoto extends BBTerminal {
   handler: BB
@@ -272,10 +284,10 @@ export class CatchBB extends BlockBB {
 // ************************** CONTAINED **************************
 
 export class ContainedBB extends BB {
-  node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined 
+  node: OptionalMemberExpression | OptionalCallExpression | JS3UnaryExpression | JS3ContainedExprKey | undefined 
   comment: string
 
-  constructor(node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined = undefined, comment = "") {
+  constructor(node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | JS3UnaryExpression | undefined = undefined, comment = "") {
     super("Contained")
     this.node = node
     this.comment = comment
@@ -286,7 +298,13 @@ export class ContainedBB extends BB {
   }
 
   printHeader() {
-    return `BB${this.idx} [${this.scope}] // ${this.comment}`
+    let comment = ""
+    if (this.comment) {
+      comment = "// " + this.comment
+    } else if (this.node) {
+      comment = "// " + generator(this.node).code
+    }
+    return `BB${this.idx} [${this.scope}] ${comment}`
   }
 
 }

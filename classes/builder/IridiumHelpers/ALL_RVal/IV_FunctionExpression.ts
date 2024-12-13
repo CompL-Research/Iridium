@@ -1,46 +1,25 @@
-import { JS3ObjectExpression } from "classes/builder/JS3Helpers/JS3Types.ts"
+import { JS3FunctionExpression } from "classes/builder/JS3Helpers/JS3Types.ts"
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts"
-import { IV_BigIntLiteral, IV_NumericLiteral, IV_StringLiteral } from "./IV_Literals.ts"
 import { FunctionArgInitBB } from "../BB.ts"
+import { I_Function } from "../I_GENERAL/I_Function.ts"
 import { ISP_RestElement } from "./ALL_ISP.ts"
+import { ALL_RVal } from "./ALL_RVal.ts"
+import { printScopedSpace } from "../IRIDIUM.ts"
 
-export type IV_FunctionExpression_key = IV_Identifier | IV_StringLiteral | IV_NumericLiteral | IV_BigIntLiteral
-export class IV_FunctionExpression {
-  node: JS3ObjectExpression
-  kind: "method" | "get" | "set"
-  key: IV_FunctionExpression_key
-  params : Array<IV_Identifier | ISP_RestElement>
-  funBody: FunctionArgInitBB
-  computed: boolean;
-  generator: boolean;
-  async: boolean;
+export class IV_FunctionExpression extends ALL_RVal {
+  func: I_Function
+  name: IV_Identifier | undefined
+  dropName: boolean
 
-  constructor(node: JS3ObjectExpression, kind: "method" | "get" | "set", key: IV_FunctionExpression_key, params: Array<IV_Identifier | ISP_RestElement>, funBody: FunctionArgInitBB, computed: boolean, generator: boolean, async: boolean) {
-    this.node = node
-    this.kind = kind
-    this.key = key
-    this.params = params
-    this.funBody = funBody
-    this.computed = computed
-    this.generator = generator
-    this.async = async
+  constructor(node: JS3FunctionExpression | undefined = undefined, params : Array<IV_Identifier | ISP_RestElement>, funBody: FunctionArgInitBB, name: IV_Identifier | undefined, isGenerator: boolean, isAsync: boolean, dropName : boolean = false) {
+    super(node, "FunctionExpression");
+    this.func = new I_Function(node, params, funBody, isGenerator, isAsync);
+    this.name = name
   }
 
   toString(space = 0) {
+    return `<FunctionExpression> { ${this.dropName ? "" : (this.name ? `name: ${this.name.toString()}` : "name: UKN")} }\n${printScopedSpace(space)}${this.func.toString(space + 2)}`
 
-    let params = this.params.map(i => i.toString()).join(",")
-
-    let stmts = []
-    if (this.computed) {
-      stmts.push(`<ObjMethod> { kind: ${this.kind}, name: [${this.key.toString()}], params: [${params}], async: ${this.async}, generator: ${this.generator} }`)
-    } else {
-      stmts.push(`<ObjMethod> { kind: ${this.kind}, name: ${this.key.toString()}, params: [${params}], async: ${this.async}, generator: ${this.generator} }`)
-    }
-
-    stmts.push(this.funBody.toString(space))
-    
-    return stmts.join("\n")
   }
-
 
 }

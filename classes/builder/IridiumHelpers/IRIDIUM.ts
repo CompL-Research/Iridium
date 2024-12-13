@@ -1,35 +1,40 @@
 import debugConfig from "#debugConfig";
 import _generate from "@babel/generator";
-import { ArrayPattern, assignmentExpression, AssignmentPattern, callExpression, Expression, identifier, Identifier, isArrayPattern, isArrowFunctionExpression, isAssignmentPattern, isBigIntLiteral, isClassExpression, isFunctionExpression, isIdentifier, isImportSpecifier, isNumericLiteral, isObjectPattern, isOptionalCallExpression, isOptionalMemberExpression, isPrivateName, isRestElement, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, Node, ObjectPattern, OptionalCallExpression, optionalCallExpression, OptionalMemberExpression, optionalMemberExpression, ThisExpression } from "@babel/types";
 import _traverse from "@babel/traverse";
+import { ArrayPattern, AssignmentPattern, callExpression, Expression, identifier, Identifier, isArrayPattern, isArrowFunctionExpression, isAssignmentPattern, isBigIntLiteral, isClassExpression, isFunctionExpression, isIdentifier, isImportSpecifier, isNumericLiteral, isObjectPattern, isOptionalCallExpression, isOptionalMemberExpression, isPrivateName, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, Node, ObjectPattern, OptionalCallExpression, optionalCallExpression, OptionalMemberExpression, optionalMemberExpression, ThisExpression } from "@babel/types";
 
 const traverse = _traverse.default
 
 import JS3Builder from "../JS3Builder.ts";
 import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
-import { handleExpression, handleSpreadElement, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpression.ts";
-import { generateIdentifier, generateJS3RestElement, generateJS3RestElementfromBaseNode, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
-import { isJS3ArrayPattern, isJS3AssignmentExpression, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3FunctionExpression, isJS3IfStatement, isJS3Import, isJS3ImportDeclaration, isJS3MemberExpression, isJS3MetaProperty, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3RegExpLiteral, isJS3ReturnStatement, isJS3SpreadElement, isJS3TaggedTemplateExpression, isJS3TemplateLiteral, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3YieldExpression, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BinaryExpression, JS3BlockStatement, JS3BlockStatement_body, JS3CallExpression, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3FunctionDeclaration, JS3FunctionExpression, JS3IfStatement, JS3ImportDeclaration, JS3MemberExpression, JS3MetaProperty, JS3ObjectExpression, JS3ObjectPattern, JS3Program, JS3Program_body, JS3RegExpLiteral, JS3ReturnStatement, JS3SpreadElement, JS3TaggedTemplateExpression, JS3TemplateLiteral, JS3ThrowStatement, JS3TryStatement, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3YieldExpression } from "../JS3Helpers/JS3Types.ts";
+import { handleExpression, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpression.ts";
+import { generateIdentifier, generateJS3RestElementfromBaseNode, generateJS3SpreadElement, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
+import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3FunctionExpression, isJS3IfStatement, isJS3Import, isJS3ImportDeclaration, isJS3MemberExpression, isJS3MetaProperty, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3RegExpLiteral, isJS3ReturnStatement, isJS3SpreadElement, isJS3TaggedTemplateExpression, isJS3TemplateLiteral, isJS3ThrowStatement, isJS3TryStatement, isJS3UnaryExpression, isJS3VariableDeclaration, isJS3YieldExpression, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3AnonMemberExpression, JS3ArrayExpression, JS3ArrayPattern, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BinaryExpression, JS3BlockStatement, JS3BlockStatement_body, JS3CallExpression, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3FunctionDeclaration, JS3FunctionExpression, JS3IfStatement, JS3ImportDeclaration, JS3MemberExpression, JS3MetaProperty, JS3NewExpression, JS3ObjectExpression, JS3ObjectPattern, JS3Program, JS3RegExpLiteral, JS3ReturnStatement, JS3TaggedTemplateExpression, JS3TemplateLiteral, JS3ThrowStatement, JS3TryStatement, JS3UnaryExpression, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3YieldExpression } from "../JS3Helpers/JS3Types.ts";
 import { IV_Identifier, IV_MemberExpressionPA, IV_PrivateName, IV_SuperLookupPA, IV_ThisLookupPA } from "./ALL_AMP/ALL_AMP.ts";
 import { IS_Debugger, IS_Return, IS_Throw } from "./ALL_IS/IS_Debugger_Return_Throw.ts";
 import { IS_FunDecl } from "./ALL_IS/IS_FunDecl.ts";
 import { IS_AExport, IS_AImport, IS_BExport, IS_BImport, IS_CExport, IS_CImport, IS_DExport, IS_EExport } from "./ALL_IS/IS_Imports_Exports.ts";
 import { IS_ArrPatVarDecl, IS_ObjPatVarDecl, IS_SimpleVarDecl, IS_VAR_DECL_KIND } from "./ALL_IS/IS_VarDecl.ts";
-import { ISP_ArgSpread, ISP_ObjectMethod, ISP_ObjectMethod_key, ISP_ObjectProperty, ISP_RestElement } from "./ALL_RVal/ALL_ISP.ts";
+import { ISP_ArgSpread, ISP_ObjectMethod, ISP_ObjectMethod_key, ISP_ObjectProperty, ISP_RestElement, ISP_Super, ISP_V8Intrinsic } from "./ALL_RVal/ALL_ISP.ts";
 import { IV_ASSIGNABLE } from "./ALL_RVal/ALL_RVal.ts";
+import { IV_ArrayExpression } from "./ALL_RVal/IV_ArrayExpression.ts";
+import { IV_ArrowFunctionExpression } from "./ALL_RVal/IV_ArrowFunctionExpression.ts";
 import { IV_ArrPatAssn, IV_MemberAssn, IV_ObjPatAssn, IV_SimpleAssn, IV_SuperAssn, IV_ThisAssn } from "./ALL_RVal/IV_Assignment.ts";
 import { IV_ABINOP, IV_BBINOP, IV_CBINOP, IV_DBINOP, IV_EBINOP, IV_FBINOP, OPA, OPB, OPC, OPD, OPE, OPF } from "./ALL_RVal/IV_Binop.ts";
 import { IV_Call, IV_ImportCall, IV_SuperCall, IV_V8IntrinsicCall } from "./ALL_RVal/IV_Call.ts";
+import { IV_ConditionalExpression } from "./ALL_RVal/IV_ConditionalExpression.ts";
+import { IV_FunctionExpression } from "./ALL_RVal/IV_FunctionExpression.ts";
 import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "./ALL_RVal/IV_Literals.ts";
 import { IV_ModuleMeta, IV_NewTarget } from "./ALL_RVal/IV_META.ts";
+import { IV_NewExpression } from "./ALL_RVal/IV_NewExpression.ts";
+import { IV_ObjectExpression } from "./ALL_RVal/IV_ObjectExpression.ts";
 import { IV_Regexp } from "./ALL_RVal/IV_Regexp.ts";
 import { IV_TaggedTemplateCall, IV_TemplateLiteral } from "./ALL_RVal/IV_Templates.ts";
 import { IV_This } from "./ALL_RVal/IV_This.ts";
+import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "./ALL_RVal/IV_Unop.ts";
 import { IV_AWAIT, IV_YIELD } from "./ALL_RVal/IV_YIELD_AWAIT.ts";
-import { BB, BlockBB, BranchTerminal, CatchBB, ContainedBB, ContainedOptionalChainBB, ExitNode, FunctionArgInitBB, FunctionBB, ModuleBB, OptionalBranchTerminal, ScriptBB, TryBB, TryCatchConditionalGoto, UnconditionalGoto } from "./BB.ts";
+import { BB, BlockBB, BranchTerminal, CatchBB, ContainedBB, ContainedOptionalChainBB, ExitNode, FunctionArgInitBB, FunctionBB, GotoFunctionBody, ModuleBB, OptionalBranchTerminal, ScriptBB, TryBB, TryCatchConditionalGoto, UnconditionalGoto } from "./BB.ts";
 import { I_File } from "./I_GENERAL/I_File.ts";
-import { IV_ObjectExpression } from "./ALL_RVal/IV_ObjectExpression.ts";
-import { IV_ConditionalExpression } from "./ALL_RVal/IV_ConditionalExpression.ts";
 
 const generate = _generate.default
 
@@ -157,6 +162,18 @@ export default class IRIDIUM {
       return this.handleJS3ConditionalExpression(init);
     } else if (isJS3ObjectExpression(init)) {
       return this.handleJS3ObjectExpression(init)
+    } else if (isJS3FunctionExpression(init)) {
+      return this.handleJS3FunctionExpression(init)
+    } else if (isJS3ArrowFunctionExpression(init)) {
+      return this.handleJS3ArrowFunctionExpression(init)
+    } else if (isJS3AnonMemberExpression(init)) {
+      return this.handleJS3AnonMemberExpression(init)
+    } else if (isJS3ArrayExpression(init)) {
+      return this.handleJS3ArrayExpression(init)
+    } else if (isJS3NewExpression(init)) {
+      return this.handleJS3NewExpression(init);
+    } else if (isJS3UnaryExpression(init)) {
+      return this.handleJS3UnaryExpression(init);
     }
 
     else {
@@ -183,7 +200,14 @@ export default class IRIDIUM {
     let otherProps = this.js3builder.utils
     let js3SpillHolder: JS3BlockStatement_body = new Array()
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: js3SpillHolder } }
-    let exprRes = handleExpression(from, updatedProps);
+
+    let exprRes : Identifier
+
+    if (isFunctionExpression(from) || isArrowFunctionExpression(from) || isClassExpression(from)) {
+      exprRes = lowerToAnonArrayExpr(from, updatedProps)
+    } else {
+      exprRes = handleExpression(from, updatedProps);
+    }
 
     this.setCurrentBB(block)
     this.handleJS3ProgramBody(js3SpillHolder)
@@ -191,16 +215,17 @@ export default class IRIDIUM {
     // resID = ...exprRes
     this.getCurrentBB().statements.push(new IS_SimpleVarDecl(undefined, "let", resID, new IV_Identifier(exprRes, exprRes.name)));
 
+    // This is needed sometimes; to create JS3SpreadElement 
+    return exprRes;
+
   }
 
   handleFunctionParams(params: Array<JS3AllowedFunctionArgs>, functionBody: FunctionBB): [Array<IV_Identifier | ISP_RestElement>, FunctionArgInitBB] {
-
     let oldBB = this.getCurrentBB()
-
     let fin_args: Array<IV_Identifier | ISP_RestElement> = []
 
     let argInitBlock = new FunctionArgInitBB(params)
-    let finalGoto = new UnconditionalGoto(functionBody)
+    let finalGoto = new GotoFunctionBody(functionBody)
     let curr = argInitBlock
     argInitBlock.terminal = finalGoto
     let i = 0
@@ -307,6 +332,112 @@ export default class IRIDIUM {
 
   // ***********************       RVALUES        ***********************
 
+  handleJS3UnaryExpression(node: JS3UnaryExpression) {
+    if (node.operator === "delete") {
+
+      let curr = this.getCurrentBB()
+      let postBB = curr.create()
+      postBB.terminal = curr.terminal
+
+      let resID = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("unaryArg"))
+      resID.isValue = true
+      
+      let unaryBB = new ContainedBB(node)
+      curr.terminal = new UnconditionalGoto(unaryBB)
+      unaryBB.terminal = new UnconditionalGoto(postBB)
+
+      this.lowerExprToValueBlock(node.argument, unaryBB, resID)
+      this.setCurrentBB(postBB)
+
+      return new IV_DUNOP(node, resID)
+
+    } else {
+      if (!isIdentifier(node.argument)) {
+        debugConfig.logger.throwIriError("JS3UnaryExpression: Expected Identifier for non delete operators")
+        return new IV_StringLiteral(undefined, "!!!INVALID!!")
+      }
+      let argument = new IV_Identifier(node.argument, node.argument.name)
+      // export type U_OPA = "!" | "+" | "-" | "~"
+      // export type U_OPB = "void"
+      // export type U_OPC = "typeof"
+      if (node.operator === "!" || node.operator ===  "+" || node.operator ===  "-" || node.operator === "~") {
+        return new IV_AUNOP(node, argument, node.operator)
+      } else if (node.operator === "void") {
+        return new IV_BUNOP(node, argument)
+      } else if (node.operator === "typeof") {
+        return new IV_CUNOP(node, argument)
+      } else {
+        debugConfig.logger.throwIriError("JS3UnaryExpression: unsupported operator");
+        return new IV_StringLiteral(undefined, "!!!INVALID!!")
+      }
+    }
+  }
+
+  handleJS3NewExpression(node: JS3NewExpression) {
+    let callee: IV_Identifier | ISP_Super | ISP_V8Intrinsic
+
+    if (isIdentifier(node.callee)) callee = new IV_Identifier(node.callee, node.callee.name)
+    else if (isSuper(node.callee)) callee = new ISP_Super(node.callee)
+    else if (isV8IntrinsicIdentifier(node.callee)) callee = new ISP_V8Intrinsic(node.callee, new IV_Identifier(undefined, node.callee.name))
+
+    let args: Array<IV_Identifier | ISP_ArgSpread> = new Array()
+
+    for (let a of node.arguments) {
+      if (isIdentifier(a)) {
+        args.push(new IV_Identifier(a, a.name))
+      } else {
+        args.push(new ISP_ArgSpread(a, new IV_Identifier(a.argument, a.argument.name)))
+      }
+    }
+  
+    return new IV_NewExpression(node, callee, args)
+  }
+
+  handleJS3ArrayExpression(node: JS3ArrayExpression) {
+    let elements: Array<null | IV_Identifier | ISP_ArgSpread> = []
+
+    for (let e of node.elements) {
+      if (e === null) {
+        elements.push(null)
+      } else if (isIdentifier(e)) {
+        elements.push(new IV_Identifier(e, e.name))
+      } else if (isJS3SpreadElement(e)) {
+        elements.push(new ISP_ArgSpread(e, new IV_Identifier(e.argument, e.argument.name)))
+      }
+    }
+
+    return new IV_ArrayExpression(node, elements)
+  }
+
+  handleJS3AnonMemberExpression(node: JS3AnonMemberExpression) {
+    let element = node.object.elements[0];
+    if (isJS3FunctionExpression(element)) {
+      let [params, funBody] = this.handleFunctionParams(element.params, this.handleFunctionBody(element.body))
+      return new IV_FunctionExpression(element, params, funBody, undefined, element.generator, element.async, true)
+    } else if (isJS3ArrowFunctionExpression(element)) {
+      let [params, funBody] = this.handleFunctionParams(element.params, this.handleFunctionBody(element.body))
+      return new IV_ArrowFunctionExpression(element, params, funBody, undefined, element.generator, element.async, true)
+    } else {
+      debugConfig.logger.throwIriError("JS3AnonMemberExpression unhandled case")
+    }
+  }
+
+  // *********************** Iridium_ArrowFunctionExpression ***********************
+
+  handleJS3ArrowFunctionExpression(node: JS3ArrowFunctionExpression) {
+    let [params, funBody] = this.handleFunctionParams(node.params, this.handleFunctionBody(node.body))
+    return new IV_ArrowFunctionExpression(node, params, funBody, undefined, node.generator, node.async)
+  }
+
+  // *********************** Iridium_FunctionExpression ***********************
+
+  handleJS3FunctionExpression(node: JS3FunctionExpression) {
+    let [params, funBody] = this.handleFunctionParams(node.params, this.handleFunctionBody(node.body))
+    let name : IV_Identifier | undefined = undefined
+    if(isIdentifier(node.id)) name = new IV_Identifier(node.id, node.id.name) 
+    return new IV_FunctionExpression(node, params, funBody, name, node.generator, node.async)
+  }
+
   // *********************** Iridium_ObjectExpression ***********************
 
   handleJS3ObjectExpression(node: JS3ObjectExpression) {
@@ -355,9 +486,12 @@ export default class IRIDIUM {
     postBB.terminal = curr.terminal
 
     let trueRes = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("trueRes"))
+    trueRes.isValue = true
     let falseRes = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("falseRes"))
+    falseRes.isValue = true
 
     let test = new IV_Identifier(node.test, node.test.name)
+    test.isValue = true
 
     let TrueBB = new ContainedBB(node.consequent, "CondExpr: T")
     TrueBB.terminal = new UnconditionalGoto(postBB)
@@ -377,6 +511,7 @@ export default class IRIDIUM {
 
   handleJS3ContextualCallExpression(node: JS3ContextualCallExpression) {
     let LVal = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("ccallCallee"))
+    LVal.isValue = true;
     let RVal = this.handleJS3AssnInit(node.callee)
     let stmt = new IS_SimpleVarDecl(undefined, "let", LVal, RVal)
 
@@ -386,38 +521,32 @@ export default class IRIDIUM {
     let args: Array<IV_Identifier | ISP_ArgSpread> = new Array()
 
     for (let a of node.arguments) {
-      let otherProps = this.js3builder.utils
-      let js3SpillHolder: JS3BlockStatement_body = new Array()
-      const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: js3SpillHolder } }
-
-      let spilled: Identifier
-      let js3SpreadElement: JS3SpreadElement
-
-      if (isSpreadElement(a)) {
-        js3SpreadElement = handleSpreadElement(a, updatedProps);
-        spilled = js3SpreadElement.argument
-      } else if (isFunctionExpression(a) || isArrowFunctionExpression(a) || isClassExpression(a)) {
-        spilled = lowerToAnonArrayExpr(a, updatedProps)
-      } else {
-        spilled = handleExpression(a, updatedProps);
-      }
+      let resHolder = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("arg"))
+      resHolder.isValue = true
 
       let curr = this.getCurrentBB()
       let postBB = curr.create()
       postBB.terminal = curr.terminal
       let argSpillBB = new ContainedBB()
-
       curr.terminal = new UnconditionalGoto(argSpillBB)
       argSpillBB.terminal = new UnconditionalGoto(postBB)
 
-      this.setCurrentBB(argSpillBB)
-      this.handleJS3ProgramBody(js3SpillHolder)
+      let toSpill : JS3ContainedExprKey
+
+      if (isSpreadElement(a)) {
+        toSpill = a.argument
+      } else {
+        toSpill = a
+      } 
+
+      let loweredID = this.lowerExprToValueBlock(toSpill, argSpillBB, resHolder)
+
       this.setCurrentBB(postBB)
 
       if (isSpreadElement(a)) {
-        args.push(new ISP_ArgSpread(js3SpreadElement, new IV_Identifier(spilled, spilled.name)))
+        args.push(new ISP_ArgSpread(generateJS3SpreadElement(loweredID, a), resHolder))
       } else {
-        args.push(new IV_Identifier(spilled, spilled.name))
+        args.push(resHolder)
       }
     }
 
@@ -508,6 +637,7 @@ export default class IRIDIUM {
       let first = genesisTestBB.statements[0]
       if (first instanceof IS_SimpleVarDecl && first.RVal instanceof IV_Call && first.RVal.callee instanceof IV_Identifier) {
         first.RVal.staticThis = true;
+        first.RVal.callee.isValue = true;
       } else {
         debugConfig.logger.throwIriError("Expected first statement of spilled node to be a IV_Call");
       }
@@ -759,9 +889,9 @@ export default class IRIDIUM {
     if (isJS3Import(node.callee)) {
       return new IV_ImportCall(node, args)
     } else if (isSuper(node.callee)) {
-      return new IV_SuperCall(node, args)
+      return new IV_SuperCall(node, node.callee, args)
     } else if (isV8IntrinsicIdentifier(node.callee)) {
-      return new IV_V8IntrinsicCall(node, new IV_Identifier(node.callee, node.callee.name), args)
+      return new IV_V8IntrinsicCall(node, node.callee, args)
     } else {
       let callee = new IV_Identifier(node.callee, node.callee.name);
       return new IV_Call(node, false, callee, args)
@@ -946,7 +1076,7 @@ export default class IRIDIUM {
     let [params, funBody] = this.handleFunctionParams(stmt.params, this.handleFunctionBody(stmt.body))
 
     this.setCurrentBB(curr)
-    curr.statements.push(new IS_FunDecl(stmt, params, funBody, new IV_Identifier(stmt.id, stmt.id.name)))
+    curr.statements.push(new IS_FunDecl(stmt, params, funBody, new IV_Identifier(stmt.id, stmt.id.name), stmt.generator, stmt.async))
   }
 
   // *********************** Iridium_VariableDeclarations ***********************  

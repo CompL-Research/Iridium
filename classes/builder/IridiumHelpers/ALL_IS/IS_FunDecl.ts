@@ -10,9 +10,9 @@ export class IS_FunDecl extends ALL_IS {
   func: I_Function
   name: IV_Identifier
 
-  constructor(node: JS3FunctionDeclaration | undefined = undefined, params : Array<IV_Identifier | ISP_RestElement>, funBody: FunctionArgInitBB, name: IV_Identifier) {
+  constructor(node: JS3FunctionDeclaration | undefined = undefined, params : Array<IV_Identifier | ISP_RestElement>, funBody: FunctionArgInitBB, name: IV_Identifier, isGenerator: boolean, isAsync: boolean) {
     super(node);
-    this.func = new I_Function(node, params, funBody, node.generator, node.async);
+    this.func = new I_Function(node, params, funBody, isGenerator, isAsync);
     this.name = name
   }
   

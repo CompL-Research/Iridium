@@ -2,11 +2,32 @@ import { JS3ObjectMethod, JS3ObjectProperty, JS3RestElement, JS3SpreadElement } 
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_Literals, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "./IV_Literals.ts";
 
-import { isBigIntLiteral, isBooleanLiteral, isDecimalLiteral, isIdentifier, isNullLiteral, isNumericLiteral, isStringLiteral } from "@babel/types";
+import { isBigIntLiteral, isBooleanLiteral, isDecimalLiteral, isIdentifier, isNullLiteral, isNumericLiteral, isStringLiteral, Super, V8IntrinsicIdentifier } from "@babel/types";
 import { FunctionArgInitBB } from "../BB.ts";
 import { I_Function } from "../I_GENERAL/I_Function.ts";
 
 // ISP = Iridium SPecial; values that appear as a part of an R Value but never as R_Values directly.
+export class ISP_Super {
+  node: Super
+  constructor(node: Super) {
+    this.node = node
+  }
+
+  toString() {
+    return `SUPER`
+  }
+}
+
+export class ISP_V8Intrinsic {
+  id: IV_Identifier
+  constructor(node: V8IntrinsicIdentifier, id: IV_Identifier) {
+    this.id = id
+  }
+  
+  toString() {
+    return `<V8> ${this.id.toString()}`
+  }
+}
 
 export class ISP_ArgSpread {
   node: JS3SpreadElement
