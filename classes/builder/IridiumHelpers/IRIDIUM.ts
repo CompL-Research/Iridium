@@ -9,7 +9,7 @@ import JS3Builder from "../JS3Builder.ts";
 import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
 import { handleExpression, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpression.ts";
 import { generateIdentifier, generateJS3RestElementfromBaseNode, generateJS3SpreadElement, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
-import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3FunctionExpression, isJS3IfStatement, isJS3Import, isJS3ImportDeclaration, isJS3MemberExpression, isJS3MetaProperty, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3RegExpLiteral, isJS3ReturnStatement, isJS3SpreadElement, isJS3TaggedTemplateExpression, isJS3TemplateLiteral, isJS3ThrowStatement, isJS3TryStatement, isJS3UnaryExpression, isJS3VariableDeclaration, isJS3YieldExpression, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3AnonMemberExpression, JS3ArrayExpression, JS3ArrayPattern, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BinaryExpression, JS3BlockStatement, JS3BlockStatement_body, JS3CallExpression, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3FunctionDeclaration, JS3FunctionExpression, JS3IfStatement, JS3ImportDeclaration, JS3MemberExpression, JS3MetaProperty, JS3NewExpression, JS3ObjectExpression, JS3ObjectPattern, JS3Program, JS3RegExpLiteral, JS3ReturnStatement, JS3TaggedTemplateExpression, JS3TemplateLiteral, JS3ThrowStatement, JS3TryStatement, JS3UnaryExpression, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3YieldExpression } from "../JS3Helpers/JS3Types.ts";
+import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ClassExpression, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3DebuggerStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3FunctionDeclaration, isJS3FunctionExpression, isJS3IfStatement, isJS3Import, isJS3ImportDeclaration, isJS3MemberExpression, isJS3MetaProperty, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3RegExpLiteral, isJS3ReturnStatement, isJS3SpreadElement, isJS3TaggedTemplateExpression, isJS3TemplateLiteral, isJS3ThrowStatement, isJS3TryStatement, isJS3UnaryExpression, isJS3UpdateExpression, isJS3VariableDeclaration, isJS3YieldExpression, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3AnonMemberExpression, JS3ArrayExpression, JS3ArrayPattern, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BinaryExpression, JS3BlockStatement, JS3BlockStatement_body, JS3CallExpression, JS3ClassExpression, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3DebuggerStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3FunctionDeclaration, JS3FunctionExpression, JS3IfStatement, JS3ImportDeclaration, JS3MemberExpression, JS3MetaProperty, JS3NewExpression, JS3ObjectExpression, JS3ObjectPattern, JS3Program, JS3RegExpLiteral, JS3ReturnStatement, JS3TaggedTemplateExpression, JS3TemplateLiteral, JS3ThrowStatement, JS3TryStatement, JS3UnaryExpression, JS3UpdateExpression, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3YieldExpression } from "../JS3Helpers/JS3Types.ts";
 import { IV_Identifier, IV_MemberExpressionPA, IV_PrivateName, IV_SuperLookupPA, IV_ThisLookupPA } from "./ALL_AMP/ALL_AMP.ts";
 import { IS_Debugger, IS_Return, IS_Throw } from "./ALL_IS/IS_Debugger_Return_Throw.ts";
 import { IS_FunDecl } from "./ALL_IS/IS_FunDecl.ts";
@@ -32,6 +32,7 @@ import { IV_Regexp } from "./ALL_RVal/IV_Regexp.ts";
 import { IV_TaggedTemplateCall, IV_TemplateLiteral } from "./ALL_RVal/IV_Templates.ts";
 import { IV_This } from "./ALL_RVal/IV_This.ts";
 import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "./ALL_RVal/IV_Unop.ts";
+import { IV_UpdateExpression } from "./ALL_RVal/IV_UpdateExpression.ts";
 import { IV_AWAIT, IV_YIELD } from "./ALL_RVal/IV_YIELD_AWAIT.ts";
 import { BB, BlockBB, BranchTerminal, CatchBB, ContainedBB, ContainedOptionalChainBB, ExitNode, FunctionArgInitBB, FunctionBB, GotoFunctionBody, ModuleBB, OptionalBranchTerminal, ScriptBB, TryBB, TryCatchConditionalGoto, UnconditionalGoto } from "./BB.ts";
 import { I_File } from "./I_GENERAL/I_File.ts";
@@ -174,6 +175,10 @@ export default class IRIDIUM {
       return this.handleJS3NewExpression(init);
     } else if (isJS3UnaryExpression(init)) {
       return this.handleJS3UnaryExpression(init);
+    } else if (isJS3UpdateExpression(init)) {
+      return this.handleJS3UpdateExpression(init);
+    } else if (isJS3ClassExpression(init)) {
+      // return this.handleJS3ClassExpression(init)
     }
 
     else {
@@ -201,7 +206,7 @@ export default class IRIDIUM {
     let js3SpillHolder: JS3BlockStatement_body = new Array()
     const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: js3SpillHolder } }
 
-    let exprRes : Identifier
+    let exprRes: Identifier
 
     if (isFunctionExpression(from) || isArrowFunctionExpression(from) || isClassExpression(from)) {
       exprRes = lowerToAnonArrayExpr(from, updatedProps)
@@ -332,6 +337,107 @@ export default class IRIDIUM {
 
   // ***********************       RVALUES        ***********************
 
+  // *********************** Iridium_ClassExpression ***********************
+
+  handleJS3ClassExpression(node: JS3ClassExpression) {
+    // 
+    // Classes in JS are complicated, the shape is not known statically
+    // the order in which side effects appear is not very easy to statically determine
+    // Iridium separates the initialization logic of a class and the actual class declaration
+    // Idea is that statically knowning class shape will help static analysis.
+    // 
+    // JS class initialization order:
+    //  1. Super initialization: The super block is evaluated under a special new environment where the class name is bound as a non-writable property.
+    //  2. Field Name Initialization: local / static fields in declaration order.
+    //  3. Static Value Initialization: static field / static block value initialization in declaration order.
+    //  4. Field Value Initialization: local / private field value initialization in declaration order.
+    // 
+
+    // 
+    // Example Input: 
+    // 
+
+    // var probeBefore = function() { console.log("[probe before]");  return C; };
+    // var probeHeritage;
+    // var C = 'outside';
+    // const Test = class C extends ( // <- This evaluation happens under a specific new scope
+    //   ( 
+    //     console.log("super stuff"), 
+    //     probeHeritage = function() { console.log("[probe after]"); return C; }, // This (i.e. C) is a non-writable property
+    //     function () {} 
+    //   )
+    // ) {
+    //   #private1 = (console.log("[private-1] value init"), 1);;
+    //   [(console.log("[local-field-1] name init"), "field1")] = (console.log("[local-field-1] value init"), 1);
+    //   static [(console.log("[static-field-1] name init"), "field1")] = (console.log("[static-field-1] value init"), 1);
+    //   static {
+    //     console.log("[static-block-1]", this === C, this.field1, this.field2, this.field3)
+    //   }
+    //   #private2 = (console.log("[private-2] value init"), 1);;
+    //   [(console.log("[local-field-2] name init"), "field2")] = (console.log("[local-field-2] value init"), 1);
+    //   static [(console.log("[static-field-2] name init"), "field2")] = (console.log("[static-field-2] value init"), 1);
+    //   static {
+    //     console.log("[static-block-2]", this === C, this.field1, this.field2, this.field3)
+    //   }
+    //   #private3 = (console.log("[private-3] value init"), 1);;
+    //   [(console.log("[local-field-3] name init"), "field3")] = (console.log("[local-field-3] value init"), 1);
+    //   static [(console.log("[static-field-3] name init"), "field3")] = (console.log("[static-field-3] value init"), 1);
+    //   static {
+    //     console.log("[static-block-3]", this === C, this.field1, this.field2, this.field3)
+    //   }
+    // }
+
+
+    // Example output:
+    // super stuff
+    // [local-field-1] name init
+    // [static-field-1] name init
+    // [local-field-2] name init
+    // [static-field-2] name init
+    // [local-field-3] name init
+    // [static-field-3] name init
+    // [static-field-1] value init
+    // [static-block-1] true 1 undefined undefined
+    // [static-field-2] value init
+    // [static-block-2] true 1 1 undefined
+    // [static-field-3] value init
+    // [static-block-3] true 1 1 1
+    // [private-1] value init
+    // [local-field-1] value init
+    // [private-2] value init
+    // [local-field-2] value init
+    // [private-3] value init
+    // [local-field-3] value init
+    // C { field1: 1, field2: 1, field3: 1 }
+    // [probe before]
+    // [probe after]
+
+    // 
+    // ClassInitBB:
+    // 
+    //   ...lowerHeritage
+    //   ...lowerLocalOrStaticFieldNames
+    //   ...lowerStaticFieldValueAndStaticBlocks
+    //   ...lowerLocalandPrivateFieldValue
+    //
+
+
+
+  }
+
+
+  // *********************** Iridium_UpdateExpression ***********************
+
+  handleJS3UpdateExpression(node: JS3UpdateExpression) {
+    let argument: IV_Identifier | IV_MemberExpressionPA | IV_ThisLookupPA | IV_SuperLookupPA
+    if (isIdentifier(node.argument)) argument = new IV_Identifier(node.argument, node.argument.name)
+    else argument = this.handleJS3MemberExpression(node.argument)
+
+    return new IV_UpdateExpression(node, argument, node.operator, node.prefix)
+  }
+
+  // *********************** Iridium_Unop ***********************
+
   handleJS3UnaryExpression(node: JS3UnaryExpression) {
     if (node.operator === "delete") {
 
@@ -341,7 +447,7 @@ export default class IRIDIUM {
 
       let resID = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("unaryArg"))
       resID.isValue = true
-      
+
       let unaryBB = new ContainedBB(node)
       curr.terminal = new UnconditionalGoto(unaryBB)
       unaryBB.terminal = new UnconditionalGoto(postBB)
@@ -357,10 +463,7 @@ export default class IRIDIUM {
         return new IV_StringLiteral(undefined, "!!!INVALID!!")
       }
       let argument = new IV_Identifier(node.argument, node.argument.name)
-      // export type U_OPA = "!" | "+" | "-" | "~"
-      // export type U_OPB = "void"
-      // export type U_OPC = "typeof"
-      if (node.operator === "!" || node.operator ===  "+" || node.operator ===  "-" || node.operator === "~") {
+      if (node.operator === "!" || node.operator === "+" || node.operator === "-" || node.operator === "~") {
         return new IV_AUNOP(node, argument, node.operator)
       } else if (node.operator === "void") {
         return new IV_BUNOP(node, argument)
@@ -372,6 +475,8 @@ export default class IRIDIUM {
       }
     }
   }
+
+  // *********************** Iridium_NewExpression ***********************
 
   handleJS3NewExpression(node: JS3NewExpression) {
     let callee: IV_Identifier | ISP_Super | ISP_V8Intrinsic
@@ -389,9 +494,11 @@ export default class IRIDIUM {
         args.push(new ISP_ArgSpread(a, new IV_Identifier(a.argument, a.argument.name)))
       }
     }
-  
+
     return new IV_NewExpression(node, callee, args)
   }
+
+  // *********************** Iridium_ArrayExpression ***********************
 
   handleJS3ArrayExpression(node: JS3ArrayExpression) {
     let elements: Array<null | IV_Identifier | ISP_ArgSpread> = []
@@ -409,6 +516,8 @@ export default class IRIDIUM {
     return new IV_ArrayExpression(node, elements)
   }
 
+  // *********************** Iridium_AnonMemberExpression ***********************
+
   handleJS3AnonMemberExpression(node: JS3AnonMemberExpression) {
     let element = node.object.elements[0];
     if (isJS3FunctionExpression(element)) {
@@ -422,19 +531,17 @@ export default class IRIDIUM {
     }
   }
 
-  // *********************** Iridium_ArrowFunctionExpression ***********************
+  // *********************** Iridium_FunctionExpressions ***********************
 
   handleJS3ArrowFunctionExpression(node: JS3ArrowFunctionExpression) {
     let [params, funBody] = this.handleFunctionParams(node.params, this.handleFunctionBody(node.body))
     return new IV_ArrowFunctionExpression(node, params, funBody, undefined, node.generator, node.async)
   }
 
-  // *********************** Iridium_FunctionExpression ***********************
-
   handleJS3FunctionExpression(node: JS3FunctionExpression) {
     let [params, funBody] = this.handleFunctionParams(node.params, this.handleFunctionBody(node.body))
-    let name : IV_Identifier | undefined = undefined
-    if(isIdentifier(node.id)) name = new IV_Identifier(node.id, node.id.name) 
+    let name: IV_Identifier | undefined = undefined
+    if (isIdentifier(node.id)) name = new IV_Identifier(node.id, node.id.name)
     return new IV_FunctionExpression(node, params, funBody, name, node.generator, node.async)
   }
 
@@ -507,51 +614,6 @@ export default class IRIDIUM {
     return new IV_ConditionalExpression(node, test, trueRes, falseRes);
   }
 
-  // *********************** Iridium_CCall ***********************
-
-  handleJS3ContextualCallExpression(node: JS3ContextualCallExpression) {
-    let LVal = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("ccallCallee"))
-    LVal.isValue = true;
-    let RVal = this.handleJS3AssnInit(node.callee)
-    let stmt = new IS_SimpleVarDecl(undefined, "let", LVal, RVal)
-
-    let curr = this.getCurrentBB()
-    curr.statements.push(stmt)
-
-    let args: Array<IV_Identifier | ISP_ArgSpread> = new Array()
-
-    for (let a of node.arguments) {
-      let resHolder = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("arg"))
-      resHolder.isValue = true
-
-      let curr = this.getCurrentBB()
-      let postBB = curr.create()
-      postBB.terminal = curr.terminal
-      let argSpillBB = new ContainedBB()
-      curr.terminal = new UnconditionalGoto(argSpillBB)
-      argSpillBB.terminal = new UnconditionalGoto(postBB)
-
-      let toSpill : JS3ContainedExprKey
-
-      if (isSpreadElement(a)) {
-        toSpill = a.argument
-      } else {
-        toSpill = a
-      } 
-
-      let loweredID = this.lowerExprToValueBlock(toSpill, argSpillBB, resHolder)
-
-      this.setCurrentBB(postBB)
-
-      if (isSpreadElement(a)) {
-        args.push(new ISP_ArgSpread(generateJS3SpreadElement(loweredID, a), resHolder))
-      } else {
-        args.push(resHolder)
-      }
-    }
-
-    return new IV_Call(node, true, LVal, args)
-  }
 
   // *********************** Iridium_OptionalChaining ***********************
 
@@ -844,6 +906,76 @@ export default class IRIDIUM {
     return;
   }
 
+  // *********************** Iridium_Call ***********************
+
+
+  handleJS3CallExpression(node: JS3CallExpression) {
+    let args: Array<IV_Identifier | ISP_ArgSpread> = new Array()
+
+    for (let a of node.arguments) {
+      if (isIdentifier(a)) {
+        args.push(new IV_Identifier(a, a.name))
+      } else {
+        args.push(new ISP_ArgSpread(a, new IV_Identifier(a.argument, a.argument.name)))
+      }
+    }
+
+    if (isJS3Import(node.callee)) {
+      return new IV_ImportCall(node, args)
+    } else if (isSuper(node.callee)) {
+      return new IV_SuperCall(node, node.callee, args)
+    } else if (isV8IntrinsicIdentifier(node.callee)) {
+      return new IV_V8IntrinsicCall(node, node.callee, args)
+    } else {
+      let callee = new IV_Identifier(node.callee, node.callee.name);
+      return new IV_Call(node, false, callee, args)
+    }
+  }
+
+  handleJS3ContextualCallExpression(node: JS3ContextualCallExpression) {
+    let LVal = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("ccallCallee"))
+    LVal.isValue = true;
+    let RVal = this.handleJS3AssnInit(node.callee)
+    let stmt = new IS_SimpleVarDecl(undefined, "let", LVal, RVal)
+
+    let curr = this.getCurrentBB()
+    curr.statements.push(stmt)
+
+    let args: Array<IV_Identifier | ISP_ArgSpread> = new Array()
+
+    for (let a of node.arguments) {
+      let resHolder = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("arg"))
+      resHolder.isValue = true
+
+      let curr = this.getCurrentBB()
+      let postBB = curr.create()
+      postBB.terminal = curr.terminal
+      let argSpillBB = new ContainedBB()
+      curr.terminal = new UnconditionalGoto(argSpillBB)
+      argSpillBB.terminal = new UnconditionalGoto(postBB)
+
+      let toSpill: JS3ContainedExprKey
+
+      if (isSpreadElement(a)) {
+        toSpill = a.argument
+      } else {
+        toSpill = a
+      }
+
+      let loweredID = this.lowerExprToValueBlock(toSpill, argSpillBB, resHolder)
+
+      this.setCurrentBB(postBB)
+
+      if (isSpreadElement(a)) {
+        args.push(new ISP_ArgSpread(generateJS3SpreadElement(loweredID, a), resHolder))
+      } else {
+        args.push(resHolder)
+      }
+    }
+
+    return new IV_Call(node, true, LVal, args)
+  }
+
 
   // *********************** Iridium_This ***********************
 
@@ -875,28 +1007,7 @@ export default class IRIDIUM {
     }
   }
 
-  handleJS3CallExpression(node: JS3CallExpression) {
-    let args: Array<IV_Identifier | ISP_ArgSpread> = new Array()
 
-    for (let a of node.arguments) {
-      if (isIdentifier(a)) {
-        args.push(new IV_Identifier(a, a.name))
-      } else {
-        args.push(new ISP_ArgSpread(a, new IV_Identifier(a.argument, a.argument.name)))
-      }
-    }
-
-    if (isJS3Import(node.callee)) {
-      return new IV_ImportCall(node, args)
-    } else if (isSuper(node.callee)) {
-      return new IV_SuperCall(node, node.callee, args)
-    } else if (isV8IntrinsicIdentifier(node.callee)) {
-      return new IV_V8IntrinsicCall(node, node.callee, args)
-    } else {
-      let callee = new IV_Identifier(node.callee, node.callee.name);
-      return new IV_Call(node, false, callee, args)
-    }
-  }
 
   // *********************** Iridium_TemplateLiteral ***********************
 

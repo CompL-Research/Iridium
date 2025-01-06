@@ -7,7 +7,7 @@ import _generator from "@babel/generator"
 import { OptionalCallExpression, OptionalMemberExpression } from "@babel/types"
 
 const generator = _generator["default"]
-type BBScopes = "Script" | "Module" | "Function" | "Block" | "Contained" | "FunctionArgInit"
+type BBScopes = "Script" | "Module" | "Function" | "Block" | "Contained" | "FunctionArgInit" | "ClassInit" | "ClassStatic"
 
 
 export class BBTerminal {
@@ -113,6 +113,12 @@ export class TryCatchConditionalGoto extends BBTerminal {
   }
 }
 
+export class ClassInitExit extends BBTerminal {
+  toString(space = 0) {
+    return `${printScopedSpace(space)}🬲 👋 Class`
+  }
+}
+
 export class ExitNode extends BBTerminal {
   toString(space = 0) {
     return `${printScopedSpace(space)}🬲 👋 Exit`
@@ -193,6 +199,25 @@ export class ModuleBB extends BB {
 
   create() {
     return new ModuleBB(this.node);
+  }
+
+}
+
+// ************************** CLASS LEVEL **************************
+
+export class ClassInitBB extends BB {
+  
+  constructor(args: Array<JS3AllowedFunctionArgs>) {
+    super("ClassInit")
+    throw new Error("Unhandled")
+  }
+}
+
+export class ClassStaticBB extends BB {
+  
+  constructor(args: Array<JS3AllowedFunctionArgs>) {
+    super("ClassStatic")
+    throw new Error("Unhandled")
   }
 
 }

@@ -1,10 +1,11 @@
 import debugConfig from "#debugConfig";
 import _traverse from "@babel/traverse";
-import { Expression, isArrayPattern, isAssignmentPattern, isBigIntLiteral, isBooleanLiteral, isDecimalLiteral, isIdentifier, isMemberExpression, isNullLiteral, isNumericLiteral, isObjectPattern, isRestElement, isStringLiteral, isTSAsExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSTypeAssertion, isYieldExpression, VariableDeclaration } from "@babel/types";
+import { ArrowFunctionExpression, ClassDeclaration, ClassExpression, Expression, FunctionDeclaration, FunctionExpression, identifier, Identifier, isArrayPattern, isArrowFunctionExpression, isAssignmentPattern, isBigIntLiteral, isBooleanLiteral, isClassDeclaration, isClassExpression, isDecimalLiteral, isFunctionDeclaration, isFunctionExpression, isIdentifier, isMemberExpression, isNullLiteral, isNumericLiteral, isObjectPattern, isRestElement, isStringLiteral, isTSAsExpression, isTSNonNullExpression, isTSParameterProperty, isTSSatisfiesExpression, isTSTypeAssertion, isYieldExpression, objectExpression, objectProperty, VariableDeclaration } from "@babel/types";
 import { JS3BuilderUtils } from "../JS3Builder.ts";
-import { generateIdentifier, generateJS3LoopDeclarationfromBaseNode, generateJS3LoopDeclaratorfromBaseNode } from "./JS3Constructors.ts";
-import { JS3ContainedExprKey, JS3LoopDeclaration, JS3LoopDeclaration_declarations, JS3LoopDeclarator_id } from "./JS3Types.ts";
+import { generateIdentifier, generateJS3DefaultExportMemberExpression, generateJS3LoopDeclarationfromBaseNode, generateJS3LoopDeclaratorfromBaseNode, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "./JS3Constructors.ts";
+import { isJS3ClassExpression, JS3ArrowFunctionExpression, JS3ClassExpression, JS3ContainedExprKey, JS3FunctionExpression, JS3LoopDeclaration, JS3LoopDeclaration_declarations, JS3LoopDeclarator_id, JS3Program_body } from "./JS3Types.ts";
 import { generateCommentBlock } from "#utils";
+import { handleArrowFunctionExpression, handleClassExpression, handleFunctionExpression } from "./HandleExpression.ts";
 
 const traverse = _traverse.default;
 
@@ -12,6 +13,57 @@ const isnull = (a) => a === null;
 const isundefined = (a) => a === undefined;
 
 type OtherProps = JS3BuilderUtils;
+
+export function handleDefaultExportNames(orig_declaration: FunctionDeclaration | ClassDeclaration | FunctionExpression | ArrowFunctionExpression | ClassExpression, otherProps) : Identifier {
+  // input: 
+  // export default function() {  }
+  // export default class {}
+  // export default () => {}
+  // 
+  // 
+  // output:
+  // 
+  // let temp$1 = { default: JS3FunctionExpression }.default
+  // export temp$1
+
+
+  let finDecl : JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression
+
+  if (isClassDeclaration(orig_declaration)) {
+    //@ts-ignore
+    orig_declaration.type = "ClassExpression"
+
+    //@ts-ignore
+    finDecl = handleClassExpression(orig_declaration, otherProps);
+    
+    //@ts-ignore
+    orig_declaration.type = "ClassDeclaration"
+
+  } else if (isFunctionDeclaration(orig_declaration)) {
+    //@ts-ignore
+    orig_declaration.type = "FunctionExpression"
+
+    //@ts-ignore
+    finDecl = handleFunctionExpression(orig_declaration, otherProps);
+
+    //@ts-ignore
+    orig_declaration.type = "FunctionDeclaration"
+
+  } else if (isFunctionExpression(orig_declaration)) {
+    finDecl = handleFunctionExpression(orig_declaration, otherProps); // Not sure if this is possible
+  } else if (isArrowFunctionExpression(orig_declaration)) {
+    finDecl = handleArrowFunctionExpression(orig_declaration, otherProps);
+  } else if (isClassExpression(orig_declaration)) {
+    finDecl = handleClassExpression(orig_declaration, otherProps); // Not sure if this is possible
+  }
+
+  let memberExprObj = objectExpression([objectProperty(identifier("default"), finDecl, false, false, null)])
+  let temp$1 = generateIdentifier(orig_declaration, otherProps.getNewTemporary("exportDefUnnamed"))
+  let varDecl = generateJS3VariableDeclaratorfromBaseNode(temp$1, generateJS3DefaultExportMemberExpression(memberExprObj, identifier("default"), false, false, orig_declaration), null, orig_declaration);
+  (otherProps.others.holder as JS3Program_body).push(generateJS3VariableDeclarationfromBaseNode([varDecl], "let", null, orig_declaration))
+
+  return temp$1
+}
 
 
 export function handleLoopDeclaration(node: VariableDeclaration, otherProps: OtherProps) : JS3LoopDeclaration {

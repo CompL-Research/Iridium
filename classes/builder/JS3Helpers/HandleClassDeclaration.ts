@@ -1,14 +1,13 @@
-import { ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isArrowFunctionExpression, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isCallExpression, isClassAccessorProperty, isClassBody, isClassExpression, isClassImplements, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecimalLiteral, isDecorator, isExpression, isFunctionExpression, isIdentifier, isInterfaceExtends, isNoop, isNullLiteral, isNumericLiteral, isPattern, isRestElement, isStaticBlock, isStringLiteral, isTSDeclareMethod, isTSExpressionWithTypeArguments, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTSTypeParameterInstantiation, isTypeAnnotation, isTypeParameterDeclaration, isTypeParameterInstantiation, isVariance, StaticBlock } from "@babel/types";
-import { generateJS3ClassBody, generateJS3ClassDeclaration, generateJS3ClassMethod, generateJS3ClassPrivateMethod, generateJS3ClassPrivateProperty, generateJS3ClassProperty, generateJS3StaticBlock } from "./JS3Constructors.ts";
-import { JS3AllowedBlockStatement, JS3ClassBody, JS3ClassBody_body, JS3ClassDeclaration, JS3ClassDeclaration_body, JS3ClassDeclaration_decorators, JS3ClassDeclaration_id, JS3ClassDeclaration_implements, JS3ClassDeclaration_mixins, JS3ClassDeclaration_superClass, JS3ClassDeclaration_superTypeParameters, JS3ClassDeclaration_typeParameters, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassPrivateMethod, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, JS3ClassPrivateProperty, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_variance, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_value, JS3ClassProperty_variance, JS3StaticBlock, JS3StaticBlock_body } from "./JS3Types.ts";
+import { ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isArrowFunctionExpression, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isClassAccessorProperty, isClassExpression, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecimalLiteral, isDecorator, isExpression, isFunctionExpression, isIdentifier, isNoop, isNullLiteral, isNumericLiteral, isPattern, isRestElement, isStaticBlock, isStringLiteral, isTSDeclareMethod, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTypeAnnotation, isTypeParameterDeclaration, isVariance, StaticBlock, variableDeclaration, variableDeclarator } from "@babel/types";
+import { generateJS3ClassBody, generateJS3ClassMethod, generateJS3ClassPrivateMethod, generateJS3ClassPrivateProperty, generateJS3ClassProperty, generateJS3StaticBlock } from "./JS3Constructors.ts";
+import { JS3AllowedBlockStatement, JS3ClassBody, JS3ClassBody_body, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassPrivateMethod, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, JS3ClassPrivateProperty, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_variance, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_value, JS3ClassProperty_variance, JS3StaticBlock, JS3StaticBlock_body } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
 import { JS3BuilderUtils } from "../JS3Builder.ts";
 
-import assert from 'node:assert';
 import { lowerComputedKey } from "./GenericConstructs.ts";
-import { handleBlockStatement, handleStatement } from "./HandleBlocks.ts";
-import { handleArrowFunctionExpression, handleCallExpression, handleClassExpression, handleFunctionExpression } from "./HandleExpression.ts";
+import { handleBlockStatement, handleStatement, handleVariableDeclaration } from "./HandleBlocks.ts";
+import { handleArrowFunctionExpression, handleClassExpression, handleFunctionExpression } from "./HandleExpression.ts";
 
 const isnull = (a) => a === null;
 const isundefined = (a) => a === undefined;
@@ -17,87 +16,30 @@ type OtherProps = JS3BuilderUtils;
 
 
 
-export function handleClassDeclaration(node: ClassDeclaration, otherProps: OtherProps): JS3ClassDeclaration {
-  assert(Array.isArray(otherProps.others.holder), "handleClassDeclaration expects an holder to spill intermediate values");
+export function handleClassDeclaration(node: ClassDeclaration, otherProps: OtherProps): Array<JS3AllowedBlockStatement> {
 
-  // 4 fallthrough props, 7 restricted props
-
-  let orig_id = node.id; // Handling prop id
-  let fin_id : JS3ClassDeclaration_id; // Handling prop id
-  if(isIdentifier (orig_id)) {
-    fin_id = orig_id
-  } else {
-    debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->id->null (null not expected in JS3)");
-  }
-
-  let orig_superClass = node.superClass; // Handling prop superClass
-  let fin_superClass: JS3ClassDeclaration_superClass = null; // Handling prop superClass
-  if (isCallExpression(orig_superClass)) {
-    fin_superClass = handleCallExpression(orig_superClass, otherProps)
-  } else if (isExpression(orig_superClass)) {
-    fin_superClass = lowerComputedKey(orig_superClass, otherProps)
-  }
-  //
-  // This mostly works but breaks a few tests, because spilling breaks scoping for functions :(
-  // Failing Test:
-  // https://github.com/tc39/test262/blob/main/test/language/expressions/class/scope-name-lex-open-heritage.js
   // 
-  // if (isExpression(orig_superClass)) {
-  //   // We can spill as directed by the parent class 
-  //   fin_superClass = handleExpression(orig_superClass, otherProps)
-  // }
-  let orig_body = node.body; // Handling prop body
-  let fin_body: JS3ClassDeclaration_body; // Handling prop body
-  if (isClassBody(orig_body)) {
-    fin_body = handleClassBody(orig_body, otherProps)
-  }
-  let orig_decorators = node.decorators; // Handling prop decorators
-  let fin_decorators: JS3ClassDeclaration_decorators = null; // Handling prop decorators
-  if (Array.isArray(orig_decorators)) {
-    for (const _arrProp of orig_decorators) {
-      if (isDecorator(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->[decorators]->Decorator");
-      }
-    }
-  }
+  // Change : class NAME ...
+  // 
+  // To     : const NAME = class NAME {  }
+  // 
+  // Class declarations behave like "const" in JS.
+  // 
+  //  They are not hoisted like other function declarations, so its safe to reduce it down to a const declaration.
+  // 
+    
+  // @ts-ignore
+  node.type = "ClassExpression"
+  
+  // @ts-ignore
+  let patchedNode = variableDeclaration("const", [variableDeclarator(node.id, node)])
+  
+  let result = handleVariableDeclaration(patchedNode, otherProps)
 
-  let orig_implements = node.implements; // Handling prop implements
-  let fin_implements: JS3ClassDeclaration_implements = null; // Handling prop implements
-  if (Array.isArray(orig_implements)) {
-    for (const _arrProp of orig_implements) {
-      if (isTSExpressionWithTypeArguments(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->[implements]->TSExpressionWithTypeArguments");
-      } else if (isClassImplements(_arrProp)) {
-        debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->[implements]->ClassImplements");
-      }
-    }
-  }
+  // @ts-ignore
+  node.type = "ClassDeclaration"
 
-  let orig_mixins = node.mixins; // Handling prop mixins
-  let fin_mixins: JS3ClassDeclaration_mixins = null; // Handling prop mixins
-  if (isInterfaceExtends(orig_mixins)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->mixins->InterfaceExtends");
-  }
-
-  let orig_superTypeParameters = node.superTypeParameters; // Handling prop superTypeParameters
-  let fin_superTypeParameters: JS3ClassDeclaration_superTypeParameters = null;; // Handling prop superTypeParameters
-  if (isTypeParameterInstantiation(orig_superTypeParameters)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->superTypeParameters->TypeParameterInstantiation");
-  } else if (isTSTypeParameterInstantiation(orig_superTypeParameters)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->superTypeParameters->TSTypeParameterInstantiation");
-  }
-
-  let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
-  let fin_typeParameters: JS3ClassDeclaration_typeParameters = null; // Handling prop typeParameters
-  if (isTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->typeParameters->TypeParameterDeclaration");
-  } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->typeParameters->TSTypeParameterDeclaration");
-  } else if (isNoop(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled ClassDeclaration->typeParameters->Noop");
-  }
-  let result: JS3ClassDeclaration = generateJS3ClassDeclaration(fin_id, fin_superClass, fin_body, fin_decorators, fin_implements, fin_mixins, fin_superTypeParameters, fin_typeParameters, node);
-  return result
+  return result 
 }
 
 export function handleClassBody(node: ClassBody, otherProps: OtherProps): JS3ClassBody {
@@ -137,6 +79,7 @@ export function handleClassBody(node: ClassBody, otherProps: OtherProps): JS3Cla
   }
   let result: JS3ClassBody = generateJS3ClassBody(fin_body, node);
   return result
+
 }
 
 export function handleClassProperty(node: ClassProperty, otherProps: OtherProps): JS3ClassProperty {

@@ -240,13 +240,13 @@
 // foo()
 
 
-// // 
-// // 1. Argument: a = Test, "Test is a let binding"
-// //      
-// //      Here Test is searched in the argument scope,
-// //      and it behaves like a let binding, throwing reference error
-// //      as it could not be found.
-// // 
+// 
+// 1. Argument: a = Test, "Test is a let binding"
+//      
+//      Here Test is searched in the argument scope,
+//      and it behaves like a let binding, throwing reference error
+//      as it could not be found.
+// 
 // var Test = "outer"
 // function f1(a = Test, Test = "args") {
 //   var Test = "inner" 
@@ -408,7 +408,7 @@
 
 // a = function() {
 //   a = {
-//     f1(a = Test) {
+//     get [f1]() {
 //       return a;
 //     },
 //     moo(a, b, c,) {
@@ -427,9 +427,136 @@
 
 // foo(() => { console.log("boo") }, [1,2,,3,,,4])
 
-// // a[a?.a()].c?.().d?.[e].f?.g;
+// a[a?.a()].c?.().d?.[e].f?.g;
 
 
 // let a = new Array(() => { console.log("boo") }, [1,2,,3,,,4])
 
-let a = delete ((a * b + c) == 6)
+// let a = delete ((a * b + c) == 6)
+
+// let Global = false
+// function test(
+//     foo = ((a) => (a ? bas : 1))(Global), // missing error
+//     baz = () => bas, // ok, accessing 'bas' is deferred
+//     bas,
+// ) {
+//     return {foo,baz}
+// }
+// test(undefined,undefined,3)
+
+// let a = {
+//   foo() {
+//     return this.x;
+//   },
+//   x: 10
+// }
+// let b = a.foo()
+// console.log(b)
+
+// let c = { x: 2 }
+
+// b = a.foo.apply(c)
+// console.log(a.foo.apply(c))
+
+
+// export default function() { }
+
+// import f from "./test1.js"
+
+// console.log(f.name)
+
+
+// 
+// Binding creation of x in catch is conditionally validly/invalidly bound
+// 
+
+// 
+// Works
+// 
+// (function() {
+//   try {
+//       throw new Error("err");
+//   } catch (x) {
+//       var x = 100
+//       var y = 100
+//       var z = 100
+//       console.log(x)
+//   }
+//   console.log(x, y, z)
+// })();
+
+// 
+// Does not work
+// 
+// (function() {
+//   try {
+//       throw new Error(["err"]);
+//   } catch ([x]) {
+//       var x = 100
+//       var y = 100
+//       var z = 100
+//       console.log(x)
+//   }
+  
+//   console.log(x, y, z)
+// })();
+
+
+// // 
+// // Test to check the evaluation order of effects when creating classes
+// // 
+// var probeBefore = function() { console.log("[probe before]");  return C; };
+// var probeHeritage;
+// var C = 'outside';
+
+// const Test = class C extends ( // <- This evaluation happens under a specific new scope
+//   ( 
+//     console.log("super stuff"), 
+//     probeHeritage = function() { console.log("[probe after]"); return C; }, // This (i.e. C) is a non-writable property
+//     function () {} 
+//   )
+// ) {
+//   #private1 = (console.log("[private-1] value init"), 1);;
+//   [(console.log("[local-field-1] name init"), "field1")] = (console.log("[local-field-1] value init"), 1);
+//   static [(console.log("[static-field-1] name init"), "field1")] = (console.log("[static-field-1] value init"), 1);
+//   static {
+//     console.log("[static-block-1]", this === C, this.field1, this.field2, this.field3)
+//   }
+
+//   #private2 = (console.log("[private-2] value init"), 1);;
+//   [(console.log("[local-field-2] name init"), "field2")] = (console.log("[local-field-2] value init"), 1);
+//   static [(console.log("[static-field-2] name init"), "field2")] = (console.log("[static-field-2] value init"), 1);
+//   static {
+//     console.log("[static-block-2]", this === C, this.field1, this.field2, this.field3)
+//   }
+
+//   #private3 = (console.log("[private-3] value init"), 1);;
+//   [(console.log("[local-field-3] name init"), "field3")] = (console.log("[local-field-3] value init"), 1);
+//   static [(console.log("[static-field-3] name init"), "field3")] = (console.log("[static-field-3] value init"), 1);
+//   static {
+//     console.log("[static-block-3]", this === C, this.field1, this.field2, this.field3)
+//   }
+// }
+// let t = new Test()
+// console.log(t)
+// probeBefore()
+// probeHeritage()
+
+// var t;
+
+// class Test extends (
+//   t = 10,
+//   console.log("1", t),
+//   function() {}
+// ) {
+//   [[console.log("2", t), t = 12, console.log("3", t)]] = 1
+// }
+
+
+export default () => {
+  console.log("Test")
+}
+
+import a from "./test.js"
+
+console.log(a.name)

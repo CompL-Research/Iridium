@@ -1,7 +1,7 @@
 // Generated on 6/8/2024, 10:15:01 am, generated 1 handlers 
-import { ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ExportNamespaceSpecifier, ExportSpecifier, ImportDeclaration, importSpecifier, isArrowFunctionExpression, isClassDeclaration, isClassExpression, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportDefaultSpecifier, isExportNamedDeclaration, isExportNamespaceSpecifier, isExportSpecifier, isExpression, isExpressionStatement, isFunctionDeclaration, isFunctionExpression, isIdentifier, isImportAttribute, isImportDeclaration, isImportDefaultSpecifier, isInterfaceDeclaration, isOpaqueType, isTSDeclareFunction, isTSEnumDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration, Program } from "@babel/types";
-import { generateIdentifier, generateJS3ExportAllDeclaration, generateJS3ExportDefaultDeclaration, generateJS3ExportNamedDeclaration, generateJS3ExportNamespaceSpecifier, generateJS3ExportSpecifier, generateJS3ExportSpecifierfromBaseNode, generateJS3ImportDeclaration, generateJS3Program, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "./JS3Constructors.ts";
-import { isJS3VariableDeclaration, JS3AllowedBlockStatement, JS3ExportAllDeclaration, JS3ExportAllDeclaration_assertions, JS3ExportAllDeclaration_attributes, JS3ExportDefaultDeclaration_declaration, JS3ExportNamedDeclaration_assertions, JS3ExportNamedDeclaration_attributes, JS3ExportNamedDeclaration_specifiers, JS3ExportNamespaceSpecifier, JS3ExportSpecifier, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body } from "./JS3Types.ts";
+import { ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ExportNamespaceSpecifier, ExportSpecifier, identifier, ImportDeclaration, importSpecifier, isArrowFunctionExpression, isClassDeclaration, isClassExpression, isDeclareClass, isDeclareExportAllDeclaration, isDeclareExportDeclaration, isDeclareFunction, isDeclareInterface, isDeclareModule, isDeclareModuleExports, isDeclareOpaqueType, isDeclareTypeAlias, isDeclareVariable, isEnumDeclaration, isExportAllDeclaration, isExportDefaultDeclaration, isExportDefaultSpecifier, isExportNamedDeclaration, isExportNamespaceSpecifier, isExportSpecifier, isExpression, isExpressionStatement, isFunctionDeclaration, isFunctionExpression, isIdentifier, isImportAttribute, isImportDeclaration, isImportDefaultSpecifier, isInterfaceDeclaration, isOpaqueType, isTSDeclareFunction, isTSEnumDeclaration, isTSInterfaceDeclaration, isTSModuleDeclaration, isTSTypeAliasDeclaration, isTypeAlias, isVariableDeclaration, objectExpression, objectProperty, Program } from "@babel/types";
+import { generateIdentifier, generateJS3DefaultExportMemberExpression, generateJS3ExportAllDeclaration, generateJS3ExportDefaultDeclaration, generateJS3ExportNamedDeclaration, generateJS3ExportNamespaceSpecifier, generateJS3ExportSpecifier, generateJS3ExportSpecifierfromBaseNode, generateJS3ImportDeclaration, generateJS3Program, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "./JS3Constructors.ts";
+import { isJS3VariableDeclaration, JS3AllowedBlockStatement, JS3ExportAllDeclaration, JS3ExportAllDeclaration_assertions, JS3ExportAllDeclaration_attributes, JS3ExportDefaultDeclaration_declaration, JS3ExportNamedDeclaration_assertions, JS3ExportNamedDeclaration_attributes, JS3ExportNamedDeclaration_specifiers, JS3ExportNamespaceSpecifier, JS3ExportSpecifier, JS3FunctionExpression, JS3ImportDeclaration_assertions, JS3ImportDeclaration_attributes, JS3ImportDeclaration_specifiers, JS3Program, JS3Program_body } from "./JS3Types.ts";
 
 import { JS3BuilderUtils, } from "../JS3Builder.ts";
 
@@ -10,11 +10,12 @@ import { generateCommentLine } from "#utils";
 
 import { handleFunctionDeclaration, handleStatement, handleVariableDeclaration } from "./HandleBlocks.ts";
 import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
-import { handleExpression, lowerToAnonArrayExpr } from "./HandleExpression.ts";
+import { handleExpression, handleFunctionExpression, lowerToAnonArrayExpr } from "./HandleExpression.ts";
 
 import babel from '@babel/core';
 import _generate from "@babel/generator";
 import _traverse from "@babel/traverse";
+import { handleDefaultExportNames } from "./GenericConstructs.ts";
 
 const generate = _generate.default
 const traverse = _traverse.default
@@ -154,13 +155,8 @@ export function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, o
       fin_declaration = orig_declaration.id
     }
     // Case 2: it is anonymous
-    else {
-      //@ts-ignore
-      orig_declaration.type = "FunctionExpression"
-      //@ts-ignore
-      fin_declaration = lowerToAnonArrayExpr(orig_declaration, otherProps);
-      //@ts-ignore
-      orig_declaration.type = "FunctionDeclaration"
+    else {    
+      fin_declaration = handleDefaultExportNames(orig_declaration, otherProps)
     }
     // ========================================================================================
   } else if (isClassDeclaration(orig_declaration)) {
@@ -168,22 +164,21 @@ export function handleExportDefaultDeclaration(node: ExportDefaultDeclaration, o
     // Case 1: It has a name
     if (isIdentifier(orig_declaration.id)) {
       let js3ClassDecl = handleClassDeclaration(orig_declaration, otherProps)
-      otherProps.others.holder.push(js3ClassDecl)
+      js3ClassDecl.forEach(s => otherProps.others.holder.push(s))
+      
       fin_declaration = orig_declaration.id
     }
     // Case 2: it is anonymous
     else {
-      //@ts-ignore
-      orig_declaration.type = "ClassExpression"
-      //@ts-ignore
-      fin_declaration = lowerToAnonArrayExpr(orig_declaration, otherProps);
-      //@ts-ignore
-      orig_declaration.type = "ClassDeclaration"
+      fin_declaration = handleDefaultExportNames(orig_declaration, otherProps)
     }
     // ========================================================================================
   } else if (isFunctionExpression(orig_declaration) || isArrowFunctionExpression(orig_declaration) || isClassExpression(orig_declaration)) {
     // ========================================================================================
-    fin_declaration = lowerToAnonArrayExpr(orig_declaration, otherProps)
+    // 
+    // TODO: Implement "JS3DefaultMemberExpression" <- This ensures the name is "default" and not ""
+    // 
+    fin_declaration = handleDefaultExportNames(orig_declaration, otherProps)
     // ========================================================================================
   } else if (isExpression(orig_declaration)) {
     // ========================================================================================
@@ -317,10 +312,14 @@ export function handleExportNamedDeclaration(node: ExportNamedDeclaration, other
     })
 
   } else if (isClassDeclaration(orig_declaration)) {
+    // 
+    // This will always be named, we are not expecting unnamed declaration nodes to come up here.
+    // 
     let js3ClassDecl = handleClassDeclaration(orig_declaration, otherProps)
-    otherProps.others.holder.push(js3ClassDecl)
+    js3ClassDecl.forEach(s => otherProps.others.holder.push(s))
+    // otherProps.others.holder.push(js3ClassDecl)
     let specifierArray = new Array()
-    let specifier = generateJS3ExportSpecifierfromBaseNode(js3ClassDecl.id, js3ClassDecl.id, "value", orig_declaration)
+    let specifier = generateJS3ExportSpecifierfromBaseNode(orig_declaration.id, orig_declaration.id, "value", orig_declaration)
     specifierArray.push(specifier)
     const duplicatedExportNamedDecl = generateJS3ExportNamedDeclaration(null, specifierArray, fin_assertions, fin_attributes, node);
     (otherProps.others.holder as JS3Program_body).push(duplicatedExportNamedDecl)

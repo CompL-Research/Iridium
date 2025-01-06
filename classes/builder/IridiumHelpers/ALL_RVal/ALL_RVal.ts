@@ -19,6 +19,7 @@ type IRI_ASSN_TYPE = t_IV_Literals
                    | t_IV_ArrowFunctionExpression
                    | t_IV_NewExpression
                    | t_IV_UnaryExpression
+                   | t_IV_UpdateExpression
 
 
 type t_IV_Literals = "DecimalLiteral" | "BigIntLiteral" | "StringLiteral" | "NumericLiteral" | "NullLiteral" | "BooleanLiteral"
@@ -45,6 +46,8 @@ type t_IV_ArrowFunctionExpression = "ArrowFunctionExpression"
 type t_IV_NewExpression = "NewExpression"
 
 type t_IV_UnaryExpression = "UArtihOP" | "UVoidOP" | "UTypeOP" | "UDelOP"
+
+type t_IV_UpdateExpression = "UpdateExpression"
 
 export class ALL_RVal {
   node : JS3AssnInit | undefined
