@@ -1,9 +1,11 @@
 import { isBigIntLiteral, isDecimalLiteral, isIdentifier, isNumericLiteral, isRestElement, isStringLiteral } from "@babel/types";
-import { isJS3AssnObjectProperty, JS3ArrayPattern, JS3AssnObjectProperty_key, JS3ObjectPattern, JS3VarDeclLVal, JS3VariableDeclaration } from "classes/builder/JS3Helpers/JS3Types.ts";
+import { isJS3AssnObjectProperty, JS3ArrayPattern, JS3AssnObjectProperty_key, JS3ClassExpression, JS3ObjectPattern, JS3VarDeclLVal, JS3VariableDeclaration } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_ASSIGNABLE } from "../ALL_RVal/ALL_RVal.ts";
 import { ALL_IS } from "./ALL_IS.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { printScopedSpace } from "../IRIDIUM.ts";
+import { IV_This } from "../ALL_RVal/IV_This.ts";
+import { IV_NUBD } from "../ALL_RVal/IV_NonLang.ts";
 
 export type IS_VAR_DECL_KIND = "var" | "let" | "const"
 
@@ -139,4 +141,34 @@ export class IS_ObjPatVarDecl extends ALL_IS {
 
     return `${printScopedSpace(space)}▏ ${this.KIND} ${lval} = ${this.RVal.toString(space + 2)};`
   }
+}
+
+export class IS_ClassThisInitStmt extends ALL_IS {
+  LVal : IV_This = new IV_This() 
+  RVal : IV_Identifier = new IV_Identifier(undefined, "undefined");
+
+  constructor(node: JS3ClassExpression) {
+    super(node)
+  }
+
+  toString(space: number = 0) {
+    return `${printScopedSpace(space)}▏ <ClassThisInit> ${this.LVal.toString()} = ${this.RVal.toString()};`
+  }
+
+}
+
+
+export class IS_ClassNameInitStmt extends ALL_IS {
+  LVal : IV_Identifier
+  RVal : IV_NUBD | IV_Identifier = new IV_NUBD()
+
+  constructor(node: JS3ClassExpression, id: IV_Identifier) {
+    super(node)
+    this.LVal = id
+  }
+
+  toString(space: number = 0) {
+    return `${printScopedSpace(space)}▏ <ClassNameInit> ${this.LVal.toString()} = ${this.RVal.toString()};`
+  }
+
 }

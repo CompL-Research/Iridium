@@ -1,5 +1,5 @@
 import { ClassBody, ClassDeclaration, ClassMethod, ClassPrivateMethod, ClassPrivateProperty, ClassProperty, isArrowFunctionExpression, isBigIntLiteral, isBlockStatement, isBooleanLiteral, isClassAccessorProperty, isClassExpression, isClassMethod, isClassPrivateMethod, isClassPrivateProperty, isClassProperty, isDecimalLiteral, isDecorator, isExpression, isFunctionExpression, isIdentifier, isNoop, isNullLiteral, isNumericLiteral, isPattern, isRestElement, isStaticBlock, isStringLiteral, isTSDeclareMethod, isTSIndexSignature, isTSParameterProperty, isTSTypeAnnotation, isTSTypeParameterDeclaration, isTypeAnnotation, isTypeParameterDeclaration, isVariance, StaticBlock, variableDeclaration, variableDeclarator } from "@babel/types";
-import { generateJS3ClassBody, generateJS3ClassMethod, generateJS3ClassPrivateMethod, generateJS3ClassPrivateProperty, generateJS3ClassProperty, generateJS3StaticBlock } from "./JS3Constructors.ts";
+import { generateJS3ClassBody, generateJS3ClassMethod, generateJS3ClassPrivateMethod, generateJS3ClassPrivateProperty, generateJS3ClassProperty, generateJS3PrivateName, generateJS3StaticBlock } from "./JS3Constructors.ts";
 import { JS3AllowedBlockStatement, JS3ClassBody, JS3ClassBody_body, JS3ClassMethod, JS3ClassMethod_body, JS3ClassMethod_decorators, JS3ClassMethod_key, JS3ClassMethod_params, JS3ClassMethod_returnType, JS3ClassMethod_typeParameters, JS3ClassPrivateMethod, JS3ClassPrivateMethod_body, JS3ClassPrivateMethod_decorators, JS3ClassPrivateMethod_params, JS3ClassPrivateMethod_returnType, JS3ClassPrivateMethod_typeParameters, JS3ClassPrivateProperty, JS3ClassPrivateProperty_decorators, JS3ClassPrivateProperty_typeAnnotation, JS3ClassPrivateProperty_value, JS3ClassPrivateProperty_variance, JS3ClassProperty, JS3ClassProperty_decorators, JS3ClassProperty_key, JS3ClassProperty_typeAnnotation, JS3ClassProperty_value, JS3ClassProperty_variance, JS3StaticBlock, JS3StaticBlock_body } from "./JS3Types.ts";
 
 import debugConfig from "#debugConfig";
@@ -208,7 +208,7 @@ export function handleClassPrivateProperty(node: ClassPrivateProperty, otherProp
     debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateProperty->variance->Variance");
   }
 
-  let result: JS3ClassPrivateProperty = generateJS3ClassPrivateProperty(fin_value, fin_decorators, fin_typeAnnotation, fin_variance, node);
+  let result: JS3ClassPrivateProperty = generateJS3ClassPrivateProperty(generateJS3PrivateName(node.key) , fin_value, fin_decorators, fin_typeAnnotation, fin_variance, node);
   return result
 }
 
@@ -328,7 +328,7 @@ export function handleClassPrivateMethod(node: ClassPrivateMethod, otherProps: O
     debugConfig.logger.throwJS3Error("TODO // unhandled ClassPrivateMethod->typeParameters->Noop");
   }
 
-  let result: JS3ClassPrivateMethod = generateJS3ClassPrivateMethod(fin_params, fin_body, fin_decorators, fin_returnType, fin_typeParameters, node);
+  let result: JS3ClassPrivateMethod = generateJS3ClassPrivateMethod(generateJS3PrivateName(node.key), fin_params, fin_body, fin_decorators, fin_returnType, fin_typeParameters, node);
   return result
 }
 

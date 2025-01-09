@@ -1,18 +1,18 @@
 import { recursivelyTraverseAllBBs } from "#utils"
-import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ConditionalExpression, JS3ContainedExprKey, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3TryStatement, JS3UnaryExpression } from "../JS3Helpers/JS3Types.ts"
+import _generator from "@babel/generator"
+import { OptionalCallExpression, OptionalMemberExpression } from "@babel/types"
+import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ClassExpression, JS3ClassProperty_value, JS3ConditionalExpression, JS3ContainedExprKey, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3StaticBlock, JS3TryStatement, JS3UnaryExpression } from "../JS3Helpers/JS3Types.ts"
 import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
 import { printScopedSpace } from "./IRIDIUM.ts"
-import _generator from "@babel/generator"
-import { OptionalCallExpression, OptionalMemberExpression } from "@babel/types"
 
 const generator = _generator["default"]
-type BBScopes = "Script" | "Module" | "Function" | "Block" | "Contained" | "FunctionArgInit" | "ClassInit" | "ClassStatic"
+type BBScopes = "Script" | "Module" | "Function" | "Block" | "Contained" | "FunctionArgInit" | "ClassInit" | "ClassStatic" | "ClassPropValue"
 
 
 export class BBTerminal {
 
-  getSuccessors() : Array<BB> {
+  getSuccessors(): Array<BB> {
     throw new Error("BBTerminal: getSuccessors UNIMPLEMENTED!!")
   }
 
@@ -93,11 +93,10 @@ export class GotoFunctionBody extends UnconditionalGoto {
   }
 }
 
-
 export class TryCatchConditionalGoto extends BBTerminal {
   handler: BB
   finalizer: BB
-  
+
   constructor(handler: BB, finalizer: BB) {
     super();
     this.handler = handler;
@@ -113,9 +112,26 @@ export class TryCatchConditionalGoto extends BBTerminal {
   }
 }
 
-export class ClassInitExit extends BBTerminal {
+export class ClassPropInitExit extends BBTerminal {
+  res: IV_Identifier
+
+  constructor(res: IV_Identifier) {
+    super()
+    this.res = res
+  }
   toString(space = 0) {
-    return `${printScopedSpace(space)}🬲 👋 Class`
+    return `${printScopedSpace(space)}🬲 🙋 PropInit(${this.res.toString()})`
+  }
+}
+
+export class ClassStaticExit extends UnconditionalGoto {
+
+  constructor(to: BB) {
+    super(to)
+  }
+
+  toString(space = 0) {
+    return `${printScopedSpace(space)}🬲 👋 Static Block End`
   }
 }
 
@@ -153,7 +169,6 @@ export class BB {
     for (let bb of BBs) {
       stmts.push(`${printScopedSpace(space)}`)
       stmts.push(`${printScopedSpace(space)}🬕 ${bb.printHeader()}`)
-      // stmts.push(`${printScopedSpace(space)}BB${bb.idx} [${bb.scope}]:`)
       bb.statements.forEach(s => {
         stmts.push(s.toString(space))
       })
@@ -206,29 +221,70 @@ export class ModuleBB extends BB {
 // ************************** CLASS LEVEL **************************
 
 export class ClassInitBB extends BB {
-  
-  constructor(args: Array<JS3AllowedFunctionArgs>) {
+  node: JS3ClassExpression
+  className: IV_Identifier | undefined
+  comment: string
+
+  constructor(node: JS3ClassExpression, className: IV_Identifier | undefined, comment: string = "") {
     super("ClassInit")
-    throw new Error("Unhandled")
+    this.node = node
+    this.className = className
+    this.comment = comment
+  }
+
+  printHeader() {
+    return `BB${this.idx} [${this.scope}${this.className ? `, class="${this.className.toString()}"` : ""}] ${this.comment !== "" ? "//" + this.comment : ""}`
+  }
+
+  create() {
+    return new ClassInitBB(this.node, this.className, this.comment);
   }
 }
 
 export class ClassStaticBB extends BB {
-  
-  constructor(args: Array<JS3AllowedFunctionArgs>) {
+  node: JS3StaticBlock
+  comment: string
+
+  constructor(node: JS3StaticBlock, comment: string = "") {
     super("ClassStatic")
-    throw new Error("Unhandled")
+    this.node = node
+    this.comment = comment
   }
 
+  printHeader() {
+    return `BB${this.idx} [${this.scope}] ${this.comment !== "" ? "//" + this.comment : ""}`
+  }
+
+  create() {
+    return new ClassStaticBB(this.node, this.comment);
+  }
+}
+
+export class ClassPropInitBB extends BB {
+  node: JS3ClassProperty_value | undefined
+  comment: string
+
+  constructor(node: JS3ClassProperty_value | undefined = undefined, comment = "") {
+    super("ClassPropValue")
+    this.node = node
+    this.comment = comment
+  }
+
+  printHeader() {
+    return `BB${this.idx} [${this.scope}] ${this.comment ? "// " + this.comment : ""}`
+  }
+
+  create() {
+    return new ClassPropInitBB(this.node, this.comment);
+  }
 }
 
 // ************************** FUNCTION LEVEL **************************
 
 export class FunctionBB extends BB {
+  node: JS3StaticBlock | JS3FunctionDeclaration | JS3BlockStatement
 
-  node: JS3FunctionDeclaration | JS3BlockStatement
-
-  constructor(node: JS3FunctionDeclaration | JS3BlockStatement) {
+  constructor(node: JS3StaticBlock | JS3FunctionDeclaration | JS3BlockStatement) {
     super("Function")
     this.node = node
   }
@@ -236,11 +292,9 @@ export class FunctionBB extends BB {
   create() {
     return new FunctionBB(this.node);
   }
-
 }
 
 export class FunctionArgInitBB extends BB {
-  
   args: Array<JS3AllowedFunctionArgs>
 
   constructor(args: Array<JS3AllowedFunctionArgs>) {
@@ -273,7 +327,6 @@ export class BlockBB extends BB {
 }
 
 export class TryBB extends BlockBB {
-
   constructor(node: JS3TryStatement = undefined) {
     super(node)
     this.node = node
@@ -286,7 +339,6 @@ export class TryBB extends BlockBB {
   printHeader() {
     return `BB${this.idx} [${this.scope} ~ Try]`
   }
-
 }
 
 export class CatchBB extends BlockBB {
@@ -309,7 +361,7 @@ export class CatchBB extends BlockBB {
 // ************************** CONTAINED **************************
 
 export class ContainedBB extends BB {
-  node: OptionalMemberExpression | OptionalCallExpression | JS3UnaryExpression | JS3ContainedExprKey | undefined 
+  node: OptionalMemberExpression | OptionalCallExpression | JS3UnaryExpression | JS3ContainedExprKey | undefined
   comment: string
 
   constructor(node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | JS3UnaryExpression | undefined = undefined, comment = "") {
@@ -335,12 +387,12 @@ export class ContainedBB extends BB {
 }
 
 export class ContainedOptionalChainBB extends ContainedBB {
-  node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined 
+  node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined
   isOptional: boolean
   isTerminal: boolean
   isShortcircuit: boolean
 
-  constructor(node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined = undefined,comment = "", isOptional: boolean, isTerminal: boolean = false, isShortcircuit = false) {
+  constructor(node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined = undefined, comment = "", isOptional: boolean, isTerminal: boolean = false, isShortcircuit = false) {
     super(node, comment)
     this.isOptional = isOptional
     this.isTerminal = isTerminal

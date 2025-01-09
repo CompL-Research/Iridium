@@ -1,4 +1,4 @@
-// Generated on 6/1/2025, 12:31:57 pm, extended 64 interfaces 
+// Generated on 8/1/2025, 4:13:25 am, extended 64 interfaces 
 
 import { ConditionalExpression, AssignmentPattern, ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, Expression, OptionalCallExpression, OptionalMemberExpression, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DebuggerStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -328,10 +328,12 @@ export type JS3ClassProperty_value = JS3ClassPropValue;
 export type JS3ClassProperty_typeAnnotation = null;
 export type JS3ClassProperty_decorators = null;
 export type JS3ClassProperty_variance = null;
+export type JS3ClassPrivateProperty_key = JS3PrivateName;
 export type JS3ClassPrivateProperty_value = JS3ClassPropValue;
 export type JS3ClassPrivateProperty_decorators = null;
 export type JS3ClassPrivateProperty_typeAnnotation = null;
 export type JS3ClassPrivateProperty_variance = null;
+export type JS3ClassPrivateMethod_key = JS3PrivateName;
 export type JS3ClassPrivateMethod_params = Array<JS3AllowedFunctionArgs>;
 export type JS3ClassPrivateMethod_body = JS3BlockStatement;
 export type JS3ClassPrivateMethod_decorators = null;
@@ -1191,6 +1193,7 @@ export function isJS3ClassProperty(node: any): node is JS3ClassProperty {
 
 // @ts-ignore
 export interface JS3ClassPrivateProperty extends ClassPrivateProperty {
+  key: JS3ClassPrivateProperty_key;
   value: JS3ClassPrivateProperty_value;
   decorators: JS3ClassPrivateProperty_decorators;
   typeAnnotation: JS3ClassPrivateProperty_typeAnnotation;
@@ -1207,6 +1210,7 @@ export function isJS3ClassPrivateProperty(node: any): node is JS3ClassPrivatePro
 
 // @ts-ignore
 export interface JS3ClassPrivateMethod extends ClassPrivateMethod {
+  key: JS3ClassPrivateMethod_key;
   params: JS3ClassPrivateMethod_params;
   body: JS3ClassPrivateMethod_body;
   decorators: JS3ClassPrivateMethod_decorators;

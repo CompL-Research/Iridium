@@ -1,9 +1,9 @@
-import { JS3ArrowFunctionExpression, JS3ClassMethod, JS3FunctionDeclaration, JS3FunctionExpression, JS3ObjectExpression, JS3ObjectMethod } from "classes/builder/JS3Helpers/JS3Types.ts"
+import { JS3ArrowFunctionExpression, JS3ClassMethod, JS3ClassPrivateMethod, JS3FunctionDeclaration, JS3FunctionExpression, JS3ObjectExpression, JS3ObjectMethod } from "classes/builder/JS3Helpers/JS3Types.ts"
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { ISP_RestElement } from "../ALL_RVal/ALL_ISP.ts";
 import { FunctionArgInitBB } from "../BB.ts";
 
-export type I_Function_node = JS3FunctionDeclaration | JS3FunctionExpression | JS3ArrowFunctionExpression | JS3ObjectMethod | JS3ClassMethod
+export type I_Function_node = JS3FunctionDeclaration | JS3FunctionExpression | JS3ArrowFunctionExpression | JS3ObjectMethod | JS3ClassMethod | JS3ClassPrivateMethod
 export type I_Function_params = Array<IV_Identifier | ISP_RestElement>
 export class I_Function {
   node: I_Function_node

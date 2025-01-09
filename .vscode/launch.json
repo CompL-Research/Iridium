@@ -23,6 +23,23 @@
                 "**/node_modules/**"
             ],
             "type": "node"
+        },
+        {
+            "name": "Node test.js",
+            "request": "launch",
+            "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
+            "args": [
+                "/home/meetesh/wd/Iridium/test.js"
+            ],
+            "outFiles": ["test.js"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/playground/**",
+                "**/temp/**",
+                "**/tests/**",
+                "**/node_modules/**"
+            ],
+            "type": "node"
         }
     ]
 }

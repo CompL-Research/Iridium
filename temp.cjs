@@ -1,3 +1,11 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = _default;
+var _test = _interopRequireDefault(require("./temp.cjs"));
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
 // // 1.
 // import "source";
 // import { zxx as y } from "source";
@@ -22,7 +30,6 @@
 // function foo() {
 //   let test = "foo";
 // }
-
 
 // // 5. Ifstmt
 // let t = false;
@@ -58,7 +65,6 @@
 // }
 // fn()
 
-
 // // 7.Try Catch
 // try {
 //   var xxa = 1;
@@ -78,12 +84,9 @@
 //   var caas = 3;
 // }
 
-
-
 // 8. Template Literals
 // let a = `a,b,c${g}da`
 // let b = tag`a,b,c${g}da`
-
 
 // // 9. Call Expression
 // let f = function(a,b,c) {  }
@@ -98,7 +101,6 @@
 // c. Super [ID,...ID]
 // d. V8IntrinsicIdentifier [ID,...ID]
 
-
 // // 11. Meta Property
 // function Foo() {
 //   import.meta
@@ -109,7 +111,6 @@
 // }
 // new Foo(); // Logs "Foo instantiated with new"
 // Foo(); // Throws "Foo() must be called with new"
-
 
 // // 12. Yield/Await
 // async function* Foo() {
@@ -187,7 +188,6 @@
 // ({ f: { g: pokemon } } = d);
 // console.log(a, b, c, d, pokemon)
 
-
 // 16. Optional Chaining
 
 // let a;
@@ -202,7 +202,6 @@
 
 // a = a.b().c?.().b?.c;
 // a = a[a?.a()].c?.().d?.[e].f?.g;
-
 
 // export default function MyApp() {
 //   let a;
@@ -226,9 +225,6 @@
 // }
 // console.log(a("Ba", "", { x: "a", y: 1, z: 2 }))
 
-
-
-
 // console.log(("B" + "a" + +"b" + "a" ).toLowerCase())
 
 // function Test() { console.log("Outer Test", this); }
@@ -238,7 +234,6 @@
 // }
 
 // foo()
-
 
 // 
 // 1. Argument: a = Test, "Test is a let binding"
@@ -253,7 +248,6 @@
 //   return a + Test;
 // }
 // console.log(f1()) // Test uninit error, undefinedinner in babel
-
 
 // // 
 // // 2. Argument: (a, a, a=1)
@@ -291,7 +285,6 @@
 
 // console.log(f3(10)) // 10
 
-
 // function f3({ f: { g: a } }) {
 //   var a;
 //   try {
@@ -317,7 +310,6 @@
 
 // console.log(f4({ f: { g: 12 } })) // 10
 
-
 // // 
 // // Code that breaks after babel
 // // 
@@ -327,7 +319,6 @@
 // }
 
 // console.log(f4({ f: { gg: 12 } })) // 10
-
 
 // // Transformation that might work, but doesnt...
 // var test = 100
@@ -391,7 +382,6 @@
 //   let b = test ? a?.b() : tt;
 // }
 
-
 // a.x(function foo() { var a, b, c; console.log(a, b, c); })
 
 // let a;
@@ -404,7 +394,6 @@
 //   [a]: a,
 //   ...a
 // }
-
 
 // a = function() {
 //   a = {
@@ -420,7 +409,6 @@
 
 // let b;
 
-
 // let foo = (a) => {
 //   console.log(a.name)
 // }
@@ -428,7 +416,6 @@
 // foo(() => { console.log("boo") }, [1,2,,3,,,4])
 
 // a[a?.a()].c?.().d?.[e].f?.g;
-
 
 // let a = new Array(() => { console.log("boo") }, [1,2,,3,,,4])
 
@@ -458,11 +445,8 @@
 // b = a.foo.apply(c)
 // console.log(a.foo.apply(c))
 
-
-// export default function() { }
-// import f from "./test.js"
-// console.log(f.name)
-
+function _default() {}
+console.log(_test["default"].name);
 
 // 
 // Binding creation of x in catch is conditionally validly/invalidly bound
@@ -495,9 +479,9 @@
 //       var z = 100
 //       console.log(x)
 //   }
+
 //   console.log(x, y, z)
 // })();
-
 
 // // 
 // // Test to check the evaluation order of effects when creating classes
@@ -507,21 +491,19 @@
 // var C = 'outside';
 
 // const Test = class C extends ( // <- This evaluation happens under a specific new scope
-//   (
+//   ( 
 //     console.log("super stuff"), 
 //     probeHeritage = function() { console.log("[probe after]"); return C; }, // This (i.e. C) is a non-writable property
-//     function () {}
+//     function () {} 
 //   )
 // ) {
-//   static [(console.log("[static-field-1] name init"), "field1")] = (console.log("[static-field-1] value init", Object.getOwnPropertyNames(this)), 1);
-
 //   #private1 = (console.log("[private-1] value init"), 1);;
-//   static #staticprivate1 = (console.log("[static-private-1] value init"), 1);;
 //   [(console.log("[local-field-1] name init"), "field1")] = (console.log("[local-field-1] value init"), 1);
-//   [(console.log("[local-method-1] name init", this), "local-method-1")]() { }
+//   [(console.log("[local-method-1] name init"), "local-method-1")]() { }
 //   static [(console.log("[static-method-1] name init"), "local-method-1")]() { }
+//   static [(console.log("[static-field-1] name init"), "field1")] = (console.log("[static-field-1] value init"), 1);
 //   static {
-//     console.log("[static-block-1]", this,  this === C, this.field1, this.field2, this.field3)
+//     console.log("[static-block-1]", this === C, this.field1, this.field2, this.field3)
 //   }
 
 //   #private2 = (console.log("[private-2] value init"), 1);;
@@ -559,7 +541,6 @@
 //   [[console.log("2", t), t = 12, console.log("3", t)]] = 1
 // }
 
-
 // export default () => {
 //   console.log("Test")
 // }
@@ -568,103 +549,3 @@
 
 // console.log(a.name)
 
-
-// Class Test
-
-// var Global = "global 1"
-// let clos; 
-
-// let Test = class Global extends ( console.log(a), clos = () => { console.log("Global: ", Global) } ) {
-// }
-
-
-// function foo() {
-//     var a = 10;
-    
-//     class A {
-//         [a] = 10
-//         static {
-//             var a = 1;
-//             var b = 2;
-//             console.log("a inside: ", a);
-//         }
-
-//         static {
-//             console.log("a inside (continued): ", a);
-//             console.log("b inside (continued): ", b);
-
-//         }
-//     };
-
-//     console.log("a outside: ", a)
-// }
-
-
-// class Test {
-//   [(console.log(this), "a")] = 10
-
-//   static {
-//     console.log(this, Test, this === Test)
-//   }
-// }
-
-// class Test {  
-//   [(console.log("[1]"), "constructor")]() { console.log("Non statically resolvable constructor called"); }
-//   constructor() { console.log("Statically resolvable constructor1 called"); } // <- Semantics only use syntax to bind the constructor 
-//   [(console.log("[1]"), "constructor")]() { console.log("Non statically resolvable constructor called"); }
-
-//   [(console.log("[2]"), "boo")]() { console.log("Non Statically resolvable method boo called"); }
-//   boo() { console.log("Statically resolvable method boo called;") }
-  
-//   foo() { console.log("Statically resolvable method foo called;") }
-//   [(console.log("[2]"), "foo")]() { console.log("Non Statically resolvable method foo called"); }
-// }
-// let o = new Test();
-// o.boo()
-// o.foo()
-
-// Object.getPrototypeOf(o).constructor() // <- Userspace can only access the non-statically resolvable constructor
-
-
-// class Test extends (
-//   console.log("test"),
-//   a = 12
-// ){
-//   [f1] = "f1 res"
-//   #f2 = "f2 res"
-//   f3 = "f3 res"
-
-//   static [f4] = "f1 res"
-//   static #f5 = "f2 res"
-//   static {
-//     console.log("nbb", this)
-//   }
-//   static f6 = "f3 res"
-
-// }
-
-// console.log(Test, Object.getOwnPropertyNames(Test.prototype.constructor))
-
-// class Test extends (
-//   console.log("Hello World", this, this === Test),
-//   function() {}
-// ) { 
-// }
-
-// import a from './test.js'
-
-// let cls = class extends (
-//   console.log("Hello World", a),
-//   function () {}
-// ){
-//   a = 12
-//   static {
-//     var a = 12;
-//   }
-
-//   b = 2
-//   static {
-//     var x = 121;
-//   }
-
-// }
