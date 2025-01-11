@@ -19,7 +19,7 @@ export class IS_FunDecl extends ALL_IS {
 
   toString(space = 0) {
     let stmts = []
-    stmts.push(`${printScopedSpace(space)}▏ FUNCTION_DECLARATION { name=${this.name} } ${this.func.toString(space + 2)} `)
+    stmts.push(`${printScopedSpace(space)}▏ FUNCTION_DECLARATION { name=${this.name} } ${this.func.toString(space + 4)} `)
     
     
     return stmts.join("\n")

@@ -143,7 +143,7 @@ export class IS_ObjPatVarDecl extends ALL_IS {
   }
 }
 
-export class IS_ClassThisInitStmt extends ALL_IS {
+export class IS_ThisInitStmt extends ALL_IS {
   LVal : IV_This = new IV_This() 
   RVal : IV_Identifier = new IV_Identifier(undefined, "undefined");
 
@@ -152,11 +152,10 @@ export class IS_ClassThisInitStmt extends ALL_IS {
   }
 
   toString(space: number = 0) {
-    return `${printScopedSpace(space)}▏ <ClassThisInit> ${this.LVal.toString()} = ${this.RVal.toString()};`
+    return `${printScopedSpace(space)}▏ <ThisInit> ${this.LVal.toString()} = ${this.RVal.toString()};`
   }
 
 }
-
 
 export class IS_ClassNameInitStmt extends ALL_IS {
   LVal : IV_Identifier

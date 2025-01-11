@@ -386,7 +386,7 @@ export function lowerToAnonArrayExpr(node: FunctionExpression | ArrowFunctionExp
   const anonArrExpr = generateJS3AnonMemberExpressionfromBaseNode(arrNode, numericLiteral(0), true, false, node)
 
   // let temp = [func...][0]
-  let resHolder = generateIdentifier(node, otherProps.getNewTemporary("NAMELESS_ANON_FN"))
+  let resHolder = generateIdentifier(node, otherProps.getNewTemporary("noname"))
   otherProps.others.holder.push(generateDummyJS3VariableDeclaration(node, resHolder, anonArrExpr, "let", null, null))
 
   return resHolder

@@ -668,3 +668,17 @@
 //   }
 
 // }
+
+// let res = delete delete delete 1
+
+// let res2 = res ? 1 : 2;
+
+
+let o = {
+  foo(a, b) { console.log(this.f1 === a, this.f2 === b) },
+  f1: 1,
+  f2: 3
+}
+
+o.foo(function() {}, class { a = 10 })
+

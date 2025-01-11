@@ -15,11 +15,11 @@ export class IV_FunctionExpression extends ALL_RVal {
     super(node, "FunctionExpression");
     this.func = new I_Function(node, params, funBody, isGenerator, isAsync);
     this.name = name
+    this.dropName = dropName
   }
 
   toString(space = 0) {
     return `<FunctionExpression> { ${this.dropName ? "" : (this.name ? `name: ${this.name.toString()}` : "name: UKN")} }\n${printScopedSpace(space)}${this.func.toString(space + 2)}`
-
   }
 
 }

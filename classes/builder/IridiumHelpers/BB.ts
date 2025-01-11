@@ -1,6 +1,6 @@
 import { recursivelyTraverseAllBBs } from "#utils"
 import _generator from "@babel/generator"
-import { OptionalCallExpression, OptionalMemberExpression } from "@babel/types"
+import { OptionalCallExpression, OptionalMemberExpression, SpreadElement } from "@babel/types"
 import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ClassExpression, JS3ClassProperty_value, JS3ConditionalExpression, JS3ContainedExprKey, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3StaticBlock, JS3TryStatement, JS3UnaryExpression } from "../JS3Helpers/JS3Types.ts"
 import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
@@ -359,29 +359,29 @@ export class CatchBB extends BlockBB {
 }
 
 // ************************** CONTAINED **************************
-
+type ContainedBB_node = undefined | OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | JS3UnaryExpression | SpreadElement 
 export class ContainedBB extends BB {
-  node: OptionalMemberExpression | OptionalCallExpression | JS3UnaryExpression | JS3ContainedExprKey | undefined
+  node: ContainedBB_node
+  parentBB: BB
   comment: string
 
-  constructor(node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | JS3UnaryExpression | undefined = undefined, comment = "") {
+  constructor(node: ContainedBB_node, parentBB: BB, comment = "") {
     super("Contained")
     this.node = node
+    this.parentBB = parentBB
     this.comment = comment
   }
 
   create() {
-    return new ContainedBB(this.node, this.comment);
+    return new ContainedBB(this.node, this.parentBB, this.comment);
   }
 
   printHeader() {
     let comment = ""
     if (this.comment) {
       comment = "// " + this.comment
-    } else if (this.node) {
-      comment = "// " + generator(this.node).code
     }
-    return `BB${this.idx} [${this.scope}] ${comment}`
+    return `BB${this.idx} [${this.scope} in BB${this.parentBB.idx}] ${comment}`
   }
 
 }
@@ -393,7 +393,7 @@ export class ContainedOptionalChainBB extends ContainedBB {
   isShortcircuit: boolean
 
   constructor(node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined = undefined, comment = "", isOptional: boolean, isTerminal: boolean = false, isShortcircuit = false) {
-    super(node, comment)
+    super(node, undefined, comment)
     this.isOptional = isOptional
     this.isTerminal = isTerminal
     this.isShortcircuit = isShortcircuit

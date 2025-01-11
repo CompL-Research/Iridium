@@ -40,6 +40,12 @@ export class IV_Identifier extends ALL_AMP {
     this.name = name;
   }
 
+  static from(node: Identifier, isValue: boolean = false) {
+    let res = new IV_Identifier(node, node.name);
+    res.isValue = isValue
+    return res
+  }
+
   toString() {
     if (this.isValue) return `<Value> ${this.name}`;
     return `${this.name}`
