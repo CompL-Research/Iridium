@@ -1281,7 +1281,7 @@ export default class IRIDIUM {
     debugConfig.logger.throwIriError(`IRIDIUM: STUB: UNIMPLEMENTED: ${stmt.js3type}`)
   }
  
-  // *********************** Iridium_BreakStatement ***********************
+  // *********************** Iridium_Break_LBreak ***********************
   handleJS3BreakStatement(stmt: JS3BreakStatement) { 
     if (isIdentifier(stmt.label)) {
       let lbreakstmt = new IS_LBreak(stmt, IV_Identifier.from(stmt.label))
