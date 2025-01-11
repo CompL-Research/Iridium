@@ -11,6 +11,7 @@ import { handleExpression, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpr
 import { generateIdentifier, generateJS3RestElementfromBaseNode, generateJS3SpreadElement, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
 import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3AwaitExpression, isJS3BinaryExpression, isJS3BlockStatement, isJS3BreakStatement, isJS3CallExpression, isJS3ClassExpression, isJS3ClassMethod, isJS3ClassPrivateMethod, isJS3ClassPrivateProperty, isJS3ClassProperty, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportNamespaceSpecifier, isJS3ExportSpecifier, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3FunctionExpression, isJS3IfStatement, isJS3Import, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3MemberExpression, isJS3MetaProperty, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3RegExpLiteral, isJS3ReturnStatement, isJS3SpreadElement, isJS3StaticBlock, isJS3SwitchStatement, isJS3TaggedTemplateExpression, isJS3TemplateLiteral, isJS3ThrowStatement, isJS3TryStatement, isJS3UnaryExpression, isJS3UpdateExpression, isJS3VariableDeclaration, isJS3WhileStatement, isJS3YieldExpression, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3AnonMemberExpression, JS3ArrayExpression, JS3ArrayPattern, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BinaryExpression, JS3BlockStatement, JS3BlockStatement_body, JS3BreakStatement, JS3CallExpression, JS3ClassExpression, JS3ClassMethod, JS3ClassProperty, JS3ClassProperty_value, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3ContinueStatement, JS3DebuggerStatement, JS3DoWhileStatement, JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3FunctionExpression, JS3IfStatement, JS3ImportDeclaration, JS3LabeledStatement, JS3MemberExpression, JS3MetaProperty, JS3NewExpression, JS3ObjectExpression, JS3ObjectPattern, JS3Program, JS3RegExpLiteral, JS3ReturnStatement, JS3StaticBlock, JS3SwitchStatement, JS3TaggedTemplateExpression, JS3TemplateLiteral, JS3ThrowStatement, JS3TryStatement, JS3UnaryExpression, JS3UpdateExpression, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3WhileStatement, JS3YieldExpression } from "../JS3Helpers/JS3Types.ts";
 import { IV_Identifier, IV_MemberExpressionPA, IV_PrivateName, IV_SuperLookupPA, IV_ThisLookupPA } from "./ALL_AMP/ALL_AMP.ts";
+import { IS_Break, IS_LBreak } from "./ALL_IS/IS_Break.ts";
 import { IS_ClassStaticPropInit } from "./ALL_IS/IS_ClassStaticPropInit.ts";
 import { IS_Debugger, IS_Return, IS_Throw } from "./ALL_IS/IS_Debugger_Return_Throw.ts";
 import { IS_FunDecl } from "./ALL_IS/IS_FunDecl.ts";
@@ -1281,13 +1282,33 @@ export default class IRIDIUM {
   }
  
   // *********************** Iridium_BreakStatement ***********************
-  handleJS3BreakStatement(stmt: JS3BreakStatement) {
-    debugConfig.logger.throwIriError(`IRIDIUM: STUB: UNIMPLEMENTED: ${stmt.js3type}`)
+  handleJS3BreakStatement(stmt: JS3BreakStatement) { 
+    if (isIdentifier(stmt.label)) {
+      let lbreakstmt = new IS_LBreak(stmt, IV_Identifier.from(stmt.label))
+      this.getCurrentBB().statements.push(lbreakstmt)
+    } else {
+      let unlbreakstmt = new IS_Break(stmt)
+      this.getCurrentBB().statements.push(unlbreakstmt);
+    }
   }
 
   // *********************** Iridium_WhileStatement ***********************
   handleJS3WhileStatement(stmt: JS3WhileStatement) {
-    debugConfig.logger.throwIriError(`IRIDIUM: STUB: UNIMPLEMENTED: ${stmt.js3type}`)
+    let curr = this.getCurrentBB()
+    let postBB = curr.create()
+    let testBody = new ContainedBB(stmt.test, curr, "While Test")
+    let loopBody = new BlockBB(stmt)
+    let testID : Identifier = this.lowerExprToBB(stmt.test, testBody)
+    let test : IV_Identifier = IV_Identifier.from(testID)
+    
+    postBB.terminal = curr.terminal
+    curr.terminal = new UnconditionalGoto(testBody)
+    testBody.terminal = new BranchTerminal(stmt, test, loopBody, postBB)
+    loopBody.terminal = new UnconditionalGoto(testBody)
+
+    this.setCurrentBB(loopBody)
+    this.handleJS3ProgramBody(stmt.body.body)
+    this.setCurrentBB(postBB);
   }
 
   // *********************** Iridium_TryStatement ***********************

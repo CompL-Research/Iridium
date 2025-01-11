@@ -1,7 +1,7 @@
 import { recursivelyTraverseAllBBs } from "#utils"
 import _generator from "@babel/generator"
 import { OptionalCallExpression, OptionalMemberExpression, SpreadElement } from "@babel/types"
-import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ClassExpression, JS3ClassProperty_value, JS3ConditionalExpression, JS3ContainedExprKey, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3StaticBlock, JS3TryStatement, JS3UnaryExpression } from "../JS3Helpers/JS3Types.ts"
+import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ClassExpression, JS3ClassProperty_value, JS3ConditionalExpression, JS3ContainedExprKey, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3StaticBlock, JS3TryStatement, JS3UnaryExpression, JS3WhileStatement } from "../JS3Helpers/JS3Types.ts"
 import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
 import { printScopedSpace } from "./IRIDIUM.ts"
@@ -21,13 +21,14 @@ export class BBTerminal {
   }
 }
 
+type BranchTerminal_node = JS3IfStatement | JS3ConditionalExpression | JS3WhileStatement
 export class BranchTerminal extends BBTerminal {
-  node?: JS3IfStatement | JS3ConditionalExpression
+  node?: BranchTerminal_node
   on: IV_Identifier
   t: BB
   f: BB
 
-  constructor(node: JS3IfStatement | JS3ConditionalExpression | undefined, on: IV_Identifier, t: BB, f: BB) {
+  constructor(node: BranchTerminal_node, on: IV_Identifier, t: BB, f: BB) {
     super();
     this.node = node;
     this.on = on

@@ -674,11 +674,16 @@
 // let res2 = res ? 1 : 2;
 
 
-let o = {
-  foo(a, b) { console.log(this.f1 === a, this.f2 === b) },
-  f1: 1,
-  f2: 3
-}
+// let o = {
+//   foo(a, b) { console.log(this.f1 === a, this.f2 === b) },
+//   f1: 1,
+//   f2: 3
+// }
+// o.foo(function() {}, class { a = 10 })
 
-o.foo(function() {}, class { a = 10 })
-
+// let a = false;
+// testing: while(a) {
+//   console.log(test);
+//   break;
+//   break testing;
+// }
