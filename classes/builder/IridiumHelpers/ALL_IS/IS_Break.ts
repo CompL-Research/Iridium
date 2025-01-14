@@ -19,7 +19,6 @@ export class IS_LBreak extends ALL_IS {
 }
 
 export class IS_Break extends ALL_IS {
-  label: IV_Identifier
   idx: undefined | number = undefined
 
   constructor(node: JS3BreakStatement | undefined = undefined, idx : undefined | number = undefined) {

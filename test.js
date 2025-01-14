@@ -684,6 +684,45 @@
 // let a = false;
 // testing: while(a) {
 //   console.log(test);
+//   continue;
+//   continue testing;
 //   break;
 //   break testing;
+// }
+
+// {
+//   let a = 12;
+//   {
+//     console.log(a)
+//   }
+// }
+
+// for (let [a, {b: c}] = [12, { b: 22 }];  c*x <= 99*a; c++) {
+//   console.log(a, c)
+// }
+
+// let a = 0;
+// do {
+//   console.log(a)
+//   a++;
+// } while(a < 10)
+
+// switch((console.log("test"), 4)) {
+//   case ((console.log("case 1 test"),1)):
+//     console.log("case 1 body")
+//     break;
+//   case ((console.log("case 2 test"),2)):
+//     console.log("case 2 body")
+//     break;
+//   case ((console.log("case 3 test"),3)):
+//     console.log("case 3 body") 
+//     break;
+//   case ((console.log("case 4 test"),4)):
+//     console.log("case 4 body")
+//     break;
+//   case ((console.log("case 5 test"),5)):
+//     console.log("case 5 body")
+//     break;
+//   default:
+//     console.log("Default case")
 // }

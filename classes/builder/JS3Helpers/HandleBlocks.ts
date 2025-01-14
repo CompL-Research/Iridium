@@ -6,7 +6,7 @@ import { isJS3AssnObjectProperty, isJS3MemberExpression, JS3AllowedBlockStatemen
 
 import debugConfig from "#debugConfig";
 import { handleArrowFunctionExpression, handleClassExpression, handleExpression, handleFunctionExpression, handleMemberExpression, lowerToAnonArrayExpr } from "./HandleExpression.ts";
-import { generateBaseNodeFrom, generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrayPatternfromBaseNode, generateJS3AssignmentExpressionfromBaseNode, generateJS3AssnObjectPropertyfromBaseNode, generateJS3BinaryExpressionfromBaseNode, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3CatchClause, generateJS3ConditionalExpressionfromBaseNode, generateJS3ContinueStatement, generateJS3DebuggerStatement, generateJS3DoWhileStatement, generateJS3EmptyStatement, generateJS3EmptyStatementfromBaseNode, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3LabeledStatement, generateJS3ObjectPattern, generateJS3PrivateName, generateJS3RestElement, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclarator, generateJS3VariableDeclaratorfromBaseNode, generateJS3WhileStatement, generateJS3WithStatement } from "./JS3Constructors.ts";
+import { generateBaseNodeFrom, generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrayPatternfromBaseNode, generateJS3AssignmentExpressionfromBaseNode, generateJS3AssnObjectPropertyfromBaseNode, generateJS3BinaryExpressionfromBaseNode, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3CatchClause, generateJS3ConditionalExpressionfromBaseNode, generateJS3ContinueStatement, generateJS3DebuggerStatement, generateJS3DoWhileStatement, generateJS3EmptyStatement, generateJS3EmptyStatementfromBaseNode, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3LabeledStatement, generateJS3LoopDeclarationfromBaseNode, generateJS3LoopDeclaratorfromBaseNode, generateJS3ObjectPattern, generateJS3PrivateName, generateJS3RestElement, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclarator, generateJS3VariableDeclaratorfromBaseNode, generateJS3WhileStatement, generateJS3WithStatement } from "./JS3Constructors.ts";
 
 import { generateCommentLine } from "#utils";
 import assert from 'node:assert';
@@ -927,6 +927,17 @@ export function handleForInStatement(node: ForInStatement, otherProps: OtherProp
   let orig_left = node.left; // Handling prop left
   let fin_left: JS3ForInStatement_left; // Handling prop left
   if (isVariableDeclaration(orig_left)) {
+
+    // assert that this is of the form and only has one entry
+    // 
+    // KIND ID <--- We dont want to allow any other syntax forms here.
+    // 
+
+    if (orig_left.declarations.length > 1) debugConfig.logger.throwJS3Error("ForInStatement, unexpected form for lval of the loop header, has more than one declaration")
+    if (orig_left.declarations[0].init) debugConfig.logger.throwJS3Error("ForInStatement, declaration is not expected to have an initializer")
+
+    fin_left = handleLoopDeclaration(orig_left, otherProps)
+
     fin_left = handleLoopDeclaration(orig_left, otherProps)
   } else if (isIdentifier(orig_left)) {
     fin_left = orig_left
@@ -984,7 +995,24 @@ export function handleForOfStatement(node: ForOfStatement, otherProps: OtherProp
   let orig_left = node.left; // Handling prop left
   let fin_left: JS3ForOfStatement_left; // Handling prop left
   if (isVariableDeclaration(orig_left)) {
+
+    // assert that this is of the form and only has one entry
+    // 
+    // KIND ID <--- We dont want to allow any other syntax forms here.
+    // 
+
+    if (orig_left.declarations.length > 1) debugConfig.logger.throwJS3Error("ForOfStatement, unexpected form for lval of the loop header, has more than one declaration")
+    if (orig_left.declarations[0].init) debugConfig.logger.throwJS3Error("ForOfStatement, declaration is not expected to have an initializer")
+
     fin_left = handleLoopDeclaration(orig_left, otherProps)
+    // let lval = orig_left.declarations[0].id
+    // if (isIdentifier(lval) || isObjectPattern(lval) || isArrayPattern(lval)) {
+    //   let declarator = generateJS3LoopDeclaratorfromBaseNode(lval, null, null, orig_left)
+    //   let declaration = generateJS3LoopDeclarationfromBaseNode([declarator], orig_left.kind, orig_left.declare, orig_left)
+    //   fin_left = declaration
+    // } else {
+    //   debugConfig.logger.throwJS3Error("ForOfStatement, unsupported lval type")
+    // }
   } else if (isIdentifier(orig_left)) {
     fin_left = orig_left
   } else if (isMemberExpression(orig_left)) {
@@ -1101,7 +1129,7 @@ export function handleSwitchStatement(node: SwitchStatement, otherProps: OtherPr
   let orig_discriminant = node.discriminant; // Handling prop discriminant
   let fin_discriminant: JS3SwitchStatement_discriminant; // Handling prop discriminant
   if (isExpression(orig_discriminant)) {
-    fin_discriminant = lowerComputedKey(orig_discriminant, otherProps);
+    fin_discriminant = handleExpression(orig_discriminant, otherProps);
   }
 
   let orig_cases = node.cases; // Handling prop cases

@@ -1,7 +1,7 @@
 import { recursivelyTraverseAllBBs } from "#utils"
 import _generator from "@babel/generator"
 import { OptionalCallExpression, OptionalMemberExpression, SpreadElement } from "@babel/types"
-import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ClassExpression, JS3ClassProperty_value, JS3ConditionalExpression, JS3ContainedExprKey, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3StaticBlock, JS3TryStatement, JS3UnaryExpression, JS3WhileStatement } from "../JS3Helpers/JS3Types.ts"
+import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ClassExpression, JS3ClassProperty_value, JS3ConditionalExpression, JS3ContainedExprKey, JS3DoWhileStatement, JS3ForStatement, JS3ForStatement_init, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3StaticBlock, JS3SwitchCase, JS3SwitchStatement, JS3TryStatement, JS3UnaryExpression, JS3WhileStatement } from "../JS3Helpers/JS3Types.ts"
 import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
 import { printScopedSpace } from "./IRIDIUM.ts"
@@ -21,7 +21,7 @@ export class BBTerminal {
   }
 }
 
-type BranchTerminal_node = JS3IfStatement | JS3ConditionalExpression | JS3WhileStatement
+type BranchTerminal_node = JS3IfStatement | JS3ConditionalExpression | JS3WhileStatement | JS3ForStatement | JS3DoWhileStatement | JS3SwitchCase
 export class BranchTerminal extends BBTerminal {
   node?: BranchTerminal_node
   on: IV_Identifier
@@ -42,6 +42,16 @@ export class BranchTerminal extends BBTerminal {
 
   toString(space = 0) {
     return `${printScopedSpace(space)}🬲 🤔 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
+  }
+}
+
+export class SwitchCaseTerminal extends BranchTerminal {
+  constructor(node: JS3SwitchCase, on: IV_Identifier, t: BB, f: BB) {
+    super(node, on, t, f)
+  }
+  
+  toString(space = 0) {
+    return `${printScopedSpace(space)}🬲 🎐 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
   }
 }
 
@@ -316,14 +326,23 @@ export class FunctionArgInitBB extends BB {
 
 export class BlockBB extends BB {
   node?: any
+  label: IV_Identifier | undefined
 
   constructor(node: any = undefined) {
     super("Block")
     this.node = node
   }
 
+  setLabel(label: IV_Identifier) {
+    this.label = label
+  }
+
   create() {
     return new BlockBB(this.node);
+  }
+
+  printHeader(): string {
+    return `BB${this.idx} [${this.scope}] {${this.label ? `label: ${this.label}` : ""}}`
   }
 }
 
@@ -355,12 +374,35 @@ export class CatchBB extends BlockBB {
   }
 
   printHeader() {
-    return `BB${this.idx} [${this.scope} ~ Catch(${this.arg ? this.arg.toString() : ""})] `
+    return `BB${this.idx} [${this.scope} ~ Catch(${this.arg ? this.arg.toString() : ""})]`
+  }
+}
+
+export class ForLoopInitBB extends BlockBB {
+
+  constructor(node: JS3ForStatement_init = undefined) {
+    super(node)  
+  }
+
+  printHeader(): string {
+    return `BB${this.idx} [${this.scope} ~ ForLoopInit]`
+  }
+
+}
+
+export class SwitchBodyBB extends BlockBB {
+
+  constructor(node: JS3SwitchStatement = undefined) {
+    super(node)
+  }
+
+  printHeader(): string {
+    return `BB${this.idx} [${this.scope} ~ SwitchBody]`
   }
 }
 
 // ************************** CONTAINED **************************
-type ContainedBB_node = undefined | OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | JS3UnaryExpression | SpreadElement 
+type ContainedBB_node = undefined | OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | JS3UnaryExpression | SpreadElement | JS3SwitchCase
 export class ContainedBB extends BB {
   node: ContainedBB_node
   parentBB: BB
