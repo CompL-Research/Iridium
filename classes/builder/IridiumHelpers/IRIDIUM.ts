@@ -58,6 +58,14 @@ export function printScopedSpace(space) {
   return res;
 }
 
+export function printSpace(space) {
+  let res = "";
+  for (let i = 0; i < space; i++) {
+    res += " "
+  }
+  return res;
+}
+
 export default class IRIDIUM {
   js3builder: JS3Builder
   node: JS3Program
@@ -435,8 +443,8 @@ export default class IRIDIUM {
     // JS class initialization order:
     //  1. Heritage Resolution : If the class extends another class, we resolve this object first.
     //  2. Name Resolution     : Names for all fields and methods are resolved if they are 'computed' properties.    
-    //  2. Object Creation     : Object for the class is created.
-    //  3. Static Value resolution : Values for static fields and static blocks are computed and added to the class object.
+    //  3. Object Creation     : Object for the class is created.
+    //  4. Static Value resolution : Values for static fields and static blocks are computed and added to the class object.
     // 
     // Lowering Scheme
     // // 1. Create a Temporary Holder for the class object

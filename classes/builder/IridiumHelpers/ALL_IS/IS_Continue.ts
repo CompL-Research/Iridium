@@ -1,6 +1,6 @@
 import { JS3BreakStatement, JS3ContinueStatement, JS3LabeledStatement } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { ALL_IS } from "./ALL_IS.ts";
-import { printScopedSpace } from "../IRIDIUM.ts";
+import { printScopedSpace, printSpace } from "../IRIDIUM.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 
 export class IS_LContinue extends ALL_IS {
@@ -16,6 +16,10 @@ export class IS_LContinue extends ALL_IS {
   toString(space = 0) {
     return `${printScopedSpace(space)}▏ LCONTINUE ${this.label} [${this.idx ? "BB" + this.idx : "UNRESOLVED"}];`
   }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} LCONTINUE ${this.label} [${this.idx ? "BB" + this.idx : "UNRESOLVED"}];`
+  }
 }
 
 export class IS_Continue extends ALL_IS {
@@ -28,5 +32,9 @@ export class IS_Continue extends ALL_IS {
 
   toString(space = 0) {
     return `${printScopedSpace(space)}▏ CONTINUE [${this.idx ? "BB" + this.idx : "UNRESOLVED"}];`
+  }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} CONTINUE [${this.idx ? "BB" + this.idx : "UNRESOLVED"}];`
   }
 }

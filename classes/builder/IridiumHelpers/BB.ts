@@ -4,7 +4,7 @@ import { OptionalCallExpression, OptionalMemberExpression, SpreadElement } from 
 import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ClassExpression, JS3ClassProperty_value, JS3ConditionalExpression, JS3ContainedExprKey, JS3DoWhileStatement, JS3ForStatement, JS3ForStatement_init, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3StaticBlock, JS3SwitchCase, JS3SwitchStatement, JS3TryStatement, JS3UnaryExpression, JS3WhileStatement } from "../JS3Helpers/JS3Types.ts"
 import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
-import { printScopedSpace } from "./IRIDIUM.ts"
+import { printScopedSpace, printSpace } from "./IRIDIUM.ts"
 
 const generator = _generator["default"]
 type BBScopes = "Script" | "Module" | "Function" | "Block" | "Contained" | "FunctionArgInit" | "ClassInit" | "ClassStatic" | "ClassPropValue"
@@ -18,6 +18,10 @@ export class BBTerminal {
 
   toString(space = 0) {
     throw new Error("BBTerminal: toString UNIMPLEMENTED!!")
+  }
+
+  toDOT(space = 0) {
+    throw new Error("BBTerminal: toDOT UNIMPLEMENTED!!")
   }
 }
 
@@ -43,6 +47,10 @@ export class BranchTerminal extends BBTerminal {
   toString(space = 0) {
     return `${printScopedSpace(space)}🬲 🤔 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
   }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} 🤔 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
+  }
 }
 
 export class SwitchCaseTerminal extends BranchTerminal {
@@ -52,6 +60,11 @@ export class SwitchCaseTerminal extends BranchTerminal {
   
   toString(space = 0) {
     return `${printScopedSpace(space)}🬲 🎐 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
+  }
+
+
+  toDOT(space = 0) {
+    return `${printSpace(space)}🎐 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
   }
 }
 
@@ -76,6 +89,10 @@ export class OptionalBranchTerminal extends BBTerminal {
   toString(space = 0) {
     return `${printScopedSpace(space)}🬲 🤔 (${this.on}) 👍: (BB${this.t.idx}) 🔗: (BB${this.f.idx})`
   }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} 🤔 (${this.on}) 👍: (BB${this.t.idx}) 🔗: (BB${this.f.idx})`
+  }
 }
 
 export class UnconditionalGoto extends BBTerminal {
@@ -92,6 +109,10 @@ export class UnconditionalGoto extends BBTerminal {
   toString(space = 0) {
     return `${printScopedSpace(space)}🬲 🥔 BB${this.to.idx}`
   }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} 🥔 BB${this.to.idx}`
+  }
 }
 
 export class GotoFunctionBody extends UnconditionalGoto {
@@ -101,6 +122,10 @@ export class GotoFunctionBody extends UnconditionalGoto {
 
   toString(space = 0) {
     return `${printScopedSpace(space)}🬲 🔔 BB${this.to.idx}`
+  }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} 🔔 BB${this.to.idx}`
   }
 }
 
@@ -121,6 +146,10 @@ export class TryCatchConditionalGoto extends BBTerminal {
   toString(space = 0) {
     return `${printScopedSpace(space)}🬲 👮 🚨: (BB${this.handler.idx}) 👍: (BB${this.finalizer.idx})`
   }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} 👮 🚨: (BB${this.handler.idx}) 👍: (BB${this.finalizer.idx})`
+  }
 }
 
 export class ClassPropInitExit extends BBTerminal {
@@ -130,8 +159,17 @@ export class ClassPropInitExit extends BBTerminal {
     super()
     this.res = res
   }
+
+  getSuccessors(): Array<BB> {
+    return []
+  }
+
   toString(space = 0) {
     return `${printScopedSpace(space)}🬲 🙋 PropInit(${this.res.toString()})`
+  }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} 🙋 PropInit(${this.res.toString()})`
   }
 }
 
@@ -141,20 +179,45 @@ export class ClassStaticExit extends UnconditionalGoto {
     super(to)
   }
 
+  getSuccessors(): Array<BB> {
+    return []
+  }
+
   toString(space = 0) {
     return `${printScopedSpace(space)}🬲 👋 Static Block End`
+  }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} 👋 Static Block End`
   }
 }
 
 export class ExitNode extends BBTerminal {
+  
   toString(space = 0) {
     return `${printScopedSpace(space)}🬲 👋 Exit`
+  }
+
+  getSuccessors(): Array<BB> {
+    return []
+  }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} 👋 Exit`
   }
 }
 
 export class ErrorNode extends BBTerminal {
   toString(space = 0) {
     return `${printScopedSpace(space)}🬲 🚨🚨 ERROR 🚨🚨`
+  }
+
+  getSuccessors(): Array<BB> {
+    return []
+  }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} 🚨🚨 ERROR 🚨🚨`
   }
 }
 
@@ -164,6 +227,8 @@ export class BB {
   idx: number
   static count = 0
   terminal: BBTerminal | undefined
+
+  getName() { return `BB${this.idx}` }
 
   constructor(scope: BBScopes) {
     this.scope = scope
@@ -185,6 +250,26 @@ export class BB {
       })
       stmts.push(bb.terminal.toString(space))
     }
+
+    return stmts.join("\n")
+  }
+
+  toDOTData() { return `${this.printHeader()}\\l${this.statements.map(s => s.toDOT()).join(";\\l")}\\n${this.terminal.toDOT()}\\l` }
+
+  toDOT(space = 0, alreadyVisited : Set<BB> = new Set()) {
+    if (alreadyVisited.has(this)) return;
+    else alreadyVisited.add(this)
+    let stmts = []
+    stmts.push(`${printSpace(space + 2)} ${this.getName()}[shape="box",label="${this.toDOTData().replace(/"/g, '\\"')}"]`)
+
+    // Visit BB's successors and print their data
+    let succ = this.terminal.getSuccessors()
+    
+    for (let s of succ) {
+      stmts.push(`${printSpace(space + 2)} ${this.getName()} -> ${s.getName()};`)
+    }
+    
+    stmts.push(...succ.map(s => s.toDOT(space, alreadyVisited)))
 
     return stmts.join("\n")
   }

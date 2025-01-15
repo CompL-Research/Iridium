@@ -1,7 +1,7 @@
 import { JS3DebuggerStatement, JS3ReturnStatement, JS3ThrowStatement } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { ALL_IS } from "./ALL_IS.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
-import { printScopedSpace } from "../IRIDIUM.ts";
+import { printScopedSpace, printSpace } from "../IRIDIUM.ts";
 
 export class IS_Debugger extends ALL_IS {
   constructor(node: JS3DebuggerStatement | undefined = undefined) {
@@ -10,6 +10,10 @@ export class IS_Debugger extends ALL_IS {
 
   toString(space = 0) {
     return `${printScopedSpace(space)}▏ DEBUGGER;`
+  }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} DEBUGGER;`
   }
 }
 
@@ -28,6 +32,14 @@ export class IS_Return extends ALL_IS {
       return `${printScopedSpace(space)}▏ RETURN;`
     }
   }
+
+  toDOT(space = 0) {
+    if (this.argument) {
+      return `${printSpace(space)} RETURN ${this.argument.toString()};`
+    } else {
+      return `${printSpace(space)} RETURN;`
+    }
+  }
 }
 
 export class IS_Throw extends ALL_IS {
@@ -40,5 +52,9 @@ export class IS_Throw extends ALL_IS {
 
   toString(space = 0) {
     return `${printScopedSpace(space)}▏ THROW ${this.argument.toString()};`
+  }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} THROW ${this.argument.toString()};`
   }
 }

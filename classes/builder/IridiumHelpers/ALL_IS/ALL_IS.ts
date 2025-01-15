@@ -6,6 +6,10 @@ export class ALL_IS {
     this.node = node
   }
 
+  toDOT() {
+    throw new Error("ALL_IS: toDOT not implemented!!");
+  }
+
   toString(space = 0) {
     throw new Error("ALL_IS: toString not implemented!!");
   }

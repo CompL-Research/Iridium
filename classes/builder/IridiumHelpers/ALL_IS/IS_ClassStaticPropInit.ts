@@ -1,6 +1,6 @@
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { ISP_ClassProperty_key } from "../ALL_RVal/ALL_ISP.ts";
-import { printScopedSpace } from "../IRIDIUM.ts";
+import { printScopedSpace, printSpace } from "../IRIDIUM.ts";
 import { ALL_IS } from "./ALL_IS.ts";
 
 export class IS_ClassStaticPropInit extends ALL_IS {
@@ -20,6 +20,10 @@ export class IS_ClassStaticPropInit extends ALL_IS {
 
   toString(space: number = 0) {
     return `${printScopedSpace(space)}▏ <ClassStaticPropInit> ${this.obj.toString()}${this.computed ? `[${this.prop.toString()}]` : `.${this.prop.toString()}`} = ${this.RVal.toString()};`
+  }
+
+  toDOT(space: number = 0) {
+    return `${printSpace(space)}▏ <ClassStaticPropInit> ${this.obj.toString()}${this.computed ? `[${this.prop.toString()}]` : `.${this.prop.toString()}`} = ${this.RVal.toString()};`
   }
 
 }

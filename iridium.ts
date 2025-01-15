@@ -13,6 +13,7 @@ import { Project } from './classes/Project.ts'
 import { analyzeUsageInfo, js3UsageInfo, printAnalyzeUsage, printDefaultUsage, printIRIUsage, printJS3Usage } from './configs/printUsage.ts'
 import { projectStats } from './configs/projectStats.ts'
 import IRIDIUM from 'classes/builder/IridiumHelpers/IRIDIUM.ts'
+import { exec } from 'child_process';
 
 
 const VERSION = "0.3a"
@@ -118,12 +119,12 @@ function analyze(mainProjectPath, analyzePath) {
           debugConfig.logger.log(`[JS3Builder] Processed ${file.filename}`)
           debugConfig.logger.printToConsole = false
           debugConfig.logger.log(`${uri}`)
-          debugConfig.logger.printToConsole = true          
-        } catch (e) { 
+          debugConfig.logger.printToConsole = true
+        } catch (e) {
           debugConfig.logger.error(`[JS3Builder] Failed to process ${file.filename}`, [e])
         }
-        
-        
+
+
       } else {
         debugConfig.logger.error(`[JS3Builder] Skipping ${file.uname} -- Status: ${file.initData.status}, ParseStatus: ${file.initData.parseStatus} `)
       }
@@ -136,15 +137,15 @@ function js3(filePath) {
   const file = new ProjectFile(filePath, path.dirname(filePath))
   try {
     file.initSync(debugConfig.js3SourceType)
-    if (file.initData.parseStatus !== "parsed") 
+    if (file.initData.parseStatus !== "parsed")
       debugConfig.logger.throwJS3Error("JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)")
-      
+
     const builder = new JS3Builder(file)
     builder.build()
     if (debugConfig.outputsPath !== "") {
       builder.saveGeneratedFile()
     }
-    
+
     console.log(builder.generatedCode)
     process.exit(0)
   } catch (e) {
@@ -158,9 +159,9 @@ function iri(filePath) {
   const file = new ProjectFile(filePath, path.dirname(filePath))
   try {
     file.initSync(debugConfig.js3SourceType)
-    if (file.initData.parseStatus !== "parsed") 
+    if (file.initData.parseStatus !== "parsed")
       debugConfig.logger.throwJS3Error("JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)")
-      
+
     const js3Builder = new JS3Builder(file)
     js3Builder.build()
     if (debugConfig.outputsPath !== "") {
@@ -169,7 +170,25 @@ function iri(filePath) {
 
     const ir = IRIDIUM.create(js3Builder)
     console.log(ir.toString())
-    process.exit(0)
+
+    fs.writeFile("IRIDIUM.DOT", ir.toDOT(), 'utf8', (err) => {
+      if (err) {
+        debugConfig.logger.error(`[JS3 Builder] Error writing to file at path: ${debugConfig.outputsPath}`, [err]);
+      }
+      // Replace 'your-command-here' with the command you want to run
+      exec(`dot -Tpng IRIDIUM.DOT -o IRIDIUM.png`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error: ${error.message}`);
+          return;
+        }
+        if (stderr) {
+          console.error(`Stderr: ${stderr}`);
+          return;
+        }
+        console.log(ir.toDOT())
+        process.exit(0)
+      });
+    });
   } catch (e) {
     console.error("Failed to generate Iridium: ", e)
     process.exit(1)
@@ -194,7 +213,7 @@ if (mainCommand === 'analyze') {
     process.exit(0)
   }
   const PATH_TO_PROJECT = path.resolve(analyzeMainOptions.command)
-  let ANALYZE_PATH      = PATH_TO_PROJECT
+  let ANALYZE_PATH = PATH_TO_PROJECT
   if (!fs.existsSync(PATH_TO_PROJECT)) {
     console.error(chalk.red(`[ERROR] Project path does not exist: ${PATH_TO_PROJECT}`))
     process.exit(1)
