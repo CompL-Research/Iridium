@@ -1,3 +1,4 @@
+import { BB } from "classes/builder/IridiumHelpers/BB.ts";
 import Logger from "../classes/debugger/Logger.ts";
 
 const config : {
@@ -12,7 +13,8 @@ const config : {
   throwIRIErrors: boolean,
   js3SourceType: string,
   allowLangWithSupport: boolean,
-  test262: boolean
+  test262: boolean,
+  DOTContext: Set<BB> | undefined
 } = {
   operationMode: "analyze",
   outputsPath: "",
@@ -25,7 +27,8 @@ const config : {
   throwIRIErrors: false,
   js3SourceType: "unambiguous",
   allowLangWithSupport: false,
-  test262: false
+  test262: false,
+  DOTContext: undefined
 }
 
 export default config;

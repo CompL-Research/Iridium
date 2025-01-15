@@ -16,4 +16,8 @@ export class IV_NewExpression extends ALL_RVal {
   toString() {
     return `NEW ${this.callee.toString()}(${this.args.map(a => a.toString()).join(",")})`
   }
+
+  toDOT() {
+    return this.toString() 
+  }
 }

@@ -23,7 +23,7 @@ export class IS_FunDecl extends ALL_IS {
   }
 
   toDOT(space = 0) {
-    return `${printSpace(space)} FUNCTION_DECLARATION { name=${this.name} }` 
+    return `${printSpace(space)} FUNCTION_DECLARATION { name=${this.name} } = ${this.func.funBody.getName()}` 
   }
 
 }

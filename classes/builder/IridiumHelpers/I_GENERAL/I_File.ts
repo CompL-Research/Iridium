@@ -1,7 +1,7 @@
 import { JS3File, JS3Program } from "classes/builder/JS3Helpers/JS3Types.ts";
 import IRIDIUM, { IRIDIUM_FG, printScopedSpace, printSpace } from "../IRIDIUM.ts";
 import JS3Builder from "classes/builder/JS3Builder.ts";
-
+import debugConfig from "#debugConfig"
 
 export class I_File {
   node: JS3File
@@ -22,9 +22,19 @@ export class I_File {
 
   toDOT(space = 0) {
     let stmts = []
+    debugConfig.DOTContext = new Set()
     stmts.push("digraph Iridium {")
-    stmts.push("node [fontname=\"Noto Mono\"];");
+    stmts.push("  node [fontname=\"Noto Mono\"];");
+    stmts.push("  graph [nodesep=1.0, ranksep=1.5]; // Adjust separation")
     stmts.push(this.program.toDOT(space + 2))
+
+    for (let c of debugConfig.DOTContext) {
+      stmts.push("  subgraph cluster {")
+      stmts.push("    label=\"closure\";")
+      stmts.push(c.toDOT(4))
+      stmts.push("  }")
+    }
+
     stmts.push("}")
     return stmts.join("\n")
   }

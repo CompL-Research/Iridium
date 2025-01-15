@@ -10,6 +10,10 @@ export class IV_ModuleMeta extends ALL_RVal {
   toString() {
     return `<ModuleMeta> IMPORT.META`
   }
+
+  toDOT() {
+    return this.toString();
+  }
 }
 
 export class IV_NewTarget extends ALL_RVal {
@@ -20,5 +24,9 @@ export class IV_NewTarget extends ALL_RVal {
 
   toString() {
     return `<NewTarget> NEW.TARGET`
+  }
+
+  toDOT() {
+    return this.toString();
   }
 }

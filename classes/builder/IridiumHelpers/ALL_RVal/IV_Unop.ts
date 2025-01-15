@@ -21,6 +21,10 @@ export class IV_AUNOP extends ALL_RVal {
   toString() {
     return `<U_OPA> ${this.argument} ${this.argument.toString()}`
   }
+
+  toDOT() {
+    return this.toString()
+  }
 }
 
 export class IV_BUNOP extends ALL_RVal {
@@ -33,6 +37,10 @@ export class IV_BUNOP extends ALL_RVal {
 
   toString() {
     return `<U_OPB> VOID ${this.argument.toString()}`
+  }
+  
+  toDOT() {
+    return this.toString()
   }
 }
 
@@ -47,6 +55,10 @@ export class IV_CUNOP extends ALL_RVal {
   toString() {
     return `<U_OPC> TYPEOF ${this.argument.toString()}`
   }
+  
+  toDOT() {
+    return this.toString()
+  }
 }
 
 
@@ -60,6 +72,10 @@ export class IV_DUNOP extends ALL_RVal {
 
   toString() {
     return `<U_OPD> DELETE ${this.argument.toString()}`
+  }
+  
+  toDOT() {
+    return this.toString()
   }
 }
 

@@ -16,4 +16,8 @@ export class IV_ConditionalExpression extends ALL_RVal {
   toString() {
     return `<CONDEXPR> ${this.test} ? ${this.consequent} : ${this.alternate}`
   }
+
+  toDOT() {
+    return this.toString()
+  }
 }

@@ -16,6 +16,10 @@ export class IV_SimpleAssn extends ALL_RVal {
   toString(space = 0) {
     return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
   }
+
+  toDOT(space = 0) {
+    return `${this.LVal.toDOT()} = ${this.RVal.toDOT(space + 2)}`
+  }
 }
 
 export class IV_MemberAssn extends ALL_RVal {
@@ -30,6 +34,10 @@ export class IV_MemberAssn extends ALL_RVal {
 
   toString(space = 0) {
     return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
+  }
+
+  toDOT(space = 0) {
+    return `${this.LVal.toDOT()} = ${this.RVal.toDOT(space + 2)}`
   }
 }
 
@@ -46,6 +54,10 @@ export class IV_ThisAssn extends ALL_RVal {
   toString(space = 0) {
     return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
   }
+  
+  toDOT(space = 0) {
+    return `${this.LVal.toDOT()} = ${this.RVal.toDOT(space + 2)}`
+  }
 }
 
 export class IV_SuperAssn extends ALL_RVal {
@@ -60,6 +72,10 @@ export class IV_SuperAssn extends ALL_RVal {
 
   toString(space = 0) {
     return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
+  }
+  
+  toDOT(space = 0) {
+    return `${this.LVal.toDOT()} = ${this.RVal.toDOT(space + 2)}`
   }
 }
 
@@ -94,6 +110,29 @@ export class IV_ArrPatAssn extends ALL_RVal {
     lval += "]"
 
     return `${lval} = ${this.RVal.toString(space + 2)}`
+  }
+  
+  toDOT(space = 0) {
+    let lval = "[ "
+    let len = this.LVal.elements.length
+    let i = 0
+    this.LVal.elements.forEach(e => {
+      i++;
+      if (isRestElement(e)) {
+        lval += `...${e.argument}`
+      } else {
+        lval += `${e.name}`
+      }
+
+      if (i !== len) {
+        lval += `, `
+      } else {
+        lval += ` `
+      }
+    })
+    lval += "]"
+
+    return `${lval} = ${this.RVal.toDOT(space + 2)}`
   }
 }
 
@@ -138,5 +177,38 @@ export class IV_ObjPatAssn extends ALL_RVal {
     lval += "}"
 
     return `${lval} = ${this.RVal.toString(space + 2)}`
+  }
+  
+  toDOT(space = 0) {
+
+    let keyToString = (p: JS3AssnObjectProperty_key) => {
+      if (isIdentifier(p)) return p.name
+      else if (isStringLiteral(p)) return `"${p.value}"`
+      else if (isNumericLiteral(p)) return `${p.value}`
+      else if (isBigIntLiteral(p)) return `${p.value}`
+      else if (isDecimalLiteral(p)) return `${p.value}`
+      else return `#${p.id.name}`
+    }
+
+    let lval = "{ "
+    let len = this.LVal.properties.length
+    let i = 0
+    this.LVal.properties.forEach(p => {
+      i++;
+      if (isRestElement(p)) {
+        lval += `...${p.argument.name}`
+      } else {
+        lval += `${keyToString(p.key)} : ${p.value.name}`
+      }
+
+      if (i !== len) {
+        lval += `, `
+      } else {
+        lval += ` `
+      }
+    })
+    lval += "}"
+
+    return `${lval} = ${this.RVal.toDOT(space + 2)}`
   }
 }

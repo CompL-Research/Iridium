@@ -1,11 +1,12 @@
-import { JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3ObjectMethod, JS3ObjectProperty, JS3RestElement, JS3SpreadElement, JS3StaticBlock } from "classes/builder/JS3Helpers/JS3Types.ts";
+import { JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3ObjectMethod, JS3ObjectProperty, JS3RestElement, JS3SpreadElement } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier, IV_PrivateName } from "../ALL_AMP/ALL_AMP.ts";
 import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_Literals, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "./IV_Literals.ts";
 
 import { isBigIntLiteral, isBooleanLiteral, isDecimalLiteral, isIdentifier, isNullLiteral, isNumericLiteral, isStringLiteral, Super, V8IntrinsicIdentifier } from "@babel/types";
 import { ClassPropInitBB, FunctionArgInitBB } from "../BB.ts";
 import { I_Function } from "../I_GENERAL/I_Function.ts";
-import { printScopedSpace } from "../IRIDIUM.ts";
+import { printScopedSpace, printSpace } from "../IRIDIUM.ts";
+import debugConfig from "#debugConfig"
 
 // ISP = Iridium SPecial; values that appear as a part of an R Value but never as R_Values directly.
 export class ISP_Super {
@@ -17,6 +18,11 @@ export class ISP_Super {
   toString() {
     return `SUPER`
   }
+
+  toDOT() {
+    return this.toString();
+  }
+
 }
 
 export class ISP_V8Intrinsic {
@@ -24,9 +30,13 @@ export class ISP_V8Intrinsic {
   constructor(node: V8IntrinsicIdentifier, id: IV_Identifier) {
     this.id = id
   }
-  
+
   toString() {
     return `<V8> ${this.id.toString()}`
+  }
+
+  toDOT() {
+    return this.toString();
   }
 }
 
@@ -41,6 +51,10 @@ export class ISP_ArgSpread {
   toString() {
     return `...${this.arg.toString()}`
   }
+
+  toDOT() {
+    return this.toString();
+  }
 }
 export class ISP_RestElement {
   node: JS3RestElement
@@ -53,6 +67,11 @@ export class ISP_RestElement {
   toString() {
     return `...${this.arg.toString()}`
   }
+
+  toDOT() {
+    return this.toString();
+  }
+
 }
 export type ISP_ObjectMethod_key = IV_Identifier | IV_StringLiteral | IV_NumericLiteral | IV_BigIntLiteral
 export class ISP_ObjectMethod extends I_Function {
@@ -71,19 +90,26 @@ export class ISP_ObjectMethod extends I_Function {
   toString(space = 0) {
     let params = this.params.map(i => i.toString()).join(",")
     let stmts = []
-    stmts.push(`<ObjMethod> { kind: ${this.kind}, name: ${this.computed ? "[" + this.key.toString() + "" : this.key.toString() }, params: [${params}], async: ${this.async}, generator: ${this.generator} }`)
+    stmts.push(`<ObjMethod> { kind: ${this.kind}, name: ${this.computed ? "[" + this.key.toString() + "" : this.key.toString()}, params: [${params}], async: ${this.async}, generator: ${this.generator} }`)
     stmts.push(this.funBody.toString(space))
     return stmts.join("\n")
   }
+
+  toDOT() {
+    debugConfig.DOTContext.add(this.funBody)
+    let params = this.params.map(i => i.toString()).join(",")
+    return `<ObjMethod> { kind: ${this.kind}, name: ${this.computed ? "[" + this.key.toString() + "" : this.key.toString()}, params: [${params}], async: ${this.async}, generator: ${this.generator} } = ${this.funBody.getName()}`;
+  }
+
 }
 
 type ISP_ObjectProperty_key = IV_Identifier | IV_StringLiteral | IV_NumericLiteral | IV_BigIntLiteral
 type ISP_ObjectProperty_value = IV_Identifier | IV_Literals
 export class ISP_ObjectProperty {
-  node     : JS3ObjectProperty
-  key      : ISP_ObjectProperty_key
-  value    : ISP_ObjectProperty_value
-  computed : boolean
+  node: JS3ObjectProperty
+  key: ISP_ObjectProperty_key
+  value: ISP_ObjectProperty_value
+  computed: boolean
 
   constructor(node: JS3ObjectProperty, key: ISP_ObjectProperty_key, value: ISP_ObjectProperty_value, computed: boolean) {
     this.node = node
@@ -94,7 +120,7 @@ export class ISP_ObjectProperty {
 
   static from(node: JS3ObjectProperty) {
     let orig_key = node.key
-    let fin_key : ISP_ObjectProperty_key
+    let fin_key: ISP_ObjectProperty_key
     if (isIdentifier(orig_key)) {
       fin_key = new IV_Identifier(orig_key, orig_key.name)
     } else if (isStringLiteral(orig_key)) {
@@ -106,7 +132,7 @@ export class ISP_ObjectProperty {
     }
 
     let orig_value = node.value
-    let fin_value : ISP_ObjectProperty_value
+    let fin_value: ISP_ObjectProperty_value
     if (isIdentifier(orig_value)) {
       fin_value = new IV_Identifier(orig_value, orig_value.name)
     } else if (isDecimalLiteral(orig_value)) {
@@ -128,6 +154,11 @@ export class ISP_ObjectProperty {
   toString() {
     return `<ObjProp> ${this.computed ? "[" + this.key.toString() + "]" : this.key.toString()} : ${this.value.toString()}`
   }
+
+  toDOT() {
+    return this.toString();
+  }
+
 }
 
 export type ISP_ClassProperty_node = JS3ClassProperty | JS3ClassPrivateProperty
@@ -135,10 +166,10 @@ export type ISP_ClassProperty_key = IV_Identifier | IV_DecimalLiteral | IV_BigIn
 export type ISP_ClassProperty_value = ClassPropInitBB
 
 export class ISP_ClassProperty {
-  node     : ISP_ClassProperty_node
-  key      : ISP_ClassProperty_key
-  value    : ClassPropInitBB 
-  computed : boolean
+  node: ISP_ClassProperty_node
+  key: ISP_ClassProperty_key
+  value: ClassPropInitBB
+  computed: boolean
 
   constructor(node: JS3ClassProperty | JS3ClassPrivateProperty, key: ISP_ClassProperty_key, value: ISP_ClassProperty_value, computed: boolean) {
     this.node = node
@@ -146,20 +177,24 @@ export class ISP_ClassProperty {
     this.value = value
     this.computed = computed
   }
-  
+
   isPrivate() { return this.key instanceof IV_PrivateName }
-  
+
   toString(space = 0) {
     return `<ClassProp> ${this.computed ? "[" + this.key.toString() + "]" : this.key.toString()} =\n${this.value.toString(space)}\n${printScopedSpace(space)}`
+  }
+
+  toDOT(space = 0) {
+    return `<ClassProp> ${this.computed ? "[" + this.key.toString() + "]" : this.key.toString()} = BB${this.value.idx}`
   }
 }
 
 export type ISP_StaticClassProperty_value = IV_Identifier
 export class ISP_StaticClassProperty {
-  node     : ISP_ClassProperty_node
-  key      : ISP_ClassProperty_key
-  value    : ISP_StaticClassProperty_value
-  computed : boolean
+  node: ISP_ClassProperty_node
+  key: ISP_ClassProperty_key
+  value: ISP_StaticClassProperty_value
+  computed: boolean
 
   constructor(node: JS3ClassProperty | JS3ClassPrivateProperty, key: ISP_ClassProperty_key, value: IV_Identifier, computed: boolean) {
     this.node = node
@@ -167,11 +202,15 @@ export class ISP_StaticClassProperty {
     this.value = value
     this.computed = computed
   }
-  
+
   isPrivate() { return this.key instanceof IV_PrivateName }
-  
+
   toString(space = 0) {
     return `<StaticClassProp> ${this.computed ? "[" + this.key.toString() + "]" : this.key.toString()} = ${this.value.toString()}\n${printScopedSpace(space)}`
+  }
+
+  toDOT(space = 0) {
+    return `<StaticClassProp> ${this.computed ? "[" + this.key.toString() + "]" : this.key.toString()} = ${this.value.toString()}\n${printSpace(space)}`
   }
 }
 
@@ -192,12 +231,18 @@ export class ISP_ClassMethod extends I_Function {
   }
 
   isPrivate() { return this.key instanceof IV_PrivateName }
- 
+
   toString(space = 0) {
     let params = this.params.map(i => i.toString()).join(",")
     let stmts = []
-    stmts.push(`<${this.isStatic ? "Static" : ""}ClassMethod> { kind: ${this.kind}, name: ${this.computed ? "[" + this.key.toString() + "" : this.key.toString() }, params: [${params}], async: ${this.async}, generator: ${this.generator} }`)
+    stmts.push(`<${this.isStatic ? "Static" : ""}ClassMethod> { kind: ${this.kind}, name: ${this.computed ? "[" + this.key.toString() + "" : this.key.toString()}, params: [${params}], async: ${this.async}, generator: ${this.generator} }`)
     stmts.push(this.funBody.toString(space))
     return stmts.join("\n")
+  }
+
+  toDOT(space = 0) {
+    debugConfig.DOTContext.add(this.funBody)
+    let params = this.params.map(i => i.toString()).join(",")
+    return `<${this.isStatic ? "Static" : ""}ClassMethod> { kind: ${this.kind}, name: ${this.computed ? "[" + this.key.toString() + "" : this.key.toString()}, params: [${params}], async: ${this.async}, generator: ${this.generator} } = ${this.funBody.getName()}`
   }
 }

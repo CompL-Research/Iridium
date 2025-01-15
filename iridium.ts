@@ -169,7 +169,7 @@ function iri(filePath) {
     }
 
     const ir = IRIDIUM.create(js3Builder)
-    console.log(ir.toString())
+    // console.log(ir.toString())
 
     fs.writeFile("IRIDIUM.DOT", ir.toDOT(), 'utf8', (err) => {
       if (err) {
@@ -185,7 +185,7 @@ function iri(filePath) {
           console.error(`Stderr: ${stderr}`);
           return;
         }
-        console.log(ir.toDOT())
+        // console.log(ir.toDOT())
         process.exit(0)
       });
     });

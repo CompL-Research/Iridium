@@ -1,6 +1,6 @@
 import { JS3ClassExpression } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { ALL_RVal } from "./ALL_RVal.ts";
-import { printScopedSpace } from "../IRIDIUM.ts";
+import { printScopedSpace, printSpace } from "../IRIDIUM.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { ISP_ClassProperty, ISP_StaticClassProperty, ISP_ClassMethod } from "./ALL_ISP.ts";
 
@@ -22,5 +22,9 @@ export class IV_ClassExpression extends ALL_RVal {
 
   toString(space = 0) {
     return `<ClassExpression> { ${this.dropName ? "" : (this.name ? `name: ${this.name.toString()}, ` : "name: UKN, ")}heritage: ${this.heritage} } {\n${printScopedSpace(space)}${this.properties.map(e => e.toString(space + 2)).join(`\n${printScopedSpace(space)}`)}\n${printScopedSpace(space - 2)}}`
+  }
+  
+  toDOT(space = 0) {
+    return `<ClassExpression> { ${this.dropName ? "" : (this.name ? `name: ${this.name.toString()}, ` : "name: UKN, ")}heritage: ${this.heritage} } {\\l${printSpace(space)}${this.properties.map(e => e.toDOT(space + 2)).join(`\\l${printSpace(space)}`)}\\l${printSpace(space - 2)}}`
   }
 }

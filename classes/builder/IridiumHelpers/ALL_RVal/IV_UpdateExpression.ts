@@ -17,4 +17,8 @@ export class IV_UpdateExpression extends ALL_RVal {
   toString() {
     return this.prefix ? `${this.operator} ${this.argument.toString()}` : `${this.argument.toString()} ${this.operator}`
   }
+  
+  toDOT() {
+    return this.toString()
+  }
 }

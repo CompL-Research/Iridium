@@ -9,4 +9,8 @@ export class IV_This extends ALL_RVal {
   toString() {
     return `<THIS> THIS`
   }
+
+  toDOT() {
+    return this.toString()
+  }
 }

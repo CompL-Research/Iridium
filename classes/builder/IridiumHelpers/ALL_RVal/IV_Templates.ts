@@ -39,6 +39,10 @@ export class IV_TemplateLiteral extends ALL_RVal {
 
     return `<${this.type}> [${quasis.join(",")}] [${expressions.join(",")}]`
   }
+
+  toDOT() {
+    return this.toString()
+  }
 }
 
 export class IV_TaggedTemplateCall extends ALL_RVal {
@@ -53,5 +57,9 @@ export class IV_TaggedTemplateCall extends ALL_RVal {
 
   toString() {
     return `<TaggedCall> ${this.tag.toString()}(${this.template.toString()})`
+  }
+
+  toDOT() {
+    return this.toString()
   }
 }

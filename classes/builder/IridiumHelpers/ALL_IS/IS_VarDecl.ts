@@ -36,7 +36,7 @@ export class IS_SimpleVarDecl extends ALL_IS {
     if (!this.RVal) {
       return `${printSpace(space)} ${this.KIND} ${this.LVal.name};`
     }
-    return `${printSpace(space)} ${this.KIND} ${this.LVal.name} = ${this.RVal.toString(space + 2)};`
+    return `${printSpace(space)} ${this.KIND} ${this.LVal.name} = ${this.RVal.toDOT(space + 2)};`
   }
 }
 
@@ -113,7 +113,7 @@ export class IS_ArrPatVarDecl extends ALL_IS {
       return `${printSpace(space)} ${this.KIND} ${lval};`
     }
 
-    return `${printSpace(space)} ${this.KIND} ${lval} = ${this.RVal.toString(space + 2)};`
+    return `${printSpace(space)} ${this.KIND} ${lval} = ${this.RVal.toDOT(space + 2)};`
   }
 }
 
@@ -208,7 +208,7 @@ export class IS_ObjPatVarDecl extends ALL_IS {
       return `${printSpace(space)} ${this.KIND} ${lval};`
     }
 
-    return `${printSpace(space)} ${this.KIND} ${lval} = ${this.RVal.toString(space + 2)};`
+    return `${printSpace(space)} ${this.KIND} ${lval} = ${this.RVal.toDOT(space + 2)};`
   }
 }
 
@@ -225,7 +225,7 @@ export class IS_ThisInitStmt extends ALL_IS {
   }
 
   toDOT(space: number = 0) {
-    return `${printSpace(space)} <ThisInit> ${this.LVal.toString()} = ${this.RVal.toString()};`
+    return `${printSpace(space)} <ThisInit> ${this.LVal.toString()} = ${this.RVal.toDOT()};`
   }
 }
 
@@ -243,6 +243,6 @@ export class IS_ClassNameInitStmt extends ALL_IS {
   }
 
   toDOT(space: number = 0) {
-    return `${printSpace(space)} <ClassNameInit> ${this.LVal.toString()} = ${this.RVal.toString()};`
+    return `${printSpace(space)} <ClassNameInit> ${this.LVal.toString()} = ${this.RVal.toDOT()};`
   }
 }

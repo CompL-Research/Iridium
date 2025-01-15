@@ -254,13 +254,13 @@ export class BB {
     return stmts.join("\n")
   }
 
-  toDOTData() { return `${this.printHeader()}\\l${this.statements.map(s => s.toDOT()).join(";\\l")}\\n${this.terminal.toDOT()}\\l` }
+  toDOTData() { return `${this.statements.map(s => s.toDOT()).join("\\l")}\\l${this.terminal.toDOT()}\\l` }
 
   toDOT(space = 0, alreadyVisited : Set<BB> = new Set()) {
     if (alreadyVisited.has(this)) return;
     else alreadyVisited.add(this)
     let stmts = []
-    stmts.push(`${printSpace(space + 2)} ${this.getName()}[shape="box",label="${this.toDOTData().replace(/"/g, '\\"')}"]`)
+    stmts.push(`${printSpace(space + 2)} ${this.getName()}[shape="box",xlabel="${this.printHeader().replace(/"/g, '\\"')}",label="${this.toDOTData().replace(/"/g, '\\"')}"]`)
 
     // Visit BB's successors and print their data
     let succ = this.terminal.getSuccessors()

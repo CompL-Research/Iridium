@@ -26,6 +26,10 @@ export class IV_ABINOP extends ALL_RVal {
   toString() {
     return `<OPA> ${this.left.toString()} ${this.op} ${this.right.toString()}`
   }
+  
+  toDOT(space = 0) {
+    return this.toString()
+  }
 }
 
 export class IV_BBINOP extends ALL_RVal {
@@ -42,6 +46,10 @@ export class IV_BBINOP extends ALL_RVal {
 
   toString() {
     return `<OPB> ${this.left.toString()} ${this.op} ${this.right.toString()}`
+  }
+  
+  toDOT(space = 0) {
+    return this.toString()
   }
 }
 
@@ -60,6 +68,10 @@ export class IV_CBINOP extends ALL_RVal {
   toString() {
     return `<OPC> ${this.left.toString()} ${this.op} ${this.right.toString()}`
   }
+  
+  toDOT(space = 0) {
+    return this.toString()
+  }
 }
 
 export class IV_DBINOP extends ALL_RVal {
@@ -76,6 +88,10 @@ export class IV_DBINOP extends ALL_RVal {
 
   toString() {
     return `<OPD> ${this.left.toString()} ${this.op} ${this.right.toString()}`
+  }
+  
+  toDOT(space = 0) {
+    return this.toString()
   }
 }
 
@@ -94,6 +110,10 @@ export class IV_EBINOP extends ALL_RVal {
   toString() {
     return `<OPE> ${this.left.toString()} ${this.op} ${this.right.toString()}`
   }
+  
+  toDOT(space = 0) {
+    return this.toString()
+  }
 }
 
 export class IV_FBINOP extends ALL_RVal {
@@ -110,5 +130,9 @@ export class IV_FBINOP extends ALL_RVal {
 
   toString() {
     return `<OPF> ${this.left.toString()} ${this.op} ${this.right.toString()}`
+  }
+  
+  toDOT(space = 0) {
+    return this.toString()
   }
 }

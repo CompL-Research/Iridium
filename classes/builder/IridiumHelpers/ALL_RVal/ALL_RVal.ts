@@ -1,6 +1,7 @@
 import { JS3AssnInit } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../ALL_AMP/ALL_AMP.ts";
 import { printScopedSpace } from "../IRIDIUM.ts";
+import debugConfig from '#debugConfig'
 
 type IRI_ASSN_TYPE = t_IV_Literals 
                    | t_IV_Regexp 
@@ -65,6 +66,10 @@ export class ALL_RVal {
       return `${printScopedSpace(space)}RVAL_TODO(${this.node.type})`; 
     }
     return `${printScopedSpace(space)}RVAL_TODO(UKN)`;
+  }
+
+  toDOT(space = 0) {
+    debugConfig.logger.throwIriError("ALL_RVal: toDOT not implemented")
   }
 }
 

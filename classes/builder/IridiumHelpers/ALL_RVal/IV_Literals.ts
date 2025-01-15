@@ -14,6 +14,10 @@ export class IV_DecimalLiteral extends ALL_RVal {
   toString() {
     return `<${this.type}> ${this.value}`
   }
+
+  toDOT() {
+    return this.toString()
+  }
 }
 
 
@@ -27,6 +31,10 @@ export class IV_BigIntLiteral extends ALL_RVal {
   toString() {
     return `<${this.type}> ${this.value}`
   }
+
+  toDOT() {
+    return this.toString()
+  }
 }
 
 export class IV_StringLiteral extends ALL_RVal {
@@ -38,6 +46,10 @@ export class IV_StringLiteral extends ALL_RVal {
 
   toString() {
     return `<${this.type}> "${this.value}"`
+  }
+
+  toDOT() {
+    return this.toString()
   }
 }
 
@@ -51,6 +63,10 @@ export class IV_NumericLiteral extends ALL_RVal {
   toString() {
     return `<${this.type}> ${this.value}`
   }
+
+  toDOT() {
+    return this.toString();
+  }
 }
 
 export class IV_NullLiteral extends ALL_RVal {
@@ -60,6 +76,10 @@ export class IV_NullLiteral extends ALL_RVal {
 
   toString() {
     return `<${this.type}> NULL`
+  }
+
+  toDOT() {
+    return this.toString();
   }
 }
 
@@ -72,6 +92,10 @@ export class IV_BooleanLiteral extends ALL_RVal {
 
   toString() {
     return `<${this.type}> ${this.value}`
+  }
+
+  toDOT() {
+    return this.toString();
   }
 }
 

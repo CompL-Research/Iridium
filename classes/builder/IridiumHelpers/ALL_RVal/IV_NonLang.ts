@@ -8,4 +8,8 @@ export class IV_NUBD extends ALL_RVal {
   toString() {
     return `<NUBD> ( ཀ ʖ̯ ཀ)`
   }
+
+  toDOT() {
+    return this.toString()
+  }
 }

@@ -16,6 +16,10 @@ export class IV_ImportCall extends ALL_RVal {
     let args = this.args.map(e => e.toString()).join(",")
     return `<IMPORTCALL> IMPORT(${args})`
   }
+  
+  toDOT(space = 0) {
+    return this.toString()
+  }
 }
 
 export class IV_Call extends ALL_RVal {
@@ -34,6 +38,10 @@ export class IV_Call extends ALL_RVal {
     let args = this.args.map(e => e.toString()).join(",")
     return `<CALL${this.staticThis ? ", MaybeCalleeContext" : "" }> ${this.callee.toString()}(${args})`
   }
+  
+  toDOT(space = 0) {
+    return this.toString()
+  }
 }
 
 export class IV_SuperCall extends ALL_RVal {
@@ -50,6 +58,10 @@ export class IV_SuperCall extends ALL_RVal {
     let args = this.args.map(e => e.toString()).join(",")
     return `<SUPERCALL> ${this.callee.toString}(${args})`
   }
+  
+  toDOT(space = 0) {
+    return this.toString()
+  }
 }
 
 export class IV_V8IntrinsicCall extends ALL_RVal {
@@ -65,6 +77,10 @@ export class IV_V8IntrinsicCall extends ALL_RVal {
   toString() {
     let args = this.args.map(e => e.toString()).join(",")
     return `<V8INTRINSICCALL> ${this.callee.toString()}(${args})`
+  }
+  
+  toDOT(space = 0) {
+    return this.toString()
   }
 }
 

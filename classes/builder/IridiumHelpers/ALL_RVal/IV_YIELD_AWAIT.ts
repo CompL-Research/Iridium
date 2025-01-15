@@ -18,6 +18,10 @@ export class IV_YIELD extends ALL_RVal {
       return `<YIELD> YIELD ${this.argument.toString()}`
     }
   }
+  
+  toDOT() {
+    return this.toString()
+  }
 }
 
 export class IV_AWAIT extends ALL_RVal {
@@ -31,5 +35,9 @@ export class IV_AWAIT extends ALL_RVal {
 
   toString() {
     return `<AWAIT> AWAIT ${this.argument.toString()}`
+  }
+
+  toDOT() {
+    return this.toString()
   }
 }

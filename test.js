@@ -80,7 +80,7 @@
 
 
 
-// 8. Template Literals
+// // 8. Template Literals
 // let a = `a,b,c${g}da`
 // let b = tag`a,b,c${g}da`
 
@@ -92,14 +92,14 @@
 // g.h.i(a,b*c,(b*c,6,7) );
 // (g?.h)?.i(a,b*c,(b*c,6,7) );
 
-// 10. CallExpressions
+// // 10. CallExpressions
 // import("boo");
 // f(a,b*c,(b*c,6,7));
-// c. Super [ID,...ID]
-// d. V8IntrinsicIdentifier [ID,...ID]
+// // c. Super [ID,...ID]
+// // d. V8IntrinsicIdentifier [ID,...ID]
 
 
-// // 11. Meta Property
+// // // 11. Meta Property
 // function Foo() {
 //   import.meta
 //   if (!new.target) {
@@ -118,7 +118,7 @@
 //   await 10;
 // }
 
-// // 13. ThisExpression
+// 13. ThisExpression
 // function foo() {
 //   let b = this;
 //   this.boo;
@@ -221,10 +221,10 @@
 // let { x: { y: xs } } = { x: { y: "Meetesh" } }
 // console.log(xs)
 
-// let a = (a, pokemon = 199, ...{ 0: { x : x }, 1: y, 2: z }) => {
-//   return (a + pokemon + (y + z) + x).toLowerCase() 
-// }
-// console.log(a("Ba", "", { x: "a", y: 1, z: 2 }))
+let a = (a, pokemon = 199, ...{ 0: { x : x }, 1: y, 2: z }) => {
+  return (a + pokemon + (y + z) + x).toLowerCase() 
+}
+console.log(a("Ba", "", { x: "a", y: 1, z: 2 }))
 
 
 

@@ -15,4 +15,8 @@ export class IV_ArrayExpression extends ALL_RVal {
   toString(space = 0) {
     return `<ArrayExpression> [ ${this.elements.map(e => !e ? "" : e.toString()).join(",")} ]`
   }
+
+  toDOT(space = 0) {
+    return this.toString(space)
+  }
 }

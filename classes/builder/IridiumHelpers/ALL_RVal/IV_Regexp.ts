@@ -14,4 +14,8 @@ export class IV_Regexp extends ALL_RVal {
   toString() {
     return `<${this.type}> ${this.pattern} ${this.flags}`
   }
+
+  toDOT() {
+    return this.toString()
+  }
 }

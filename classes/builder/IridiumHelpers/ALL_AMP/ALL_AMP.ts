@@ -30,6 +30,10 @@ export class ALL_AMP {
     }
     return `${printScopedSpace(space)}AMP_TODO(UKN)`;
   }
+
+  toDOT(space = 0) {
+    return this.toString()
+  }
 }
 
 export class IV_Identifier extends ALL_AMP {
