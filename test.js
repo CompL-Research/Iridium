@@ -221,10 +221,10 @@
 // let { x: { y: xs } } = { x: { y: "Meetesh" } }
 // console.log(xs)
 
-let a = (a, pokemon = 199, ...{ 0: { x : x }, 1: y, 2: z }) => {
-  return (a + pokemon + (y + z) + x).toLowerCase() 
-}
-console.log(a("Ba", "", { x: "a", y: 1, z: 2 }))
+// let a = (a, pokemon = 199, ...{ 0: { x : x }, 1: y, 2: z }) => {
+//   return (a + pokemon + (y + z) + x).toLowerCase() 
+// }
+// console.log(a("Ba", "", { x: "a", y: 1, z: 2 }))
 
 
 
@@ -726,3 +726,8 @@ console.log(a("Ba", "", { x: "a", y: 1, z: 2 }))
 //   default:
 //     console.log("Default case")
 // }
+
+let a = "mee"
+for (let [a, {b: t}] of []) {
+  console.log(a)
+}

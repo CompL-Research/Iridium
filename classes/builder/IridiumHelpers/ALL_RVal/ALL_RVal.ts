@@ -1,4 +1,4 @@
-import { JS3AssnInit } from "classes/builder/JS3Helpers/JS3Types.ts";
+import { JS3AssnInit, JS3ForInStatement, JS3ForOfStatement } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../ALL_AMP/ALL_AMP.ts";
 import { printScopedSpace } from "../IRIDIUM.ts";
 import debugConfig from '#debugConfig'
@@ -22,6 +22,7 @@ type IRI_ASSN_TYPE = t_IV_Literals
                    | t_IV_UnaryExpression
                    | t_IV_UpdateExpression
                    | t_IV_ClassExpression
+                   | t_IV_ForIterators
 
 
 type t_IV_Literals = "DecimalLiteral" | "BigIntLiteral" | "StringLiteral" | "NumericLiteral" | "NullLiteral" | "BooleanLiteral"
@@ -53,10 +54,12 @@ type t_IV_UpdateExpression = "UpdateExpression"
 
 type t_IV_ClassExpression = "ClassExpression"
 
+type t_IV_ForIterators = "ForInIterator" | "ForOfIterator" | "LoopNext" | "HasLoopNext"
+
 export class ALL_RVal {
-  node : JS3AssnInit | undefined
+  node : JS3AssnInit | JS3ForInStatement | JS3ForOfStatement | undefined
   type : IRI_ASSN_TYPE
-  constructor(node: JS3AssnInit | undefined, type: IRI_ASSN_TYPE) {
+  constructor(node: JS3AssnInit | JS3ForInStatement | JS3ForOfStatement | undefined, type: IRI_ASSN_TYPE) {
     this.node = node
     this.type = type
   }
