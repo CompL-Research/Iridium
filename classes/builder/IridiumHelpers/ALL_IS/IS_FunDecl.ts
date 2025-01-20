@@ -5,6 +5,7 @@ import { printScopedSpace, printSpace } from "../IRIDIUM.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { ISP_RestElement } from "../ALL_RVal/ALL_ISP.ts";
 import { I_Function } from "../I_GENERAL/I_Function.ts";
+import debugConfig from "#debugConfig"
 
 export class IS_FunDecl extends ALL_IS {
   func: I_Function
@@ -23,7 +24,11 @@ export class IS_FunDecl extends ALL_IS {
   }
 
   toDOT(space = 0) {
+    debugConfig.DOTContext.add(this.func.funBody)
     return `${printSpace(space)} FUNCTION_DECLARATION { name=${this.name} } = ${this.func.funBody.getName()}` 
+  }
+  value(value: any) {
+    throw new Error("Method not implemented.");
   }
 
 }

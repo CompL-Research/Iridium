@@ -5,6 +5,7 @@ import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ClassExpr
 import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
 import { printScopedSpace, printSpace } from "./IRIDIUM.ts"
+import { Environment } from "./I_GENERAL/I_Scope.ts"
 
 const generator = _generator["default"]
 type BBScopes = "Script" | "Module" | "Function" | "Block" | "Contained" | "FunctionArgInit" | "ClassInit" | "ClassStatic" | "ClassPropValue"
@@ -228,12 +229,15 @@ export class BB {
   static count = 0
   terminal: BBTerminal | undefined
 
+  env: Environment
+
   getName() { return `BB${this.idx}` }
 
-  constructor(scope: BBScopes) {
+  constructor(env: Environment, scope: BBScopes) {
     this.scope = scope
     this.statements = []
     this.idx = BB.count++
+    this.env = env
   }
 
   toString(space = 0) {
@@ -256,17 +260,36 @@ export class BB {
 
   toDOTData() { return `${this.statements.map(s => s.toDOT()).join("\\l")}\\l${this.terminal.toDOT()}\\l` }
 
+  toDOTEnvEdges(space = 0, alreadyVisited : Set<BB> = new Set()) {
+    if (alreadyVisited.has(this)) return;
+    else alreadyVisited.add(this)
+    let stmts = []
+    if (!this.env) {
+      console.log(this.getName())
+    }
+    stmts.push(`${printSpace(space + 2)} "${this.getName()}" -> "${this.env.getName()}" [dir=none, style="dashed"]`)
+    
+    // Visit BB's successors and print their data
+    let succ = this.terminal.getSuccessors()
+    
+    stmts.push(...succ.map(s => s.toDOTEnvEdges(space, alreadyVisited)))
+
+    return stmts.join("\n")
+  }
+
   toDOT(space = 0, alreadyVisited : Set<BB> = new Set()) {
     if (alreadyVisited.has(this)) return;
     else alreadyVisited.add(this)
     let stmts = []
-    stmts.push(`${printSpace(space + 2)} ${this.getName()}[shape="box",xlabel="${this.printHeader().replace(/"/g, '\\"')}",label="${this.toDOTData().replace(/"/g, '\\"')}"]`)
+    
+    stmts.push(`${printSpace(space)} "${this.getName()}"[shape="box",xlabel="${this.printHeader().replace(/"/g, '\\"')}",label="${this.toDOTData().replace(/"/g, '\\"')}"]`)
+    // stmts.push(`${printSpace(space + 2)} "${this.getName()}" -> "${this.env.getName()}" [dir=none, style="dashed"]`)
 
     // Visit BB's successors and print their data
     let succ = this.terminal.getSuccessors()
     
     for (let s of succ) {
-      stmts.push(`${printSpace(space + 2)} ${this.getName()} -> ${s.getName()};`)
+      stmts.push(`${printSpace(space)} ${this.getName()} -> ${s.getName()};`)
     }
     
     stmts.push(...succ.map(s => s.toDOT(space, alreadyVisited)))
@@ -289,13 +312,13 @@ export class BB {
 export class ScriptBB extends BB {
   node: JS3Program
 
-  constructor(node: JS3Program) {
-    super("Script")
+  constructor(env: Environment, node: JS3Program) {
+    super(env, "Script")
     this.node = node
   }
 
   create() {
-    return new ScriptBB(this.node);
+    return new ScriptBB(this.env, this.node);
   }
 
 }
@@ -303,13 +326,13 @@ export class ScriptBB extends BB {
 export class ModuleBB extends BB {
   node: JS3Program
 
-  constructor(node: JS3Program) {
-    super("Module")
+  constructor(env: Environment, node: JS3Program) {
+    super(env, "Module")
     this.node = node
   }
 
   create() {
-    return new ModuleBB(this.node);
+    return new ModuleBB(this.env, this.node);
   }
 
 }
@@ -321,8 +344,8 @@ export class ClassInitBB extends BB {
   className: IV_Identifier | undefined
   comment: string
 
-  constructor(node: JS3ClassExpression, className: IV_Identifier | undefined, comment: string = "") {
-    super("ClassInit")
+  constructor(env: Environment, node: JS3ClassExpression, className: IV_Identifier | undefined, comment: string = "") {
+    super(env, "ClassInit")
     this.node = node
     this.className = className
     this.comment = comment
@@ -333,7 +356,7 @@ export class ClassInitBB extends BB {
   }
 
   create() {
-    return new ClassInitBB(this.node, this.className, this.comment);
+    return new ClassInitBB(this.env, this.node, this.className, this.comment);
   }
 }
 
@@ -341,8 +364,8 @@ export class ClassStaticBB extends BB {
   node: JS3StaticBlock
   comment: string
 
-  constructor(node: JS3StaticBlock, comment: string = "") {
-    super("ClassStatic")
+  constructor(env: Environment, node: JS3StaticBlock, comment: string = "") {
+    super(env, "ClassStatic")
     this.node = node
     this.comment = comment
   }
@@ -352,7 +375,7 @@ export class ClassStaticBB extends BB {
   }
 
   create() {
-    return new ClassStaticBB(this.node, this.comment);
+    return new ClassStaticBB(this.env, this.node, this.comment);
   }
 }
 
@@ -360,8 +383,8 @@ export class ClassPropInitBB extends BB {
   node: JS3ClassProperty_value | undefined
   comment: string
 
-  constructor(node: JS3ClassProperty_value | undefined = undefined, comment = "") {
-    super("ClassPropValue")
+  constructor(env: Environment, node: JS3ClassProperty_value | undefined = undefined, comment = "") {
+    super(env, "ClassPropValue")
     this.node = node
     this.comment = comment
   }
@@ -371,7 +394,7 @@ export class ClassPropInitBB extends BB {
   }
 
   create() {
-    return new ClassPropInitBB(this.node, this.comment);
+    return new ClassPropInitBB(this.env, this.node, this.comment);
   }
 }
 
@@ -380,26 +403,26 @@ export class ClassPropInitBB extends BB {
 export class FunctionBB extends BB {
   node: JS3StaticBlock | JS3FunctionDeclaration | JS3BlockStatement
 
-  constructor(node: JS3StaticBlock | JS3FunctionDeclaration | JS3BlockStatement) {
-    super("Function")
+  constructor(env: Environment, node: JS3StaticBlock | JS3FunctionDeclaration | JS3BlockStatement) {
+    super(env, "Function")
     this.node = node
   }
 
   create() {
-    return new FunctionBB(this.node);
+    return new FunctionBB(this.env, this.node);
   }
 }
 
 export class FunctionArgInitBB extends BB {
   args: Array<JS3AllowedFunctionArgs>
 
-  constructor(args: Array<JS3AllowedFunctionArgs>) {
-    super("FunctionArgInit")
+  constructor(env: Environment, args: Array<JS3AllowedFunctionArgs>) {
+    super(env, "FunctionArgInit")
     this.args = args
   }
 
   create() {
-    return new FunctionArgInitBB(this.args);
+    return new FunctionArgInitBB(this.env, this.args);
   }
 
   printHeader() {
@@ -413,8 +436,8 @@ export class BlockBB extends BB {
   node?: any
   label: IV_Identifier | undefined
 
-  constructor(node: any = undefined) {
-    super("Block")
+  constructor(env: Environment, node: any = undefined) {
+    super(env, "Block")
     this.node = node
   }
 
@@ -423,7 +446,7 @@ export class BlockBB extends BB {
   }
 
   create() {
-    return new BlockBB(this.node);
+    return new BlockBB(this.env, this.node);
   }
 
   printHeader(): string {
@@ -432,13 +455,13 @@ export class BlockBB extends BB {
 }
 
 export class TryBB extends BlockBB {
-  constructor(node: JS3TryStatement = undefined) {
-    super(node)
+  constructor(env: Environment, node: JS3TryStatement = undefined) {
+    super(env, node)
     this.node = node
   }
 
   create() {
-    return new TryBB(this.node);
+    return new TryBB(this.env, this.node);
   }
 
   printHeader() {
@@ -449,13 +472,13 @@ export class TryBB extends BlockBB {
 export class CatchBB extends BlockBB {
   arg: IV_Identifier | null
 
-  constructor(node: JS3CatchClause = undefined, arg: IV_Identifier) {
-    super(node)
+  constructor(env: Environment, node: JS3CatchClause = undefined, arg: IV_Identifier) {
+    super(env, node)
     this.arg = arg
   }
 
   create() {
-    return new CatchBB(this.node, this.arg);
+    return new CatchBB(this.env, this.node, this.arg);
   }
 
   printHeader() {
@@ -465,8 +488,12 @@ export class CatchBB extends BlockBB {
 
 export class ForLoopInitBB extends BlockBB {
 
-  constructor(node: JS3ForStatement_init = undefined) {
-    super(node)  
+  constructor(env: Environment, node: JS3ForStatement_init = undefined) {
+    super(env, node)  
+  }
+
+  create() {
+    return new ForLoopInitBB(this.env, this.node);
   }
 
   printHeader(): string {
@@ -477,8 +504,12 @@ export class ForLoopInitBB extends BlockBB {
 
 export class ForInOfLoopInitBB extends BlockBB {
 
-  constructor(node: JS3ForInStatement | JS3ForOfStatement = undefined) {
-    super(node)  
+  constructor(env: Environment, node: JS3ForInStatement | JS3ForOfStatement = undefined) {
+    super(env, node)  
+  }
+
+  create() {
+    return new ForInOfLoopInitBB(this.env, this.node);
   }
 
   printHeader(): string {
@@ -489,8 +520,12 @@ export class ForInOfLoopInitBB extends BlockBB {
 
 export class SwitchBodyBB extends BlockBB {
 
-  constructor(node: JS3SwitchStatement = undefined) {
-    super(node)
+  constructor(env: Environment, node: JS3SwitchStatement = undefined) {
+    super(env, node)
+  }
+
+  create() {
+    return new SwitchBodyBB(this.env, this.node);
   }
 
   printHeader(): string {
@@ -505,15 +540,15 @@ export class ContainedBB extends BB {
   parentBB: BB
   comment: string
 
-  constructor(node: ContainedBB_node, parentBB: BB, comment = "") {
-    super("Contained")
+  constructor(env: Environment, node: ContainedBB_node, parentBB: BB, comment = "") {
+    super(env, "Contained")
     this.node = node
     this.parentBB = parentBB
     this.comment = comment
   }
 
   create() {
-    return new ContainedBB(this.node, this.parentBB, this.comment);
+    return new ContainedBB(this.env, this.node, this.parentBB, this.comment);
   }
 
   printHeader() {
@@ -532,15 +567,15 @@ export class ContainedOptionalChainBB extends ContainedBB {
   isTerminal: boolean
   isShortcircuit: boolean
 
-  constructor(node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined = undefined, comment = "", isOptional: boolean, isTerminal: boolean = false, isShortcircuit = false) {
-    super(node, undefined, comment)
+  constructor(env: Environment, node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined = undefined, comment = "", isOptional: boolean, isTerminal: boolean = false, isShortcircuit = false) {
+    super(env, node, undefined, comment)
     this.isOptional = isOptional
     this.isTerminal = isTerminal
     this.isShortcircuit = isShortcircuit
   }
 
   create() {
-    return new ContainedOptionalChainBB(this.node, this.comment, this.isOptional, this.isTerminal, this.isShortcircuit);
+    return new ContainedOptionalChainBB(this.env, this.node, this.comment, this.isOptional, this.isTerminal, this.isShortcircuit);
   }
 
   printHeader() {

@@ -42,6 +42,7 @@ import { IV_UpdateExpression } from "./ALL_RVal/IV_UpdateExpression.ts";
 import { IV_AWAIT, IV_YIELD } from "./ALL_RVal/IV_YIELD_AWAIT.ts";
 import { BB, BlockBB, BranchTerminal, CatchBB, ClassInitBB, ClassPropInitBB, ClassPropInitExit, ClassStaticBB, ClassStaticExit, ContainedBB, ContainedOptionalChainBB, ExitNode, ForInOfLoopInitBB, ForLoopInitBB, FunctionArgInitBB, FunctionBB, GotoFunctionBody, ModuleBB, OptionalBranchTerminal, ScriptBB, SwitchBodyBB, SwitchCaseTerminal, TryBB, TryCatchConditionalGoto, UnconditionalGoto } from "./BB.ts";
 import { I_File } from "./I_GENERAL/I_File.ts";
+import { Environment } from "./I_GENERAL/I_Scope.ts";
 
 const generate = _generate.default
 
@@ -71,6 +72,7 @@ export default class IRIDIUM {
   js3builder: JS3Builder
   node: JS3Program
   currentBB: BB
+  envContext: Array<Environment>
 
   // Static Constructor
   static create(js3builder: JS3Builder) {
@@ -85,12 +87,13 @@ export default class IRIDIUM {
 
   // Start CFG Construction
   initialize() {
+    let MAIN_ENV = new Environment(undefined)
     if (this.node.sourceType === "module") {
-      let bb = new ModuleBB(this.node)
+      let bb = new ModuleBB(MAIN_ENV, this.node)
       bb.terminal = new ExitNode()
       this.setCurrentBB(bb);
     } else {
-      let bb = new ScriptBB(this.node)
+      let bb = new ScriptBB(MAIN_ENV, this.node)
       bb.terminal = new ExitNode()
       this.setCurrentBB(bb);
     }
@@ -322,7 +325,14 @@ export default class IRIDIUM {
     let oldBB = this.getCurrentBB()
     let fin_args: Array<IV_Identifier | ISP_RestElement> = []
 
-    let argInitBlock = new FunctionArgInitBB(params)
+
+    let argInitEnv = new Environment(oldBB.env)
+    functionBody.env.parent.children.delete(functionBody.env)
+    functionBody.env.parent = argInitEnv
+    argInitEnv.children.add(functionBody.env)
+    
+
+    let argInitBlock = new FunctionArgInitBB(argInitEnv, params)
     let finalGoto = new GotoFunctionBody(functionBody)
     let curr = argInitBlock
     argInitBlock.terminal = finalGoto
@@ -396,11 +406,11 @@ export default class IRIDIUM {
   }
 
   handleFunctionBody(node: JS3BlockStatement) {
-    // Lower function body
-    let funBB = new FunctionBB(node)
-    funBB.terminal = new ExitNode()
 
     let oldBB = this.getCurrentBB()
+    // Lower function body
+    let funBB = new FunctionBB(new Environment(oldBB.env), node) // STUB Env, gets replaced when processing arguments
+    funBB.terminal = new ExitNode()
 
     this.setCurrentBB(funBB)
     for (let s of node.body) {
@@ -486,7 +496,11 @@ export default class IRIDIUM {
     // Branch from curr to classInitBB
     let postBB = curr.create();
     postBB.terminal = curr.terminal;
-    let classInitBB = new ClassInitBB(node, node.id ? new IV_Identifier(node.id, node.id.name) : undefined);
+    
+    // Env Context
+    let classInitLexicalEnv = new Environment(curr.env)
+
+    let classInitBB = new ClassInitBB(classInitLexicalEnv, node, node.id ? new IV_Identifier(node.id, node.id.name) : undefined);
     classInitBB.terminal = new UnconditionalGoto(postBB);
     curr.terminal = new UnconditionalGoto(classInitBB);
 
@@ -566,16 +580,22 @@ export default class IRIDIUM {
           classProperties.push(new ISP_StaticClassProperty(bodyElem, key, new IV_Identifier(undefined, "undefined"), computed))
           staticPropSpill.push([key, bodyElem.value, computed])
         } else {
+
           // Non-static Property
           let oldBB = this.getCurrentBB()
 
+          // Env for static block init
+          let propInitEnv = new Environment(classInitLexicalEnv)
+
           let valResID = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined))
           valResID.isValue = true
-          let propComputationBlock = new ClassPropInitBB(bodyElem.value)
+          let propComputationBlock = new ClassPropInitBB(propInitEnv, bodyElem.value)
           propComputationBlock.terminal = new ClassPropInitExit(valResID)
+          
           this.lowerExprToBB(bodyElem.value, propComputationBlock, valResID)
 
           classProperties.push(new ISP_ClassProperty(bodyElem, key, propComputationBlock, computed))
+          
           this.setCurrentBB(oldBB)
         }
 
@@ -625,8 +645,12 @@ export default class IRIDIUM {
         let currBB = this.getCurrentBB()
         let postBB = currBB.create()
         postBB.terminal = currBB.terminal
+        
 
-        let staticBlockBody = new ClassStaticBB(toSpill)
+        // Env for static block init
+        let staticEvalEnv = new Environment(classInitLexicalEnv)
+
+        let staticBlockBody = new ClassStaticBB(staticEvalEnv, toSpill)
         currBB.terminal = new UnconditionalGoto(staticBlockBody)
 
         staticBlockBody.terminal = new ClassStaticExit(postBB)
@@ -646,7 +670,7 @@ export default class IRIDIUM {
         let postBB = currBB.create()
         postBB.terminal = currBB.terminal
 
-        let propComputationBlock = new BlockBB()
+        let propComputationBlock = new BlockBB(classInitLexicalEnv)
         currBB.terminal = new UnconditionalGoto(propComputationBlock)
         propComputationBlock.terminal = new UnconditionalGoto(postBB)
 
@@ -822,8 +846,8 @@ export default class IRIDIUM {
     // Set BB links
     let curr = this.getCurrentBB()
     let postBB = curr.create()
-    let TrueBB = new ContainedBB(node.consequent, curr)
-    let FalseBB = new ContainedBB(node.alternate, curr)
+    let TrueBB = new ContainedBB(new Environment(curr.env), node.consequent, curr)
+    let FalseBB = new ContainedBB(new Environment(curr.env), node.alternate, curr)
     postBB.terminal = curr.terminal
     TrueBB.terminal = new UnconditionalGoto(postBB)
     FalseBB.terminal = new UnconditionalGoto(postBB)
@@ -887,7 +911,7 @@ export default class IRIDIUM {
 
       let resID = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("chainRes"))
       resID.isValue = true
-      let fallthruBlock = new ContainedOptionalChainBB(parentNode, "Chained Short-Circuit Terminal", true, true, true)
+      let fallthruBlock = new ContainedOptionalChainBB(curr.env, parentNode, "Chained Short-Circuit Terminal", true, true, true)
       let fallthrough_assn = new IS_SimpleVarDecl(undefined, "let", resID, new IV_Identifier(undefined, "undefined"))
       fallthruBlock.statements.push(fallthrough_assn)
       fallthruBlock.terminal = new UnconditionalGoto(postBB)
@@ -897,7 +921,7 @@ export default class IRIDIUM {
       //    CURR --GOTO--> genesisTestBB
 
       // CURR --GOTO--> genesisTestBB
-      genesisTestBB = new ContainedOptionalChainBB(genesisNode, `Chain Expression: ${generate(parentNode).code}`, false)
+      genesisTestBB = new ContainedOptionalChainBB(existingState.postBB.env, genesisNode, `Chain Expression: ${generate(parentNode).code}`, false)
       curr.terminal = new UnconditionalGoto(genesisTestBB)
 
     } else {
@@ -910,7 +934,7 @@ export default class IRIDIUM {
     //                      |---> fallthruBlock (contextual) 
 
     // chainBB --GOTO--> postBB
-    let chainBB = new ContainedOptionalChainBB(parentNode, "", true)
+    let chainBB = new ContainedOptionalChainBB(existingState.postBB.env, parentNode, "", true)
     chainBB.terminal = new UnconditionalGoto(existingState.postBB);
 
     // genesisTestBB --TEST--> chainBB
@@ -1168,7 +1192,7 @@ export default class IRIDIUM {
     for (let a of node.arguments) {
       let curr = this.getCurrentBB()
       let postBB = curr.create()
-      let argSpillBB = new ContainedBB(a, curr)
+      let argSpillBB = new ContainedBB(curr.env, a, curr)
       postBB.terminal = curr.terminal
       curr.terminal = new UnconditionalGoto(argSpillBB)
       argSpillBB.terminal = new UnconditionalGoto(postBB)
@@ -1254,7 +1278,7 @@ export default class IRIDIUM {
   handleJS3SwitchStatement(stmt: JS3SwitchStatement) {
     let currBB = this.getCurrentBB()
     let postBB = currBB.create()
-    let switchBodyBB = new SwitchBodyBB(stmt)
+    let switchBodyBB = new SwitchBodyBB(new Environment(currBB.env), stmt)
 
     postBB.terminal = currBB.terminal
     currBB.terminal = new UnconditionalGoto(switchBodyBB)
@@ -1265,8 +1289,8 @@ export default class IRIDIUM {
     for (let c of stmt.cases) {
       let curr = this.getCurrentBB()
       let postBB = curr.create()
-      let caseTest = new ContainedBB(c, switchBodyBB)
-      let caseBody = new ContainedBB(c, switchBodyBB)
+      let caseTest = new ContainedBB(curr.env, c, switchBodyBB)
+      let caseBody = new ContainedBB(curr.env, c, switchBodyBB)
 
       let testResult = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("testResult"))
 
@@ -1300,8 +1324,8 @@ export default class IRIDIUM {
   handleJS3DoWhileStatement(stmt: JS3DoWhileStatement) {
     let currBB = this.getCurrentBB()
     let postBB = currBB.create()
-    let testBB = new ContainedBB(stmt.test, currBB)
-    let loopBodyBB = new BlockBB(stmt.body)
+    let testBB = new ContainedBB(currBB.env, stmt.test, currBB)
+    let loopBodyBB = new BlockBB(new Environment(currBB.env), stmt.body)
 
     let testIV = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("loopTest"))
     testIV.isValue = true
@@ -1326,10 +1350,10 @@ export default class IRIDIUM {
   handleJS3ForStatement(stmt: JS3ForStatement) {
     let currBB = this.getCurrentBB()
     let postBB = currBB.create()
-    let initBB = new ForLoopInitBB(stmt.init)
-    let testBB = new ContainedBB(stmt.test, initBB, "For ~ Test BB")
-    let updateBB = new ContainedBB(stmt.update, initBB, "For ~ Update BB")
-    let loopBodyBB = new BlockBB(stmt.body)
+    let initBB = new ForLoopInitBB(new Environment(currBB.env), stmt.init)
+    let testBB = new ContainedBB(initBB.env, stmt.test, initBB, "For ~ Test BB")
+    let updateBB = new ContainedBB(initBB.env, stmt.update, initBB, "For ~ Update BB")
+    let loopBodyBB = new BlockBB(new Environment(initBB.env), stmt.body)
 
     let testIV = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("loopTest"))
     testIV.isValue = true
@@ -1390,9 +1414,9 @@ export default class IRIDIUM {
 
     let currBB = this.getCurrentBB()
     let postBB = currBB.create()
-    let initBB = new ForInOfLoopInitBB(stmt)
-    let testBB = new BlockBB(stmt)
-    let loopBodyBB = new BlockBB(stmt.body)
+    let initBB = new ForInOfLoopInitBB(new Environment(currBB.env), stmt)
+    let testBB = new BlockBB(new Environment(initBB.env), stmt)
+    let loopBodyBB = new BlockBB(new Environment(testBB.env), stmt.body)
 
     let testIV = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("loopTest"))
     testIV.isValue = true
@@ -1480,7 +1504,7 @@ export default class IRIDIUM {
   handleJS3LabeledStatement(stmt: JS3LabeledStatement) {
     let currBB = this.getCurrentBB()
     let postBB = currBB.create()
-    let labelledScope = new BlockBB(stmt)
+    let labelledScope = new BlockBB(new Environment(currBB.env), stmt)
     postBB.terminal = currBB.terminal
     currBB.terminal = new UnconditionalGoto(labelledScope)
     labelledScope.terminal = new UnconditionalGoto(postBB)
@@ -1499,7 +1523,7 @@ export default class IRIDIUM {
   handleJS3BlockStatement(stmt: JS3BlockStatement) {
     let currBB = this.getCurrentBB()
     let postBB = currBB.create()
-    let blockScopeBB = new BlockBB(stmt)
+    let blockScopeBB = new BlockBB(new Environment(currBB.env), stmt)
     postBB.terminal = currBB.terminal
     currBB.terminal = new UnconditionalGoto(blockScopeBB)
     blockScopeBB.terminal = new UnconditionalGoto(postBB)
@@ -1536,8 +1560,8 @@ export default class IRIDIUM {
   handleJS3WhileStatement(stmt: JS3WhileStatement) {
     let curr = this.getCurrentBB()
     let postBB = curr.create()
-    let testBody = new ContainedBB(stmt.test, curr, "While Test")
-    let loopBody = new BlockBB(stmt)
+    let testBody = new ContainedBB(curr.env, stmt.test, curr, "While Test")
+    let loopBody = new BlockBB(new Environment(curr.env), stmt)
     let testID: Identifier = this.lowerExprToBB(stmt.test, testBody)
     let test: IV_Identifier = IV_Identifier.from(testID)
 
@@ -1558,8 +1582,8 @@ export default class IRIDIUM {
       // Case a. 
       //   try { BLOCK } catch(?ID) { HANDLER }
       let curr = this.getCurrentBB()
-      let TryBlockBB = new TryBB(stmt)
-      let CatchHandlerBB = new CatchBB(stmt.handler, stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
+      let TryBlockBB = new TryBB(new Environment(curr.env), stmt)
+      let CatchHandlerBB = new CatchBB(new Environment(curr.env), stmt.handler, stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
       let PostBB = curr.create()
       PostBB.terminal = curr.terminal
 
@@ -1585,8 +1609,8 @@ export default class IRIDIUM {
       // Case b.
       //   try { BLOCK } finally { FINALIZER }
       let curr = this.getCurrentBB()
-      let TryBlockBB = new TryBB(stmt)
-      let FinallyBB = new BlockBB(stmt.finalizer)
+      let TryBlockBB = new TryBB(new Environment(curr.env), stmt)
+      let FinallyBB = new BlockBB(new Environment(curr.env), stmt.finalizer)
       let PostBB = curr.create()
       PostBB.terminal = curr.terminal
 
@@ -1613,9 +1637,9 @@ export default class IRIDIUM {
       //   try { BLOCK } catch { HANDLER } finally { FINALIZER }
 
       let curr = this.getCurrentBB()
-      let TryBlockBB = new TryBB(stmt)
-      let CatchHandlerBB = new CatchBB(stmt.handler, stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
-      let FinallyBB = new BlockBB(stmt.finalizer)
+      let TryBlockBB = new TryBB(new Environment(curr.env), stmt)
+      let CatchHandlerBB = new CatchBB(new Environment(curr.env), stmt.handler, stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
+      let FinallyBB = new BlockBB(new Environment(curr.env), stmt.finalizer)
       let PostBB = curr.create()
       PostBB.terminal = curr.terminal
 
@@ -1654,7 +1678,7 @@ export default class IRIDIUM {
       // Case a.
       // if (ID) { CONSEQ }
       let curr = this.getCurrentBB()
-      let TrueBB = new BlockBB()
+      let TrueBB = new BlockBB(new Environment(curr.env))
       let PostBB: BB = curr.create() // Create a continuation...
       let ID = IV_Identifier.from(stmt.test)
       PostBB.terminal = curr.terminal
@@ -1671,8 +1695,8 @@ export default class IRIDIUM {
       // Case a.
       // if (ID) { CONSEQ } else { ALT }
       let curr = this.getCurrentBB()
-      let TrueBB = new BlockBB()
-      let FalseBB = new BlockBB()
+      let TrueBB = new BlockBB(new Environment(curr.env))
+      let FalseBB = new BlockBB(new Environment(curr.env))
       let PostBB: BB = curr.create() // Create a continuation...
       let ID = new IV_Identifier(stmt.test, stmt.test.name)
       PostBB.terminal = curr.terminal

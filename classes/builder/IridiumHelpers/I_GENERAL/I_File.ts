@@ -26,14 +26,31 @@ export class I_File {
     stmts.push("digraph Iridium {")
     stmts.push("  node [fontname=\"Noto Mono\"];");
     stmts.push("  graph [nodesep=1.0, ranksep=1.5]; // Adjust separation")
-    stmts.push(this.program.toDOT(space + 2))
 
+    stmts.push("  subgraph cluster {")
+    stmts.push("    label=\"code\";")
+    stmts.push(this.program.toDOT(space + 2))
+    stmts.push("  }")
+
+    let i = 0
     for (let c of debugConfig.DOTContext) {
-      stmts.push("  subgraph cluster {")
-      stmts.push("    label=\"closure\";")
+      stmts.push(`  subgraph cluster_${i} {`)
+      stmts.push(`    label=\"closure_${i++}\";`)
       stmts.push(c.toDOT(4))
       stmts.push("  }")
     }
+
+    stmts.push(`  subgraph cluster_${i++} {`)
+    stmts.push("    label=\"environment\";")
+    stmts.push(this.program.body.bb.env.toDOT(space + 4))
+    stmts.push("  }")
+
+    stmts.push(this.program.toDOTEnvEdges(space + 2))
+
+    for (let c of debugConfig.DOTContext) {
+      stmts.push(c.toDOTEnvEdges(space + 2))
+    }
+
 
     stmts.push("}")
     return stmts.join("\n")
@@ -71,9 +88,13 @@ export class I_Program {
 
   toDOT(space = 0) {
     let stmts = []
-    stmts.push(`${printSpace(space)}"Start(${this.sourceType})" -> "${this.body.bb.getName()}";`)
+    stmts.push(`${printSpace(space + 2)}"Start(${this.sourceType})" -> "${this.body.bb.getName()}";`)
     stmts.push(this.body.bb.toDOT(space + 2))
     return stmts.join("\n")
+  }
+
+  toDOTEnvEdges(space = 0) {
+    return this.body.bb.toDOTEnvEdges(space + 2) 
   }
 
 }

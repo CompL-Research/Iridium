@@ -578,26 +578,26 @@
 // }
 
 
-// function foo() {
-//     var a = 10;
+function foo() {
+    var a = 10;
     
-//     class A {
-//         [a] = 10
-//         static {
-//             var a = 1;
-//             var b = 2;
-//             console.log("a inside: ", a);
-//         }
+    class A {
+        [a] = 10
+        static {
+            var a = 1;
+            var b = 2;
+            console.log("a inside: ", a);
+        }
 
-//         static {
-//             console.log("a inside (continued): ", a);
-//             console.log("b inside (continued): ", b);
+        static {
+            console.log("a inside (continued): ", a);
+            console.log("b inside (continued): ", b);
 
-//         }
-//     };
+        }
+    };
 
-//     console.log("a outside: ", a)
-// }
+    console.log("a outside: ", a)
+}
 
 
 // class Test {
@@ -727,7 +727,12 @@
 //     console.log("Default case")
 // }
 
-let a = "mee"
-for (let [a, {b: t}] of []) {
-  console.log(a)
-}
+// let a = "mee"
+// for (let [a, {b: t}] of []) {
+//   console.log(a)
+// }
+
+
+// class A extends (function() {}, function() {}, function() { }) {
+//   a = (console.log("test"))
+// }

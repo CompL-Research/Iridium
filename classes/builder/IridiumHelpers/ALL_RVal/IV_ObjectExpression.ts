@@ -17,6 +17,6 @@ export class IV_ObjectExpression extends ALL_RVal {
   }
 
   toDOT(space = 0) {
-    return `<ObjectExpression> {\\l${printSpace(space+2)}${this.properties.map(e => e.toString(space + 4)).join(`,\\l${printSpace(space+2)}`)}\\l${printSpace(space)}}`;
+    return `<ObjectExpression> {\\l${printSpace(space+2)}${this.properties.map(e => e.toDOT(space + 4)).join(`,\\l${printSpace(space+2)}`)}\\l${printSpace(space)}}`;
   }
 }
