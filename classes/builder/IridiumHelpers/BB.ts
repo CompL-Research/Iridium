@@ -181,7 +181,7 @@ export class ClassStaticExit extends UnconditionalGoto {
   }
 
   getSuccessors(): Array<BB> {
-    return []
+    return [this.to]
   }
 
   toString(space = 0) {

@@ -578,11 +578,11 @@
 // }
 
 
-function foo() {
+function foo({x : {b : [b]}}) {
     var a = 10;
     
     class A {
-        [a] = 10
+        [a] = (console.log("a"), a)
         static {
             var a = 1;
             var b = 2;

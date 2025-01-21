@@ -6,8 +6,10 @@ export class IV_This extends ALL_RVal {
     super(node, "ThisExpression");
   }
 
+  lookupName() { return "THIS" }
+
   toString() {
-    return `<THIS> THIS`
+    return `<THIS> ${this.lookupName()}`
   }
 
   toDOT() {

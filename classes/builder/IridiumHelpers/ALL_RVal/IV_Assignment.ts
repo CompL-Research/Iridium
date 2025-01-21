@@ -2,6 +2,7 @@ import { isBigIntLiteral, isDecimalLiteral, isIdentifier, isNumericLiteral, isRe
 import { JS3ArrayPattern, JS3AssignmentExpression, JS3AssnObjectProperty_key, JS3ObjectPattern } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../ALL_AMP/ALL_AMP.ts";
 import { ALL_RVal, IV_ASSIGNABLE } from "../ALL_RVal/ALL_RVal.ts";
+import { BB } from "../BB.ts";
 
 export class IV_SimpleAssn extends ALL_RVal {
   LVal: IV_Identifier
@@ -12,6 +13,8 @@ export class IV_SimpleAssn extends ALL_RVal {
     this.LVal = ID
     this.RVal = RVal
   }
+
+  declaredClosure() : BB | undefined { return this.RVal.declaredClosure(); }
 
   toString(space = 0) {
     return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
@@ -32,6 +35,8 @@ export class IV_MemberAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
+  declaredClosure() : BB | undefined { return this.RVal.declaredClosure(); }
+
   toString(space = 0) {
     return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
   }
@@ -50,6 +55,8 @@ export class IV_ThisAssn extends ALL_RVal {
     this.LVal = LVal
     this.RVal = RVal
   }
+
+  declaredClosure() : BB | undefined { return this.RVal.declaredClosure(); }
 
   toString(space = 0) {
     return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
@@ -70,6 +77,8 @@ export class IV_SuperAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
+  declaredClosure() : BB | undefined { return this.RVal.declaredClosure(); }
+
   toString(space = 0) {
     return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
   }
@@ -88,6 +97,8 @@ export class IV_ArrPatAssn extends ALL_RVal {
     this.LVal = LVal
     this.RVal = RVal
   }
+
+  declaredClosure() : BB | undefined { return this.RVal.declaredClosure(); }
 
   toString(space = 0) {
     let lval = "[ "
@@ -145,6 +156,8 @@ export class IV_ObjPatAssn extends ALL_RVal {
     this.LVal = LVal
     this.RVal = RVal
   }
+
+  declaredClosure() : BB | undefined { return this.RVal.declaredClosure(); }
 
   toString(space = 0) {
 

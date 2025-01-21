@@ -43,6 +43,7 @@ import { IV_AWAIT, IV_YIELD } from "./ALL_RVal/IV_YIELD_AWAIT.ts";
 import { BB, BlockBB, BranchTerminal, CatchBB, ClassInitBB, ClassPropInitBB, ClassPropInitExit, ClassStaticBB, ClassStaticExit, ContainedBB, ContainedOptionalChainBB, ExitNode, ForInOfLoopInitBB, ForLoopInitBB, FunctionArgInitBB, FunctionBB, GotoFunctionBody, ModuleBB, OptionalBranchTerminal, ScriptBB, SwitchBodyBB, SwitchCaseTerminal, TryBB, TryCatchConditionalGoto, UnconditionalGoto } from "./BB.ts";
 import { I_File } from "./I_GENERAL/I_File.ts";
 import { Environment } from "./I_GENERAL/I_Scope.ts";
+import { initializeEnvDefs } from "./Passes/EnvInit.ts";
 
 const generate = _generate.default
 
@@ -103,6 +104,7 @@ export default class IRIDIUM {
   build() {
     let body = new IRIDIUM_FG(this.currentBB)
     this.handleJS3ProgramBody(this.node.body)
+    initializeEnvDefs(body.bb)
     return body
   }
 

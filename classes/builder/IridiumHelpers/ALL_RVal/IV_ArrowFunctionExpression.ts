@@ -1,6 +1,6 @@
 import { JS3ArrowFunctionExpression } from "classes/builder/JS3Helpers/JS3Types.ts"
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts"
-import { FunctionArgInitBB } from "../BB.ts"
+import { BB, FunctionArgInitBB } from "../BB.ts"
 import { I_Function } from "../I_GENERAL/I_Function.ts"
 import { printScopedSpace } from "../IRIDIUM.ts"
 import { ISP_RestElement } from "./ALL_ISP.ts"
@@ -18,6 +18,8 @@ export class IV_ArrowFunctionExpression extends ALL_RVal {
     this.name = name
     this.dropName = dropName
   }
+
+  declaredClosure() : BB | undefined { return this.func.funBody; }
 
   toString(space = 0) {
     return `<ArrowFunctionExpression> { ${this.dropName ? "" : (this.name ? `name: ${this.name.toString()}` : "name: UKN")} }\n${printScopedSpace(space)}${this.func.toString(space + 2)}`

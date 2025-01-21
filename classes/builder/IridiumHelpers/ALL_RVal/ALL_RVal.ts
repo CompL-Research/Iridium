@@ -2,6 +2,7 @@ import { JS3AssnInit, JS3ForInStatement, JS3ForOfStatement } from "classes/build
 import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../ALL_AMP/ALL_AMP.ts";
 import { printScopedSpace } from "../IRIDIUM.ts";
 import debugConfig from '#debugConfig'
+import { BB } from "../BB.ts";
 
 type IRI_ASSN_TYPE = t_IV_Literals 
                    | t_IV_Regexp 
@@ -63,6 +64,8 @@ export class ALL_RVal {
     this.node = node
     this.type = type
   }
+
+  declaredClosure() : BB | undefined { return undefined }
 
   toString(space = 0) {
     if (this.node) {

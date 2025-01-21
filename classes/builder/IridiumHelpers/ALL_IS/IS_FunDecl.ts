@@ -11,6 +11,8 @@ export class IS_FunDecl extends ALL_IS {
   func: I_Function
   name: IV_Identifier
 
+  declaredClosure() { return this.func.funBody }
+
   constructor(node: JS3FunctionDeclaration | undefined = undefined, params : Array<IV_Identifier | ISP_RestElement>, funBody: FunctionArgInitBB, name: IV_Identifier, isGenerator: boolean, isAsync: boolean) {
     super(node);
     this.func = new I_Function(node, params, funBody, isGenerator, isAsync);
@@ -19,13 +21,13 @@ export class IS_FunDecl extends ALL_IS {
 
   toString(space = 0) {
     let stmts = []
-    stmts.push(`${printScopedSpace(space)}▏ FUNCTION_DECLARATION { name=${this.name} } ${this.func.toString(space + 4)} `)
+    stmts.push(`${printScopedSpace(space)}▏ FUNCTION_DECLARATION { name=${this.name.lookupName()} } ${this.func.toString(space + 4)} `)
     return stmts.join("\n")
   }
 
   toDOT(space = 0) {
     debugConfig.DOTContext.add(this.func.funBody)
-    return `${printSpace(space)} FUNCTION_DECLARATION { name=${this.name} } = ${this.func.funBody.getName()}` 
+    return `${printSpace(space)} FUNCTION_DECLARATION { name=${this.name.lookupName()} } = ${this.func.funBody.getName()}` 
   }
   value(value: any) {
     throw new Error("Method not implemented.");

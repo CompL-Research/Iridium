@@ -88,7 +88,6 @@ export class I_Program {
 
   toDOT(space = 0) {
     let stmts = []
-    stmts.push(`${printSpace(space + 2)}"Start(${this.sourceType})" -> "${this.body.bb.getName()}";`)
     stmts.push(this.body.bb.toDOT(space + 2))
     return stmts.join("\n")
   }

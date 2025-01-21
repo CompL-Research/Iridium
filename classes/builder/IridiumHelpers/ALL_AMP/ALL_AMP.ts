@@ -2,6 +2,7 @@ import { JS3MemberExpression, JS3PrivateName } from "classes/builder/JS3Helpers/
 
 import { Identifier, isV8IntrinsicIdentifier, V8IntrinsicIdentifier } from "@babel/types";
 import { printScopedSpace } from "../IRIDIUM.ts";
+import { BB } from "../BB.ts";
 
 type AmphibiousNodes = JS3MemberExpression 
                      | Identifier
@@ -50,9 +51,13 @@ export class IV_Identifier extends ALL_AMP {
     return res
   }
 
+  declaredClosure() : BB | undefined { return undefined }
+
+  lookupName() { return `${this.name}` }
+
   toString() {
-    if (this.isValue) return `<Value> ${this.name}`;
-    return `${this.name}`
+    if (this.isValue) return `<Value> ${this.lookupName()}`;
+    return `${this.lookupName()}`
   }
 }
 
@@ -80,6 +85,8 @@ export class IV_MemberExpressionPA extends ALL_AMP {
     this.computed = computed
   }
 
+  declaredClosure() : BB | undefined { return undefined }
+
   toString() {
     if (this.computed) return `<MemberExpressionPA> ${this.object.name}[${this.property.toString()}]`
     return `<MemberExpressionPA> ${this.object.name}.${this.property.toString()}`
@@ -96,6 +103,8 @@ export class IV_ThisLookupPA extends ALL_AMP {
     this.computed = computed
   }
 
+  declaredClosure() : BB | undefined { return undefined }
+
   toString() {
     if (this.computed) return `<THISPA> THIS[${this.property.toString()}]`
     return `<THISPA> THIS.${this.property.toString()}`
@@ -110,8 +119,9 @@ export class IV_SuperLookupPA extends ALL_AMP {
     super(node, "SuperPA");
     this.property = property
     this.computed = computed
-
   }
+
+  declaredClosure() : BB | undefined { return undefined }
 
   toString() {
     if (this.computed) return `<SuperPA> SUPER[${this.property.toString()}]`

@@ -123,8 +123,6 @@ function analyze(mainProjectPath, analyzePath) {
         } catch (e) {
           debugConfig.logger.error(`[JS3Builder] Failed to process ${file.filename}`, [e])
         }
-
-
       } else {
         debugConfig.logger.error(`[JS3Builder] Skipping ${file.uname} -- Status: ${file.initData.status}, ParseStatus: ${file.initData.parseStatus} `)
       }
@@ -169,7 +167,7 @@ function iri(filePath) {
     }
 
     const ir = IRIDIUM.create(js3Builder)
-    // console.log(ir.toString())
+    console.log(ir.toString())
 
     fs.writeFile("IRIDIUM.DOT", ir.toDOT(), 'utf8', (err) => {
       if (err) {
