@@ -43,9 +43,28 @@ export function traverseInstruction(currBB: BB, callback: (inst: ALL_IS, context
   })
 }
 
-
 // We can add more things here when we add new visitors
 export type BBTraversalContext = { }
+
+
+export function traverseBBLexical(currBB: BB, callback: (bb: BB, context: BBTraversalContext) => void) {
+  // Traverse over all BBs
+  traverseBB(currBB, (bb: BB, _) => {    
+    // Visit BB
+    let bbContext : BBTraversalContext = { }
+    callback(bb, bbContext)
+
+    // Recusrively visit all lexical scopes
+    for (let i of bb.statements) {
+      let declaredClosure : BB | undefined = i.declaredClosure()
+      if (declaredClosure) {
+        traverseBBLexical(declaredClosure, callback)
+      }
+    }
+  })
+}
+
+
 
 export function traverseBB(currBB: BB, callback: (bb: BB, context: BBTraversalContext) => void, visited: Set<BB> = new Set()) {
   if (visited.has(currBB)) return

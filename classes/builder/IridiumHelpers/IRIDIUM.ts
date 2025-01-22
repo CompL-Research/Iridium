@@ -44,6 +44,8 @@ import { BB, BlockBB, BranchTerminal, CatchBB, ClassInitBB, ClassPropInitBB, Cla
 import { I_File } from "./I_GENERAL/I_File.ts";
 import { Environment } from "./I_GENERAL/I_Scope.ts";
 import { initializeEnvDefs } from "./Passes/EnvInit.ts";
+import { populatePreds } from "./Passes/PopulatePreds.ts";
+import { cleanupBBs } from "./Passes/BBCleanup.ts";
 
 const generate = _generate.default
 
@@ -104,7 +106,12 @@ export default class IRIDIUM {
   build() {
     let body = new IRIDIUM_FG(this.currentBB)
     this.handleJS3ProgramBody(this.node.body)
+    populatePreds(body.bb)
+    console.log(body.bb.toString())
+    
+    cleanupBBs(body.bb)
     initializeEnvDefs(body.bb)
+
     return body
   }
 
@@ -913,8 +920,13 @@ export default class IRIDIUM {
 
       let resID = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("chainRes"))
       resID.isValue = true
+
+      // Create a declaration in the parent BB for resID
+      curr.statements.push(new IS_SimpleVarDecl(undefined, "let", resID, null))
+
       let fallthruBlock = new ContainedOptionalChainBB(curr.env, parentNode, "Chained Short-Circuit Terminal", true, true, true)
-      let fallthrough_assn = new IS_SimpleVarDecl(undefined, "let", resID, new IV_Identifier(undefined, "undefined"))
+
+      let fallthrough_assn = new IS_SimpleVarDecl(undefined, "let", new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined)), new IV_SimpleAssn(undefined, resID, new IV_Identifier(undefined, "undefined")))
       fallthruBlock.statements.push(fallthrough_assn)
       fallthruBlock.terminal = new UnconditionalGoto(postBB)
       existingState = { resID, fallthruBlock, postBB, callExprContext: false }
@@ -1041,7 +1053,10 @@ export default class IRIDIUM {
 
       // Handle Chain termination.
       // resID = ...terminal_expr
-      this.lowerExprToBB(patchedNode, chainBB, existingState.resID)
+      let resHolderID : Identifier = this.lowerExprToBB(patchedNode, chainBB)
+
+      this.getCurrentBB().statements.push(new IS_SimpleVarDecl(undefined, "let", new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined)), new IV_SimpleAssn(undefined, existingState.resID, IV_Identifier.from(resHolderID))))
+      
       this.setCurrentBB(existingState.postBB)
 
       return existingState.resID

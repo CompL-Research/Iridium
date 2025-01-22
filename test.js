@@ -85,7 +85,7 @@
 // let b = tag`a,b,c${g}da`
 
 
-// // 9. Call Expression
+// 9. Call Expression
 // let f = function(a,b,c) {  }
 
 // f(a,b*c,(b*c,6,7) );
@@ -578,26 +578,26 @@
 // }
 
 
-function foo({x : {b : [b]}}) {
-    var a = 10;
+// function foo({x : {b : [b]}}) {
+//     var a = 10;
     
-    class A {
-        [a] = (console.log("a"), a)
-        static {
-            var a = 1;
-            var b = 2;
-            console.log("a inside: ", a);
-        }
+//     class A {
+//         [a] = (console.log("a"), a)
+//         static {
+//             var a = 1;
+//             var b = 2;
+//             console.log("a inside: ", a);
+//         }
 
-        static {
-            console.log("a inside (continued): ", a);
-            console.log("b inside (continued): ", b);
+//         static {
+//             console.log("a inside (continued): ", a);
+//             console.log("b inside (continued): ", b);
 
-        }
-    };
+//         }
+//     };
 
-    console.log("a outside: ", a)
-}
+//     console.log("a outside: ", a)
+// }
 
 
 // class Test {

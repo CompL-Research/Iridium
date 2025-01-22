@@ -25,7 +25,7 @@ export class IS_SimpleVarDecl extends ALL_IS {
     this.generatedBindings.add(this.LVal)
   }
   
-  declaredClosure() { return this.RVal.declaredClosure() }
+  declaredClosure() { return this.RVal && this.RVal.declaredClosure() }
 
   toString(space = 0) {
     if (!this.RVal) {
@@ -64,7 +64,7 @@ export class IS_ArrPatVarDecl extends ALL_IS {
     }
   }
 
-  declaredClosure() { return this.RVal.declaredClosure() }
+  declaredClosure() { return this.RVal && this.RVal.declaredClosure() }
 
   toString(space = 0) {
     let lval = "[ "
@@ -143,7 +143,7 @@ export class IS_ObjPatVarDecl extends ALL_IS {
     }
   }
 
-  declaredClosure() { return this.RVal.declaredClosure() }
+  declaredClosure() { return this.RVal && this.RVal.declaredClosure() }
 
   toString(space = 0) {
     let keyToString = (p: JS3AssnObjectProperty_key) => {

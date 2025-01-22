@@ -227,6 +227,7 @@ export class BB {
   statements: Array<ALL_IS>
   idx: number
   static count = 0
+  preds: Set<BB> = new Set() // Predecessor BBs
   terminal: BBTerminal | undefined
 
   env: Environment
@@ -258,7 +259,7 @@ export class BB {
     return stmts.join("\n")
   }
 
-  toDOTData() { return `${this.statements.map(s => s.toDOT()).join("\\l")}\\l${this.terminal.toDOT()}\\l` }
+  toDOTData() { return (`${this.statements.map(s => s.toDOT()).join("\\l")}\\l\\l${this.terminal.toDOT()}\\l`).replace(/"/g, '\\"') }
 
   toDOTEnvEdges(space = 0, alreadyVisited : Set<BB> = new Set()) {
     if (alreadyVisited.has(this)) return;
@@ -282,7 +283,7 @@ export class BB {
     else alreadyVisited.add(this)
     let stmts = []
     
-    stmts.push(`${printSpace(space)} "${this.getName()}"[shape="box",xlabel="${this.printHeader().replace(/"/g, '\\"')}",label="${this.toDOTData().replace(/"/g, '\\"')}"]`)
+    stmts.push(`${printSpace(space)} "${this.getName()}"[shape="box",xlabel="${this.printHeaderDOT()}",label="${this.printMetaDOT()}${this.toDOTData()}"]`)
     // stmts.push(`${printSpace(space + 2)} "${this.getName()}" -> "${this.env.getName()}" [dir=none, style="dashed"]`)
 
     // Visit BB's successors and print their data
@@ -303,6 +304,15 @@ export class BB {
 
   printHeader() {
     return `BB${this.idx} [${this.scope}]`
+  }
+
+  printHeaderDOT() {
+    return `BB${this.idx}`
+  }
+
+  printMetaDOT() {
+    let preds = [...this.preds].map(b => b.printHeaderDOT()).join(",")
+    return (` 👪 : ${preds}\\l 🫶 : ${this.scope}\\l\\l`).replace(/"/g, '\\"')
   }
 
 }

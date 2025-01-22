@@ -120,12 +120,18 @@ export default class JS3Builder {
 
   saveGeneratedFile() {
 
+    if (debugConfig.operationMode === "iri") {
+      fs.writeFileSync(debugConfig.outputsPath + "/" + "test.3js", this.generatedCode);
+    }
+
     if (debugConfig.operationMode === "js3") {
-      fs.writeFile(debugConfig.outputsPath, this.generatedCode, 'utf8', (err) => {
-        if (err) {
-          debugConfig.logger.error(`[JS3 Builder] Error writing to file at path: ${debugConfig.outputsPath}`, [err]);
-        }
-      });
+      fs.writeFileSync(debugConfig.outputsPath, this.generatedCode);
+
+      // fs.writeFile(debugConfig.outputsPath, this.generatedCode, 'utf8', (err) => {
+      //   if (err) {
+      //     debugConfig.logger.error(`[JS3 Builder] Error writing to file at path: ${debugConfig.outputsPath}`, [err]);
+      //   }
+      // });
     }
 
     // if (debugConfig.js3ResultPath) {

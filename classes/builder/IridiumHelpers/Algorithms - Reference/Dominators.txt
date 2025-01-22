@@ -1,0 +1,47 @@
+For computation of dominators, Iridium will use "A Fast Algorithm for Finding Dominators in a Flowgraph"
+
+Algorithm:
+
+1. Carry out a depth-first search of the problem graph. Number the vertices from 1 to n as they are reached
+   during the search. Initialize the variables used in suceeding steps.
+
+  -- Basic DFS will give us "T"
+
+2. Compute the semidominators of all vertices by applying Theorem-4. Carry out the computation vertex by vertex in
+   decreasing order by number.
+
+   Theorem 4:
+    sdom(w) = min ( 
+                
+                { v | (v,w) ∈ E and v < w } <- All incoming edges to "w" where "v" is smaller than "w" 
+
+                U
+
+                { sdom(u) | u > w and there is an edge (v, w) such that u -*-> v } 
+                    
+                    -- For all incoming edges to w (v, w)
+                      -- For all nodes u > w
+                        -- u is an ancestor of v in the Tree "T"
+              )
+
+  -- This will give us semi dominator for each node in the graph
+
+3. Implicitly define the immediate dominator of each vertex by applying Corollary 1.
+
+   Corollary 1:
+    Let w != r and let "u" be a vertex for which sdom(u) is minimum among the vertices "u" satisfying 
+    sdom(w) -+-> u -*->w:
+
+    idom(w) | sdom(w) === sdom(u) = sdom(u)
+            | otherwise           = idom(u)
+
+    -- candidate u's = []
+    -- Iterate over all outgoing edges of sdom(w) that can reach "w"
+      -- candidate u's.add(all_intermediate_nodes)
+    -- u = pick element from candidate u's whose sdom(u) is lowest
+
+
+4. Explicitly define the immediate dominator of each vertex, carrying out the computation vertex by vertex in increasing 
+   order by computation.
+
+  -- This will give us the dominator tree, using this tree it is trivial to find the dominators.
