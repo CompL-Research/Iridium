@@ -36,7 +36,8 @@
   },
   "imports": {
     "#debugConfig": "./configs/debug.ts",
-    "#utils": "./classes/utils/utils.ts"
+    "#utils": "./classes/utils/utils.ts",
+    "#graphlib": "./externalDeps/graphlib-with-dominator-algo/index.js"
   },
   "devDependencies": {
     "@babel/cli": "^7.25.9",

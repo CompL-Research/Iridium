@@ -14,6 +14,9 @@
       "#utils": [
         "./classes/utils/utils.ts"
       ],
-    }
+      "#graphlib": [
+        "./externalDeps/graphlib-with-dominator-algo/index.js"
+      ]
+    },
   }
 }
