@@ -1,0 +1,5 @@
+[submodule "externalDeps/graphlib-with-dominator-algo"]
+	path = externalDeps/graphlib-with-dominator-algo
+	url = git@github.com:meetesh06/graphlib-with-dominator-algo.git
+	branch = Iridium
+
