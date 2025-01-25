@@ -36,7 +36,7 @@ Algorithm:
             | otherwise           = idom(u)
 
     -- candidate u's = []
-    -- Iterate over all outgoing edges of sdom(w) that can reach "w"
+    -- Iterate over all outgoing edges of sdom(w) in DFSTree that can reach "w"
       -- candidate u's.add(all_intermediate_nodes)
     -- u = pick element from candidate u's whose sdom(u) is lowest
 
