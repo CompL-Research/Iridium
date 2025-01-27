@@ -47,12 +47,116 @@ import { initializeEnvDefs } from "./Passes/EnvInit.ts";
 import { populatePreds } from "./Passes/PopulatePreds.ts";
 import { cleanupBBs } from "./Passes/BBCleanup.ts";
 
+import { Graph } from "#graphlib"
+import { BBTraversalContext, traverseBB } from "./Visitors/traverse.ts";
+
 const generate = _generate.default
 
-export class IRIDIUM_FG {
-  bb: BB
+export class IRIDIUM_FG extends Graph {
+  rootBB: BB
 
-  constructor(bb: BB) { this.bb = bb; }
+  // Methods to set and get BB's from the flowgraph
+  setBBNode(bb: BB) {
+    let bbIdx: string = '' + bb.idx
+    this.setNode(bbIdx, bb)
+  }
+
+  getBBNode(idx: string | number): BB {
+    let bbIdx: string = '' + idx
+    return this.node(bbIdx);
+  }
+
+  // Add Edges
+  setBBEdge(from: string | number, to: string | number, label: string = "") {
+    let fromIdx: string = "" + from
+    let toIdx: string = "" + to
+    this.setEdge(fromIdx, toIdx, label)
+  }
+
+  constructor(bb: BB) {
+    super({ directed: true })
+    this.rootBB = bb;
+  }
+
+  // Initialize FlowGraph
+  initialize() {
+    const rootBB = this.rootBB
+    let finGraph : IRIDIUM_FG = this
+    let visited : Set<BB> = new Set()
+
+    let traverseRecursively = (b: BB) => {
+      if (visited.has(b)) return;
+      else visited.add(b)
+
+      // Add node to the graph
+      finGraph.setBBNode(b)
+
+      // Draw an edge between the current node and its successors
+      let successors = b.terminal.getSuccessors()
+
+      let label : string;
+
+      // 
+      // TODO: Create closures for instructions
+      // 
+
+      for (let s of successors) {
+         // Might be reinitialized, but that doesnt matter I hope
+        finGraph.setBBNode(s);
+        
+        // Draw an edge
+        finGraph.setBBEdge(b.idx, s.idx)
+
+        // Recursively visit the children
+        traverseRecursively(s)
+      }
+    }
+
+    traverseRecursively(rootBB)
+  }
+
+  // Save the IR to a string
+  saveIridiumToString() {
+    let stmts = []
+    let nodes = this.nodes()
+
+    for (let bbIdx of nodes) {
+      let bb : BB = this.node(bbIdx)
+      
+      stmts.push(`${printScopedSpace(2)}`)
+      stmts.push(`${printScopedSpace(2)}🬕 ${bb.printHeader()}`)
+
+      bb.statements.forEach(s => {
+        stmts.push(s.toString(2))
+      })
+      stmts.push(bb.terminal.toString(2))
+    }
+    
+    return stmts.join("\n")
+  }
+
+  // override the existing implementation for saving DOT
+  saveBBDot(space = 0) {
+    let res = []    
+    for (let b of this.nodes()) {
+      let bb : BB = this.node(b)
+
+      // Declare node and their labels
+      res.push(`${printSpace(space)}${bb.toDOT()}`)
+    }
+    
+    // res.push("  graph [nodesep=1.0, ranksep=1.5]; // Adjust separation")
+    for (let e of this.edges()) {
+      let startNode = e.v
+      let endNode = e.w
+      let startBB : BB = this.node(startNode)
+      let endBB : BB = this.node(endNode)
+      res.push(`${printSpace(space)}${startBB.printHeaderDOT()} -> ${endBB.printHeaderDOT()};`);
+    }
+      
+    return res.join("\n");
+  }
+
 }
 
 export function printScopedSpace(space) {
@@ -106,12 +210,20 @@ export default class IRIDIUM {
   build() {
     let body = new IRIDIUM_FG(this.currentBB)
     this.handleJS3ProgramBody(this.node.body)
-    populatePreds(body.bb)
-    console.log(body.bb.toString())
-    
-    cleanupBBs(body.bb)
-    initializeEnvDefs(body.bb)
 
+    body.initialize()
+
+    console.log("Debug print IRIDIUM_FG")
+    console.log(body.saveDot("IRIDIUM_FG"))
+
+    // 
+    // Update the passes to use the new flowgraph
+    // 
+
+    // populatePreds(body.bb)
+    // console.log(body.bb.toString())
+    // cleanupBBs(body.bb)
+    // initializeEnvDefs(body.bb)
     return body
   }
 
@@ -339,7 +451,7 @@ export default class IRIDIUM {
     functionBody.env.parent.children.delete(functionBody.env)
     functionBody.env.parent = argInitEnv
     argInitEnv.children.add(functionBody.env)
-    
+
 
     let argInitBlock = new FunctionArgInitBB(argInitEnv, params)
     let finalGoto = new GotoFunctionBody(functionBody)
@@ -505,7 +617,7 @@ export default class IRIDIUM {
     // Branch from curr to classInitBB
     let postBB = curr.create();
     postBB.terminal = curr.terminal;
-    
+
     // Env Context
     let classInitLexicalEnv = new Environment(curr.env)
 
@@ -600,11 +712,11 @@ export default class IRIDIUM {
           valResID.isValue = true
           let propComputationBlock = new ClassPropInitBB(propInitEnv, bodyElem.value)
           propComputationBlock.terminal = new ClassPropInitExit(valResID)
-          
+
           this.lowerExprToBB(bodyElem.value, propComputationBlock, valResID)
 
           classProperties.push(new ISP_ClassProperty(bodyElem, key, propComputationBlock, computed))
-          
+
           this.setCurrentBB(oldBB)
         }
 
@@ -654,7 +766,7 @@ export default class IRIDIUM {
         let currBB = this.getCurrentBB()
         let postBB = currBB.create()
         postBB.terminal = currBB.terminal
-        
+
 
         // Env for static block init
         let staticEvalEnv = new Environment(classInitLexicalEnv)
@@ -951,12 +1063,13 @@ export default class IRIDIUM {
     let chainBB = new ContainedOptionalChainBB(existingState.postBB.env, parentNode, "", true)
     chainBB.terminal = new UnconditionalGoto(existingState.postBB);
 
+    let genesisTestRes = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("testRes"))
+    genesisTestBB.terminal = new OptionalBranchTerminal(parentNode, genesisTestRes, chainBB, existingState.fallthruBlock);
+
     // genesisTestBB --TEST--> chainBB
     //                   |---> fallthruBlock
 
-    let genesisTestResID: Identifier = this.lowerExprToBB(objectToSpill, genesisTestBB)
-    let genesisTestRes = IV_Identifier.from(genesisTestResID, true)
-    genesisTestBB.terminal = new OptionalBranchTerminal(parentNode, genesisTestRes, chainBB, existingState.fallthruBlock);
+    this.lowerExprToBB(objectToSpill, genesisTestBB, genesisTestRes)
 
     if (existingState.callExprContext) {
       let first = genesisTestBB.statements[0]
@@ -1056,7 +1169,17 @@ export default class IRIDIUM {
       let resHolderID : Identifier = this.lowerExprToBB(patchedNode, chainBB)
 
       this.getCurrentBB().statements.push(new IS_SimpleVarDecl(undefined, "let", new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined)), new IV_SimpleAssn(undefined, existingState.resID, IV_Identifier.from(resHolderID))))
-      
+      // Retain context in base cases like : a = x.a?.()
+      if (existingState.callExprContext) {
+        let first = this.getCurrentBB().statements[0]
+        if (first instanceof IS_SimpleVarDecl && first.RVal instanceof IV_Call && first.RVal.callee instanceof IV_Identifier) {
+          first.RVal.staticThis = true;
+          first.RVal.callee.isValue = true;
+        } else {
+          debugConfig.logger.throwIriError("Expected first statement of spilled node to be a IV_Call");
+        }
+      }
+
       this.setCurrentBB(existingState.postBB)
 
       return existingState.resID
@@ -1446,7 +1569,7 @@ export default class IRIDIUM {
 
     // Init loop head
     // let iteratorIV = <InOp> in RVal | <OfOp> of RVal
-    let inop: IV_InIterator | IV_OfIterator; 
+    let inop: IV_InIterator | IV_OfIterator;
     if (isJS3ForInStatement(stmt)) inop = new IV_InIterator(stmt, IV_Identifier.from(stmt.right))
     else inop = new IV_OfIterator(stmt, IV_Identifier.from(stmt.right))
 
@@ -1508,7 +1631,7 @@ export default class IRIDIUM {
       let lval = stmt.left
       let rval = identifier(nextResHolder.name)
       handleDeclaratorRec(lval, rval, updatedProps, generator, true);
-      
+
       // lower into BB
       this.handleJS3ProgramBody(js3SpillHolder)
     }

@@ -42,14 +42,15 @@ export class I_File {
 
     stmts.push(`  subgraph cluster_${i++} {`)
     stmts.push("    label=\"environment\";")
-    stmts.push(this.program.body.bb.env.toDOT(space + 4))
+    // TODO
+    stmts.push(this.program.body.rootBB.env.toDOT(space + 4))
     stmts.push("  }")
 
-    stmts.push(this.program.toDOTEnvEdges(space + 2))
+    // stmts.push(this.program.toDOTEnvEdges(space + 2))
 
-    for (let c of debugConfig.DOTContext) {
-      stmts.push(c.toDOTEnvEdges(space + 2))
-    }
+    // for (let c of debugConfig.DOTContext) {
+    //   stmts.push(c.toDOTEnvEdges(space + 2))
+    // }
 
 
     stmts.push("}")
@@ -82,18 +83,24 @@ export class I_Program {
   toString(space = 0) {
     let stmts = []
     stmts.push(`${printScopedSpace(space)}I_Program:`)
-    stmts.push(this.body.bb.toString(space + 2))
+
+    // TODO
+    // stmts.push(this.body.bb.toString(space + 2))
+    stmts.push(this.body.saveIridiumToString())
     return stmts.join("\n")
   }
 
   toDOT(space = 0) {
     let stmts = []
-    stmts.push(this.body.bb.toDOT(space + 2))
+    // TODO
+    stmts.push(this.body.saveBBDot(space + 2))
     return stmts.join("\n")
   }
 
   toDOTEnvEdges(space = 0) {
-    return this.body.bb.toDOTEnvEdges(space + 2) 
+    // TODO
+    // return this.body.bb.toDOTEnvEdges(space + 2) 
+    return ""
   }
 
 }

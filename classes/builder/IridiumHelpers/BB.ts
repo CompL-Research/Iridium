@@ -286,14 +286,14 @@ export class BB {
     stmts.push(`${printSpace(space)} "${this.getName()}"[shape="box",xlabel="${this.printHeaderDOT()}",label="${this.printMetaDOT()}${this.toDOTData()}"]`)
     // stmts.push(`${printSpace(space + 2)} "${this.getName()}" -> "${this.env.getName()}" [dir=none, style="dashed"]`)
 
-    // Visit BB's successors and print their data
-    let succ = this.terminal.getSuccessors()
+    // // Visit BB's successors and print their data
+    // let succ = this.terminal.getSuccessors()
     
-    for (let s of succ) {
-      stmts.push(`${printSpace(space)} ${this.getName()} -> ${s.getName()};`)
-    }
+    // for (let s of succ) {
+    //   stmts.push(`${printSpace(space)} ${this.getName()} -> ${s.getName()};`)
+    // }
     
-    stmts.push(...succ.map(s => s.toDOT(space, alreadyVisited)))
+    // stmts.push(...succ.map(s => s.toDOT(space, alreadyVisited)))
 
     return stmts.join("\n")
   }
