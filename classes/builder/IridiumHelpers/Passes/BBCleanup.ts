@@ -9,36 +9,58 @@ export function cleanupBBs(fg: IRIDIUM_FG) {
   do {
     change = false;
     traverseBBLexical(fg, (bb: BB, fg: IRIDIUM_FG) => {
-      if (!bb || !fg.hasNode('' + bb.idx)) return; // We are removing nodes on the fly, skip nodes that were previously removed
-      
-      let succ = fg.successors('' + bb.idx)
-      if (succ && succ.length === 1 && fg.node(succ[0]).env === bb.env) {
-        let succNode = fg.getBBNode(succ[0])
-        
-        
-        // Copy all statements from succ node to the current node
-        succNode.statements.forEach(i => bb.statements.push(i))
+      // Apply Transform if: 
+      //  u[E1] --> v[E2] where E1 == E2 [remove redundant BB nodes]
+      // 
+      // Predicate:
+      //  1. "v" is the only successor of "u"
+      //  2. "u" is the only predecessor of "v"
+      //  3. Both operate on the same environment
+      let u = '' + bb.idx
+      let uNode = bb
+      let succ = fg.successors(u)
+      if (succ && succ.length === 1) {
+        let v = succ[0]
+        let vNode = fg.getBBNode(v)
+        let predOfV = fg.predecessors(v)
+        if (predOfV && predOfV.length === 1) {
+          let env1 = bb.env
+          let env2 = fg.getBBNode(v).env
+          if (env1 === env2) {
+            // 
+            // Transformation:
+            //   1. remove edge from u -> v
+            //   2. Copy all statements from v to u
+            //   3. forward successors of v to u
+            //   4. Copy branching info of v to u
+            //   5. Remove node v from the graph
+            // remove edge between the current node and succ node
+            fg.removeEdge(u, v);
 
-        // remove edge between the current node and succ node
-        fg.removeEdge('' + bb.idx, succ[0]);
+            // Copy all statements from succ node to the current node
+            vNode.statements.forEach(i => uNode.statements.push(i))
 
-        let succList = fg.successors(succ[0])
+            // Forward Successors
+            let succOfV = fg.successors(v)
 
-        // Add all successors of succ to current nodes successor list
-        for (let s of succList ? succList : []) {
-          fg.setEdge('' + bb.idx, s);
+            // Add all successors of succ to current nodes successor list
+            for (let s of succOfV ? succOfV : []) {
+              fg.setEdge(u, s);
+            }
+
+            if (bb.branchTerminal !== undefined) throw new Error("Unconditional goto, marked with a branch terminal, invalid code generation")
+
+            // Copy terminal information
+            uNode.branchTerminal = vNode.branchTerminal
+
+            // Remove unreachable node
+            fg.removeNode(v)
+
+            change = true;
+
+          }
         }
-
-        if (bb.branchTerminal !== undefined) throw new Error("Unconditional goto, marked with a branch terminal, invalid code generation")
-
-        // Copy terminal information
-        bb.branchTerminal = succNode.branchTerminal
-
-        fg.removeNode(succ[0])
-
-        change = true;
-        console.log("Removed BB", succ[0])
       }
     })
-  } while(change)
+  } while (change)
 }
