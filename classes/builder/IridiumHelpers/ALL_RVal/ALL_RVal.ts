@@ -1,8 +1,8 @@
+import debugConfig from '#debugConfig';
+import { printScopedSpace } from "#utils";
 import { JS3AssnInit, JS3ForInStatement, JS3ForOfStatement } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../ALL_AMP/ALL_AMP.ts";
-import { printScopedSpace } from "../IRIDIUM.ts";
-import debugConfig from '#debugConfig'
-import { BB } from "../BB.ts";
+import { IRIDIUM_FG } from "../IRIDIUM.ts";
 
 type IRI_ASSN_TYPE = t_IV_Literals 
                    | t_IV_Regexp 
@@ -65,7 +65,7 @@ export class ALL_RVal {
     this.type = type
   }
 
-  declaredClosure() : BB | undefined { return undefined }
+  declaredClosure() : IRIDIUM_FG | undefined { return undefined }
 
   toString(space = 0) {
     if (this.node) {

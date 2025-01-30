@@ -1,10 +1,10 @@
-import { recursivelyTraverseAllBBs } from "#utils"
+// import { recursivelyTraverseAllBBs } from "#utils"
 import _generator from "@babel/generator"
 import { ForInStatement, ForOfStatement, OptionalCallExpression, OptionalMemberExpression, SpreadElement } from "@babel/types"
 import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ClassExpression, JS3ClassProperty_value, JS3ConditionalExpression, JS3ContainedExprKey, JS3DoWhileStatement, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3ForStatement_init, JS3FunctionDeclaration, JS3IfStatement, JS3Program, JS3StaticBlock, JS3SwitchCase, JS3SwitchStatement, JS3TryStatement, JS3UnaryExpression, JS3WhileStatement } from "../JS3Helpers/JS3Types.ts"
 import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
-import { printScopedSpace, printSpace } from "./IRIDIUM.ts"
+import { printScopedSpace, printSpace } from "#utils"
 import { Environment } from "./I_GENERAL/I_Scope.ts"
 
 const generator = _generator["default"]
@@ -26,7 +26,7 @@ export class BBTerminal {
   }
 }
 
-type BranchTerminal_node = JS3IfStatement | JS3ConditionalExpression | JS3WhileStatement | JS3ForStatement | JS3DoWhileStatement | JS3SwitchCase | JS3ForInStatement | JS3ForOfStatement
+type BranchTerminal_node = JS3IfStatement | JS3ConditionalExpression | JS3WhileStatement | JS3ForStatement | JS3DoWhileStatement | JS3SwitchCase | JS3ForInStatement | JS3ForOfStatement | OptionalMemberExpression | OptionalCallExpression
 export class BranchTerminal extends BBTerminal {
   node?: BranchTerminal_node
   on: IV_Identifier
@@ -46,179 +46,11 @@ export class BranchTerminal extends BBTerminal {
   }
 
   toString(space = 0) {
-    return `${printScopedSpace(space)}🬲 🤔 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
+    return `${printScopedSpace(space)}▏ 🤔 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
   }
 
   toDOT(space = 0) {
     return `${printSpace(space)} 🤔 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
-  }
-}
-
-export class SwitchCaseTerminal extends BranchTerminal {
-  constructor(node: JS3SwitchCase, on: IV_Identifier, t: BB, f: BB) {
-    super(node, on, t, f)
-  }
-  
-  toString(space = 0) {
-    return `${printScopedSpace(space)}🬲 🎐 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
-  }
-
-
-  toDOT(space = 0) {
-    return `${printSpace(space)}🎐 (${this.on}) 👍: (BB${this.t.idx}) 👎: (BB${this.f.idx})`
-  }
-}
-
-export class OptionalBranchTerminal extends BBTerminal {
-  node?: OptionalCallExpression | OptionalMemberExpression
-  on: IV_Identifier
-  t: BB
-  f: BB
-
-  constructor(node: OptionalCallExpression | OptionalMemberExpression | undefined, on: IV_Identifier, t: BB, f: BB) {
-    super();
-    this.node = node;
-    this.on = on
-    this.t = t;
-    this.f = f;
-  }
-
-  getSuccessors() {
-    return [this.t, this.f]
-  }
-
-  toString(space = 0) {
-    return `${printScopedSpace(space)}🬲 🤔 (${this.on}) 👍: (BB${this.t.idx}) 🔗: (BB${this.f.idx})`
-  }
-
-  toDOT(space = 0) {
-    return `${printSpace(space)} 🤔 (${this.on}) 👍: (BB${this.t.idx}) 🔗: (BB${this.f.idx})`
-  }
-}
-
-export class UnconditionalGoto extends BBTerminal {
-  to: BB
-  constructor(to: BB) {
-    super();
-    this.to = to;
-  }
-
-  getSuccessors() {
-    return [this.to]
-  }
-
-  toString(space = 0) {
-    return `${printScopedSpace(space)}🬲 🥔 BB${this.to.idx}`
-  }
-
-  toDOT(space = 0) {
-    return `${printSpace(space)} 🥔 BB${this.to.idx}`
-  }
-}
-
-export class GotoFunctionBody extends UnconditionalGoto {
-  constructor(to: BB) {
-    super(to);
-  }
-
-  toString(space = 0) {
-    return `${printScopedSpace(space)}🬲 🔔 BB${this.to.idx}`
-  }
-
-  toDOT(space = 0) {
-    return `${printSpace(space)} 🔔 BB${this.to.idx}`
-  }
-}
-
-export class TryCatchConditionalGoto extends BBTerminal {
-  handler: BB
-  finalizer: BB
-
-  constructor(handler: BB, finalizer: BB) {
-    super();
-    this.handler = handler;
-    this.finalizer = finalizer;
-  }
-
-  getSuccessors() {
-    return [this.handler, this.finalizer]
-  }
-
-  toString(space = 0) {
-    return `${printScopedSpace(space)}🬲 👮 🚨: (BB${this.handler.idx}) 👍: (BB${this.finalizer.idx})`
-  }
-
-  toDOT(space = 0) {
-    return `${printSpace(space)} 👮 🚨: (BB${this.handler.idx}) 👍: (BB${this.finalizer.idx})`
-  }
-}
-
-export class ClassPropInitExit extends BBTerminal {
-  res: IV_Identifier
-
-  constructor(res: IV_Identifier) {
-    super()
-    this.res = res
-  }
-
-  getSuccessors(): Array<BB> {
-    return []
-  }
-
-  toString(space = 0) {
-    return `${printScopedSpace(space)}🬲 🙋 PropInit(${this.res.toString()})`
-  }
-
-  toDOT(space = 0) {
-    return `${printSpace(space)} 🙋 PropInit(${this.res.toString()})`
-  }
-}
-
-export class ClassStaticExit extends UnconditionalGoto {
-
-  constructor(to: BB) {
-    super(to)
-  }
-
-  getSuccessors(): Array<BB> {
-    return [this.to]
-  }
-
-  toString(space = 0) {
-    return `${printScopedSpace(space)}🬲 👋 Static Block End`
-  }
-
-  toDOT(space = 0) {
-    return `${printSpace(space)} 👋 Static Block End`
-  }
-}
-
-export class ExitNode extends BBTerminal {
-  
-  toString(space = 0) {
-    return `${printScopedSpace(space)}🬲 👋 Exit`
-  }
-
-  getSuccessors(): Array<BB> {
-    return []
-  }
-
-  toDOT(space = 0) {
-    return `${printSpace(space)} 👋 Exit`
-  }
-}
-
-export class ErrorNode extends BBTerminal {
-  toString(space = 0) {
-    return `${printScopedSpace(space)}🬲 🚨🚨 ERROR 🚨🚨`
-  }
-
-  getSuccessors(): Array<BB> {
-    return []
-  }
-
-  toDOT(space = 0) {
-    return `${printSpace(space)} 🚨🚨 ERROR 🚨🚨`
   }
 }
 
@@ -228,7 +60,7 @@ export class BB {
   idx: number
   static count = 0
   preds: Set<BB> = new Set() // Predecessor BBs
-  terminal: BBTerminal | undefined
+  branchTerminal: BranchTerminal | undefined
 
   env: Environment
 
@@ -244,22 +76,22 @@ export class BB {
   toString(space = 0) {
     let stmts = []
 
-    // Traverse all BB's
-    let BBs = recursivelyTraverseAllBBs(this)
+    // // Traverse all BB's
+    // let BBs = recursivelyTraverseAllBBs(this)
 
-    for (let bb of BBs) {
-      stmts.push(`${printScopedSpace(space)}`)
-      stmts.push(`${printScopedSpace(space)}🬕 ${bb.printHeader()}`)
-      bb.statements.forEach(s => {
-        stmts.push(s.toString(space))
-      })
-      stmts.push(bb.terminal.toString(space))
+    this.statements.forEach(s => {
+      stmts.push(s.toString(space))
+    })
+
+    if (this.branchTerminal) {
+      stmts.push(this.branchTerminal.toString(space))
     }
 
     return stmts.join("\n")
   }
 
-  toDOTData() { return (`${this.statements.map(s => s.toDOT()).join("\\l")}\\l\\l${this.terminal.toDOT()}\\l`).replace(/"/g, '\\"') }
+  //   toDOTData() { return (`${this.statements.map(s => s.toDOT()).join("\\l")}\\l\\l${this.terminal.toDOT()}\\l`).replace(/"/g, '\\"') }
+  toDOTData() { return (`${this.statements.map(s => s.toDOT()).join("\\l")}\\l\\l`).replace(/"/g, '\\"') }
 
   toDOTEnvEdges(space = 0, alreadyVisited : Set<BB> = new Set()) {
     if (alreadyVisited.has(this)) return;
@@ -270,10 +102,10 @@ export class BB {
     }
     stmts.push(`${printSpace(space + 2)} "${this.getName()}" -> "${this.env.getName()}" [dir=none, style="dashed"]`)
     
-    // Visit BB's successors and print their data
-    let succ = this.terminal.getSuccessors()
+    // // Visit BB's successors and print their data
+    // let succ = this.terminal.getSuccessors()
     
-    stmts.push(...succ.map(s => s.toDOTEnvEdges(space, alreadyVisited)))
+    // stmts.push(...succ.map(s => s.toDOTEnvEdges(space, alreadyVisited)))
 
     return stmts.join("\n")
   }
@@ -494,6 +326,24 @@ export class CatchBB extends BlockBB {
   printHeader() {
     return `BB${this.idx} [${this.scope} ~ Catch(${this.arg ? this.arg.toString() : ""})]`
   }
+}
+
+export class LoopHeadBB extends BlockBB {
+  updateContext : BB | undefined
+
+  constructor(env: Environment, node: JS3WhileStatement | JS3ForInStatement | JS3ForOfStatement | JS3ForStatement | JS3DoWhileStatement = undefined, updateContext: BB | undefined = undefined) {
+    super(env, node)
+    this.updateContext = updateContext
+  }
+
+  create() {
+    return new LoopHeadBB(this.env, this.node);
+  }
+
+  printHeader(): string {
+    return `BB${this.idx} [${this.scope} ~ LoopHead { ${this.updateContext ? `update: BB${this.updateContext.idx}` : `` }}]`
+  }
+
 }
 
 export class ForLoopInitBB extends BlockBB {

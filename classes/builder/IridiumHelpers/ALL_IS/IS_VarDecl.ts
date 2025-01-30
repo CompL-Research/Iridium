@@ -1,11 +1,11 @@
+import { printScopedSpace, printSpace } from "#utils";
 import { isBigIntLiteral, isDecimalLiteral, isIdentifier, isNumericLiteral, isRestElement, isStringLiteral } from "@babel/types";
-import { isJS3AssnObjectProperty, JS3ArrayPattern, JS3AssnObjectProperty_key, JS3ClassExpression, JS3ObjectPattern, JS3VarDeclLVal, JS3VariableDeclaration } from "classes/builder/JS3Helpers/JS3Types.ts";
-import { IV_ASSIGNABLE } from "../ALL_RVal/ALL_RVal.ts";
-import { ALL_IS } from "./ALL_IS.ts";
+import { isJS3AssnObjectProperty, JS3ArrayPattern, JS3AssnObjectProperty_key, JS3ClassExpression, JS3ObjectPattern, JS3VariableDeclaration } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
-import { printScopedSpace, printSpace } from "../IRIDIUM.ts";
-import { IV_This } from "../ALL_RVal/IV_This.ts";
+import { IV_ASSIGNABLE } from "../ALL_RVal/ALL_RVal.ts";
 import { IV_NUBD } from "../ALL_RVal/IV_NonLang.ts";
+import { IV_This } from "../ALL_RVal/IV_This.ts";
+import { ALL_IS } from "./ALL_IS.ts";
 
 export type IS_VAR_DECL_KIND = "var" | "let" | "const"
 

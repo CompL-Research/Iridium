@@ -1,7 +1,7 @@
-import { JS3BreakStatement, JS3LabeledStatement } from "classes/builder/JS3Helpers/JS3Types.ts";
-import { ALL_IS } from "./ALL_IS.ts";
-import { printScopedSpace, printSpace } from "../IRIDIUM.ts";
+import { printScopedSpace, printSpace } from "#utils";
+import { JS3BreakStatement } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
+import { ALL_IS } from "./ALL_IS.ts";
 
 export class IS_LBreak extends ALL_IS {
   label: IV_Identifier

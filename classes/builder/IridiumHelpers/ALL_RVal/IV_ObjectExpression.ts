@@ -1,7 +1,7 @@
+import { printScopedSpace, printSpace } from "#utils";
 import { JS3ObjectExpression } from "classes/builder/JS3Helpers/JS3Types.ts";
-import { ALL_RVal } from "./ALL_RVal.ts";
 import { ISP_ArgSpread, ISP_ObjectMethod, ISP_ObjectProperty } from "./ALL_ISP.ts";
-import { printScopedSpace, printSpace } from "../IRIDIUM.ts";
+import { ALL_RVal } from "./ALL_RVal.ts";
 
 export class IV_ObjectExpression extends ALL_RVal {
   

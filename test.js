@@ -201,7 +201,7 @@
 // a = a?.()
 
 // a = a.b().c?.().b?.c;
-// a = a[a?.a()].c?.().d?.[e].f?.g;
+// a = b[x?.z()]?.c;
 
 
 // export default function MyApp() {
@@ -736,3 +736,153 @@
 // class A extends (function() {}, function() {}, function() { }) {
 //   a = (console.log("test"))
 // }
+
+// let a = 1;
+// if (a) {
+//   let b = 1;
+// } else {
+//   let c = 2
+// }
+
+// if (a) {
+//   let d = 3;
+// }
+
+// // 7.Try Catch
+// try {
+//   var xxa = 1;
+// } catch([a, ...{x: { y: boo }}]) {
+//   let b = 2;
+// }
+// try {
+//   let a = 1;
+// } finally {
+//   let b = 2;
+// }
+// try {
+//   let a = 1;
+// } catch {
+//   let b = 2;
+// } finally {
+//   var caas = 3;
+// }
+
+// let a = 1;
+
+// while(a) {
+//   // console.log(test);
+//   continue;
+//   break;
+// }
+
+// {
+
+// }
+
+// {
+//   let a = 11;
+// }
+
+// let a = false;
+// testing: while(a) {
+//   console.log(test);
+//   continue;
+//   continue testing;
+//   break;
+//   break testing;
+// }
+
+// for (let a of [1,2,3]) {
+//   let a = 2;
+// }
+
+// for (let a in [1,2,3]) {
+//   let a = 2;
+// }
+
+// for (let a = 12; a < 12; a++) {
+//   let b = 22;
+// }
+
+// let a = 12;
+// do {
+//   a = 11
+// } while(a < 12)
+
+// let a = 112;
+// let x = 2;
+
+// let z = a ? b * c + d / 23 : 12
+
+
+// let a = 1;
+// if (a) {
+//   (a ? a : a);
+// } else {
+//   ((a.a) ? a.a : a.a);
+// }
+
+// let a = false;
+// while((a.x ? a : a.xx.a)) {
+//   console.log(test);
+//   continue;
+//   break;
+// }
+
+// let a;
+// for ([a] of [[1],[23]]) {
+//   console.log(a);
+// }
+
+// let a;
+// for (let [[a]] of [[[11]],[[22]]]) {
+//   console.log(a);
+// }
+
+
+// for (let a = x ? 1 : 2 ? 3 : 4; a ? b : c ? d : e ; a++) {
+//   console.log("1")
+// }
+
+// let a = 0;
+// do {
+//   console.log(a)
+//   a++;
+// } while(a < 10)
+
+
+// switch((console.log("test"), 4)) {
+//   case ((console.log("case 1 test"),1)):
+//     console.log("case 1 body")
+//     break;
+//   case ((console.log("case 2 test"),2)):
+//     console.log("case 2 body")
+//     break;
+//   default:
+//     console.log("Default case")
+// }
+
+// a.x(xx.x.d, xxx.x ? 1 : 2, b ? c ? c : d : e)
+
+// delete delete (xxx.x ? 1 : 2)
+
+function foo({x : {b : [b]}}) {
+    var a = 10;
+    
+    class A {
+        [a] = (console.log("a"), a)
+        static {
+            var a = 1;
+            var b = 2;
+            console.log("a inside: ", a);
+        }
+
+        static {
+            console.log("a inside (continued): ", a);
+            console.log("b inside (continued): ", b);
+
+        }
+    };
+
+    // console.log("a outside: ", a)
+}

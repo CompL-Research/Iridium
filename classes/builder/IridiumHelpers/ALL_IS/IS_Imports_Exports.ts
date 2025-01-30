@@ -1,8 +1,8 @@
+import { printScopedSpace, printSpace } from "#utils";
 import { JS3ExportAllDeclaration, JS3ExportDefaultDeclaration, JS3ExportNamedDeclaration, JS3ImportDeclaration } from "classes/builder/JS3Helpers/JS3Types.ts";
-import { ALL_IS } from "./ALL_IS.ts";
-import { IV_StringLiteral } from "../ALL_RVal/IV_Literals.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
-import { printScopedSpace, printSpace } from "../IRIDIUM.ts";
+import { IV_StringLiteral } from "../ALL_RVal/IV_Literals.ts";
+import { ALL_IS } from "./ALL_IS.ts";
 
 // 
 // Imports

@@ -1,6 +1,6 @@
-import { JS3ForInStatement, JS3ForOfStatement, JS3MetaProperty } from "classes/builder/JS3Helpers/JS3Types.ts";
-import { ALL_RVal } from "./ALL_RVal.ts";
+import { JS3ForInStatement, JS3ForOfStatement } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
+import { ALL_RVal } from "./ALL_RVal.ts";
 
 export class IV_InIterator extends ALL_RVal {  
   RVal: IV_Identifier

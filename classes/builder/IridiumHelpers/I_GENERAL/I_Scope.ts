@@ -15,7 +15,7 @@
 import debugConfig from "#debugConfig"
 import { ALL_IS } from "../ALL_IS/ALL_IS.ts"
 import { IS_VAR_DECL_KIND } from "../ALL_IS/IS_VarDecl.ts"
-import { printSpace } from "../IRIDIUM.ts"
+import { printSpace } from "#utils"
 
 
 class EnvironmentRecord {

@@ -1,36 +1,26 @@
 import debugConfig from '#debugConfig';
-import { CommentBlock, CommentLine  } from '@babel/types';
+import { CommentBlock, CommentLine } from '@babel/types';
 import { execSync } from 'child_process';
-import { BB, BranchTerminal, ClassPropInitExit, ExitNode, OptionalBranchTerminal, TryCatchConditionalGoto, UnconditionalGoto } from 'classes/builder/IridiumHelpers/BB.ts';
 import fs from 'fs';
 import path from 'path';
 export class JS3GenerationError extends Error { }
 
-export function recursivelyTraverseAllBBs(bb: BB, visited: Set<BB> = new Set()) {
-  if (visited.has(bb)) return;
-  else visited.add(bb);
-  if (bb.terminal instanceof UnconditionalGoto) {
-    recursivelyTraverseAllBBs(bb.terminal.to, visited);
-  } else if (bb.terminal instanceof BranchTerminal) {
-    recursivelyTraverseAllBBs(bb.terminal.t, visited);
-    recursivelyTraverseAllBBs(bb.terminal.f, visited);
-  } else if (bb.terminal instanceof ExitNode) {
-    // NOOP
-  } else if (bb.terminal instanceof TryCatchConditionalGoto) {
-    recursivelyTraverseAllBBs(bb.terminal.handler, visited);
-    recursivelyTraverseAllBBs(bb.terminal.finalizer, visited);
-  } else if (bb.terminal instanceof OptionalBranchTerminal) {
-    recursivelyTraverseAllBBs(bb.terminal.t, visited);
-    recursivelyTraverseAllBBs(bb.terminal.f, visited);
-  } else if (bb.terminal instanceof ClassPropInitExit) {
-    // NOOP
-  } 
-  else {
-    console.log(visited, bb.terminal)
-    throw new Error("recursivelyTraverseAllBBs: unhandled BB Type")
+export function printScopedSpace(space) {
+  let res = "";
+  for (let i = 0; i < space; i++) {
+    res += (i >= 4 && (i % 2 === 0)) ? "░" : " "
   }
-  return visited
+  return res;
 }
+
+export function printSpace(space) {
+  let res = "";
+  for (let i = 0; i < space; i++) {
+    res += " "
+  }
+  return res;
+}
+
 
 export function getRandomElement(set) {
   const array = Array.from(set);

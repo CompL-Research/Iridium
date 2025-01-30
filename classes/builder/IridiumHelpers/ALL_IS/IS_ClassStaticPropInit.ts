@@ -1,6 +1,6 @@
+import { printScopedSpace, printSpace } from "#utils";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { ISP_ClassProperty_key } from "../ALL_RVal/ALL_ISP.ts";
-import { printScopedSpace, printSpace } from "../IRIDIUM.ts";
 import { ALL_IS } from "./ALL_IS.ts";
 
 export class IS_ClassStaticPropInit extends ALL_IS {

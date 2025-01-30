@@ -2,11 +2,11 @@ import { JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3Clas
 import { IV_Identifier, IV_PrivateName } from "../ALL_AMP/ALL_AMP.ts";
 import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_Literals, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "./IV_Literals.ts";
 
+import debugConfig from "#debugConfig";
+import { printScopedSpace } from "#utils";
 import { isBigIntLiteral, isBooleanLiteral, isDecimalLiteral, isIdentifier, isNullLiteral, isNumericLiteral, isStringLiteral, Super, V8IntrinsicIdentifier } from "@babel/types";
-import { ClassPropInitBB, FunctionArgInitBB } from "../BB.ts";
 import { I_Function } from "../I_GENERAL/I_Function.ts";
-import { printScopedSpace, printSpace } from "../IRIDIUM.ts";
-import debugConfig from "#debugConfig"
+import { IRIDIUM_FG } from "../IRIDIUM.ts";
 
 // ISP = Iridium SPecial; values that appear as a part of an R Value but never as R_Values directly.
 export class ISP_Super {
@@ -79,7 +79,7 @@ export class ISP_ObjectMethod extends I_Function {
   key: ISP_ObjectMethod_key
   computed: boolean;
 
-  constructor(node: JS3ObjectMethod, kind: "method" | "get" | "set", key: ISP_ObjectMethod_key, params: Array<IV_Identifier | ISP_RestElement>, funBody: FunctionArgInitBB, computed: boolean, generator: boolean, async: boolean) {
+  constructor(node: JS3ObjectMethod, kind: "method" | "get" | "set", key: ISP_ObjectMethod_key, params: Array<IV_Identifier | ISP_RestElement>, funBody: IRIDIUM_FG, computed: boolean, generator: boolean, async: boolean) {
     super(node, params, funBody, generator, async)
     this.node = node
     this.kind = kind
@@ -91,7 +91,7 @@ export class ISP_ObjectMethod extends I_Function {
     let params = this.params.map(i => i.toString()).join(",")
     let stmts = []
     stmts.push(`<ObjMethod> { kind: ${this.kind}, name: ${this.computed ? "[" + this.key.toString() + "" : this.key.toString()}, params: [${params}], async: ${this.async}, generator: ${this.generator} }`)
-    stmts.push(this.funBody.toString(space))
+    stmts.push(this.funBody.saveIridiumToString(space))
     return stmts.join("\n")
   }
 
@@ -163,12 +163,12 @@ export class ISP_ObjectProperty {
 
 export type ISP_ClassProperty_node = JS3ClassProperty | JS3ClassPrivateProperty
 export type ISP_ClassProperty_key = IV_Identifier | IV_DecimalLiteral | IV_BigIntLiteral | IV_StringLiteral | IV_NumericLiteral | IV_NullLiteral | IV_BooleanLiteral | IV_PrivateName
-export type ISP_ClassProperty_value = ClassPropInitBB
+export type ISP_ClassProperty_value = IRIDIUM_FG
 
 export class ISP_ClassProperty {
   node: ISP_ClassProperty_node
   key: ISP_ClassProperty_key
-  value: ClassPropInitBB
+  value: ISP_ClassProperty_value
   computed: boolean
 
   constructor(node: JS3ClassProperty | JS3ClassPrivateProperty, key: ISP_ClassProperty_key, value: ISP_ClassProperty_value, computed: boolean) {
@@ -181,12 +181,12 @@ export class ISP_ClassProperty {
   isPrivate() { return this.key instanceof IV_PrivateName }
 
   toString(space = 0) {
-    return `<ClassProp> ${this.computed ? "[" + this.key.toString() + "]" : this.key.toString()} =\n${this.value.toString(space)}\n${printScopedSpace(space)}`
+    return `<ClassProp> ${this.computed ? "[" + this.key.toString() + "]" : this.key.toString()} =\n${this.value.saveIridiumToString(space+2)}\n${printScopedSpace(space)}`
   }
 
   toDOT(space = 0) {
     debugConfig.DOTContext.add(this.value)
-    return `<ClassProp> ${this.computed ? "[" + this.key.toString() + "]" : this.key.toString()} = BB${this.value.idx}`
+    return `<ClassProp> ${this.computed ? "[" + this.key.toString() + "]" : this.key.toString()} = BB${this.value.rootBB.idx}`
   }
 }
 
@@ -222,7 +222,7 @@ export class ISP_ClassMethod extends I_Function {
   computed: boolean
   isStatic: boolean;
 
-  constructor(node: JS3ClassMethod | JS3ClassPrivateMethod, kind: "method" | "get" | "set" | "constructor", key: ISP_ClassMethod_key, params: Array<IV_Identifier | ISP_RestElement>, funBody: FunctionArgInitBB, computed: boolean, generator: boolean, async: boolean, isStatic: boolean) {
+  constructor(node: JS3ClassMethod | JS3ClassPrivateMethod, kind: "method" | "get" | "set" | "constructor", key: ISP_ClassMethod_key, params: Array<IV_Identifier | ISP_RestElement>, funBody: IRIDIUM_FG, computed: boolean, generator: boolean, async: boolean, isStatic: boolean) {
     super(node, params, funBody, generator, async)
     this.node = node
     this.kind = kind
@@ -237,7 +237,7 @@ export class ISP_ClassMethod extends I_Function {
     let params = this.params.map(i => i.toString()).join(",")
     let stmts = []
     stmts.push(`<${this.isStatic ? "Static" : ""}ClassMethod> { kind: ${this.kind}, name: ${this.computed ? "[" + this.key.toString() + "" : this.key.toString()}, params: [${params}], async: ${this.async}, generator: ${this.generator} }`)
-    stmts.push(this.funBody.toString(space))
+    stmts.push(this.funBody.saveIridiumToString(space))
     return stmts.join("\n")
   }
 

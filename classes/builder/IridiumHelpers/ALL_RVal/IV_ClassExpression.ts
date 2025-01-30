@@ -1,6 +1,6 @@
 import { JS3ClassExpression } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { ALL_RVal } from "./ALL_RVal.ts";
-import { printScopedSpace, printSpace } from "../IRIDIUM.ts";
+import { printScopedSpace, printSpace } from "#utils";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { ISP_ClassProperty, ISP_StaticClassProperty, ISP_ClassMethod } from "./ALL_ISP.ts";
 

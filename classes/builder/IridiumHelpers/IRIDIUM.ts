@@ -40,25 +40,27 @@ import { IV_This } from "./ALL_RVal/IV_This.ts";
 import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "./ALL_RVal/IV_Unop.ts";
 import { IV_UpdateExpression } from "./ALL_RVal/IV_UpdateExpression.ts";
 import { IV_AWAIT, IV_YIELD } from "./ALL_RVal/IV_YIELD_AWAIT.ts";
-import { BB, BlockBB, BranchTerminal, CatchBB, ClassInitBB, ClassPropInitBB, ClassPropInitExit, ClassStaticBB, ClassStaticExit, ContainedBB, ContainedOptionalChainBB, ExitNode, ForInOfLoopInitBB, ForLoopInitBB, FunctionArgInitBB, FunctionBB, GotoFunctionBody, ModuleBB, OptionalBranchTerminal, ScriptBB, SwitchBodyBB, SwitchCaseTerminal, TryBB, TryCatchConditionalGoto, UnconditionalGoto } from "./BB.ts";
-import { I_File } from "./I_GENERAL/I_File.ts";
+import { BB, BlockBB, BranchTerminal, CatchBB, ClassInitBB, ClassPropInitBB, ClassStaticBB, ContainedBB, ContainedOptionalChainBB, ForInOfLoopInitBB, ForLoopInitBB, FunctionArgInitBB, FunctionBB, LoopHeadBB, ModuleBB, ScriptBB, SwitchBodyBB, TryBB } from "./BB.ts";
 import { Environment } from "./I_GENERAL/I_Scope.ts";
-import { initializeEnvDefs } from "./Passes/EnvInit.ts";
-import { populatePreds } from "./Passes/PopulatePreds.ts";
-import { cleanupBBs } from "./Passes/BBCleanup.ts";
 
-import { Graph } from "#graphlib"
-import { BBTraversalContext, traverseBB } from "./Visitors/traverse.ts";
+import { Graph } from "#graphlib";
+import { printScopedSpace } from "#utils";
 
 const generate = _generate.default
 
 export class IRIDIUM_FG extends Graph {
   rootBB: BB
+  currentBB: BB
+
+  getName() {
+    return `FG_ROOT=BB${this.rootBB.idx}`
+  }
 
   // Methods to set and get BB's from the flowgraph
-  setBBNode(bb: BB) {
+  declareBBNode(bb: BB) {
     let bbIdx: string = '' + bb.idx
     this.setNode(bbIdx, bb)
+    return bb;
   }
 
   getBBNode(idx: string | number): BB {
@@ -75,146 +77,123 @@ export class IRIDIUM_FG extends Graph {
 
   constructor(bb: BB) {
     super({ directed: true })
+    this.declareBBNode(bb)
     this.rootBB = bb;
+    this.currentBB = bb;
   }
 
-  // Initialize FlowGraph
-  initialize() {
-    const rootBB = this.rootBB
-    let finGraph : IRIDIUM_FG = this
-    let visited : Set<BB> = new Set()
+  // Get/Set current BB context
+  getCurrentBB() { return this.currentBB; }
+  setCurrentBB(bb: BB) { this.currentBB = bb; }
 
-    let traverseRecursively = (b: BB) => {
-      if (visited.has(b)) return;
-      else visited.add(b)
+  forwardSuccessorsBB(uBB : BB, vBB : BB) {
+    let u = '' + uBB.idx
+    let v = '' + vBB.idx
+    this.forwardSuccessors(u, v)
+  }
 
-      // Add node to the graph
-      finGraph.setBBNode(b)
-
-      // Draw an edge between the current node and its successors
-      let successors = b.terminal.getSuccessors()
-
-      let label : string;
-
-      // 
-      // TODO: Create closures for instructions
-      // 
-
-      for (let s of successors) {
-         // Might be reinitialized, but that doesnt matter I hope
-        finGraph.setBBNode(s);
-        
-        // Draw an edge
-        finGraph.setBBEdge(b.idx, s.idx)
-
-        // Recursively visit the children
-        traverseRecursively(s)
-      }
+  // Utility methods
+  forwardSuccessors(u : string, v : string) {
+    let graph = this;
+    if (!graph.hasNode(u) || !graph.hasNode(v)) {
+      debugConfig.logger.throwIriError("Both nodes must exist in the graph to be able to forward the successors")
     }
-
-    traverseRecursively(rootBB)
+    // Get all successors of node u 
+    const successors = graph.successors(u) as Array<string>;
+    // Redirect each successor of u to v
+    successors.forEach(successor => {
+      if (successor !== v) { // Avoid self-loops to v
+        const edgeData = graph.edge(u, successor); // Preserve edge data
+        graph.setEdge(v, successor, edgeData);
+      }
+      graph.removeEdge(u, successor);
+    });  
   }
 
   // Save the IR to a string
-  saveIridiumToString() {
+  saveIridiumToString(space = 0) {
     let stmts = []
     let nodes = this.nodes()
+    let that = this
+
+    // @ts-ignore
+    nodes.sort((a, b) => that.predecessors(a).length - that.predecessors(b).length)
 
     for (let bbIdx of nodes) {
       let bb : BB = this.node(bbIdx)
       
-      stmts.push(`${printScopedSpace(2)}`)
-      stmts.push(`${printScopedSpace(2)}🬕 ${bb.printHeader()}`)
+      stmts.push(`${printScopedSpace(space)}`)
+      let preds = this.predecessors(bbIdx)
+      stmts.push(`${printScopedSpace(space)}🬕 ${bb.printHeader()} [PRED: ${preds ? preds.map(b => `BB${b}`).join(", ") : ""}]`)
 
-      bb.statements.forEach(s => {
-        stmts.push(s.toString(2))
-      })
-      stmts.push(bb.terminal.toString(2))
+      stmts.push(bb.toString(space))
+      let succs = this.successors(bbIdx)
+      stmts.push(`${printScopedSpace(space)}🬲 [SUCC: ${succs ? succs.map(b => `BB${b}`).join(", ") : ""}]`)
+
     }
     
     return stmts.join("\n")
   }
 
-  // override the existing implementation for saving DOT
-  saveBBDot(space = 0) {
-    let res = []    
-    for (let b of this.nodes()) {
-      let bb : BB = this.node(b)
+  // // override the existing implementation for saving DOT
+  // saveBBDot(space = 0) {
+  //   let res = []    
+  //   for (let b of this.nodes()) {
+  //     let bb : BB = this.node(b)
 
-      // Declare node and their labels
-      res.push(`${printSpace(space)}${bb.toDOT()}`)
-    }
+  //     // Declare node and their labels
+  //     res.push(`${printSpace(space)}${bb.toDOT()}`)
+  //   }
     
-    // res.push("  graph [nodesep=1.0, ranksep=1.5]; // Adjust separation")
-    for (let e of this.edges()) {
-      let startNode = e.v
-      let endNode = e.w
-      let startBB : BB = this.node(startNode)
-      let endBB : BB = this.node(endNode)
-      res.push(`${printSpace(space)}${startBB.printHeaderDOT()} -> ${endBB.printHeaderDOT()};`);
-    }
+  //   // res.push("  graph [nodesep=1.0, ranksep=1.5]; // Adjust separation")
+  //   for (let e of this.edges()) {
+  //     let startNode = e.v
+  //     let endNode = e.w
+  //     let startBB : BB = this.node(startNode)
+  //     let endBB : BB = this.node(endNode)
+  //     res.push(`${printSpace(space)}${startBB.printHeaderDOT()} -> ${endBB.printHeaderDOT()};`);
+  //   }
       
-    return res.join("\n");
-  }
+  //   return res.join("\n");
+  // }
 
 }
 
-export function printScopedSpace(space) {
-  let res = "";
-  for (let i = 0; i < space; i++) {
-    res += (i >= 4 && (i % 2 === 0)) ? "░" : " "
-  }
-  return res;
-}
-
-export function printSpace(space) {
-  let res = "";
-  for (let i = 0; i < space; i++) {
-    res += " "
-  }
-  return res;
-}
 
 export default class IRIDIUM {
   js3builder: JS3Builder
   node: JS3Program
-  currentBB: BB
-  envContext: Array<Environment>
-
-  // Static Constructor
-  static create(js3builder: JS3Builder) {
-    return new I_File(js3builder)
-  }
-
+  fgContext: Array<IRIDIUM_FG> = new Array()
+  
   constructor(js3builder: JS3Builder) {
     this.node = js3builder.generatedAST.program
     this.js3builder = js3builder
-    this.initialize();
   }
 
-  // Start CFG Construction
-  initialize() {
-    let MAIN_ENV = new Environment(undefined)
-    if (this.node.sourceType === "module") {
-      let bb = new ModuleBB(MAIN_ENV, this.node)
-      bb.terminal = new ExitNode()
-      this.setCurrentBB(bb);
-    } else {
-      let bb = new ScriptBB(MAIN_ENV, this.node)
-      bb.terminal = new ExitNode()
-      this.setCurrentBB(bb);
-    }
-  }
+  // FlowGraph Context
+  getCurrentFGContext() : IRIDIUM_FG { return this.fgContext[this.fgContext.length - 1]; }
+  pushFGContext(bb: IRIDIUM_FG) { this.fgContext.push(bb); }
+  popFGContext() : IRIDIUM_FG { return this.fgContext.pop(); }
 
-  // Start Building Iridium Flowgraph
+  // Build FlowGraph
   build() {
-    let body = new IRIDIUM_FG(this.currentBB)
+    let MAIN_ENV = new Environment(undefined)
+    let bb: BB;
+
+    if (this.node.sourceType === "module")
+      bb = new ModuleBB(MAIN_ENV, this.node)
+    else
+      bb = new ScriptBB(MAIN_ENV, this.node)
+    
+    this.pushFGContext(new IRIDIUM_FG(bb))
     this.handleJS3ProgramBody(this.node.body)
+    let res = this.popFGContext()
+    if (this.fgContext.length !== 0) debugConfig.logger.throwIriError("Expected FGContext to be empty after Iridium generation!!") 
 
-    body.initialize()
+    // body.initialize()
 
-    console.log("Debug print IRIDIUM_FG")
-    console.log(body.saveDot("IRIDIUM_FG"))
+    // console.log("Debug print IRIDIUM_FG")
+    // console.log(body.saveDot("IRIDIUM_FG"))
 
     // 
     // Update the passes to use the new flowgraph
@@ -224,12 +203,12 @@ export default class IRIDIUM {
     // console.log(body.bb.toString())
     // cleanupBBs(body.bb)
     // initializeEnvDefs(body.bb)
-    return body
+    return res
   }
 
-  // Set/Get current BB
-  setCurrentBB(bb: BB) { this.currentBB = bb; }
-  getCurrentBB() { return this.currentBB; }
+  // // Set/Get current BB
+  // setCurrentBB(bb: BB) { this.currentBB = bb; }
+  // getCurrentBB() { return this.currentBB; }
 
   // Handle Statements
   handleJS3AllowedProgStatement(stmt: JS3AllowedProgStatement) {
@@ -429,12 +408,16 @@ export default class IRIDIUM {
       exprRes = handleExpression(from, updatedProps);
     }
 
-    this.setCurrentBB(block)
+    let fgContext = this.getCurrentFGContext()
+
+    fgContext.setCurrentBB(block)
     this.handleJS3ProgramBody(js3SpillHolder)
+    
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
 
     // resID = ...exprRes
     if (resID)
-      this.getCurrentBB().statements.push(new IS_SimpleVarDecl(undefined, "let", resID, new IV_Identifier(exprRes, exprRes.name)));
+      fgContext.getCurrentBB().statements.push(new IS_SimpleVarDecl(undefined, "let", resID, new IV_Identifier(exprRes, exprRes.name)));
 
     return exprRes;
   }
@@ -442,21 +425,28 @@ export default class IRIDIUM {
   //
   // *********************** Functions Related Lowering ***********************
   //
-  handleFunctionParams(params: Array<JS3AllowedFunctionArgs>, functionBody: FunctionBB): [Array<IV_Identifier | ISP_RestElement>, FunctionArgInitBB] {
-    let oldBB = this.getCurrentBB()
+  handleFunctionParams(params: Array<JS3AllowedFunctionArgs>, functionBody: FunctionBB): [Array<IV_Identifier | ISP_RestElement>, FunctionArgInitBB, IRIDIUM_FG] {
+    let fgContext = this.getCurrentFGContext()
+
     let fin_args: Array<IV_Identifier | ISP_RestElement> = []
 
-
-    let argInitEnv = new Environment(oldBB.env)
+    // Fixup env
+    let argInitEnv = new Environment(functionBody.env.parent)
     functionBody.env.parent.children.delete(functionBody.env)
     functionBody.env.parent = argInitEnv
     argInitEnv.children.add(functionBody.env)
 
-
     let argInitBlock = new FunctionArgInitBB(argInitEnv, params)
-    let finalGoto = new GotoFunctionBody(functionBody)
-    let curr = argInitBlock
-    argInitBlock.terminal = finalGoto
+    fgContext.declareBBNode(argInitBlock)
+
+    // 
+    // Draw Edges
+    // 
+    fgContext.rootBB = argInitBlock
+    fgContext.setBBEdge(argInitBlock.idx, functionBody.idx)
+    
+    // Lower Args in the argInitBlock
+    fgContext.setCurrentBB(argInitBlock)
     let i = 0
     for (let arg of params) {
 
@@ -494,16 +484,7 @@ export default class IRIDIUM {
         }
       }
       handleDeclaratorRec(toLowerLval, toLowerRVal, updatedProps, generator, false);
-      this.setCurrentBB(curr)
       this.handleJS3ProgramBody(js3SpillHolder)
-
-      let finBB = this.getCurrentBB()
-
-      if (finBB instanceof FunctionArgInitBB) {
-        curr = finBB
-      } else {
-        debugConfig.logger.throwIriError("When spilling arguments, the final BB is expected to be FunctionArgInitBB")
-      }
 
       // 
       // Populate args array
@@ -518,27 +499,25 @@ export default class IRIDIUM {
       }
     }
 
-    if (curr.terminal !== finalGoto)
+    // Ensure the last block points to the function body
+    let succ = fgContext.successors('' + fgContext.getCurrentBB().idx)
+    if (!succ || succ.length !== 1 || (('' + functionBody.idx) !== succ[0])) {
       debugConfig.logger.throwIriError(`Iridium function arg, control must flow to body after argument initialization`)
+    }
 
-    this.setCurrentBB(oldBB)
-
-    return [fin_args, argInitBlock]
+    return [fin_args, argInitBlock, this.popFGContext()]
   }
 
   handleFunctionBody(node: JS3BlockStatement) {
+    let fgContext = this.getCurrentFGContext()
 
-    let oldBB = this.getCurrentBB()
-    // Lower function body
-    let funBB = new FunctionBB(new Environment(oldBB.env), node) // STUB Env, gets replaced when processing arguments
-    funBB.terminal = new ExitNode()
+    let funBB = new FunctionBB(new Environment(fgContext.getCurrentBB().env), node) // STUB Env, gets
+    let PROP_INIT_FG = new IRIDIUM_FG(funBB)
+    this.pushFGContext(PROP_INIT_FG);
 
-    this.setCurrentBB(funBB)
     for (let s of node.body) {
       this.handleJS3AllowedProgStatement(s)
     }
-
-    this.setCurrentBB(oldBB)
     return funBB
   }
 
@@ -608,38 +587,52 @@ export default class IRIDIUM {
     //	// 9. Resume BB Flow
 
     // let classExprValHolder;
-    let curr = this.getCurrentBB();
+    let fgContext = this.getCurrentFGContext()
+
+    // 
+    // BB and lexical env creation
+    // 
+    let currBB = fgContext.getCurrentBB()
+    let classInitLexicalEnv = new Environment(currBB.env)
+    let classInitBB = new ClassInitBB(classInitLexicalEnv, node, node.id ? new IV_Identifier(node.id, node.id.name) : undefined);
+    fgContext.declareBBNode(classInitBB)
+    let postBB = fgContext.declareBBNode(currBB.create())
+    if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+    fgContext.forwardSuccessorsBB(currBB, postBB)
+
+    // 
+    // Draw Edges
+    // 
+    fgContext.setBBEdge(currBB.idx, classInitBB.idx)
+    fgContext.setBBEdge(classInitBB.idx, postBB.idx)
+
+    // 
+    // Add classExprResHolder to currBB
+    // 
     let classExprValHolder = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("classExprRes"))
     classExprValHolder.isValue = true;
     let initClassExprValToNUBD = new IS_SimpleVarDecl(undefined, "let", classExprValHolder, new IV_NUBD(undefined))
-    curr.statements.push(initClassExprValToNUBD);
+    currBB.statements.push(initClassExprValToNUBD);
 
-    // Branch from curr to classInitBB
-    let postBB = curr.create();
-    postBB.terminal = curr.terminal;
+    // Set context to classInitBB
 
-    // Env Context
-    let classInitLexicalEnv = new Environment(curr.env)
-
-    let classInitBB = new ClassInitBB(classInitLexicalEnv, node, node.id ? new IV_Identifier(node.id, node.id.name) : undefined);
-    classInitBB.terminal = new UnconditionalGoto(postBB);
-    curr.terminal = new UnconditionalGoto(classInitBB);
-
-    this.setCurrentBB(classInitBB);
+    fgContext.setCurrentBB(classInitBB)
 
     // 
-    //     <ClassInitThis> THIS = undefined <- most unhinged thing I've seen...
-    //     <ClassInitName>? cName = NUBD
-    //
+    // Inside the ClassInit Block, initialize the THIS pointer and the classname binding (if it exists)
+    // 
+    //   <ClassInitThis> THIS = undefined <- most unhinged thing I've seen...
     let thisInitToUndef = new IS_ThisInitStmt(node)
-    this.getCurrentBB().statements.push(thisInitToUndef);
-
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.getCurrentBB().statements.push(thisInitToUndef);
+    
     let cName: IV_Identifier | undefined;
-
     if (isIdentifier(node.id)) {
+      //   <ClassInitName> cName = NUBD
       cName = new IV_Identifier(node.id, node.id.name);
       let cNameInitToNUBD = new IS_ClassNameInitStmt(node, cName);
-      this.getCurrentBB().statements.push(cNameInitToNUBD);
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.getCurrentBB().statements.push(cNameInitToNUBD);
     }
 
     // Heritage resolution 
@@ -647,8 +640,10 @@ export default class IRIDIUM {
     if (node.superClass) {
       IRI_heritage = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("heritageResult"))
       IRI_heritage.isValue = true
-      this.lowerExprToBB(node.superClass, this.getCurrentBB(), IRI_heritage)
+      this.lowerExprToBB(node.superClass, classInitBB, IRI_heritage)
     }
+
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
 
     // Name Resolution
     let IV_ComputedNameMap: Map<JS3ClassProperty | JS3ClassMethod, ISP_ClassProperty_key> = new Map()
@@ -657,7 +652,8 @@ export default class IRIDIUM {
         if (bodyElem.computed) {
           let valResID = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("computedName"))
           valResID.isValue = true
-          this.lowerExprToBB(bodyElem.key, this.getCurrentBB(), valResID)
+          this.lowerExprToBB(bodyElem.key, fgContext.getCurrentBB(), valResID)
+          if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
           IV_ComputedNameMap.set(bodyElem, valResID)
         } else {
           if (isIdentifier(bodyElem.key) || isDecimalLiteral(bodyElem.key) || isBigIntLiteral(bodyElem.key) || isStringLiteral(bodyElem.key) || isNumericLiteral(bodyElem.key) || isNullLiteral(bodyElem.key) || isBooleanLiteral(bodyElem.key)) {
@@ -703,7 +699,6 @@ export default class IRIDIUM {
         } else {
 
           // Non-static Property
-          let oldBB = this.getCurrentBB()
 
           // Env for static block init
           let propInitEnv = new Environment(classInitLexicalEnv)
@@ -711,18 +706,21 @@ export default class IRIDIUM {
           let valResID = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined))
           valResID.isValue = true
           let propComputationBlock = new ClassPropInitBB(propInitEnv, bodyElem.value)
-          propComputationBlock.terminal = new ClassPropInitExit(valResID)
+          let PROP_INIT_FG = new IRIDIUM_FG(propComputationBlock)
 
-          this.lowerExprToBB(bodyElem.value, propComputationBlock, valResID)
+          this.pushFGContext(PROP_INIT_FG);
+          this.lowerExprToBB(bodyElem.value, propComputationBlock, valResID);
+          this.popFGContext();
 
-          classProperties.push(new ISP_ClassProperty(bodyElem, key, propComputationBlock, computed))
+          if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
 
-          this.setCurrentBB(oldBB)
+          classProperties.push(new ISP_ClassProperty(bodyElem, key, PROP_INIT_FG, computed))
         }
 
       } else if (isJS3ClassMethod(bodyElem) || isJS3ClassPrivateMethod(bodyElem)) {
         let kind = bodyElem.kind
-        let [params, funBody] = this.handleFunctionParams(bodyElem.params, this.handleFunctionBody(bodyElem.body))
+        let [params, funBody, fCon] = this.handleFunctionParams(bodyElem.params, this.handleFunctionBody(bodyElem.body))
+        if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
         let generator = bodyElem.generator;
         let async = bodyElem.async;
 
@@ -738,74 +736,83 @@ export default class IRIDIUM {
           computed = bodyElem.computed
         }
 
-        classProperties.push(new ISP_ClassMethod(bodyElem, kind, key, params, funBody, computed, generator, async, bodyElem.static))
+        classProperties.push(new ISP_ClassMethod(bodyElem, kind, key, params, fCon, computed, generator, async, bodyElem.static))
       } else {
         // JS3StaticBlock
         staticPropSpill.push(bodyElem)
       }
     }
 
-    // v <- ...IRIClassExpression 
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+     
+    // let finInitClassRes = classExprValHolder = <ClassExpression> ...
     let iriClassExpr = new IV_ClassExpression(node, cName, IRI_heritage, classProperties, dropName)
     let iriAssn = new IV_SimpleAssn(undefined, classExprValHolder, iriClassExpr)
     let finInitClassRes = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined))
-    this.getCurrentBB().statements.push(new IS_SimpleVarDecl(undefined, "let", finInitClassRes, iriAssn))
+    fgContext.getCurrentBB().statements.push(new IS_SimpleVarDecl(undefined, "let", finInitClassRes, iriAssn))
 
+    // <THIS_INIT> THIS = finInitClassRes
     thisInitToUndef = new IS_ThisInitStmt(node)
     thisInitToUndef.RVal = finInitClassRes
-    this.getCurrentBB().statements.push(thisInitToUndef);
+    fgContext.getCurrentBB().statements.push(thisInitToUndef);
 
+    // <ClassNameInit> cName = finInitClassRes
     if (isIdentifier(node.id)) {
       let cNameInitToNUBD = new IS_ClassNameInitStmt(node, cName);
       cNameInitToNUBD.RVal = finInitClassRes
-      this.getCurrentBB().statements.push(cNameInitToNUBD);
+      fgContext.getCurrentBB().statements.push(cNameInitToNUBD);
     }
 
     for (let toSpill of staticPropSpill) {
       if (isJS3StaticBlock(toSpill)) {
-        let currBB = this.getCurrentBB()
-        let postBB = currBB.create()
-        postBB.terminal = currBB.terminal
+        let currBB = fgContext.getCurrentBB()
+        let staticBlockBody = new ClassStaticBB(new Environment(classInitLexicalEnv), toSpill)
+        fgContext.declareBBNode(staticBlockBody)
+        let postBB = fgContext.declareBBNode(currBB.create())
+        if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+        fgContext.forwardSuccessorsBB(currBB, postBB)
 
+        // Draw Edges
+        fgContext.setBBEdge(currBB.idx, staticBlockBody.idx)
+        fgContext.setBBEdge(staticBlockBody.idx, postBB.idx)
 
-        // Env for static block init
-        let staticEvalEnv = new Environment(classInitLexicalEnv)
-
-        let staticBlockBody = new ClassStaticBB(staticEvalEnv, toSpill)
-        currBB.terminal = new UnconditionalGoto(staticBlockBody)
-
-        staticBlockBody.terminal = new ClassStaticExit(postBB)
-
-        this.setCurrentBB(staticBlockBody)
+        fgContext.setCurrentBB(staticBlockBody)
         for (let s of toSpill.body) {
           this.handleJS3AllowedProgStatement(s);
         }
 
-        this.setCurrentBB(postBB)
+        if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+        fgContext.setCurrentBB(postBB)
       } else {
         let classProp = toSpill[0]
         let propVal = toSpill[1]
         let computed = toSpill[2]
 
-        let currBB = this.getCurrentBB()
-        let postBB = currBB.create()
-        postBB.terminal = currBB.terminal
-
+        let currBB = fgContext.getCurrentBB()
         let propComputationBlock = new BlockBB(classInitLexicalEnv)
-        currBB.terminal = new UnconditionalGoto(propComputationBlock)
-        propComputationBlock.terminal = new UnconditionalGoto(postBB)
+        fgContext.declareBBNode(propComputationBlock)
+        let postBB = fgContext.declareBBNode(currBB.create())
+        if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+        fgContext.forwardSuccessorsBB(currBB, postBB)
+
+        // Draw Edges
+        fgContext.setBBEdge(currBB.idx, propComputationBlock.idx)
+        fgContext.setBBEdge(propComputationBlock.idx, postBB.idx)
 
         let valResID = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined))
         valResID.isValue = true
 
         this.lowerExprToBB(propVal, propComputationBlock, valResID)
-        this.getCurrentBB().statements.push(new IS_ClassStaticPropInit(node, finInitClassRes, classProp, valResID, computed))
 
-        this.setCurrentBB(postBB)
+        if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+        fgContext.getCurrentBB().statements.push(new IS_ClassStaticPropInit(node, finInitClassRes, classProp, valResID, computed))
+
+        fgContext.setCurrentBB(postBB)
       }
     }
 
-    this.setCurrentBB(postBB);
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(postBB);
 
     return classExprValHolder;
   }
@@ -824,7 +831,7 @@ export default class IRIDIUM {
 
   handleJS3UnaryExpression(node: JS3UnaryExpression) {
     if (node.operator === "delete") {
-      let resId: Identifier = this.lowerExprToBB(node.argument, this.getCurrentBB())
+      let resId: Identifier = this.lowerExprToBB(node.argument, this.getCurrentFGContext().getCurrentBB())
       let resID = new IV_Identifier(resId, resId.name)
       resID.isValue = true
       return new IV_DUNOP(node, resID)
@@ -891,12 +898,16 @@ export default class IRIDIUM {
 
   handleJS3AnonMemberExpression(node: JS3AnonMemberExpression) {
     let element = node.object.elements[0];
+    let fgContext = this.getCurrentFGContext()
+
     if (isJS3FunctionExpression(element)) {
-      let [params, funBody] = this.handleFunctionParams(element.params, this.handleFunctionBody(element.body))
-      return new IV_FunctionExpression(element, params, funBody, undefined, element.generator, element.async, true)
+      let [params, funBody, fCon] = this.handleFunctionParams(element.params, this.handleFunctionBody(element.body))
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      return new IV_FunctionExpression(element, params, fCon, undefined, element.generator, element.async, true)
     } else if (isJS3ArrowFunctionExpression(element)) {
-      let [params, funBody] = this.handleFunctionParams(element.params, this.handleFunctionBody(element.body))
-      return new IV_ArrowFunctionExpression(element, params, funBody, undefined, element.generator, element.async, true)
+      let [params, funBody, fCon] = this.handleFunctionParams(element.params, this.handleFunctionBody(element.body))
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      return new IV_ArrowFunctionExpression(element, params, fCon, undefined, element.generator, element.async, true)
     } else if (isJS3ClassExpression(element)) {
       let classExpr = this.handleJS3ClassExpression(element, true)
       return classExpr
@@ -908,20 +919,25 @@ export default class IRIDIUM {
   // *********************** Iridium_FunctionExpressions ***********************
 
   handleJS3FunctionExpression(node: JS3FunctionExpression) {
-    let [params, funBody] = this.handleFunctionParams(node.params, this.handleFunctionBody(node.body))
+    let fgContext = this.getCurrentFGContext()
+    let [params, funBody, fCon] = this.handleFunctionParams(node.params, this.handleFunctionBody(node.body))
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
     let name: IV_Identifier | undefined = undefined
     if (isIdentifier(node.id)) name = new IV_Identifier(node.id, node.id.name)
-    return new IV_FunctionExpression(node, params, funBody, name, node.generator, node.async)
+    return new IV_FunctionExpression(node, params, fCon, name, node.generator, node.async)
   }
 
   handleJS3ArrowFunctionExpression(node: JS3ArrowFunctionExpression) {
-    let [params, funBody] = this.handleFunctionParams(node.params, this.handleFunctionBody(node.body))
-    return new IV_ArrowFunctionExpression(node, params, funBody, undefined, node.generator, node.async)
+    let fgContext = this.getCurrentFGContext()
+    let [params, funBody, fCon] = this.handleFunctionParams(node.params, this.handleFunctionBody(node.body))
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    return new IV_ArrowFunctionExpression(node, params, fCon, undefined, node.generator, node.async)
   }
 
   // *********************** Iridium_ObjectExpression ***********************
 
   handleJS3ObjectExpression(node: JS3ObjectExpression) {
+    let fgContext = this.getCurrentFGContext()
 
     let properties: Array<ISP_ObjectMethod | ISP_ObjectProperty | ISP_ArgSpread> = []
 
@@ -941,12 +957,14 @@ export default class IRIDIUM {
 
         let kind = p.kind
         let key = fin_key
-        let [params, funBody] = this.handleFunctionParams(p.params, this.handleFunctionBody(p.body))
+        let [params, funBody, fCon] = this.handleFunctionParams(p.params, this.handleFunctionBody(p.body))
+        if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+
         let computed = p.computed
         let generator = p.generator;
         let async = p.async;
 
-        properties.push(new ISP_ObjectMethod(p, kind, key, params, funBody, computed, generator, async))
+        properties.push(new ISP_ObjectMethod(p, kind, key, params, fCon, computed, generator, async))
       } else if (isJS3ObjectProperty(p)) {
         properties.push(ISP_ObjectProperty.from(p))
       } else if (isJS3SpreadElement(p)) {
@@ -963,23 +981,36 @@ export default class IRIDIUM {
 
   handleJS3ConditionalExpression(node: JS3ConditionalExpression) {
     let test = IV_Identifier.from(node.test)
+    let fgContext = this.getCurrentFGContext()
 
-    // Set BB links
-    let curr = this.getCurrentBB()
-    let postBB = curr.create()
-    let TrueBB = new ContainedBB(new Environment(curr.env), node.consequent, curr)
-    let FalseBB = new ContainedBB(new Environment(curr.env), node.alternate, curr)
-    postBB.terminal = curr.terminal
-    TrueBB.terminal = new UnconditionalGoto(postBB)
-    FalseBB.terminal = new UnconditionalGoto(postBB)
-    curr.terminal = new BranchTerminal(node, test, TrueBB, FalseBB)
+    // Declare nodes and forward successors
+    let currBB = fgContext.getCurrentBB()
+    let trueBB = new ContainedBB(new Environment(currBB.env), node.consequent, currBB)
+    fgContext.declareBBNode(trueBB)
+    let falseBB = new ContainedBB(new Environment(currBB.env), node.alternate, currBB)
+    fgContext.declareBBNode(falseBB)
+    let postBB = fgContext.declareBBNode(currBB.create())
+    if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+    fgContext.forwardSuccessorsBB(currBB, postBB)
+
+    // Draw Edges
+    fgContext.setBBEdge(currBB.idx, trueBB.idx, "T")
+    fgContext.setBBEdge(currBB.idx, falseBB.idx, "F")
+    fgContext.setBBEdge(trueBB.idx, postBB.idx)
+    fgContext.setBBEdge(falseBB.idx, postBB.idx)
+    
+    currBB.branchTerminal = new BranchTerminal(node, test, trueBB, falseBB)
 
     // Lower true and false branches
-    let trueRes: Identifier = this.lowerExprToBB(node.consequent, TrueBB)
-    let falseRes: Identifier = this.lowerExprToBB(node.alternate, FalseBB)
+    fgContext.setCurrentBB(trueBB)
+    let trueRes: Identifier = this.lowerExprToBB(node.consequent, trueBB)
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(falseBB)
+    let falseRes: Identifier = this.lowerExprToBB(node.alternate, falseBB)
 
     // Set PostBB
-    this.setCurrentBB(postBB)
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(postBB)
 
     // Return IV_ConditionalExpression
     return new IV_ConditionalExpression(node, test, IV_Identifier.from(trueRes, true), IV_Identifier.from(falseRes, true));
@@ -989,6 +1020,8 @@ export default class IRIDIUM {
   // *********************** Iridium_OptionalChaining ***********************
 
   handleOptionalChainExpression(parentNode: OptionalMemberExpression | OptionalCallExpression, existingState: { resID: IV_Identifier, fallthruBlock: BB, postBB: BB, callExprContext: boolean } | undefined = undefined) {
+
+    let fgContext = this.getCurrentFGContext()
 
     // 
     // 1. Identify Terminal
@@ -1022,53 +1055,60 @@ export default class IRIDIUM {
     // 
     // 2. Spill the genesis object part in the current scope 
     // 
-    let genesisTestBB: BB;
+    let genesisTestBB: BB, genesisTestTerminalBB: BB;
 
     // Base Case, initialize existing state for recursive calls
     if (!existingState) {
-      let curr = this.getCurrentBB()
-      let postBB = curr.create()
-      postBB.terminal = curr.terminal
+      let currBB = fgContext.getCurrentBB()
+      let postBB = fgContext.declareBBNode(currBB.create())
+      if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+      let fallthruBlock = new ContainedOptionalChainBB(currBB.env, parentNode, "Chained Short-Circuit Terminal", true, true, true)
+      fgContext.declareBBNode(fallthruBlock)
+      genesisTestBB = new ContainedOptionalChainBB(currBB.env, genesisNode, `Chain Expression: ${generate(parentNode).code}`, false)
+      fgContext.declareBBNode(genesisTestBB)
+      fgContext.forwardSuccessorsBB(currBB, postBB)
 
+      // Set Edges
+      fgContext.setBBEdge(currBB.idx, genesisTestBB.idx)
+      fgContext.setBBEdge(fallthruBlock.idx, postBB.idx)
+      
+      // Declare chainResHolder in the starting BB
       let resID = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("chainRes"))
       resID.isValue = true
-
       // Create a declaration in the parent BB for resID
-      curr.statements.push(new IS_SimpleVarDecl(undefined, "let", resID, null))
+      currBB.statements.push(new IS_SimpleVarDecl(undefined, "let", resID, null))
 
-      let fallthruBlock = new ContainedOptionalChainBB(curr.env, parentNode, "Chained Short-Circuit Terminal", true, true, true)
-
+      // Shortcircuit, set resID = undefined
       let fallthrough_assn = new IS_SimpleVarDecl(undefined, "let", new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined)), new IV_SimpleAssn(undefined, resID, new IV_Identifier(undefined, "undefined")))
       fallthruBlock.statements.push(fallthrough_assn)
-      fallthruBlock.terminal = new UnconditionalGoto(postBB)
+
+      // Initialize State
       existingState = { resID, fallthruBlock, postBB, callExprContext: false }
-
-      // 
-      //    CURR --GOTO--> genesisTestBB
-
-      // CURR --GOTO--> genesisTestBB
-      genesisTestBB = new ContainedOptionalChainBB(existingState.postBB.env, genesisNode, `Chain Expression: ${generate(parentNode).code}`, false)
-      curr.terminal = new UnconditionalGoto(genesisTestBB)
-
     } else {
-      genesisTestBB = this.getCurrentBB()
+      genesisTestBB = fgContext.getCurrentBB()
       if (genesisTestBB instanceof ContainedOptionalChainBB) {
       } else debugConfig.logger.throwIriError("For recursive case, basic block is expected to be a value block")
     }
 
-    //    genesisTestBB --TEST--> chainBB --GOTO--> postBB (contextual)
-    //                      |---> fallthruBlock (contextual) 
+    genesisTestTerminalBB = genesisTestBB.create();
+    fgContext.declareBBNode(genesisTestTerminalBB)
 
-    // chainBB --GOTO--> postBB
     let chainBB = new ContainedOptionalChainBB(existingState.postBB.env, parentNode, "", true)
-    chainBB.terminal = new UnconditionalGoto(existingState.postBB);
+    fgContext.declareBBNode(chainBB)
+    
+    //    genesisTestBB --> genesisTestTerminalBB --TEST--> chainBB --GOTO--> postBB (contextual)
+    //                                                |---> fallthruBlock (contextual) 
+    fgContext.setBBEdge(genesisTestBB.idx, genesisTestTerminalBB.idx)
+    fgContext.setBBEdge(genesisTestTerminalBB.idx, chainBB.idx, "T")
+    fgContext.setBBEdge(genesisTestTerminalBB.idx, existingState.fallthruBlock.idx, "F")
+    fgContext.setBBEdge(chainBB.idx, existingState.postBB.idx)
 
+    // Set terminal
     let genesisTestRes = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("testRes"))
-    genesisTestBB.terminal = new OptionalBranchTerminal(parentNode, genesisTestRes, chainBB, existingState.fallthruBlock);
+    genesisTestTerminalBB.branchTerminal = new BranchTerminal(parentNode, genesisTestRes, chainBB, existingState.fallthruBlock)
 
-    // genesisTestBB --TEST--> chainBB
-    //                   |---> fallthruBlock
-
+    // Lower Genesis Test
+    fgContext.setCurrentBB(genesisTestBB)
     this.lowerExprToBB(objectToSpill, genesisTestBB, genesisTestRes)
 
     if (existingState.callExprContext) {
@@ -1082,7 +1122,10 @@ export default class IRIDIUM {
     }
 
     existingState.callExprContext = isOptionalCallExpression(genesisNode)
-    this.setCurrentBB(chainBB)
+
+    // Handle Chain condition
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(chainBB)
 
     // 
     // 3. Patch node and check for chain termination  
@@ -1166,12 +1209,17 @@ export default class IRIDIUM {
 
       // Handle Chain termination.
       // resID = ...terminal_expr
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(chainBB)
       let resHolderID : Identifier = this.lowerExprToBB(patchedNode, chainBB)
-
-      this.getCurrentBB().statements.push(new IS_SimpleVarDecl(undefined, "let", new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined)), new IV_SimpleAssn(undefined, existingState.resID, IV_Identifier.from(resHolderID))))
+      
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.getCurrentBB().statements.push(new IS_SimpleVarDecl(undefined, "let", new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined)), new IV_SimpleAssn(undefined, existingState.resID, IV_Identifier.from(resHolderID))))
+      
       // Retain context in base cases like : a = x.a?.()
       if (existingState.callExprContext) {
-        let first = this.getCurrentBB().statements[0]
+        if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+        let first = fgContext.getCurrentBB().statements[0]
         if (first instanceof IS_SimpleVarDecl && first.RVal instanceof IV_Call && first.RVal.callee instanceof IV_Identifier) {
           first.RVal.staticThis = true;
           first.RVal.callee.isValue = true;
@@ -1180,8 +1228,8 @@ export default class IRIDIUM {
         }
       }
 
-      this.setCurrentBB(existingState.postBB)
-
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(existingState.postBB)
       return existingState.resID
     } else {
       chainBB.comment = `Recursive case: ${generate(patchedNode).code}`
@@ -1189,7 +1237,6 @@ export default class IRIDIUM {
       return this.handleOptionalChainExpression(patchedNode, existingState)
     }
   }
-
 
   // *********************** Iridium_AssignmentExpression ***********************
   handleJS3AssignmentExpression(node: JS3AssignmentExpression) {
@@ -1324,18 +1371,25 @@ export default class IRIDIUM {
     let RVal = this.handleJS3AssnInit(node.callee)
     let stmt = new IS_SimpleVarDecl(undefined, "let", LVal, RVal)
 
-    let curr = this.getCurrentBB()
-    curr.statements.push(stmt)
+    let fgContext = this.getCurrentFGContext()
+    let currBB = fgContext.getCurrentBB()
+    currBB.statements.push(stmt)
 
     let args: Array<IV_Identifier | ISP_ArgSpread> = new Array()
 
     for (let a of node.arguments) {
-      let curr = this.getCurrentBB()
-      let postBB = curr.create()
-      let argSpillBB = new ContainedBB(curr.env, a, curr)
-      postBB.terminal = curr.terminal
-      curr.terminal = new UnconditionalGoto(argSpillBB)
-      argSpillBB.terminal = new UnconditionalGoto(postBB)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      
+      let currBB = fgContext.getCurrentBB()
+      let argSpillBB = new ContainedBB(currBB.env, a, currBB)
+      fgContext.declareBBNode(argSpillBB)
+      let postBB = fgContext.declareBBNode(currBB.create())
+      if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+      fgContext.forwardSuccessorsBB(currBB, postBB)
+
+      // Draw Edges
+      fgContext.setBBEdge(currBB.idx, argSpillBB.idx)
+      fgContext.setBBEdge(argSpillBB.idx, postBB.idx)
 
       let toSpill: JS3ContainedExprKey
       if (isSpreadElement(a)) {
@@ -1344,11 +1398,13 @@ export default class IRIDIUM {
         toSpill = a
       }
 
+      fgContext.setCurrentBB(argSpillBB)
       let resholderID: Identifier = this.lowerExprToBB(toSpill, argSpillBB)
       let resHolder: IV_Identifier = IV_Identifier.from(resholderID)
       resHolder.isValue = true
 
-      this.setCurrentBB(postBB)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(postBB)
 
       if (isSpreadElement(a)) {
         args.push(new ISP_ArgSpread(generateJS3SpreadElement(resholderID, a), resHolder))
@@ -1356,7 +1412,6 @@ export default class IRIDIUM {
         args.push(resHolder)
       }
     }
-
     return new IV_Call(node, true, LVal, args)
   }
 
@@ -1416,104 +1471,164 @@ export default class IRIDIUM {
 
   // *********************** Iridium_SwitchStatement ***********************
   handleJS3SwitchStatement(stmt: JS3SwitchStatement) {
-    let currBB = this.getCurrentBB()
-    let postBB = currBB.create()
-    let switchBodyBB = new SwitchBodyBB(new Environment(currBB.env), stmt)
+    let fgContext = this.getCurrentFGContext()
 
-    postBB.terminal = currBB.terminal
-    currBB.terminal = new UnconditionalGoto(switchBodyBB)
-    switchBodyBB.terminal = new UnconditionalGoto(postBB)
+    // Declare nodes and forward successors
+    let currBB = fgContext.getCurrentBB()
+    let switchBodyBB = new SwitchBodyBB(new Environment(currBB.env), stmt)
+    fgContext.declareBBNode(switchBodyBB)
+    let postBB = fgContext.declareBBNode(currBB.create())
+    if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+    fgContext.forwardSuccessorsBB(currBB, postBB)
+
+    // Draw Edges
+    fgContext.setBBEdge(currBB.idx, switchBodyBB.idx)
+    fgContext.setBBEdge(switchBodyBB.idx, postBB.idx)
 
     let switchStmtTest: Identifier = stmt.discriminant;
-    this.setCurrentBB(switchBodyBB)
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(switchBodyBB)
     for (let c of stmt.cases) {
-      let curr = this.getCurrentBB()
-      let postBB = curr.create()
-      let caseTest = new ContainedBB(curr.env, c, switchBodyBB)
-      let caseBody = new ContainedBB(curr.env, c, switchBodyBB)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+
+      // Declare nodes and forward successors
+      let currBB = fgContext.getCurrentBB()
+      let caseTestBB = new ContainedBB(currBB.env, c, switchBodyBB)
+      fgContext.declareBBNode(caseTestBB)
+      let caseTestTerminalBB = caseTestBB.create()
+      fgContext.declareBBNode(caseTestTerminalBB)
+      let caseBody = new ContainedBB(currBB.env, c, switchBodyBB)
+      fgContext.declareBBNode(caseBody)
+      let postBB = fgContext.declareBBNode(currBB.create())
+      if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+      fgContext.forwardSuccessorsBB(currBB, postBB)
+
+      // Draw Edges
+      fgContext.setBBEdge(currBB.idx, caseTestBB.idx)
+      fgContext.setBBEdge(caseTestBB.idx, caseTestTerminalBB.idx)
+      fgContext.setBBEdge(caseTestTerminalBB.idx, caseBody.idx, "T")
+      fgContext.setBBEdge(caseTestTerminalBB.idx, postBB.idx, "F")
+      fgContext.setBBEdge(caseBody.idx, postBB.idx)
 
       let testResult = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("testResult"))
-
-      postBB.terminal = curr.terminal
-      curr.terminal = new UnconditionalGoto(caseTest)
-      caseTest.terminal = new SwitchCaseTerminal(c, testResult, caseBody, postBB)
-      caseBody.terminal = new UnconditionalGoto(postBB)
+      caseTestTerminalBB.branchTerminal = new BranchTerminal(c, testResult, caseBody, postBB)
 
       // Lower Body
-      this.setCurrentBB(caseBody)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(caseBody)
       this.handleJS3ProgramBody(c.consequent)
 
       // Lower Test?
       if (c.test) {
-        this.setCurrentBB(caseTest)
-        let caseID: Identifier = this.lowerExprToBB(c.test, caseTest)
+        if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+        fgContext.setCurrentBB(caseTestBB)
+        let caseID: Identifier = this.lowerExprToBB(c.test, caseTestBB)
         let comparison = new IV_CBINOP(undefined, IV_Identifier.from(switchStmtTest), IV_Identifier.from(caseID), "===")
         let finDecl = new IS_SimpleVarDecl(undefined, "let", testResult, comparison)
-        this.getCurrentBB().statements.push(finDecl)
+        if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+        fgContext.getCurrentBB().statements.push(finDecl)
       } else {
         let finDecl = new IS_SimpleVarDecl(undefined, "let", testResult, new IV_BooleanLiteral(undefined, true))
-        caseTest.statements.push(finDecl)
+        caseTestBB.statements.push(finDecl)
       }
 
-      this.setCurrentBB(postBB)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(postBB)
     }
-    this.setCurrentBB(postBB)
+
+    // Restore postBB context
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(postBB)
   }
 
   // *********************** Iridium_DoWhileStatement ***********************
   handleJS3DoWhileStatement(stmt: JS3DoWhileStatement) {
-    let currBB = this.getCurrentBB()
-    let postBB = currBB.create()
-    let testBB = new ContainedBB(currBB.env, stmt.test, currBB)
+    let fgContext = this.getCurrentFGContext()
+
+    // Declare nodes and forward successors
+    let currBB = fgContext.getCurrentBB()
+    let testBodyBB = new LoopHeadBB(new Environment(currBB.env), stmt)
+    fgContext.declareBBNode(testBodyBB)
+    let testBodyTerminalBB = testBodyBB.create()
+    fgContext.declareBBNode(testBodyTerminalBB)
     let loopBodyBB = new BlockBB(new Environment(currBB.env), stmt.body)
+    fgContext.declareBBNode(loopBodyBB)
+    let postBB = fgContext.declareBBNode(currBB.create())
+    if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+    fgContext.forwardSuccessorsBB(currBB, postBB)
 
     let testIV = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("loopTest"))
     testIV.isValue = true
 
-    postBB.terminal = currBB.terminal
-    currBB.terminal = new UnconditionalGoto(loopBodyBB)
-    loopBodyBB.terminal = new UnconditionalGoto(testBB)
-    testBB.terminal = new BranchTerminal(stmt, testIV, loopBodyBB, postBB)
+    // Draw Edges
+    fgContext.setBBEdge(currBB.idx, loopBodyBB.idx)
+    fgContext.setBBEdge(loopBodyBB.idx, testBodyBB.idx)
+    fgContext.setBBEdge(testBodyBB.idx, testBodyTerminalBB.idx)
+    fgContext.setBBEdge(testBodyTerminalBB.idx, loopBodyBB.idx, "T")
+    fgContext.setBBEdge(testBodyTerminalBB.idx, postBB.idx, "F")
 
-    // Lower test
-    this.lowerExprToBB(stmt.test, testBB, testIV)
+    testBodyTerminalBB.branchTerminal = new BranchTerminal(stmt, testIV, loopBodyBB, postBB)
+
+    // Lower Test
+    fgContext.setCurrentBB(testBodyBB)
+    this.lowerExprToBB(stmt.test, testBodyBB, testIV)
 
     // Lower body
-    this.setCurrentBB(loopBodyBB)
-    this.handleJS3AllowedProgStatement(stmt.body)
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(loopBodyBB)
+    stmt.body.body.forEach(s => this.handleJS3AllowedProgStatement(s))
 
     // Restore postBB context
-    this.setCurrentBB(postBB)
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(postBB)
   }
 
   // *********************** Iridium_ForStatement***********************
   handleJS3ForStatement(stmt: JS3ForStatement) {
-    let currBB = this.getCurrentBB()
-    let postBB = currBB.create()
+    let fgContext = this.getCurrentFGContext()
+
+    // Declare nodes and forward successors
+    let currBB = fgContext.getCurrentBB()
     let initBB = new ForLoopInitBB(new Environment(currBB.env), stmt.init)
-    let testBB = new ContainedBB(initBB.env, stmt.test, initBB, "For ~ Test BB")
+    fgContext.declareBBNode(initBB)
+    let testBodyBB = new LoopHeadBB(new Environment(currBB.env), stmt)
+    fgContext.declareBBNode(testBodyBB)
+    let testBodyTerminalBB = testBodyBB.create()
+    fgContext.declareBBNode(testBodyTerminalBB)
     let updateBB = new ContainedBB(initBB.env, stmt.update, initBB, "For ~ Update BB")
+    fgContext.declareBBNode(updateBB)
     let loopBodyBB = new BlockBB(new Environment(initBB.env), stmt.body)
+    fgContext.declareBBNode(loopBodyBB)
+    let postBB = fgContext.declareBBNode(currBB.create())
+    if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+    fgContext.forwardSuccessorsBB(currBB, postBB)
 
     let testIV = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("loopTest"))
     testIV.isValue = true
 
-    postBB.terminal = currBB.terminal
-    currBB.terminal = new UnconditionalGoto(initBB)
-    initBB.terminal = new UnconditionalGoto(testBB)
-    testBB.terminal = new BranchTerminal(stmt, testIV, loopBodyBB, postBB)
-    loopBodyBB.terminal = new UnconditionalGoto(updateBB)
-    updateBB.terminal = new UnconditionalGoto(testBB)
+    // Draw Edges
+    fgContext.setBBEdge(currBB.idx, initBB.idx)
+    fgContext.setBBEdge(initBB.idx, testBodyBB.idx)
+    fgContext.setBBEdge(testBodyBB.idx, testBodyTerminalBB.idx)
+    fgContext.setBBEdge(testBodyTerminalBB.idx, loopBodyBB.idx, "T")
+    fgContext.setBBEdge(testBodyTerminalBB.idx, postBB.idx, "F")
+    fgContext.setBBEdge(loopBodyBB.idx, updateBB.idx)
+    fgContext.setBBEdge(updateBB.idx, testBodyBB.idx)
+
+    // Set Test Terminal
+    testBodyTerminalBB.branchTerminal = new BranchTerminal(stmt, testIV, loopBodyBB, postBB)
+
+    // Set update context
+    testBodyBB.updateContext = updateBB
+    testBodyTerminalBB.updateContext = updateBB
 
     // Lower Init
     if (isJS3LoopDeclaration(stmt.init)) {
-
       // Simplify Declarations into JS3
       let kind = stmt.init.kind
       let otherProps = this.js3builder.utils
       let js3SpillHolder: JS3BlockStatement_body = new Array()
       const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: js3SpillHolder } }
-
       let generator = (LVal: JS3MemberExpression | JS3ArrayPattern | JS3ObjectPattern | Identifier, RVal: null | JS3VariableDeclarator_init) => {
         if (isJS3MemberExpression(LVal)) debugConfig.logger.log("LVal cannot be JS3MemberExpression in case of variable declarator...")
         else {
@@ -1521,77 +1636,100 @@ export default class IRIDIUM {
           return generateJS3VariableDeclarationfromBaseNode([declarator], kind, null, stmt.init)
         }
       }
-
       // Lower into individual statements
       for (let d of stmt.init.declarations) {
         handleDeclaratorRec(d.id, d.init, updatedProps, generator, false);
       }
-
-      // lower into BB
-      this.setCurrentBB(initBB)
+      // lower into Init BB
+      fgContext.setCurrentBB(initBB)
       this.handleJS3ProgramBody(js3SpillHolder)
-
     } else if (isJS3ContainedExprKey(stmt.init)) {
+      // lower into Init BB
+      fgContext.setCurrentBB(initBB)
       this.lowerExprToBB(stmt.init, initBB)
     }
 
     // Lower Test
-    this.lowerExprToBB(stmt.test, testBB, testIV)
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(testBodyBB)
+    if (stmt.test) this.lowerExprToBB(stmt.test, testBodyBB, testIV)
+    else {
+      testBodyBB.statements.push(new IS_SimpleVarDecl(undefined, "let", testIV, new IV_BooleanLiteral(undefined, true)))
+    }
 
     // Lower Body
-    this.setCurrentBB(loopBodyBB)
-    this.handleJS3AllowedProgStatement(stmt.body)
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(loopBodyBB)
+    stmt.body.body.forEach(s => this.handleJS3AllowedProgStatement(s))
 
     // Lower Update
-    this.lowerExprToBB(stmt.update, updateBB)
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(updateBB)
+    if (stmt.update) this.lowerExprToBB(stmt.update, updateBB)
 
     // Restore PostBB context
-    this.setCurrentBB(postBB)
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(postBB)
   }
 
   // *********************** Iridium_ForInOfstatement ***********************
   handleJS3ForInOfStatement(stmt: JS3ForInStatement | JS3ForOfStatement) {
+    let fgContext = this.getCurrentFGContext()
 
-    let currBB = this.getCurrentBB()
-    let postBB = currBB.create()
+    // Declare nodes and forward successors
+    let currBB = fgContext.getCurrentBB()
     let initBB = new ForInOfLoopInitBB(new Environment(currBB.env), stmt)
-    let testBB = new BlockBB(new Environment(initBB.env), stmt)
+    fgContext.declareBBNode(initBB)
+    let testBB = new LoopHeadBB(new Environment(initBB.env), stmt)
+    fgContext.declareBBNode(testBB)
     let loopBodyBB = new BlockBB(new Environment(testBB.env), stmt.body)
+    fgContext.declareBBNode(loopBodyBB)
+    let postBB = fgContext.declareBBNode(currBB.create())
+    if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+    fgContext.forwardSuccessorsBB(currBB, postBB)
 
     let testIV = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("loopTest"))
     testIV.isValue = true
 
-    postBB.terminal = currBB.terminal
-    currBB.terminal = new UnconditionalGoto(initBB)
-    initBB.terminal = new UnconditionalGoto(testBB)
-    testBB.terminal = new BranchTerminal(stmt, testIV, loopBodyBB, postBB)
-    loopBodyBB.terminal = new UnconditionalGoto(testBB)
+    // Draw Edges
+    fgContext.setBBEdge(currBB.idx, initBB.idx)
+    fgContext.setBBEdge(initBB.idx, testBB.idx)
+    fgContext.setBBEdge(testBB.idx, loopBodyBB.idx, "T")
+    fgContext.setBBEdge(testBB.idx, postBB.idx, "F")
+    fgContext.setBBEdge(loopBodyBB.idx, testBB.idx)
 
-    // Init loop head
+    // Initialize Terminal
+    testBB.branchTerminal = new BranchTerminal(stmt, testIV, loopBodyBB, postBB)
+
+    // Init loop iterator
     // let iteratorIV = <InOp> in RVal | <OfOp> of RVal
     let inop: IV_InIterator | IV_OfIterator;
     if (isJS3ForInStatement(stmt)) inop = new IV_InIterator(stmt, IV_Identifier.from(stmt.right))
     else inop = new IV_OfIterator(stmt, IV_Identifier.from(stmt.right))
-
     let iteratorIV = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined))
-    let assnStmt = new IS_SimpleVarDecl(undefined, "let", iteratorIV, inop)
-    initBB.statements.push(assnStmt)
+    initBB.statements.push(new IS_SimpleVarDecl(undefined, "let", iteratorIV, inop))
 
-    // Test BB
+    // Init Test BB
+    // let testIV = <HasLoopNext> hasnext iteratorIV
     let hasLoopNext = new IV_HasLoopNext(stmt, iteratorIV)
     let testStmt = new IS_SimpleVarDecl(undefined, "let", testIV, hasLoopNext)
     testBB.statements.push(testStmt)
 
-    // LoopBody BB
-    // Initialize loop bindings
+    // Loop Body BB
+    // 1. Get next iterator value
+    // let nextResHolder = <LoopNext> next iteratorIV
     let getNext = new IV_LoopNext(stmt, iteratorIV)
     let nextResHolder = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined))
     let nextResStmt = new IS_SimpleVarDecl(undefined, "let", nextResHolder, getNext)
     loopBodyBB.statements.push(nextResStmt)
 
-    this.setCurrentBB(loopBodyBB)
-    if (isJS3LoopDeclaration(stmt.left)) {
 
+    // 2. Generate bindings (or) perform assignments
+    // for (let a of xx) ===> let a = nextOf(xx)
+    // for (a of xx) ===> a = nextOf(xx)
+    // for ([a, { b : c }] of xx) ===> [a, t1] = nextOf(xx); { b: c } = t1;
+    fgContext.setCurrentBB(loopBodyBB) 
+    if (isJS3LoopDeclaration(stmt.left)) {
       // Simplify Declarations into JS3
       let kind = stmt.left.kind
       let otherProps = this.js3builder.utils
@@ -1606,8 +1744,12 @@ export default class IRIDIUM {
         }
       }
 
+      // Ideally we expect this to be only 1...
+      if (stmt.left.declarations.length !== 1) debugConfig.logger.throwIriError("For loop test declaration LValue has more than one declaration")
+
       // Lower into individual statements
       for (let d of stmt.left.declarations) {
+        // KIND declarationID = nextOf(xx)
         handleDeclaratorRec(d.id, identifier(nextResHolder.name), updatedProps, generator, false);
       }
 
@@ -1630,89 +1772,138 @@ export default class IRIDIUM {
       // Generate assignments
       let lval = stmt.left
       let rval = identifier(nextResHolder.name)
+      
+      // KIND lvalExpr = nextOf(xx)
       handleDeclaratorRec(lval, rval, updatedProps, generator, true);
 
       // lower into BB
       this.handleJS3ProgramBody(js3SpillHolder)
     }
-    this.handleFunctionBody(stmt.body)
 
-    this.setCurrentBB(postBB)
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    stmt.body.body.forEach(s => this.handleJS3AllowedProgStatement(s))
+
+    // Restore BB Context
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")  
+    fgContext.setCurrentBB(postBB)
   }
 
   // *********************** Iridium_LabeledStatement ***********************
   handleJS3LabeledStatement(stmt: JS3LabeledStatement) {
-    let currBB = this.getCurrentBB()
-    let postBB = currBB.create()
-    let labelledScope = new BlockBB(new Environment(currBB.env), stmt)
-    postBB.terminal = currBB.terminal
-    currBB.terminal = new UnconditionalGoto(labelledScope)
-    labelledScope.terminal = new UnconditionalGoto(postBB)
+    let fgContext = this.getCurrentFGContext()
 
-    // Add a label, this will help us in debugging.
-    // prolly not needed for final codegen I believe.
-    labelledScope.label = IV_Identifier.from(stmt.label)
+    // Declare nodes and forward successors
+    let currBB = fgContext.getCurrentBB()
+    let blockScopeBB = new BlockBB(new Environment(currBB.env), stmt)
+    fgContext.declareBBNode(blockScopeBB)
+    blockScopeBB.setLabel(IV_Identifier.from(stmt.label))
+    let postBB = fgContext.declareBBNode(currBB.create())
+    if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+    fgContext.forwardSuccessorsBB(currBB, postBB)
 
-    this.setCurrentBB(labelledScope);
-    this.handleJS3AllowedProgStatement(stmt.body);
+    // Draw Edges
+    fgContext.setBBEdge(currBB.idx, blockScopeBB.idx)
+    fgContext.setBBEdge(blockScopeBB.idx, postBB.idx)
 
-    this.setCurrentBB(postBB);
+    // Lower Code
+    fgContext.setCurrentBB(blockScopeBB)
+    this.handleJS3AllowedProgStatement(stmt.body)
+
+    // Restore Context
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(postBB)
   }
 
   // *********************** Iridium_BlockStatement ***********************
   handleJS3BlockStatement(stmt: JS3BlockStatement) {
-    let currBB = this.getCurrentBB()
-    let postBB = currBB.create()
-    let blockScopeBB = new BlockBB(new Environment(currBB.env), stmt)
-    postBB.terminal = currBB.terminal
-    currBB.terminal = new UnconditionalGoto(blockScopeBB)
-    blockScopeBB.terminal = new UnconditionalGoto(postBB)
+    let fgContext = this.getCurrentFGContext()
 
-    this.setCurrentBB(blockScopeBB)
+    // Declare nodes and forward successors
+    let currBB = fgContext.getCurrentBB()
+    let blockScopeBB = new BlockBB(new Environment(currBB.env), stmt)
+    fgContext.declareBBNode(blockScopeBB)
+    let postBB = fgContext.declareBBNode(currBB.create())
+    if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+    fgContext.forwardSuccessorsBB(currBB, postBB)
+
+    // Draw Edges
+    fgContext.setBBEdge(currBB.idx, blockScopeBB.idx)
+    fgContext.setBBEdge(blockScopeBB.idx, postBB.idx)
+
+    // Lower Code
+    fgContext.setCurrentBB(blockScopeBB)
     this.handleJS3ProgramBody(stmt.body)
 
-    this.setCurrentBB(postBB)
+    // Restore Context
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(postBB)
   }
 
   // *********************** Iridium_ContinueStatement ***********************
   handleJS3ContinueStatement(stmt: JS3ContinueStatement) {
+    let fgContext = this.getCurrentFGContext()
+    let currBB = fgContext.getCurrentBB()
     if (isIdentifier(stmt.label)) {
       let lbreakstmt = new IS_LContinue(stmt, IV_Identifier.from(stmt.label))
-      this.getCurrentBB().statements.push(lbreakstmt)
+      currBB.statements.push(lbreakstmt)
     } else {
       let unlbreakstmt = new IS_Continue(stmt)
-      this.getCurrentBB().statements.push(unlbreakstmt);
+      currBB.statements.push(unlbreakstmt);
     }
   }
 
   // *********************** Iridium_Break_LBreak ***********************
   handleJS3BreakStatement(stmt: JS3BreakStatement) {
+    let fgContext = this.getCurrentFGContext()
+    let currBB = fgContext.getCurrentBB()
     if (isIdentifier(stmt.label)) {
       let lbreakstmt = new IS_LBreak(stmt, IV_Identifier.from(stmt.label))
-      this.getCurrentBB().statements.push(lbreakstmt)
+      currBB.statements.push(lbreakstmt)
     } else {
       let unlbreakstmt = new IS_Break(stmt)
-      this.getCurrentBB().statements.push(unlbreakstmt);
+      currBB.statements.push(unlbreakstmt);
     }
   }
 
   // *********************** Iridium_WhileStatement ***********************
   handleJS3WhileStatement(stmt: JS3WhileStatement) {
-    let curr = this.getCurrentBB()
-    let postBB = curr.create()
-    let testBody = new ContainedBB(curr.env, stmt.test, curr, "While Test")
-    let loopBody = new BlockBB(new Environment(curr.env), stmt)
-    let testID: Identifier = this.lowerExprToBB(stmt.test, testBody)
-    let test: IV_Identifier = IV_Identifier.from(testID)
+    let fgContext = this.getCurrentFGContext()
+      
+    // Declare nodes and forward successors
+    let currBB = fgContext.getCurrentBB()
+    let testBodyBB = new LoopHeadBB(new Environment(currBB.env), stmt)
+    fgContext.declareBBNode(testBodyBB)
+    let testBodyTerminalBB = testBodyBB.create()
+    fgContext.declareBBNode(testBodyTerminalBB)
+    let loopBodyBB = new BlockBB(new Environment(currBB.env), stmt)
+    fgContext.declareBBNode(loopBodyBB)
+    let postBB = fgContext.declareBBNode(currBB.create())
+    if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+    fgContext.forwardSuccessorsBB(currBB, postBB)
 
-    postBB.terminal = curr.terminal
-    curr.terminal = new UnconditionalGoto(testBody)
-    testBody.terminal = new BranchTerminal(stmt, test, loopBody, postBB)
-    loopBody.terminal = new UnconditionalGoto(testBody)
+    // Draw Edges
+    fgContext.setBBEdge(currBB.idx, testBodyBB.idx)
+    fgContext.setBBEdge(testBodyBB.idx, testBodyTerminalBB.idx) // This will ensure we never forward successors of a BB whose branch terminal is already set
+    fgContext.setBBEdge(testBodyTerminalBB.idx, loopBodyBB.idx, "T")
+    fgContext.setBBEdge(testBodyTerminalBB.idx, postBB.idx, "F")
+    fgContext.setBBEdge(loopBodyBB.idx, testBodyBB.idx)
 
-    this.setCurrentBB(loopBody)
-    this.handleJS3ProgramBody(stmt.body.body)
-    this.setCurrentBB(postBB);
+    // Set Terminal
+    let test: IV_Identifier = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("whileTestRes"))
+    test.isValue = true
+    testBodyTerminalBB.branchTerminal = new BranchTerminal(stmt, test, loopBodyBB, postBB)
+
+    // Lower While Loop Test
+    this.lowerExprToBB(stmt.test, testBodyBB, test)
+
+    // Lower While Loop Body
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(loopBodyBB)
+    stmt.body.body.forEach(s => this.handleJS3AllowedProgStatement(s))
+
+    // Restore postBB Context
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    fgContext.setCurrentBB(postBB);
   }
 
   // *********************** Iridium_TryStatement ***********************
@@ -1721,54 +1912,74 @@ export default class IRIDIUM {
     if (stmt.handler && !stmt.finalizer) {
       // Case a. 
       //   try { BLOCK } catch(?ID) { HANDLER }
-      let curr = this.getCurrentBB()
-      let TryBlockBB = new TryBB(new Environment(curr.env), stmt)
-      let CatchHandlerBB = new CatchBB(new Environment(curr.env), stmt.handler, stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
-      let PostBB = curr.create()
-      PostBB.terminal = curr.terminal
 
-      curr.terminal = new UnconditionalGoto(TryBlockBB)
-      TryBlockBB.terminal = new TryCatchConditionalGoto(CatchHandlerBB, PostBB)
-      CatchHandlerBB.terminal = new UnconditionalGoto(PostBB)
+      let fgContext = this.getCurrentFGContext()
+      
+      // Declare nodes and forward successors
+      let currBB = fgContext.getCurrentBB()
+      let tryBlockBB = new TryBB(new Environment(currBB.env), stmt)
+      fgContext.declareBBNode(tryBlockBB)
+      let catchHandlerBB = new CatchBB(new Environment(currBB.env), stmt.handler, stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
+      fgContext.declareBBNode(catchHandlerBB)
+      let postBB = fgContext.declareBBNode(currBB.create())
+      fgContext.forwardSuccessorsBB(currBB, postBB)
 
-      this.setCurrentBB(TryBlockBB)
+      // Draw Edges
+      fgContext.setBBEdge(currBB.idx, tryBlockBB.idx)
+      fgContext.setBBEdge(tryBlockBB.idx, catchHandlerBB.idx, "E")
+      fgContext.setBBEdge(tryBlockBB.idx, postBB.idx)
+      fgContext.setBBEdge(catchHandlerBB.idx, postBB.idx)
+
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(tryBlockBB)
       stmt.block.body.forEach(s => {
         this.handleJS3AllowedProgStatement(s);
       })
 
-      this.setCurrentBB(CatchHandlerBB)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(catchHandlerBB)
       stmt.handler.body.body.forEach(s => {
         this.handleJS3AllowedProgStatement(s);
       })
 
-      this.setCurrentBB(PostBB)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(postBB)
       return;
     }
 
     if (!stmt.handler && stmt.finalizer) {
       // Case b.
       //   try { BLOCK } finally { FINALIZER }
-      let curr = this.getCurrentBB()
-      let TryBlockBB = new TryBB(new Environment(curr.env), stmt)
-      let FinallyBB = new BlockBB(new Environment(curr.env), stmt.finalizer)
-      let PostBB = curr.create()
-      PostBB.terminal = curr.terminal
+      let fgContext = this.getCurrentFGContext()
+      
+      // Declare nodes and forward successors
+      let currBB = fgContext.getCurrentBB()
+      let tryBlockBB = new TryBB(new Environment(currBB.env), stmt)
+      fgContext.declareBBNode(tryBlockBB)
+      let finalizerHandlerBB = new BlockBB(new Environment(currBB.env), stmt.finalizer)
+      fgContext.declareBBNode(finalizerHandlerBB)
+      let postBB = fgContext.declareBBNode(currBB.create())
+      fgContext.forwardSuccessorsBB(currBB, postBB)
 
-      curr.terminal = new UnconditionalGoto(TryBlockBB)
-      TryBlockBB.terminal = new UnconditionalGoto(FinallyBB)
-      FinallyBB.terminal = new UnconditionalGoto(PostBB)
+      // Draw Edges
+      fgContext.setBBEdge(currBB.idx, tryBlockBB.idx)
+      fgContext.setBBEdge(tryBlockBB.idx, finalizerHandlerBB.idx)
+      fgContext.setBBEdge(finalizerHandlerBB.idx, postBB.idx)
 
-      this.setCurrentBB(TryBlockBB)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(tryBlockBB)
       stmt.block.body.forEach(s => {
         this.handleJS3AllowedProgStatement(s);
       })
 
-      this.setCurrentBB(FinallyBB)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(finalizerHandlerBB)
       stmt.finalizer.body.forEach(s => {
         this.handleJS3AllowedProgStatement(s);
       })
 
-      this.setCurrentBB(PostBB)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(postBB)
       return;
     }
 
@@ -1776,34 +1987,46 @@ export default class IRIDIUM {
       // Case c.
       //   try { BLOCK } catch { HANDLER } finally { FINALIZER }
 
-      let curr = this.getCurrentBB()
-      let TryBlockBB = new TryBB(new Environment(curr.env), stmt)
-      let CatchHandlerBB = new CatchBB(new Environment(curr.env), stmt.handler, stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
-      let FinallyBB = new BlockBB(new Environment(curr.env), stmt.finalizer)
-      let PostBB = curr.create()
-      PostBB.terminal = curr.terminal
+      let fgContext = this.getCurrentFGContext()
+      
+      // Declare nodes and forward successors
+      let currBB = fgContext.getCurrentBB()
+      let tryBlockBB = new TryBB(new Environment(currBB.env), stmt)
+      fgContext.declareBBNode(tryBlockBB)
+      let catchHandlerBB = new CatchBB(new Environment(currBB.env), stmt.handler, stmt.handler.param ? new IV_Identifier(stmt.handler.param, stmt.handler.param.name) : undefined)
+      fgContext.declareBBNode(catchHandlerBB)
+      let finalizerHandlerBB = new BlockBB(new Environment(currBB.env), stmt.finalizer)
+      fgContext.declareBBNode(finalizerHandlerBB)
+      let postBB = fgContext.declareBBNode(currBB.create())
+      fgContext.forwardSuccessorsBB(currBB, postBB)
 
-      curr.terminal = new UnconditionalGoto(TryBlockBB)
-      TryBlockBB.terminal = new TryCatchConditionalGoto(CatchHandlerBB, FinallyBB)
-      CatchHandlerBB.terminal = new UnconditionalGoto(FinallyBB)
-      FinallyBB.terminal = new UnconditionalGoto(PostBB)
+      // Draw Edges
+      fgContext.setBBEdge(currBB.idx, tryBlockBB.idx)
+      fgContext.setBBEdge(tryBlockBB.idx, catchHandlerBB.idx, "E")
+      fgContext.setBBEdge(tryBlockBB.idx, finalizerHandlerBB.idx)
+      fgContext.setBBEdge(catchHandlerBB.idx, finalizerHandlerBB.idx)
+      fgContext.setBBEdge(finalizerHandlerBB.idx, postBB.idx)
 
-      this.setCurrentBB(TryBlockBB)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(tryBlockBB)
       stmt.block.body.forEach(s => {
         this.handleJS3AllowedProgStatement(s);
       })
 
-      this.setCurrentBB(CatchHandlerBB)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(catchHandlerBB)
       stmt.handler.body.body.forEach(s => {
         this.handleJS3AllowedProgStatement(s);
       })
 
-      this.setCurrentBB(FinallyBB)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(finalizerHandlerBB)
       stmt.finalizer.body.forEach(s => {
         this.handleJS3AllowedProgStatement(s);
       })
 
-      this.setCurrentBB(PostBB)
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(postBB)
       return;
     }
 
@@ -1817,55 +2040,91 @@ export default class IRIDIUM {
     if (!stmt.alternate) {
       // Case a.
       // if (ID) { CONSEQ }
-      let curr = this.getCurrentBB()
-      let TrueBB = new BlockBB(new Environment(curr.env))
-      let PostBB: BB = curr.create() // Create a continuation...
-      let ID = IV_Identifier.from(stmt.test)
-      PostBB.terminal = curr.terminal
-      curr.terminal = new BranchTerminal(stmt, ID, TrueBB, PostBB)
-      TrueBB.terminal = new UnconditionalGoto(PostBB)
+      let fgContext = this.getCurrentFGContext()
+      
+      // Declare nodes and forward successors
+      let currBB = fgContext.getCurrentBB()
+      let trueBB = new BlockBB(new Environment(currBB.env))
+      fgContext.declareBBNode(trueBB)
+      let postBB = fgContext.declareBBNode(currBB.create())
+      if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+      fgContext.forwardSuccessorsBB(currBB, postBB)
 
-      this.setCurrentBB(TrueBB)
+      // Draw Edges
+      fgContext.setBBEdge(currBB.idx, trueBB.idx, "T")
+      fgContext.setBBEdge(currBB.idx, postBB.idx, "F")
+      fgContext.setBBEdge(trueBB.idx, postBB.idx)
+
+      // Set Terminals
+      currBB.branchTerminal = new BranchTerminal(stmt, IV_Identifier.from(stmt.test), trueBB, postBB)
+
+      // Lower Consequent
+      fgContext.setCurrentBB(trueBB)
       stmt.consequent.body.forEach(s => {
         this.handleJS3AllowedProgStatement(s);
       })
 
-      this.setCurrentBB(PostBB)
+      // Restore BB Context
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(postBB)
     } else {
       // Case a.
       // if (ID) { CONSEQ } else { ALT }
-      let curr = this.getCurrentBB()
-      let TrueBB = new BlockBB(new Environment(curr.env))
-      let FalseBB = new BlockBB(new Environment(curr.env))
-      let PostBB: BB = curr.create() // Create a continuation...
-      let ID = new IV_Identifier(stmt.test, stmt.test.name)
-      PostBB.terminal = curr.terminal
-      curr.terminal = new BranchTerminal(stmt, ID, TrueBB, FalseBB)
-      TrueBB.terminal = new UnconditionalGoto(PostBB)
-      FalseBB.terminal = new UnconditionalGoto(PostBB)
+      let fgContext = this.getCurrentFGContext()
+      
+      // Declare nodes and forward successors
+      let currBB = fgContext.getCurrentBB()
+      let trueBB = new BlockBB(new Environment(currBB.env))
+      fgContext.declareBBNode(trueBB)
+      let falseBB = new BlockBB(new Environment(currBB.env))
+      fgContext.declareBBNode(falseBB)
+      let postBB = fgContext.declareBBNode(currBB.create())
+      if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
+      fgContext.forwardSuccessorsBB(currBB, postBB)
 
-      this.setCurrentBB(TrueBB)
+      // Draw Edges
+      fgContext.setBBEdge(currBB.idx, trueBB.idx, "T")
+      fgContext.setBBEdge(currBB.idx, falseBB.idx, "F")
+      fgContext.setBBEdge(trueBB.idx, postBB.idx)
+      fgContext.setBBEdge(falseBB.idx, postBB.idx)
+      // 
+      // currBB ----> trueBB  --|---> postBB
+      //          |-> falseBB --| 
+      // 
+
+      // Set Terminals
+      currBB.branchTerminal = new BranchTerminal(stmt, IV_Identifier.from(stmt.test), trueBB, falseBB)
+
+      // Lower Consequent
+      fgContext.setCurrentBB(trueBB)
       stmt.consequent.body.forEach(s => {
         this.handleJS3AllowedProgStatement(s);
       })
 
-      this.setCurrentBB(FalseBB)
+      // Lower Alternate 
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(falseBB)
       stmt.alternate.body.forEach(s => {
         this.handleJS3AllowedProgStatement(s);
       })
 
-      this.setCurrentBB(PostBB)
+      // Restore BB Context
+      if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+      fgContext.setCurrentBB(postBB)
     }
   }
 
   // *********************** Iridium_FunctionDeclaration *********************** 
 
   handleJS3FunctionDeclaration(stmt: JS3FunctionDeclaration) {
-    let curr = this.getCurrentBB()
-    let [params, funBody] = this.handleFunctionParams(stmt.params, this.handleFunctionBody(stmt.body))
+    let fgContext = this.getCurrentFGContext()
 
-    this.setCurrentBB(curr)
-    curr.statements.push(new IS_FunDecl(stmt, params, funBody, new IV_Identifier(stmt.id, stmt.id.name), stmt.generator, stmt.async))
+    let curr = fgContext.getCurrentBB()
+    let [params, funBody, fCon] = this.handleFunctionParams(stmt.params, this.handleFunctionBody(stmt.body))
+    if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+    
+    fgContext.setCurrentBB(curr)
+    curr.statements.push(new IS_FunDecl(stmt, params, fCon, new IV_Identifier(stmt.id, stmt.id.name), stmt.generator, stmt.async))
   }
 
   // *********************** Iridium_VariableDeclarations ***********************  
@@ -1891,7 +2150,7 @@ export default class IRIDIUM {
     if (isIdentifier(declaration.id)) {
       let LVal = new IV_Identifier(declaration.id, declaration.id.name)
       let RVal = declaration.init ? this.handleJS3AssnInit(declaration.init) : null
-      this.getCurrentBB().statements.push(new IS_SimpleVarDecl(stmt, KIND, LVal, RVal));
+      this.getCurrentFGContext().getCurrentBB().statements.push(new IS_SimpleVarDecl(stmt, KIND, LVal, RVal));
       return;
     }
 
@@ -1900,7 +2159,7 @@ export default class IRIDIUM {
     if (isJS3ArrayPattern(declaration.id)) {
       let LVal = declaration.id
       let RVal = declaration.init ? this.handleJS3AssnInit(declaration.init) : null
-      this.getCurrentBB().statements.push(new IS_ArrPatVarDecl(stmt, KIND, LVal, RVal));
+      this.getCurrentFGContext().getCurrentBB().statements.push(new IS_ArrPatVarDecl(stmt, KIND, LVal, RVal));
       return;
     }
 
@@ -1910,7 +2169,7 @@ export default class IRIDIUM {
 
       let LVal = declaration.id
       let RVal = declaration.init ? this.handleJS3AssnInit(declaration.init) : null
-      this.getCurrentBB().statements.push(new IS_ObjPatVarDecl(stmt, KIND, LVal, RVal));
+      this.getCurrentFGContext().getCurrentBB().statements.push(new IS_ObjPatVarDecl(stmt, KIND, LVal, RVal));
       return;
     }
 
@@ -1922,36 +2181,36 @@ export default class IRIDIUM {
   // *********************** Iridium_Debugger_Return_Throw ***********************  
 
   handleJS3ThrowStatement(stmt: JS3ThrowStatement) {
-    let curr = this.getCurrentBB()
+    let currBB = this.getCurrentFGContext().getCurrentBB()
     // throw ID
-    curr.statements.push(new IS_Throw(stmt, new IV_Identifier(stmt.argument, stmt.argument.name)))
+    currBB.statements.push(new IS_Throw(stmt, new IV_Identifier(stmt.argument, stmt.argument.name)))
   }
 
   handleJS3ReturnStatement(stmt: JS3ReturnStatement) {
-    let curr = this.getCurrentBB()
+    let currBB = this.getCurrentFGContext().getCurrentBB()
     // return | return ID
     if (stmt.argument) {
-      curr.statements.push(new IS_Return(stmt, new IV_Identifier(stmt.argument, stmt.argument.name)))
+      currBB.statements.push(new IS_Return(stmt, new IV_Identifier(stmt.argument, stmt.argument.name)))
     } else {
-      curr.statements.push(new IS_Return(stmt, null))
+      currBB.statements.push(new IS_Return(stmt, null))
     }
   }
 
   handleJS3DebuggerStatement(stmt: JS3DebuggerStatement) {
-    let curr = this.getCurrentBB()
+    let currBB = this.getCurrentFGContext().getCurrentBB()
     // debugger; 
-    curr.statements.push(new IS_Debugger())
+    currBB.statements.push(new IS_Debugger())
   }
 
   // *********************** Iridium_Imports_Exports ***********************  
 
   handleJS3ImportDeclaration(stmt: JS3ImportDeclaration) {
-    let curr = this.getCurrentBB()
+    let currBB = this.getCurrentFGContext().getCurrentBB()
 
     // case a.
     // import "FROM"
     if (stmt.specifiers.length === 0) {
-      curr.statements.push(new IS_AImport(stmt, new IV_StringLiteral(stmt.source, stmt.source.value)))
+      currBB.statements.push(new IS_AImport(stmt, new IV_StringLiteral(stmt.source, stmt.source.value)))
       return;
     }
 
@@ -1974,7 +2233,7 @@ export default class IRIDIUM {
       }
       let local = new IV_Identifier(specifier.local, specifier.local.name)
       let FROM = new IV_StringLiteral(stmt.source, stmt.source.value)
-      curr.statements.push(new IS_BImport(stmt, remote, local, FROM));
+      currBB.statements.push(new IS_BImport(stmt, remote, local, FROM));
       return;
     }
 
@@ -1983,19 +2242,19 @@ export default class IRIDIUM {
     else {
       let local = new IV_Identifier(specifier.local, specifier.local.name)
       let FROM = new IV_StringLiteral(stmt.source, stmt.source.value)
-      curr.statements.push(new IS_CImport(stmt, local, FROM));
+      currBB.statements.push(new IS_CImport(stmt, local, FROM));
       return;
     }
   }
 
   handleJS3ExportDefaultDeclaration(stmt: JS3ExportDefaultDeclaration) {
-    let curr = this.getCurrentBB()
+    let currBB = this.getCurrentFGContext().getCurrentBB()
     // export default ID
-    curr.statements.push(new IS_AExport(stmt, new IV_Identifier(stmt.declaration, stmt.declaration.name)))
+    currBB.statements.push(new IS_AExport(stmt, new IV_Identifier(stmt.declaration, stmt.declaration.name)))
   }
 
   handleJS3ExportNamedDeclaration(stmt: JS3ExportNamedDeclaration) {
-    let curr = this.getCurrentBB()
+    let currBB = this.getCurrentFGContext().getCurrentBB()
 
     // Assert that only one specifier exists
     if (stmt.specifiers.length !== 1) {
@@ -2015,7 +2274,7 @@ export default class IRIDIUM {
       } else {
         remote = new IV_StringLiteral(specifier.exported, specifier.exported.value)
       }
-      curr.statements.push(new IS_BExport(stmt, local, remote))
+      currBB.statements.push(new IS_BExport(stmt, local, remote))
       return;
     }
 
@@ -2030,7 +2289,7 @@ export default class IRIDIUM {
         remote = new IV_StringLiteral(specifier.exported, specifier.exported.value)
       }
       let FROM = new IV_StringLiteral(stmt.source, stmt.source.value)
-      curr.statements.push(new IS_CExport(stmt, local, remote, FROM))
+      currBB.statements.push(new IS_CExport(stmt, local, remote, FROM))
       return;
     }
 
@@ -2039,7 +2298,7 @@ export default class IRIDIUM {
       // export * as REMOTE FROM
       let remote = new IV_Identifier(specifier.exported, specifier.exported.name)
       let FROM = new IV_StringLiteral(stmt.source, stmt.source.value)
-      curr.statements.push(new IS_DExport(stmt, remote, FROM))
+      currBB.statements.push(new IS_DExport(stmt, remote, FROM))
       return;
     }
 
@@ -2048,9 +2307,9 @@ export default class IRIDIUM {
   }
 
   handleJS3ExportAllDeclaration(stmt: JS3ExportAllDeclaration) {
-    let curr = this.getCurrentBB()
+    let currBB = this.getCurrentFGContext().getCurrentBB()
     let FROM = new IV_StringLiteral(stmt.source, stmt.source.value)
-    curr.statements.push(new IS_EExport(stmt, FROM))
+    currBB.statements.push(new IS_EExport(stmt, FROM))
   }
 }
 

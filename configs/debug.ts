@@ -1,4 +1,4 @@
-import { BB } from "classes/builder/IridiumHelpers/BB.ts";
+import { IRIDIUM_FG } from "classes/builder/IridiumHelpers/IRIDIUM.ts";
 import Logger from "../classes/debugger/Logger.ts";
 
 const config : {
@@ -14,7 +14,7 @@ const config : {
   js3SourceType: string,
   allowLangWithSupport: boolean,
   test262: boolean,
-  DOTContext: Set<BB> | undefined
+  DOTContext: Set<IRIDIUM_FG> | undefined
 } = {
   operationMode: "analyze",
   outputsPath: "",

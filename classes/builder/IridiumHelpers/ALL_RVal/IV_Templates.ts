@@ -1,7 +1,7 @@
-import { JS3TaggedTemplateExpression, JS3TemplateLiteral } from "classes/builder/JS3Helpers/JS3Types.ts";
-import { ALL_RVal } from "./ALL_RVal.ts";
 import { TemplateElement } from "@babel/types";
+import { JS3TaggedTemplateExpression, JS3TemplateLiteral } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../ALL_AMP/ALL_AMP.ts";
+import { ALL_RVal } from "./ALL_RVal.ts";
 
 export class IV_TemplateLiteral extends ALL_RVal {
   quasis: Array<TemplateElement>

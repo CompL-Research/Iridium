@@ -1,6 +1,6 @@
 import { JS3BinaryExpression } from "classes/builder/JS3Helpers/JS3Types.ts";
-import { ALL_RVal } from "./ALL_RVal.ts";
 import { IV_Identifier, IV_PrivateName } from "../ALL_AMP/ALL_AMP.ts";
+import { ALL_RVal } from "./ALL_RVal.ts";
 
 // type IV_BINOP = "ArtihOP" | "BitwiseOP" | "EqCheckOP" | "PropCheckOP" | "NarrowingOP" | "CompOP"
 
