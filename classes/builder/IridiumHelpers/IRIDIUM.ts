@@ -40,11 +40,12 @@ import { IV_This } from "./ALL_RVal/IV_This.ts";
 import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "./ALL_RVal/IV_Unop.ts";
 import { IV_UpdateExpression } from "./ALL_RVal/IV_UpdateExpression.ts";
 import { IV_AWAIT, IV_YIELD } from "./ALL_RVal/IV_YIELD_AWAIT.ts";
-import { BB, BlockBB, BranchTerminal, CatchBB, ClassInitBB, ClassPropInitBB, ClassStaticBB, ContainedBB, ContainedOptionalChainBB, ForInOfLoopInitBB, ForLoopInitBB, FunctionArgInitBB, FunctionBB, LoopHeadBB, ModuleBB, ScriptBB, SwitchBodyBB, TryBB } from "./BB.ts";
+import { BB, BlockBB, BranchTerminal, CatchBB, ClassInitBB, ClassPropInitBB, ClassStaticBB, ForInOfLoopInitBB, ForLoopInitBB, FunctionArgInitBB, FunctionBB, LoopHeadBB, ModuleBB, ScriptBB, SwitchBodyBB, TryBB } from "./BB.ts";
 import { Environment } from "./I_GENERAL/I_Scope.ts";
 
 import { Graph } from "#graphlib";
-import { printScopedSpace } from "#utils";
+import { printScopedSpace, printSpace } from "#utils";
+import { cleanupBBs } from "./Passes/BBCleanup.ts";
 
 const generate = _generate.default
 
@@ -115,17 +116,16 @@ export class IRIDIUM_FG extends Graph {
     let stmts = []
     let nodes = this.nodes()
     let that = this
-
+    
     // @ts-ignore
     nodes.sort((a, b) => that.predecessors(a).length - that.predecessors(b).length)
 
     for (let bbIdx of nodes) {
       let bb : BB = this.node(bbIdx)
       
-      stmts.push(`${printScopedSpace(space)}`)
+      // stmts.push(`${printScopedSpace(space)}`)
       let preds = this.predecessors(bbIdx)
       stmts.push(`${printScopedSpace(space)}🬕 ${bb.printHeader()} [PRED: ${preds ? preds.map(b => `BB${b}`).join(", ") : ""}]`)
-
       stmts.push(bb.toString(space))
       let succs = this.successors(bbIdx)
       stmts.push(`${printScopedSpace(space)}🬲 [SUCC: ${succs ? succs.map(b => `BB${b}`).join(", ") : ""}]`)
@@ -135,27 +135,40 @@ export class IRIDIUM_FG extends Graph {
     return stmts.join("\n")
   }
 
-  // // override the existing implementation for saving DOT
-  // saveBBDot(space = 0) {
-  //   let res = []    
-  //   for (let b of this.nodes()) {
-  //     let bb : BB = this.node(b)
+  // override the existing implementation for saving DOT
+  saveIridiumToDOT(space = 0) {
+    let res = []    
+    for (let b of this.nodes()) {
+      let bb : BB = this.node(b)
 
-  //     // Declare node and their labels
-  //     res.push(`${printSpace(space)}${bb.toDOT()}`)
-  //   }
+      // Declare node and their labels
+      res.push(`${printSpace(space)}${bb.toDOT()}`)
+    }
     
-  //   // res.push("  graph [nodesep=1.0, ranksep=1.5]; // Adjust separation")
-  //   for (let e of this.edges()) {
-  //     let startNode = e.v
-  //     let endNode = e.w
-  //     let startBB : BB = this.node(startNode)
-  //     let endBB : BB = this.node(endNode)
-  //     res.push(`${printSpace(space)}${startBB.printHeaderDOT()} -> ${endBB.printHeaderDOT()};`);
-  //   }
-      
-  //   return res.join("\n");
-  // }
+    // res.push("  graph [nodesep=1.0, ranksep=1.5]; // Adjust separation")
+    for (let e of this.edges()) {
+      let startNode = e.v
+      let endNode = e.w
+      let startBB : BB = this.node(startNode)
+      let endBB : BB = this.node(endNode)
+      res.push(`${printSpace(space)}${startBB.printHeaderDOT()} -> ${endBB.printHeaderDOT()};`);
+    }
+
+    return res.join("\n");
+  }
+
+  // Generate the env edges between nodes
+  saveEnvToDOT(space = 0) {
+    let res = []    
+    for (let b of this.nodes()) {
+      let bb : BB = this.node(b)
+
+      // Declare node and their labels
+      res.push(`${printSpace(space)} ${bb.printHeaderDOT()} -> "${bb.env.getName()}" [dir=none, style="dashed"]`)
+    }
+
+    return res.join("\n");
+  }
 
 }
 
@@ -190,19 +203,7 @@ export default class IRIDIUM {
     let res = this.popFGContext()
     if (this.fgContext.length !== 0) debugConfig.logger.throwIriError("Expected FGContext to be empty after Iridium generation!!") 
 
-    // body.initialize()
-
-    // console.log("Debug print IRIDIUM_FG")
-    // console.log(body.saveDot("IRIDIUM_FG"))
-
-    // 
-    // Update the passes to use the new flowgraph
-    // 
-
-    // populatePreds(body.bb)
-    // console.log(body.bb.toString())
-    // cleanupBBs(body.bb)
-    // initializeEnvDefs(body.bb)
+    cleanupBBs(res)
     return res
   }
 
@@ -985,9 +986,9 @@ export default class IRIDIUM {
 
     // Declare nodes and forward successors
     let currBB = fgContext.getCurrentBB()
-    let trueBB = new ContainedBB(new Environment(currBB.env), node.consequent, currBB)
+    let trueBB = new BlockBB(currBB.env, node.consequent)
     fgContext.declareBBNode(trueBB)
-    let falseBB = new ContainedBB(new Environment(currBB.env), node.alternate, currBB)
+    let falseBB = new BlockBB(currBB.env, node.alternate)
     fgContext.declareBBNode(falseBB)
     let postBB = fgContext.declareBBNode(currBB.create())
     if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
@@ -1062,9 +1063,9 @@ export default class IRIDIUM {
       let currBB = fgContext.getCurrentBB()
       let postBB = fgContext.declareBBNode(currBB.create())
       if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
-      let fallthruBlock = new ContainedOptionalChainBB(currBB.env, parentNode, "Chained Short-Circuit Terminal", true, true, true)
+      let fallthruBlock = new BlockBB(currBB.env, parentNode)
       fgContext.declareBBNode(fallthruBlock)
-      genesisTestBB = new ContainedOptionalChainBB(currBB.env, genesisNode, `Chain Expression: ${generate(parentNode).code}`, false)
+      genesisTestBB = new BlockBB(currBB.env, genesisNode)
       fgContext.declareBBNode(genesisTestBB)
       fgContext.forwardSuccessorsBB(currBB, postBB)
 
@@ -1074,7 +1075,7 @@ export default class IRIDIUM {
       
       // Declare chainResHolder in the starting BB
       let resID = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("chainRes"))
-      resID.isValue = true
+      resID.isChainedValue = true
       // Create a declaration in the parent BB for resID
       currBB.statements.push(new IS_SimpleVarDecl(undefined, "let", resID, null))
 
@@ -1086,14 +1087,12 @@ export default class IRIDIUM {
       existingState = { resID, fallthruBlock, postBB, callExprContext: false }
     } else {
       genesisTestBB = fgContext.getCurrentBB()
-      if (genesisTestBB instanceof ContainedOptionalChainBB) {
-      } else debugConfig.logger.throwIriError("For recursive case, basic block is expected to be a value block")
     }
 
     genesisTestTerminalBB = genesisTestBB.create();
     fgContext.declareBBNode(genesisTestTerminalBB)
 
-    let chainBB = new ContainedOptionalChainBB(existingState.postBB.env, parentNode, "", true)
+    let chainBB = new BlockBB(existingState.postBB.env, parentNode)
     fgContext.declareBBNode(chainBB)
     
     //    genesisTestBB --> genesisTestTerminalBB --TEST--> chainBB --GOTO--> postBB (contextual)
@@ -1204,9 +1203,6 @@ export default class IRIDIUM {
       // Get rid of all optional nodes
       patchedNode = patchRecursively(patchedNode);
 
-      chainBB.comment = `Terminal node: ${generate(patchedNode).code}`
-      chainBB.isTerminal = true;
-
       // Handle Chain termination.
       // resID = ...terminal_expr
       if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
@@ -1232,7 +1228,6 @@ export default class IRIDIUM {
       fgContext.setCurrentBB(existingState.postBB)
       return existingState.resID
     } else {
-      chainBB.comment = `Recursive case: ${generate(patchedNode).code}`
       // Recursive case
       return this.handleOptionalChainExpression(patchedNode, existingState)
     }
@@ -1381,7 +1376,7 @@ export default class IRIDIUM {
       if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
       
       let currBB = fgContext.getCurrentBB()
-      let argSpillBB = new ContainedBB(currBB.env, a, currBB)
+      let argSpillBB = new BlockBB(currBB.env, a)
       fgContext.declareBBNode(argSpillBB)
       let postBB = fgContext.declareBBNode(currBB.create())
       if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
@@ -1493,11 +1488,11 @@ export default class IRIDIUM {
 
       // Declare nodes and forward successors
       let currBB = fgContext.getCurrentBB()
-      let caseTestBB = new ContainedBB(currBB.env, c, switchBodyBB)
+      let caseTestBB = new BlockBB(currBB.env, c)
       fgContext.declareBBNode(caseTestBB)
       let caseTestTerminalBB = caseTestBB.create()
       fgContext.declareBBNode(caseTestTerminalBB)
-      let caseBody = new ContainedBB(currBB.env, c, switchBodyBB)
+      let caseBody = new BlockBB(currBB.env, c)
       fgContext.declareBBNode(caseBody)
       let postBB = fgContext.declareBBNode(currBB.create())
       if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
@@ -1595,7 +1590,7 @@ export default class IRIDIUM {
     fgContext.declareBBNode(testBodyBB)
     let testBodyTerminalBB = testBodyBB.create()
     fgContext.declareBBNode(testBodyTerminalBB)
-    let updateBB = new ContainedBB(initBB.env, stmt.update, initBB, "For ~ Update BB")
+    let updateBB = new BlockBB(initBB.env, stmt.update)
     fgContext.declareBBNode(updateBB)
     let loopBodyBB = new BlockBB(new Environment(initBB.env), stmt.body)
     fgContext.declareBBNode(loopBodyBB)

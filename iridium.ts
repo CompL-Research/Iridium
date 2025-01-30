@@ -169,24 +169,24 @@ function iri(filePath) {
     const ir = new I_File(js3Builder)
     console.log(ir.toString())
 
-    // fs.writeFile("IRIDIUM.DOT", ir.toDOT(), 'utf8', (err) => {
-    //   if (err) {
-    //     debugConfig.logger.error(`[JS3 Builder] Error writing to file at path: ${debugConfig.outputsPath}`, [err]);
-    //   }
-    //   // Replace 'your-command-here' with the command you want to run
-    //   exec(`dot -Tpng IRIDIUM.DOT -o IRIDIUM.png`, (error, stdout, stderr) => {
-    //     if (error) {
-    //       console.error(`Error: ${error.message}`);
-    //       return;
-    //     }
-    //     if (stderr) {
-    //       console.error(`Stderr: ${stderr}`);
-    //       return;
-    //     }
-    //     // console.log(ir.toDOT())
-    //     process.exit(0)
-    //   });
-    // });
+    fs.writeFile("IRIDIUM.DOT", ir.toDOT(), 'utf8', (err) => {
+      if (err) {
+        debugConfig.logger.error(`[JS3 Builder] Error writing to file at path: ${debugConfig.outputsPath}`, [err]);
+      }
+      // Replace 'your-command-here' with the command you want to run
+      exec(`dot -Tpng IRIDIUM.DOT -o IRIDIUM.png`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error: ${error.message}`);
+          return;
+        }
+        if (stderr) {
+          console.error(`Stderr: ${stderr}`);
+          return;
+        }
+        // console.log(ir.toDOT())
+        process.exit(0)
+      });
+    });
   } catch (e) {
     console.error("Failed to generate Iridium: ", e)
     process.exit(1)

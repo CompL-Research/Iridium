@@ -75,10 +75,6 @@ export class BB {
 
   toString(space = 0) {
     let stmts = []
-
-    // // Traverse all BB's
-    // let BBs = recursivelyTraverseAllBBs(this)
-
     this.statements.forEach(s => {
       stmts.push(s.toString(space))
     })
@@ -90,43 +86,14 @@ export class BB {
     return stmts.join("\n")
   }
 
-  //   toDOTData() { return (`${this.statements.map(s => s.toDOT()).join("\\l")}\\l\\l${this.terminal.toDOT()}\\l`).replace(/"/g, '\\"') }
-  toDOTData() { return (`${this.statements.map(s => s.toDOT()).join("\\l")}\\l\\l`).replace(/"/g, '\\"') }
-
-  toDOTEnvEdges(space = 0, alreadyVisited : Set<BB> = new Set()) {
-    if (alreadyVisited.has(this)) return;
-    else alreadyVisited.add(this)
-    let stmts = []
-    if (!this.env) {
-      console.log(this.getName())
-    }
-    stmts.push(`${printSpace(space + 2)} "${this.getName()}" -> "${this.env.getName()}" [dir=none, style="dashed"]`)
-    
-    // // Visit BB's successors and print their data
-    // let succ = this.terminal.getSuccessors()
-    
-    // stmts.push(...succ.map(s => s.toDOTEnvEdges(space, alreadyVisited)))
-
-    return stmts.join("\n")
+  toDOTData() {
+    let terminalData = this.branchTerminal ? `\\l${this.branchTerminal.toDOT()}` : "";
+    return (`${this.statements.map(s => s.toDOT()).join("\\l")}\\l${terminalData}\\l`).replace(/"/g, '\\"')
   }
 
-  toDOT(space = 0, alreadyVisited : Set<BB> = new Set()) {
-    if (alreadyVisited.has(this)) return;
-    else alreadyVisited.add(this)
+  toDOT(space = 0) {
     let stmts = []
-    
     stmts.push(`${printSpace(space)} "${this.getName()}"[shape="box",xlabel="${this.printHeaderDOT()}",label="${this.printMetaDOT()}${this.toDOTData()}"]`)
-    // stmts.push(`${printSpace(space + 2)} "${this.getName()}" -> "${this.env.getName()}" [dir=none, style="dashed"]`)
-
-    // // Visit BB's successors and print their data
-    // let succ = this.terminal.getSuccessors()
-    
-    // for (let s of succ) {
-    //   stmts.push(`${printSpace(space)} ${this.getName()} -> ${s.getName()};`)
-    // }
-    
-    // stmts.push(...succ.map(s => s.toDOT(space, alreadyVisited)))
-
     return stmts.join("\n")
   }
 
@@ -149,7 +116,10 @@ export class BB {
 
 }
 
-// ************************** TOP LEVEL **************************
+// ************************** TOP LEVEL SCOPE **************************
+// 
+// These scopes are allowed to declare: let, const and var bindings
+// 
 
 export class ScriptBB extends BB {
   node: JS3Program
@@ -179,69 +149,10 @@ export class ModuleBB extends BB {
 
 }
 
-// ************************** CLASS LEVEL **************************
-
-export class ClassInitBB extends BB {
-  node: JS3ClassExpression
-  className: IV_Identifier | undefined
-  comment: string
-
-  constructor(env: Environment, node: JS3ClassExpression, className: IV_Identifier | undefined, comment: string = "") {
-    super(env, "ClassInit")
-    this.node = node
-    this.className = className
-    this.comment = comment
-  }
-
-  printHeader() {
-    return `BB${this.idx} [${this.scope}${this.className ? `, class="${this.className.toString()}"` : ""}] ${this.comment !== "" ? "//" + this.comment : ""}`
-  }
-
-  create() {
-    return new ClassInitBB(this.env, this.node, this.className, this.comment);
-  }
-}
-
-export class ClassStaticBB extends BB {
-  node: JS3StaticBlock
-  comment: string
-
-  constructor(env: Environment, node: JS3StaticBlock, comment: string = "") {
-    super(env, "ClassStatic")
-    this.node = node
-    this.comment = comment
-  }
-
-  printHeader() {
-    return `BB${this.idx} [${this.scope}] ${this.comment !== "" ? "//" + this.comment : ""}`
-  }
-
-  create() {
-    return new ClassStaticBB(this.env, this.node, this.comment);
-  }
-}
-
-export class ClassPropInitBB extends BB {
-  node: JS3ClassProperty_value | undefined
-  comment: string
-
-  constructor(env: Environment, node: JS3ClassProperty_value | undefined = undefined, comment = "") {
-    super(env, "ClassPropValue")
-    this.node = node
-    this.comment = comment
-  }
-
-  printHeader() {
-    return `BB${this.idx} [${this.scope}] ${this.comment ? "// " + this.comment : ""}`
-  }
-
-  create() {
-    return new ClassPropInitBB(this.env, this.node, this.comment);
-  }
-}
-
 // ************************** FUNCTION LEVEL **************************
-
+// 
+// These scopes are allowed to declare: let, const and var bindings
+// 
 export class FunctionBB extends BB {
   node: JS3StaticBlock | JS3FunctionDeclaration | JS3BlockStatement
 
@@ -272,8 +183,81 @@ export class FunctionArgInitBB extends BB {
   }
 }
 
-// ************************** BLOCK LEVEL **************************
+// ************************** CLASS INIT LEVEL **************************
+// 
+// These are BB contexts used when creating/initializing a class
+// 
 
+// 
+// This scope is allowed to declare: let and const bindings; all bindings created in this scope are tempvars
+// 
+export class ClassInitBB extends BB {
+  node: JS3ClassExpression
+  className: IV_Identifier | undefined
+
+  constructor(env: Environment, node: JS3ClassExpression, className: IV_Identifier | undefined) {
+    super(env, "ClassInit")
+    this.node = node
+    this.className = className
+  }
+
+  printHeader() {
+    return `BB${this.idx} [${this.scope} ~ ClassInit [${this.className ? this.className.toString() : ""}]]`
+  }
+
+  create() {
+    return new ClassInitBB(this.env, this.node, this.className);
+  }
+}
+
+// 
+// This scope is allowed to declare: let, const and var bindings
+// 
+export class ClassStaticBB extends BB {
+  node: JS3StaticBlock
+  comment: string
+
+  constructor(env: Environment, node: JS3StaticBlock, comment: string = "") {
+    super(env, "ClassStatic")
+    this.node = node
+    this.comment = comment
+  }
+
+  printHeader() {
+    return `BB${this.idx} [${this.scope}] ${this.comment !== "" ? "//" + this.comment : ""}`
+  }
+
+  create() {
+    return new ClassStaticBB(this.env, this.node, this.comment);
+  }
+}
+
+// 
+// This scope is allowed to declare: let and const bindings; all bindings created in this scope are tempvars
+// 
+export class ClassPropInitBB extends BB {
+  node: JS3ClassProperty_value | undefined
+  comment: string
+
+  constructor(env: Environment, node: JS3ClassProperty_value | undefined = undefined, comment = "") {
+    super(env, "ClassPropValue")
+    this.node = node
+    this.comment = comment
+  }
+
+  printHeader() {
+    return `BB${this.idx} [${this.scope}] ${this.comment ? "// " + this.comment : ""}`
+  }
+
+  create() {
+    return new ClassPropInitBB(this.env, this.node, this.comment);
+  }
+}
+
+// ************************** BLOCK LEVEL **************************
+// 
+// These scopes are allowed to declare: let and const bindings
+// 
 export class BlockBB extends BB {
   node?: any
   label: IV_Identifier | undefined
@@ -329,7 +313,7 @@ export class CatchBB extends BlockBB {
 }
 
 export class LoopHeadBB extends BlockBB {
-  updateContext : BB | undefined
+  updateContext: BB | undefined
 
   constructor(env: Environment, node: JS3WhileStatement | JS3ForInStatement | JS3ForOfStatement | JS3ForStatement | JS3DoWhileStatement = undefined, updateContext: BB | undefined = undefined) {
     super(env, node)
@@ -341,7 +325,7 @@ export class LoopHeadBB extends BlockBB {
   }
 
   printHeader(): string {
-    return `BB${this.idx} [${this.scope} ~ LoopHead { ${this.updateContext ? `update: BB${this.updateContext.idx}` : `` }}]`
+    return `BB${this.idx} [${this.scope} ~ LoopHead { ${this.updateContext ? `update: BB${this.updateContext.idx}` : ``}}]`
   }
 
 }
@@ -349,7 +333,7 @@ export class LoopHeadBB extends BlockBB {
 export class ForLoopInitBB extends BlockBB {
 
   constructor(env: Environment, node: JS3ForStatement_init = undefined) {
-    super(env, node)  
+    super(env, node)
   }
 
   create() {
@@ -365,7 +349,7 @@ export class ForLoopInitBB extends BlockBB {
 export class ForInOfLoopInitBB extends BlockBB {
 
   constructor(env: Environment, node: JS3ForInStatement | JS3ForOfStatement = undefined) {
-    super(env, node)  
+    super(env, node)
   }
 
   create() {
@@ -391,55 +375,4 @@ export class SwitchBodyBB extends BlockBB {
   printHeader(): string {
     return `BB${this.idx} [${this.scope} ~ SwitchBody]`
   }
-}
-
-// ************************** CONTAINED **************************
-type ContainedBB_node = undefined | OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | JS3UnaryExpression | SpreadElement | JS3SwitchCase | ForInStatement | ForOfStatement
-export class ContainedBB extends BB {
-  node: ContainedBB_node
-  parentBB: BB
-  comment: string
-
-  constructor(env: Environment, node: ContainedBB_node, parentBB: BB, comment = "") {
-    super(env, "Contained")
-    this.node = node
-    this.parentBB = parentBB
-    this.comment = comment
-  }
-
-  create() {
-    return new ContainedBB(this.env, this.node, this.parentBB, this.comment);
-  }
-
-  printHeader() {
-    let comment = ""
-    if (this.comment) {
-      comment = "// " + this.comment
-    }
-    return `BB${this.idx} [${this.scope} in BB${this.parentBB.idx}] ${comment}`
-  }
-
-}
-
-export class ContainedOptionalChainBB extends ContainedBB {
-  node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined
-  isOptional: boolean
-  isTerminal: boolean
-  isShortcircuit: boolean
-
-  constructor(env: Environment, node: OptionalMemberExpression | OptionalCallExpression | JS3ContainedExprKey | undefined = undefined, comment = "", isOptional: boolean, isTerminal: boolean = false, isShortcircuit = false) {
-    super(env, node, undefined, comment)
-    this.isOptional = isOptional
-    this.isTerminal = isTerminal
-    this.isShortcircuit = isShortcircuit
-  }
-
-  create() {
-    return new ContainedOptionalChainBB(this.env, this.node, this.comment, this.isOptional, this.isTerminal, this.isShortcircuit);
-  }
-
-  printHeader() {
-    return `BB${this.idx} [${this.scope} ~ Optional=${this.isOptional}, Terminal=${this.isTerminal}, Shortcircuit=${this.isShortcircuit}] // ${this.comment}`
-  }
-
 }

@@ -8,15 +8,12 @@ import { ProjectFile } from "../ProjectFile.ts";
 import { handleProgram } from "./JS3Helpers/HandleProgram.ts";
 import { JS3AllowedBlockStatement, JS3File, JS3Program, JS3Program_body } from "./JS3Helpers/JS3Types.ts";
 import { generateJS3File } from "./JS3Helpers/JS3Constructors.ts";
-import { transform as hoistImportsAndFnDecls } from 'classes/builder/JS3Helpers/passes/HoistImportsAndFnDeclarations.ts'
-import { transform as hoistVarDeclarations } from 'classes/builder/JS3Helpers/passes/HoistVarDeclarations.ts'
 
 
 const generator = _generator["default"]
 
 export type JS3BuilderUtils = {
   getNewTemporary: (prefix: string | undefined) => string
-  isResolvedModuleImport: (node: Node) => string | null
   debugTrace: Array<string>
   others?: {
     holder: JS3Program_body | Array<JS3AllowedBlockStatement> | null,
@@ -36,10 +33,6 @@ export default class JS3Builder {
 
   utils: JS3BuilderUtils = {
     getNewTemporary: (prefix: string | undefined) => `${prefix ? prefix : "js3"}$${++this.#varIdx}`,
-    isResolvedModuleImport: (node: ImportDeclaration) => {
-      const resolvedImport = this.projectFile.initData.moduleImports.has(node);
-      return resolvedImport ? this.projectFile.initData.moduleImports.get(node) : null
-    },
     debugTrace: new Array<string>()
   }
 

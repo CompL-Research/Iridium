@@ -8,7 +8,7 @@ export class JS3GenerationError extends Error { }
 export function printScopedSpace(space) {
   let res = "";
   for (let i = 0; i < space; i++) {
-    res += (i >= 4 && (i % 2 === 0)) ? "░" : " "
+    res += (i >= 2 && (i % 2 === 0)) ? "░" : " "
   }
   return res;
 }

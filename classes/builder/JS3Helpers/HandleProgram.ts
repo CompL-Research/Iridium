@@ -108,11 +108,6 @@ export function handleImportDeclaration(node: ImportDeclaration, otherProps: Oth
       // Duplicate node
       const duplicatedNode = generateJS3ImportDeclaration(fin_specifiers, fin_assertions, fin_attributes, node);
 
-      // Add a trailing comment if the module path has been resolved
-      const resolvedPath = otherProps.isResolvedModuleImport(node)
-      duplicatedNode.trailingComments = []
-      duplicatedNode.trailingComments.push(generateCommentLine(resolvedPath ? " Resolved: " + resolvedPath : " Unresolved"))
-
       // 
       // If the specifier is ImportDefaultSpecifier we make it a ImportSpecifier
       // Basically, 

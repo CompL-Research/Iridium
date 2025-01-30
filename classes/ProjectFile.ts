@@ -1,15 +1,12 @@
 import babel from '@babel/core'
 
-import _generate from "@babel/generator"
 import { ParseResult } from '@babel/parser'
-import t, { ImportDeclaration, Program } from '@babel/types'
+import t from '@babel/types'
 import fs from 'fs'
 import assert from 'node:assert/strict'
 import path from 'path'
 
 import debugConfig from "#debugConfig"
-import { resolveModuleImport } from "#utils"
-import { isImportDeclaration } from '@babel/types'
 
 
 export class InitData {
@@ -21,7 +18,10 @@ export class InitData {
   parseResult: ParseResult<t.File> | null = null
   sourceMap: any | null = null
 
-  moduleImports: Map<ImportDeclaration, string | null> = new Map()
+  // moduleImports: Map<ImportDeclaration, string | null> = new Map()
+  toString() {
+    return `{ "status": "${this.status}", "parseStatus": "${this.parseStatus}", "loc": ${this.loc ? this.loc : 0} }`
+  }
 }
 
 export class ProjectFile {
@@ -32,6 +32,10 @@ export class ProjectFile {
   filename: string
   filepath: string
   initData: InitData
+
+  toString() {
+    return ` { "absoluteFilePath": "${this.absoluteFilePath}", "uname": "${this.uname}", "initData": ${this.initData.toString()} }`
+  }
 
   constructor(absoluteFilePath, projectBasePath) {
     assert(absoluteFilePath !== null)
@@ -53,21 +57,21 @@ export class ProjectFile {
     this.initData = new InitData()
   }
 
-  #transformImports(program: Program, result: Map<t.Node, string | null>) {
-    for (const stmtNode of program.body) {
-      if (isImportDeclaration(stmtNode)) {
-        const importSpecifier = stmtNode.source.value
-        // if (importSpecifier === "true/jsx-runtime") continue;
-        const resolved = resolveModuleImport(importSpecifier, this.absoluteFilePath, this.projectBasePath)
-        if (!resolved) {
-          result.set(stmtNode, null)
-          debugConfig.logger.error(`[Failed module import] ${importSpecifier}`)
-        } else {
-          result.set(stmtNode, resolved)
-        }
-      }
-    }
-  }
+  // #transformImports(program: Program, result: Map<t.Node, string | null>) {
+  //   for (const stmtNode of program.body) {
+  //     if (isImportDeclaration(stmtNode)) {
+  //       const importSpecifier = stmtNode.source.value
+  //       // if (importSpecifier === "true/jsx-runtime") continue;
+  //       const resolved = resolveModuleImport(importSpecifier, this.absoluteFilePath, this.projectBasePath)
+  //       if (!resolved) {
+  //         result.set(stmtNode, null)
+  //         debugConfig.logger.error(`[Failed module import] ${importSpecifier}`)
+  //       } else {
+  //         result.set(stmtNode, resolved)
+  //       }
+  //     }
+  //   }
+  // }
 
   initSync(sourceType = "unambiguous", plugins = []) {
     const sourceCode = fs.readFileSync(this.absoluteFilePath, 'utf-8');
@@ -102,8 +106,8 @@ export class ProjectFile {
     this.initData.parseResult = result.ast
     this.initData.sourceMap = result.map
 
-    // Resolve imports using the loaded file's AST
-    this.#transformImports(result.ast.program, this.initData.moduleImports)
+    // // Resolve imports using the loaded file's AST
+    // this.#transformImports(result.ast.program, this.initData.moduleImports)
   }
 
   // Loads the file and creates an AST

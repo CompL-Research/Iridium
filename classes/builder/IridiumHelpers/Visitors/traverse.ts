@@ -12,71 +12,53 @@ import { IRIDIUM_FG } from "../IRIDIUM.ts";
 // We can add more things here when we add new visitors
 export type InstTraversalContext = { bb: BB }
 
-// export function traverseInstructionLexical(currBB: BB, callback: (inst: ALL_IS, context: InstTraversalContext) => void) {
-  
-//   // Traverse over all BBs
-//   traverseBB(currBB, (bb: BB, _) => {    
-//     // For each BB, we visit all the instructions
-//     for (let i of bb.statements) {
-//       let instContext : InstTraversalContext = { bb }
-//       callback(i, instContext)
-      
-//       let declaredClosure : IRIDIUM_FG | undefined = i.declaredClosure()
-//       if (declaredClosure) {
-//         traverseInstructionLexical(declaredClosure, callback)
-//       }
-//     }
-  
-//   })
-// }
+// 
+// Given a flowgraph, traverse all its instructions recursively
+// 
+export function traverseInstructionRecDepthFirst(fg: IRIDIUM_FG, callback: (inst: ALL_IS, bb: BB, fgContext: IRIDIUM_FG) => void) {
+  // Traverse over all BBs
+  traverseBBLexical(fg, (bb: BB, fgContext: IRIDIUM_FG) => {
+    // For each BB, we visit all the instructions
+    for (let i of bb.statements) {
+      callback(i, bb, fgContext)
+    }
+  })
+}
 
-// export function traverseInstruction(currBB: BB, callback: (inst: ALL_IS, context: InstTraversalContext) => void) {
-  
-//   // Traverse over all BBs
-//   traverseBB(currBB, (bb: BB, _) => {
-    
-//     // For each BB, we visit all the instructions
-//     for (let i of bb.statements) {
-//       let instContext : InstTraversalContext = { bb }
-//       callback(i, instContext)
-//     }
-  
-//   })
-// }
+// 
+// Given a flowgraph, traverse all its instructions
+// 
+export function traverseInstruction(fg: IRIDIUM_FG, callback: (inst: ALL_IS, bb: BB) => void) {
+  // Traverse over all BBs
+  traverseBB(fg, (bb: BB) => {
+    // For each BB, we visit all the instructions
+    for (let i of bb.statements) {
+      callback(i, bb)
+    }
+  })
+}
 
-// // We can add more things here when we add new visitors
-// export type BBTraversalContext = { }
+// 
+// Given a flowgraph, traverse all its BBs and the BB's of its inner closures as-well
+// 
+export function traverseBBLexical(fg: IRIDIUM_FG, callback: (bb: BB, fg: IRIDIUM_FG) => void) {
+  traverseBB(fg, (bb: BB) => {
+    callback(bb, fg)
+    for (let i of bb.statements) {
+      let declaredClosure : IRIDIUM_FG | undefined = i.declaredClosure()
+      if (declaredClosure) {
+        traverseBBLexical(declaredClosure, callback)
+      }
+    }
+  })
+}
 
-
-// export function traverseBBLexical(currBB: BB, callback: (bb: BB, context: BBTraversalContext) => void) {
-//   // Traverse over all BBs
-//   traverseBB(currBB, (bb: BB, _) => {    
-//     // Visit BB
-//     let bbContext : BBTraversalContext = { }
-//     callback(bb, bbContext)
-
-//     // Recusrively visit all lexical scopes
-//     for (let i of bb.statements) {
-//       // less
-//     }
-//   })
-// }
-
-
-
-// export function traverseBB(currBB: BB, callback: (bb: BB, context: BBTraversalContext) => void, visited: Set<BB> = new Set()) {
-//   if (visited.has(currBB)) return
-//   else visited.add(currBB)
-
-//   // Traversal context
-//   let context = { }
-
-//   // Iterate over BB's
-//   callback(currBB, context)
-  
-//   // Recurse over successors
-//   let successors = currBB.terminal.getSuccessors()
-//   for (let s of successors) {
-//     traverseBB(s, callback, visited)
-//   }
-// }
+// 
+// Given a flowgraph, traverse all its BBs
+// 
+export function traverseBB(fg: IRIDIUM_FG, callback: (bb: BB) => void) {
+  for (let n of fg.nodes()) {
+    // Iterate over BB's
+    if (fg.hasNode(n)) callback(fg.node(n))
+  }
+}

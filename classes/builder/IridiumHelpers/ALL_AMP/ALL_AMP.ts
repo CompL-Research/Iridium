@@ -40,14 +40,16 @@ export class ALL_AMP {
 export class IV_Identifier extends ALL_AMP {
   name: string
   isValue: boolean = false
+  isChainedValue: boolean = false
   constructor(node: Identifier | undefined = undefined, name: string) {
     super(node, "Identifier");
     this.name = name;
   }
 
-  static from(node: Identifier, isValue: boolean = false) {
+  static from(node: Identifier, isValue: boolean = false, isChainedValue: boolean = false) {
     let res = new IV_Identifier(node, node.name);
     res.isValue = isValue
+    res.isChainedValue = isChainedValue
     return res
   }
 
@@ -57,6 +59,7 @@ export class IV_Identifier extends ALL_AMP {
 
   toString() {
     if (this.isValue) return `<Value> ${this.lookupName()}`;
+    if (this.isChainedValue) return `<ChainedValue> ${this.lookupName()}`;
     return `${this.lookupName()}`
   }
 }
