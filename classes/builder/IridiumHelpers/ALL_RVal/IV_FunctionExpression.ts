@@ -19,7 +19,7 @@ export class IV_FunctionExpression extends ALL_RVal {
     this.dropName = dropName
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return this.func.funBody }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return [this.func.funBody] }
 
   toString(space = 0) {
     return `<FunctionExpression> { ${this.dropName ? "" : (this.name ? `name: ${this.name.toString()}` : "name: UKN")} }\n${printScopedSpace(space)}${this.func.toString(space + 2)}`

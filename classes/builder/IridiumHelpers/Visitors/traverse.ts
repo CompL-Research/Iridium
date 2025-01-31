@@ -39,15 +39,30 @@ export function traverseInstruction(fg: IRIDIUM_FG, callback: (inst: ALL_IS, bb:
 }
 
 // 
+// Given a flowgraph, traverse all its lexical flowgraps
+// 
+export function traverseFGLexical(fg: IRIDIUM_FG, callback: (fg: IRIDIUM_FG) => void) {
+  callback(fg)
+  traverseBB(fg, (bb: BB) => {
+    for (let i of bb.statements) {
+      let declaredClosures : Array<IRIDIUM_FG> | undefined = i.declaredClosure()
+      if (declaredClosures) {
+        for (let declaredClosure of declaredClosures) traverseFGLexical(declaredClosure, callback)
+      }
+    }
+  })
+}
+
+// 
 // Given a flowgraph, traverse all its BBs and the BB's of its inner closures as-well
 // 
 export function traverseBBLexical(fg: IRIDIUM_FG, callback: (bb: BB, fg: IRIDIUM_FG) => void) {
   traverseBB(fg, (bb: BB) => {
     callback(bb, fg)
     for (let i of bb.statements) {
-      let declaredClosure : IRIDIUM_FG | undefined = i.declaredClosure()
-      if (declaredClosure) {
-        traverseBBLexical(declaredClosure, callback)
+      let declaredClosures : Array<IRIDIUM_FG> | undefined = i.declaredClosure()
+      if (declaredClosures) {
+        for (let declaredClosure of declaredClosures) traverseBBLexical(declaredClosure, callback)
       }
     }
   })

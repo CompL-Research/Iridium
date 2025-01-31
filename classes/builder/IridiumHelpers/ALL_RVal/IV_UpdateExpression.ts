@@ -15,7 +15,7 @@ export class IV_UpdateExpression extends ALL_RVal {
     this.prefix = prefix
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return this.argument.declaredClosure() }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return this.argument.declaredClosure() }
 
   toString() {
     return this.prefix ? `${this.operator} ${this.argument.toString()}` : `${this.argument.toString()} ${this.operator}`

@@ -53,7 +53,7 @@ export class IV_Identifier extends ALL_AMP {
     return res
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return undefined }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return undefined }
 
   lookupName() { return `${this.name}` }
 
@@ -88,7 +88,7 @@ export class IV_MemberExpressionPA extends ALL_AMP {
     this.computed = computed
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return undefined }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return undefined }
 
   toString() {
     if (this.computed) return `<MemberExpressionPA> ${this.object.name}[${this.property.toString()}]`
@@ -106,7 +106,7 @@ export class IV_ThisLookupPA extends ALL_AMP {
     this.computed = computed
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return undefined }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return undefined }
 
   toString() {
     if (this.computed) return `<THISPA> THIS[${this.property.toString()}]`
@@ -124,7 +124,7 @@ export class IV_SuperLookupPA extends ALL_AMP {
     this.computed = computed
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return undefined }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return undefined }
 
   toString() {
     if (this.computed) return `<SuperPA> SUPER[${this.property.toString()}]`

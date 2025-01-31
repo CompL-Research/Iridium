@@ -178,6 +178,10 @@ export class ISP_ClassProperty {
     this.computed = computed
   }
 
+  declaredClosure() : Array<IRIDIUM_FG> {
+    return [this.value]
+  }
+
   isPrivate() { return this.key instanceof IV_PrivateName }
 
   toString(space = 0) {
@@ -202,6 +206,10 @@ export class ISP_StaticClassProperty {
     this.key = key
     this.value = value
     this.computed = computed
+  }
+
+  declaredClosure() : Array<IRIDIUM_FG> {
+    return []
   }
 
   isPrivate() { return this.key instanceof IV_PrivateName }
@@ -229,6 +237,10 @@ export class ISP_ClassMethod extends I_Function {
     this.key = key
     this.computed = computed
     this.isStatic = isStatic
+  }
+
+  declaredClosure() : Array<IRIDIUM_FG> {
+    return [this.funBody]
   }
 
   isPrivate() { return this.key instanceof IV_PrivateName }

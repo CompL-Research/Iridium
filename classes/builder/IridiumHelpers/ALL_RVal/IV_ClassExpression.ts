@@ -3,6 +3,7 @@ import { ALL_RVal } from "./ALL_RVal.ts";
 import { printScopedSpace, printSpace } from "#utils";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { ISP_ClassProperty, ISP_StaticClassProperty, ISP_ClassMethod } from "./ALL_ISP.ts";
+import { IRIDIUM_FG } from "../IRIDIUM.ts";
 
 export type IV_ClassExpression_properties = Array<ISP_ClassProperty | ISP_StaticClassProperty | ISP_ClassMethod>
 
@@ -18,6 +19,10 @@ export class IV_ClassExpression extends ALL_RVal {
     this.heritage = heritage
     this.properties = properties
     this.dropName = dropName
+  }
+
+  declaredClosure() : Array<IRIDIUM_FG> | undefined {
+    return this.properties.map(p => p.declaredClosure()).flat(1)
   }
 
   toString(space = 0) {

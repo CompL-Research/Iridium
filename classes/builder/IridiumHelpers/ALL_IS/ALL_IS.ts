@@ -1,5 +1,6 @@
 import { JS3AllowedProgStatement, JS3ClassExpression } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IRIDIUM_FG } from "../IRIDIUM.ts";
+import { printScopedSpace, printSpace } from "#utils";
 
 export class ALL_IS {
   node : JS3AllowedProgStatement | undefined | JS3ClassExpression
@@ -11,9 +12,23 @@ export class ALL_IS {
     throw new Error("ALL_IS: toDOT not implemented!!");
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return undefined }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return undefined }
 
   toString(space = 0) {
     throw new Error("ALL_IS: toString not implemented!!");
+  }
+}
+
+export class IS_Noop extends ALL_IS {
+  constructor() {
+    super(undefined);
+  }
+
+  toString(space = 0) {
+    return `${printScopedSpace(space)} 🪹`
+  }
+
+  toDOT(space = 0) {
+    return `${printSpace(space)} 🪹`
   }
 }

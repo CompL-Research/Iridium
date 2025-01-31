@@ -65,7 +65,7 @@ export class ALL_RVal {
     this.type = type
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return undefined }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return undefined }
 
   toString(space = 0) {
     if (this.node) {

@@ -46,6 +46,7 @@ import { Environment } from "./I_GENERAL/I_Scope.ts";
 import { Graph } from "#graphlib";
 import { printScopedSpace, printSpace } from "#utils";
 import { cleanupBBs } from "./Passes/BBCleanup.ts";
+import { hoistDeclarations } from "./Passes/DeclarationHoisting.ts";
 
 const generate = _generate.default
 
@@ -55,6 +56,17 @@ export class IRIDIUM_FG extends Graph {
 
   getName() {
     return `FG_ROOT=BB${this.rootBB.idx}`
+  }
+
+  // Get a mapping of envs to BBs in the flowgraph
+  getEnvBBMap() : Map<Environment, Set<BB>> {
+    let envs: Map<Environment, Set<BB>> = new Map();
+    for (let bb of this.nodes()) {
+      let bbNode = this.getBBNode(bb)
+      if (!envs.has(bbNode.env)) envs.set(bbNode.env, new Set()) 
+      envs.get(bbNode.env).add(bbNode)
+    }
+    return envs
   }
 
   // Methods to set and get BB's from the flowgraph
@@ -203,6 +215,7 @@ export default class IRIDIUM {
     let res = this.popFGContext()
     if (this.fgContext.length !== 0) debugConfig.logger.throwIriError("Expected FGContext to be empty after Iridium generation!!") 
 
+    hoistDeclarations(res)
     cleanupBBs(res)
     return res
   }

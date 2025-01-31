@@ -14,7 +14,7 @@ export class IV_SimpleAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return this.RVal.declaredClosure(); }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return this.RVal.declaredClosure(); }
 
   toString(space = 0) {
     return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
@@ -35,7 +35,7 @@ export class IV_MemberAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return this.RVal.declaredClosure(); }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return this.RVal.declaredClosure(); }
 
   toString(space = 0) {
     return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
@@ -56,7 +56,7 @@ export class IV_ThisAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return this.RVal.declaredClosure(); }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return this.RVal.declaredClosure(); }
 
   toString(space = 0) {
     return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
@@ -77,7 +77,7 @@ export class IV_SuperAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return this.RVal.declaredClosure(); }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return this.RVal.declaredClosure(); }
 
   toString(space = 0) {
     return `${this.LVal.toString()} = ${this.RVal.toString(space + 2)}`
@@ -98,7 +98,7 @@ export class IV_ArrPatAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return this.RVal.declaredClosure(); }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return this.RVal.declaredClosure(); }
 
   toString(space = 0) {
     let lval = "[ "
@@ -157,7 +157,7 @@ export class IV_ObjPatAssn extends ALL_RVal {
     this.RVal = RVal
   }
 
-  declaredClosure() : IRIDIUM_FG | undefined { return this.RVal.declaredClosure(); }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return this.RVal.declaredClosure(); }
 
   toString(space = 0) {
 

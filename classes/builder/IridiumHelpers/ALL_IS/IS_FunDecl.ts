@@ -11,7 +11,7 @@ export class IS_FunDecl extends ALL_IS {
   func: I_Function
   name: IV_Identifier
 
-  declaredClosure() { return this.func.funBody }
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return [this.func.funBody] }
 
   constructor(node: JS3FunctionDeclaration | undefined = undefined, params : Array<IV_Identifier | ISP_RestElement>, funBody: IRIDIUM_FG, name: IV_Identifier, isGenerator: boolean, isAsync: boolean) {
     super(node);
