@@ -8,6 +8,7 @@ import { IV_This } from "../ALL_RVal/IV_This.ts";
 import { ALL_IS } from "./ALL_IS.ts";
 import { IS_FunDecl } from "./IS_FunDecl.ts";
 import { IRIDIUM_FG } from "../IRIDIUM.ts";
+import { IV_ClassExpression } from "../ALL_RVal/IV_ClassExpression.ts";
 
 export type IS_VAR_DECL_KIND = "var" | "let" | "const"
 
@@ -223,22 +224,31 @@ export class IS_ClassNameInitStmt extends ALL_IS {
 }
 
 export class IS1_DeclarationStmt extends ALL_IS {
-  orig: IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl
+  orig: IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl | IS_ThisInitStmt | IS_ClassNameInitStmt
   LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern
   RVal: IV_ASSIGNABLE
 
-  constructor(orig: IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl, LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
+  constructor(orig: IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl | IS_ThisInitStmt | IS_ClassNameInitStmt, LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
     super(undefined);
     this.orig = orig
     this.LVal = LVal
     this.RVal = RVal
   }
 
+  getBindingKind() : IS_VAR_DECL_KIND {
+    if (this.orig instanceof IS_FunDecl)           return "let" // NUBD
+    if (this.orig instanceof IS_ClassNameInitStmt) return "let" // NUBD
+    if (this.orig instanceof IS_ThisInitStmt)      return "var" // undefined
+    return this.orig.KIND
+  }
+
   generatedBindings() : Set<IV_Identifier> {
-    if (this.orig instanceof IS_FunDecl) {
-      let res : Set<IV_Identifier> = new Set()
-      res.add(this.orig.name)
-      return res
+    if (this.orig instanceof IS_FunDecl || this.orig instanceof IS_ThisInitStmt || this.orig instanceof IS_ClassNameInitStmt) {
+      if (this.LVal instanceof IV_Identifier) {
+        let res : Set<IV_Identifier> = new Set()
+        res.add(this.LVal)
+        return res
+      } else throw new Error("Expected IS_FuncDecl, IS_ThisInitStmt, IS_ClassNameInitStmt to always hold an Identifier LVal")
     }
     return this.orig.generatedBindings
   }
@@ -255,16 +265,18 @@ export class IS1_DeclarationStmt extends ALL_IS {
 }
 
 export class IS1_AssignmentStmt extends ALL_IS {
-  orig: IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl
+  orig: IV_ClassExpression | IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl
   LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern
   RVal: IV_ASSIGNABLE
 
-  constructor(orig: IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl, LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
+  constructor(orig: IV_ClassExpression | IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl, LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
     super(undefined);
     this.orig = orig
     this.LVal = LVal
     this.RVal = RVal
   }
+  
+  declaredClosure() : Array<IRIDIUM_FG> | undefined { return this.RVal && this.RVal.declaredClosure() }
 
   toString(space = 0) {
     let lval = isJS3ArrayPattern(this.LVal) ? ArrPatToString(this.LVal) : isJS3ObjectPattern(this.LVal) ? ObjPatToString(this.LVal) : this.LVal.name;

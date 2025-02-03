@@ -18,6 +18,24 @@ import { IS_VAR_DECL_KIND } from "../ALL_IS/IS_VarDecl.ts"
 import { printSpace } from "#utils"
 
 
+// 
+// Generating DU - Chains
+// 
+// Algorithm (use : Identifier | PrivateIdentifier | PrivateIdentifier, env: Environment): 
+// 
+// 
+// 
+//   Inside Iridium we might have reaching defs from 
+//      1. Current Environment on the STACK <- Base Case
+//      2. Some Closure Environment declared inside the file <- Closure Case
+//      3. Some Global Environment Object <- Global
+// 
+//   Some meta properties for an environment may also be derived:
+//      For instance, a use 
+// 
+// 
+
+
 class EnvironmentRecord {
   name: string // The binding that we are interested in
   defs: Array<ALL_IS>

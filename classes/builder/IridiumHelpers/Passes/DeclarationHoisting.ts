@@ -14,8 +14,9 @@ import GLIB from "#graphlib";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { IS_Noop } from "../ALL_IS/ALL_IS.ts";
 import { IS_FunDecl } from "../ALL_IS/IS_FunDecl.ts";
-import { IS1_AssignmentStmt, IS1_DeclarationStmt, IS_ArrPatVarDecl, IS_ObjPatVarDecl, IS_SimpleVarDecl } from "../ALL_IS/IS_VarDecl.ts";
+import { IS1_AssignmentStmt, IS1_DeclarationStmt, IS_ArrPatVarDecl, IS_ClassNameInitStmt, IS_ObjPatVarDecl, IS_SimpleVarDecl, IS_ThisInitStmt } from "../ALL_IS/IS_VarDecl.ts";
 import { IV_NUBD } from "../ALL_RVal/IV_NonLang.ts";
+import { IV_This } from "../ALL_RVal/IV_This.ts";
 import { IRIDIUM_FG } from "../IRIDIUM.ts";
 import { traverseFGLexical } from "../Visitors/traverse.ts";
 
@@ -32,7 +33,7 @@ export function hoistDeclarations(rootFG: IRIDIUM_FG) {
     let envBBMap = fg.getEnvBBMap()
 
     for (let [e, BBsSet] of envBBMap) {
-      let toDeclare: Array<IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl> = new Array()
+      let toDeclare: Array<IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl | IS_ClassNameInitStmt | IS_ThisInitStmt> = new Array()
       let BBs = [...BBsSet]
       BBs.map(bb => {
         bb.statements = bb.statements.map((i) => {
@@ -44,6 +45,12 @@ export function hoistDeclarations(rootFG: IRIDIUM_FG) {
               return new IS_Noop()
           } else if (i instanceof IS_FunDecl) {
             toDeclare.push(i)
+          } else if (i instanceof IS_ThisInitStmt) {
+            toDeclare.push(i)
+            return new IS_Noop()
+          } else if (i instanceof IS_ClassNameInitStmt) {
+            toDeclare.push(i)
+            return new IS_Noop()
           }
           return i;
         })
@@ -70,6 +77,9 @@ export function hoistDeclarations(rootFG: IRIDIUM_FG) {
       // Generate and add declaratopms tp dBB
       let updatedDeclarations = toDeclare.map(d => {
         if (d instanceof IS_FunDecl) return new IS1_DeclarationStmt(d, d.name, new IV_NUBD())
+        if (d instanceof IS_ThisInitStmt) return new IS1_DeclarationStmt(d, new IV_Identifier(undefined, IV_This.lookupName()), new IV_Identifier(undefined, "undefined"))
+        if (d instanceof IS_ClassNameInitStmt) return new IS1_DeclarationStmt(d, d.LVal, new IV_NUBD())
+        
         if (d.KIND === "let" || d.KIND === "const") {
           return new IS1_DeclarationStmt(d, d.LVal, new IV_NUBD())
         } else {

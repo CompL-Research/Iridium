@@ -25,10 +25,10 @@ export class IS_Noop extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${printScopedSpace(space)} 🪹`
+    return `${printScopedSpace(space)} 🪹🐦NOOP`
   }
 
   toDOT(space = 0) {
-    return `${printSpace(space)} 🪹`
+    return `${printSpace(space)} 🪹🐦NOOP`
   }
 }

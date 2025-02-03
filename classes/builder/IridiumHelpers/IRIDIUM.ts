@@ -17,7 +17,7 @@ import { IS_Continue, IS_LContinue } from "./ALL_IS/IS_Continue.ts";
 import { IS_Debugger, IS_Return, IS_Throw } from "./ALL_IS/IS_Debugger_Return_Throw.ts";
 import { IS_FunDecl } from "./ALL_IS/IS_FunDecl.ts";
 import { IS_AExport, IS_AImport, IS_BExport, IS_BImport, IS_CExport, IS_CImport, IS_DExport, IS_EExport } from "./ALL_IS/IS_Imports_Exports.ts";
-import { IS_ArrPatVarDecl, IS_ClassNameInitStmt, IS_ObjPatVarDecl, IS_SimpleVarDecl, IS_ThisInitStmt, IS_VAR_DECL_KIND } from "./ALL_IS/IS_VarDecl.ts";
+import { IS1_AssignmentStmt, IS_ArrPatVarDecl, IS_ClassNameInitStmt, IS_ObjPatVarDecl, IS_SimpleVarDecl, IS_ThisInitStmt, IS_VAR_DECL_KIND } from "./ALL_IS/IS_VarDecl.ts";
 import { ISP_ArgSpread, ISP_ClassMethod, ISP_ClassProperty, ISP_ClassProperty_key, ISP_ObjectMethod, ISP_ObjectMethod_key, ISP_ObjectProperty, ISP_RestElement, ISP_StaticClassProperty, ISP_Super, ISP_V8Intrinsic } from "./ALL_RVal/ALL_ISP.ts";
 import { IV_ASSIGNABLE } from "./ALL_RVal/ALL_RVal.ts";
 import { IV_ArrayExpression } from "./ALL_RVal/IV_ArrayExpression.ts";
@@ -41,12 +41,13 @@ import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "./ALL_RVal/IV_Unop.ts";
 import { IV_UpdateExpression } from "./ALL_RVal/IV_UpdateExpression.ts";
 import { IV_AWAIT, IV_YIELD } from "./ALL_RVal/IV_YIELD_AWAIT.ts";
 import { BB, BlockBB, BranchTerminal, CatchBB, ClassInitBB, ClassPropInitBB, ClassStaticBB, ForInOfLoopInitBB, ForLoopInitBB, FunctionArgInitBB, FunctionBB, LoopHeadBB, ModuleBB, ScriptBB, SwitchBodyBB, TryBB } from "./BB.ts";
-import { Environment } from "./I_GENERAL/I_Scope.ts";
+import { Environment } from "./I_GENERAL/I_Environment.ts";
 
 import { Graph } from "#graphlib";
 import { printScopedSpace, printSpace } from "#utils";
 import { cleanupBBs } from "./Passes/BBCleanup.ts";
 import { hoistDeclarations } from "./Passes/DeclarationHoisting.ts";
+import { initializeEnvDefs } from "./Passes/EnvInit.ts";
 
 const generate = _generate.default
 
@@ -217,6 +218,7 @@ export default class IRIDIUM {
 
     hoistDeclarations(res)
     cleanupBBs(res)
+    initializeEnvDefs(res)
     return res
   }
 
@@ -765,16 +767,14 @@ export default class IRIDIUM {
     let finInitClassRes = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined))
     fgContext.getCurrentBB().statements.push(new IS_SimpleVarDecl(undefined, "let", finInitClassRes, iriAssn))
 
-    // <THIS_INIT> THIS = finInitClassRes
-    thisInitToUndef = new IS_ThisInitStmt(node)
-    thisInitToUndef.RVal = finInitClassRes
-    fgContext.getCurrentBB().statements.push(thisInitToUndef);
+    // <reassign> THIS = finInitClassRes
+    let thisReassign = new IS1_AssignmentStmt(iriClassExpr, new IV_Identifier(undefined, IV_This.lookupName()), finInitClassRes)
+    fgContext.getCurrentBB().statements.push(thisReassign);
 
-    // <ClassNameInit> cName = finInitClassRes
+    // <reassign> cName = finInitClassRes
     if (isIdentifier(node.id)) {
-      let cNameInitToNUBD = new IS_ClassNameInitStmt(node, cName);
-      cNameInitToNUBD.RVal = finInitClassRes
-      fgContext.getCurrentBB().statements.push(cNameInitToNUBD);
+      let classNameReassign = new IS1_AssignmentStmt(iriClassExpr, cName, finInitClassRes)      
+      fgContext.getCurrentBB().statements.push(classNameReassign);
     }
 
     for (let toSpill of staticPropSpill) {

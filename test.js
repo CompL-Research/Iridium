@@ -866,23 +866,47 @@
 
 // delete delete (xxx.x ? 1 : 2)
 
-function foo({x : {b : [b]}}) {
-    var a = 10;
+// function foo({x : {b : [b]}}) {
+//     var a = 10;
     
-    class A {
-        [a] = (console.log("a"), a)
-        static {
-            var a = 1;
-            var b = 2;
-            console.log("a inside: ", a);
-        }
+//     class A {
+//         [a] = (console.log("a"), a)
+//         static {
+//             var a = 1;
+//             var b = 2;
+//             console.log("a inside: ", a);
+//         }
 
-        static {
-            console.log("a inside (continued): ", a);
-            console.log("b inside (continued): ", b);
+//         static {
+//             console.log("a inside (continued): ", a);
+//             console.log("b inside (continued): ", b);
 
-        }
-    };
+//         }
+//     };
 
-    // console.log("a outside: ", a)
-}
+//     // console.log("a outside: ", a)
+// }
+
+
+// class Test {
+//   #hello = 10
+// }
+
+// class Boo {
+
+//   #hello = 11
+  
+//   static test() {
+//     let o = new Test()
+//     let containsHello = #hello in Test
+//     console.log(containsHello)
+//   }
+// }
+
+// Boo.test()
+
+var a = 10;
+
+var a; // <- Does this have an effect later?
+
+console.log(a)

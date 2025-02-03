@@ -6,10 +6,10 @@ export class IV_This extends ALL_RVal {
     super(node, "ThisExpression");
   }
 
-  lookupName() { return "THIS" }
+  static lookupName() { return "THIS" }
 
   toString() {
-    return `<THIS> ${this.lookupName()}`
+    return `<THIS> ${IV_This.lookupName()}`
   }
 
   toDOT() {

@@ -5,7 +5,7 @@ import { JS3AllowedFunctionArgs, JS3BlockStatement, JS3CatchClause, JS3ClassExpr
 import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts"
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts"
 import { printScopedSpace, printSpace } from "#utils"
-import { Environment } from "./I_GENERAL/I_Scope.ts"
+import { Environment } from "./I_GENERAL/I_Environment.ts"
 
 const generator = _generator["default"]
 type BBScopes = "Script" | "Module" | "Function" | "Block" | "Contained" | "FunctionArgInit" | "ClassInit" | "ClassStatic" | "ClassPropValue"

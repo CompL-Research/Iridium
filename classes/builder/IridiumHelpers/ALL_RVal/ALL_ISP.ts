@@ -190,7 +190,7 @@ export class ISP_ClassProperty {
 
   toDOT(space = 0) {
     debugConfig.DOTContext.add(this.value)
-    return `<ClassProp> ${this.computed ? "[" + this.key.toString() + "]" : this.key.toString()} = BB${this.value.rootBB.idx}`
+    return `<ClassProp> ${this.computed ? "[" + this.key.toString() + "]" : this.key.toString()} = BB${this.value.getName()}`
   }
 }
 
