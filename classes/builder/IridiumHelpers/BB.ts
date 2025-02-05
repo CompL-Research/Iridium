@@ -93,7 +93,7 @@ export class BB {
 
   toDOT(space = 0) {
     let stmts = []
-    stmts.push(`${printSpace(space)} "${this.getName()}"[shape="box",xlabel="${this.printHeaderDOT()}",label="${this.printMetaDOT()}${this.toDOTData()}"]`)
+    stmts.push(`${printSpace(space)} "${this.getName()}"[shape="box",xlabel="${this.printHeader()}",label="${this.printMetaDOT()}${this.toDOTData()}"]`)
     return stmts.join("\n")
   }
 
@@ -110,7 +110,7 @@ export class BB {
   }
 
   printMetaDOT() {
-    let preds = [...this.preds].map(b => b.printHeaderDOT()).join(",")
+    let preds = [...this.preds].map(b => b.printHeader()).join(",")
     return (` 👪 : ${preds}\\l 🫶 : ${this.scope}\\l\\l`).replace(/"/g, '\\"')
   }
 
@@ -312,64 +312,63 @@ export class CatchBB extends BlockBB {
   }
 }
 
-export class LoopHeadBB extends BlockBB {
-  updateContext: BB | undefined
+// 
+// LoopHead Signifier
+// 
 
-  constructor(env: Environment, node: JS3WhileStatement | JS3ForInStatement | JS3ForOfStatement | JS3ForStatement | JS3DoWhileStatement = undefined, updateContext: BB | undefined = undefined) {
+export class LoopHeadBB extends BlockBB {
+  breakTarget   : BB = undefined
+  continueTarget: BB = undefined
+  
+  constructor(env: Environment, node: JS3ForStatement | JS3DoWhileStatement | JS3ForInStatement | JS3ForOfStatement | JS3WhileStatement = undefined) {
     super(env, node)
-    this.updateContext = updateContext
   }
+
+  setBreakTarget(bb: BB) { this.breakTarget = bb; }
+  getBreakTarget() { return this.breakTarget }
+
+  setContinueTarget(bb: BB) { this.continueTarget = bb; }
+  getContinueTarget() { return this.continueTarget; }
 
   create() {
     return new LoopHeadBB(this.env, this.node);
   }
 
   printHeader(): string {
-    return `BB${this.idx} [${this.scope} ~ LoopHead { ${this.updateContext ? `update: BB${this.updateContext.idx}` : ``}}]`
+    return `BB${this.idx} [${this.scope} ~ LoopHead${this.label ? ` ~ ${this.label}` : ""}]`
   }
 
 }
 
-export class ForLoopInitBB extends BlockBB {
+export class LoopInit extends BlockBB {
 
-  constructor(env: Environment, node: JS3ForStatement_init = undefined) {
+  constructor(env: Environment, node: JS3ForInStatement | JS3ForOfStatement | JS3ForStatement = undefined) {
     super(env, node)
   }
 
   create() {
-    return new ForLoopInitBB(this.env, this.node);
+    return new LoopInit(this.env, this.node);
   }
 
   printHeader(): string {
-    return `BB${this.idx} [${this.scope} ~ ForLoopInit]`
-  }
-
-}
-
-export class ForInOfLoopInitBB extends BlockBB {
-
-  constructor(env: Environment, node: JS3ForInStatement | JS3ForOfStatement = undefined) {
-    super(env, node)
-  }
-
-  create() {
-    return new ForInOfLoopInitBB(this.env, this.node);
-  }
-
-  printHeader(): string {
-    return `BB${this.idx} [${this.scope} ~ ForInOfLoopInit]`
+    return `BB${this.idx} [${this.scope} ~ LoopInit]`
   }
 
 }
 
 export class SwitchBodyBB extends BlockBB {
+  breakTarget   : BB = undefined
 
-  constructor(env: Environment, node: JS3SwitchStatement = undefined) {
+  constructor(env: Environment, node: JS3SwitchStatement = undefined, breakTarget = undefined) {
     super(env, node)
+    this.breakTarget = breakTarget
   }
 
+  setBreakTarget(bb: BB) { this.breakTarget = bb; }
+  getBreakTarget() { return this.breakTarget }
+
   create() {
-    return new SwitchBodyBB(this.env, this.node);
+    return new SwitchBodyBB(this.env, this.node, this.breakTarget);
   }
 
   printHeader(): string {

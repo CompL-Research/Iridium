@@ -2,7 +2,7 @@
 
 import { BB } from "../BB.ts";
 import { IRIDIUM_FG } from "../IRIDIUM.ts";
-import { traverseBBLexical } from "../Visitors/traverse.ts";
+import { traverseBBLexical, traverseFGLexical } from "../Visitors/traverse.ts";
 
 export function cleanupBBs(fg: IRIDIUM_FG) {
   let change;
@@ -26,7 +26,9 @@ export function cleanupBBs(fg: IRIDIUM_FG) {
         if (predOfV && predOfV.length === 1) {
           let env1 = bb.env
           let env2 = fg.getBBNode(v).env
-          if (env1 === env2) {
+          let scope1 = bb.scope
+          let scope2 = bb.scope
+          if (env1 === env2 && scope1 === scope2) {
             // 
             // Transformation:
             //   1. remove edge from u -> v
@@ -62,5 +64,23 @@ export function cleanupBBs(fg: IRIDIUM_FG) {
         }
       }
     })
-  } while (change)
+  } while (change);
+
+  do {
+    change = false;
+    traverseFGLexical(fg, (currFG: IRIDIUM_FG) => {
+      // When backpatching break/continue statements, we might end up with unreachable BBs
+      // non-root sources are basically dead code...
+      let sources = currFG.sources()
+      for (let s of sources) {
+        if (s !== ('' + currFG.rootBB.idx)) {
+          fg.removeNode(s)
+          change = true
+        }
+      }
+    })
+
+  } while(change)
+
+  
 }

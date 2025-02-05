@@ -40,7 +40,7 @@ import { IV_This } from "./ALL_RVal/IV_This.ts";
 import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "./ALL_RVal/IV_Unop.ts";
 import { IV_UpdateExpression } from "./ALL_RVal/IV_UpdateExpression.ts";
 import { IV_AWAIT, IV_YIELD } from "./ALL_RVal/IV_YIELD_AWAIT.ts";
-import { BB, BlockBB, BranchTerminal, CatchBB, ClassInitBB, ClassPropInitBB, ClassStaticBB, ForInOfLoopInitBB, ForLoopInitBB, FunctionArgInitBB, FunctionBB, LoopHeadBB, ModuleBB, ScriptBB, SwitchBodyBB, TryBB } from "./BB.ts";
+import { BB, BlockBB, BranchTerminal, CatchBB, ClassInitBB, ClassPropInitBB, ClassStaticBB, LoopInit, LoopHeadBB, FunctionArgInitBB, FunctionBB, ModuleBB, ScriptBB, SwitchBodyBB, TryBB } from "./BB.ts";
 import { Environment, GlobalEnvironment } from "./I_GENERAL/I_Environment.ts";
 
 import { Graph } from "#graphlib";
@@ -49,6 +49,7 @@ import { cleanupBBs } from "./Passes/BBCleanup.ts";
 import { hoistDeclarations } from "./Passes/DeclarationHoisting.ts";
 import { initializeEnvDefs } from "./Passes/EnvInit.ts";
 import { addThisInitToFunctionBoundaries } from "./Passes/AddThisInitToFunctionBoundaries.ts";
+import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 
 const generate = _generate.default
 
@@ -221,8 +222,9 @@ export default class IRIDIUM {
 
     hoistDeclarations(res)
     addThisInitToFunctionBoundaries(res)
-    cleanupBBs(res)
+    matchContinueAndBreak(res);
     initializeEnvDefs(res)
+    cleanupBBs(res)
     return res
   }
 
@@ -1497,6 +1499,9 @@ export default class IRIDIUM {
     fgContext.setBBEdge(currBB.idx, switchBodyBB.idx)
     fgContext.setBBEdge(switchBodyBB.idx, postBB.idx)
 
+    // Set Break Context
+    switchBodyBB.setBreakTarget(postBB)
+
     let switchStmtTest: Identifier = stmt.discriminant;
     if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
     fgContext.setCurrentBB(switchBodyBB)
@@ -1554,12 +1559,12 @@ export default class IRIDIUM {
   }
 
   // *********************** Iridium_DoWhileStatement ***********************
-  handleJS3DoWhileStatement(stmt: JS3DoWhileStatement) {
+  handleJS3DoWhileStatement(stmt: JS3DoWhileStatement, label: Identifier | undefined = undefined) {
     let fgContext = this.getCurrentFGContext()
 
     // Declare nodes and forward successors
     let currBB = fgContext.getCurrentBB()
-    let testBodyBB = new LoopHeadBB(new Environment(currBB.env), stmt)
+    let testBodyBB = new LoopHeadBB(currBB.env, stmt)
     fgContext.declareBBNode(testBodyBB)
     let testBodyTerminalBB = testBodyBB.create()
     fgContext.declareBBNode(testBodyTerminalBB)
@@ -1579,6 +1584,15 @@ export default class IRIDIUM {
     fgContext.setBBEdge(testBodyTerminalBB.idx, loopBodyBB.idx, "T")
     fgContext.setBBEdge(testBodyTerminalBB.idx, postBB.idx, "F")
 
+    // Set Loop Head Targets
+    testBodyBB.label = label ? IV_Identifier.from(label) : undefined
+    testBodyBB.setContinueTarget(testBodyBB)
+    testBodyBB.setBreakTarget(postBB)
+
+    testBodyTerminalBB.label = label ? IV_Identifier.from(label) : undefined
+    testBodyTerminalBB.setContinueTarget(testBodyBB)
+    testBodyTerminalBB.setBreakTarget(postBB)
+
     testBodyTerminalBB.branchTerminal = new BranchTerminal(stmt, testIV, loopBodyBB, postBB)
 
     // Lower Test
@@ -1596,14 +1610,14 @@ export default class IRIDIUM {
   }
 
   // *********************** Iridium_ForStatement***********************
-  handleJS3ForStatement(stmt: JS3ForStatement) {
+  handleJS3ForStatement(stmt: JS3ForStatement, label: Identifier | undefined = undefined) {
     let fgContext = this.getCurrentFGContext()
 
     // Declare nodes and forward successors
     let currBB = fgContext.getCurrentBB()
-    let initBB = new ForLoopInitBB(new Environment(currBB.env), stmt.init)
+    let initBB = new LoopInit(new Environment(currBB.env), stmt)
     fgContext.declareBBNode(initBB)
-    let testBodyBB = new LoopHeadBB(new Environment(currBB.env), stmt)
+    let testBodyBB = new LoopHeadBB(initBB.env, stmt)
     fgContext.declareBBNode(testBodyBB)
     let testBodyTerminalBB = testBodyBB.create()
     fgContext.declareBBNode(testBodyTerminalBB)
@@ -1627,12 +1641,18 @@ export default class IRIDIUM {
     fgContext.setBBEdge(loopBodyBB.idx, updateBB.idx)
     fgContext.setBBEdge(updateBB.idx, testBodyBB.idx)
 
+    // Set Loop Head Targets
+    testBodyBB.label = label ? IV_Identifier.from(label) : undefined
+    testBodyBB.setContinueTarget(updateBB)
+    testBodyBB.setBreakTarget(postBB)
+
+    testBodyTerminalBB.label = label ? IV_Identifier.from(label) : undefined
+    testBodyTerminalBB.setContinueTarget(updateBB)
+    testBodyTerminalBB.setBreakTarget(postBB)
+
     // Set Test Terminal
     testBodyTerminalBB.branchTerminal = new BranchTerminal(stmt, testIV, loopBodyBB, postBB)
 
-    // Set update context
-    testBodyBB.updateContext = updateBB
-    testBodyTerminalBB.updateContext = updateBB
 
     // Lower Init
     if (isJS3LoopDeclaration(stmt.init)) {
@@ -1685,14 +1705,14 @@ export default class IRIDIUM {
   }
 
   // *********************** Iridium_ForInOfstatement ***********************
-  handleJS3ForInOfStatement(stmt: JS3ForInStatement | JS3ForOfStatement) {
+  handleJS3ForInOfStatement(stmt: JS3ForInStatement | JS3ForOfStatement, label: Identifier | undefined = undefined) {
     let fgContext = this.getCurrentFGContext()
 
     // Declare nodes and forward successors
     let currBB = fgContext.getCurrentBB()
-    let initBB = new ForInOfLoopInitBB(new Environment(currBB.env), stmt)
+    let initBB = new LoopInit(new Environment(currBB.env), stmt)
     fgContext.declareBBNode(initBB)
-    let testBB = new LoopHeadBB(new Environment(initBB.env), stmt)
+    let testBB = new LoopHeadBB(initBB.env, stmt)
     fgContext.declareBBNode(testBB)
     let loopBodyBB = new BlockBB(new Environment(testBB.env), stmt.body)
     fgContext.declareBBNode(loopBodyBB)
@@ -1709,6 +1729,11 @@ export default class IRIDIUM {
     fgContext.setBBEdge(testBB.idx, loopBodyBB.idx, "T")
     fgContext.setBBEdge(testBB.idx, postBB.idx, "F")
     fgContext.setBBEdge(loopBodyBB.idx, testBB.idx)
+
+    // Set Loop Head Targets
+    testBB.setContinueTarget(testBB)
+    testBB.setBreakTarget(postBB)
+    testBB.label = label ? IV_Identifier.from(label) : undefined
 
     // Initialize Terminal
     testBB.branchTerminal = new BranchTerminal(stmt, testIV, loopBodyBB, postBB)
@@ -1802,6 +1827,18 @@ export default class IRIDIUM {
 
   // *********************** Iridium_LabeledStatement ***********************
   handleJS3LabeledStatement(stmt: JS3LabeledStatement) {
+
+    // If this label was intended for loopy statement, then handle it separately...
+    if (isJS3ForStatement(stmt.body)) {
+      return this.handleJS3ForStatement(stmt.body, stmt.label)
+    } else if (isJS3ForInStatement(stmt.body) || isJS3ForOfStatement(stmt.body)) {
+      return this.handleJS3ForInOfStatement(stmt.body, stmt.label)
+    } else if (isJS3WhileStatement(stmt.body)) {
+      return this.handleJS3WhileStatement(stmt.body, stmt.label)
+    } else if (isJS3DoWhileStatement(stmt.body)) {
+      return this.handleJS3DoWhileStatement(stmt.body, stmt.label)
+    }
+
     let fgContext = this.getCurrentFGContext()
 
     // Declare nodes and forward successors
@@ -1878,12 +1915,12 @@ export default class IRIDIUM {
   }
 
   // *********************** Iridium_WhileStatement ***********************
-  handleJS3WhileStatement(stmt: JS3WhileStatement) {
+  handleJS3WhileStatement(stmt: JS3WhileStatement, label: Identifier | undefined = undefined) {
     let fgContext = this.getCurrentFGContext()
       
     // Declare nodes and forward successors
     let currBB = fgContext.getCurrentBB()
-    let testBodyBB = new LoopHeadBB(new Environment(currBB.env), stmt)
+    let testBodyBB = new LoopHeadBB(currBB.env, stmt)
     fgContext.declareBBNode(testBodyBB)
     let testBodyTerminalBB = testBodyBB.create()
     fgContext.declareBBNode(testBodyTerminalBB)
@@ -1899,6 +1936,15 @@ export default class IRIDIUM {
     fgContext.setBBEdge(testBodyTerminalBB.idx, loopBodyBB.idx, "T")
     fgContext.setBBEdge(testBodyTerminalBB.idx, postBB.idx, "F")
     fgContext.setBBEdge(loopBodyBB.idx, testBodyBB.idx)
+
+    // Set Loop Head Targets
+    testBodyBB.label = label ? IV_Identifier.from(label) : undefined
+    testBodyBB.setContinueTarget(testBodyBB)
+    testBodyBB.setBreakTarget(postBB)
+
+    testBodyTerminalBB.label = label ? IV_Identifier.from(label) : undefined
+    testBodyTerminalBB.setContinueTarget(testBodyBB)
+    testBodyTerminalBB.setBreakTarget(postBB)
 
     // Set Terminal
     let test: IV_Identifier = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary("whileTestRes"))
