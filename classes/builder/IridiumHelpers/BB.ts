@@ -8,7 +8,7 @@ import { printScopedSpace, printSpace } from "#utils"
 import { Environment } from "./I_GENERAL/I_Environment.ts"
 
 const generator = _generator["default"]
-type BBScopes = "Script" | "Module" | "Function" | "Block" | "Contained" | "FunctionArgInit" | "ClassInit" | "ClassStatic" | "ClassPropValue"
+type BBScopes = "Script" | "Module" | "Function" | "Block" | "Contained" | "FunctionArgInit" | "FunctionReturn" | "ClassInit" | "ClassStatic" | "ClassPropValue"
 
 
 export class BBTerminal {
@@ -153,18 +153,6 @@ export class ModuleBB extends BB {
 // 
 // These scopes are allowed to declare: let, const and var bindings
 // 
-export class FunctionBB extends BB {
-  node: JS3StaticBlock | JS3FunctionDeclaration | JS3BlockStatement
-
-  constructor(env: Environment, node: JS3StaticBlock | JS3FunctionDeclaration | JS3BlockStatement) {
-    super(env, "Function")
-    this.node = node
-  }
-
-  create() {
-    return new FunctionBB(this.env, this.node);
-  }
-}
 
 export class FunctionArgInitBB extends BB {
   args: Array<JS3AllowedFunctionArgs>
@@ -180,6 +168,46 @@ export class FunctionArgInitBB extends BB {
 
   printHeader() {
     return `BB${this.idx} [${this.scope}] { args: ${this.args.length} }`
+  }
+}
+
+export class FunctionBB extends BB {
+  node: JS3StaticBlock | JS3FunctionDeclaration | JS3BlockStatement
+
+  retBB: FunctionReturn
+
+  constructor(env: Environment, node: JS3StaticBlock | JS3FunctionDeclaration | JS3BlockStatement, retBB: FunctionReturn) {
+    super(env, "Function")
+    this.node = node
+    this.retBB = retBB
+  }
+
+  create() {
+    return new FunctionBB(this.env, this.node, this.retBB);
+  }
+}
+
+export class FunctionReturn extends BB {
+  arg: IV_Identifier
+
+  constructor(env: Environment, arg: IV_Identifier) {
+    super(env, "FunctionReturn")
+    this.arg = arg;
+  }
+  
+  toDOT(space = 0) {
+    let stmts = []
+    stmts.push(`${printSpace(space)} "${this.getName()}"[shape="box",xlabel="${this.printHeader()}",label="${this.printMetaDOT()}RETURN ${this.arg.toString()};\\l"]`)
+    return stmts.join("\n")
+  }
+
+  create() {
+    throw new Error("Extending Function Return Block is unexpected");
+    return new BB(undefined, "Block");
+  }
+
+  printHeader() {
+    return `BB${this.idx} [${this.scope}] { return: ${this.arg.toString()} }`
   }
 }
 

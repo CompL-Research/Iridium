@@ -27,7 +27,7 @@ export function cleanupBBs(fg: IRIDIUM_FG) {
           let env1 = bb.env
           let env2 = fg.getBBNode(v).env
           let scope1 = bb.scope
-          let scope2 = bb.scope
+          let scope2 = fg.getBBNode(v).scope
           if (env1 === env2 && scope1 === scope2) {
             // 
             // Transformation:

@@ -12,6 +12,7 @@ import { IV_ClassExpression } from "../ALL_RVal/IV_ClassExpression.ts";
 import { IS_BImport, IS_CImport } from "./IS_Imports_Exports.ts";
 import { ISP_ObjectMethod, ISP_Super } from "../ALL_RVal/ALL_ISP.ts";
 import { IV_FunctionExpression } from "../ALL_RVal/IV_FunctionExpression.ts";
+import { IS_Return } from "./IS_Debugger_Return_Throw.ts";
 
 export type IS_VAR_DECL_KIND = "var" | "let" | "const"
 
@@ -348,11 +349,11 @@ export class IS1_DeclarationStmt extends ALL_IS {
 }
 
 export class IS1_AssignmentStmt extends ALL_IS {
-  orig: IV_ClassExpression | IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl
+  orig: IV_ClassExpression | IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl | IS_Return
   LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern
   RVal: IV_ASSIGNABLE
 
-  constructor(orig: IV_ClassExpression | IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl, LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
+  constructor(orig: IV_ClassExpression | IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl | IS_Return, LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
     super(undefined);
     this.orig = orig
     this.LVal = LVal

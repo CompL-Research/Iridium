@@ -40,7 +40,7 @@ import { IV_This } from "./ALL_RVal/IV_This.ts";
 import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "./ALL_RVal/IV_Unop.ts";
 import { IV_UpdateExpression } from "./ALL_RVal/IV_UpdateExpression.ts";
 import { IV_AWAIT, IV_YIELD } from "./ALL_RVal/IV_YIELD_AWAIT.ts";
-import { BB, BlockBB, BranchTerminal, CatchBB, ClassInitBB, ClassPropInitBB, ClassStaticBB, LoopInit, LoopHeadBB, FunctionArgInitBB, FunctionBB, ModuleBB, ScriptBB, SwitchBodyBB, TryBB } from "./BB.ts";
+import { BB, BlockBB, BranchTerminal, CatchBB, ClassInitBB, ClassPropInitBB, ClassStaticBB, LoopInit, LoopHeadBB, FunctionArgInitBB, FunctionBB, ModuleBB, ScriptBB, SwitchBodyBB, TryBB, FunctionReturn } from "./BB.ts";
 import { Environment, GlobalEnvironment } from "./I_GENERAL/I_Environment.ts";
 
 import { Graph } from "#graphlib";
@@ -50,6 +50,7 @@ import { hoistDeclarations } from "./Passes/DeclarationHoisting.ts";
 import { initializeEnvDefs } from "./Passes/EnvInit.ts";
 import { addThisInitToFunctionBoundaries } from "./Passes/AddThisInitToFunctionBoundaries.ts";
 import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
+import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
 
 const generate = _generate.default
 
@@ -220,12 +221,13 @@ export default class IRIDIUM {
     let res = this.popFGContext()
     if (this.fgContext.length !== 0) debugConfig.logger.throwIriError("Expected FGContext to be empty after Iridium generation!!") 
 
-    hoistDeclarations(res)
-    addThisInitToFunctionBoundaries(res)
+    hoistDeclarations(res);
+    addThisInitToFunctionBoundaries(res);
     matchContinueAndBreak(res);
-    initializeEnvDefs(res)
-    cleanupBBs(res)
-    return res
+    normalizeReturns(res);
+    initializeEnvDefs(res);
+    cleanupBBs(res);
+    return res;
   }
 
   // // Set/Get current BB
@@ -533,10 +535,28 @@ export default class IRIDIUM {
   handleFunctionBody(node: JS3BlockStatement) {
     let fgContext = this.getCurrentFGContext()
 
-    let funBB = new FunctionBB(new Environment(fgContext.getCurrentBB().env), node) // STUB Env, gets
-    let PROP_INIT_FG = new IRIDIUM_FG(funBB)
-    this.pushFGContext(PROP_INIT_FG);
+    let funBBEnv = new Environment(fgContext.getCurrentBB().env)
 
+    // Initialize Return Block
+    let retId = new IV_Identifier(undefined, this.js3builder.utils.getNewTemporary(undefined))
+    let retStmt = new IS_SimpleVarDecl(undefined, "let", retId, new IV_Identifier(undefined, "undefined"))
+    let retBB = new FunctionReturn(funBBEnv, retId)
+
+    // Initialize Function Body Block
+    let funBB = new FunctionBB(funBBEnv, node, retBB) // STUB Env, gets
+    
+    // Add Return Statement to Return Block
+    funBB.statements.push(retStmt)
+    
+    // Push Lowering Context
+    let FUN_BODY_FG = new IRIDIUM_FG(funBB)
+    this.pushFGContext(FUN_BODY_FG);
+
+    // Declare and create edge from function body to return BB
+    FUN_BODY_FG.declareBBNode(retBB)
+    FUN_BODY_FG.setBBEdge(funBB.idx, retBB.idx)
+
+    // Lower Function Body
     for (let s of node.body) {
       this.handleJS3AllowedProgStatement(s)
     }

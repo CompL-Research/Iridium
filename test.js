@@ -1019,26 +1019,31 @@
 // (new TTT()).m1()
 // TTT.m2()
 
-loop1: for (let i = 0; i < 3; i++) {
-  // The second for statement is labeled "loop2"
-  loop2: for (let j = 0; j < 3; j++) {
-    if (i === 1 && j === 1) {
-      continue loop1;
-    }
-    console.log(`i = ${i}, j = ${j}`);
-  }
-}
+// loop1: for (let i = 0; i < 3; i++) {
+//   // The second for statement is labeled "loop2"
+//   loop2: for (let j = 0; j < 3; j++) {
+//     if (i === 1 && j === 1) {
+//       continue loop1;
+//     }
+//     console.log(`i = ${i}, j = ${j}`);
+//   }
+// }
 
-let a;
-while(a) {
-  switch(a){
-    case 1:
-      console.log("Boo")
-      continue;
-    case 2:
-      console.log("Boo1")
-      break;
-    default:
-      console.log("Flower")
-  }
+// let a;
+// while(a) {
+//   switch(a){
+//     case 1:
+//       console.log("Boo")
+//       continue;
+//     case 2:
+//       console.log("Boo1")
+//       break;
+//     default:
+//       console.log("Flower")
+//   }
+// }
+
+let test = (a) => {
+  if (a) return 1;
+  return; 
 }
