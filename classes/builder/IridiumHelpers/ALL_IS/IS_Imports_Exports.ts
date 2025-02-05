@@ -17,11 +17,11 @@ export class IS_AImport extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${printScopedSpace(space)}▏ AIMPORT ${this.FROM.toString()};`
+    return `${printScopedSpace(space)}▏ AIMPORT ${this.FROM.lookupName()};`
   }
 
   toDOT(space = 0) {
-    return `${printSpace(space)} AIMPORT ${this.FROM.toString()};`
+    return `${printSpace(space)} AIMPORT ${this.FROM.lookupName()};`
   }
 }
 
@@ -37,6 +37,12 @@ export class IS_BImport extends ALL_IS {
     this.remote = remote
     this.local = local
     this.FROM = FROM
+  }
+
+  definedIdentifiers() : Set<string> { 
+    let res : Set<string> = new Set();
+    res.add(this.local.lookupName())
+    return res;
   }
 
   toString(space = 0) {
@@ -56,6 +62,12 @@ export class IS_CImport extends ALL_IS {
     super(node);
     this.local = local
     this.FROM = FROM
+  }
+
+  definedIdentifiers() : Set<string> { 
+    let res : Set<string> = new Set();
+    res.add(this.local.lookupName())
+    return res;
   }
 
   toString(space = 0) {
@@ -79,6 +91,12 @@ export class IS_AExport extends ALL_IS {
     this.id = id
   }
 
+  usedIdentifiers() : Set<string> { 
+    let res : Set<string> = new Set();
+    res.add(this.id.lookupName())
+    return res;
+  }
+
   toString(space = 0) {
     return `${printScopedSpace(space)}▏ AEXPORT ${this.id.toString()};`
   }
@@ -96,6 +114,12 @@ export class IS_BExport extends ALL_IS {
     super(node);
     this.local = local
     this.remote = remote
+  }
+
+  usedIdentifiers() : Set<string> { 
+    let res : Set<string> = new Set();
+    res.add(this.local.lookupName())
+    return res;
   }
 
   toString(space = 0) {
@@ -117,6 +141,12 @@ export class IS_CExport extends ALL_IS {
     this.local = local
     this.remote = remote
     this.FROM = FROM
+  }
+
+  usedIdentifiers() : Set<string> { 
+    let res : Set<string> = new Set();
+    res.add(this.local.lookupName())
+    return res;
   }
 
   toString(space = 0) {

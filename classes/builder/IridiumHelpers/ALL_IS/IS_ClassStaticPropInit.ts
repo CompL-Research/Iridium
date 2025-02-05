@@ -18,12 +18,21 @@ export class IS_ClassStaticPropInit extends ALL_IS {
     this.computed = computed
   }
 
+  usedIdentifiers(): Set<string> {
+    let res : Set<string> = new Set();
+    if (this.RVal instanceof IV_Identifier) {
+      res.add(this.RVal.lookupName())
+    }
+    res.add(this.obj.lookupName())
+    return res;
+  }
+
   toString(space: number = 0) {
-    return `${printScopedSpace(space)}▏ <ClassStaticPropInit> ${this.obj.toString()}${this.computed ? `[${this.prop.toString()}]` : `.${this.prop.toString()}`} = ${this.RVal.toString()};`
+    return `${printScopedSpace(space)}▏ <ClassStaticPropInit> ${this.obj.lookupName()}${this.computed ? `[${this.prop.toString()}]` : `.${this.prop.toString()}`} = ${this.RVal.toString()};`
   }
 
   toDOT(space: number = 0) {
-    return `${printSpace(space)}▏ <ClassStaticPropInit> ${this.obj.toString()}${this.computed ? `[${this.prop.toString()}]` : `.${this.prop.toString()}`} = ${this.RVal.toString()};`
+    return `${printSpace(space)}▏ <ClassStaticPropInit> ${this.obj.lookupName()}${this.computed ? `[${this.prop.toString()}]` : `.${this.prop.toString()}`} = ${this.RVal.toString()};`
   }
 
 }

@@ -1,14 +1,17 @@
 import { printScopedSpace, printSpace } from "#utils";
 import { isBigIntLiteral, isDecimalLiteral, isIdentifier, isNumericLiteral, isRestElement, isStringLiteral } from "@babel/types";
 import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3ObjectPattern, JS3ArrayPattern, JS3AssnObjectProperty_key, JS3ClassExpression, JS3ObjectPattern, JS3VariableDeclaration } from "classes/builder/JS3Helpers/JS3Types.ts";
-import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
-import { IV_ASSIGNABLE } from "../ALL_RVal/ALL_RVal.ts";
+import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../ALL_AMP/ALL_AMP.ts";
+import { ALL_RVal, IV_ASSIGNABLE } from "../ALL_RVal/ALL_RVal.ts";
 import { IV_NUBD } from "../ALL_RVal/IV_NonLang.ts";
 import { IV_This } from "../ALL_RVal/IV_This.ts";
 import { ALL_IS } from "./ALL_IS.ts";
 import { IS_FunDecl } from "./IS_FunDecl.ts";
 import { IRIDIUM_FG } from "../IRIDIUM.ts";
 import { IV_ClassExpression } from "../ALL_RVal/IV_ClassExpression.ts";
+import { IS_BImport, IS_CImport } from "./IS_Imports_Exports.ts";
+import { ISP_ObjectMethod, ISP_Super } from "../ALL_RVal/ALL_ISP.ts";
+import { IV_FunctionExpression } from "../ALL_RVal/IV_FunctionExpression.ts";
 
 export type IS_VAR_DECL_KIND = "var" | "let" | "const"
 
@@ -27,8 +30,16 @@ export class IS_SimpleVarDecl extends ALL_IS {
     this.generatedBindings = new Set()
     this.generatedBindings.add(this.LVal)
   }
-  
-  declaredClosure() : Array<IRIDIUM_FG> | undefined { return this.RVal && this.RVal.declaredClosure() }
+
+  definedIdentifiers(): Set<string> {
+    throw new Error("Expected declaration hoisting pass to remove All IS_SimpleVarDecl")
+  }
+
+  usedIdentifiers(): Set<string> {
+    throw new Error("Expected declaration hoisting pass to remove All IS_SimpleVarDecl")
+  }
+
+  declaredClosure(): Array<IRIDIUM_FG> | undefined { return this.RVal && this.RVal.declaredClosure() }
 
 
   toString(space = 0) {
@@ -90,7 +101,15 @@ export class IS_ArrPatVarDecl extends ALL_IS {
     }
   }
 
-  declaredClosure() : Array<IRIDIUM_FG> | undefined { return this.RVal && this.RVal.declaredClosure() }
+  definedIdentifiers(): Set<string> {
+    throw new Error("Expected declaration hoisting pass to remove All IS_ArrPatVarDecl")
+  }
+
+  usedIdentifiers(): Set<string> {
+    throw new Error("Expected declaration hoisting pass to remove All IS_ArrPatVarDecl")
+  }
+
+  declaredClosure(): Array<IRIDIUM_FG> | undefined { return this.RVal && this.RVal.declaredClosure() }
 
   toString(space = 0) {
     let lval = ArrPatToString(this.LVal)
@@ -167,7 +186,15 @@ export class IS_ObjPatVarDecl extends ALL_IS {
     }
   }
 
-  declaredClosure() : Array<IRIDIUM_FG> | undefined { return this.RVal && this.RVal.declaredClosure() }
+  definedIdentifiers(): Set<string> {
+    throw new Error("Expected declaration hoisting pass to remove All IS_ObjPatVarDecl")
+  }
+
+  usedIdentifiers(): Set<string> {
+    throw new Error("Expected declaration hoisting pass to remove All IS_ObjPatVarDecl")
+  }
+
+  declaredClosure(): Array<IRIDIUM_FG> | undefined { return this.RVal && this.RVal.declaredClosure() }
 
   toString(space = 0) {
     let lval = ObjPatToString(this.LVal)
@@ -196,6 +223,14 @@ export class IS_ThisInitStmt extends ALL_IS {
     super(node)
   }
 
+  definedIdentifiers(): Set<string> {
+    throw new Error("Expected declaration hoisting pass to remove All IS_ThisInitStmt")
+  }
+
+  usedIdentifiers(): Set<string> {
+    throw new Error("Expected declaration hoisting pass to remove All IS_ThisInitStmt")
+  }
+
   toString(space: number = 0) {
     return `${printScopedSpace(space)}▏ <ThisInit> ${this.LVal.toString()} = ${this.RVal.toString()};`
   }
@@ -214,6 +249,14 @@ export class IS_ClassNameInitStmt extends ALL_IS {
     this.LVal = id
   }
 
+  definedIdentifiers(): Set<string> {
+    throw new Error("Expected declaration hoisting pass to remove All IS_ClassNameInitStmt")
+  }
+
+  usedIdentifiers(): Set<string> {
+    throw new Error("Expected declaration hoisting pass to remove All IS_ClassNameInitStmt")
+  }
+
   toString(space: number = 0) {
     return `${printScopedSpace(space)}▏ <ClassNameInit> ${this.LVal.toString()} = ${this.RVal.toString()};`
   }
@@ -223,34 +266,74 @@ export class IS_ClassNameInitStmt extends ALL_IS {
   }
 }
 
+type IS1_DeclarationStmt_orig = IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl | IS_ThisInitStmt | IS_ClassNameInitStmt | IS_BImport | IS_CImport | IRIDIUM_FG
+
 export class IS1_DeclarationStmt extends ALL_IS {
-  orig: IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl | IS_ThisInitStmt | IS_ClassNameInitStmt
+  orig: IS1_DeclarationStmt_orig
   LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern
   RVal: IV_ASSIGNABLE
 
-  constructor(orig: IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl | IS_ThisInitStmt | IS_ClassNameInitStmt, LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
+  constructor(orig: IS1_DeclarationStmt_orig, LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
     super(undefined);
     this.orig = orig
     this.LVal = LVal
     this.RVal = RVal
   }
 
-  getBindingKind() : IS_VAR_DECL_KIND {
-    if (this.orig instanceof IS_FunDecl)           return "let" // NUBD
+  getBindingKind(): IS_VAR_DECL_KIND {
+    if (this.orig instanceof IS_FunDecl) return "let" // NUBD
     if (this.orig instanceof IS_ClassNameInitStmt) return "let" // NUBD
-    if (this.orig instanceof IS_ThisInitStmt)      return "var" // undefined
+    if (this.orig instanceof IS_BImport || this.orig instanceof IS_CImport) return "let" // undefined
+    if (this.orig instanceof IS_ThisInitStmt) return "var" // undefined
+    if (this.orig instanceof IRIDIUM_FG) return "const" // Defines the contextial THIS reference at function boundaries
     return this.orig.KIND
   }
 
-  generatedBindings() : Set<IV_Identifier> {
-    if (this.orig instanceof IS_FunDecl || this.orig instanceof IS_ThisInitStmt || this.orig instanceof IS_ClassNameInitStmt) {
-      if (this.LVal instanceof IV_Identifier) {
-        let res : Set<IV_Identifier> = new Set()
-        res.add(this.LVal)
-        return res
-      } else throw new Error("Expected IS_FuncDecl, IS_ThisInitStmt, IS_ClassNameInitStmt to always hold an Identifier LVal")
+  definedIdentifiers(): Set<string> {
+    let res : Set<string> = new Set()
+    // LVal is always defined
+    if (this.LVal instanceof IV_Identifier) {
+      res.add(this.LVal.name)
+    } else if (isJS3ArrayPattern(this.LVal)) {
+      for (let id of this.LVal.elements) {
+        if (isIdentifier(id)) {
+          res.add(id.name)
+        } else {
+          res.add(id.argument.name)
+        }
+      }
+    } else {
+      for (let p of this.LVal.properties) {
+        if (isJS3AssnObjectProperty(p)) {
+          res.add(p.value.name)
+        } else {
+          res.add(p.argument.name)
+        }
+      }
     }
-    return this.orig.generatedBindings
+
+    // If RVal happens to be an assignment or something, account for that
+    if (this.RVal instanceof ALL_RVal) {
+      let rValBindings = this.RVal.definedIdentifiers()
+      rValBindings.forEach(b => res.add(b))
+    }
+    return res;
+  }
+
+  usedIdentifiers(): Set<string> {
+    let res : Set<string> = new Set();
+    if (this.RVal instanceof IV_Identifier) {
+      res.add(this.RVal.name)
+    } else if (this.RVal instanceof IV_MemberExpressionPA) {
+      res.add(this.RVal.object.name)
+    } else if (this.RVal instanceof IV_ThisLookupPA){
+      res.add(IV_This.lookupName())
+    } else if (this.RVal instanceof IV_SuperLookupPA){
+      res.add(ISP_Super.lookupName())
+    } else {
+      res = this.RVal.usedIdentifiers();
+    }
+    return res;
   }
 
   toString(space = 0) {
@@ -265,18 +348,65 @@ export class IS1_DeclarationStmt extends ALL_IS {
 }
 
 export class IS1_AssignmentStmt extends ALL_IS {
-  orig: IV_ClassExpression | IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl
+  orig: IV_ClassExpression | IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl
   LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern
   RVal: IV_ASSIGNABLE
 
-  constructor(orig: IV_ClassExpression | IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl, LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
+  constructor(orig: IV_ClassExpression | IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl, LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
     super(undefined);
     this.orig = orig
     this.LVal = LVal
     this.RVal = RVal
   }
-  
-  declaredClosure() : Array<IRIDIUM_FG> | undefined { return this.RVal && this.RVal.declaredClosure() }
+
+  definedIdentifiers(): Set<string> {
+    let res : Set<string> = new Set()
+    // LVal is always defined
+    if (this.LVal instanceof IV_Identifier) {
+      res.add(this.LVal.name)
+    } else if (isJS3ArrayPattern(this.LVal)) {
+      for (let id of this.LVal.elements) {
+        if (isIdentifier(id)) {
+          res.add(id.name)
+        } else {
+          res.add(id.argument.name)
+        }
+      }
+    } else {
+      for (let p of this.LVal.properties) {
+        if (isJS3AssnObjectProperty(p)) {
+          res.add(p.value.name)
+        } else {
+          res.add(p.argument.name)
+        }
+      }
+    }
+
+    // If RVal happens to be an assignment or something, account for that
+    if (this.RVal instanceof ALL_RVal) {
+      let rValBindings = this.RVal.definedIdentifiers()
+      rValBindings.forEach(b => res.add(b))
+    }
+    return res;
+  }
+
+  usedIdentifiers(): Set<string> {
+    let res : Set<string> = new Set();
+    if (this.RVal instanceof IV_Identifier) {
+      res.add(this.RVal.name)
+    } else if (this.RVal instanceof IV_MemberExpressionPA) {
+      res.add(this.RVal.object.name)
+    } else if (this.RVal instanceof IV_ThisLookupPA){
+      res.add(IV_This.lookupName())
+    } else if (this.RVal instanceof IV_SuperLookupPA){
+      res.add(ISP_Super.lookupName())
+    } else {
+      res = this.RVal.usedIdentifiers();
+    }
+    return res;
+  }
+
+  declaredClosure(): Array<IRIDIUM_FG> | undefined { return this.RVal && this.RVal.declaredClosure() }
 
   toString(space = 0) {
     let lval = isJS3ArrayPattern(this.LVal) ? ArrPatToString(this.LVal) : isJS3ObjectPattern(this.LVal) ? ObjPatToString(this.LVal) : this.LVal.name;

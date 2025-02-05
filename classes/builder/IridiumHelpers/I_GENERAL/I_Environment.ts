@@ -16,6 +16,7 @@ import debugConfig from "#debugConfig"
 import { ALL_IS } from "../ALL_IS/ALL_IS.ts"
 import { IS_VAR_DECL_KIND } from "../ALL_IS/IS_VarDecl.ts"
 import { printSpace } from "#utils"
+import { BB } from "../BB.ts"
 
 
 // 
@@ -38,14 +39,16 @@ import { printSpace } from "#utils"
 
 class EnvironmentRecord {
   name: string // The binding that we are interested in
-  defs: Array<ALL_IS>
+  defs: Set<ALL_IS>
+  defBBs: Set<BB> = new Set()
   kind: IS_VAR_DECL_KIND
-  uses: Array<ALL_IS>
+  uses: Set<ALL_IS>
+  useBBs: Set<BB> = new Set()
   props: {
     shadowsParentBinding: Environment | undefined
   }
 
-  constructor(name: string, defs: Array<ALL_IS>, kind: IS_VAR_DECL_KIND, uses: Array<ALL_IS> = new Array(), props = { shadowsParentBinding: undefined }) {
+  constructor(name: string, defs: Set<ALL_IS>, kind: IS_VAR_DECL_KIND, uses: Set<ALL_IS> = new Set(), props = { shadowsParentBinding: undefined }) {
     this.name = name
     this.defs = defs
     this.kind = kind
@@ -87,7 +90,7 @@ export class Environment {
       if (spilledName) { key[key.length - 1] = "^" }
       key = key.join("")
     
-      res.push(`${key}  :  (Kind: ${b[1].kind}, DefAt: ${b[1].defs.length}, UseAt: ${b[1].uses.length})`)
+      res.push(`${key}  :  (DefAt: ${b[1].defs.size} [${[...b[1].defBBs].map(b => b.getName()).join(",")}], UseAt: ${b[1].uses.size} [${[...b[1].useBBs].map(b => b.getName()).join(",")}])`)
     }
 
     return res.join("\\l")
@@ -136,19 +139,51 @@ export class Environment {
   }
 
   // Declare Binding, creates a new binding in the current environment
-  declareBinding(id : string, def: ALL_IS, kind: IS_VAR_DECL_KIND) {
+  declareBinding(id : string, def: ALL_IS, bb: BB, kind: IS_VAR_DECL_KIND) {
     let record : EnvironmentRecord;
     if (this.hasBinding(id)) {
       record = this.getBinding(id)
       if (record.kind !== "var") debugConfig.logger.throwIriError(`Multiple declaration are only possible for \"var\" bindings!!! tried to redeclare: ${id}`)
-      record.defs.push(def)
-    } else record = new EnvironmentRecord(id, [def], kind)
+    } else record = new EnvironmentRecord(id, new Set(), kind)
+
+    // Hoisted declarations always set a value to the binding
+    record.defs.add(def)
+    record.defBBs.add(bb)
 
     this.bindings.set(id, record)
   }
 
-  // set binding, this will process assignments and such 
-  setBinding(id: string, def: ALL_IS) {
-    debugConfig.logger.throwIriError("TODO STUB, set binding function for env is unimplemented.")
+  // Declare a binding in the global env
+  declareGlobalBinding(id : string, bb: BB, def: ALL_IS) {
+    let curr: Environment = this;
+    while (curr.parent) {
+      curr = curr.parent;
+    }
+    
+    if (!(curr instanceof GlobalEnvironment)) throw new Error("Expected parentmost env to be GlobalEnvironment")
+    
+    let record : EnvironmentRecord;
+    if (curr.hasBinding(id)) {
+      record = curr.getBinding(id)
+      if (record.kind !== "var") debugConfig.logger.throwIriError(`Multiple declaration are only possible for \"var\" bindings!!! tried to redeclare: ${id}`)
+    } else record = new EnvironmentRecord(id, new Set(), "var")
+
+    // Hoisted declarations always set a value to the binding
+    record.defs.add(def)
+    record.defBBs.add(bb)
+
+    curr.bindings.set(id, record)
   }
+
+  // Find the environment containing a specific binding
+  findEnvContaining(id: string) : Environment | undefined {
+    if (this.hasBinding(id)) return this;
+    if (this.parent) return this.parent.findEnvContaining(id)
+    return undefined
+  }
+
+}
+
+export class GlobalEnvironment extends Environment {
+  getName() { return `GLOBENV(${this.idx})` }
 }

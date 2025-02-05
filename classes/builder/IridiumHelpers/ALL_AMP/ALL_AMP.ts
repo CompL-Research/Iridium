@@ -3,6 +3,8 @@ import { JS3MemberExpression, JS3PrivateName } from "classes/builder/JS3Helpers/
 import { printScopedSpace } from "#utils";
 import { Identifier, V8IntrinsicIdentifier } from "@babel/types";
 import { IRIDIUM_FG } from "../IRIDIUM.ts";
+import { IV_This } from "../ALL_RVal/IV_This.ts";
+import { ISP_Super } from "../ALL_RVal/ALL_ISP.ts";
 
 type AmphibiousNodes = JS3MemberExpression 
                      | Identifier
@@ -71,8 +73,12 @@ export class IV_PrivateName extends ALL_AMP {
     this.id = id
   }
 
+  lookupName() {
+    return `#${this.id.lookupName()}`
+  }
+
   toString() {
-    return `#${this.id.name}`
+    return `${this.lookupName()}`
   }
 }
 
@@ -91,8 +97,8 @@ export class IV_MemberExpressionPA extends ALL_AMP {
   declaredClosure() : Array<IRIDIUM_FG> | undefined { return undefined }
 
   toString() {
-    if (this.computed) return `<MemberExpressionPA> ${this.object.name}[${this.property.toString()}]`
-    return `<MemberExpressionPA> ${this.object.name}.${this.property.toString()}`
+    if (this.computed) return `<MemberExpressionPA> ${this.object.lookupName()}[${this.property.lookupName()}]`
+    return `<MemberExpressionPA> ${this.object.lookupName()}.${this.property.lookupName()}`
   }
 }
 
@@ -109,8 +115,8 @@ export class IV_ThisLookupPA extends ALL_AMP {
   declaredClosure() : Array<IRIDIUM_FG> | undefined { return undefined }
 
   toString() {
-    if (this.computed) return `<THISPA> THIS[${this.property.toString()}]`
-    return `<THISPA> THIS.${this.property.toString()}`
+    if (this.computed) return `<THISPA> ${IV_This.lookupName()}[${this.property.lookupName()}]`
+    return `<THISPA> ${IV_This.lookupName()}.${this.property.lookupName()}`
   }
 }
 
@@ -127,7 +133,7 @@ export class IV_SuperLookupPA extends ALL_AMP {
   declaredClosure() : Array<IRIDIUM_FG> | undefined { return undefined }
 
   toString() {
-    if (this.computed) return `<SuperPA> SUPER[${this.property.toString()}]`
-    return `<SuperPA> SUPER.${this.property.toString()}`
+    if (this.computed) return `<SuperPA> ${ISP_Super.lookupName()}[${this.property.lookupName()}]`
+    return `<SuperPA> ${ISP_Super.lookupName()}.${this.property.lookupName()}`
   }
 }

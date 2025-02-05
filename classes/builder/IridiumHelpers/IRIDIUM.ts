@@ -41,13 +41,14 @@ import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "./ALL_RVal/IV_Unop.ts";
 import { IV_UpdateExpression } from "./ALL_RVal/IV_UpdateExpression.ts";
 import { IV_AWAIT, IV_YIELD } from "./ALL_RVal/IV_YIELD_AWAIT.ts";
 import { BB, BlockBB, BranchTerminal, CatchBB, ClassInitBB, ClassPropInitBB, ClassStaticBB, ForInOfLoopInitBB, ForLoopInitBB, FunctionArgInitBB, FunctionBB, LoopHeadBB, ModuleBB, ScriptBB, SwitchBodyBB, TryBB } from "./BB.ts";
-import { Environment } from "./I_GENERAL/I_Environment.ts";
+import { Environment, GlobalEnvironment } from "./I_GENERAL/I_Environment.ts";
 
 import { Graph } from "#graphlib";
 import { printScopedSpace, printSpace } from "#utils";
 import { cleanupBBs } from "./Passes/BBCleanup.ts";
 import { hoistDeclarations } from "./Passes/DeclarationHoisting.ts";
 import { initializeEnvDefs } from "./Passes/EnvInit.ts";
+import { addThisInitToFunctionBoundaries } from "./Passes/AddThisInitToFunctionBoundaries.ts";
 
 const generate = _generate.default
 
@@ -203,7 +204,9 @@ export default class IRIDIUM {
 
   // Build FlowGraph
   build() {
-    let MAIN_ENV = new Environment(undefined)
+    let GLOBAL_ENV = new GlobalEnvironment(undefined)
+    let MAIN_ENV = new Environment(GLOBAL_ENV)
+
     let bb: BB;
 
     if (this.node.sourceType === "module")
@@ -217,6 +220,7 @@ export default class IRIDIUM {
     if (this.fgContext.length !== 0) debugConfig.logger.throwIriError("Expected FGContext to be empty after Iridium generation!!") 
 
     hoistDeclarations(res)
+    addThisInitToFunctionBoundaries(res)
     cleanupBBs(res)
     initializeEnvDefs(res)
     return res
@@ -1364,7 +1368,7 @@ export default class IRIDIUM {
     if (isJS3Import(node.callee)) {
       return new IV_ImportCall(node, args)
     } else if (isSuper(node.callee)) {
-      return new IV_SuperCall(node, node.callee, args)
+      return new IV_SuperCall(node, args)
     } else if (isV8IntrinsicIdentifier(node.callee)) {
       return new IV_V8IntrinsicCall(node, node.callee, args)
     } else {

@@ -41,7 +41,7 @@ type t_IV_ASSN = "SimpleAssn" | "MemberAssn" | "ThisAssn" | "SuperAssn" | "ArrPa
 type t_IV_ObjectExpression = "ObjectExpression"
 type t_IV_ArrayExpression = "ArrayExpression"
 
-type t_IV_NonLang = "NUBD"
+type t_IV_NonLang = "NUBD" | "CTHIS" | "STHIS"
 
 type t_IV_ConditionalExpression = "ConditionalExpression"
 type t_IV_FunctionExpression = "FunctionExpression"
@@ -66,6 +66,9 @@ export class ALL_RVal {
   }
 
   declaredClosure() : Array<IRIDIUM_FG> | undefined { return undefined }
+
+  definedIdentifiers() : Set<string> { return new Set() }
+  usedIdentifiers() : Set<string> { return new Set() }
 
   toString(space = 0) {
     if (this.node) {

@@ -13,6 +13,13 @@ export class IV_NewExpression extends ALL_RVal {
     this.args = args
   }
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    this.args.forEach(i => i instanceof IV_Identifier ? res.add(i.lookupName()) : res.add(i.arg.lookupName()))
+    res.add(this.callee.lookupName())
+    return res;
+  }
+
   toString() {
     return `NEW ${this.callee.toString()}(${this.args.map(a => a.toString()).join(",")})`
   }

@@ -19,6 +19,14 @@ export class IS_FunDecl extends ALL_IS {
     this.name = name
   }
 
+  definedIdentifiers(): Set<string> {
+    throw new Error("Expected declaration hoisting pass to remove All IS_FunDecl")
+  }
+
+  usedIdentifiers(): Set<string> {
+    throw new Error("Expected declaration hoisting pass to remove All IS_FunDecl")
+  }
+
   toString(space = 0) {
     let stmts = []
     stmts.push(`${printScopedSpace(space)}▏ FUNCTION_DECLARATION { name=${this.name.lookupName()} } ${this.func.toString(space + 4)} `)

@@ -46,7 +46,7 @@ export class I_File {
 
     stmts.push(`  subgraph cluster_${i++} {`)
     stmts.push("    label=\"environment\";")
-    stmts.push(this.program.flowGraph.rootBB.env.toDOT(space + 4))
+    stmts.push(this.program.flowGraph.rootBB.env.parent.toDOT(space + 4))
     stmts.push("  }")
 
     stmts.push(this.program.flowGraph.saveEnvToDOT(space + 2))

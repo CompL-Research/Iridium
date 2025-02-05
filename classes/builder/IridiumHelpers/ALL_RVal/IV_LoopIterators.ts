@@ -10,6 +10,12 @@ export class IV_InIterator extends ALL_RVal {
     this.RVal = RVal
   }
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(this.RVal.lookupName())
+    return res;
+  }
+
   toString() {
     return `<InIterator> in ${this.RVal.toString()}`
   }
@@ -25,6 +31,12 @@ export class IV_OfIterator extends ALL_RVal {
   constructor(node: JS3ForOfStatement | undefined = undefined, RVal: IV_Identifier) {
     super(node, "ForOfIterator");
     this.RVal = RVal
+  }
+
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(this.RVal.lookupName())
+    return res;
   }
 
   toString() {
@@ -44,6 +56,12 @@ export class IV_LoopNext extends ALL_RVal {
     this.RVal = RVal
   }
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(this.RVal.lookupName())
+    return res;
+  }
+
   toString() {
     return `<LoopNext> next ${this.RVal.toString()}`
   }
@@ -59,6 +77,12 @@ export class IV_HasLoopNext extends ALL_RVal {
   constructor(node: JS3ForOfStatement | JS3ForInStatement | undefined = undefined, RVal: IV_Identifier) {
     super(node, "HasLoopNext");
     this.RVal = RVal
+  }
+
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(this.RVal.lookupName())
+    return res;
   }
 
   toString() {

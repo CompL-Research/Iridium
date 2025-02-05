@@ -13,6 +13,14 @@ export class IV_ConditionalExpression extends ALL_RVal {
     this.alternate = alternate
   }
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(this.test.lookupName())
+    res.add(this.consequent.lookupName())
+    res.add(this.alternate.lookupName())
+    return res;
+  }
+
   toString() {
     return `<CONDEXPR> ${this.test} ? ${this.consequent} : ${this.alternate}`
   }

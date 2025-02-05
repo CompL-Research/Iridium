@@ -7,8 +7,18 @@ export class IV_ModuleMeta extends ALL_RVal {
     super(node, "ModuleMeta");
   }
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(this.lookupName())
+    return res;
+  }
+
+  lookupName() {
+    return `###IMPORT_META`
+  }
+
   toString() {
-    return `<ModuleMeta> IMPORT.META`
+    return `<ModuleMeta> ${this.lookupName()}`
   }
 
   toDOT() {
@@ -22,8 +32,18 @@ export class IV_NewTarget extends ALL_RVal {
     super(node, "NewTarget");
   }
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(this.lookupName())
+    return res;
+  }
+
+  lookupName() {
+    return `###NEW_TARGET`
+  }
+
   toString() {
-    return `<NewTarget> NEW.TARGET`
+    return `<NewTarget> ${this.lookupName()}`
   }
 
   toDOT() {

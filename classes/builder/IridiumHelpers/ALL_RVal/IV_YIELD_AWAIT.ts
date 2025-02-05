@@ -11,6 +11,12 @@ export class IV_YIELD extends ALL_RVal {
     this.argument = argument;
   }
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    if (this.argument) res.add(this.argument.lookupName());
+    return res;
+  }
+
   toString() {
     if (!this.argument) {
       return `<YIELD> YIELD`
@@ -31,6 +37,12 @@ export class IV_AWAIT extends ALL_RVal {
   constructor(node: JS3AwaitExpression | undefined = undefined, argument: IV_Identifier) {
     super(node, "AwaitExpression");
     this.argument = argument;
+  }
+
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    if (this.argument) res.add(this.argument.lookupName());
+    return res;
   }
 
   toString() {

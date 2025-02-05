@@ -14,11 +14,11 @@ export class IS_LContinue extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${printScopedSpace(space)}▏ LCONTINUE ${this.label} [${this.idx ? "BB" + this.idx : "UNRESOLVED"}];`
+    return `${printScopedSpace(space)}▏ LCONTINUE ${this.label.lookupName()} [${this.idx ? "BB" + this.idx : "UNRESOLVED"}];`
   }
 
   toDOT(space = 0) {
-    return `${printSpace(space)} LCONTINUE ${this.label} [${this.idx ? "BB" + this.idx : "UNRESOLVED"}];`
+    return `${printSpace(space)} LCONTINUE ${this.label.lookupName()} [${this.idx ? "BB" + this.idx : "UNRESOLVED"}];`
   }
 }
 

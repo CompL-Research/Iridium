@@ -11,8 +11,12 @@ export class IV_DecimalLiteral extends ALL_RVal {
     this.value = value
   }
 
+  lookupName() {
+    return `${this.value}`
+  }
+
   toString() {
-    return `<${this.type}> ${this.value}`
+    return `<${this.type}> ${this.lookupName()}`
   }
 
   toDOT() {
@@ -28,8 +32,12 @@ export class IV_BigIntLiteral extends ALL_RVal {
     this.value = value
   }
 
+  lookupName() {
+    return `${this.value}`
+  }
+
   toString() {
-    return `<${this.type}> ${this.value}`
+    return `<${this.type}> ${this.lookupName()}`
   }
 
   toDOT() {
@@ -44,8 +52,12 @@ export class IV_StringLiteral extends ALL_RVal {
     this.value = value
   }
 
+  lookupName() {
+    return `"${this.value}"`
+  }
+
   toString() {
-    return `<${this.type}> "${this.value}"`
+    return `<${this.type}> ${this.lookupName()}`
   }
 
   toDOT() {
@@ -60,8 +72,12 @@ export class IV_NumericLiteral extends ALL_RVal {
     this.value = value
   }
 
+  lookupName() {
+    return `${this.value}`
+  }
+
   toString() {
-    return `<${this.type}> ${this.value}`
+    return `<${this.type}> ${this.lookupName()}`
   }
 
   toDOT() {
@@ -74,8 +90,12 @@ export class IV_NullLiteral extends ALL_RVal {
     super(node, "NullLiteral");
   }
 
+  lookupName() {
+    return `NULL`
+  }
+
   toString() {
-    return `<${this.type}> NULL`
+    return `<${this.type}> ${this.lookupName()}`
   }
 
   toDOT() {
@@ -90,8 +110,12 @@ export class IV_BooleanLiteral extends ALL_RVal {
     this.value = value
   }
 
+  lookupName() {
+    return `${this.value}`
+  }
+
   toString() {
-    return `<${this.type}> ${this.value}`
+    return `<${this.type}> ${this.lookupName()}`
   }
 
   toDOT() {

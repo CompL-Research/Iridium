@@ -1,4 +1,4 @@
-import { JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3ObjectMethod, JS3ObjectProperty, JS3RestElement, JS3SpreadElement } from "classes/builder/JS3Helpers/JS3Types.ts";
+import { JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3Import, JS3ObjectMethod, JS3ObjectProperty, JS3RestElement, JS3SpreadElement } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier, IV_PrivateName } from "../ALL_AMP/ALL_AMP.ts";
 import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_Literals, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "./IV_Literals.ts";
 
@@ -15,8 +15,36 @@ export class ISP_Super {
     this.node = node
   }
 
-  toString() {
+  static lookupName() {
     return `SUPER`
+  }
+
+  lookupName() {
+    return ISP_Super.lookupName()
+  }
+
+  toString() {
+    return `${ISP_Super.lookupName()}`
+  }
+
+  toDOT() {
+    return this.toString();
+  }
+
+}
+
+export class ISP_Import {
+  node: JS3Import
+  constructor(node: JS3Import) {
+    this.node = node
+  }
+
+  static lookupName() {
+    return `IMPORT`
+  }
+
+  toString() {
+    return `${ISP_Import.lookupName()}`
   }
 
   toDOT() {
@@ -31,8 +59,12 @@ export class ISP_V8Intrinsic {
     this.id = id
   }
 
+  lookupName() {
+    return `${this.id.lookupName()}`
+  }
+
   toString() {
-    return `<V8> ${this.id.toString()}`
+    return `<V8> ${this.lookupName()}`
   }
 
   toDOT() {
@@ -46,6 +78,10 @@ export class ISP_ArgSpread {
   constructor(node: JS3SpreadElement, arg: IV_Identifier) {
     this.node = node
     this.arg = arg
+  }
+
+  declaredClosure() : Array<IRIDIUM_FG> {
+    return []
   }
 
   toString() {
@@ -87,6 +123,20 @@ export class ISP_ObjectMethod extends I_Function {
     this.computed = computed
   }
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    if (this.computed) {
+      if (this.key instanceof IV_Identifier) {
+        res.add(this.key.lookupName())
+      }
+    }
+    return res;
+  }
+
+  declaredClosure() : Array<IRIDIUM_FG> {
+    return [this.funBody]
+  }
+
   toString(space = 0) {
     let params = this.params.map(i => i.toString()).join(",")
     let stmts = []
@@ -116,6 +166,20 @@ export class ISP_ObjectProperty {
     this.key = key
     this.value = value
     this.computed = computed
+  }
+  
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    if (this.computed) {
+      if (this.key instanceof IV_Identifier) {
+        res.add(this.key.lookupName())
+      }
+    }
+    return res;
+  }
+
+  declaredClosure() : Array<IRIDIUM_FG> {
+    return []
   }
 
   static from(node: JS3ObjectProperty) {
@@ -178,6 +242,16 @@ export class ISP_ClassProperty {
     this.computed = computed
   }
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    if (this.computed) {
+      if (this.key instanceof IV_Identifier || this.key instanceof IV_PrivateName) {
+        res.add(this.key.lookupName())
+      }
+    }
+    return res;
+  }
+
   declaredClosure() : Array<IRIDIUM_FG> {
     return [this.value]
   }
@@ -206,6 +280,14 @@ export class ISP_StaticClassProperty {
     this.key = key
     this.value = value
     this.computed = computed
+  }
+
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    if (this.computed) {
+      res.add(this.key.lookupName())
+    }
+    return res;
   }
 
   declaredClosure() : Array<IRIDIUM_FG> {
@@ -237,6 +319,16 @@ export class ISP_ClassMethod extends I_Function {
     this.key = key
     this.computed = computed
     this.isStatic = isStatic
+  }
+
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    if (this.computed) {
+      if (this.key instanceof IV_Identifier || this.key instanceof IV_PrivateName) {
+        res.add(this.key.lookupName())
+      }
+    }
+    return res;
   }
 
   declaredClosure() : Array<IRIDIUM_FG> {

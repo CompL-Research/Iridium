@@ -12,6 +12,9 @@ export class ALL_IS {
     throw new Error("ALL_IS: toDOT not implemented!!");
   }
 
+  definedIdentifiers() : Set<string> { return new Set() }
+  usedIdentifiers() : Set<string> { return new Set() }
+
   declaredClosure() : Array<IRIDIUM_FG> | undefined { return undefined }
 
   toString(space = 0) {

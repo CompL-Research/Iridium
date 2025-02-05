@@ -25,6 +25,12 @@ export class IS_Return extends ALL_IS {
     this.argument = argument
   }
 
+  usedIdentifiers(): Set<string> {
+    let res : Set<string> = new Set();
+    res.add(this.argument.lookupName())
+    return res;
+  }
+
   toString(space = 0) {
     if (this.argument) {
       return `${printScopedSpace(space)}▏ RETURN ${this.argument.toString()};`
@@ -35,7 +41,7 @@ export class IS_Return extends ALL_IS {
 
   toDOT(space = 0) {
     if (this.argument) {
-      return `${printSpace(space)} RETURN ${this.argument.toString()};`
+      return `${printSpace(space)} RETURN ${this.argument.lookupName()};`
     } else {
       return `${printSpace(space)} RETURN;`
     }
@@ -50,11 +56,17 @@ export class IS_Throw extends ALL_IS {
     this.argument = argument
   }
 
+  usedIdentifiers(): Set<string> {
+    let res : Set<string> = new Set();
+    res.add(this.argument.lookupName())
+    return res;
+  }
+
   toString(space = 0) {
-    return `${printScopedSpace(space)}▏ THROW ${this.argument.toString()};`
+    return `${printScopedSpace(space)}▏ THROW ${this.argument.lookupName()};`
   }
 
   toDOT(space = 0) {
-    return `${printSpace(space)} THROW ${this.argument.toString()};`
+    return `${printSpace(space)} THROW ${this.argument.lookupName()};`
   }
 }

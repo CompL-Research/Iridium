@@ -890,23 +890,123 @@
 
 // class Test {
 //   #hello = 10
+//   static test(o) {
+//     let containsHello = #hello in o
+//     console.log(containsHello)
+//   }
 // }
 
 // class Boo {
 
 //   #hello = 11
+
+//   static foo = 12
   
-//   static test() {
-//     let o = new Test()
-//     let containsHello = #hello in Test
+//   static test(o) {
+//     let containsHello = #hello in o
 //     console.log(containsHello)
 //   }
 // }
 
-// Boo.test()
+// Boo.test(new Boo())
+// Boo.test(new Test())
+// Test.test(new Boo())
+// Test.test(new Test())
 
-var a = 10;
+// var a = 10;
 
-var a; // <- Does this have an effect later?
+// var a; // <- Does this have an effect later?
 
-console.log(a)
+// console.log(a)
+
+
+// let foo = 12;
+
+// class Test {
+//   [foo] = 12
+// }
+
+// console.log(foo)
+
+// class Test {
+//   x = 10
+//   boo() {
+//     let test = {
+//       a() {
+//         console.log("a: ", this);
+//       },
+//       b: () =>{
+//         console.log("b: ", this);
+//       },
+//       c: function() {
+//         console.log("c: ", this);
+//       }
+//     };
+//     test.a();
+//     let t1 = test.a
+//     t1();
+    
+//     test.b();
+//     let t2 = test.b
+//     t2();
+
+//     test.c();
+//     let t3 = test.c
+//     t3()
+//   }
+// }
+
+// (new Test()).boo()
+
+
+
+// class TTT {
+//   constructor() {
+//     this.b = 212
+//   }
+//   a = () => { console.log("a", this); }
+//   b = 12
+//   c() {
+//     console.log("c", this);
+//   }
+// }
+
+// class BBB extends TTT {
+//   b = 13
+// }
+
+// let o = (new BBB())
+// o.b = 11
+// let boo = o.a
+// boo()
+// boo = o.c
+// boo()
+
+// let test = {
+//   a() {
+//     console.log("a: ", this);
+//   },
+//   b: () =>{
+//     console.log("b: ", this);
+//   },
+//   c: function() {
+//     console.log("c: ", this);
+//   }
+// };
+
+
+// class TTT {
+//   f1 = () => { }
+//   f2 = 12
+//   m1() {
+//     console.log("m1: ", this)
+//   }
+
+//   static f2 = 2
+//   static m2() {
+//     console.log("m2: ", this)
+//   }
+// }
+
+// (new TTT()).m1()
+// TTT.m2()

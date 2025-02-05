@@ -13,6 +13,14 @@ export class IV_ClassExpression extends ALL_RVal {
   properties: IV_ClassExpression_properties
   dropName: boolean
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    this.properties.forEach(p => {
+      p.usedIdentifiers().forEach(u => res.add(u));
+    })
+    return res;
+  }
+
   constructor(node: JS3ClassExpression, name: IV_Identifier | undefined, heritage: IV_Identifier | undefined, properties: IV_ClassExpression_properties, dropName: boolean = false) {
     super(node, "ClassExpression");
     this.name = name

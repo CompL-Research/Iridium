@@ -14,11 +14,11 @@ export class IS_LBreak extends ALL_IS {
   }
 
   toString(space = 0) {
-    return `${printScopedSpace(space)}▏ LBREAK ${this.label} [${this.idx ? "BB" + this.idx : "UNRESOLVED"}];`
+    return `${printScopedSpace(space)}▏ LBREAK ${this.label.lookupName()} [${this.idx ? "BB" + this.idx : "UNRESOLVED"}];`
   }
 
   toDOT(space = 0) {
-    return `${printSpace(space)} LBREAK ${this.label} [${this.idx ? "BB" + this.idx : "UNRESOLVED"}];`
+    return `${printSpace(space)} LBREAK ${this.label.lookupName()} [${this.idx ? "BB" + this.idx : "UNRESOLVED"}];`
   }
 }
 

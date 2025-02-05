@@ -17,6 +17,12 @@ export class IV_AUNOP extends ALL_RVal {
     this.operator = operator
   }
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(this.argument.lookupName());
+    return res;
+  }
+
   toString() {
     return `<U_OPA> ${this.argument} ${this.argument.toString()}`
   }
@@ -32,6 +38,12 @@ export class IV_BUNOP extends ALL_RVal {
   constructor(node: JS3UnaryExpression | undefined = undefined, argument: IV_Identifier) {
     super(node, "UVoidOP");
     this.argument = argument
+  }
+
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(this.argument.lookupName());
+    return res;
   }
 
   toString() {
@@ -51,6 +63,12 @@ export class IV_CUNOP extends ALL_RVal {
     this.argument = argument
   }
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(this.argument.lookupName());
+    return res;
+  }
+
   toString() {
     return `<U_OPC> TYPEOF ${this.argument.toString()}`
   }
@@ -67,6 +85,12 @@ export class IV_DUNOP extends ALL_RVal {
   constructor(node: JS3UnaryExpression | undefined = undefined, argument: IV_Identifier) {
     super(node, "UDelOP");
     this.argument = argument
+  }
+
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(this.argument.lookupName());
+    return res;
   }
 
   toString() {

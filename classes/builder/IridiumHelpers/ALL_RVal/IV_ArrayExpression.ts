@@ -12,6 +12,19 @@ export class IV_ArrayExpression extends ALL_RVal {
     this.elements = elements
   }
 
+  usedIdentifiers() : Set<string> {
+    let res : Set<string> = new Set()
+    this.elements.forEach(e => {
+      if (!e) return;
+      if (e instanceof IV_Identifier) {
+        res.add(e.lookupName())
+      } else {
+        res.add(e.arg.lookupName())
+      }
+    })
+    return res;
+  }
+
   toString(space = 0) {
     return `<ArrayExpression> [ ${this.elements.map(e => !e ? "" : e.toString()).join(",")} ]`
   }
