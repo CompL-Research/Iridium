@@ -1,4 +1,4 @@
-// Generated on 14/1/2025, 6:13:14 am, extended 64 interfaces 
+// Generated on 6/2/2025, 5:36:58 am, extended 64 interfaces 
 
 import { ConditionalExpression, AssignmentPattern, ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, Expression, OptionalCallExpression, OptionalMemberExpression, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DebuggerStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -8,7 +8,7 @@ export type JS3ContainedExprKey = Identifier | JS3Literals | OptionalCallExpress
 export type JS3AllowedFunctionArgs = Identifier | ArrayPattern | ObjectPattern | AssignmentPattern | RestElement;
 export type JS3VarDeclLVal = Identifier | JS3ArrayPattern | JS3ObjectPattern;
 export type JS3AssnLVal = Identifier | JS3ArrayPattern | JS3ObjectPattern | JS3MemberExpression;
-export type JS3AssnInit = JS3Literals | JS3RegExpLiteral | JS3TemplateLiteral | JS3ImportExpression | JS3TaggedTemplateExpression | JS3MetaProperty | JS3YieldExpression | ThisExpression | JS3FunctionExpression | Identifier | JS3MemberExpression | JS3CallExpression | JS3ObjectExpression | JS3NewExpression | JS3BinaryExpression | JS3AssignmentExpression | JS3UnaryExpression | JS3ArrowFunctionExpression | JS3ClassExpression | JS3ArrayExpression | JS3UpdateExpression | JS3AwaitExpression | JS3AnonMemberExpression | OptionalMemberExpression | OptionalCallExpression | JS3ContextualCallExpression | JS3ConditionalExpression | JS3DefaultExportMemberExpression;
+export type JS3AssnInit = JS3Literals | JS3RegExpLiteral | JS3TemplateLiteral | JS3ImportExpression | JS3TaggedTemplateExpression | JS3MetaProperty | JS3YieldExpression | ThisExpression | JS3FunctionExpression | Identifier | JS3MemberExpression | JS3CallExpression | JS3ObjectExpression | JS3NewExpression | JS3BinaryExpression | JS3AssignmentExpression | JS3UnaryExpression | JS3ArrowFunctionExpression | JS3ClassExpression | JS3ArrayExpression | JS3UpdateExpression | JS3AwaitExpression | JS3AnonMemberExpression | OptionalMemberExpression | OptionalCallExpression | JS3ContextualCallExpression | JS3JSXCallExpression | JS3ConditionalExpression | JS3DefaultExportMemberExpression;
 export type JS3AllowedProgStatement = JS3ImportDeclaration | JS3ExportDefaultDeclaration | JS3ExportNamedDeclaration | JS3ExportAllDeclaration | JS3AllowedBlockStatement;
 export type JS3ClassPropValue = JS3ClassExpression | JS3ArrowFunctionExpression | JS3FunctionExpression | JS3ContainedExprKey | null;
 
@@ -45,6 +45,31 @@ export interface JS3DefaultExportMemberExpression extends MemberExpression {
 export function isJS3DefaultExportMemberExpression(node: any): node is JS3DefaultExportMemberExpression {
   // @ts-ignore
   if (node && node.js3type === "JS3DefaultExportMemberExpression") return true;
+  return false;
+}
+
+// 
+// "JS3JSXCallExpression" node is used to denote JSX call expressions
+// 
+
+export type JS3JSXCallExpression_callee = Identifier
+export type JS3JSXCallExpression_arguments = Array < Identifier | StringLiteral >
+export type JS3JSXCallExpression_typeArguments = JS3CallExpression_typeArguments
+export type JS3JSXCallExpression_typeParameters = JS3CallExpression_typeParameters
+
+// @ts-ignore
+export interface JS3JSXCallExpression extends CallExpression {
+  callee: JS3JSXCallExpression_callee;
+  arguments: JS3JSXCallExpression_arguments;
+  typeArguments: JS3JSXCallExpression_typeArguments;
+  typeParameters: JS3JSXCallExpression_typeParameters;
+  js3type: "JS3JSXCallExpression";
+}
+
+// @ts-ignore
+export function isJS3JSXCallExpression(node: any): node is JS3JSXCallExpression {
+  // @ts-ignore
+  if (node && node.js3type === "JS3JSXCallExpression") return true;
   return false;
 }
 

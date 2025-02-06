@@ -1043,7 +1043,23 @@
 //   }
 // }
 
-let test = (a) => {
-  if (a) return 1;
-  return; 
-}
+// let test = (a) => {
+//   if (a) return 1;
+//   return; 
+// }
+
+// export default function MyApp(boop) {
+//   return <>
+//     {boop ? <Foo> Hello </Foo> : <Bar> World </Bar>}
+//     Hello World
+//   </>;
+// }
+
+// const Component = () => <div className="pikachu"></div>
+// 
+const profile = (
+  <Component.a>
+    {test ? <img src="avatar.png" className="profile" /> : <h3>{[user.firstName, user.lastName].join(" ")}</h3>}
+    
+  </Component.a>
+);

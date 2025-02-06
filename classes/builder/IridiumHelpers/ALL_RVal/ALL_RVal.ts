@@ -24,6 +24,7 @@ type IRI_ASSN_TYPE = t_IV_Literals
                    | t_IV_UpdateExpression
                    | t_IV_ClassExpression
                    | t_IV_ForIterators
+                   | t_IV_JSX
 
 
 type t_IV_Literals = "DecimalLiteral" | "BigIntLiteral" | "StringLiteral" | "NumericLiteral" | "NullLiteral" | "BooleanLiteral"
@@ -56,6 +57,8 @@ type t_IV_UpdateExpression = "UpdateExpression"
 type t_IV_ClassExpression = "ClassExpression"
 
 type t_IV_ForIterators = "ForInIterator" | "ForOfIterator" | "LoopNext" | "HasLoopNext"
+
+type t_IV_JSX = "PJSX" | "JSX" | "FJSX"
 
 export class ALL_RVal {
   node : JS3AssnInit | JS3ForInStatement | JS3ForOfStatement | undefined

@@ -83,7 +83,7 @@ export class ProjectFile {
     // 2. Parse Source Code
     let presets: Array<Array<string | {}>> = [
       ["@babel/preset-env", { targets: "last 2 Chrome versions", modules: false }],
-      // ['@babel/preset-react', { runtime: "automatic" }]
+      ['@babel/preset-react', { runtime: "classic", pragma: "###JSX###", pragmaFrag: "###JSXFRAG###" }]
     ]
 
     if (this.extension === 'ts' || this.extension === 'tsx') presets.push(['@babel/preset-typescript'])
