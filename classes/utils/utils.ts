@@ -5,7 +5,14 @@ import fs from 'fs';
 import path from 'path';
 export class JS3GenerationError extends Error { }
 
-export function printScopedSpace(space) {
+export function popSet<T>(s : Set<T>) : T {
+  for (const value of s) {
+    s.delete(value)
+    return value
+  }
+}
+
+export const printScopedSpace = (space) => {
   let res = "";
   for (let i = 0; i < space; i++) {
     res += (i >= 2 && (i % 2 === 0)) ? "░" : " "
@@ -13,7 +20,7 @@ export function printScopedSpace(space) {
   return res;
 }
 
-export function printSpace(space) {
+export const printSpace = (space) => {
   let res = "";
   for (let i = 0; i < space; i++) {
     res += " "

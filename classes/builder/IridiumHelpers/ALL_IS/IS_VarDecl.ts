@@ -3,7 +3,7 @@ import { isBigIntLiteral, isDecimalLiteral, isIdentifier, isNumericLiteral, isRe
 import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3ObjectPattern, JS3ArrayPattern, JS3AssnObjectProperty_key, JS3ClassExpression, JS3ObjectPattern, JS3VariableDeclaration } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../ALL_AMP/ALL_AMP.ts";
 import { ALL_RVal, IV_ASSIGNABLE } from "../ALL_RVal/ALL_RVal.ts";
-import { IV_NUBD } from "../ALL_RVal/IV_NonLang.ts";
+import { IV_CTHIS, IV_NUBD, IV_STHIS } from "../ALL_RVal/IV_NonLang.ts";
 import { IV_This } from "../ALL_RVal/IV_This.ts";
 import { ALL_IS } from "./ALL_IS.ts";
 import { IS_FunDecl } from "./IS_FunDecl.ts";
@@ -269,12 +269,14 @@ export class IS_ClassNameInitStmt extends ALL_IS {
 
 type IS1_DeclarationStmt_orig = IS_SimpleVarDecl | IS_ArrPatVarDecl | IS_ObjPatVarDecl | IS_FunDecl | IS_ThisInitStmt | IS_ClassNameInitStmt | IS_BImport | IS_CImport | IRIDIUM_FG
 
+type IS1_DeclarationStmt_RVal = IV_NUBD | IV_Identifier | IV_CTHIS | IV_STHIS
+
 export class IS1_DeclarationStmt extends ALL_IS {
   orig: IS1_DeclarationStmt_orig
   LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern
-  RVal: IV_ASSIGNABLE
+  RVal: IS1_DeclarationStmt_RVal
 
-  constructor(orig: IS1_DeclarationStmt_orig, LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern, RVal: IV_ASSIGNABLE) {
+  constructor(orig: IS1_DeclarationStmt_orig, LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern, RVal: IS1_DeclarationStmt_RVal) {
     super(undefined);
     this.orig = orig
     this.LVal = LVal
@@ -324,22 +326,14 @@ export class IS1_DeclarationStmt extends ALL_IS {
   usedIdentifiers(): Set<string> {
     let res : Set<string> = new Set();
     if (this.RVal instanceof IV_Identifier) {
-      res.add(this.RVal.name)
-    } else if (this.RVal instanceof IV_MemberExpressionPA) {
-      res.add(this.RVal.object.name)
-    } else if (this.RVal instanceof IV_ThisLookupPA){
-      res.add(IV_This.lookupName())
-    } else if (this.RVal instanceof IV_SuperLookupPA){
-      res.add(ISP_Super.lookupName())
-    } else {
-      res = this.RVal.usedIdentifiers();
+      res.add(this.RVal.lookupName())
     }
     return res;
   }
 
   toString(space = 0) {
     let lval = isJS3ArrayPattern(this.LVal) ? ArrPatToString(this.LVal) : isJS3ObjectPattern(this.LVal) ? ObjPatToString(this.LVal) : this.LVal.name;
-    return `${printScopedSpace(space)}▏💌 ${lval} = ${this.RVal.toString(space + 2)};`
+    return `${printScopedSpace(space)}▏💌 ${lval} = ${this.RVal.toString()};`
   }
 
   toDOT(space = 0) {

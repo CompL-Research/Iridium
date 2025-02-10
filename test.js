@@ -1057,9 +1057,17 @@
 
 // const Component = () => <div className="pikachu"></div>
 // 
-const profile = (
-  <Component.a>
-    {test ? <img src="avatar.png" className="profile" /> : <h3>{[user.firstName, user.lastName].join(" ")}</h3>}
+// const profile = (
+//   <Component.a>
+//     {test ? <img src="avatar.png" className="profile" /> : <h3>{[user.firstName, user.lastName].join(" ")}</h3>}
     
-  </Component.a>
-);
+//   </Component.a>
+// );
+
+
+class A {
+  [(console.log("hello"), "boo")] = 12
+  bar = 14
+
+  static [(1, "bart")] = 12
+}

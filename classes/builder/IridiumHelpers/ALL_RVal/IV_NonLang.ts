@@ -5,8 +5,12 @@ export class IV_NUBD extends ALL_RVal {
     super(node, "NUBD");
   }
 
+  static lookupName() {
+    return "NUBD"
+  }
+
   toString() {
-    return `<NUBD> ( ཀ ʖ̯ ཀ)`
+    return `<NUBD> ( ཀ ʖ̯ ཀ) ${IV_NUBD.lookupName()}`
   }
 
   toDOT() {
@@ -19,8 +23,12 @@ export class IV_CTHIS extends ALL_RVal {
     super(node, "CTHIS");
   }
 
+  static lookupName() {
+    return "C_THIS"
+  }
+
   toString() {
-    return `<CTHIS> 🤺`
+    return `<CTHIS> 🤺 ${IV_CTHIS.lookupName()}`
   }
 
   toDOT() {
@@ -33,8 +41,12 @@ export class IV_STHIS extends ALL_RVal {
     super(node, "STHIS");
   }
 
+  static lookupName() {
+    return "S_THIS"
+  }
+
   toString() {
-    return `<STHIS> 🛡️`
+    return `<STHIS> 🛡️ ${IV_STHIS.lookupName()}`
   }
 
   toDOT() {
