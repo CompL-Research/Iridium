@@ -1065,9 +1065,40 @@
 // );
 
 
-class A {
-  [(console.log("hello"), "boo")] = 12
-  bar = 14
+// class A {
+//   [(console.log("hello"), "boo")] = 12
+//   bar = 14
 
-  static [(1, "bart")] = 12
-}
+//   static [(1, "bart")] = 12
+// }
+
+// let a;
+
+// import x from "boo";
+
+// let a;
+// let z = 1;
+// a[z] = 12;
+// a[a[z]] = 13;
+
+
+// class Test {
+//   a = () => (console.log(this))
+//   b() {
+//     console.log(this)
+//   }
+// }
+
+// let o = new Test()
+// let t1 = o.a;
+// t1()
+// let t2 = o.b;
+// t2()
+
+// function a() {
+//   if (new.target) console.log("a was called by new")
+//   else console.log("normal execution")
+// }
+
+// a();
+// new a();

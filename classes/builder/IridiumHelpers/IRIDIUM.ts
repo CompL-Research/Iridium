@@ -52,6 +52,7 @@ import { addThisInitToFunctionBoundaries } from "./Passes/AddThisInitToFunctionB
 import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
 import { IV_FJSX, IV_JSX, IV_PJSX } from "./ALL_RVal/IV_JSX.ts";
+import { PTA } from "./Passes/PTA.ts";
 
 const generate = _generate.default
 
@@ -228,6 +229,7 @@ export default class IRIDIUM {
     normalizeReturns(res);
     initializeEnvDefs(res);
     cleanupBBs(res);
+    PTA(res, true);
     return res;
   }
 
