@@ -1102,3 +1102,9 @@
 
 // a();
 // new a();
+
+let a = { x: 10 };
+let b = a; // b points to the same object as a
+b.x = 20;  // Modifies the same object
+
+console.log(a.x); // 20

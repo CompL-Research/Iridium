@@ -17,7 +17,7 @@ export class ALL_IS {
 
   declaredClosure() : Array<IRIDIUM_FG> | undefined { return undefined }
 
-  toString(space = 0) {
+  toString(space = 0) : string {
     throw new Error("ALL_IS: toString not implemented!!");
   }
 }
