@@ -83,9 +83,6 @@ export function PTA(rootFG: IRIDIUM_FG, saveRecording: boolean) {
     }
   }
 
-  if (saveRecording) {
-    execSync(`rm outputs/PTA/*.DOT 2>/dev/null`);
-  }
 }
 
 function flowFunction(rootFG: IRIDIUM_FG, nextGraph: PTAGraph, currBBIDx: BBIdx) {

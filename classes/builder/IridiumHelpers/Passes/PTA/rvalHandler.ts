@@ -23,7 +23,7 @@ import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "../../ALL_RVal/IV_Unop.t
 import { IV_UpdateExpression } from "../../ALL_RVal/IV_UpdateExpression.ts";
 import { IV_YIELD, IV_AWAIT } from "../../ALL_RVal/IV_YIELD_AWAIT.ts";
 import { BB } from "../../BB.ts";
-import { BigIntNode, BooleanNode, DecimalNode, GlobalNode, NullNode, NumericNode, OrdinaryFunctionObject, OrdinaryObject, PTANode, StringNode, SymbolNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
+import { BigIntNode, BooleanNode, DecimalNode, GetSpecialClosure, GlobalNode, NullNode, NumericNode, OrdinaryFunctionObject, OrdinaryObject, PTANode, SetSpecialClosure, StringNode, SymbolNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
 import { PTAGraph } from "./PTAGraph.ts";
 import { dissernPointees, getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
 import debugConfig from "#debugConfig";
@@ -186,14 +186,22 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     let i = 0
     for (let p of rVal.properties) {
       if (p instanceof ISP_ObjectMethod) {
-        debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ObjectExpression - ISP_ObjectMethod")
+        let dissernedProps: Set<string> = dissernProps(nextGraph, p.key.lookupName(), getStackQualifiedName(p.key.lookupName(), currBB), p.computed);
+        let pointee : OrdinaryFunctionObject | GetSpecialClosure | SetSpecialClosure;
+        if (p.kind === "method") {
+          pointee = new OrdinaryFunctionObject(getHeapQualifiedName('ObjMeth' + i, currBBIDx, stackInstOffset), p)
+        } else if (p.kind === "get") {
+          pointee = new GetSpecialClosure(getHeapQualifiedName('GetMeth' + i, currBBIDx, stackInstOffset), p)
+        } else if (p.kind === "set") {
+          pointee = new SetSpecialClosure(getHeapQualifiedName('GetMeth' + i, currBBIDx, stackInstOffset), p)
+        }
+        nextGraph.addPTANode(pointee)
+        nextGraph.drawHeapToHeapEdge([objExprObj], [pointee], [...dissernedProps], true);
       } else if (p instanceof ISP_ObjectProperty) {
-        // Create a node from [Ordinary Object] --[prop]--> PNode
-        //  -- For this we want to dissern the props that we can currently...
         let dissernedProps: Set<string> = dissernProps(nextGraph, p.key.lookupName(), getStackQualifiedName(p.key.lookupName(), currBB), p.computed);
 
-        // [Ordinary Object] --p--> PNode --e--> RVal(s)
-        //                                --h--> UNCHANGED
+        // [Ordinary Object] --[dissernedProps]--> PNode --e--> RVal(s)
+        //                                               --h--> UNCHANGED
 
         // Get propValuePointees
         let pointees = nextGraph.getPointees(getStackQualifiedName(p.value.lookupName(), currBB));

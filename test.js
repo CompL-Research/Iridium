@@ -1142,10 +1142,10 @@ let a;
 
 if (false) {
   a = "1"
-} else {
-  a = "2"
 }
 
 let b = {
-  [a] : 10
+  [a]: "Hello"
 }
+
+// console.log(b[a])

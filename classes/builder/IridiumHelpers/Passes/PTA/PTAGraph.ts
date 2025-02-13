@@ -57,7 +57,7 @@ export class PTAGraph extends GLIB.Graph {
           // u --p--> [u_p]
           // 
           let pNodeName = u.id + "_" + p;
-          if (this.hasNode(pNodeName)) this.addPTANode(new PNode(pNodeName));
+          if (!this.hasNode(pNodeName)) this.addPTANode(new PNode(pNodeName));
           this.setEdge(u.id, pNodeName, p, p);
 
           if (enumerable) {
@@ -124,28 +124,36 @@ export class PTAGraph extends GLIB.Graph {
     res.push("  node [fontname=\"Noto Mono\"];");
     res.push("  graph [nodesep=1.0, ranksep=1.5]; // Adjust separation")
     for (let [key, value] of this.nodeMap) {
-      // Stack Values
-      if (value instanceof StackNode)
-        res.push(`  "${key.replace(/"/g, '\\"')}"[]`)
+      let processedKey = key.replace(/"/g, '\\"')
+      let dotStyle = value.dotStyle()
+      res.push(`  "${processedKey}"${dotStyle}`)
 
-      // Literals
-      else if (value instanceof DecimalNode || value instanceof BigIntNode || value instanceof StringNode || value instanceof NumericNode || value instanceof NullNode || value instanceof BooleanNode || value instanceof SymbolNode)
-        res.push(`  "${key.replace(/"/g, '\\"')}"[shape="square", style="filled", fillcolor="green"]`)
+      // // Stack Values
+      // if (value instanceof StackNode)
 
-      // Lazy Heap Node
-      else if (value instanceof ImportNode)
-        res.push(`  "${key.replace(/"/g, '\\"')}"[xlabel="${value.toString().replace(/"/g, '\\"')}",shape="square", style="filled", fillcolor="yellow"]`)
+      // // Literals
+      // else if (value instanceof LiteralNode)
+      //   res.push(`  "${processedKey}"[xlabel="${label}",shape="square", style="filled", fillcolor="green"]`)
 
-      // Ordinary Object
-      else if (value instanceof OrdinaryObject)
-        res.push(`  "${key.replace(/"/g, '\\"')}"[xlabel="Ordinary Object",shape="square", style="filled", fillcolor="gray"]`)
+      // // Literals
+      // else if (value instanceof PNode)
+      //   res.push(`  "${processedKey}"[xlabel="${label}",shape="doublecircle", style="filled", fillcolor="gray"]`)
 
-      // Ordinary Function Object
-      else if (value instanceof OrdinaryFunctionObject)
-        res.push(`  "${key.replace(/"/g, '\\"')}"[xlabel="Ordinary Function Object",shape="octagon", style="filled", fillcolor="gray"]`)
 
-      // Heap Objects
-      else res.push(`  "${key.replace(/"/g, '\\"')}"[shape="rectangle"]`)
+      // // Lazy Heap Node
+      // else if (value instanceof ImportNode)
+      //   res.push(`  "${processedKey}"[xlabel="${label}",shape="square", style="filled", fillcolor="yellow"]`)
+
+      // // Ordinary Object
+      // else if (value instanceof OrdinaryObject)
+      //   res.push(`  "${processedKey}"[xlabel="${label}",,shape="square", style="filled", fillcolor="gray"]`)
+
+      // // Ordinary Function Object
+      // else if (value instanceof OrdinaryFunctionObject)
+      //   res.push(`  "${processedKey}"[xlabel="${label}",,shape="octagon", style="filled", fillcolor="gray"]`)
+
+      // // Heap Objects
+      // else res.push(`  "${processedKey}"[shape="rectangle"]`)
     }
 
     for (let e of this.edges()) {
