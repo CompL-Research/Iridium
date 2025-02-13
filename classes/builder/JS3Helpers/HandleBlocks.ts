@@ -6,7 +6,7 @@ import { isJS3AssnObjectProperty, isJS3MemberExpression, JS3AllowedBlockStatemen
 
 import debugConfig from "#debugConfig";
 import { handleArrowFunctionExpression, handleClassExpression, handleExpression, handleFunctionExpression, handleMemberExpression, lowerToAnonArrayExpr } from "./HandleExpression.ts";
-import { generateBaseNodeFrom, generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrayPatternfromBaseNode, generateJS3AssignmentExpressionfromBaseNode, generateJS3AssnObjectPropertyfromBaseNode, generateJS3BinaryExpressionfromBaseNode, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3CatchClause, generateJS3ConditionalExpressionfromBaseNode, generateJS3ContinueStatement, generateJS3DebuggerStatement, generateJS3DoWhileStatement, generateJS3EmptyStatement, generateJS3EmptyStatementfromBaseNode, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3LabeledStatement, generateJS3LoopDeclarationfromBaseNode, generateJS3LoopDeclaratorfromBaseNode, generateJS3ObjectPattern, generateJS3PrivateName, generateJS3RestElement, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclarator, generateJS3VariableDeclaratorfromBaseNode, generateJS3WhileStatement, generateJS3WithStatement } from "./JS3Constructors.ts";
+import { generateBaseNodeFrom, generateDummyJS3VariableDeclaration, generateIdentifier, generateJS3ArrayPatternfromBaseNode, generateJS3AssignmentExpressionfromBaseNode, generateJS3AssnObjectPropertyfromBaseNode, generateJS3BinaryExpressionfromBaseNode, generateJS3BlockStatement, generateJS3BlockStatementfromBaseNode, generateJS3BreakStatement, generateJS3CatchClause, generateJS3ConditionalExpressionfromBaseNode, generateJS3ContinueStatement, generateJS3DebuggerStatement, generateJS3DoWhileStatement, generateJS3EmptyStatement, generateJS3EmptyStatementfromBaseNode, generateJS3ForInStatement, generateJS3ForOfStatement, generateJS3ForStatement, generateJS3FunctionDeclaration, generateJS3IfStatement, generateJS3IfStatementfromBaseNode, generateJS3LabeledStatement, generateJS3LoopDeclarationfromBaseNode, generateJS3LoopDeclaratorfromBaseNode, generateJS3ObjectPattern, generateJS3PrivateName, generateJS3RestElement, generateJS3ReturnStatement, generateJS3SwitchCase, generateJS3SwitchStatement, generateJS3ThrowStatement, generateJS3TryStatement, generateJS3VariableDeclaration, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclarator, generateJS3VariableDeclaratorfromBaseNode, generateJS3WhileStatement, generateJS3WithStatement, generateTempIdentifier } from "./JS3Constructors.ts";
 
 import { generateCommentLine } from "#utils";
 import assert from 'node:assert';
@@ -457,9 +457,11 @@ export function handleDeclaratorRec(
     let declaratorCondRes = generateJS3VariableDeclaratorfromBaseNode(cond$res, binop, null, LVal)
     otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode([declaratorCondRes], "let", null, LVal))
 
-    // let fin$res = cond$res ? EXPR1 : EXPR2
+    // let tempVar = fin$res = cond$res ? EXPR1 : EXPR2
     let condExpr = generateJS3ConditionalExpressionfromBaseNode(cond$res, lowerComputedKey(LVal.right, otherProps), fin$res, LVal)
-    otherProps.others.holder.push(generateDummyJS3VariableDeclaration(LVal, fin$res, condExpr))
+    let tempVar = generateTempIdentifier(LVal, "tempID")
+    let finDeclarator = generateJS3VariableDeclaratorfromBaseNode(tempVar, generateJS3AssignmentExpressionfromBaseNode("=", fin$res, condExpr, LVal), null, LVal)
+    otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode([finDeclarator], "let", null, LVal))
 
     // Recursive case
     // (let...) left = fin$res
