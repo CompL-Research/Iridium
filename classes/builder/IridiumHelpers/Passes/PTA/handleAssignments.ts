@@ -2,60 +2,57 @@ import { PTANode, StackNode, SymbolNode } from "./nodes.ts";
 import { PTAGraph } from "./PTAGraph.ts";
 import { dissernPointees, getStackQualifiedName } from "./util.ts";
 
-// Handle assignment statements...
-export const handleMemberAssignment = (nextGraph: PTAGraph, lVal: string, rValPointees: Array<PTANode>, prop: string, computed: boolean) => {
-  let receiverObjID = getStackQualifiedName(lVal)
-  nextGraph.ensureNode(receiverObjID)
+// // Handle assignment statements...
+// export const handleMemberAssignment = (nextGraph: PTAGraph, lVal: string, rValPointees: Array<PTANode>, prop: string, computed: boolean) => {
+//   let receiverObjID = getStackQualifiedName(lVal)
+//   nextGraph.ensureNode(receiverObjID)
 
-  let receiverPointees = nextGraph.getPointees(receiverObjID)
+//   let receiverPointees = nextGraph.getPointees(receiverObjID)
 
-  let dissernedProps: Set<string> = new Set();
-  if (computed) {
-    let propID = getStackQualifiedName(prop)
-    nextGraph.ensureNode(propID)
-    let propPointees = nextGraph.getPointees(propID)
-    dissernedProps = dissernPointees(propPointees)
-  } else {
-    if (!nextGraph.hasNode(prop)) nextGraph.addPTANode(new SymbolNode(prop));
-    dissernedProps.add(prop)
-  }
+//   let dissernedProps: Set<string> = new Set();
+//   if (computed) {
+//     let propID = getStackQualifiedName(prop)
+//     nextGraph.ensureNode(propID)
+//     let propPointees = nextGraph.getPointees(propID)
+//     dissernedProps = dissernPointees(propPointees)
+//   } else {
+//     if (!nextGraph.hasNode(prop)) nextGraph.addPTANode(new SymbolNode(prop));
+//     dissernedProps.add(prop)
+//   }
 
-  nextGraph.drawHeapToHeapEdge(receiverPointees, rValPointees, [...dissernedProps])
-}
+//   nextGraph.drawHeapToHeapEdge(receiverPointees, rValPointees, [...dissernedProps])
+// }
 
-export const handleMemberLookup = (receiverObj: string, prop: string, computed: boolean) => {
-  let receiverObjID = getStackQualifiedName(receiverObj)
-  nextGraph.ensureNode(receiverObjID)
+// export const handleMemberLookup = (receiverObj: string, prop: string, computed: boolean) => {
+//   let receiverObjID = getStackQualifiedName(receiverObj)
+//   nextGraph.ensureNode(receiverObjID)
 
-  let receiverPointees = nextGraph.getPointees(receiverObjID)
-  let dissernedProps: Set<string> = new Set();
-  if (computed) {
-    let propID = getStackQualifiedName(prop)
-    nextGraph.ensureNode(propID)
-    let propPointees = nextGraph.getPointees(propID)
-    dissernedProps = dissernPointees(propPointees)
-  } else {
-    if (!nextGraph.hasNode(prop)) nextGraph.addPTANode(new SymbolNode(prop));
-    dissernedProps.add(prop)
-  }
+//   let receiverPointees = nextGraph.getPointees(receiverObjID)
+//   let dissernedProps: Set<string> = new Set();
+//   if (computed) {
+//     let propID = getStackQualifiedName(prop)
+//     nextGraph.ensureNode(propID)
+//     let propPointees = nextGraph.getPointees(propID)
+//     dissernedProps = dissernPointees(propPointees)
+//   } else {
+//     if (!nextGraph.hasNode(prop)) nextGraph.addPTANode(new SymbolNode(prop));
+//     dissernedProps.add(prop)
+//   }
 
-  let res: Set<PTANode> = new Set();
+//   let res: Set<PTANode> = new Set();
 
-  for (let r of receiverPointees)
-    for (let p of dissernedProps)
-      nextGraph.getHeapPointees(r.id, p).forEach(e => res.add(e))
+//   for (let r of receiverPointees)
+//     for (let p of dissernedProps)
+//       nextGraph.getHeapPointees(r.id, p).forEach(e => res.add(e))
 
-  return [...res];
-}
+//   return [...res];
+// }
 
 // Handle Simple Assignment Statement
-let handleSimpleAssignmentStatement = (nextGraph: PTAGraph, lval: string, rVal: Array<PTANode>) => {
-  let stackID = getStackQualifiedName(lval)
-  let stackNode = new StackNode(stackID)
+export const handleSimpleAssignmentStatement = (nextGraph: PTAGraph, qualifiedStackId: string, rVal: Array<PTANode>) => {
+  let stackNode = new StackNode(qualifiedStackId)
   nextGraph.declareNode(stackNode)
-
-  nextGraph.clearSuccessors(stackID)
-
+  nextGraph.clearSuccessors(qualifiedStackId)
   nextGraph.drawStackToHeapEdge(stackNode, rVal)
 }
 

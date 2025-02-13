@@ -1124,18 +1124,6 @@ export function handleObjectProperty(node: ObjectProperty, otherProps: OtherProp
     fin_value = orig_value
   } else if (isClassExpression(orig_value)) {
     fin_value = lowerToAnonArrayExpr(orig_value, otherProps)
-  } else if (isDecimalLiteral(orig_value)) {
-    fin_value = orig_value
-  } else if (isBigIntLiteral(orig_value)) {
-    fin_value = orig_value
-  } else if (isStringLiteral(orig_value)) {
-    fin_value = orig_value
-  } else if (isNumericLiteral(orig_value)) {
-    fin_value = orig_value
-  } else if (isNullLiteral(orig_value)) {
-    fin_value = orig_value
-  } else if (isBooleanLiteral(orig_value)) {
-    fin_value = orig_value
   } else if (isArrowFunctionExpression(orig_value)) {
     fin_value = lowerToAnonArrayExpr(orig_value, otherProps)
   } else if (isFunctionExpression(orig_value)) {

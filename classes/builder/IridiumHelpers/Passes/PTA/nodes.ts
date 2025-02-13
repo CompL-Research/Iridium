@@ -8,6 +8,8 @@ export class PTANode {
   }
 }
 
+export type Valid_Stack_To_Heap_Pointees = OrdinaryObject | OrdinaryFunctionObject | GlobalNode | ImportNode | LiteralNode;
+
 // 1. StackNode
 export class StackNode extends PTANode {
   constructor(id: string) {
@@ -15,35 +17,41 @@ export class StackNode extends PTANode {
   }
 }
 
-// 2. HeapNode
-export class HeapNode extends PTANode {
+// 2. OrdinaryObject
+export class OrdinaryObject extends PTANode {
   constructor(id: string) {
     super(id)
   }
 }
 
-// 3. GlobalNode
+// 3. OrdinaryFunctionObject
+export class OrdinaryFunctionObject extends PTANode {
+  constructor(id: string) {
+    super(id)
+  }
+}
+// 4. GlobalNode
 export class GlobalNode extends PTANode {
   constructor(id: string) {
     super(id)
   }
 }
 
-// 4. SetSpecialClosure
+// 5. SetSpecialClosure
 export class SetSpecialClosure extends PTANode {
   constructor(id: string) {
     super(id)
   }
 }
 
-// 5. GetSpecialClosure
+// 6. GetSpecialClosure
 export class GetSpecialClosure extends PTANode {
   constructor(id: string) {
     super(id)
   }
 }
 
-// 6. ImportNode
+// 7. ImportNode
 export class ImportNode extends PTANode {
   remote: IV_Identifier | IV_StringLiteral
   FROM: IV_StringLiteral
@@ -58,33 +66,31 @@ export class ImportNode extends PTANode {
   }
 }
 
-
-// 
-// Heap Nodes
-// 
-
-// 1. OrdinaryObject
-export class OrdinaryObject extends HeapNode {
+// 8. PNode: A proxy node that allows us to keep track of enumerable and non-enumerable nodes
+export class PNode extends PTANode {
   constructor(id: string) {
     super(id)
   }
 }
 
-// 2. OrdinaryFunctionObject
-export class OrdinaryFunctionObject extends HeapNode {
-  constructor(id: string) {
-    super(id)
-  }
-}
-
-// 
-// Literals
-// 
+// 9. Litearal Node
 export class LiteralNode extends PTANode {
   constructor(id: string) {
     super(id)
   }
 }
+
+
+// 
+// Heap Nodes
+// 
+
+
+
+// 
+// Literals
+// 
+
 
 export class DecimalNode extends LiteralNode {
   constructor(id: string) {

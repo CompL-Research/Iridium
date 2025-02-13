@@ -2,7 +2,7 @@ import debugConfig from "#debugConfig";
 import GLIB from "#graphlib";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
-import { BigIntNode, BooleanNode, DecimalNode, ImportNode, NullNode, NumericNode, OrdinaryFunctionObject, OrdinaryObject, PTANode, StackNode, StringNode, SymbolNode } from "./nodes.ts";
+import { BigIntNode, BooleanNode, DecimalNode, GlobalNode, ImportNode, LiteralNode, NullNode, NumericNode, OrdinaryFunctionObject, OrdinaryObject, PNode, PTANode, StackNode, StringNode, SymbolNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
 
 export class PTAGraph extends GLIB.Graph {
   nodeMap: Map<string, PTANode> = new Map()
@@ -48,29 +48,56 @@ export class PTAGraph extends GLIB.Graph {
   }
 
   // Heap to Heap Edge
-  drawHeapToHeapEdge(us: Array<PTANode>, vs: Array<PTANode>, ps: Array<string>) {
-    // Strong update 
-    // 1. if us length is one.
-    // 2. if u has no outward * edge
-    // 3. if 2 is true: remove all edges on label p of ps
-    if (us.length === 1) {
-      let u = us[0]
-      let edges = this.outEdges(u.id)
-      let hasStarEdge = false
-      edges && edges.forEach(e => (e.name === "*") && (hasStarEdge = true));
-      !hasStarEdge && edges && edges.forEach(e => ps.forEach(p => this.removeEdge(e.v, e.w, p)));
-    }
+  drawHeapToHeapEdge(us: Array<Valid_Stack_To_Heap_Pointees>, vs: Array<Valid_Stack_To_Heap_Pointees>, ps: Array<string>, enumerable: boolean) {
     // Update graph
-    for (let p of ps) for (let u of us) for (let v of vs) this.setEdge(u.id, v.id, p, p);
+    for (let p of ps) {
+      for (let u of us) {
+        for (let v of vs) {
+          // 
+          // u --p--> [u_p]
+          // 
+          let pNodeName = u.id + "_" + p;
+          if (this.hasNode(pNodeName)) this.addPTANode(new PNode(pNodeName));
+          this.setEdge(u.id, pNodeName, p, p);
+
+          if (enumerable) {
+            // 
+            // u --p--> [u_p] --e--> v
+            // 
+            this.setEdge(pNodeName, v.id, "e", "e");
+          } else {
+            // 
+            // u --p--> [u_p] --h--> v
+            // 
+            this.setEdge(pNodeName, v.id, "h", "h");
+          }
+        }
+      }
+    }
   }
 
   // Returns the set of nodes pointed by a stack object
-  getPointees(stackId: string): Array<PTANode> {
+  getPointees(stackId: string): Array<Valid_Stack_To_Heap_Pointees> {
     let succ = this.successors(stackId)
     return succ ? succ.map(n => {
       if (!this.nodeMap.has(n)) debugConfig.logger.throwIriError(`nodemap is missing a node ${n}`);
 
-      return this.nodeMap.get(n);
+      let ptaNode = this.nodeMap.get(n)
+
+      // Valid_Stack_To_Heap_Pointees = 
+      // OrdinaryObject | OrdinaryFunctionObject | GlobalNode | ImportNode | LiteralNode;
+
+      if (
+        ptaNode instanceof OrdinaryObject ||
+        ptaNode instanceof OrdinaryFunctionObject ||
+        ptaNode instanceof GlobalNode ||
+        ptaNode instanceof ImportNode ||
+        ptaNode instanceof LiteralNode
+      ) {
+        return ptaNode
+      } else {
+        debugConfig.logger.throwIriError(`Stack Node is pointing to an invalid node`);
+      }
     }) : []
   }
 

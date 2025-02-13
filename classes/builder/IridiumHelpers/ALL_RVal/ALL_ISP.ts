@@ -156,7 +156,7 @@ export class ISP_ObjectMethod extends I_Function {
 }
 
 type ISP_ObjectProperty_key = IV_Identifier | IV_StringLiteral | IV_NumericLiteral | IV_BigIntLiteral
-type ISP_ObjectProperty_value = IV_Identifier | IV_Literals
+type ISP_ObjectProperty_value = IV_Identifier
 export class ISP_ObjectProperty {
   node: JS3ObjectProperty
   key: ISP_ObjectProperty_key
@@ -198,22 +198,7 @@ export class ISP_ObjectProperty {
     }
 
     let orig_value = node.value
-    let fin_value: ISP_ObjectProperty_value
-    if (isIdentifier(orig_value)) {
-      fin_value = new IV_Identifier(orig_value, orig_value.name)
-    } else if (isDecimalLiteral(orig_value)) {
-      fin_value = new IV_DecimalLiteral(orig_value, orig_value.value)
-    } else if (isBigIntLiteral(orig_value)) {
-      fin_value = new IV_BigIntLiteral(orig_value, orig_value.value)
-    } else if (isStringLiteral(orig_value)) {
-      fin_value = new IV_StringLiteral(orig_value, orig_value.value)
-    } else if (isNumericLiteral(orig_value)) {
-      fin_value = new IV_NumericLiteral(orig_value, orig_value.value)
-    } else if (isNullLiteral(orig_value)) {
-      fin_value = new IV_NullLiteral(orig_value)
-    } else if (isBooleanLiteral(orig_value)) {
-      fin_value = new IV_BooleanLiteral(orig_value, orig_value.value)
-    }
+    let fin_value: ISP_ObjectProperty_value = new IV_Identifier(orig_value, orig_value.name)
     return new ISP_ObjectProperty(node, fin_key, fin_value, node.computed)
   }
 

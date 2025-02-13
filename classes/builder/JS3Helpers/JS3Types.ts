@@ -1,4 +1,4 @@
-// Generated on 6/2/2025, 5:36:58 am, extended 64 interfaces 
+// Generated on 13/2/2025, 11:19:43 am, extended 64 interfaces 
 
 import { ConditionalExpression, AssignmentPattern, ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, Expression, OptionalCallExpression, OptionalMemberExpression, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DebuggerStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -283,7 +283,7 @@ export type JS3ObjectMethod_decorators = null;
 export type JS3ObjectMethod_returnType = null;
 export type JS3ObjectMethod_typeParameters = null;
 export type JS3ObjectProperty_key = Identifier | StringLiteral | NumericLiteral | BigIntLiteral;
-export type JS3ObjectProperty_value = Identifier | JS3Literals;
+export type JS3ObjectProperty_value = Identifier;
 export type JS3ObjectProperty_decorators = null;
 export type JS3RestElement_argument = Identifier;
 export type JS3ReturnStatement_argument = undefined | null | Identifier;

@@ -23,45 +23,54 @@ import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "../../ALL_RVal/IV_Unop.t
 import { IV_UpdateExpression } from "../../ALL_RVal/IV_UpdateExpression.ts";
 import { IV_YIELD, IV_AWAIT } from "../../ALL_RVal/IV_YIELD_AWAIT.ts";
 import { BB } from "../../BB.ts";
-import { BigIntNode, BooleanNode, DecimalNode, NullNode, NumericNode, OrdinaryFunctionObject, OrdinaryObject, PTANode, StringNode, SymbolNode } from "./nodes.ts";
+import { BigIntNode, BooleanNode, DecimalNode, GlobalNode, NullNode, NumericNode, OrdinaryFunctionObject, OrdinaryObject, PTANode, StringNode, SymbolNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
 import { PTAGraph } from "./PTAGraph.ts";
 import { dissernPointees, getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
 import debugConfig from "#debugConfig";
+import { handleSimpleAssignmentStatement } from "./handleAssignments.ts";
+
+export const dissernProps = (nextGraph: PTAGraph, name : string, stackQualifiedName: string, computed: boolean) : Set<string> => {
+  let res : Set<string> = new Set()
+  if (!computed) { res.add(name); return res; }
+  // 
+  // We have a computed prop, we must find all the literals it points to and see if we can resolve it.
+  // 
+  nextGraph.ensureNode(stackQualifiedName);
+  let propPointees : Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(stackQualifiedName);
+  return dissernPointees(propPointees);
+}
 
 export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB, currBBIDx: string, stackInstOffset: number): Array<PTANode> => {
   let res: Set<PTANode> = new Set();
 
   // IS1_DeclarationStmt
   if (rVal instanceof IV_NUBD) {
-    let ID = "NUBD"
-    if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new SymbolNode(ID));
+    let ID = getStackQualifiedName("NUBD", currBB)
+    if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new GlobalNode(ID));
     return [nextGraph.getPTANode(ID)]
   } else if (rVal instanceof IV_Identifier && rVal.name === "undefined") {
-    let ID = "undefined"
-    if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new SymbolNode(ID));
+    let ID = getStackQualifiedName("undefined", currBB)
+    if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new GlobalNode(ID));
     return [nextGraph.getPTANode(ID)]
   } else if (rVal instanceof IV_CTHIS) {
-    let ID = "IV_CTHIS"
-    if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new SymbolNode(ID));
+    let ID = getStackQualifiedName(IV_CTHIS.lookupName(), currBB)
+    if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new GlobalNode(ID));
     return [nextGraph.getPTANode(ID)]
   } else if (rVal instanceof IV_STHIS) {
-    let ID = "IV_STHIS"
-    if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new SymbolNode(ID));
+    let ID = getStackQualifiedName(IV_STHIS.lookupName(), currBB)
+    if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new GlobalNode(ID));
     return [nextGraph.getPTANode(ID)]
   }
 
   // AMP
   else if (rVal instanceof IV_Identifier) {
-    let ID = getStackQualifiedName(rVal.lookupName(), currBB) 
-    // Ensure uses are dominated by their defs...
-    nextGraph.ensureNode(ID);
-    return nextGraph.getPointees(ID)
+    return nextGraph.getPointees(getStackQualifiedName(rVal.lookupName(), currBB));
   } else if (rVal instanceof IV_MemberExpressionPA) {
-    // return handleMemberLookup(rVal.object.lookupName(), rVal.property.lookupName(), rVal.computed);
+    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_MemberExpressionPA")
   } else if (rVal instanceof IV_ThisLookupPA) {
-    // return handleMemberLookup(IV_This.lookupName(), rVal.property.lookupName(), rVal.computed);
+    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ThisLookupPA")
   } else if (rVal instanceof IV_SuperLookupPA) {
-    // return handleMemberLookup(ISP_Super.lookupName(), rVal.property.lookupName(), rVal.computed);
+    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_SuperLookupPA")
   }
 
   // ALL_RVal
@@ -108,7 +117,7 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
   else if (rVal instanceof IV_ImportCall) {
     debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_TemplateLiteral")
   } else if (rVal instanceof IV_Call) {
-    // debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_Call")
+    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_Call")
   } else if (rVal instanceof IV_SuperCall) {
     debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_SuperCall")
   } else if (rVal instanceof IV_V8IntrinsicCall) {
@@ -152,20 +161,14 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
   // t_IV_ASSN
   else if (rVal instanceof IV_SimpleAssn) {
     let res = handleRVals(nextGraph, rVal.RVal, currBB, currBBIDx, stackInstOffset)
-    // handleSimpleAssignmentStatement(nextGraph, rVal.LVal.lookupName(), res)
+    handleSimpleAssignmentStatement(nextGraph, getStackQualifiedName(rVal.LVal.lookupName(), currBB), res)
     return res;
   } else if (rVal instanceof IV_MemberAssn) {
-    let res = handleRVals(nextGraph, rVal.RVal, currBB, currBBIDx, stackInstOffset)
-    // handleMemberAssignment(nextGraph, rVal.LVal.object.lookupName(), res, rVal.LVal.property.lookupName(), rVal.LVal.computed)
-    return res;
+    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_MemberAssn")
   } else if (rVal instanceof IV_ThisAssn) {
-    let res = handleRVals(nextGraph, rVal.RVal, currBB, currBBIDx, stackInstOffset)
-    // handleMemberAssignment(nextGraph, IV_This.lookupName(), res, rVal.LVal.property.lookupName(), rVal.LVal.computed)
-    return res;
+    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ThisAssn")
   } else if (rVal instanceof IV_SuperAssn) {
-    let res = handleRVals(nextGraph, rVal.RVal, currBB, currBBIDx, stackInstOffset)
-    // handleMemberAssignment(nextGraph, ISP_Super.lookupName(), res, rVal.LVal.property.lookupName(), rVal.LVal.computed)
-    return res;
+    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_SuperAssn")
   } else if (rVal instanceof IV_ArrPatAssn) {
     debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ArrPatAssn")
   } else if (rVal instanceof IV_ObjPatAssn) {
@@ -174,54 +177,29 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
   // t_IV_ObjectExpression
   else if (rVal instanceof IV_ObjectExpression) {
-    // debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ObjPatAssn")
+    // [Ordinary Object]
     let objExprID = getHeapQualifiedName("objExpr", currBBIDx, stackInstOffset)
     let objExprObj = new OrdinaryObject(objExprID)
     if (!nextGraph.hasNode(objExprID)) nextGraph.addPTANode(objExprObj);
+    
     // Process Fields
     let i = 0
     for (let p of rVal.properties) {
       if (p instanceof ISP_ObjectMethod) {
-        // Create Function Object
-        let methID = getHeapQualifiedName(`meth${i}`, currBBIDx, stackInstOffset)
-        let methObj = new OrdinaryFunctionObject(methID)
-        if (!nextGraph.hasNode(methID)) nextGraph.addPTANode(methObj);
-        // Create link from objExprID to function object
-        let dissernedProps: Set<string> = new Set();
-        let prop = p.key.lookupName()
-        if (p.computed) {
-          let propID = getStackQualifiedName(prop, currBB)
-          nextGraph.ensureNode(propID)
-          let propPointees = nextGraph.getPointees(propID)
-          dissernedProps = dissernPointees(propPointees)
-        } else {
-          if (!nextGraph.hasNode(prop)) nextGraph.addPTANode(new SymbolNode(prop));
-          dissernedProps.add(prop)
-        }
-        nextGraph.drawHeapToHeapEdge([objExprObj], [methObj], [...dissernedProps])
+        debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ObjectExpression - ISP_ObjectMethod")
       } else if (p instanceof ISP_ObjectProperty) {
+        // Create a node from [Ordinary Object] --[prop]--> PNode
+        //  -- For this we want to dissern the props that we can currently...
+        let dissernedProps: Set<string> = dissernProps(nextGraph, p.key.lookupName(), getStackQualifiedName(p.key.lookupName(), currBB), p.computed);
+
+        // [Ordinary Object] --p--> PNode --e--> RVal(s)
+        //                                --h--> UNCHANGED
+
         // Get propValuePointees
-        let pointees : Array<PTANode>;
-        if (p.value instanceof IV_Identifier) {
-          pointees = nextGraph.getPointees(getStackQualifiedName(p.value.lookupName(), currBB))
-        } else {
-          pointees = handleRVals(nextGraph, p.value, currBB, currBBIDx, stackInstOffset)
-        }
-        // Create link from objExprID to function object
-        let dissernedProps: Set<string> = new Set();
-        let prop = p.key.lookupName()
-        if (p.computed) {
-          let propID = getStackQualifiedName(prop, currBB)
-          nextGraph.ensureNode(propID)
-          let propPointees = nextGraph.getPointees(propID)
-          dissernedProps = dissernPointees(propPointees)
-        } else {
-          if (!nextGraph.hasNode(prop)) nextGraph.addPTANode(new SymbolNode(prop));
-          dissernedProps.add(prop)
-        }      
-        nextGraph.drawHeapToHeapEdge([objExprObj], pointees, [...dissernedProps])
+        let pointees = nextGraph.getPointees(getStackQualifiedName(p.value.lookupName(), currBB));
+        nextGraph.drawHeapToHeapEdge([objExprObj], pointees, [...dissernedProps], true);
       } else {
-        debugConfig.logger.throwIriError("TODO: PTA - RVal - ISP_ArgSpread")
+        debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ObjectExpression - ISP_ArgSpread")
       }
       i++;
     }

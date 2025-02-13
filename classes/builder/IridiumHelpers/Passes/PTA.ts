@@ -4,40 +4,18 @@
 
 import debugConfig from "#debugConfig";
 import { popSet } from "#utils";
-import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../ALL_AMP/ALL_AMP.ts";
+import { execSync } from "node:child_process";
+import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { IS_ClassStaticPropInit } from "../ALL_IS/IS_ClassStaticPropInit.ts";
 import { IS_BImport } from "../ALL_IS/IS_Imports_Exports.ts";
 import { IS1_AssignmentStmt, IS1_DeclarationStmt } from "../ALL_IS/IS_VarDecl.ts";
-import { ISP_ObjectMethod, ISP_ObjectProperty, ISP_Super } from "../ALL_RVal/ALL_ISP.ts";
-import { IV_ASSIGNABLE } from "../ALL_RVal/ALL_RVal.ts";
-import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "../ALL_RVal/IV_Literals.ts";
-import { IV_CTHIS, IV_NUBD, IV_STHIS } from "../ALL_RVal/IV_NonLang.ts";
-import { IV_Regexp } from "../ALL_RVal/IV_Regexp.ts";
-import { IV_This } from "../ALL_RVal/IV_This.ts";
 import { BB } from "../BB.ts";
 import { IRIDIUM_FG } from "../IRIDIUM.ts";
-import { execSync } from "node:child_process";
 
-import { IV_ArrayExpression } from "../ALL_RVal/IV_ArrayExpression.ts";
-import { IV_ArrowFunctionExpression } from "../ALL_RVal/IV_ArrowFunctionExpression.ts";
-import { IV_ArrPatAssn, IV_MemberAssn, IV_ObjPatAssn, IV_SimpleAssn, IV_SuperAssn, IV_ThisAssn } from "../ALL_RVal/IV_Assignment.ts";
-import { IV_ABINOP, IV_BBINOP, IV_CBINOP, IV_DBINOP, IV_EBINOP, IV_FBINOP } from "../ALL_RVal/IV_Binop.ts";
-import { IV_Call, IV_ImportCall, IV_SuperCall, IV_V8IntrinsicCall } from "../ALL_RVal/IV_Call.ts";
-import { IV_ClassExpression } from "../ALL_RVal/IV_ClassExpression.ts";
-import { IV_ConditionalExpression } from "../ALL_RVal/IV_ConditionalExpression.ts";
-import { IV_FunctionExpression } from "../ALL_RVal/IV_FunctionExpression.ts";
-import { IV_FJSX, IV_JSX, IV_PJSX } from "../ALL_RVal/IV_JSX.ts";
-import { IV_HasLoopNext, IV_InIterator, IV_LoopNext, IV_OfIterator } from "../ALL_RVal/IV_LoopIterators.ts";
-import { IV_ModuleMeta, IV_NewTarget } from "../ALL_RVal/IV_META.ts";
-import { IV_NewExpression } from "../ALL_RVal/IV_NewExpression.ts";
-import { IV_ObjectExpression } from "../ALL_RVal/IV_ObjectExpression.ts";
-import { IV_TemplateLiteral } from "../ALL_RVal/IV_Templates.ts";
-import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "../ALL_RVal/IV_Unop.ts";
-import { IV_UpdateExpression } from "../ALL_RVal/IV_UpdateExpression.ts";
-import { IV_AWAIT, IV_YIELD } from "../ALL_RVal/IV_YIELD_AWAIT.ts";
-import { BigIntNode, BooleanNode, DecimalNode, GlobalNode, ImportNode, NullNode, NumericNode, OrdinaryFunctionObject, OrdinaryObject, PTANode, StackNode, StringNode, SymbolNode } from "./PTA/nodes.ts";
-import { PTARecorder } from "./PTA/PTARecorder.ts";
+import { handleSimpleAssignmentStatement } from "./PTA/handleAssignments.ts";
+import { GlobalNode, ImportNode, StackNode } from "./PTA/nodes.ts";
 import { PTAGraph } from "./PTA/PTAGraph.ts";
+import { PTARecorder } from "./PTA/PTARecorder.ts";
 import { handleRVals } from "./PTA/rvalHandler.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./PTA/util.ts";
 
@@ -59,11 +37,14 @@ export function PTA(rootFG: IRIDIUM_FG, saveRecording: boolean) {
 
   let step = 1
 
-  if (saveRecording) recorder.init()
+  if (saveRecording) {
+    execSync(`rm outputs/PTA/* 2>/dev/null`);
+    recorder.init()
+  }
 
   // Initialize global objs
   let globalEnv = new PTAGraph()
-  for (let [o,_] of rootFG.rootBB.env.parent.bindings) {
+  for (let [o, _] of rootFG.rootBB.env.parent.bindings) {
     globalEnv.addPTANode((new GlobalNode("ENV0$" + o)))
   }
 
@@ -80,8 +61,8 @@ export function PTA(rootFG: IRIDIUM_FG, saveRecording: boolean) {
 
     if (saveRecording) {
       nextGraph.saveDotToFile(`outputs/PTA/${step}_BB${currBBIDx}_IN`)
-      // console.log(`Processing BB${currBBIDx}`)
-      // console.log(rootFG.getBBNode(currBBIDx).toString(0))
+      console.log(`Processing BB${currBBIDx}`)
+      console.log(rootFG.getBBNode(currBBIDx).toString(0))
     }
 
     // Flow Function 
@@ -89,7 +70,7 @@ export function PTA(rootFG: IRIDIUM_FG, saveRecording: boolean) {
 
     if (saveRecording) {
       nextGraph.saveDotToFile(`outputs/PTA/${step}_BB${currBBIDx}_OUT`)
-      // console.log(nextGraph.toDot(`BB${currBBIDx}_OUT`))
+      console.log(nextGraph.toDot(`BB${currBBIDx}_OUT`))
     }
 
     // Add successors to worklist if there was a change
@@ -126,6 +107,7 @@ function flowFunction(rootFG: IRIDIUM_FG, nextGraph: PTAGraph, currBBIDx: BBIdx)
       nextGraph.clearSuccessors(stackNode.id)
       nextGraph.drawStackToHeapEdge(stackNode, [heapNode])
     } else if (i instanceof IS_ClassStaticPropInit) {
+      debugConfig.logger.throwIriError("PTA TODO: IS_ClassStaticPropInit")
       // // obj[prop] = rval
       // // obj.prop = rval
       // let rValID = getStackQualifiedName(i.RVal.lookupName(), currBB)
@@ -135,19 +117,16 @@ function flowFunction(rootFG: IRIDIUM_FG, nextGraph: PTAGraph, currBBIDx: BBIdx)
 
       // // handleMemberAssignment(nextGraph, i.obj.lookupName(), rValPointees, i.prop.lookupName(), i.computed);
     } else if (i instanceof IS1_DeclarationStmt) {
-      if (i.LVal instanceof IV_Identifier) {
-        // handleSimpleAssignmentStatement(nextGraph, i.LVal.lookupName(), handleRVals(nextGraph, i.RVal, currBB, currBBIDx, stackInstOffset))
-      } else {
-        // TODO?? Handle destructuring patterns
-      }
+      let qualifiedLVal = getStackQualifiedName(i.LVal.lookupName(), currBB)
+      handleSimpleAssignmentStatement(nextGraph, qualifiedLVal, handleRVals(nextGraph, i.RVal, currBB, currBBIDx, stackInstOffset))
     } else if (i instanceof IS1_AssignmentStmt) {
       if (i.LVal instanceof IV_Identifier) {
-        // handleSimpleAssignmentStatement(nextGraph, i.LVal.lookupName(), handleRVals(nextGraph, i.RVal, currBB, currBBIDx, stackInstOffset))
+        let qualifiedLVal = getStackQualifiedName(i.LVal.lookupName(), currBB)
+        handleSimpleAssignmentStatement(nextGraph, qualifiedLVal, handleRVals(nextGraph, i.RVal, currBB, currBBIDx, stackInstOffset))
       } else {
-        // TODO?? Handle destructuring patterns
+        debugConfig.logger.throwIriError("PTA TODO: Assignment with destructured assignment")
       }
     }
 
-    // console.log(nextGraph.toDot(i.toString()))
   }
 }

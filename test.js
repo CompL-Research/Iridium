@@ -1130,4 +1130,22 @@
 // }
 // loop.do = 5;
 
-let { a: { b = 12 }} = 1
+// let { a: { b = 12 }} = 1
+// var [a] = 12
+
+// let boo = 1;
+// let x = boo = 2;
+
+// import { a as b } from "THERE"
+
+let a;
+
+if (false) {
+  a = "1"
+} else {
+  a = "2"
+}
+
+let b = {
+  [a] : 10
+}
