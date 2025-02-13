@@ -32,7 +32,7 @@ import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_NullLiteral,
 import { IV_HasLoopNext, IV_InIterator, IV_LoopNext, IV_OfIterator } from "./ALL_RVal/IV_LoopIterators.ts";
 import { IV_ModuleMeta, IV_NewTarget } from "./ALL_RVal/IV_META.ts";
 import { IV_NewExpression } from "./ALL_RVal/IV_NewExpression.ts";
-import { IV_NUBD } from "./ALL_RVal/IV_NonLang.ts";
+import { IV_NUBD, IV_STHIS } from "./ALL_RVal/IV_NonLang.ts";
 import { IV_ObjectExpression } from "./ALL_RVal/IV_ObjectExpression.ts";
 import { IV_Regexp } from "./ALL_RVal/IV_Regexp.ts";
 import { IV_TaggedTemplateCall, IV_TemplateLiteral } from "./ALL_RVal/IV_Templates.ts";
@@ -53,12 +53,28 @@ import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
 import { IV_FJSX, IV_JSX, IV_PJSX } from "./ALL_RVal/IV_JSX.ts";
 import { PTA } from "./Passes/PTA.ts";
+import { I_Function_params } from "./I_GENERAL/I_Function.ts";
 
 const generate = _generate.default
+
+// List of free variables to ignore
+let filterList = [ IV_NUBD.lookupName(), "undefined" ]
 
 export class IRIDIUM_FG extends Graph {
   rootBB: BB
   currentBB: BB
+  freeVarWrites: Set<string> = new Set()
+  freeVarReads: Set<string> = new Set()
+
+  initArguments(args : I_Function_params) {
+    let envInQuestion = this.rootBB.env
+    for (let a of args) {
+      if (a instanceof IV_Identifier)
+        envInQuestion.declareBinding(a.lookupName(), undefined, this.rootBB, "var")
+      else
+        envInQuestion.declareBinding(a.arg.lookupName(), undefined, this.rootBB, "var")
+    }
+  }
 
   getName() {
     return `FG_ROOT=BB${this.rootBB.idx}`
@@ -73,6 +89,21 @@ export class IRIDIUM_FG extends Graph {
       envs.get(bbNode.env).add(bbNode)
     }
     return envs
+  }
+
+  // Get list of environments local to this closure context
+  getEnvs() : Set<Environment> {
+    let envs: Set<Environment> = new Set();
+    for (let bb of this.nodes()) {
+      let bbNode = this.getBBNode(bb)
+      if (!envs.has(bbNode.env)) envs.add(bbNode.env) 
+    }
+    return envs
+  }
+
+  // Operates on free variables?
+  hasFreeVariables() {
+    return [...this.freeVarReads].filter(a => !filterList.includes(a)).length > 0 || [...this.freeVarWrites].filter(a => !filterList.includes(a)).length > 0
   }
 
   // Methods to set and get BB's from the flowgraph
@@ -137,6 +168,8 @@ export class IRIDIUM_FG extends Graph {
     
     // @ts-ignore
     nodes.sort((a, b) => that.predecessors(a).length - that.predecessors(b).length)
+
+    stmts.push(`${printScopedSpace(space)}🕊️  [${this.hasFreeVariables() ? [...this.freeVarReads, ...this.freeVarWrites].filter(a => !filterList.includes(a)).join(",") : ""}] `)
 
     for (let bbIdx of nodes) {
       let bb : BB = this.node(bbIdx)
@@ -221,7 +254,9 @@ export default class IRIDIUM {
     this.pushFGContext(new IRIDIUM_FG(bb))
     this.handleJS3ProgramBody(this.node.body)
     let res = this.popFGContext()
-    if (this.fgContext.length !== 0) debugConfig.logger.throwIriError("Expected FGContext to be empty after Iridium generation!!") 
+    if (this.fgContext.length !== 0) debugConfig.logger.throwIriError("Expected FGContext to be empty after Iridium generation!!")
+
+    console.warn(res.saveIridiumToString())
 
     hoistDeclarations(res);
     addThisInitToFunctionBoundaries(res);
@@ -230,6 +265,7 @@ export default class IRIDIUM {
     initializeEnvDefs(res);
     cleanupBBs(res);
     PTA(res, true);
+    
     return res;
   }
 
@@ -763,6 +799,8 @@ export default class IRIDIUM {
           this.popFGContext();
 
           if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
+
+          propComputationBlock.env.declareBinding(IV_STHIS.lookupName(), undefined, propComputationBlock, "var")
 
           classProperties.push(new ISP_ClassProperty(bodyElem, key, PROP_INIT_FG, computed))
         }

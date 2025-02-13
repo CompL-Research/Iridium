@@ -9,6 +9,12 @@ export class IV_NUBD extends ALL_RVal {
     return "NUBD"
   }
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(IV_NUBD.lookupName())
+    return res;
+  }
+
   toString() {
     return `<NUBD> ( ཀ ʖ̯ ཀ) ${IV_NUBD.lookupName()}`
   }
@@ -27,6 +33,12 @@ export class IV_CTHIS extends ALL_RVal {
     return "C_THIS"
   }
 
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(IV_CTHIS.lookupName())
+    return res;
+  }
+
   toString() {
     return `<CTHIS> 🤺 ${IV_CTHIS.lookupName()}`
   }
@@ -43,6 +55,12 @@ export class IV_STHIS extends ALL_RVal {
 
   static lookupName() {
     return "S_THIS"
+  }
+
+  usedIdentifiers(): Set<string> {
+    let res: Set<string> = new Set();
+    res.add(IV_STHIS.lookupName())
+    return res;
   }
 
   toString() {

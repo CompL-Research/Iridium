@@ -84,17 +84,37 @@ export function hoistDeclarations(rootFG: IRIDIUM_FG) {
       })
 
       // Generate and add declaratopms tp dBB
-      let updatedDeclarations = toDeclare.map(d => {
-        if (d instanceof IS_FunDecl) return new IS1_DeclarationStmt(d, d.name, new IV_NUBD())
-        if (d instanceof IS_ThisInitStmt) return new IS1_DeclarationStmt(d, new IV_Identifier(undefined, IV_This.lookupName()), new IV_Identifier(undefined, "undefined"))
-        if (d instanceof IS_ClassNameInitStmt) return new IS1_DeclarationStmt(d, d.LVal, new IV_NUBD())
-        if (d instanceof IS_BImport || d instanceof IS_CImport) return new IS1_DeclarationStmt(d, d.local, new IV_NUBD())
+      let updatedDeclarations = [];
+      
+      toDeclare.forEach(d => {
+        if (d instanceof IS_FunDecl) 
+          updatedDeclarations.push(new IS1_DeclarationStmt(d, d.name, new IV_NUBD()))
+        
+        else if (d instanceof IS_ThisInitStmt) 
+          updatedDeclarations.push(new IS1_DeclarationStmt(d, new IV_Identifier(undefined, IV_This.lookupName()), new IV_Identifier(undefined, "undefined")))
 
-        if (d.KIND === "let" || d.KIND === "const") {
-          return new IS1_DeclarationStmt(d, d.LVal, new IV_NUBD())
-        } else {
-          return new IS1_DeclarationStmt(d, d.LVal, new IV_Identifier(undefined, "undefined"))
+        else if (d instanceof IS_ClassNameInitStmt) 
+          updatedDeclarations.push(new IS1_DeclarationStmt(d, d.LVal, new IV_NUBD()))
+
+        else if (d instanceof IS_BImport || d instanceof IS_CImport) 
+          updatedDeclarations.push(new IS1_DeclarationStmt(d, d.local, new IV_NUBD()))
+
+        else {
+          let KIND = d.KIND === "let" ? new IV_NUBD() : new IV_Identifier(undefined, "undefined")
+  
+          if (d instanceof IS_SimpleVarDecl) {
+            updatedDeclarations.push(new IS1_DeclarationStmt(d, d.LVal, KIND))
+          } else if (d instanceof IS_ArrPatVarDecl) {
+            for (let ddd of d.generatedBindings) {
+              updatedDeclarations.push(new IS1_DeclarationStmt(d, ddd, KIND))
+            }
+          } else if (d instanceof IS_ObjPatVarDecl) {
+            for (let ddd of d.generatedBindings) {
+              updatedDeclarations.push(new IS1_DeclarationStmt(d, ddd, KIND))
+            }
+          }
         }
+
       })
 
       let hoistedFunctionDeclarations = toDeclare.filter(i => i instanceof IS_FunDecl).map(i => {

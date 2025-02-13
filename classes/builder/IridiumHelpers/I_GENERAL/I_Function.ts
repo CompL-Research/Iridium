@@ -18,6 +18,7 @@ export class I_Function {
     this.funBody = funBody
     this.generator = generator
     this.async = async
+    funBody.initArguments(this.params)
   }
 
   toString(space = 0) {

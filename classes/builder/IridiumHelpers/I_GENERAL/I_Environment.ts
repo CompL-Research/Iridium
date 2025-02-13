@@ -146,10 +146,12 @@ export class Environment {
       if (record.kind !== "var") debugConfig.logger.throwIriError(`Multiple declaration are only possible for \"var\" bindings!!! tried to redeclare: ${id}`)
     } else record = new EnvironmentRecord(id, new Set(), kind)
 
-    // Hoisted declarations always set a value to the binding
-    record.defs.add(def)
-    record.defBBs.add(bb)
-
+    // Hoisted declarations can set a value to the binding, may not set in case of arguments
+    if (def) {
+      record.defs.add(def)
+      record.defBBs.add(bb)
+    }
+    
     this.bindings.set(id, record)
   }
 

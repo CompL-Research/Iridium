@@ -7,6 +7,7 @@ import { printScopedSpace } from "#utils";
 import { isBigIntLiteral, isBooleanLiteral, isDecimalLiteral, isIdentifier, isNullLiteral, isNumericLiteral, isStringLiteral, Super, V8IntrinsicIdentifier } from "@babel/types";
 import { I_Function } from "../I_GENERAL/I_Function.ts";
 import { IRIDIUM_FG } from "../IRIDIUM.ts";
+import { IV_CTHIS } from "./IV_NonLang.ts";
 
 // ISP = Iridium SPecial; values that appear as a part of an R Value but never as R_Values directly.
 export class ISP_Super {
@@ -121,6 +122,7 @@ export class ISP_ObjectMethod extends I_Function {
     this.kind = kind
     this.key = key
     this.computed = computed
+    this.funBody.rootBB.env.declareBinding(IV_CTHIS.lookupName(), undefined, this.funBody.rootBB, "var")
   }
 
   usedIdentifiers(): Set<string> {
@@ -319,6 +321,8 @@ export class ISP_ClassMethod extends I_Function {
     this.key = key
     this.computed = computed
     this.isStatic = isStatic
+
+    this.funBody.rootBB.env.declareBinding(IV_CTHIS.lookupName(), undefined, this.funBody.rootBB, "var")
   }
 
   usedIdentifiers(): Set<string> {

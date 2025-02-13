@@ -273,10 +273,10 @@ type IS1_DeclarationStmt_RVal = IV_NUBD | IV_Identifier | IV_CTHIS | IV_STHIS
 
 export class IS1_DeclarationStmt extends ALL_IS {
   orig: IS1_DeclarationStmt_orig
-  LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern
+  LVal: IV_Identifier
   RVal: IS1_DeclarationStmt_RVal
 
-  constructor(orig: IS1_DeclarationStmt_orig, LVal: IV_Identifier | JS3ArrayPattern | JS3ObjectPattern, RVal: IS1_DeclarationStmt_RVal) {
+  constructor(orig: IS1_DeclarationStmt_orig, LVal: IV_Identifier, RVal: IS1_DeclarationStmt_RVal) {
     super(undefined);
     this.orig = orig
     this.LVal = LVal
@@ -295,25 +295,7 @@ export class IS1_DeclarationStmt extends ALL_IS {
   definedIdentifiers(): Set<string> {
     let res : Set<string> = new Set()
     // LVal is always defined
-    if (this.LVal instanceof IV_Identifier) {
-      res.add(this.LVal.name)
-    } else if (isJS3ArrayPattern(this.LVal)) {
-      for (let id of this.LVal.elements) {
-        if (isIdentifier(id)) {
-          res.add(id.name)
-        } else {
-          res.add(id.argument.name)
-        }
-      }
-    } else {
-      for (let p of this.LVal.properties) {
-        if (isJS3AssnObjectProperty(p)) {
-          res.add(p.value.name)
-        } else {
-          res.add(p.argument.name)
-        }
-      }
-    }
+    res.add(this.LVal.name)
 
     // If RVal happens to be an assignment or something, account for that
     if (this.RVal instanceof ALL_RVal) {
@@ -326,7 +308,9 @@ export class IS1_DeclarationStmt extends ALL_IS {
   usedIdentifiers(): Set<string> {
     let res : Set<string> = new Set();
     if (this.RVal instanceof IV_Identifier) {
-      res.add(this.RVal.lookupName())
+      res.add(this.RVal.lookupName());
+    } else {
+      res = this.RVal.usedIdentifiers();
     }
     return res;
   }

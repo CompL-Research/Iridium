@@ -6,6 +6,7 @@ import { I_Function } from "../I_GENERAL/I_Function.ts"
 import { IRIDIUM_FG } from "../IRIDIUM.ts"
 import { ISP_RestElement } from "./ALL_ISP.ts"
 import { ALL_RVal } from "./ALL_RVal.ts"
+import { IV_CTHIS } from "./IV_NonLang.ts"
 
 export class IV_FunctionExpression extends ALL_RVal {
   func: I_Function
@@ -17,6 +18,7 @@ export class IV_FunctionExpression extends ALL_RVal {
     this.func = new I_Function(node, params, funBody, isGenerator, isAsync);
     this.name = name
     this.dropName = dropName
+    this.func.funBody.rootBB.env.declareBinding(IV_CTHIS.lookupName(), undefined, this.func.funBody.rootBB, "var")
   }
 
   declaredClosure() : Array<IRIDIUM_FG> | undefined { return [this.func.funBody] }

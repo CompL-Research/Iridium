@@ -6,6 +6,8 @@ import { ISP_RestElement } from "../ALL_RVal/ALL_ISP.ts";
 import { I_Function } from "../I_GENERAL/I_Function.ts";
 import { IRIDIUM_FG } from "../IRIDIUM.ts";
 import { ALL_IS } from "./ALL_IS.ts";
+import { IV_This } from "../ALL_RVal/IV_This.ts";
+import { IV_CTHIS } from "../ALL_RVal/IV_NonLang.ts";
 
 export class IS_FunDecl extends ALL_IS {
   func: I_Function
@@ -17,6 +19,7 @@ export class IS_FunDecl extends ALL_IS {
     super(node);
     this.func = new I_Function(node, params, funBody, isGenerator, isAsync);
     this.name = name
+    this.func.funBody.rootBB.env.declareBinding(IV_CTHIS.lookupName(), undefined, this.func.funBody.rootBB, "var")
   }
 
   definedIdentifiers(): Set<string> {

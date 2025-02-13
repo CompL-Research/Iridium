@@ -1103,8 +1103,31 @@
 // a();
 // new a();
 
-let a = { x: 10 };
-let b = a; // b points to the same object as a
-b.x = 20;  // Modifies the same object
+// let a = { 
+//   container: 12,
+//   set x(a) { this.container = 10; },
+//   get x() { a = 12; return this.container; }
+// };
 
-console.log(a.x); // 20
+// console.log(a)
+// a.x = 12;
+// console.log(a.x)
+
+
+// let a = "12";
+// console.log(++a);
+
+// let loop = {
+//   set do(a) { return a > this.limit ? this.onEnd() : (this.body(a), this.do = ++a); },
+// }
+
+// loop.limit = 10;
+// loop.body = (i) => {
+//   console.log(`At iteration: ${i}`)
+// }
+// loop.onEnd = () => {
+//   console.log("Loop End")
+// }
+// loop.do = 5;
+
+let { a: { b = 12 }} = 1
