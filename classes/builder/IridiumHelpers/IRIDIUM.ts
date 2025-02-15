@@ -256,8 +256,6 @@ export default class IRIDIUM {
     let res = this.popFGContext()
     if (this.fgContext.length !== 0) debugConfig.logger.throwIriError("Expected FGContext to be empty after Iridium generation!!")
 
-    console.warn(res.saveIridiumToString())
-
     hoistDeclarations(res);
     addThisInitToFunctionBoundaries(res);
     matchContinueAndBreak(res);

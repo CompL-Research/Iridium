@@ -19,7 +19,9 @@ export class PTANode {
 
 export type Valid_Stack_To_Heap_Pointees = OrdinaryObject | OrdinaryFunctionObject | GlobalNode | ImportNode | LiteralNode;
 
-// 1. StackNode
+// 
+// StackNode
+// 
 export class StackNode extends PTANode {
   constructor(id: string) {
     super(id)
@@ -34,7 +36,9 @@ export class StackNode extends PTANode {
   }
 }
 
-// 2. OrdinaryObject
+// 
+// OrdinaryObject
+// 
 export class OrdinaryObject extends PTANode {
   constructor(id: string) {
     super(id)
@@ -49,7 +53,9 @@ export class OrdinaryObject extends PTANode {
   }
 }
 
-// 3. OrdinaryFunctionObject
+// 
+// OrdinaryFunctionObject
+// 
 export type OrdinaryFunctionObject_meth = ISP_ObjectMethod
 export class OrdinaryFunctionObject extends PTANode {
   meth: OrdinaryFunctionObject_meth
@@ -67,7 +73,26 @@ export class OrdinaryFunctionObject extends PTANode {
   }
 }
 
-// 4. GlobalNode
+// 
+// OrdinaryArrayObject
+// 
+export class OrdinaryArrayObject extends PTANode {
+  constructor(id: string) {
+    super(id)
+  }
+
+  toString() {
+    return "OrdinaryArrayObject"
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.toString()}",shape="square"]`
+  }
+}
+
+// 
+// GlobalNode
+// 
 export class GlobalNode extends PTANode {
   constructor(id: string) {
     super(id)
@@ -82,7 +107,9 @@ export class GlobalNode extends PTANode {
   }
 }
 
-// 5. SetSpecialClosure
+// 
+// SetSpecialClosure
+// 
 export type SetSpecialClosure_meth = ISP_ObjectMethod
 export class SetSpecialClosure extends PTANode {
   meth: SetSpecialClosure_meth
@@ -100,7 +127,9 @@ export class SetSpecialClosure extends PTANode {
   }
 }
 
-// 6. GetSpecialClosure
+// 
+// GetSpecialClosure
+// 
 export type GetSpecialClosure_meth = ISP_ObjectMethod
 export class GetSpecialClosure extends PTANode {
   meth: GetSpecialClosure_meth
@@ -118,7 +147,9 @@ export class GetSpecialClosure extends PTANode {
   }
 }
 
-// 7. ImportNode
+// 
+// ImportNode
+// 
 export class ImportNode extends PTANode {
   remote: IV_Identifier | IV_StringLiteral
   FROM: IV_StringLiteral
@@ -137,7 +168,9 @@ export class ImportNode extends PTANode {
   }
 }
 
-// 8. PNode: A proxy node that allows us to keep track of enumerable and non-enumerable nodes
+// 
+// PNode: A proxy node that allows us to keep track of enumerable and non-enumerable nodes
+// 
 export class PNode extends PTANode {
   constructor(id: string) {
     super(id)
@@ -152,7 +185,9 @@ export class PNode extends PTANode {
   }
 }
 
-// 9. Litearal Node
+// 
+// Litearal Node
+// 
 export class LiteralNode extends PTANode {
   constructor(id: string) {
     super(id)
@@ -170,8 +205,6 @@ export class LiteralNode extends PTANode {
 // 
 // Literals
 // 
-
-
 export class DecimalNode extends LiteralNode {
   constructor(id: string) {
     super(id)

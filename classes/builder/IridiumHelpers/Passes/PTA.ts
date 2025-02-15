@@ -19,58 +19,84 @@ import { PTARecorder } from "./PTA/PTARecorder.ts";
 import { handleRVals } from "./PTA/rvalHandler.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./PTA/util.ts";
 
+import GLIB from "#graphlib";
 
 
 type BBIdx = string;
 let getBBIdx = (bb: BB): BBIdx => '' + bb.idx;
 
-export function PTA(rootFG: IRIDIUM_FG, saveRecording: boolean) {
+export function PTA(rootFG: IRIDIUM_FG, saveRecording: boolean, incomingFG: PTAGraph | undefined = undefined) {
   // Assert that there is only one source in the flowgraph
   if (rootFG.sources().length !== 1) debugConfig.logger.throwIriError("Expected exactly one root inside a flowgraph")
 
   // Initialize flowMap and worklist
   let worklist: Set<BBIdx> = new Set()
   let flowMap: Map<BBIdx, PTAGraph> = new Map()
-  rootFG.nodes().forEach((bbIdx: BBIdx) => (flowMap.set(bbIdx, new PTAGraph()), worklist.add(bbIdx)));
+  rootFG.nodes().forEach((bbIdx: BBIdx) => flowMap.set(bbIdx, new PTAGraph()));
 
   let recorder = new PTARecorder()
 
   let step = 1
 
   if (saveRecording) {
-    execSync(`rm outputs/PTA/* 2>/dev/null`);
+    try {
+      execSync(`rm outputs/PTA/* 2>/dev/null`);
+    } catch(e) {} finally {}
     recorder.init()
   }
 
-  // Initialize global objs
-  let globalEnv = new PTAGraph()
-  for (let [o, _] of rootFG.rootBB.env.parent.bindings) {
-    globalEnv.addPTANode((new GlobalNode("ENV0$" + o)))
+  let BOUNDARY_PTAGRAPH : PTAGraph;
+
+  // For handling closures
+  if (!incomingFG) {
+    // Initialize global objs
+    BOUNDARY_PTAGRAPH = new PTAGraph()
+    for (let [o, _] of rootFG.rootBB.env.parent.bindings) {
+      BOUNDARY_PTAGRAPH.addPTANode((new GlobalNode("ENV0$" + o)))
+    }
+  } else {
+    BOUNDARY_PTAGRAPH = incomingFG;
   }
 
-  // Start working on the worklist
-  while (worklist.size > 0) {
-    step++;
-    let currBBIDx: BBIdx = popSet(worklist);
+  // Do one pass in DTree order, this will ensure all defs dominate uses...
+  let dTree = GLIB.alg.dominatorTarjan(rootFG, '' + rootFG.rootBB.idx, false)
 
+  let visited = new Set();
+  let dfsOrder : Array<string> = []
+  // DFS function
+  let visitDFS = (node) => {
+    visited.add(node); // Mark node as visited
+    dfsOrder.push(node);
+
+    // Visit successors in DFS
+    let successors = dTree.successors(node);
+    if (successors) {
+      for (let succ of successors) {
+        if (visited.has(succ)) continue; // Skip already visited nodes
+        visitDFS(succ); // Recursive DFS call
+      }
+    }
+  }
+
+  visitDFS('' + rootFG.rootBB.idx)
+
+  let doWorklist = (currBBIDx: string) => {
+    step++;
     // Incoming Set
     let nextGraph: PTAGraph = new PTAGraph()
     let preds = rootFG.predecessors(currBBIDx)
-    let incomingBBIdxs: Array<BBIdx> = preds ? preds : []
-    nextGraph.union(...incomingBBIdxs.map((bbIdx: BBIdx) => flowMap.get(bbIdx)), globalEnv)
-
-    if (saveRecording) {
-      nextGraph.saveDotToFile(`outputs/PTA/${step}_BB${currBBIDx}_IN`)
-      console.log(`Processing BB${currBBIDx}`)
-      console.log(rootFG.getBBNode(currBBIDx).toString(0))
+    if (preds && preds.length > 0) {
+      // Node has predecessors
+      nextGraph.union(...preds.map((bbIdx: BBIdx) => flowMap.get(bbIdx)))
+    } else {
+      nextGraph.union(...[BOUNDARY_PTAGRAPH])
     }
-
+        
     // Flow Function 
-    flowFunction(rootFG, nextGraph, currBBIDx);
+    flowFunction(rootFG, nextGraph, currBBIDx, step);
 
     if (saveRecording) {
-      nextGraph.saveDotToFile(`outputs/PTA/${step}_BB${currBBIDx}_OUT`)
-      console.log(nextGraph.toDot(`BB${currBBIDx}_OUT`))
+      nextGraph.saveDotToFile(`outputs/PTA/BB${currBBIDx}_OUT`)
     }
 
     // Add successors to worklist if there was a change
@@ -81,26 +107,45 @@ export function PTA(rootFG: IRIDIUM_FG, saveRecording: boolean) {
       let succ = rootFG.successors(currBBIDx)
       if (succ) succ.forEach((bbIdx: BBIdx) => worklist.add(bbIdx))
     }
+
+    
   }
 
+  for (let currBBIDx of dfsOrder) {
+    doWorklist(currBBIDx);
+  }
+
+  // Start working on the worklist
+  while (worklist.size > 0) {
+    doWorklist(popSet(worklist));
+  }
+
+  // if (saveRecording) {
+  //   try {
+  //     execSync(`rm outputs/PTA/*.DOT 2>/dev/null`);
+  //   } catch(e) {} finally {}
+  // }
+
+  // Send back the sink, we need it to merge closures!!!!
+  let sinks = rootFG.sinks();
+  if (sinks.length !== 1) debugConfig.logger.throwIriError("Expected exactly one sink in PTA!!")
+  let sinkPTA = flowMap.get(sinks[0])
+  return sinkPTA;
 }
 
-function flowFunction(rootFG: IRIDIUM_FG, nextGraph: PTAGraph, currBBIDx: BBIdx) {
+function flowFunction(rootFG: IRIDIUM_FG, nextGraph: PTAGraph, currBBIDx: BBIdx, step: number) {
   let currBB = rootFG.getBBNode(currBBIDx)
   let stackInstOffset = 0
   for (let i of currBB.statements) {
     stackInstOffset++;
-
     if (i instanceof IS_BImport) {
       // import { remote as local } from FROM
       let stackID = getStackQualifiedName(i.local.lookupName(), currBB)
       let stackNode = new StackNode(stackID)
       nextGraph.declareNode(stackNode)
-
       let heapObj = getHeapQualifiedName(i.remote.lookupName(), currBBIDx, stackInstOffset)
       let heapNode = new ImportNode(heapObj, i.remote, i.FROM)
       nextGraph.declareNode(heapNode)
-
       nextGraph.clearSuccessors(stackNode.id)
       nextGraph.drawStackToHeapEdge(stackNode, [heapNode])
     } else if (i instanceof IS_ClassStaticPropInit) {
@@ -124,6 +169,5 @@ function flowFunction(rootFG: IRIDIUM_FG, nextGraph: PTAGraph, currBBIDx: BBIdx)
         debugConfig.logger.throwIriError("PTA TODO: Assignment with destructured assignment")
       }
     }
-
   }
 }

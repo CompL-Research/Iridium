@@ -2,7 +2,11 @@ import debugConfig from "#debugConfig";
 import GLIB from "#graphlib";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
-import { BigIntNode, BooleanNode, DecimalNode, GlobalNode, ImportNode, LiteralNode, NullNode, NumericNode, OrdinaryFunctionObject, OrdinaryObject, PNode, PTANode, StackNode, StringNode, SymbolNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
+import { GetSpecialClosure, GlobalNode, ImportNode, LiteralNode, OrdinaryArrayObject, OrdinaryFunctionObject, OrdinaryObject, PNode, PTANode, SetSpecialClosure, StackNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
+import { getStackQualifiedName } from "./util.ts";
+import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
+import { PTA } from "../PTA.ts";
+import { FunctionReturn } from "../../BB.ts";
 
 export class PTAGraph extends GLIB.Graph {
   nodeMap: Map<string, PTANode> = new Map()
@@ -28,6 +32,12 @@ export class PTAGraph extends GLIB.Graph {
     this.nodeMap.set(n.id, n)
   }
 
+  removePTANode(n: PTANode) {
+    if (this.hasNode(n.id)) return;
+    this.removeNode(n.id)
+    this.nodeMap.delete(n.id)
+  }
+
   getPTANode(u: string) {
     this.ensureNode(u);
     return this.nodeMap.get(u)
@@ -48,7 +58,8 @@ export class PTAGraph extends GLIB.Graph {
   }
 
   // Heap to Heap Edge
-  drawHeapToHeapEdge(us: Array<Valid_Stack_To_Heap_Pointees>, vs: Array<Valid_Stack_To_Heap_Pointees>, ps: Array<string>, enumerable: boolean) {
+  drawHeapToHeapEdge(us: Array<Valid_Stack_To_Heap_Pointees>, vs: Array<Valid_Stack_To_Heap_Pointees>, ps: Set<string> | Array<string>, enumerable: boolean) : Array<[SetSpecialClosure, Valid_Stack_To_Heap_Pointees, Valid_Stack_To_Heap_Pointees]> {
+    let pendingClosures : Array<[SetSpecialClosure, Valid_Stack_To_Heap_Pointees, Valid_Stack_To_Heap_Pointees]> = new Array()
     // Update graph
     for (let p of ps) {
       for (let u of us) {
@@ -57,9 +68,13 @@ export class PTAGraph extends GLIB.Graph {
           // u --p--> [u_p]
           // 
           let pNodeName = u.id + "_" + p;
-          if (!this.hasNode(pNodeName)) this.addPTANode(new PNode(pNodeName));
+          if (!this.hasField(u.id, p)) this.addField(u.id, p)
+
+          let pNode = this.getField(u.id, p)
+
           this.setEdge(u.id, pNodeName, p, p);
 
+          // TODO: prevent hidden/enumerable prop update when its wrong to do so
           if (enumerable) {
             // 
             // u --p--> [u_p] --e--> v
@@ -71,9 +86,19 @@ export class PTAGraph extends GLIB.Graph {
             // 
             this.setEdge(pNodeName, v.id, "h", "h");
           }
+
+          // Handle closure updates
+          if (this.hasClosureSetter(pNode)) {
+            let setters = this.getClosureSetters(pNode)
+            for (let clos of setters) {
+              pendingClosures.push([clos, u, v])
+            }
+          }
         }
       }
     }
+
+    return pendingClosures;
   }
 
   // Returns the set of nodes pointed by a stack object
@@ -90,15 +115,154 @@ export class PTAGraph extends GLIB.Graph {
       if (
         ptaNode instanceof OrdinaryObject ||
         ptaNode instanceof OrdinaryFunctionObject ||
+        ptaNode instanceof OrdinaryArrayObject ||
         ptaNode instanceof GlobalNode ||
         ptaNode instanceof ImportNode ||
         ptaNode instanceof LiteralNode
       ) {
         return ptaNode
       } else {
-        debugConfig.logger.throwIriError(`Stack Node is pointing to an invalid node`);
+        debugConfig.logger.throwIriError(`Stack Node is pointing to an invalid node ${stackId} -> ${ptaNode.id}`);
       }
     }) : []
+  }
+
+  // Get Field 
+  hasField(u: string, prop: string) {
+    let pNodeName = u + "_" + prop;
+    return this.hasNode(pNodeName)
+  }
+
+  getFieldPointees(u: StackNode, p: string, onlyEnumerable: boolean = false): Set<Valid_Stack_To_Heap_Pointees> {
+    let pendingClosures : Array<[GetSpecialClosure, Valid_Stack_To_Heap_Pointees]> = new Array()
+    let res : Set<Valid_Stack_To_Heap_Pointees> = new Set()
+    if (!this.hasField(u.id, p)) this.addField(u.id, p);
+    let pNode : PNode = this.getField(u.id, p)
+    let outEdges = this.outEdges(pNode.id)
+    if (outEdges) {
+      for (let e of outEdges) {
+        // 
+        // u --p--> [pNode] --h/w--> wNode/GetSpecialClosure
+        // 
+
+        if (onlyEnumerable && e.name === "h") continue; // skip non enumerable edges
+        let w = e.w;
+        let wNode = this.getPTANode(w);
+        if (wNode instanceof GetSpecialClosure) {
+          pendingClosures.push([wNode, u])
+        } else if (wNode instanceof SetSpecialClosure) {
+          // Skip
+        } else if (wNode instanceof StackNode) { 
+          debugConfig.logger.throwIriError("Stack node points to another stack node, somethings wrong!!!") 
+        } else {
+          res.add(wNode)
+        }
+      }
+    }
+
+    // Process delayed closures
+    let closureResults: Array<PTAGraph> = new Array()
+    for (let [clos, objContext] of pendingClosures) {
+      let nextt = new PTAGraph()
+      nextt.union(this)
+
+      let closureGraph = clos.meth.funBody
+
+      // set THIS pointer to objContext
+      let cThisLookupName = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB)
+      let contextualThis = new StackNode(cThisLookupName)
+      nextt.addPTANode(contextualThis)
+      nextt.drawStackToHeapEdge(contextualThis, [objContext])
+
+      nextt = PTA(closureGraph, true, nextt) // Save the sink...
+      
+      let sinks = closureGraph.sinks()
+      if (sinks.length !== 1) debugConfig.logger.throwIriError(`Sinks length !== 1, found ${sinks.length}`);
+
+      let sink = sinks[0];
+      let sinkBB = closureGraph.getBBNode(sink);
+
+      // Point to all stuff the return can point to
+      if (sinkBB instanceof FunctionReturn) {
+        let argLookupName = getStackQualifiedName(sinkBB.arg.lookupName(), sinkBB)
+        let pointees = nextt.getPointees(argLookupName)
+        for (let p of pointees) res.add(p);
+      } else debugConfig.logger.throwIriError(`Expected sinks to be Function Returns in closures!!! found ${sinkBB.scope}`);
+
+      closureResults.push(nextt)
+    }
+
+    // Merge closure results
+    this.union(...closureResults)
+    return res;
+  }
+
+  // Add Field 
+  addField(u: string, prop: string) {
+    let pNodeName = u + "_" + prop;
+    this.addPTANode(new PNode(pNodeName))
+  }
+
+  // Get Field 
+  getField(u: string, prop: string): PNode {
+    let pNodeName = u + "_" + prop;
+    this.ensureNode(pNodeName)
+    let res = this.nodeMap.get(pNodeName)
+    if (!(res instanceof PNode)) debugConfig.logger.throwIriError("PNode type is wrong")
+    return res
+  }
+
+
+  // Has closure getter?
+  hasClosureGetter(n: PNode) {
+    let es = this.outEdges(n.id)
+    if (es) {
+      for (let e of es) {
+        let w = this.nodeMap.get(e.w)
+        if (w instanceof GetSpecialClosure) return true;
+      }
+    }
+    return false;
+  }
+
+  // Has closure getter?
+  getClosureGetters(n: PNode): Set<GetSpecialClosure> {
+    let res: Set<SetSpecialClosure> = new Set()
+    let es = this.outEdges(n.id)
+    if (es) {
+      for (let e of es) {
+        let w = this.nodeMap.get(e.w)
+        if (w instanceof GetSpecialClosure) res.add(w);
+      }
+    }
+    if (res.size === 0) debugConfig.logger.throwIriError("Trying to get setters when no setters exiast");
+    return res;
+  }
+
+  // Has closure setter?
+  hasClosureSetter(n: PNode) {
+    let es = this.outEdges(n.id)
+    if (es) {
+      for (let e of es) {
+        let w = this.nodeMap.get(e.w)
+        if (w instanceof SetSpecialClosure) return true;
+      }
+    }
+    return false;
+  }
+
+  // Has closure setter?
+  getClosureSetters(n: PNode): Set<SetSpecialClosure> {
+    let res: Set<SetSpecialClosure> = new Set()
+    let es = this.outEdges(n.id)
+    if (es) {
+      for (let e of es) {
+        let w = this.nodeMap.get(e.w)
+        if (w instanceof SetSpecialClosure) res.add(w);
+      }
+    }
+    if (res.size === 0) debugConfig.logger.throwIriError("Trying to get setters when no setters exiast");
+    return res;
   }
 
   // For a given heap node, return the objects pointed to by a specific field

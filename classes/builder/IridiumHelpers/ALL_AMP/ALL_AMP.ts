@@ -78,7 +78,7 @@ export class IV_PrivateName extends ALL_AMP {
   }
 
   toString() {
-    return `${this.lookupName()}`
+    return `#${this.lookupName()}`
   }
 }
 

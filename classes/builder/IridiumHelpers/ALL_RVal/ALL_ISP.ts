@@ -150,7 +150,7 @@ export class ISP_ObjectMethod extends I_Function {
   toDOT(space = 0) {
     debugConfig.DOTContext.add(this.funBody)
     let params = this.params.map(i => i.toString()).join(",")
-    return `<ObjMethod> { kind: ${this.kind}, name: ${this.computed ? "[" + this.key.toString() + "" : this.key.toString()}, params: [${params}], async: ${this.async}, generator: ${this.generator} } = ${this.funBody.getName()}`;
+    return `<ObjMethod> { kind: ${this.kind}, name: ${this.computed ? "[" + this.key.toString() + "]" : this.key.toString()}, params: [${params}], async: ${this.async}, generator: ${this.generator} } = ${this.funBody.getName()}`;
   }
 
 }

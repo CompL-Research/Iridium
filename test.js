@@ -1138,14 +1138,17 @@
 
 // import { a as b } from "THERE"
 
-let a;
 
-if (false) {
-  a = "1"
-}
+// let b = {
+//   set [f](p) { a = 2; this[f] = 2; /**/ this[f] = 2; },
+// }
 
-let b = {
-  [a]: "Hello"
-}
+// b[f] = 1;
 
-// console.log(b[a])
+// let a = [1,2,3]
+// let b = [...a]
+// b[0] = 12;
+// b[{}] = 13;
+
+let x = { a: 1, b: 2, c: 3 }
+let n = {b: 2223, ...x}

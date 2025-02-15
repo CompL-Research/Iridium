@@ -1,42 +1,42 @@
-import { IV_Identifier, IV_MemberExpressionPA, IV_ThisLookupPA, IV_SuperLookupPA } from "../../ALL_AMP/ALL_AMP.ts";
-import { ISP_Super, ISP_ObjectMethod, ISP_ObjectProperty } from "../../ALL_RVal/ALL_ISP.ts";
+import debugConfig from "#debugConfig";
+import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../../ALL_AMP/ALL_AMP.ts";
+import { ISP_ArgSpread, ISP_ObjectMethod, ISP_ObjectProperty, ISP_Super } from "../../ALL_RVal/ALL_ISP.ts";
 import { IV_ASSIGNABLE } from "../../ALL_RVal/ALL_RVal.ts";
 import { IV_ArrayExpression } from "../../ALL_RVal/IV_ArrayExpression.ts";
 import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
-import { IV_SimpleAssn, IV_MemberAssn, IV_ThisAssn, IV_SuperAssn, IV_ArrPatAssn, IV_ObjPatAssn } from "../../ALL_RVal/IV_Assignment.ts";
+import { IV_ArrPatAssn, IV_MemberAssn, IV_ObjPatAssn, IV_SimpleAssn, IV_SuperAssn, IV_ThisAssn } from "../../ALL_RVal/IV_Assignment.ts";
 import { IV_ABINOP, IV_BBINOP, IV_CBINOP, IV_DBINOP, IV_EBINOP, IV_FBINOP } from "../../ALL_RVal/IV_Binop.ts";
-import { IV_ImportCall, IV_Call, IV_SuperCall, IV_V8IntrinsicCall } from "../../ALL_RVal/IV_Call.ts";
+import { IV_Call, IV_ImportCall, IV_SuperCall, IV_V8IntrinsicCall } from "../../ALL_RVal/IV_Call.ts";
 import { IV_ClassExpression } from "../../ALL_RVal/IV_ClassExpression.ts";
 import { IV_ConditionalExpression } from "../../ALL_RVal/IV_ConditionalExpression.ts";
 import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
-import { IV_PJSX, IV_JSX, IV_FJSX } from "../../ALL_RVal/IV_JSX.ts";
-import { IV_DecimalLiteral, IV_BigIntLiteral, IV_StringLiteral, IV_NumericLiteral, IV_NullLiteral, IV_BooleanLiteral } from "../../ALL_RVal/IV_Literals.ts";
-import { IV_InIterator, IV_OfIterator, IV_LoopNext, IV_HasLoopNext } from "../../ALL_RVal/IV_LoopIterators.ts";
+import { IV_FJSX, IV_JSX, IV_PJSX } from "../../ALL_RVal/IV_JSX.ts";
+import { IV_BigIntLiteral, IV_BooleanLiteral, IV_DecimalLiteral, IV_NullLiteral, IV_NumericLiteral, IV_StringLiteral } from "../../ALL_RVal/IV_Literals.ts";
+import { IV_HasLoopNext, IV_InIterator, IV_LoopNext, IV_OfIterator } from "../../ALL_RVal/IV_LoopIterators.ts";
 import { IV_ModuleMeta, IV_NewTarget } from "../../ALL_RVal/IV_META.ts";
 import { IV_NewExpression } from "../../ALL_RVal/IV_NewExpression.ts";
-import { IV_NUBD, IV_CTHIS, IV_STHIS } from "../../ALL_RVal/IV_NonLang.ts";
+import { IV_CTHIS, IV_NUBD, IV_STHIS } from "../../ALL_RVal/IV_NonLang.ts";
 import { IV_ObjectExpression } from "../../ALL_RVal/IV_ObjectExpression.ts";
 import { IV_Regexp } from "../../ALL_RVal/IV_Regexp.ts";
 import { IV_TemplateLiteral } from "../../ALL_RVal/IV_Templates.ts";
 import { IV_This } from "../../ALL_RVal/IV_This.ts";
 import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "../../ALL_RVal/IV_Unop.ts";
 import { IV_UpdateExpression } from "../../ALL_RVal/IV_UpdateExpression.ts";
-import { IV_YIELD, IV_AWAIT } from "../../ALL_RVal/IV_YIELD_AWAIT.ts";
+import { IV_AWAIT, IV_YIELD } from "../../ALL_RVal/IV_YIELD_AWAIT.ts";
 import { BB } from "../../BB.ts";
-import { BigIntNode, BooleanNode, DecimalNode, GetSpecialClosure, GlobalNode, NullNode, NumericNode, OrdinaryFunctionObject, OrdinaryObject, PTANode, SetSpecialClosure, StringNode, SymbolNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
+import { handleMemberAssignment, handleSimpleAssignmentStatement } from "./handleAssignments.ts";
+import { BigIntNode, BooleanNode, DecimalNode, GetSpecialClosure, GlobalNode, NullNode, NumericNode, OrdinaryArrayObject, OrdinaryFunctionObject, OrdinaryObject, PTANode, SetSpecialClosure, StringNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
 import { PTAGraph } from "./PTAGraph.ts";
 import { dissernPointees, getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
-import debugConfig from "#debugConfig";
-import { handleSimpleAssignmentStatement } from "./handleAssignments.ts";
 
-export const dissernProps = (nextGraph: PTAGraph, name : string, stackQualifiedName: string, computed: boolean) : Set<string> => {
-  let res : Set<string> = new Set()
+export const dissernProps = (nextGraph: PTAGraph, name: string, stackQualifiedName: string, computed: boolean): Set<string> => {
+  let res: Set<string> = new Set()
   if (!computed) { res.add(name); return res; }
   // 
   // We have a computed prop, we must find all the literals it points to and see if we can resolve it.
   // 
   nextGraph.ensureNode(stackQualifiedName);
-  let propPointees : Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(stackQualifiedName);
+  let propPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(stackQualifiedName);
   return dissernPointees(propPointees);
 }
 
@@ -53,24 +53,56 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new GlobalNode(ID));
     return [nextGraph.getPTANode(ID)]
   } else if (rVal instanceof IV_CTHIS) {
-    let ID = getStackQualifiedName(IV_CTHIS.lookupName(), currBB)
-    if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new GlobalNode(ID));
-    return [nextGraph.getPTANode(ID)]
+    return nextGraph.getPointees(getStackQualifiedName(IV_CTHIS.lookupName(), currBB));
   } else if (rVal instanceof IV_STHIS) {
-    let ID = getStackQualifiedName(IV_STHIS.lookupName(), currBB)
-    if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new GlobalNode(ID));
-    return [nextGraph.getPTANode(ID)]
+    return nextGraph.getPointees(getStackQualifiedName(IV_STHIS.lookupName(), currBB));
   }
 
   // AMP
   else if (rVal instanceof IV_Identifier) {
     return nextGraph.getPointees(getStackQualifiedName(rVal.lookupName(), currBB));
   } else if (rVal instanceof IV_MemberExpressionPA) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_MemberExpressionPA")
+    // a.x
+    let res: Set<PTANode> = new Set();
+    let receiver = getStackQualifiedName(rVal.object.lookupName(), currBB)
+    let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
+    let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.property.lookupName(), rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB), rVal.computed);
+    let closureResults: Array<PTAGraph> = new Array()
+    for (let u of receiverPointees) {
+      for (let p of dissernedProps) {
+        nextGraph.getFieldPointees(u, p).forEach(r => res.add(r))
+      }
+    }
+    nextGraph.union(...closureResults)
+    return [...res];
   } else if (rVal instanceof IV_ThisLookupPA) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ThisLookupPA")
+    // IV_This.x
+    let res: Set<PTANode> = new Set();
+    let receiver = getStackQualifiedName(IV_This.lookupName(), currBB)
+    let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
+    let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.property.lookupName(), rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB), rVal.computed);
+    let closureResults: Array<PTAGraph> = new Array()
+    for (let u of receiverPointees) {
+      for (let p of dissernedProps) {
+        nextGraph.getFieldPointees(u, p).forEach(r => res.add(r))
+      }
+    }
+    nextGraph.union(...closureResults)
+    return [...res];
   } else if (rVal instanceof IV_SuperLookupPA) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_SuperLookupPA")
+    // ISP_Super.x
+    let res: Set<PTANode> = new Set();
+    let receiver = getStackQualifiedName(ISP_Super.lookupName(), currBB)
+    let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
+    let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.property.lookupName(), rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB), rVal.computed);
+    let closureResults: Array<PTAGraph> = new Array()
+    for (let u of receiverPointees) {
+      for (let p of dissernedProps) {
+        nextGraph.getFieldPointees(u, p).forEach(r => res.add(r))
+      }
+    }
+    nextGraph.union(...closureResults)
+    return [...res];
   }
 
   // ALL_RVal
@@ -84,7 +116,7 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new BigIntNode(ID));
     return [nextGraph.getPTANode(ID)]
   } else if (rVal instanceof IV_StringLiteral) {
-    let ID = rVal.lookupName()
+    let ID = rVal.value;
     if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new StringNode(ID));
     return [nextGraph.getPTANode(ID)]
   } else if (rVal instanceof IV_NumericLiteral) {
@@ -103,9 +135,7 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
   // t_IV_Regexp
   else if (rVal instanceof IV_Regexp) {
-    let ID = rVal.toString()
-    if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new SymbolNode(ID));
-    return [nextGraph.getPTANode(ID)]
+    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_Regexp")
   }
 
   // t_IV_Templates
@@ -115,7 +145,7 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
   // t_IV_Call
   else if (rVal instanceof IV_ImportCall) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_TemplateLiteral")
+    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ImportCall")
   } else if (rVal instanceof IV_Call) {
     debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_Call")
   } else if (rVal instanceof IV_SuperCall) {
@@ -140,7 +170,7 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
   // t_IV_THISEXPRESSION
   else if (rVal instanceof IV_This) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_This")
+    return nextGraph.getPointees(getStackQualifiedName(IV_This.lookupName(), currBB));
   }
 
   // t_IV_BINOP
@@ -164,9 +194,27 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     handleSimpleAssignmentStatement(nextGraph, getStackQualifiedName(rVal.LVal.lookupName(), currBB), res)
     return res;
   } else if (rVal instanceof IV_MemberAssn) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_MemberAssn")
+    // a.x = RVal
+    let receiver = getStackQualifiedName(rVal.LVal.object.lookupName(), currBB)
+    let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
+
+    let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.LVal.property.lookupName(), rVal.LVal.computed && getStackQualifiedName(rVal.LVal.property.lookupName(), currBB), rVal.LVal.computed);
+
+    let res: Array<PTANode> = handleRVals(nextGraph, rVal.RVal, currBB, currBBIDx, stackInstOffset)
+
+    handleMemberAssignment(nextGraph, receiverPointees, res, dissernedProps, currBB, currBBIDx, stackInstOffset);
+    return res;
   } else if (rVal instanceof IV_ThisAssn) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ThisAssn")
+    // a.x = RVal
+    let receiver = getStackQualifiedName(IV_This.lookupName(), currBB)
+    let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
+
+    let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.LVal.property.lookupName(), rVal.LVal.computed && getStackQualifiedName(rVal.LVal.property.lookupName(), currBB), rVal.LVal.computed);
+
+    let res: Array<PTANode> = handleRVals(nextGraph, rVal.RVal, currBB, currBBIDx, stackInstOffset)
+
+    handleMemberAssignment(nextGraph, receiverPointees, res, dissernedProps, currBB, currBBIDx, stackInstOffset);
+
   } else if (rVal instanceof IV_SuperAssn) {
     debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_SuperAssn")
   } else if (rVal instanceof IV_ArrPatAssn) {
@@ -181,13 +229,13 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     let objExprID = getHeapQualifiedName("objExpr", currBBIDx, stackInstOffset)
     let objExprObj = new OrdinaryObject(objExprID)
     if (!nextGraph.hasNode(objExprID)) nextGraph.addPTANode(objExprObj);
-    
+
     // Process Fields
     let i = 0
     for (let p of rVal.properties) {
       if (p instanceof ISP_ObjectMethod) {
-        let dissernedProps: Set<string> = dissernProps(nextGraph, p.key.lookupName(), getStackQualifiedName(p.key.lookupName(), currBB), p.computed);
-        let pointee : OrdinaryFunctionObject | GetSpecialClosure | SetSpecialClosure;
+        let dissernedProps: Set<string> = dissernProps(nextGraph, p.key.lookupName(), p.computed && getStackQualifiedName(p.key.lookupName(), currBB), p.computed);
+        let pointee: OrdinaryFunctionObject | GetSpecialClosure | SetSpecialClosure;
         if (p.kind === "method") {
           pointee = new OrdinaryFunctionObject(getHeapQualifiedName('ObjMeth' + i, currBBIDx, stackInstOffset), p)
         } else if (p.kind === "get") {
@@ -196,18 +244,56 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
           pointee = new SetSpecialClosure(getHeapQualifiedName('GetMeth' + i, currBBIDx, stackInstOffset), p)
         }
         nextGraph.addPTANode(pointee)
-        nextGraph.drawHeapToHeapEdge([objExprObj], [pointee], [...dissernedProps], true);
-      } else if (p instanceof ISP_ObjectProperty) {
-        let dissernedProps: Set<string> = dissernProps(nextGraph, p.key.lookupName(), getStackQualifiedName(p.key.lookupName(), currBB), p.computed);
 
+        // 
+        // It is safe to ignore the pending closures because we are performing set operation without 
+        // actually invoking any setters, so this should work
+        // 
+
+        nextGraph.drawHeapToHeapEdge([objExprObj], [pointee], dissernedProps, true)
+
+      } else if (p instanceof ISP_ObjectProperty) {
+        let dissernedProps: Set<string> = dissernProps(nextGraph, p.key.lookupName(), p.computed && getStackQualifiedName(p.key.lookupName(), currBB), p.computed);
+        // 
         // [Ordinary Object] --[dissernedProps]--> PNode --e--> RVal(s)
         //                                               --h--> UNCHANGED
 
         // Get propValuePointees
         let pointees = nextGraph.getPointees(getStackQualifiedName(p.value.lookupName(), currBB));
-        nextGraph.drawHeapToHeapEdge([objExprObj], pointees, [...dissernedProps], true);
+
+        // 
+        // It is safe to ignore the pending closures because we are performing set operation without 
+        // actually invoking any setters, so this should work
+        // 
+
+        nextGraph.drawHeapToHeapEdge([objExprObj], pointees, dissernedProps, true)
+
       } else {
-        debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ObjectExpression - ISP_ArgSpread")
+        let pointees = nextGraph.getPointees(getStackQualifiedName(p.arg.lookupName(), currBB));
+        // 
+        // [p] --[fields]--> PNodes
+        // 
+        // 
+        // [Ordinary Object] --mergePNodes(PNodes)--> Objs
+        for (let p of pointees) {
+          let edges = nextGraph.outEdges(p.id)
+          if (edges) {
+            for (let e of edges) {
+              let field = e.name
+              if (!nextGraph.hasField(objExprObj.id, field)) nextGraph.addField(objExprObj.id, field);
+
+              let targetPNode = nextGraph.getField(objExprObj.id, field)
+              nextGraph.setEdge(objExprID, targetPNode.id, field, field)
+              let outwardFromPNode = nextGraph.outEdges(e.w)
+              if (outwardFromPNode) {
+                for (let oE of outwardFromPNode) {
+                  nextGraph.setEdge(targetPNode.id, oE.w, oE.name, oE.name)
+                }
+              }
+            }
+          }
+        }
+
       }
       i++;
     }
@@ -216,7 +302,51 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
   // t_IV_ArrayExpression
   else if (rVal instanceof IV_ArrayExpression) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ArrayExpression")
+    // 
+    // [OrdinaryArrayObject]
+    // 
+
+    let mainObjID = getHeapQualifiedName("arrExpr", currBBIDx, stackInstOffset);
+    let mainObj = new OrdinaryArrayObject(mainObjID)
+    if (!nextGraph.hasNode(mainObjID)) nextGraph.addPTANode(mainObj);
+
+    let i = 0;
+    let initTuple: Array<[string, IV_Identifier | ISP_ArgSpread]> = new Array()
+    let hasSpread = false;
+    for (let p of rVal.elements) {
+      if (hasSpread || p instanceof ISP_ArgSpread) {
+        initTuple.push(["*", p])
+        hasSpread = true;
+      } else {
+        initTuple.push([`${i}`, p])
+      }
+      i++;
+    }
+
+    for (let [field, o] of initTuple) {
+      if (o instanceof IV_Identifier) {
+        // 
+        // [OrdinaryArrayObject] --field--> pointees(ID)
+        //  
+        let lookupId = getStackQualifiedName(o.lookupName(), currBB)
+        let pointees = nextGraph.getPointees(lookupId)
+        nextGraph.drawHeapToHeapEdge([mainObj], pointees, [field], true)
+      } else {
+        // 
+        // [OrdinaryArrayObject] --field--> { PTANode(allOutwardEdges(x)) | x = pointees(ID) }
+        //  
+        let lookupId = getStackQualifiedName(o.arg.lookupName(), currBB)
+        let pointees = nextGraph.getPointees(lookupId)
+
+        for (let p of pointees) {
+          let edges = nextGraph.outEdges(p.id)
+          let resultObjs: Array<PTANode> = edges ? edges.map(e => nextGraph.getPTANode(e.w)) : []
+          nextGraph.drawHeapToHeapEdge([mainObj], resultObjs, [field], true)
+        }
+      }
+    }
+
+    return [mainObj]
   }
 
   // t_IV_ConditionalExpression
