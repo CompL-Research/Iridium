@@ -3,7 +3,7 @@
 // 
 
 import debugConfig from "#debugConfig";
-import { popSet } from "#utils";
+import { generateContextKey, hashGraph, popSet } from "#utils";
 import { execSync } from "node:child_process";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { IS_ClassStaticPropInit } from "../ALL_IS/IS_ClassStaticPropInit.ts";
@@ -13,19 +13,72 @@ import { BB } from "../BB.ts";
 import { IRIDIUM_FG } from "../IRIDIUM.ts";
 
 import { handleSimpleAssignmentStatement } from "./PTA/handleAssignments.ts";
-import { GlobalNode, ImportNode, StackNode } from "./PTA/nodes.ts";
+import { GlobalNode, ImportNode, PTANode, StackNode } from "./PTA/nodes.ts";
 import { PTAGraph } from "./PTA/PTAGraph.ts";
 import { PTARecorder } from "./PTA/PTARecorder.ts";
 import { handleRVals } from "./PTA/rvalHandler.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./PTA/util.ts";
-
 import GLIB from "#graphlib";
+import { Environment } from "../I_GENERAL/I_Environment.ts";
 
+const SAVE_RECORDING: boolean = true;
 
 type BBIdx = string;
 let getBBIdx = (bb: BB): BBIdx => '' + bb.idx;
 
-export function PTA(rootFG: IRIDIUM_FG, saveRecording: boolean, incomingFG: PTAGraph | undefined = undefined) {
+const FLOW_CONTEXT: Map<string, PTAGraph | null> = new Map();
+
+export function startPTA(rootFG: IRIDIUM_FG) {
+  // Initialize Boundary PTA
+  let BOUNDARY_PTAGRAPH = new PTAGraph()
+  for (let [o, _] of rootFG.rootBB.env.parent.bindings) {
+    BOUNDARY_PTAGRAPH.addPTANode((new GlobalNode("ENV0$" + o)))
+  }
+  ContextualPTAHandler("$", "$", BOUNDARY_PTAGRAPH, rootFG)
+}
+
+const curbStateContext = (rootState: Environment, fg: PTAGraph) => {
+  // 
+  // WIP, envs from future that are children of the rootState must not be curbed, this will cause unnecessary computation to take place
+  // 
+
+  // let toRemove : Array<StackNode> = new Array();
+  // let checkReachable = (currEnv: Environment, targetEnvIdx: number) => {
+  //   if (!currEnv) return false;
+  //   if (currEnv.idx === targetEnvIdx) return true;
+  //   return checkReachable(currEnv.parent, targetEnvIdx)
+  // }
+  // for (let n of fg.nodeMap.values()) {
+  //   if (n instanceof StackNode) {
+  //     let envID = parseInt(n.id.split("$")[0].slice(3));
+  //     if (!checkReachable(rootState, envID)) toRemove.push(n)
+  //   }
+  // }
+  // toRemove.forEach(n => fg.removePTANode(n))
+  // console.log(`Context Curbing : ${toRemove.map(e => e.id).join(",")}`)
+}
+
+export function ContextualPTAHandler(objContext: string, iContext: string, incomingFG: PTAGraph, fg: IRIDIUM_FG) {  
+  curbStateContext(fg.rootBB.env, incomingFG);
+  let graphHash = hashGraph(incomingFG);
+  let contextKey = generateContextKey(objContext, iContext, graphHash);
+  
+  if (!FLOW_CONTEXT.has(contextKey)) {
+    // console.log(`[PTA] Processing New Context: (${objContext}, ${iContext}, ${graphHash}) => ${contextKey}`);
+    FLOW_CONTEXT.set(contextKey, null);
+    let result = PTA(fg, incomingFG);
+    FLOW_CONTEXT.set(contextKey, result);
+    return result;
+  } else if (FLOW_CONTEXT.get(contextKey) === null) {
+    // console.log(`[PTA] Context in Progress: (${objContext}, ${iContext}, ${graphHash}) => ${contextKey}`);
+    return incomingFG;
+  } else {
+    // console.log(`[PTA] Context Cached: (${objContext}, ${iContext}, ${graphHash}) => ${contextKey}`);
+    return FLOW_CONTEXT.get(contextKey);
+  }
+}
+
+export function PTA(rootFG: IRIDIUM_FG, BOUNDARY_PTAGRAPH: PTAGraph) {
   // Assert that there is only one source in the flowgraph
   if (rootFG.sources().length !== 1) debugConfig.logger.throwIriError("Expected exactly one root inside a flowgraph")
 
@@ -38,31 +91,18 @@ export function PTA(rootFG: IRIDIUM_FG, saveRecording: boolean, incomingFG: PTAG
 
   let step = 1
 
-  if (saveRecording) {
+  if (SAVE_RECORDING) {
     try {
       execSync(`rm outputs/PTA/* 2>/dev/null`);
-    } catch(e) {} finally {}
+    } catch (e) { } finally { }
     recorder.init()
-  }
-
-  let BOUNDARY_PTAGRAPH : PTAGraph;
-
-  // For handling closures
-  if (!incomingFG) {
-    // Initialize global objs
-    BOUNDARY_PTAGRAPH = new PTAGraph()
-    for (let [o, _] of rootFG.rootBB.env.parent.bindings) {
-      BOUNDARY_PTAGRAPH.addPTANode((new GlobalNode("ENV0$" + o)))
-    }
-  } else {
-    BOUNDARY_PTAGRAPH = incomingFG;
   }
 
   // Do one pass in DTree order, this will ensure all defs dominate uses...
   let dTree = GLIB.alg.dominatorTarjan(rootFG, '' + rootFG.rootBB.idx, false)
 
   let visited = new Set();
-  let dfsOrder : Array<string> = []
+  let dfsOrder: Array<string> = []
   // DFS function
   let visitDFS = (node) => {
     visited.add(node); // Mark node as visited
@@ -91,12 +131,13 @@ export function PTA(rootFG: IRIDIUM_FG, saveRecording: boolean, incomingFG: PTAG
     } else {
       nextGraph.union(...[BOUNDARY_PTAGRAPH])
     }
-        
+
     // Flow Function 
     flowFunction(rootFG, nextGraph, currBBIDx, step);
 
-    if (saveRecording) {
-      nextGraph.saveDotToFile(`outputs/PTA/BB${currBBIDx}_OUT`)
+    if (SAVE_RECORDING) {
+      const saving = `outputs/PTA/${Date.now()}_BB${currBBIDx}_OUT`;
+      nextGraph.saveDotToFile(saving)
     }
 
     // Add successors to worklist if there was a change
@@ -107,8 +148,6 @@ export function PTA(rootFG: IRIDIUM_FG, saveRecording: boolean, incomingFG: PTAG
       let succ = rootFG.successors(currBBIDx)
       if (succ) succ.forEach((bbIdx: BBIdx) => worklist.add(bbIdx))
     }
-
-    
   }
 
   for (let currBBIDx of dfsOrder) {
@@ -120,7 +159,7 @@ export function PTA(rootFG: IRIDIUM_FG, saveRecording: boolean, incomingFG: PTAG
     doWorklist(popSet(worklist));
   }
 
-  // if (saveRecording) {
+  // if (SAVE_RECORDING) {
   //   try {
   //     execSync(`rm outputs/PTA/*.DOT 2>/dev/null`);
   //   } catch(e) {} finally {}

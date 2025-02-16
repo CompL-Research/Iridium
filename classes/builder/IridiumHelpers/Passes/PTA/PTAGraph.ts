@@ -2,7 +2,7 @@ import debugConfig from "#debugConfig";
 import GLIB from "#graphlib";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
-import { GetSpecialClosure, GlobalNode, ImportNode, LiteralNode, OrdinaryArrayObject, OrdinaryFunctionObject, OrdinaryObject, PNode, PTANode, SetSpecialClosure, StackNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
+import { ClassObject, GetSpecialClosure, GlobalNode, ImportNode, LiteralNode, OrdinaryArrayObject, OrdinaryFunctionObject, OrdinaryObject, PNode, PTANode, SetSpecialClosure, StackNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
 import { getStackQualifiedName } from "./util.ts";
 import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
 import { PTA } from "../PTA.ts";
@@ -116,6 +116,7 @@ export class PTAGraph extends GLIB.Graph {
         ptaNode instanceof OrdinaryObject ||
         ptaNode instanceof OrdinaryFunctionObject ||
         ptaNode instanceof OrdinaryArrayObject ||
+        ptaNode instanceof ClassObject ||
         ptaNode instanceof GlobalNode ||
         ptaNode instanceof ImportNode ||
         ptaNode instanceof LiteralNode
@@ -160,40 +161,40 @@ export class PTAGraph extends GLIB.Graph {
       }
     }
 
-    // Process delayed closures
-    let closureResults: Array<PTAGraph> = new Array()
-    for (let [clos, objContext] of pendingClosures) {
-      let nextt = new PTAGraph()
-      nextt.union(this)
+    // // Process delayed closures
+    // let closureResults: Array<PTAGraph> = new Array()
+    // for (let [clos, objContext] of pendingClosures) {
+    //   let nextt = new PTAGraph()
+    //   nextt.union(this)
 
-      let closureGraph = clos.meth.funBody
+    //   let closureGraph = clos.meth.funBody
 
-      // set THIS pointer to objContext
-      let cThisLookupName = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB)
-      let contextualThis = new StackNode(cThisLookupName)
-      nextt.addPTANode(contextualThis)
-      nextt.drawStackToHeapEdge(contextualThis, [objContext])
+    //   // set THIS pointer to objContext
+    //   let cThisLookupName = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB)
+    //   let contextualThis = new StackNode(cThisLookupName)
+    //   nextt.addPTANode(contextualThis)
+    //   nextt.drawStackToHeapEdge(contextualThis, [objContext])
 
-      nextt = PTA(closureGraph, true, nextt) // Save the sink...
+    //   nextt = PTA(closureGraph, true, nextt) // Save the sink...
       
-      let sinks = closureGraph.sinks()
-      if (sinks.length !== 1) debugConfig.logger.throwIriError(`Sinks length !== 1, found ${sinks.length}`);
+    //   let sinks = closureGraph.sinks()
+    //   if (sinks.length !== 1) debugConfig.logger.throwIriError(`Sinks length !== 1, found ${sinks.length}`);
 
-      let sink = sinks[0];
-      let sinkBB = closureGraph.getBBNode(sink);
+    //   let sink = sinks[0];
+    //   let sinkBB = closureGraph.getBBNode(sink);
 
-      // Point to all stuff the return can point to
-      if (sinkBB instanceof FunctionReturn) {
-        let argLookupName = getStackQualifiedName(sinkBB.arg.lookupName(), sinkBB)
-        let pointees = nextt.getPointees(argLookupName)
-        for (let p of pointees) res.add(p);
-      } else debugConfig.logger.throwIriError(`Expected sinks to be Function Returns in closures!!! found ${sinkBB.scope}`);
+    //   // Point to all stuff the return can point to
+    //   if (sinkBB instanceof FunctionReturn) {
+    //     let argLookupName = getStackQualifiedName(sinkBB.arg.lookupName(), sinkBB)
+    //     let pointees = nextt.getPointees(argLookupName)
+    //     for (let p of pointees) res.add(p);
+    //   } else debugConfig.logger.throwIriError(`Expected sinks to be Function Returns in closures!!! found ${sinkBB.scope}`);
 
-      closureResults.push(nextt)
-    }
+    //   closureResults.push(nextt)
+    // }
 
-    // Merge closure results
-    this.union(...closureResults)
+    // // Merge closure results
+    // this.union(...closureResults)
     return res;
   }
 
@@ -339,7 +340,12 @@ export class PTAGraph extends GLIB.Graph {
   }
 
   saveDotToFile(path) {
-    fs.writeFileSync(path + ".DOT", this.saveDebugDot());
+    try {
+      fs.writeFileSync(path + ".DOT", this.saveDebugDot());
+    } catch (err) {
+      console.error('File write failed:', err);
+    }
+    
     execSync(`dot -Tpng ${path + ".DOT"} -o ${path + ".png"}`);
   }
 

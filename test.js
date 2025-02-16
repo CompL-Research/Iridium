@@ -1150,5 +1150,67 @@
 // b[0] = 12;
 // b[{}] = 13;
 
-let x = { a: 1, b: 2, c: 3 }
-let n = {b: 2223, ...x}
+// let x = { a: 1, b: 2, c: 3 }
+// let n = {b: 2223, ...x}
+
+// class Boo {
+
+// }
+
+// let heritage;
+// if (console) {
+//   heritage = Boo;
+// } else {
+//   heritage = {
+//     goon: 12
+//   }
+// }
+
+// class Test extends Boo {
+//   constructor() {}
+// }
+
+// let a = "12";
+// let foo = { a: {} }
+// if (a) {
+//   a = "f";
+//   foo = { b: {} }
+// }
+
+// let x = {}
+// a[a] = foo;
+
+// let a = {}
+// let f = "g"
+// if (true) {
+//   a[f] = { get x() {}, boo() {} }
+// } else {
+//   a[f] = { get x() {}, boo() {} }
+// }
+// a.g.boo();
+
+// let b;
+// let a = () => {
+//   b = {};
+// }
+
+// a();
+
+
+// let f = "f";
+// let a = {
+//   set f(a) { this.f = a; }
+// };
+// a[f] = 12;
+
+let x = {
+  set a(a) {
+    this.a = 2; 
+    this.b = 3; 
+  },
+  set b(a) {
+    this.a = 2;
+  }, 
+}
+
+x.a = 2;

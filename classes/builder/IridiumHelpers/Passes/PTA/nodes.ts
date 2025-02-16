@@ -1,6 +1,9 @@
 import { IV_Identifier } from "../../ALL_AMP/ALL_AMP.ts"
 import { ISP_ObjectMethod } from "../../ALL_RVal/ALL_ISP.ts";
 import { IV_StringLiteral } from "../../ALL_RVal/IV_Literals.ts"
+import debugConfig from "#debugConfig"
+import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
+import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
 
 export class PTANode {
   id: string
@@ -9,11 +12,13 @@ export class PTANode {
   }
 
   toString() : string {
-    throw new Error("Expected all extensions of PTANode to override toString")
+    debugConfig.logger.throwIriError("Expected all extensions of PTANode to override toString")
+    return "";
   }
 
   dotStyle() : string {
-    throw new Error("Expected all extensions of PTANode to override dotStyle")
+    debugConfig.logger.throwIriError("Expected all extensions of PTANode to override dotStyle")
+    return "";
   }
 }
 
@@ -56,11 +61,12 @@ export class OrdinaryObject extends PTANode {
 // 
 // OrdinaryFunctionObject
 // 
-export type OrdinaryFunctionObject_meth = ISP_ObjectMethod
+export type OrdinaryFunctionObject_meth = ISP_ObjectMethod | IV_FunctionExpression | IV_ArrowFunctionExpression
 export class OrdinaryFunctionObject extends PTANode {
   meth: OrdinaryFunctionObject_meth
   constructor(id: string, meth: OrdinaryFunctionObject_meth) {
     super(id)
+    if (meth instanceof ISP_ObjectMethod && meth.kind !== "method") { debugConfig.logger.throwIriError("Object methods that are not normal functions cannot occupy a ordinary function object") }
     this.meth = meth
   }
 
@@ -87,6 +93,40 @@ export class OrdinaryArrayObject extends PTANode {
 
   dotStyle() {
     return `[xlabel="${this.toString()}",shape="square"]`
+  }
+}
+
+// 
+// ArrowArrayObject
+// 
+export class ArrowArrayObject extends PTANode {
+  constructor(id: string) {
+    super(id)
+  }
+
+  toString() {
+    return "ArrowArrayObject"
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.toString()}",shape="octagon"]`
+  }
+}
+
+// 
+// ClassObject
+// 
+export class ClassObject extends PTANode {
+  constructor(id: string) {
+    super(id)
+  }
+
+  toString() {
+    return "ClassObject"
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.toString()}",shape="doubleoctagon"]`
   }
 }
 
@@ -181,7 +221,7 @@ export class PNode extends PTANode {
   }
 
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="diamond",style="filled", fillcolor="gray"]`
+    return `[xlabel="${this.id}",label="",shape="doublecircle",style="filled", fillcolor="gray"]`
   }
 }
 

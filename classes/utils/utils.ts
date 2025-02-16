@@ -1,11 +1,29 @@
 import debugConfig from '#debugConfig';
+import GLIB from "#graphlib";
 import { CommentBlock, CommentLine } from '@babel/types';
 import { execSync } from 'child_process';
+import crypto from "crypto";
 import fs from 'fs';
 import path from 'path';
 export class JS3GenerationError extends Error { }
 
-export function popSet<T>(s : Set<T>) : T {
+export const hashGraph = (graph: GLIB.Graph) => {
+  const nodes = graph.nodes().sort();
+  const edges = graph.edges()
+    .map(({ v, w, name }) => ({
+      v, w, name,
+      attrs: graph.edge(v, w, name)
+    }))
+    .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+  const graphString = JSON.stringify({ nodes, edges });
+  return crypto.createHash("sha256").update(graphString).digest("hex");
+}
+
+export const generateContextKey = (objectContext: string, instructionContext: string, incomingPTAHash: string): string => {
+  return objectContext + instructionContext + incomingPTAHash;
+}
+
+export function popSet<T>(s: Set<T>): T {
   for (const value of s) {
     s.delete(value)
     return value
@@ -53,7 +71,7 @@ export function resolveModuleImport(source: string, absoluteFilePath: string, pr
   // Try resolving using node.resolve
   const command = `node -e "process.stdout.write(require.resolve('${source}', { paths: [ '${path.dirname(absoluteFilePath)}' ] }))" 2>/dev/null`
   try {
-    
+
     // Execute the command synchronously with the specified working directory
     const result = execSync(command, {
       cwd: projectBasePath,

@@ -6,7 +6,7 @@ import { PTAGraph } from "./PTAGraph.ts";
 import { dissernPointees, getStackQualifiedName } from "./util.ts";
 import debugConfig from "#debugConfig";
 import { IV_Identifier } from "../../ALL_AMP/ALL_AMP.ts";
-import { PTA } from "../PTA.ts";
+import { ContextualPTAHandler, PTA } from "../PTA.ts";
 
 // Handle Simple Assignment Statement
 export const handleSimpleAssignmentStatement = (nextGraph: PTAGraph, qualifiedStackId: string, rVal: Array<PTANode>) => {
@@ -21,6 +21,7 @@ export const handleMemberAssignment = (origNextGraph: PTAGraph, us : Array<Valid
     
   let closureResults : Array<PTAGraph> = new Array()
   let pendingClosures = origNextGraph.drawHeapToHeapEdge(us, vs, ps, true)
+  let iContext = "BB" + currBBIDx + ":" + stackInstOffset;
 
   closureResults = pendingClosures.map(e => {
     let clos: SetSpecialClosure = e[0]
@@ -48,7 +49,7 @@ export const handleMemberAssignment = (origNextGraph: PTAGraph, us : Array<Valid
     nextGraph.addPTANode(paramNode)
     nextGraph.drawStackToHeapEdge(paramNode, [arg])
     
-    return PTA(clos.meth.funBody, true, nextGraph);
+    return ContextualPTAHandler(objContext.id, iContext, nextGraph, clos.meth.funBody);
   })
 
   // Union of closure results must be merged back into the nextGraph...
