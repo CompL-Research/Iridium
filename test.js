@@ -1205,25 +1205,8 @@
 
 let x = {
   set a(a) {
-    this.a = 3; 
-    this.b = 4; 
-    this.a = 5; 
-    this.a = 6; 
-    
+    this.a = 3;     
   },
-  set b(a) {
-    this.a = 7;
-    this.b = 8;
-    this.a = 9;
-  }, 
 }
 
 x.a = 2;
-
-// let x = {
-//   set f(a) { this.container = 12; }, 
-//   get f() { return this.container; }
-// }
-
-// x.f = 12;
-// let b = x.f;

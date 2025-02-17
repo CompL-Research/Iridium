@@ -25,7 +25,7 @@ import { IV_UpdateExpression } from "../../ALL_RVal/IV_UpdateExpression.ts";
 import { IV_AWAIT, IV_YIELD } from "../../ALL_RVal/IV_YIELD_AWAIT.ts";
 import { BB } from "../../BB.ts";
 import { handleMemberAssignment, handleSimpleAssignmentStatement } from "./handleAssignments.ts";
-import { BigIntNode, BooleanNode, ClassObject, DecimalNode, GetSpecialClosure, GlobalNode, NullNode, NumericNode, OrdinaryArrayObject, OrdinaryFunctionObject, OrdinaryObject, PTANode, SetSpecialClosure, StringNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
+import { BigIntNode, BooleanNode, ClassObject, DecimalNode, GetSpecialClosure, GlobalNode, NullNode, NumericNode, OrdinaryArrayObject, OrdinaryFunctionObject, OrdinaryObject, PTANode, SetSpecialClosure, StringNode, UnknownResultObj, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
 import { PTAGraph } from "./PTAGraph.ts";
 import { dissernPointees, getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
 
@@ -138,37 +138,57 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
   // t_IV_Regexp
   else if (rVal instanceof IV_Regexp) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_Regexp")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_Regexp', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   }
 
   // t_IV_Templates
   else if (rVal instanceof IV_TemplateLiteral) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_TemplateLiteral")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_TemplateLiteral', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   }
 
   // t_IV_Call
   else if (rVal instanceof IV_ImportCall) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ImportCall")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_ImportCall', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_Call) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_Call")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_Call', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_SuperCall) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_SuperCall")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_SuperCall', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_V8IntrinsicCall) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_V8IntrinsicCall")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_V8IntrinsicCall', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   }
 
   // t_IV_META
   else if (rVal instanceof IV_ModuleMeta) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ModuleMeta")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_ModuleMeta', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_NewTarget) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_NewTarget")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_NewTarget', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   }
 
   // t_IV_YIELD_AWAIT
   else if (rVal instanceof IV_YIELD) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_YIELD")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_YIELD', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_AWAIT) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_AWAIT")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_AWAIT', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   }
 
   // t_IV_THISEXPRESSION
@@ -178,17 +198,29 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
   // t_IV_BINOP
   else if (rVal instanceof IV_ABINOP) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ABINOP")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_ABINOP', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_BBINOP) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_BBINOP")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_BBINOP', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_CBINOP) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_CBINOP")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_CBINOP', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_DBINOP) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_DBINOP")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_DBINOP', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_EBINOP) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_EBINOP")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_EBINOP', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_FBINOP) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_FBINOP")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_FBINOP', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   }
 
   // t_IV_ASSN
@@ -217,9 +249,21 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     let res: Array<PTANode> = handleRVals(nextGraph, rVal.RVal, currBB, currBBIDx, stackInstOffset)
 
     handleMemberAssignment(nextGraph, receiverPointees, res, dissernedProps, currBB, currBBIDx, stackInstOffset);
-
+    // My god I forgot this!!!
+    return res;
   } else if (rVal instanceof IV_SuperAssn) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_SuperAssn")
+    // SUPER.x = RVal
+    let receiver = getStackQualifiedName(ISP_Super.lookupName(), currBB)
+    let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
+
+    let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.LVal.property.lookupName(), rVal.LVal.computed && getStackQualifiedName(rVal.LVal.property.lookupName(), currBB), rVal.LVal.computed);
+
+    let res: Array<PTANode> = handleRVals(nextGraph, rVal.RVal, currBB, currBBIDx, stackInstOffset)
+
+    handleMemberAssignment(nextGraph, receiverPointees, res, dissernedProps, currBB, currBBIDx, stackInstOffset);
+    // My god I forgot this!!!
+    return res;
+    
   } else if (rVal instanceof IV_ArrPatAssn) {
     debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ArrPatAssn")
   } else if (rVal instanceof IV_ObjPatAssn) {
@@ -354,7 +398,9 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
   // t_IV_ConditionalExpression
   else if (rVal instanceof IV_ConditionalExpression) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ConditionalExpression")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_ConditionalExpression', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   }
 
   // t_IV_FunctionExpression
@@ -380,18 +426,28 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
   // t_IV_UnaryExpression
   else if (rVal instanceof IV_AUNOP) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_AUNOP")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_AUNOP', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_BUNOP) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_BUNOP")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_BUNOP', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_CUNOP) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_CUNOP")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_CUNOP', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_DUNOP) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_DUNOP")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_DUNOP', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   }
 
   // t_IV_UpdateExpression
   else if (rVal instanceof IV_UpdateExpression) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_UpdateExpression")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_UpdateExpression', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   }
 
   // t_IV_ClassExpression
@@ -414,13 +470,21 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
   // t_IV_ForIterators
   else if (rVal instanceof IV_InIterator) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_InIterator")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_InIterator', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_OfIterator) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_OfIterator")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_OfIterator', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_LoopNext) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_LoopNext")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_LoopNext', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   } else if (rVal instanceof IV_HasLoopNext) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_HasLoopNext")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_HasLoopNext', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   }
 
   // t_IV_JSX
@@ -431,6 +495,8 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
   } else if (rVal instanceof IV_FJSX) {
     debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_FJSX")
   }
+
+  debugConfig.logger.throwIriError("TODO: PTA - Unreachable fallthrough reached, something is prolly wrong in the code!!!")
 
   return [...res];
 }

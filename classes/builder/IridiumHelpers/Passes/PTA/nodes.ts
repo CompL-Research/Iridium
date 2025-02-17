@@ -37,7 +37,24 @@ export class StackNode extends PTANode {
   }
 
   dotStyle() {
-    return `[xlabel="${this.toString()}"]`
+    return `[shape="plain"]`
+  }
+}
+
+// 
+// PJSX
+// 
+export class PJSX extends PTANode {
+  constructor(id: string) {
+    super(id)
+  }
+
+  toString() {
+    return "PJSX"
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.toString()}",shape="square"]`
   }
 }
 
@@ -146,6 +163,24 @@ export class GlobalNode extends PTANode {
     return `[xlabel="${this.toString()}",shape="square",style="filled", fillcolor="gray"]`
   }
 }
+
+// 
+// UnknownResultObj
+// 
+export class UnknownResultObj extends PTANode {
+  constructor(id: string) {
+    super(id)
+  }
+
+  toString() {
+    return "UnknownResultObj"
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.toString()}",shape="square",style="filled", fillcolor="gray"]`
+  }
+}
+
 
 // 
 // SetSpecialClosure
