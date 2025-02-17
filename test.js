@@ -1203,14 +1203,22 @@
 // };
 // a[f] = 12;
 
-let x = {
-  set a(a) {
-    this.a = 2; 
-    this.b = 3; 
-  },
-  set b(a) {
-    this.a = 2;
-  }, 
-}
+// let x = {
+//   set a(a) {
+//     this.a = 2; 
+//     this.b = 3; 
+//   },
+//   set b(a) {
+//     this.a = 2;
+//   }, 
+// }
 
-x.a = 2;
+// x.a = 2;
+
+// let x = {
+//   set f(a) { this.container = 12; }, 
+//   get f() { return this.container; }
+// }
+
+// x.f = 12;
+// let b = x.f;

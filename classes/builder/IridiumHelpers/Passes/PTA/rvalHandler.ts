@@ -62,50 +62,50 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
   else if (rVal instanceof IV_Identifier) {
     return nextGraph.getPointees(getStackQualifiedName(rVal.lookupName(), currBB));
   } else if (rVal instanceof IV_MemberExpressionPA) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_MemberExpressionPA")
-    // // a.x
-    // let res: Set<PTANode> = new Set();
-    // let receiver = getStackQualifiedName(rVal.object.lookupName(), currBB)
-    // let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
-    // let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.property.lookupName(), rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB), rVal.computed);
-    // let closureResults: Array<PTAGraph> = new Array()
-    // for (let u of receiverPointees) {
-    //   for (let p of dissernedProps) {
-    //     nextGraph.getFieldPointees(u, p).forEach(r => res.add(r))
-    //   }
-    // }
-    // nextGraph.union(...closureResults)
-    // return [...res];
+    // a.x
+    let res: Set<PTANode> = new Set();
+    let iContext = "BB" + currBBIDx + ":" + stackInstOffset;
+    let receiver = getStackQualifiedName(rVal.object.lookupName(), currBB)
+    let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
+    let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.property.lookupName(), rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB), rVal.computed);
+    let closureResults: Array<PTAGraph> = new Array()
+    for (let u of receiverPointees) {
+      for (let p of dissernedProps) {
+        nextGraph.getFieldPointees(u, p, iContext).forEach(r => res.add(r))
+      }
+    }
+    nextGraph.union(...closureResults)
+    return [...res];
   } else if (rVal instanceof IV_ThisLookupPA) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ThisLookupPA")
-    // // IV_This.x
-    // let res: Set<PTANode> = new Set();
-    // let receiver = getStackQualifiedName(IV_This.lookupName(), currBB)
-    // let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
-    // let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.property.lookupName(), rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB), rVal.computed);
-    // let closureResults: Array<PTAGraph> = new Array()
-    // for (let u of receiverPointees) {
-    //   for (let p of dissernedProps) {
-    //     nextGraph.getFieldPointees(u, p).forEach(r => res.add(r))
-    //   }
-    // }
-    // nextGraph.union(...closureResults)
-    // return [...res];
+    // IV_This.x
+    let res: Set<PTANode> = new Set();
+    let iContext = "BB" + currBBIDx + ":" + stackInstOffset;
+    let receiver = getStackQualifiedName(IV_This.lookupName(), currBB)
+    let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
+    let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.property.lookupName(), rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB), rVal.computed);
+    let closureResults: Array<PTAGraph> = new Array()
+    for (let u of receiverPointees) {
+      for (let p of dissernedProps) {
+        nextGraph.getFieldPointees(u, p, iContext).forEach(r => res.add(r))
+      }
+    }
+    nextGraph.union(...closureResults)
+    return [...res];
   } else if (rVal instanceof IV_SuperLookupPA) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_SuperLookupPA")
-    // // ISP_Super.x
-    // let res: Set<PTANode> = new Set();
-    // let receiver = getStackQualifiedName(ISP_Super.lookupName(), currBB)
-    // let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
-    // let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.property.lookupName(), rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB), rVal.computed);
-    // let closureResults: Array<PTAGraph> = new Array()
-    // for (let u of receiverPointees) {
-    //   for (let p of dissernedProps) {
-    //     nextGraph.getFieldPointees(u, p).forEach(r => res.add(r))
-    //   }
-    // }
-    // nextGraph.union(...closureResults)
-    // return [...res];
+    // ISP_Super.x
+    let res: Set<PTANode> = new Set();
+    let iContext = "BB" + currBBIDx + ":" + stackInstOffset;
+    let receiver = getStackQualifiedName(ISP_Super.lookupName(), currBB)
+    let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
+    let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.property.lookupName(), rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB), rVal.computed);
+    let closureResults: Array<PTAGraph> = new Array()
+    for (let u of receiverPointees) {
+      for (let p of dissernedProps) {
+        nextGraph.getFieldPointees(u, p, iContext).forEach(r => res.add(r))
+      }
+    }
+    nextGraph.union(...closureResults)
+    return [...res];
   }
 
   // ALL_RVal
@@ -244,7 +244,7 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
         } else if (p.kind === "get") {
           pointee = new GetSpecialClosure(getHeapQualifiedName('GetMeth' + i, currBBIDx, stackInstOffset), p)
         } else if (p.kind === "set") {
-          pointee = new SetSpecialClosure(getHeapQualifiedName('GetMeth' + i, currBBIDx, stackInstOffset), p)
+          pointee = new SetSpecialClosure(getHeapQualifiedName('SetMeth' + i, currBBIDx, stackInstOffset), p)
         }
         nextGraph.addPTANode(pointee)
 

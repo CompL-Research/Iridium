@@ -2,11 +2,11 @@ import debugConfig from "#debugConfig";
 import GLIB from "#graphlib";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
+import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
+import { FunctionReturn } from "../../BB.ts";
+import { ContextualPTAHandler } from "../PTA.ts";
 import { ClassObject, GetSpecialClosure, GlobalNode, ImportNode, LiteralNode, OrdinaryArrayObject, OrdinaryFunctionObject, OrdinaryObject, PNode, PTANode, SetSpecialClosure, StackNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
 import { getStackQualifiedName } from "./util.ts";
-import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
-import { PTA } from "../PTA.ts";
-import { FunctionReturn } from "../../BB.ts";
 
 export class PTAGraph extends GLIB.Graph {
   nodeMap: Map<string, PTANode> = new Map()
@@ -58,8 +58,8 @@ export class PTAGraph extends GLIB.Graph {
   }
 
   // Heap to Heap Edge
-  drawHeapToHeapEdge(us: Array<Valid_Stack_To_Heap_Pointees>, vs: Array<Valid_Stack_To_Heap_Pointees>, ps: Set<string> | Array<string>, enumerable: boolean) : Array<[SetSpecialClosure, Valid_Stack_To_Heap_Pointees, Valid_Stack_To_Heap_Pointees]> {
-    let pendingClosures : Array<[SetSpecialClosure, Valid_Stack_To_Heap_Pointees, Valid_Stack_To_Heap_Pointees]> = new Array()
+  drawHeapToHeapEdge(us: Array<Valid_Stack_To_Heap_Pointees>, vs: Array<Valid_Stack_To_Heap_Pointees>, ps: Set<string> | Array<string>, enumerable: boolean): Array<[SetSpecialClosure, Valid_Stack_To_Heap_Pointees, Valid_Stack_To_Heap_Pointees]> {
+    let pendingClosures: Array<[SetSpecialClosure, Valid_Stack_To_Heap_Pointees, Valid_Stack_To_Heap_Pointees]> = new Array()
     // Update graph
     for (let p of ps) {
       for (let u of us) {
@@ -134,11 +134,11 @@ export class PTAGraph extends GLIB.Graph {
     return this.hasNode(pNodeName)
   }
 
-  getFieldPointees(u: StackNode, p: string, onlyEnumerable: boolean = false): Set<Valid_Stack_To_Heap_Pointees> {
-    let pendingClosures : Array<[GetSpecialClosure, Valid_Stack_To_Heap_Pointees]> = new Array()
-    let res : Set<Valid_Stack_To_Heap_Pointees> = new Set()
+  getFieldPointees(u: StackNode, p: string, iContext: string, onlyEnumerable: boolean = false): Set<Valid_Stack_To_Heap_Pointees> {
+    let pendingClosures: Array<[GetSpecialClosure, Valid_Stack_To_Heap_Pointees]> = new Array()
+    let res: Set<Valid_Stack_To_Heap_Pointees> = new Set()
     if (!this.hasField(u.id, p)) this.addField(u.id, p);
-    let pNode : PNode = this.getField(u.id, p)
+    let pNode: PNode = this.getField(u.id, p)
     let outEdges = this.outEdges(pNode.id)
     if (outEdges) {
       for (let e of outEdges) {
@@ -153,48 +153,48 @@ export class PTAGraph extends GLIB.Graph {
           pendingClosures.push([wNode, u])
         } else if (wNode instanceof SetSpecialClosure) {
           // Skip
-        } else if (wNode instanceof StackNode) { 
-          debugConfig.logger.throwIriError("Stack node points to another stack node, somethings wrong!!!") 
+        } else if (wNode instanceof StackNode) {
+          debugConfig.logger.throwIriError("Stack node points to another stack node, somethings wrong!!!")
         } else {
           res.add(wNode)
         }
       }
     }
 
-    // // Process delayed closures
-    // let closureResults: Array<PTAGraph> = new Array()
-    // for (let [clos, objContext] of pendingClosures) {
-    //   let nextt = new PTAGraph()
-    //   nextt.union(this)
+    // Process delayed closures
+    let closureResults: Array<PTAGraph> = new Array()
+    for (let [clos, objContext] of pendingClosures) {
+      let nextt = new PTAGraph()
+      nextt.union(this)
 
-    //   let closureGraph = clos.meth.funBody
+      let closureGraph = clos.meth.funBody
 
-    //   // set THIS pointer to objContext
-    //   let cThisLookupName = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB)
-    //   let contextualThis = new StackNode(cThisLookupName)
-    //   nextt.addPTANode(contextualThis)
-    //   nextt.drawStackToHeapEdge(contextualThis, [objContext])
+      // set THIS pointer to objContext
+      let cThisLookupName = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB)
+      let contextualThis = new StackNode(cThisLookupName)
+      nextt.addPTANode(contextualThis)
+      nextt.drawStackToHeapEdge(contextualThis, [objContext])
 
-    //   nextt = PTA(closureGraph, true, nextt) // Save the sink...
-      
-    //   let sinks = closureGraph.sinks()
-    //   if (sinks.length !== 1) debugConfig.logger.throwIriError(`Sinks length !== 1, found ${sinks.length}`);
+      nextt = ContextualPTAHandler(objContext.id, iContext, nextt, closureGraph); // Save the sink...
 
-    //   let sink = sinks[0];
-    //   let sinkBB = closureGraph.getBBNode(sink);
+      let sinks = closureGraph.sinks()
+      if (sinks.length !== 1) debugConfig.logger.throwIriError(`Sinks length !== 1, found ${sinks.length}`);
 
-    //   // Point to all stuff the return can point to
-    //   if (sinkBB instanceof FunctionReturn) {
-    //     let argLookupName = getStackQualifiedName(sinkBB.arg.lookupName(), sinkBB)
-    //     let pointees = nextt.getPointees(argLookupName)
-    //     for (let p of pointees) res.add(p);
-    //   } else debugConfig.logger.throwIriError(`Expected sinks to be Function Returns in closures!!! found ${sinkBB.scope}`);
+      let sink = sinks[0];
+      let sinkBB = closureGraph.getBBNode(sink);
 
-    //   closureResults.push(nextt)
-    // }
+      // Point to all stuff the return can point to
+      if (sinkBB instanceof FunctionReturn) {
+        let argLookupName = getStackQualifiedName(sinkBB.arg.lookupName(), sinkBB)
+        let pointees = nextt.getPointees(argLookupName)
+        for (let p of pointees) res.add(p);
+      } else debugConfig.logger.throwIriError(`Expected sinks to be Function Returns in closures!!! found ${sinkBB.scope}`);
 
-    // // Merge closure results
-    // this.union(...closureResults)
+      closureResults.push(nextt)
+    }
+
+    // Merge closure results
+    this.union(...closureResults)
     return res;
   }
 
@@ -345,7 +345,7 @@ export class PTAGraph extends GLIB.Graph {
     } catch (err) {
       console.error('File write failed:', err);
     }
-    
+
     execSync(`dot -Tpng ${path + ".DOT"} -o ${path + ".png"}`);
   }
 

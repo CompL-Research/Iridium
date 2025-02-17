@@ -18,7 +18,7 @@ export const handleSimpleAssignmentStatement = (nextGraph: PTAGraph, qualifiedSt
 
 
 export const handleMemberAssignment = (origNextGraph: PTAGraph, us : Array<Valid_Stack_To_Heap_Pointees>, vs : Array<PTANode>, ps: Set<string>, currBB: BB, currBBIDx: string, stackInstOffset: number) => {
-    
+
   let closureResults : Array<PTAGraph> = new Array()
   let pendingClosures = origNextGraph.drawHeapToHeapEdge(us, vs, ps, true)
   let iContext = "BB" + currBBIDx + ":" + stackInstOffset;
