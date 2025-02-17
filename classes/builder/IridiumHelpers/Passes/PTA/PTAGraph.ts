@@ -112,18 +112,10 @@ export class PTAGraph extends GLIB.Graph {
       // Valid_Stack_To_Heap_Pointees = 
       // OrdinaryObject | OrdinaryFunctionObject | GlobalNode | ImportNode | LiteralNode;
 
-      if (
-        ptaNode instanceof OrdinaryObject ||
-        ptaNode instanceof OrdinaryFunctionObject ||
-        ptaNode instanceof OrdinaryArrayObject ||
-        ptaNode instanceof ClassObject ||
-        ptaNode instanceof GlobalNode ||
-        ptaNode instanceof ImportNode ||
-        ptaNode instanceof LiteralNode
-      ) {
-        return ptaNode
-      } else {
+      if (ptaNode instanceof StackNode) {
         debugConfig.logger.throwIriError(`Stack Node is pointing to an invalid node ${stackId} -> ${ptaNode.id}`);
+      } else {
+        return ptaNode;
       }
     }) : []
   }

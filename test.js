@@ -1203,10 +1203,15 @@
 // };
 // a[f] = 12;
 
-let x = {
-  set a(a) {
-    this.a = 3;     
-  },
-}
+// let x = {
+//   set a(a) {
+//     this.a = 3;
+//     this.b = 5;
+//     this.a = 6;
+//   },
+//   set b(a) {
+//     this.a = 4;
+//   },
+// }
 
-x.a = 2;
+// x.a = 2;

@@ -173,7 +173,6 @@ function iri(filePath) {
       if (err) {
         debugConfig.logger.error(`[JS3 Builder] Error writing to file at path: ${debugConfig.outputsPath}`, [err]);
       }
-      // Replace 'your-command-here' with the command you want to run
       exec(`dot -Tpng IRIDIUM.DOT -o IRIDIUM.png`, (error, stdout, stderr) => {
         if (error) {
           console.error(`Error: ${error.message}`);
