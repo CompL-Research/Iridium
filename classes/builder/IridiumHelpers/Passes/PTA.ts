@@ -12,16 +12,17 @@ import { IS1_AssignmentStmt, IS1_DeclarationStmt } from "../ALL_IS/IS_VarDecl.ts
 import { BB } from "../BB.ts";
 import { IRIDIUM_FG } from "../IRIDIUM.ts";
 
+import GLIB from "#graphlib";
+import { Environment } from "../I_GENERAL/I_Environment.ts";
 import { handleSimpleAssignmentStatement } from "./PTA/handleAssignments.ts";
-import { GlobalNode, ImportNode, PTANode, StackNode } from "./PTA/nodes.ts";
+import { GlobalNode, ImportNode, StackNode } from "./PTA/nodes.ts";
 import { PTAGraph } from "./PTA/PTAGraph.ts";
 import { PTARecorder } from "./PTA/PTARecorder.ts";
 import { handleRVals } from "./PTA/rvalHandler.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./PTA/util.ts";
-import GLIB from "#graphlib";
-import { Environment } from "../I_GENERAL/I_Environment.ts";
 
-const SAVE_RECORDING: boolean = true;
+const SAVE_RECORDING: boolean = false;
+const STATE_CURBING: boolean = true;
 
 type BBIdx = string;
 let getBBIdx = (bb: BB): BBIdx => '' + bb.idx;
@@ -39,41 +40,50 @@ export function startPTA(rootFG: IRIDIUM_FG) {
 
 const curbStateContext = (rootState: Environment, fg: PTAGraph) => {
   // 
-  // WIP, envs from future that are children of the rootState must not be curbed, this will cause unnecessary computation to take place
+  // envs from future that are children of the rootState must not be curbed, this will cause unnecessary computation to take place
   // 
 
-  // let toRemove : Array<StackNode> = new Array();
-  // let checkReachable = (currEnv: Environment, targetEnvIdx: number) => {
-  //   if (!currEnv) return false;
-  //   if (currEnv.idx === targetEnvIdx) return true;
-  //   return checkReachable(currEnv.parent, targetEnvIdx)
-  // }
-  // for (let n of fg.nodeMap.values()) {
-  //   if (n instanceof StackNode) {
-  //     let envID = parseInt(n.id.split("$")[0].slice(3));
-  //     if (!checkReachable(rootState, envID)) toRemove.push(n)
-  //   }
-  // }
-  // toRemove.forEach(n => fg.removePTANode(n))
-  // console.log(`Context Curbing : ${toRemove.map(e => e.id).join(",")}`)
+  let toRemove: Array<StackNode> = new Array();
+  let checkReachableDown = (currEnv: Environment, targetEnvIdx: number) => {
+    if (!currEnv) return false;
+    if (currEnv.idx === targetEnvIdx) return true;
+    return checkReachableDown(currEnv.parent, targetEnvIdx)
+  }
+
+  let checkReachableUp = (currEnv: Environment, targetEnvIdx: number) => {
+    if (!currEnv) return false;
+    if (currEnv.idx === targetEnvIdx) return true;
+    for (let c of currEnv.children) {
+      if (checkReachableUp(c, targetEnvIdx)) return true;
+    }
+    return false;
+  }
+
+  for (let n of fg.nodeMap.values()) {
+    if (n instanceof StackNode) {
+      let envID = parseInt(n.id.split("$")[0].slice(3));
+      if (checkReachableDown(rootState, envID) === false && checkReachableUp(rootState, envID) === false) {
+        toRemove.push(n);
+      }
+    }
+  }
+  toRemove.forEach(n => fg.removePTANode(n))
 }
 
-export function ContextualPTAHandler(objContext: string, iContext: string, incomingFG: PTAGraph, fg: IRIDIUM_FG) {  
-  curbStateContext(fg.rootBB.env, incomingFG);
+export function ContextualPTAHandler(objContext: string, iContext: string, incomingFG: PTAGraph, fg: IRIDIUM_FG) {
+  if (STATE_CURBING) curbStateContext(fg.rootBB.env, incomingFG);
+
   let graphHash = hashGraph(incomingFG);
   let contextKey = generateContextKey(objContext, iContext, graphHash);
-  
+
   if (!FLOW_CONTEXT.has(contextKey)) {
-    // console.log(`[PTA] Processing New Context: (${objContext}, ${iContext}, ${graphHash}) => ${contextKey}`);
     FLOW_CONTEXT.set(contextKey, null);
     let result = PTA(fg, incomingFG);
     FLOW_CONTEXT.set(contextKey, result);
     return result;
   } else if (FLOW_CONTEXT.get(contextKey) === null) {
-    // console.log(`[PTA] Context in Progress: (${objContext}, ${iContext}, ${graphHash}) => ${contextKey}`);
     return incomingFG;
   } else {
-    // console.log(`[PTA] Context Cached: (${objContext}, ${iContext}, ${graphHash}) => ${contextKey}`);
     return FLOW_CONTEXT.get(contextKey);
   }
 }
