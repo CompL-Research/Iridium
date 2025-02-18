@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Program",
+            "name": "Launch test.js",
             "request": "launch",
             "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
             "args": [
@@ -13,6 +13,26 @@
                 "/home/meetesh/wd/Iridium/iridium.ts",
                 "iri",
                 "/home/meetesh/wd/Iridium/test.js"
+            ],
+            "outFiles": ["${workspaceFolder}/classes/**/*.ts"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/playground/**",
+                "**/temp/**",
+                "**/tests/**",
+                "**/node_modules/**"
+            ],
+            "type": "node"
+        },
+        {
+            "name": "Launch YYAPM",
+            "request": "launch",
+            "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
+            "args": [
+                "--import=tsx",
+                "/home/meetesh/wd/Iridium/iridium.ts",
+                "iri",
+                "/home/meetesh/wd/Iridium/temp/YYAPM/app/page.tsx"
             ],
             "outFiles": ["${workspaceFolder}/classes/**/*.ts"],
             "skipFiles": [

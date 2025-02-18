@@ -66,17 +66,18 @@ export function cleanupBBs(fg: IRIDIUM_FG) {
     })
   } while (change);
 
+  let toRemove : Array<[IRIDIUM_FG, string]> = new Array();
+
+  // When backpatching break/continue statements, we might end up with unreachable BBs
+  // non-root sources are basically dead code...
   do {
     change = false;
+    // Find unreachable nodes
     traverseFGLexical(fg, (currFG: IRIDIUM_FG) => {
-      // When backpatching break/continue statements, we might end up with unreachable BBs
-      // non-root sources are basically dead code...
       let sources = currFG.sources()
-      for (let s of sources) {
-        if (s !== ('' + currFG.rootBB.idx)) {
-          fg.removeNode(s)
-          change = true
-        }
+      for (let s of sources) if (s !== ('' + currFG.rootBB.idx)) {
+        currFG.removeNode(s)
+        change = true;
       }
     })
 

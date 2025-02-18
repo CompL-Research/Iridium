@@ -42,15 +42,49 @@ export class StackNode extends PTANode {
 }
 
 // 
-// PJSX
+// PJSXObject
 // 
-export class PJSX extends PTANode {
+export class PJSXObject extends PTANode {
   constructor(id: string) {
     super(id)
   }
 
   toString() {
     return "PJSX"
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.toString()}",shape="square"]`
+  }
+}
+
+// 
+// JSXObject
+// 
+export class JSXObject extends PTANode {
+  constructor(id: string) {
+    super(id)
+  }
+
+  toString() {
+    return "JSX"
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.toString()}",shape="square"]`
+  }
+}
+
+// 
+// FJSXObject
+// 
+export class FJSXObject extends PTANode {
+  constructor(id: string) {
+    super(id)
+  }
+
+  toString() {
+    return "FJSX"
   }
 
   dotStyle() {

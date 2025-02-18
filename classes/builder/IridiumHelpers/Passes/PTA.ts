@@ -29,6 +29,9 @@ let getBBIdx = (bb: BB): BBIdx => '' + bb.idx;
 
 const FLOW_CONTEXT: Map<string, PTAGraph | null> = new Map();
 
+export const PTA_IN_RES : Map<string, PTAGraph> = new Map();
+export const PTA_OUT_RES : Map<string, PTAGraph> = new Map();
+
 export function startPTA(rootFG: IRIDIUM_FG) {
   // Initialize Boundary PTA
   let BOUNDARY_PTAGRAPH = new PTAGraph()
@@ -142,8 +145,14 @@ export function PTA(rootFG: IRIDIUM_FG, BOUNDARY_PTAGRAPH: PTAGraph) {
       nextGraph.union(...[BOUNDARY_PTAGRAPH])
     }
 
+    let inGraph = new PTAGraph()
+    inGraph.union(nextGraph)
+    PTA_IN_RES.set(currBBIDx, inGraph)
+
     // Flow Function 
     flowFunction(rootFG, nextGraph, currBBIDx, step);
+
+    PTA_OUT_RES.set(currBBIDx, nextGraph)
 
     if (SAVE_RECORDING) {
       const saving = `outputs/PTA/${Date.now()}_BB${currBBIDx}_OUT`;

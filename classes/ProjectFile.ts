@@ -86,7 +86,7 @@ export class ProjectFile {
       ['@babel/preset-react', { runtime: "classic", pragma: "###JSX###", pragmaFrag: "###JSXFRAG###" }]
     ]
 
-    if (this.extension === 'ts' || this.extension === 'tsx') presets.push(['@babel/preset-typescript'])
+    presets.push(['@babel/preset-typescript'])
 
     const options = {
       // cwd: this.projectBasePath,

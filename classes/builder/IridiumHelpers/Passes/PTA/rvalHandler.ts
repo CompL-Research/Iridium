@@ -25,7 +25,7 @@ import { IV_UpdateExpression } from "../../ALL_RVal/IV_UpdateExpression.ts";
 import { IV_AWAIT, IV_YIELD } from "../../ALL_RVal/IV_YIELD_AWAIT.ts";
 import { BB } from "../../BB.ts";
 import { handleMemberAssignment, handleSimpleAssignmentStatement } from "./handleAssignments.ts";
-import { BigIntNode, BooleanNode, ClassObject, DecimalNode, GetSpecialClosure, GlobalNode, NullNode, NumericNode, OrdinaryArrayObject, OrdinaryFunctionObject, OrdinaryObject, PTANode, SetSpecialClosure, StringNode, UnknownResultObj, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
+import { BigIntNode, BooleanNode, ClassObject, DecimalNode, FJSXObject, GetSpecialClosure, GlobalNode, JSXObject, NullNode, NumericNode, OrdinaryArrayObject, OrdinaryFunctionObject, OrdinaryObject, PJSXObject, PTANode, SetSpecialClosure, StringNode, UnknownResultObj, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
 import { PTAGraph } from "./PTAGraph.ts";
 import { dissernPointees, getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
 
@@ -421,7 +421,10 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
   // t_IV_NewExpression
   else if (rVal instanceof IV_NewExpression) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_NewExpression")
+    // debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_NewExpression")
+    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_NewExpression', currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj)
+    return [resObj]
   }
 
   // t_IV_UnaryExpression
@@ -489,11 +492,32 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
   // t_IV_JSX
   else if (rVal instanceof IV_PJSX) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_PJSX")
+    let resObj = new PJSXObject(getHeapQualifiedName('PJSX', currBBIDx, stackInstOffset))
+    nextGraph.declareNode(resObj)
+
+    for (let c of rVal.children) {
+      let pointees = nextGraph.getPointees(getStackQualifiedName(c.lookupName(), currBB))
+      nextGraph.drawHeapToHeapEdge([resObj], pointees, ["*"], true)
+    }
+    return [resObj]
   } else if (rVal instanceof IV_JSX) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_JSX")
+    let resObj = new JSXObject(getHeapQualifiedName('JSX', currBBIDx, stackInstOffset))
+    nextGraph.declareNode(resObj)
+
+    for (let c of rVal.children) {
+      let pointees = nextGraph.getPointees(getStackQualifiedName(c.lookupName(), currBB))
+      nextGraph.drawHeapToHeapEdge([resObj], pointees, ["*"], true)
+    }
+    return [resObj]
   } else if (rVal instanceof IV_FJSX) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_FJSX")
+    let resObj = new FJSXObject(getHeapQualifiedName('FJSX', currBBIDx, stackInstOffset))
+    nextGraph.declareNode(resObj)
+
+    for (let c of rVal.children) {
+      let pointees = nextGraph.getPointees(getStackQualifiedName(c.lookupName(), currBB))
+      nextGraph.drawHeapToHeapEdge([resObj], pointees, ["*"], true)
+    }
+    return [resObj]
   }
 
   debugConfig.logger.throwIriError("TODO: PTA - Unreachable fallthrough reached, something is prolly wrong in the code!!!")
