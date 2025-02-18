@@ -50,7 +50,7 @@ export class PJSXObject extends PTANode {
   }
 
   toString() {
-    return "PJSX"
+    return "PJSXObject"
   }
 
   dotStyle() {
@@ -67,7 +67,7 @@ export class JSXObject extends PTANode {
   }
 
   toString() {
-    return "JSX"
+    return "JSXObject"
   }
 
   dotStyle() {
@@ -84,11 +84,28 @@ export class FJSXObject extends PTANode {
   }
 
   toString() {
-    return "FJSX"
+    return "FJSXObject"
   }
 
   dotStyle() {
     return `[xlabel="${this.toString()}",shape="square"]`
+  }
+}
+
+// 
+// CSepObject
+// 
+export class CSepObject extends PTANode {
+  constructor(id: string) {
+    super(id)
+  }
+
+  toString() {
+    return "CSepObject"
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.id}",label="",shape="doublecircle",style="filled", fillcolor="yellow"]`
   }
 }
 

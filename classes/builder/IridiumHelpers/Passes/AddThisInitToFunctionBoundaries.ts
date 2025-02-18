@@ -49,7 +49,7 @@ export function addThisInitToFunctionBoundaries(rootFG: IRIDIUM_FG) {
       }
 
       //
-      // Class Methods
+      // Class Methods/Props
       // 
       else if (RVal instanceof IV_ClassExpression) {
         for (let p of RVal.properties) {

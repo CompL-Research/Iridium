@@ -293,8 +293,6 @@ export function handleExportNamedDeclaration(node: ExportNamedDeclaration, other
         declaredBindings.push(s.declarations[0].id.name)
       }
 
-      // Push declaration to the body
-      otherProps.others.holder.push(s);
 
       for (let b of declaredBindings) {
         let specifierArray = new Array()

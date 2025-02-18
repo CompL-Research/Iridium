@@ -1,6 +1,6 @@
 import debugConfig from "#debugConfig";
 import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../../ALL_AMP/ALL_AMP.ts";
-import { ISP_ArgSpread, ISP_ObjectMethod, ISP_ObjectProperty, ISP_Super } from "../../ALL_RVal/ALL_ISP.ts";
+import { ISP_ArgSpread, ISP_ObjectMethod, ISP_ObjectProperty, ISP_RestElement, ISP_Super } from "../../ALL_RVal/ALL_ISP.ts";
 import { IV_ASSIGNABLE } from "../../ALL_RVal/ALL_RVal.ts";
 import { IV_ArrayExpression } from "../../ALL_RVal/IV_ArrayExpression.ts";
 import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
@@ -23,9 +23,12 @@ import { IV_This } from "../../ALL_RVal/IV_This.ts";
 import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "../../ALL_RVal/IV_Unop.ts";
 import { IV_UpdateExpression } from "../../ALL_RVal/IV_UpdateExpression.ts";
 import { IV_AWAIT, IV_YIELD } from "../../ALL_RVal/IV_YIELD_AWAIT.ts";
-import { BB } from "../../BB.ts";
+import { BB, FunctionReturn } from "../../BB.ts";
+import { I_Function_params } from "../../I_GENERAL/I_Function.ts";
+import { IRIDIUM_FG } from "../../IRIDIUM.ts";
+import { ContextualPTAHandler } from "../PTA.ts";
 import { handleMemberAssignment, handleSimpleAssignmentStatement } from "./handleAssignments.ts";
-import { BigIntNode, BooleanNode, ClassObject, DecimalNode, FJSXObject, GetSpecialClosure, GlobalNode, JSXObject, NullNode, NumericNode, OrdinaryArrayObject, OrdinaryFunctionObject, OrdinaryObject, PJSXObject, PTANode, SetSpecialClosure, StringNode, UnknownResultObj, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
+import { BigIntNode, BooleanNode, ClassObject, CSepObject, DecimalNode, FJSXObject, GetSpecialClosure, GlobalNode, JSXObject, NullNode, NumericNode, OrdinaryArrayObject, OrdinaryFunctionObject, OrdinaryObject, PJSXObject, PNode, PTANode, SetSpecialClosure, StackNode, StringNode, UnknownResultObj, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
 import { PTAGraph } from "./PTAGraph.ts";
 import { dissernPointees, getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
 
@@ -38,6 +41,22 @@ export const dissernProps = (nextGraph: PTAGraph, name: string, stackQualifiedNa
   nextGraph.ensureNode(stackQualifiedName);
   let propPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(stackQualifiedName);
   return dissernPointees(propPointees);
+}
+
+export const getSpreadPointees = (nextGraph: PTAGraph, node: PTANode, iContext: string) => {
+  if (node instanceof OrdinaryObject || node instanceof OrdinaryArrayObject) {
+    let outwardEdges = nextGraph.outEdges(node.id);
+    let res: Set<PTANode> = new Set()
+    if (outwardEdges) {
+      for (let e of outwardEdges) {
+        let pointees = nextGraph.getFieldPointees(node, e.name, iContext, true);
+        pointees.forEach(p => res.add(p));
+      }
+    }
+    return res;
+  } else {
+    return undefined;
+  }
 }
 
 export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB, currBBIDx: string, stackInstOffset: number): Array<PTANode> => {
@@ -68,6 +87,8 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     let receiver = getStackQualifiedName(rVal.object.lookupName(), currBB)
     let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
     let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.property.lookupName(), rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB), rVal.computed);
+    if (dissernedProps.size === 0) dissernedProps.add("*");
+
     let closureResults: Array<PTAGraph> = new Array()
     for (let u of receiverPointees) {
       for (let p of dissernedProps) {
@@ -83,6 +104,8 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     let receiver = getStackQualifiedName(IV_This.lookupName(), currBB)
     let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
     let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.property.lookupName(), rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB), rVal.computed);
+    if (dissernedProps.size === 0) dissernedProps.add("*");
+
     let closureResults: Array<PTAGraph> = new Array()
     for (let u of receiverPointees) {
       for (let p of dissernedProps) {
@@ -98,6 +121,8 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     let receiver = getStackQualifiedName(ISP_Super.lookupName(), currBB)
     let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
     let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.property.lookupName(), rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB), rVal.computed);
+    if (dissernedProps.size === 0) dissernedProps.add("*");
+
     let closureResults: Array<PTAGraph> = new Array()
     for (let u of receiverPointees) {
       for (let p of dissernedProps) {
@@ -156,9 +181,131 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     nextGraph.declareNode(resObj)
     return [resObj]
   } else if (rVal instanceof IV_Call) {
-    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_Call', currBBIDx, stackInstOffset));
-    nextGraph.declareNode(resObj)
-    return [resObj]
+    let res: Set<PTANode> = new Set();
+    let calleeObj = nextGraph.getPointees(getStackQualifiedName(rVal.callee.lookupName(), currBB));
+    let closureResults: Array<PTAGraph> = new Array();
+    let iContext = "BB" + currBBIDx + ":" + stackInstOffset;
+
+    for (let c of calleeObj) {
+      if (c instanceof OrdinaryFunctionObject) {
+        let meth = c.meth;
+        let closureGraph: IRIDIUM_FG;
+        if (meth instanceof ISP_ObjectMethod) closureGraph = meth.funBody;
+        else closureGraph = meth.func.funBody;
+
+        let calleeArgs: I_Function_params;
+        if (meth instanceof ISP_ObjectMethod) calleeArgs = meth.params;
+        else calleeArgs = meth.func.params;
+
+        let rootBB: BB;
+        if (meth instanceof ISP_ObjectMethod) rootBB = meth.funBody.rootBB;
+        else rootBB = meth.func.funBody.rootBB;
+
+        let closureContextPTA = new PTAGraph();
+        closureContextPTA.union(nextGraph)
+
+        // 
+        // Create arguments object
+        // 
+        let argumentsObj = new OrdinaryArrayObject(getHeapQualifiedName("argumentsObj", currBBIDx, stackInstOffset))
+        closureContextPTA.declareNode(argumentsObj)
+        let i = 0;
+        let lastMapped = i;
+        for (; i < rVal.args.length; i++) {
+          let currArg = rVal.args[i];
+          if (currArg instanceof IV_Identifier) {
+            let pointees = closureContextPTA.getPointees(getStackQualifiedName(currArg.lookupName(), currBB))
+            // ArgumentsObj --[i]--> pointees 
+            closureContextPTA.drawHeapToHeapEdge([argumentsObj], pointees, ['' + i], true)
+            lastMapped = i;
+          } else {
+            if (i + 1 !== rVal.args.length) debugConfig.logger.throwIriError("Expecting Spread operator to be the last supplied argument");
+            let pointees = closureContextPTA.getPointees(getStackQualifiedName(currArg.arg.lookupName(), currBB))
+            // ArgumentsObj --[*]--> pointees 
+            for (let pp of pointees) {
+              let spreadPointees = getSpreadPointees(closureContextPTA, pp, iContext)
+              closureContextPTA.drawHeapToHeapEdge([argumentsObj], [...spreadPointees], ['*'], true)
+            }
+          }
+        }
+
+        // 
+        // Match formals (or the other one... I forgor), 
+        // 
+        let j = 0;
+        for (; j < calleeArgs.length; j++) {
+          let currArg = calleeArgs[j];
+          if (currArg instanceof IV_Identifier) {
+            let argStackQualifiedName = getStackQualifiedName(currArg.lookupName(), rootBB)
+            let argStackNode = new StackNode(argStackQualifiedName)
+            closureContextPTA.declareNode(argStackNode);
+            if (j <= lastMapped) {
+              // 
+              // argStackQualifiedName --> argumentsObj.j
+              // 
+              if (!closureContextPTA.hasField(argumentsObj.id, '' + j)) debugConfig.logger.throwIriError("Expecting field to exist");
+              let pointees = closureContextPTA.getFieldPointees(argumentsObj, '' + j, iContext, true, false);
+              closureContextPTA.drawStackToHeapEdge(argStackNode, [...pointees]);
+
+            } else {
+              // 
+              // argStackQualifiedName --> argumentsObj.*
+              // 
+              if (!closureContextPTA.hasField(argumentsObj.id, '*')) debugConfig.logger.throwIriError("Expecting field to exist");
+              let pointees = closureContextPTA.getFieldPointees(argumentsObj, '*', iContext, true);
+              closureContextPTA.drawStackToHeapEdge(argStackNode, [...pointees]);
+            }
+          } else {
+            if (j + 1 !== calleeArgs.length) debugConfig.logger.throwIriError("Expecting Spread operator to be the last function argument");
+            let spillHolderObj = new OrdinaryArrayObject(getHeapQualifiedName(currArg.arg.lookupName(), currBBIDx, stackInstOffset))
+            closureContextPTA.declareNode(spillHolderObj);
+            let argStackQualifiedName = getStackQualifiedName(currArg.arg.lookupName(), rootBB);
+            let argStackNode = new StackNode(argStackQualifiedName)
+            closureContextPTA.declareNode(argStackNode);
+            let counter = 0;
+            for (let k = j; k <= lastMapped; k++) {
+              // 
+              // argStackQualifiedName ---> spillHolderObj --[k]--> U {argumentsObj.j...argumentsObj.lastMapped} 
+              // 
+              if (!closureContextPTA.hasField(argumentsObj.id, '' + k)) debugConfig.logger.throwIriError("Expecting field to exist");
+              let pointees = closureContextPTA.getFieldPointees(argumentsObj, '' + k, iContext, true, false);
+              closureContextPTA.drawHeapToHeapEdge([spillHolderObj], [...pointees], ['' + counter], true)
+              counter++;
+            }
+            // argStackQualifiedName ---> spillHolderObj --[k]--> argumentsObj.*
+            if (closureContextPTA.hasField(argumentsObj.id, '*')) {
+              let pointees = closureContextPTA.getFieldPointees(argumentsObj, '*', iContext, true);
+              closureContextPTA.drawHeapToHeapEdge([spillHolderObj], [...pointees], ['*'], true)
+            }
+            closureContextPTA.drawStackToHeapEdge(argStackNode, [spillHolderObj]);
+          }
+        }
+
+        // 
+        // Evaluate Closure
+        // 
+        let nextt = ContextualPTAHandler(c.id, iContext, closureContextPTA, closureGraph);
+        let sinks = closureGraph.sinks()
+        if (sinks.length !== 1) debugConfig.logger.throwIriError(`Sinks length !== 1, found ${sinks.length}`);
+        let sink = sinks[0];
+        let sinkBB = closureGraph.getBBNode(sink);
+        
+        // 
+        // Point to all stuff the return can point to
+        // 
+        if (sinkBB instanceof FunctionReturn) {
+          let argLookupName = getStackQualifiedName(sinkBB.arg.lookupName(), sinkBB)
+          let pointees = nextt.getPointees(argLookupName);
+          pointees.forEach(p => res.add(p));
+        } else debugConfig.logger.throwIriError(`Expected sinks to be Function Returns in closures!!! found ${sinkBB.scope}`);
+        closureResults.push(nextt);
+      } else {
+        debugConfig.logger.warn("PTA is skipping analysis of non-callable object");
+      }
+    }
+
+    nextGraph.union(...closureResults);
+    return [...res];
   } else if (rVal instanceof IV_SuperCall) {
     let resObj = new UnknownResultObj(getHeapQualifiedName('IV_SuperCall', currBBIDx, stackInstOffset));
     nextGraph.declareNode(resObj)
@@ -234,6 +381,7 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
 
     let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.LVal.property.lookupName(), rVal.LVal.computed && getStackQualifiedName(rVal.LVal.property.lookupName(), currBB), rVal.LVal.computed);
+    if (dissernedProps.size === 0) dissernedProps.add("*");
 
     let res: Array<PTANode> = handleRVals(nextGraph, rVal.RVal, currBB, currBBIDx, stackInstOffset)
 
@@ -245,6 +393,7 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
 
     let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.LVal.property.lookupName(), rVal.LVal.computed && getStackQualifiedName(rVal.LVal.property.lookupName(), currBB), rVal.LVal.computed);
+    if (dissernedProps.size === 0) dissernedProps.add("*");
 
     let res: Array<PTANode> = handleRVals(nextGraph, rVal.RVal, currBB, currBBIDx, stackInstOffset)
 
@@ -257,6 +406,7 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     let receiverPointees: Array<Valid_Stack_To_Heap_Pointees> = nextGraph.getPointees(receiver)
 
     let dissernedProps: Set<string> = dissernProps(nextGraph, rVal.LVal.property.lookupName(), rVal.LVal.computed && getStackQualifiedName(rVal.LVal.property.lookupName(), currBB), rVal.LVal.computed);
+    if (dissernedProps.size === 0) dissernedProps.add("*");
 
     let res: Array<PTANode> = handleRVals(nextGraph, rVal.RVal, currBB, currBBIDx, stackInstOffset)
 
@@ -282,6 +432,7 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
     for (let p of rVal.properties) {
       if (p instanceof ISP_ObjectMethod) {
         let dissernedProps: Set<string> = dissernProps(nextGraph, p.key.lookupName(), p.computed && getStackQualifiedName(p.key.lookupName(), currBB), p.computed);
+        if (dissernedProps.size === 0) dissernedProps.add("*");
         let pointee: OrdinaryFunctionObject | GetSpecialClosure | SetSpecialClosure;
         if (p.kind === "method") {
           pointee = new OrdinaryFunctionObject(getHeapQualifiedName('ObjMeth' + i, currBBIDx, stackInstOffset), p)
@@ -301,6 +452,7 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
       } else if (p instanceof ISP_ObjectProperty) {
         let dissernedProps: Set<string> = dissernProps(nextGraph, p.key.lookupName(), p.computed && getStackQualifiedName(p.key.lookupName(), currBB), p.computed);
+        if (dissernedProps.size === 0) dissernedProps.add("*");
         // 
         // [Ordinary Object] --[dissernedProps]--> PNode --e--> RVal(s)
         //                                               --h--> UNCHANGED
@@ -398,9 +550,13 @@ export const handleRVals = (nextGraph: PTAGraph, rVal: IV_ASSIGNABLE, currBB: BB
 
   // t_IV_ConditionalExpression
   else if (rVal instanceof IV_ConditionalExpression) {
-    let resObj = new UnknownResultObj(getHeapQualifiedName('IV_ConditionalExpression', currBBIDx, stackInstOffset));
-    nextGraph.declareNode(resObj)
-    return [resObj]
+    let resObj = new CSepObject(getHeapQualifiedName("CondExpr", currBBIDx, stackInstOffset));
+    nextGraph.declareNode(resObj);
+    let pointees1 = nextGraph.getPointees(getStackQualifiedName(rVal.consequent.lookupName(), currBB));
+    let pointees2 = nextGraph.getPointees(getStackQualifiedName(rVal.alternate.lookupName(), currBB));
+    for (let p of pointees1) nextGraph.setEdge(resObj.id, p.id, "T", "T");
+    for (let p of pointees2) nextGraph.setEdge(resObj.id, p.id, "F", "F");
+    return [resObj];
   }
 
   // t_IV_FunctionExpression

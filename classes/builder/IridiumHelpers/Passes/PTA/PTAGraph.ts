@@ -126,10 +126,13 @@ export class PTAGraph extends GLIB.Graph {
     return this.hasNode(pNodeName)
   }
 
-  getFieldPointees(u: StackNode, p: string, iContext: string, onlyEnumerable: boolean = false): Set<Valid_Stack_To_Heap_Pointees> {
+  getFieldPointees(u: PTANode, p: string, iContext: string, onlyEnumerable: boolean = false, includeStartResults : boolean = true): Set<Valid_Stack_To_Heap_Pointees> {
     let pendingClosures: Array<[GetSpecialClosure, Valid_Stack_To_Heap_Pointees]> = new Array()
     let res: Set<Valid_Stack_To_Heap_Pointees> = new Set()
-    if (!this.hasField(u.id, p)) this.addField(u.id, p);
+    if (!this.hasField(u.id, p)) {
+      this.addField(u.id, p);
+      this.setEdge(u.id, this.getField(u.id, p).id, p, p)
+    }
     let pNode: PNode = this.getField(u.id, p)
     let outEdges = this.outEdges(pNode.id)
     if (outEdges) {
@@ -187,6 +190,13 @@ export class PTAGraph extends GLIB.Graph {
 
     // Merge closure results
     this.union(...closureResults)
+
+    if (includeStartResults === true && p !== "*" && this.hasField(u.id, "*")) {
+      // Unresolved fields can also be pointees, process "*"
+      let res1 = this.getFieldPointees(u, "*", iContext, onlyEnumerable)
+      res1.forEach(e => res.add(e))
+    }
+
     return res;
   }
 

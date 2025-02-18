@@ -1216,10 +1216,45 @@
 
 // x.a = 2;
 
-// let f = <div>
-//   <div>1</div>
-//   <div>2</div>
+// let test = false;
+// let Comp1 = <div></div>
+// let Comp2 = <div></div>
+// let Comp3 = <div></div>
+
+// export const f = <div a={12}>
+//   {
+//     test ? Comp1 : Comp2
+//   }
+//   {
+//     test && <Comp3/>
+//   }
 //   <div>3</div>
 //   <div>4</div>
 //   5
 // </div>
+
+
+
+// export let {a, b: foo} = { a: 1, b: 121 }
+
+
+// let x = {
+//   f: 12,
+//   [xx]: 13
+// }
+
+// let b = x.f;
+
+let x = [7,8,9];
+
+let a = (boo) => {
+  x = boo;
+}
+
+let boo = a({
+  container: 12,
+  get f() { return this.container; },
+  set f(a) { this.container = a; }
+})
+
+let res = x.f;

@@ -21,7 +21,7 @@ import { PTARecorder } from "./PTA/PTARecorder.ts";
 import { handleRVals } from "./PTA/rvalHandler.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./PTA/util.ts";
 
-const SAVE_RECORDING: boolean = false;
+const SAVE_RECORDING: boolean = true;
 const STATE_CURBING: boolean = true;
 
 type BBIdx = string;
@@ -155,7 +155,7 @@ export function PTA(rootFG: IRIDIUM_FG, BOUNDARY_PTAGRAPH: PTAGraph) {
     PTA_OUT_RES.set(currBBIDx, nextGraph)
 
     if (SAVE_RECORDING) {
-      const saving = `outputs/PTA/${Date.now()}_BB${currBBIDx}_OUT`;
+      const saving = `outputs/PTA/BB${currBBIDx}_OUT`;
       nextGraph.saveDotToFile(saving)
     }
 
@@ -178,11 +178,11 @@ export function PTA(rootFG: IRIDIUM_FG, BOUNDARY_PTAGRAPH: PTAGraph) {
     doWorklist(popSet(worklist));
   }
 
-  // if (SAVE_RECORDING) {
-  //   try {
-  //     execSync(`rm outputs/PTA/*.DOT 2>/dev/null`);
-  //   } catch(e) {} finally {}
-  // }
+  if (SAVE_RECORDING) {
+    try {
+      execSync(`rm outputs/PTA/*.DOT 2>/dev/null`);
+    } catch(e) {} finally {}
+  }
 
   // Send back the sink, we need it to merge closures!!!!
   let sinks = rootFG.sinks();
