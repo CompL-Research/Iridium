@@ -16,7 +16,7 @@ import IRIDIUM from 'classes/builder/IridiumHelpers/IRIDIUM.ts'
 import { exec } from 'child_process';
 
 
-const VERSION = "0.3a"
+const VERSION = "0.4a"
 const directories = ['./classes', './configs', './docs'];
 
 debugConfig.versionNumber = `Iridium ${VERSION}`

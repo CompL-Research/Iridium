@@ -1259,10 +1259,13 @@
 
 // let res = x.f;
 
-let log = console.log;
+// let log = console.log;
 
-let x = log;
+// let x = log;
 
-while (true) {
-  x = x.log;
-}
+// while (true) {
+//   x = x.log;
+// }
+
+import A from 'test1.js';
+console.log(A);

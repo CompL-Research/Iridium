@@ -46,12 +46,12 @@ export class IS_BImport extends ALL_IS {
   }
 
   toString(space = 0) {
-    if (this.defaultImport) return `${printScopedSpace(space)}▏ BIMPORT ${this.local.toString()} from ${this.FROM.toString()};`
+    // if (this.defaultImport) return `${printScopedSpace(space)}▏ BIMPORT ${this.local.toString()} from ${this.FROM.toString()};`
     return `${printScopedSpace(space)}▏ BIMPORT { ${this.remote.toString()} as ${this.local.toString()} } from ${this.FROM.toString()};`
   }
 
   toDOT(space = 0) {
-    if (this.defaultImport) return `${printSpace(space)} BIMPORT ${this.local.toString()} from ${this.FROM.toString()};`
+    // if (this.defaultImport) return `${printSpace(space)} BIMPORT ${this.local.toString()} from ${this.FROM.toString()};`
     return `${printSpace(space)} BIMPORT { ${this.remote.toString()} as ${this.local.toString()} } from ${this.FROM.toString()};`
   }
 }
