@@ -1498,8 +1498,7 @@ export default class IRIDIUM {
       if (this.getCurrentFGContext() !== fgContext) debugConfig.logger.throwIriError("FG Context not expected to change")
       
       let currBB = fgContext.getCurrentBB()
-      let argSpillBB = new BlockBB(currBB.env, a)
-      fgContext.declareBBNode(argSpillBB)
+      let argSpillBB = fgContext.declareBBNode(currBB.create());
       let postBB = fgContext.declareBBNode(currBB.create())
       if (currBB.branchTerminal) debugConfig.logger.throwIriError("Forwarding successors while branch terminal is already set")
       fgContext.forwardSuccessorsBB(currBB, postBB)

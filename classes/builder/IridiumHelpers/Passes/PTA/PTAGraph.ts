@@ -5,7 +5,7 @@ import fs from "node:fs";
 import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
 import { FunctionReturn } from "../../BB.ts";
 import { ContextualPTAHandler } from "../PTA.ts";
-import { ClassObject, GetSpecialClosure, GlobalNode, ImportNode, LiteralNode, OrdinaryArrayObject, OrdinaryFunctionObject, OrdinaryObject, PNode, PTANode, SetSpecialClosure, StackNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
+import { ClassObject, DummyObject, GetSpecialClosure, GlobalNode, ImportNode, LiteralNode, OrdinaryArrayObject, OrdinaryFunctionObject, OrdinaryObject, PNode, PTANode, SetSpecialClosure, StackNode, Valid_Stack_To_Heap_Pointees } from "./nodes.ts";
 import { getStackQualifiedName } from "./util.ts";
 
 export class PTAGraph extends GLIB.Graph {
@@ -127,34 +127,72 @@ export class PTAGraph extends GLIB.Graph {
   }
 
   getFieldPointees(u: PTANode, p: string, iContext: string, onlyEnumerable: boolean = false, includeStartResults : boolean = true): Set<Valid_Stack_To_Heap_Pointees> {
-    let pendingClosures: Array<[GetSpecialClosure, Valid_Stack_To_Heap_Pointees]> = new Array()
-    let res: Set<Valid_Stack_To_Heap_Pointees> = new Set()
-    if (!this.hasField(u.id, p)) {
-      this.addField(u.id, p);
-      this.setEdge(u.id, this.getField(u.id, p).id, p, p)
-    }
-    let pNode: PNode = this.getField(u.id, p)
-    let outEdges = this.outEdges(pNode.id)
-    if (outEdges) {
-      for (let e of outEdges) {
-        // 
-        // u --p--> [pNode] --h/w--> wNode/GetSpecialClosure
-        // 
 
-        if (onlyEnumerable && e.name === "h") continue; // skip non enumerable edges
-        let w = e.w;
-        let wNode = this.getPTANode(w);
-        if (wNode instanceof GetSpecialClosure) {
-          pendingClosures.push([wNode, u])
-        } else if (wNode instanceof SetSpecialClosure) {
-          // Skip
-        } else if (wNode instanceof StackNode) {
-          debugConfig.logger.throwIriError("Stack node points to another stack node, somethings wrong!!!")
-        } else {
-          res.add(wNode)
+    // 
+    //  -- Populate 'result' set with everything from '*'
+    //  -- If field 'p' exists:
+    //    -- add pointees to 'result'
+    //  -- Else:
+    //    -- It is possible we are already a dummy, in which case create a self loop unto thyself.
+    //      -- add thyself to the result set.
+    //    -- Else: declare a dummy with appropritate level and add it to 'result'
+    //  -- Filter results from closures
+    //  -- Evaluate closures
+    //  
+    let initialPointees: Set<Valid_Stack_To_Heap_Pointees> = new Set();
+
+    let getPointeesFromPNode = (p: PNode) => {
+      let outEdges = this.outEdges(p.id);
+      let res : Set<PTANode> = new Set();
+      if (outEdges) {
+        for (let e of outEdges) {
+          if (onlyEnumerable && e.name === "h") continue; // skip non-enumerable edges
+          res.add(this.getPTANode(e.w));
         }
       }
+      return res;
+    };
+
+    // '*'
+    let starField = '*';
+    if (!this.hasField(u.id, starField)) {
+      this.addField(u.id, starField);
+      this.setEdge(u.id, this.getField(u.id, starField).id, starField, starField);
     }
+    let starPNode = this.getField(u.id, starField);
+    if (!includeStartResults) {
+      let starPointees = getPointeesFromPNode(starPNode);
+      starPointees.forEach(sp => initialPointees.add(sp));
+    }
+
+    // Field 'p'
+    if (this.hasField(u.id, p)) {
+      let pNode = this.getField(u.id, p);
+      let fieldPointees = getPointeesFromPNode(pNode);
+      fieldPointees.forEach(fp => initialPointees.add(fp));
+    } else {
+      if (u.dummyLevel <= PTANode.DUMMY_THRESHOLD) {
+        this.addField(u.id, p);
+        this.setEdge(u.id, this.getField(u.id, p).id, p, p);
+        let pNode = this.getField(u.id, p);
+        
+        let dummyObj = new DummyObject(pNode.id + ":" + (u.dummyLevel + 1));
+        dummyObj.dummyLevel = u.dummyLevel + 1;
+        this.declareNode(dummyObj);
+
+        this.setEdge(pNode.id, dummyObj.id, 'e', 'e');
+        initialPointees.add(dummyObj);
+      } else {
+        // Create a self loop unto thyself
+        this.setEdge(starPNode.id, u.id, 'e', 'e');
+        initialPointees.add(u);
+      }
+    }
+
+    let res: Set<Valid_Stack_To_Heap_Pointees> = new Set();
+    let initialPointeesArr = [...initialPointees];
+    let pendingClosures: Array<[GetSpecialClosure, Valid_Stack_To_Heap_Pointees]> = initialPointeesArr.filter(f => f instanceof GetSpecialClosure).map(e => [e, u]);
+    initialPointeesArr.filter(f => !(f instanceof GetSpecialClosure || f instanceof SetSpecialClosure)).forEach(p => res.add(p));
 
     // Process delayed closures
     let closureResults: Array<PTAGraph> = new Array()
@@ -190,12 +228,6 @@ export class PTAGraph extends GLIB.Graph {
 
     // Merge closure results
     this.union(...closureResults)
-
-    if (includeStartResults === true && p !== "*" && this.hasField(u.id, "*")) {
-      // Unresolved fields can also be pointees, process "*"
-      let res1 = this.getFieldPointees(u, "*", iContext, onlyEnumerable)
-      res1.forEach(e => res.add(e))
-    }
 
     return res;
   }

@@ -6,6 +6,8 @@ import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
 import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
 
 export class PTANode {
+  static DUMMY_THRESHOLD: number = 3;
+  dummyLevel: number = 0;
   id: string
   constructor(id: string) {
     this.id = id
@@ -38,6 +40,24 @@ export class StackNode extends PTANode {
 
   dotStyle() {
     return `[shape="plain"]`
+  }
+}
+
+
+// 
+// DummyObject
+// 
+export class DummyObject extends PTANode {
+  constructor(id: string) {
+    super(id)
+  }
+
+  toString() {
+    return "DummyObject"
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.toString()}",shape="square",style="filled", fillcolor="orange"]`
   }
 }
 
@@ -290,7 +310,7 @@ export class ImportNode extends PTANode {
   }
 
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="square",style="filled", fillcolor="yellow"]`
+    return `[xlabel="${this.toString().replace(/"/g, '\\"')}",shape="square",style="filled",fillcolor="yellow"]`
   }
 }
 

@@ -1245,16 +1245,24 @@
 
 // let b = x.f;
 
-let x = [7,8,9];
+// let x = [7,8,9];
 
-let a = (boo) => {
-  x = boo;
+// let a = (boo) => {
+//   x = boo;
+// }
+
+// let boo = a({
+//   container: 12,
+//   get f() { return this.container; },
+//   set f(a) { this.container = a; }
+// })
+
+// let res = x.f;
+
+let log = console.log;
+
+let x = log;
+
+while (true) {
+  x = x.log;
 }
-
-let boo = a({
-  container: 12,
-  get f() { return this.container; },
-  set f(a) { this.container = a; }
-})
-
-let res = x.f;

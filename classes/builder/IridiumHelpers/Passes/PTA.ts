@@ -36,7 +36,11 @@ export function startPTA(rootFG: IRIDIUM_FG) {
   // Initialize Boundary PTA
   let BOUNDARY_PTAGRAPH = new PTAGraph()
   for (let [o, _] of rootFG.rootBB.env.parent.bindings) {
-    BOUNDARY_PTAGRAPH.addPTANode((new GlobalNode("ENV0$" + o)))
+    let stackNode = new StackNode("ENV0$" + o);
+    BOUNDARY_PTAGRAPH.declareNode(stackNode);
+    let heapNode = new GlobalNode(o);
+    BOUNDARY_PTAGRAPH.declareNode(heapNode);
+    BOUNDARY_PTAGRAPH.drawStackToHeapEdge(stackNode, [heapNode]);
   }
   ContextualPTAHandler("$", "$", BOUNDARY_PTAGRAPH, rootFG)
 }
