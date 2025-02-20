@@ -1,5 +1,9 @@
 import debugConfig from "#debugConfig";
-import { hasPackageJson, initializeOutputsPath } from "#utils";
+import {
+  ensurePathExists,
+  hasPackageJson,
+  initializeOutputsPath,
+} from "#utils";
 import chalk from "chalk";
 import { I_Container } from "classes/builder/IridiumHelpers/I_GENERAL/I_Container.ts";
 import JS3Builder from "classes/builder/JS3Builder.ts";
@@ -61,8 +65,12 @@ function js3(filePath) {
 }
 
 function iri(filePath) {
-  initializeOutputsPath();
   try {
+    initializeOutputsPath();
+    if (debugConfig.cli.savePTAGraph) {
+      const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
+      ensurePathExists(PTAPATH);
+    }
     // 1. Loading The File
     const projectFile = new ProjectFile(filePath, path.dirname(filePath));
     projectFile.initSync(debugConfig.cli.sourceType);
@@ -162,6 +170,7 @@ if (mainCommand === "js3") {
     stopAtFirstUnknown: true,
   });
   const PATH_TO_PROJECT = path.resolve(subOptions.command);
+  argv = subOptions._unknown || [];
 
   if (!hasPackageJson(PATH_TO_PROJECT)) {
     console.error(

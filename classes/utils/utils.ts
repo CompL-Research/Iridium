@@ -94,7 +94,8 @@ export function resolveModuleImport(
 ): string | undefined {
   let nodeResolutionError;
   // Try resolving using node.resolve
-  const command = `node -e "process.stdout.write(require.resolve('${source}', { paths: [ '${path.dirname(absoluteFilePath)}' ] }))" 2>/dev/null`;
+  const command = `/home/meetesh/.nvm/versions/node/v20.18.0/bin/node -e "process.stdout.write(require.resolve('${source}', { paths: [ '${path.dirname(absoluteFilePath)}', '${projectBasePath}' ] }))" 2>/dev/null`;
+
   try {
     // Execute the command synchronously with the specified working directory
     const result = execSync(command, {

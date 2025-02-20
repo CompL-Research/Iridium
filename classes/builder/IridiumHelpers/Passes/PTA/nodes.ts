@@ -3,6 +3,7 @@ import { IV_StringLiteral } from "../../ALL_RVal/IV_Literals.ts";
 import debugConfig from "#debugConfig";
 import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
 import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
+import { I_Container } from "../../I_GENERAL/I_Container.ts";
 
 export class PTANode {
   static DUMMY_THRESHOLD: number = 3;
@@ -384,10 +385,19 @@ export class GetSpecialClosure extends PTANode {
 export class ImportNode extends PTANode {
   FROM: IV_StringLiteral;
   isStatic: boolean = true;
+  resolvedContainer: I_Container = null;
   constructor(id: string, FROM: IV_StringLiteral, isStatic: boolean) {
     super(id);
     this.FROM = FROM;
     this.isStatic = isStatic;
+  }
+
+  isResolved() {
+    return this.resolvedContainer !== null;
+  }
+
+  addContainer(resolvedContainer: I_Container) {
+    this.resolvedContainer = resolvedContainer;
   }
 
   toString() {
@@ -395,6 +405,8 @@ export class ImportNode extends PTANode {
   }
 
   dotStyle() {
+    if (this.isResolved())
+      return `[xlabel="${this.toString().replace(/"/g, '\\"')}",shape="square",style="filled",fillcolor="green"]`;
     return `[xlabel="${this.toString().replace(/"/g, '\\"')}",shape="square",style="filled",fillcolor="yellow"]`;
   }
 }

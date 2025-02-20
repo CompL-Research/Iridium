@@ -30,14 +30,14 @@ export type JS3BuilderUtils = {
 export default class JS3Builder {
   projectFile: ProjectFile;
   generatedAST: JS3File | null;
-  #varIdx: number = 0;
+  static varIdx: number = 0;
   generatedCode: string = "";
   sourceMap: string = "";
   uri: string = "";
 
   utils: JS3BuilderUtils = {
     getNewTemporary: (prefix: string | undefined) =>
-      `${prefix ? prefix : "js3"}$${++this.#varIdx}`,
+      `${prefix ? prefix : "js3"}$${++JS3Builder.varIdx}`,
     debugTrace: new Array<string>(),
   };
 

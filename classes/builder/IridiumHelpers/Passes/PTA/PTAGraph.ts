@@ -14,6 +14,7 @@ import {
   Valid_Stack_To_Heap_Pointees,
 } from "./nodes.ts";
 import { getStackQualifiedName } from "./util.ts";
+import { execSync } from "node:child_process";
 
 export class PTAGraph extends GLIB.Graph {
   nodeMap: Map<string, PTANode> = new Map();
@@ -46,6 +47,44 @@ export class PTAGraph extends GLIB.Graph {
     if (this.hasNode(n.id)) return;
     this.removeNode(n.id);
     this.nodeMap.delete(n.id);
+  }
+
+  replacePTANode(oldNode: PTANode, newNode: PTANode) {
+    if (!this.hasNode(oldNode.id))
+      debugConfig.logger.throwIriError(
+        "Expected oldNode to exist when calling replacePTANode",
+      );
+
+    this.addPTANode(newNode); // Ensure new node is added
+
+    const outEdges = this.outEdges(oldNode.id);
+    // Transfer incoming edges
+    if (outEdges) {
+      outEdges.forEach((e) => {
+        // If e.w is a Proxy Node, replace the proxy first
+        const wNode = this.getPTANode(e.w);
+        if (wNode instanceof PNode) {
+          this.addField(newNode.id, e.name);
+          const newPnode = this.getField(newNode.id, e.name);
+          this.replacePTANode(wNode, newPnode);
+          this.removePTANode(wNode);
+        } else {
+          this.setEdge(newNode.id, e.w, e.name, e.name);
+          this.removeEdge(e.v, e.w, e.name);
+        }
+      });
+    }
+
+    const inEdges = this.outEdges(oldNode.id);
+    // Transfer incoming edges
+    if (inEdges) {
+      inEdges.forEach((e) => {
+        this.setEdge(e.v, newNode.id, e.name, e.name);
+        this.removeEdge(e.v, e.w, e.name);
+      });
+    }
+
+    this.removePTANode(oldNode); // Remove old node
   }
 
   getPTANode(u: string) {
@@ -460,6 +499,7 @@ export class PTAGraph extends GLIB.Graph {
   saveDotToFile(path) {
     try {
       fs.writeFileSync(path + ".DOT", this.saveDebugDot());
+      execSync(`dot -Tpng ${path + ".DOT"} -o ${path + ".png"}`);
     } catch (err) {
       console.error("File write failed:", err);
     }

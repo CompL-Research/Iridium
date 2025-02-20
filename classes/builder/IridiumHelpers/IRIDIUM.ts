@@ -303,7 +303,7 @@ import {
 } from "./BB.ts";
 import { Environment, GlobalEnvironment } from "./I_GENERAL/I_Environment.ts";
 
-import { ensurePathExists } from "#utils";
+import { resolveModuleImport } from "#utils";
 import { IV_FJSX, IV_JSX, IV_PJSX } from "./ALL_RVal/IV_JSX.ts";
 import { addThisInitToFunctionBoundaries } from "./Passes/AddThisInitToFunctionBoundaries.ts";
 import { cleanupBBs } from "./Passes/BBCleanup.ts";
@@ -320,6 +320,8 @@ import {
   PTANode,
   ReactRenderRoot,
 } from "./Passes/PTA/nodes.ts";
+import { ProjectFile } from "classes/ProjectFile.ts";
+import { I_Container } from "./I_GENERAL/I_Container.ts";
 
 const generate = _generate.default;
 
@@ -373,6 +375,10 @@ export default class IRIDIUM_MODULE {
     normalizeReturns(res);
     initializeEnvDefs(res);
     cleanupBBs(res);
+
+    this.fg = res;
+
+    // Start PTA
     startPTA(res);
 
     if (debugConfig.cli.savePTAGraph) {
@@ -381,15 +387,13 @@ export default class IRIDIUM_MODULE {
         this.js3builder.projectFile.extension,
       );
       const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
-
-      ensurePathExists(PTAPATH);
       // Iterate over all the nodes of this file
       const nodes = res.nodes();
       for (const n of nodes) {
         const inRes = PTA_IN_RES.get(n);
         const outRes = PTA_OUT_RES.get(n);
-        inRes.saveDotToFile(`${PTAPATH}/${filename}_${n}_IN`);
-        outRes.saveDotToFile(`${PTAPATH}/${filename}_${n}_OUT`);
+        inRes.saveDotToFile(`${PTAPATH}/${filename}_uncomposed_${n}_IN`);
+        outRes.saveDotToFile(`${PTAPATH}/${filename}_uncomposed${n}_OUT`);
       }
     }
 
@@ -447,6 +451,13 @@ export default class IRIDIUM_MODULE {
       return res;
     };
 
+    const updateResolvedNode = (iNode: ImportNode, container: I_Container) => {
+      const existingIN = PTA_IN_RES.get("" + this.fg.rootBB.idx);
+      const resNode = new ImportNode(iNode.id, iNode.FROM, iNode.isStatic);
+      resNode.addContainer(container);
+      existingIN.addPTANode(resNode);
+    };
+
     if (level < IRIDIUM_MODULE.EXPANSION_THRESHOLD) {
       console.log(`Expansion Level: ${level}`);
       const resolvedSources = resolveSources(
@@ -454,13 +465,70 @@ export default class IRIDIUM_MODULE {
         PTA_OUT_RES.get(res.sinks()[0]),
       );
       for (const iSource of resolvedSources) {
-        console.log("Resolving: ", iSource.FROM);
-        // resolveModuleImport(iSource.FROM, )
-        // const pFile = new ProjectFile(iSource.FROM, path.dirname(filePath));
+        const resolvedPath = resolveModuleImport(
+          iSource.FROM.value,
+          this.js3builder.projectFile.absoluteFilePath,
+          this.projectBasePath,
+        );
+        try {
+          console.log(`Resolving: ${iSource.FROM} --> ${resolvedPath}`);
+          // 1. Loading The File
+          const projectFile = new ProjectFile(
+            resolvedPath,
+            this.projectBasePath,
+          );
+          projectFile.initSync(debugConfig.cli.sourceType);
+          if (projectFile.initData.parseStatus !== "parsed")
+            debugConfig.logger.throwJS3Error(
+              "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
+            );
+
+          // 2. Constructing JS3
+          const js3Builder = new JS3Builder(projectFile);
+          js3Builder.build();
+          const fileNode = js3Builder.generatedAST;
+          const programNode = fileNode.program;
+
+          // 3. Constructing Iridium
+          const directives: Array<string> = [];
+          programNode.directives.forEach((d) => directives.push(d.value.value));
+          const sourceType = programNode.sourceType;
+          const iri_container = new I_Container(
+            fileNode,
+            projectFile,
+            js3Builder,
+            directives,
+            sourceType,
+            debugConfig.cli.projectBase,
+          );
+          iri_container.build(level + 1);
+
+          updateResolvedNode(iSource, iri_container);
+        } catch (e) {
+          debugConfig.logger.error("Failed to generate Iridium: ", e);
+          process.exit(1);
+        }
       }
     }
 
-    this.fg = res;
+    // Re-run PTA after composition
+    startPTA(res);
+
+    if (debugConfig.cli.savePTAGraph) {
+      const filename = path.basename(
+        this.js3builder.projectFile.uname,
+        this.js3builder.projectFile.extension,
+      );
+      const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
+      // Iterate over all the nodes of this file
+      const nodes = res.nodes();
+      for (const n of nodes) {
+        const inRes = PTA_IN_RES.get(n);
+        const outRes = PTA_OUT_RES.get(n);
+        inRes.saveDotToFile(`${PTAPATH}/${filename}_composed_${n}_IN`);
+        outRes.saveDotToFile(`${PTAPATH}/${filename}_composed${n}_OUT`);
+      }
+    }
   }
 
   // // Set/Get current BB

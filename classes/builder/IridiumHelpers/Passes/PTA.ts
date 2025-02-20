@@ -30,11 +30,13 @@ import {
   ImportNode,
   KnownFunctionNode,
   ModuleExportsNode,
+  OrdinaryObject,
   StackNode,
 } from "./PTA/nodes.ts";
 import { PTAGraph } from "./PTA/PTAGraph.ts";
 import { handleRVals } from "./PTA/rvalHandler.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./PTA/util.ts";
+import { I_Container } from "../I_GENERAL/I_Container.ts";
 
 const STATE_CURBING: boolean = true;
 
@@ -46,38 +48,47 @@ export const PTA_IN_RES: Map<string, PTAGraph> = new Map();
 export const PTA_OUT_RES: Map<string, PTAGraph> = new Map();
 
 export function startPTA(rootFG: IRIDIUM_FG) {
-  // Initialize Boundary PTA
-  const BOUNDARY_PTAGRAPH = new PTAGraph();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  for (const [o, _] of rootFG.rootBB.env.parent.bindings) {
-    const stackNode = new StackNode("ENV0$" + o);
-    BOUNDARY_PTAGRAPH.declareNode(stackNode);
-    const heapNode = new GlobalNode(o);
-    BOUNDARY_PTAGRAPH.declareNode(heapNode);
-    BOUNDARY_PTAGRAPH.drawStackToHeapEdge(stackNode, [heapNode]);
+  const rootBBIdx: string = "" + rootFG.rootBB.idx;
+  console.log("Processing Root: ", rootBBIdx);
+  if (PTA_IN_RES.has(rootBBIdx)) {
+    console.log("Has IN: ", rootBBIdx);
+    const BOUNDARY_PTAGRAPH = PTA_IN_RES.get(rootBBIdx);
+    ContextualPTAHandler("$", "$", BOUNDARY_PTAGRAPH, rootFG);
+  } else {
+    console.log("No IN: ", rootBBIdx);
+    // Initialize Boundary PTA
+    const BOUNDARY_PTAGRAPH = new PTAGraph();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const [o, _] of rootFG.rootBB.env.parent.bindings) {
+      const stackNode = new StackNode("ENV0$" + o);
+      BOUNDARY_PTAGRAPH.declareNode(stackNode);
+      const heapNode = new GlobalNode(o);
+      BOUNDARY_PTAGRAPH.declareNode(heapNode);
+      BOUNDARY_PTAGRAPH.drawStackToHeapEdge(stackNode, [heapNode]);
+    }
+
+    const reactDomNode = new ImportNode(
+      "react-dom/client",
+      new IV_StringLiteral(undefined, "react-dom/client"),
+      true,
+    );
+    BOUNDARY_PTAGRAPH.declareNode(reactDomNode);
+
+    const createRoot = new KnownFunctionNode("createRoot", 0);
+    BOUNDARY_PTAGRAPH.declareNode(createRoot);
+
+    BOUNDARY_PTAGRAPH.drawHeapToHeapEdge(
+      [reactDomNode],
+      [createRoot],
+      ["createRoot"],
+      true,
+    );
+
+    const exports = new ModuleExportsNode("EXPORT");
+    BOUNDARY_PTAGRAPH.declareNode(exports);
+
+    ContextualPTAHandler("$", "$", BOUNDARY_PTAGRAPH, rootFG);
   }
-
-  const reactDomNode = new ImportNode(
-    "react-dom/client",
-    new IV_StringLiteral(undefined, "react-dom/client"),
-    true,
-  );
-  BOUNDARY_PTAGRAPH.declareNode(reactDomNode);
-
-  const createRoot = new KnownFunctionNode("createRoot", 0);
-  BOUNDARY_PTAGRAPH.declareNode(createRoot);
-
-  BOUNDARY_PTAGRAPH.drawHeapToHeapEdge(
-    [reactDomNode],
-    [createRoot],
-    ["createRoot"],
-    true,
-  );
-
-  const exports = new ModuleExportsNode("EXPORT");
-  BOUNDARY_PTAGRAPH.declareNode(exports);
-
-  ContextualPTAHandler("$", "$", BOUNDARY_PTAGRAPH, rootFG);
 }
 
 const curbStateContext = (rootState: Environment, fg: PTAGraph) => {
@@ -150,7 +161,7 @@ export function PTA(rootFG: IRIDIUM_FG, BOUNDARY_PTAGRAPH: PTAGraph) {
   const flowMap: Map<BBIdx, PTAGraph> = new Map();
   rootFG.nodes().forEach((bbIdx: BBIdx) => flowMap.set(bbIdx, new PTAGraph()));
 
-  let step = 1;
+  let step = 0;
 
   // Do one pass in DTree order, this will ensure all defs dominate uses...
   const dTree = GLIB.alg.dominatorTarjan(rootFG, "" + rootFG.rootBB.idx, false);
@@ -239,12 +250,6 @@ function flowFunction(
       const stackID = getStackQualifiedName(i.local.lookupName(), currBB);
       const stackNode = new StackNode(stackID);
       nextGraph.declareNode(stackNode);
-
-      //
-      // ImportNode
-      //
-      const heapNode = new ImportNode(i.FROM.value, i.FROM, true);
-      nextGraph.declareNode(heapNode);
       nextGraph.clearSuccessors(stackNode.id);
 
       const remoteLookupID =
@@ -252,29 +257,80 @@ function flowFunction(
           ? i.remote.lookupName()
           : i.remote.value;
 
-      if (
-        i.FROM.value === "react-dom/client" &&
-        remoteLookupID === "createRoot"
-      ) {
-        console.log("Skipping adding createRoot --> react-dom/client DUMMY");
-        nextGraph.drawStackToHeapEdge(stackNode, [
-          nextGraph.getPTANode("createRoot"),
-        ]);
-      } else {
-        if (!nextGraph.hasField(heapNode.id, remoteLookupID))
-          nextGraph.addField(heapNode.id, remoteLookupID);
-        const remoteDummyNode = new DummyObject(
-          getHeapQualifiedName(remoteLookupID, currBBIDx, stackInstOffset),
-        );
-        nextGraph.declareNode(remoteDummyNode);
+      if (!nextGraph.hasNode(i.FROM.value)) {
+        //
+        // ImportNode
+        //
+        nextGraph.declareNode(new ImportNode(i.FROM.value, i.FROM, true));
+      }
 
-        nextGraph.drawHeapToHeapEdge(
-          [heapNode],
-          [remoteDummyNode],
-          [remoteLookupID],
-          true,
-        );
-        nextGraph.drawStackToHeapEdge(stackNode, [remoteDummyNode]);
+      const heapNode = nextGraph.getPTANode(i.FROM.value);
+
+      if (heapNode instanceof ImportNode) {
+        // If this is already a resolved node, then compose the PTA
+        if (heapNode.isResolved()) {
+          const replacementNode = new OrdinaryObject(
+            getHeapQualifiedName("resolvedImport", currBBIDx, stackInstOffset),
+          );
+          const resolvedPTA: I_Container = heapNode.resolvedContainer;
+          const moduleFG = resolvedPTA.module.fg;
+          const sinks = moduleFG.sinks();
+          if (sinks.length === 1) {
+            const sink = sinks[0];
+            const outFG = PTA_OUT_RES.get(sink);
+            const nnn = new PTAGraph();
+            nnn.union(outFG);
+            const exportsNode = nnn.getPTANode("EXPORT");
+            nnn.replacePTANode(exportsNode, replacementNode);
+            nextGraph.union(nnn);
+            const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
+            //
+            // stackID --->resolvedObject---[remote]-->pointees
+            //
+            handleSimpleAssignmentStatement(nextGraph, stackID, [
+              ...nextGraph.getFieldPointees(
+                replacementNode,
+                remoteLookupID,
+                iContext,
+                true,
+                true,
+              ),
+            ]);
+          } else {
+            debugConfig.logger.throwIriError(
+              "Expecting only only one sink in a FG",
+            );
+          }
+        } else {
+          if (
+            i.FROM.value === "react-dom/client" &&
+            remoteLookupID === "createRoot"
+          ) {
+            console.log(
+              "Skipping adding createRoot --> react-dom/client DUMMY",
+            );
+            nextGraph.drawStackToHeapEdge(stackNode, [
+              nextGraph.getPTANode("createRoot"),
+            ]);
+          } else {
+            if (!nextGraph.hasField(heapNode.id, remoteLookupID))
+              nextGraph.addField(heapNode.id, remoteLookupID);
+            const remoteDummyNode = new DummyObject(
+              getHeapQualifiedName(remoteLookupID, currBBIDx, stackInstOffset),
+            );
+            nextGraph.declareNode(remoteDummyNode);
+
+            nextGraph.drawHeapToHeapEdge(
+              [heapNode],
+              [remoteDummyNode],
+              [remoteLookupID],
+              true,
+            );
+            nextGraph.drawStackToHeapEdge(stackNode, [remoteDummyNode]);
+          }
+        }
+      } else {
+        debugConfig.logger.throwIriError("Expected Import Node here");
       }
     } else if (i instanceof IS_ClassStaticPropInit) {
       debugConfig.logger.throwIriError("PTA TODO: IS_ClassStaticPropInit");

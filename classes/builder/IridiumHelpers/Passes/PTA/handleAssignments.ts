@@ -19,7 +19,7 @@ export const handleSimpleAssignmentStatement = (
   rVal: Array<PTANode>,
 ) => {
   const stackNode = new StackNode(qualifiedStackId);
-  nextGraph.declareNode(stackNode);
+  if (!nextGraph.hasNode(stackNode.id)) nextGraph.declareNode(stackNode);
   nextGraph.clearSuccessors(qualifiedStackId);
   nextGraph.drawStackToHeapEdge(stackNode, rVal);
 };
