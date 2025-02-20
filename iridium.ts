@@ -1,20 +1,31 @@
-import debugConfig from "#debugConfig"
-import { initializeOutputsPath } from '#utils'
-import chalk from 'chalk'
-import { I_Container } from 'classes/builder/IridiumHelpers/I_GENERAL/I_Container.ts'
-import JS3Builder from 'classes/builder/JS3Builder.ts'
-import { ProjectFile } from 'classes/ProjectFile.ts'
-import commandLineArgs from 'command-line-args'
-import commandLineUsage from 'command-line-usage'
-import fs from 'fs'
-import path from 'path'
-import { handleLangWithSupport, handleOutputsPath, handleSavePTAGraph, handleSourceType, handleTest262, iriUsageInfo, js3UsageInfo, printDefaultUsage, printIRIUsage, printJS3Usage } from './configs/printUsage.ts'
-import { projectStats } from './configs/projectStats.ts'
+import debugConfig from "#debugConfig";
+import { initializeOutputsPath } from "#utils";
+import chalk from "chalk";
+import { I_Container } from "classes/builder/IridiumHelpers/I_GENERAL/I_Container.ts";
+import JS3Builder from "classes/builder/JS3Builder.ts";
+import { ProjectFile } from "classes/ProjectFile.ts";
+import commandLineArgs from "command-line-args";
+import commandLineUsage from "command-line-usage";
+import fs from "fs";
+import path from "path";
+import {
+  handleLangWithSupport,
+  handleOutputsPath,
+  handleSavePTAGraph,
+  handleSourceType,
+  handleTest262,
+  iriUsageInfo,
+  js3UsageInfo,
+  printDefaultUsage,
+  printIRIUsage,
+  printJS3Usage,
+} from "./configs/printUsage.ts";
+import { projectStats } from "./configs/projectStats.ts";
 
-const VERSION = "0.5a"
-const directories = ['./classes', './configs', './docs'];
+const VERSION = "0.5a";
+const directories = ["./classes", "./configs", "./docs", "./playground/src"];
 
-debugConfig.versionNumber = `Iridium ${VERSION}`
+debugConfig.versionNumber = `Iridium ${VERSION}`;
 
 const header = `
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -25,16 +36,18 @@ const header = `
 █        ██  ████  ██        ██       ███        ███      ███  ████  █
 ██████████████████████████████████████████████████████████████████████
 Iridium Version: ${chalk.red(VERSION)}
-`
+`;
 
 function js3(filePath) {
   initializeOutputsPath();
   debugConfig.logger.printToConsole = false;
   const file = new ProjectFile(filePath, path.dirname(filePath));
   try {
-    file.initSync(debugConfig.cli.sourceType)
+    file.initSync(debugConfig.cli.sourceType);
     if (file.initData.parseStatus !== "parsed")
-      debugConfig.logger.throwJS3Error("JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)");
+      debugConfig.logger.throwJS3Error(
+        "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
+      );
 
     const builder = new JS3Builder(file);
     builder.build();
@@ -54,7 +67,9 @@ function iri(filePath) {
     const projectFile = new ProjectFile(filePath, path.dirname(filePath));
     projectFile.initSync(debugConfig.cli.sourceType);
     if (projectFile.initData.parseStatus !== "parsed")
-      debugConfig.logger.throwJS3Error("JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)");
+      debugConfig.logger.throwJS3Error(
+        "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
+      );
 
     // 2. Constructing JS3
     const js3Builder = new JS3Builder(projectFile);
@@ -63,10 +78,16 @@ function iri(filePath) {
     const programNode = fileNode.program;
 
     // 3. Constructing Iridium
-    const directives: Array<string> = new Array();
+    const directives: Array<string> = [];
     programNode.directives.forEach((d) => directives.push(d.value.value));
     const sourceType = programNode.sourceType;
-    const iri_container = new I_Container(fileNode, projectFile, js3Builder, directives, sourceType);
+    const iri_container = new I_Container(
+      fileNode,
+      projectFile,
+      js3Builder,
+      directives,
+      sourceType,
+    );
     iri_container.build();
   } catch (e) {
     debugConfig.logger.error("Failed to generate Iridium: ", e);
@@ -74,87 +95,95 @@ function iri(filePath) {
   }
 }
 
-const getFirstCommand = [{ name: 'command', defaultOption: true }]
-const mainOptions = commandLineArgs(getFirstCommand, { stopAtFirstUnknown: true })
-const mainCommand = mainOptions.command
+const getFirstCommand = [{ name: "command", defaultOption: true }];
+const mainOptions = commandLineArgs(getFirstCommand, {
+  stopAtFirstUnknown: true,
+});
+const mainCommand = mainOptions.command;
 
 // Initialize default outputs path
 debugConfig.cli.outputsPath = path.resolve("./outputs");
 
 if (mainCommand === "js3") {
-  debugConfig.operationMode = "js3"
-  let argv = mainOptions._unknown || []
+  debugConfig.operationMode = "js3";
+  let argv = mainOptions._unknown || [];
   if (argv.length === 0) {
-    printJS3Usage(header)
-    process.exit(0)
+    printJS3Usage(header);
+    process.exit(0);
   }
-  const js3MainOptions = commandLineArgs(getFirstCommand, { argv, stopAtFirstUnknown: true })
-  argv = js3MainOptions._unknown || []
+  const js3MainOptions = commandLineArgs(getFirstCommand, {
+    argv,
+    stopAtFirstUnknown: true,
+  });
+  argv = js3MainOptions._unknown || [];
   if (js3MainOptions.command === "help") {
-    printJS3Usage(header)
-    process.exit(0)
+    printJS3Usage(header);
+    process.exit(0);
   }
-  const PATH_TO_JS = path.resolve(js3MainOptions.command)
+  const PATH_TO_JS = path.resolve(js3MainOptions.command);
   if (!fs.existsSync(PATH_TO_JS)) {
-    console.error(chalk.red(`[ERROR] File does not exist: ${PATH_TO_JS}`))
-    process.exit(1)
+    console.error(chalk.red(`[ERROR] File does not exist: ${PATH_TO_JS}`));
+    process.exit(1);
   }
-  debugConfig.throwJS3Errors = true
+  debugConfig.throwJS3Errors = true;
   if (argv.length > 0) {
-    const options = commandLineArgs(js3UsageInfo[1].optionList, { argv })
+    const options = commandLineArgs(js3UsageInfo[1].optionList, { argv });
     if ("outputs-path" in options) handleOutputsPath(options);
     if ("test-262" in options) handleTest262();
     if ("source-type" in options) handleSourceType(options);
     if ("allow-lang-with-support" in options) handleLangWithSupport();
   }
-  js3(PATH_TO_JS)
+  js3(PATH_TO_JS);
 } else if (mainCommand === "iri") {
-  debugConfig.operationMode = "iri"
-  let argv = mainOptions._unknown || []
+  debugConfig.operationMode = "iri";
+  let argv = mainOptions._unknown || [];
   if (argv.length === 0) {
-    printIRIUsage(header)
-    process.exit(0)
+    printIRIUsage(header);
+    process.exit(0);
   }
-  const iriMainOptions = commandLineArgs(getFirstCommand, { argv, stopAtFirstUnknown: true })
-  argv = iriMainOptions._unknown || []
+  const iriMainOptions = commandLineArgs(getFirstCommand, {
+    argv,
+    stopAtFirstUnknown: true,
+  });
+  argv = iriMainOptions._unknown || [];
   if (iriMainOptions.command === "help") {
-    printIRIUsage(header)
-    process.exit(0)
+    printIRIUsage(header);
+    process.exit(0);
   }
-  const PATH_TO_JS = path.resolve(iriMainOptions.command)
+  const PATH_TO_JS = path.resolve(iriMainOptions.command);
   if (!fs.existsSync(PATH_TO_JS)) {
-    console.error(chalk.red(`[ERROR] File does not exist: ${PATH_TO_JS}`))
-    process.exit(1)
+    console.error(chalk.red(`[ERROR] File does not exist: ${PATH_TO_JS}`));
+    process.exit(1);
   }
-  debugConfig.throwJS3Errors = true
-  debugConfig.throwIRIErrors = true
+  debugConfig.throwJS3Errors = true;
+  debugConfig.throwIRIErrors = true;
   if (argv.length > 0) {
-    const options = commandLineArgs(iriUsageInfo[1].optionList, { argv })
+    const options = commandLineArgs(iriUsageInfo[1].optionList, { argv });
     if ("outputs-path" in options) handleOutputsPath(options);
     if ("test-262" in options) handleTest262();
     if ("source-type" in options) handleSourceType(options);
     if ("allow-lang-with-support" in options) handleLangWithSupport();
     if ("save-pta-graph" in options) handleSavePTAGraph();
   }
-  iri(PATH_TO_JS)
-} else if (mainCommand === 'version') {
-  console.log(`Iridium Version: ${chalk.red(VERSION)}`)
+  iri(PATH_TO_JS);
+} else if (mainCommand === "version") {
+  console.log(`Iridium Version: ${chalk.red(VERSION)}`);
 } else if (mainCommand === "stats") {
   const sections = [
     {
       header: chalk.red(`Iridium ${VERSION} Stats`),
-    }
-  ]
-  const usage = commandLineUsage(sections)
-  console.log(usage)
+    },
+  ];
+  const usage = commandLineUsage(sections);
+  console.log(usage);
   projectStats(directories);
 } else {
-  printDefaultUsage(header)
+  printDefaultUsage(header);
 }
 
-// 
+//
 // TODO...
-// 
+//
 // else if (mainCommand === 'analyze') {
 //   debugConfig.operationMode = "analyze"
 //   let argv = mainOptions._unknown || []
@@ -212,7 +241,7 @@ if (mainCommand === "js3") {
 //   }
 //   fs.mkdirSync(debugConfig.cli.outputsPath);
 //   analyze(PATH_TO_PROJECT, ANALYZE_PATH)
-// } 
+// }
 
 // function analyze(mainProjectPath, analyzePath) {
 //   initializeOutputsPath();
@@ -274,7 +303,6 @@ if (mainCommand === "js3") {
 
 //   const project = new Project(mainProjectPath, analyzePath)
 //   project.init();
-
 
 //   const fileInitPromises = new Array<Promise<void>>()
 

@@ -1,182 +1,180 @@
-import chalk from 'chalk'
-import debugConfig from "#debugConfig"
-import commandLineUsage from 'command-line-usage'
-import path from 'path'
-import fs from 'fs'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import chalk from "chalk";
+import debugConfig from "#debugConfig";
+import commandLineUsage from "command-line-usage";
+import path from "path";
+import fs from "fs";
 
 type UsageSectionObject = {
-  content?: any,
-  raw?: boolean,
-  header?: String,
-  optionList?: any
-}
+  content?: any;
+  raw?: boolean;
+  header?: string;
+  optionList?: any;
+};
 
-// 
+//
 // General Usage Info
-// 
-const defaultUsageInfo : UsageSectionsArray = [
+//
+const defaultUsageInfo: UsageSectionsArray = [
   {
     header: "=== Iridium ===",
     content: [
-      'This project provides infrastructure to allow static analysis of {italic react} based applications.',
-      '$ ./iridium <command> [OPTIONS]',
-      '$ ./iridium js3 help',
-      '$ ./iridium iri help',
-      '$ ./iridium help'
-    ]
+      "This project provides infrastructure to allow static analysis of {italic react} based applications.",
+      "$ ./iridium <command> [OPTIONS]",
+      "$ ./iridium js3 help",
+      "$ ./iridium iri help",
+      "$ ./iridium help",
+    ],
   },
   {
-    header: 'Command List',
+    header: "Command List",
     content: [
-      { name: 'help', summary: 'Display this information.' },
+      { name: "help", summary: "Display this information." },
       // { name: 'analyze', summary: 'Run static analysis over a project.' },
-      { name: 'js3', summary: 'Generate JS3 file and print to stdout' },
-      { name: 'iri', summary: 'Generate Iridium file (.iri) and print to stdout' },
-      { name: 'stats', summary: 'Codespace stats.' },
-      { name: 'version', summary: 'Print the version.' }
-    ]
+      { name: "js3", summary: "Generate JS3 file and print to stdout" },
+      {
+        name: "iri",
+        summary: "Generate Iridium file (.iri) and print to stdout",
+      },
+      { name: "stats", summary: "Codespace stats." },
+      { name: "version", summary: "Print the version." },
+    ],
   },
-]
+];
 
-type UsageSectionsArray = Array<UsageSectionObject>
+type UsageSectionsArray = Array<UsageSectionObject>;
 
-// 
+//
 // === JS3 Related ===
-// 
+//
 
 const JS3_OPTIONS = [
   {
-    name: 'outputs-path',
-    description: 'Path to outputs directory (For JS3 this must be an file path).',
-    alias: 'o',
+    name: "outputs-path",
+    description:
+      "Path to outputs directory (For JS3 this must be an file path).",
+    alias: "o",
     type: String,
-    typeLabel: '{underline path} ...'
+    typeLabel: "{underline path} ...",
   },
   {
-    name: 'test-262',
-    description: 'Preserves comments when translating to JS3 (needed for test262 tests to run).',
-    alias: 't',
-    type: Boolean
+    name: "test-262",
+    description:
+      "Preserves comments when translating to JS3 (needed for test262 tests to run).",
+    alias: "t",
+    type: Boolean,
   },
   {
-    name: 'source-type',
+    name: "source-type",
     description: 'Source Type ("module" | "script" | "unambigious" (default)).',
-    alias: 's',
-    type: String
+    alias: "s",
+    type: String,
   },
   {
-    name: 'allow-lang-with-support',
-    description: 'Allow js3 syntax support for `with`',
-    alias: 'w',
-    type: Boolean
-  }
-]
+    name: "allow-lang-with-support",
+    description: "Allow js3 syntax support for `with`",
+    alias: "w",
+    type: Boolean,
+  },
+];
 
-export const js3UsageInfo : UsageSectionsArray= [
+export const js3UsageInfo: UsageSectionsArray = [
   {
     header: "=== JS3 ===",
-    content: [
-      `$ ./iridium js3 {bold <path-to-js-file>} [OPTIONS]`
-    ]
+    content: [`$ ./iridium js3 {bold <path-to-js-file>} [OPTIONS]`],
   },
   {
-    header: 'JS3 Options',
-    optionList: [
-      ...JS3_OPTIONS,
-    ]
-  }
-]
+    header: "JS3 Options",
+    optionList: [...JS3_OPTIONS],
+  },
+];
 
-// 
+//
 // === IRIDIUM Related ===
-// 
+//
 
 const IRI_OPTIONS = [
   {
-    name: 'outputs-path',
-    description: 'Path to outputs directory (For JS3 this must be an file path).',
-    alias: 'o',
+    name: "outputs-path",
+    description:
+      "Path to outputs directory (For JS3 this must be an file path).",
+    alias: "o",
     type: String,
-    typeLabel: '{underline path} ...'
+    typeLabel: "{underline path} ...",
   },
   {
-    name: 'test-262',
-    description: 'Preserves comments when translating to JS3 (needed for test262 tests to run).',
-    alias: 't',
-    type: Boolean
+    name: "test-262",
+    description:
+      "Preserves comments when translating to JS3 (needed for test262 tests to run).",
+    alias: "t",
+    type: Boolean,
   },
   {
-    name: 'source-type',
+    name: "source-type",
     description: 'Source Type ("module" | "script" | "unambigious" (default)).',
-    alias: 's',
-    type: String
+    alias: "s",
+    type: String,
   },
   {
-    name: 'allow-lang-with-support',
-    description: 'Allow js3 syntax support for `with`',
-    alias: 'w',
-    type: Boolean
+    name: "allow-lang-with-support",
+    description: "Allow js3 syntax support for `with`",
+    alias: "w",
+    type: Boolean,
   },
   {
-    name: 'save-pta-graph',
-    description: 'Save generated PTA graphs',
-    alias: 'g',
-    type: Boolean
+    name: "save-pta-graph",
+    description: "Save generated PTA graphs",
+    alias: "g",
+    type: Boolean,
   },
-]
+];
 
-
-export const iriUsageInfo : UsageSectionsArray= [
+export const iriUsageInfo: UsageSectionsArray = [
   {
     header: "=== IRI ===",
-    content: [
-      `$ ./iridium iri {bold <path-to-js-file>} [OPTIONS]`
-    ]
+    content: [`$ ./iridium iri {bold <path-to-js-file>} [OPTIONS]`],
   },
   {
-    header: 'Iridium Options',
-    optionList: [
-      ...IRI_OPTIONS,
-    ]
-  }
-]
+    header: "Iridium Options",
+    optionList: [...IRI_OPTIONS],
+  },
+];
 
-// 
+//
 // General Exports
-// 
+//
 export const handleOutputsPath = (options: any) => {
   if (options["outputs-path"] === null) {
-    console.log(chalk.red("Outputs path not provided"))
-    process.exit(1)
+    console.log(chalk.red("Outputs path not provided"));
+    process.exit(1);
   }
-  debugConfig.cli.outputsPath = path.resolve("./" + options["outputs-path"])
-}
+  debugConfig.cli.outputsPath = path.resolve("./" + options["outputs-path"]);
+};
 export const handleProjectBasePath = (options: any) => {
   if (options["base-path"] === null) {
-    console.log(chalk.red("Project Base Path"))
-    process.exit(1)
+    console.log(chalk.red("Project Base Path"));
+    process.exit(1);
   }
-  let basePath = options["base-path"]
+  const basePath = options["base-path"];
 
   if (!fs.existsSync(basePath)) {
     console.error(`[ERROR] Project base path does not exist: ${basePath}`);
     process.exit(1);
   }
-}
+};
 
-export const handleTest262 = () => debugConfig.cli.test262 = true;
-export const handleLangWithSupport = () => debugConfig.cli.allowLangWithSupport = true;
-export const handleSavePTAGraph = () => debugConfig.cli.savePTAGraph = true;
+export const handleTest262 = () => (debugConfig.cli.test262 = true);
+export const handleLangWithSupport = () =>
+  (debugConfig.cli.allowLangWithSupport = true);
+export const handleSavePTAGraph = () => (debugConfig.cli.savePTAGraph = true);
 
 export const handleSourceType = (options: any) => {
   if (options["source-type"] === null) {
-    console.log(chalk.red("JS3 mode is not provided"))
-    process.exit(1)
+    console.log(chalk.red("JS3 mode is not provided"));
+    process.exit(1);
   }
-  debugConfig.cli.sourceType = options["source-type"]
-}
-
-
+  debugConfig.cli.sourceType = options["source-type"];
+};
 
 // export const analyzeUsageInfo : UsageSectionsArray = [
 //   {
@@ -217,20 +215,18 @@ export const handleSourceType = (options: any) => {
 //   }
 // ]
 
-
-
-
-export function printDefaultUsage(header: String) {
-  let sections: UsageSectionsArray = [ // Sometimes the type system is just annoying
+export function printDefaultUsage(header: string) {
+  const sections: UsageSectionsArray = [
+    // Sometimes the type system is just annoying
     {
       content: chalk.red(header),
-      raw: true
+      raw: true,
     },
-    
+
     ...defaultUsageInfo,
-  ]
-  const usage = commandLineUsage(sections)
-  console.log(usage)
+  ];
+  const usage = commandLineUsage(sections);
+  console.log(usage);
 }
 
 // export function printAnalyzeUsage(header: String) {
@@ -246,28 +242,30 @@ export function printDefaultUsage(header: String) {
 //   console.log(usage)
 // }
 
-export function printJS3Usage(header: String) {
-  let sections: UsageSectionsArray = [ // Sometimes the type system is just annoying
+export function printJS3Usage(header: string) {
+  const sections: UsageSectionsArray = [
+    // Sometimes the type system is just annoying
     {
       content: chalk.red(header),
-      raw: true
+      raw: true,
     },
 
-    ...js3UsageInfo
-  ]
-  const usage = commandLineUsage(sections)
-  console.log(usage)
+    ...js3UsageInfo,
+  ];
+  const usage = commandLineUsage(sections);
+  console.log(usage);
 }
 
-export function printIRIUsage(header: String) {
-  let sections: UsageSectionsArray = [ // Sometimes the type system is just annoying
+export function printIRIUsage(header: string) {
+  const sections: UsageSectionsArray = [
+    // Sometimes the type system is just annoying
     {
       content: chalk.red(header),
-      raw: true
+      raw: true,
     },
 
-    ...iriUsageInfo
-  ]
-  const usage = commandLineUsage(sections)
-  console.log(usage)
+    ...iriUsageInfo,
+  ];
+  const usage = commandLineUsage(sections);
+  console.log(usage);
 }

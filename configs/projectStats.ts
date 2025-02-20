@@ -1,6 +1,6 @@
-import fs from 'fs'
-import path from 'path'
-import debugConfig from "#debugConfig"
+import fs from "fs";
+import path from "path";
+import debugConfig from "#debugConfig";
 
 function getAllFiles(dirPath, arrayOfFiles) {
   const files = fs.readdirSync(dirPath);
@@ -19,12 +19,20 @@ function getAllFiles(dirPath, arrayOfFiles) {
 }
 
 function countLinesInFile(filePath) {
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  return fileContent.split('\n').length;
+  const fileContent = fs.readFileSync(filePath, "utf-8");
+  return fileContent.split("\n").length;
 }
 
 function isImageFile(extension) {
-  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'];
+  const imageExtensions = [
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".bmp",
+    ".tiff",
+    ".webp",
+  ];
   return imageExtensions.includes(extension);
 }
 
@@ -34,14 +42,13 @@ function getFileExtension(fileName) {
 
 export function projectStats(filePaths) {
   let totalFiles = 0;
-  let extensions = new Set();
+  const extensions = new Set();
   let totalLinesOfCode = 0;
 
-  filePaths.forEach(filePath => {
-    // @ts-ignore
-    const files = getAllFiles(filePath);
+  filePaths.forEach((filePath) => {
+    const files = getAllFiles(filePath, undefined);
     totalFiles += files.length;
-    files.forEach(file => {
+    files.forEach((file) => {
       const ext = getFileExtension(file);
       extensions.add(ext);
       if (!isImageFile(ext)) {
@@ -52,5 +59,5 @@ export function projectStats(filePaths) {
 
   debugConfig.logger.log(`Total Files  : ${totalFiles}`);
   debugConfig.logger.log(`LOC          : ${totalLinesOfCode}`);
-  debugConfig.logger.log(`Extensions   : ${Array.from(extensions).join(', ')}`);
+  debugConfig.logger.log(`Extensions   : ${Array.from(extensions).join(", ")}`);
 }

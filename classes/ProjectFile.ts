@@ -1,60 +1,63 @@
-import babel from '@babel/core'
+import babel from "@babel/core";
 
-import { ParseResult } from '@babel/parser'
-import t from '@babel/types'
-import fs from 'fs'
-import assert from 'node:assert/strict'
-import path from 'path'
+import { ParseResult } from "@babel/parser";
+import t from "@babel/types";
+import fs from "fs";
+import assert from "node:assert/strict";
+import path from "path";
 
-import debugConfig from "#debugConfig"
-
+import debugConfig from "#debugConfig";
 
 export class InitData {
-  status: "loaded" | "failed" | "uninitialized" = "uninitialized"
-  sourceCode: string | null = null
-  loc: number | null = null
+  status: "loaded" | "failed" | "uninitialized" = "uninitialized";
+  sourceCode: string | null = null;
+  loc: number | null = null;
 
-  parseStatus: "parsed" | "failed" = "failed"
-  parseResult: ParseResult<t.File> | null = null
-  sourceMap: any | null = null
+  parseStatus: "parsed" | "failed" = "failed";
+  parseResult: ParseResult<t.File> | null = null;
+  sourceMap: object | null = null;
 
   // moduleImports: Map<ImportDeclaration, string | null> = new Map()
   toString() {
-    return `{ "status": "${this.status}", "parseStatus": "${this.parseStatus}", "loc": ${this.loc ? this.loc : 0} }`
+    return `{ "status": "${this.status}", "parseStatus": "${this.parseStatus}", "loc": ${this.loc ? this.loc : 0} }`;
   }
 }
 
 export class ProjectFile {
-  absoluteFilePath: string
-  projectBasePath: string
-  uname: string
-  extension: string
-  filename: string
-  filepath: string
-  initData: InitData
+  absoluteFilePath: string;
+  projectBasePath: string;
+  uname: string;
+  extension: string;
+  filename: string;
+  filepath: string;
+  initData: InitData;
 
   toString() {
-    return ` { "absoluteFilePath": "${this.absoluteFilePath}", "uname": "${this.uname}", "initData": ${this.initData.toString()} }`
+    return ` { "absoluteFilePath": "${this.absoluteFilePath}", "uname": "${this.uname}", "initData": ${this.initData.toString()} }`;
   }
 
   constructor(absoluteFilePath, projectBasePath) {
-    assert(absoluteFilePath !== null)
-    assert(projectBasePath !== null)
+    assert(absoluteFilePath !== null);
+    assert(projectBasePath !== null);
     if (absoluteFilePath.startsWith(projectBasePath) === false) {
-      debugConfig.logger.error("File path: ", absoluteFilePath)
-      debugConfig.logger.error("Base path: ", projectBasePath)
-      debugConfig.logger.throwJS3Error("File path does not start with project base path")
+      debugConfig.logger.error("File path: ", absoluteFilePath);
+      debugConfig.logger.error("Base path: ", projectBasePath);
+      debugConfig.logger.throwJS3Error(
+        "File path does not start with project base path",
+      );
     }
-    assert(absoluteFilePath.startsWith(projectBasePath) === true)
+    assert(absoluteFilePath.startsWith(projectBasePath) === true);
 
-    this.absoluteFilePath = absoluteFilePath
-    this.projectBasePath = projectBasePath
-    const relativeFilePath = absoluteFilePath.substr(projectBasePath.length + 1)
-    this.uname = relativeFilePath.replace(/\//g, '_')
-    this.extension = path.extname(absoluteFilePath)
-    this.filename = path.basename(absoluteFilePath)
-    this.filepath = path.dirname(absoluteFilePath)
-    this.initData = new InitData()
+    this.absoluteFilePath = absoluteFilePath;
+    this.projectBasePath = projectBasePath;
+    const relativeFilePath = absoluteFilePath.substr(
+      projectBasePath.length + 1,
+    );
+    this.uname = relativeFilePath.replace(/\//g, "_");
+    this.extension = path.extname(absoluteFilePath);
+    this.filename = path.basename(absoluteFilePath);
+    this.filepath = path.dirname(absoluteFilePath);
+    this.initData = new InitData();
   }
 
   // #transformImports(program: Program, result: Map<t.Node, string | null>) {
@@ -74,19 +77,29 @@ export class ProjectFile {
   // }
 
   initSync(sourceType = "unambiguous", plugins = []) {
-    const sourceCode = fs.readFileSync(this.absoluteFilePath, 'utf-8');
+    const sourceCode = fs.readFileSync(this.absoluteFilePath, "utf-8");
     // 1. Load Source Code
-    this.initData.status = "loaded"
-    this.initData.sourceCode = sourceCode
-    this.initData.loc = sourceCode.split(/\r\n|\r|\n/).length
+    this.initData.status = "loaded";
+    this.initData.sourceCode = sourceCode;
+    this.initData.loc = sourceCode.split(/\r\n|\r|\n/).length;
 
     // 2. Parse Source Code
-    let presets: Array<Array<string | {}>> = [
-      ["@babel/preset-env", { targets: "last 2 Chrome versions", modules: false }],
-      ['@babel/preset-react', { runtime: "classic", pragma: "###JSX###", pragmaFrag: "###JSXFRAG###" }]
-    ]
+    const presets: Array<Array<string | object>> = [
+      [
+        "@babel/preset-env",
+        { targets: "last 2 Chrome versions", modules: false },
+      ],
+      [
+        "@babel/preset-react",
+        {
+          runtime: "classic",
+          pragma: "###JSX###",
+          pragmaFrag: "###JSXFRAG###",
+        },
+      ],
+    ];
 
-    presets.push(['@babel/preset-typescript'])
+    presets.push(["@babel/preset-typescript"]);
 
     const options = {
       // cwd: this.projectBasePath,
@@ -95,31 +108,28 @@ export class ProjectFile {
       ast: true,
       presets,
       // sourceMaps: true,
-      plugins: [
-        "@babel/plugin-syntax-jsx",
-        ...plugins
-      ],
-    }
+      plugins: ["@babel/plugin-syntax-jsx", ...plugins],
+    };
 
-    const result = babel.transformSync(sourceCode, options)
-    this.initData.parseStatus = "parsed"
-    this.initData.parseResult = result.ast
-    this.initData.sourceMap = result.map
+    const result = babel.transformSync(sourceCode, options);
+    this.initData.parseStatus = "parsed";
+    this.initData.parseResult = result.ast;
+    this.initData.sourceMap = result.map;
 
     // // Resolve imports using the loaded file's AST
     // this.#transformImports(result.ast.program, this.initData.moduleImports)
   }
 
-  // Loads the file and creates an AST
-  initAsync(sourceType = "unambiguous", plugins = []) {
-    const that = this
-    // This will return a promise
-    return new Promise<void>((resolve,) => {
-      try {
-        that.initSync(sourceType, plugins)
-      } finally {
-        resolve()
-      }
-    });
-  }
+  // // Loads the file and creates an AST
+  // initAsync(sourceType = "unambiguous", plugins = []) {
+  //   const that = this;
+  //   // This will return a promise
+  //   return new Promise<void>((resolve) => {
+  //     try {
+  //       that.initSync(sourceType, plugins);
+  //     } finally {
+  //       resolve();
+  //     }
+  //   });
+  // }
 }

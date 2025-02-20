@@ -4,27 +4,35 @@ import { ISP_ArgSpread, ISP_Super, ISP_V8Intrinsic } from "./ALL_ISP.ts";
 import { ALL_RVal } from "./ALL_RVal.ts";
 
 export class IV_NewExpression extends ALL_RVal {
-  callee: IV_Identifier | ISP_Super | ISP_V8Intrinsic
-  args: Array<IV_Identifier | ISP_ArgSpread>
+  callee: IV_Identifier | ISP_Super | ISP_V8Intrinsic;
+  args: Array<IV_Identifier | ISP_ArgSpread>;
 
-  constructor(node: JS3NewExpression | undefined = undefined, callee: IV_Identifier | ISP_Super | ISP_V8Intrinsic, args: Array<IV_Identifier | ISP_ArgSpread>) {
+  constructor(
+    node: JS3NewExpression | undefined = undefined,
+    callee: IV_Identifier | ISP_Super | ISP_V8Intrinsic,
+    args: Array<IV_Identifier | ISP_ArgSpread>,
+  ) {
     super(node, "NewExpression");
-    this.callee = callee
-    this.args = args
+    this.callee = callee;
+    this.args = args;
   }
 
   usedIdentifiers(): Set<string> {
-    let res: Set<string> = new Set();
-    this.args.forEach(i => i instanceof IV_Identifier ? res.add(i.lookupName()) : res.add(i.arg.lookupName()))
-    res.add(this.callee.lookupName())
+    const res: Set<string> = new Set();
+    this.args.forEach((i) =>
+      i instanceof IV_Identifier
+        ? res.add(i.lookupName())
+        : res.add(i.arg.lookupName()),
+    );
+    res.add(this.callee.lookupName());
     return res;
   }
 
   toString() {
-    return `NEW ${this.callee.toString()}(${this.args.map(a => a.toString()).join(",")})`
+    return `NEW ${this.callee.toString()}(${this.args.map((a) => a.toString()).join(",")})`;
   }
 
   toDOT() {
-    return this.toString() 
+    return this.toString();
   }
 }

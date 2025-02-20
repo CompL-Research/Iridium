@@ -1,23 +1,23 @@
-import { IRIDIUM_FG } from "classes/builder/IridiumHelpers/IRIDIUM.ts";
+import { IRIDIUM_FG } from "classes/builder/IridiumHelpers/Passes/PTA/IRIDIUM_FG.ts";
 import Logger from "../classes/debugger/Logger.ts";
 
-const config : {
-  operationMode: "analyze" | "js3" | "iri",
+const config: {
+  operationMode: "analyze" | "js3" | "iri";
   cli: {
-    allowLangWithSupport: boolean,
-    outputsPath: string,
-    test262: boolean,
-    sourceType: string,
-    printModuleGraphPng: boolean,
-    savePTAGraph: boolean,
-    enablePlayground: boolean,
-    playgroundPort: number,
-  },
-  logger: Logger,
-  versionNumber: string,
-  throwJS3Errors: boolean,
-  throwIRIErrors: boolean,  
-  DOTContext: Set<IRIDIUM_FG> | undefined
+    allowLangWithSupport: boolean;
+    outputsPath: string;
+    test262: boolean;
+    sourceType: string;
+    printModuleGraphPng: boolean;
+    savePTAGraph: boolean;
+    enablePlayground: boolean;
+    playgroundPort: number;
+  };
+  logger: Logger;
+  versionNumber: string;
+  throwJS3Errors: boolean;
+  throwIRIErrors: boolean;
+  DOTContext: Set<IRIDIUM_FG> | undefined;
 } = {
   operationMode: "analyze",
   cli: {
@@ -34,8 +34,7 @@ const config : {
   versionNumber: "",
   throwJS3Errors: false,
   throwIRIErrors: false,
-  DOTContext: undefined
-}
+  DOTContext: undefined,
+};
 
 export default config;
-
