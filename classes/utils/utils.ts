@@ -7,6 +7,10 @@ import fs from "fs";
 import path from "path";
 export class JS3GenerationError extends Error {}
 
+export const hasPackageJson = (folderPath) => {
+  return fs.existsSync(path.join(folderPath, "package.json"));
+};
+
 export const ensurePathExists = (path: string) => {
   if (fs.existsSync(path)) {
     fs.rmSync(path, { recursive: true, force: true });

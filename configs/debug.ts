@@ -12,6 +12,7 @@ const config: {
     savePTAGraph: boolean;
     enablePlayground: boolean;
     playgroundPort: number;
+    projectBase: string;
   };
   logger: Logger;
   versionNumber: string;
@@ -29,6 +30,7 @@ const config: {
     savePTAGraph: false,
     enablePlayground: false,
     playgroundPort: 4000,
+    projectBase: undefined,
   },
   logger: new Logger(),
   versionNumber: "",

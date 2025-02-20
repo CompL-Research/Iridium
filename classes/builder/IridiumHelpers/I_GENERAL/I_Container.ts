@@ -5,15 +5,16 @@ import { JS3File } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { ProjectFile } from "classes/ProjectFile.ts";
 import fs from "node:fs";
 import path from "node:path";
-import { default as IRIDIUM, default as IRIDIUM_MODULE } from "../IRIDIUM.ts";
+import { default as IRIDIUM_MODULE } from "../IRIDIUM.ts";
 
 export class I_Container {
   node: JS3File;
   projectFile: ProjectFile;
-  module: IRIDIUM;
+  module: IRIDIUM_MODULE;
   js3Builder: JS3Builder;
   directives: Array<string>;
   sourceType: "script" | "module";
+  projectBasePath: string;
 
   constructor(
     node: JS3File,
@@ -21,6 +22,7 @@ export class I_Container {
     js3Builder: JS3Builder,
     directives: Array<string>,
     sourceType: "script" | "module",
+    projectBasePath: string,
   ) {
     this.node = node;
     this.projectFile = projectFile;
@@ -28,10 +30,14 @@ export class I_Container {
     this.js3Builder = js3Builder;
     this.directives = directives;
     this.sourceType = sourceType;
+    this.projectBasePath = projectBasePath;
   }
 
   build() {
-    const iri_module: IRIDIUM_MODULE = new IRIDIUM_MODULE(this.js3Builder);
+    const iri_module: IRIDIUM_MODULE = new IRIDIUM_MODULE(
+      this.js3Builder,
+      this.projectBasePath,
+    );
     iri_module.build();
     this.module = iri_module;
     this.saveGeneratedFile();

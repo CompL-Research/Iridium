@@ -32,9 +32,11 @@
                 "--import=tsx",
                 "/home/meetesh/wd/Iridium/iridium.ts",
                 "iri",
-                "/home/meetesh/wd/webpack-bundle-analyzer/src/index.js"
+                "/home/meetesh/wd/webpack-bundle-analyzer/src/index.js",
+                "/home/meetesh/wd/webpack-bundle-analyzer/",
+                "-g"
             ],
-            "outFiles": ["${workspaceFolder}/classes/**/*.ts"],
+            "outFiles": ["${workspaceFolder}/classes/**/*.ts", "${workspaceFolder}/*.ts"],
             "skipFiles": [
                 "<node_internals>/**",
                 "**/playground/**",

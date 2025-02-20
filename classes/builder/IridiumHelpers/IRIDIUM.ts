@@ -311,7 +311,7 @@ import { hoistDeclarations } from "./Passes/DeclarationHoisting.ts";
 import { initializeEnvDefs } from "./Passes/EnvInit.ts";
 import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
-import { PTA_IN_RES, startPTA } from "./Passes/PTA.ts";
+import { PTA_IN_RES, PTA_OUT_RES, startPTA } from "./Passes/PTA.ts";
 import { IRIDIUM_FG } from "./Passes/PTA/IRIDIUM_FG.ts";
 import { PTAGraph } from "./Passes/PTA/PTAGraph.ts";
 import {
@@ -329,10 +329,12 @@ export default class IRIDIUM_MODULE {
   fgContext: Array<IRIDIUM_FG> = [];
   static EXPANSION_THRESHOLD: number = 1;
   fg: IRIDIUM_FG = undefined;
+  projectBasePath: string;
 
-  constructor(js3builder: JS3Builder) {
+  constructor(js3builder: JS3Builder, projectBasePath: string) {
     this.node = js3builder.generatedAST.program;
     this.js3builder = js3builder;
+    this.projectBasePath = projectBasePath;
   }
 
   // FlowGraph Context
@@ -385,7 +387,7 @@ export default class IRIDIUM_MODULE {
       const nodes = res.nodes();
       for (const n of nodes) {
         const inRes = PTA_IN_RES.get(n);
-        const outRes = PTA_IN_RES.get(n);
+        const outRes = PTA_OUT_RES.get(n);
         inRes.saveDotToFile(`${PTAPATH}/${filename}_${n}_IN`);
         outRes.saveDotToFile(`${PTAPATH}/${filename}_${n}_OUT`);
       }
@@ -417,7 +419,6 @@ export default class IRIDIUM_MODULE {
       return result;
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const resolveSources = (fg: IRIDIUM_FG, pta: PTAGraph) => {
       const res: Set<ImportNode> = new Set();
       const renderNodes = pta
@@ -448,11 +449,15 @@ export default class IRIDIUM_MODULE {
 
     if (level < IRIDIUM_MODULE.EXPANSION_THRESHOLD) {
       console.log(`Expansion Level: ${level}`);
-      // let resolvedSources = resolveSources(res, PTA_OUT_RES.get(res.sinks()[0]));
-      // for (let iSource of resolvedSources) {
-
-      //   let pFile = new ProjectFile()
-      // }
+      const resolvedSources = resolveSources(
+        res,
+        PTA_OUT_RES.get(res.sinks()[0]),
+      );
+      for (const iSource of resolvedSources) {
+        console.log("Resolving: ", iSource.FROM);
+        // resolveModuleImport(iSource.FROM, )
+        // const pFile = new ProjectFile(iSource.FROM, path.dirname(filePath));
+      }
     }
 
     this.fg = res;

@@ -1,5 +1,5 @@
 import debugConfig from "#debugConfig";
-import { initializeOutputsPath } from "#utils";
+import { hasPackageJson, initializeOutputsPath } from "#utils";
 import chalk from "chalk";
 import { I_Container } from "classes/builder/IridiumHelpers/I_GENERAL/I_Container.ts";
 import JS3Builder from "classes/builder/JS3Builder.ts";
@@ -87,6 +87,7 @@ function iri(filePath) {
       js3Builder,
       directives,
       sourceType,
+      debugConfig.cli.projectBase,
     );
     iri_container.build();
   } catch (e) {
@@ -155,6 +156,22 @@ if (mainCommand === "js3") {
     console.error(chalk.red(`[ERROR] File does not exist: ${PATH_TO_JS}`));
     process.exit(1);
   }
+
+  const subOptions = commandLineArgs(getFirstCommand, {
+    argv,
+    stopAtFirstUnknown: true,
+  });
+  const PATH_TO_PROJECT = path.resolve(subOptions.command);
+
+  if (!hasPackageJson(PATH_TO_PROJECT)) {
+    console.error(
+      chalk.red(`[ERROR] package.json not found in the project root`),
+    );
+    process.exit(1);
+  }
+
+  // Initialize Projecy Base
+  debugConfig.cli.projectBase = PATH_TO_PROJECT;
   debugConfig.throwJS3Errors = true;
   debugConfig.throwIRIErrors = true;
   if (argv.length > 0) {

@@ -132,7 +132,9 @@ const IRI_OPTIONS = [
 export const iriUsageInfo: UsageSectionsArray = [
   {
     header: "=== IRI ===",
-    content: [`$ ./iridium iri {bold <path-to-js-file>} [OPTIONS]`],
+    content: [
+      `$ ./iridium iri {bold <source-js-file>} {bold <project-base-path>} [OPTIONS]`,
+    ],
   },
   {
     header: "Iridium Options",
