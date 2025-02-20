@@ -43,6 +43,59 @@ export class StackNode extends PTANode {
   }
 }
 
+// 
+// KnownFunction
+// 
+export class KnownFunctionNode extends PTANode {
+  idx: number
+  constructor(id: string, idx: number) {
+    super(id);
+    this.idx = idx;
+  }
+  
+  toString() {
+    return "KnownFunction"
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.toString()}",shape="octagon",style="filled",fillcolor="orange"]`
+  }
+}
+
+// 
+// ModuleExports
+// 
+export class ModuleExportsNode extends PTANode {
+  constructor(id: string) {
+    super(id);
+  }
+  
+  toString() {
+    return "ModuleExportsNode"
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.toString()}",shape="rectangle",style="filled",fillcolor="aquamarine"]`
+  }
+}
+
+// 
+// ReactRenderRoot
+// 
+export class ReactRenderRoot extends PTANode {
+  constructor(id: string) {
+    super(id);
+  }
+  
+  toString() {
+    return "ReactRenderRoot"
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.toString()}",shape="rectangle",style="filled",fillcolor="aquamarine"]`
+  }
+}
+
 
 // 
 // DummyObject
@@ -57,7 +110,7 @@ export class DummyObject extends PTANode {
   }
 
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="square",style="filled", fillcolor="orange"]`
+    return `[xlabel="${this.toString()}",shape="square",style="filled",fillcolor="orange"]`
   }
 }
 
@@ -87,11 +140,11 @@ export class JSXObject extends PTANode {
   }
 
   toString() {
-    return "JSXObject"
+    return "JSXObject";
   }
 
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="square"]`
+    return `[xlabel="${this.toString()}",shape="square"]`;
   }
 }
 
@@ -104,11 +157,11 @@ export class FJSXObject extends PTANode {
   }
 
   toString() {
-    return "FJSXObject"
+    return "FJSXObject";
   }
 
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="square"]`
+    return `[xlabel="${this.toString()}",shape="square"]`;
   }
 }
 
@@ -252,6 +305,25 @@ export class UnknownResultObj extends PTANode {
   }
 }
 
+// 
+// KnownResultObj
+// 
+export class KnownResultObj extends PTANode {
+  idx: number
+  constructor(id: string, idx : number) {
+    super(id);
+    this.idx = idx;
+  }
+
+  toString() {
+    return "KnownResultObj"
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.toString()}",shape="square",style="filled", fillcolor="orange"]`
+  }
+}
+
 
 // 
 // SetSpecialClosure
@@ -297,16 +369,16 @@ export class GetSpecialClosure extends PTANode {
 // ImportNode
 // 
 export class ImportNode extends PTANode {
-  remote: IV_Identifier | IV_StringLiteral
   FROM: IV_StringLiteral
-  constructor(id: string, remote: IV_Identifier | IV_StringLiteral, FROM: IV_StringLiteral) {
-    super(id)
-    this.remote = remote
-    this.FROM = FROM
+  isStatic: boolean = true
+  constructor(id: string, FROM: IV_StringLiteral, isStatic: boolean) {
+    super(id);
+    this.FROM = FROM;
+    this.isStatic = isStatic;
   }
 
   toString() {
-    return `${this.remote.toString()} from ${this.FROM.toString()}`
+    return `[isStatic: ${this.isStatic}]`
   }
 
   dotStyle() {

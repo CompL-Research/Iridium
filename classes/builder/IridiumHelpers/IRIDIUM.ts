@@ -1,7 +1,7 @@
 import debugConfig from "#debugConfig";
 import _generate from "@babel/generator";
 import _traverse from "@babel/traverse";
-import { ArrayPattern, AssignmentPattern, callExpression, Expression, identifier, Identifier, isArrayPattern, isArrowFunctionExpression, isAssignmentPattern, isBigIntLiteral, isBooleanLiteral, isClassExpression, isDecimalLiteral, isFunctionExpression, isIdentifier, isImportSpecifier, isNullLiteral, isNumericLiteral, isObjectPattern, isOptionalCallExpression, isOptionalMemberExpression, isPrivateName, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, Node, ObjectPattern, OptionalCallExpression, optionalCallExpression, OptionalMemberExpression, optionalMemberExpression, ThisExpression } from "@babel/types";
+import { ArrayPattern, AssignmentPattern, callExpression, Expression, identifier, Identifier, Import, isArrayPattern, isArrowFunctionExpression, isAssignmentPattern, isBigIntLiteral, isBooleanLiteral, isClassExpression, isDecimalLiteral, isFunctionExpression, isIdentifier, isImportSpecifier, isNullLiteral, isNumericLiteral, isObjectPattern, isOptionalCallExpression, isOptionalMemberExpression, isPrivateName, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, Node, ObjectPattern, OptionalCallExpression, optionalCallExpression, OptionalMemberExpression, optionalMemberExpression, ThisExpression } from "@babel/types";
 
 const traverse = _traverse.default
 
@@ -52,8 +52,11 @@ import { addThisInitToFunctionBoundaries } from "./Passes/AddThisInitToFunctionB
 import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
 import { IV_FJSX, IV_JSX, IV_PJSX } from "./ALL_RVal/IV_JSX.ts";
-import { PTA, startPTA } from "./Passes/PTA.ts";
+import { PTA, PTA_OUT_RES, startPTA } from "./Passes/PTA.ts";
 import { I_Function_params } from "./I_GENERAL/I_Function.ts";
+import { PTAGraph } from "./Passes/PTA/PTAGraph.ts";
+import { DummyObject, ImportNode, PTANode, ReactRenderRoot } from "./Passes/PTA/nodes.ts";
+import { ProjectFile } from "classes/ProjectFile.ts";
 
 const generate = _generate.default
 
@@ -224,10 +227,12 @@ export class IRIDIUM_FG extends Graph {
 }
 
 
-export default class IRIDIUM {
+export default class IRIDIUM_MODULE {
   js3builder: JS3Builder
   node: JS3Program
   fgContext: Array<IRIDIUM_FG> = new Array()
+  static EXPANSION_THRESHOLD : number = 1;
+  fg: IRIDIUM_FG = undefined
   
   constructor(js3builder: JS3Builder) {
     this.node = js3builder.generatedAST.program
@@ -240,7 +245,7 @@ export default class IRIDIUM {
   popFGContext() : IRIDIUM_FG { return this.fgContext.pop(); }
 
   // Build FlowGraph
-  build() {
+  build(level: number = 0) {
     let GLOBAL_ENV = new GlobalEnvironment(undefined)
     let MAIN_ENV = new Environment(GLOBAL_ENV)
 
@@ -254,7 +259,7 @@ export default class IRIDIUM {
     this.pushFGContext(new IRIDIUM_FG(bb))
     this.handleJS3ProgramBody(this.node.body)
     let res = this.popFGContext()
-    if (this.fgContext.length !== 0) debugConfig.logger.throwIriError("Expected FGContext to be empty after Iridium generation!!")
+    if (this.fgContext.length !== 0) debugConfig.logger.throwIriError("Expected FGContext to be empty after Iridium generation!!");
 
     hoistDeclarations(res);
     addThisInitToFunctionBoundaries(res);
@@ -263,8 +268,56 @@ export default class IRIDIUM {
     initializeEnvDefs(res);
     cleanupBBs(res);
     startPTA(res);
+
+    let successorPTAClosure = (pta: PTAGraph, root: string, result: Set<string> = new Set()) => {
+      result.add(root);
+      let outEdges = pta.outEdges(root)
+      if (outEdges) for (let e of outEdges) if (!result.has(e.w)) successorPTAClosure(pta, e.w, result);
+      return result;
+    };
+
+    let predecessorPTAClosure = (pta: PTAGraph, root: string, result: Set<string> = new Set()) => {
+      result.add(root);
+      let inEdges = pta.inEdges(root)
+      if (inEdges) for (let e of inEdges) if (!result.has(e.v)) predecessorPTAClosure(pta, e.v, result);
+      return result;
+    };
+
+    let resolveSources = (fg: IRIDIUM_FG, pta: PTAGraph) => {
+      let res : Set<ImportNode> = new Set();
+      let renderNodes = pta.nodes().filter(n => pta.getPTANode(n) instanceof ReactRenderRoot);
+      
+      for (let r of renderNodes) {
+        let closure : Array<PTANode> = [...successorPTAClosure(pta, r)].map(e => pta.getPTANode(e));
+        let importNodes = closure.filter(n => n instanceof ImportNode);
+        let dummies = closure.filter(n => n instanceof DummyObject);
+        let dummyClosure : Set<string> = new Set();
+        for (let d of dummies) {
+          predecessorPTAClosure(pta, d.id).forEach(n => dummyClosure.add(n));
+        }
+
+        dummyClosure.forEach(n => {
+          let curr = pta.getPTANode(n);
+          if (curr instanceof ImportNode && !importNodes.includes(curr)) importNodes.push(curr);
+        })
+
+        importNodes.forEach(n => res.add(n));
+      }
+      return res;
+    };
+
+    if (level < IRIDIUM_MODULE.EXPANSION_THRESHOLD) {
+      console.log(`Expansion Level: ${level}`);
+      // let resolvedSources = resolveSources(res, PTA_OUT_RES.get(res.sinks()[0]));
+      // for (let iSource of resolvedSources) {
+
+      //   let pFile = new ProjectFile()
+      // }
+
+    }
+
     
-    return res;
+    this.fg = res;
   }
 
   // // Set/Get current BB
@@ -1421,8 +1474,33 @@ export default class IRIDIUM {
   // *********************** Iridium_Call ***********************
 
   handleJS3JSXCallExpression(node: JS3JSXCallExpression) {
+    if (node.callee.name === "###JSX###" && isIdentifier(node.arguments[0]) && node.arguments[0].name === "###JSXFRAG###") {
+      let args = node.arguments
 
-    if (node.callee.name === "###JSX###") {
+      let children : Array<IV_Identifier> = new Array()
+      for (let i = 0; i < args.length; i++) {
+        let curr = args[i]
+        if (i === 0 || i === 1) { continue;
+        } else {
+          if (isIdentifier(curr)) children.push(IV_Identifier.from(curr))
+          else debugConfig.logger.throwIriError("JS3JSX: Expected children to be Identifiers")
+        }
+      }
+
+      return new IV_FJSX(node, children)
+
+      // // Fragment Case
+      // let args = node.arguments
+
+      // let children : Array<IV_Identifier> = new Array()
+      // for (let i = 0; i < args.length; i++) {
+      //   let curr = args[i]
+      //   if (isIdentifier(curr)) children.push(IV_Identifier.from(curr))
+      //   else debugConfig.logger.throwIriError("JS3JSX: Expected children to be Identifiers")
+      // }
+
+      // return new IV_FJSX(node, children)
+    } else if (node.callee.name === "###JSX###") {
       let args = node.arguments
 
       let tag: IV_Identifier | IV_StringLiteral
@@ -1444,18 +1522,6 @@ export default class IRIDIUM {
 
       if (tag instanceof IV_Identifier) return new IV_JSX(node, tag, props, children)
       else return new IV_PJSX(node, tag, props, children)
-    } else {
-      // Fragment Case
-      let args = node.arguments
-
-      let children : Array<IV_Identifier> = new Array()
-      for (let i = 0; i < args.length; i++) {
-        let curr = args[i]
-        if (isIdentifier(curr)) children.push(IV_Identifier.from(curr))
-        else debugConfig.logger.throwIriError("JS3JSX: Expected children to be Identifiers")
-      }
-
-      return new IV_FJSX(node, children)
     }
   }
 

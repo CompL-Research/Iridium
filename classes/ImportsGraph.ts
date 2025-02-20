@@ -162,9 +162,9 @@ export class ImportsGraph {
 
   dumpDOT() {
     const that = this
-    fs.writeFileSync(debugConfig.outputsPath + "/" + 'moduleGraph.DOT', this.getDOT())
-    if (debugConfig.printModuleGraphPng) {
-      shell.exec(`dot -Grankdir=TB -Gnodesep=1.0 -Granksep=1.0 -Gconcentrate=true -Gsplines=true -Tpng ${debugConfig.outputsPath + "/" + 'moduleGraph.DOT'} > ${debugConfig.outputsPath + "/" + 'moduleGraph.png'}`)
-    }
+    // fs.writeFileSync(debugConfig.cli.outputsPath + "/" + 'moduleGraph.DOT', this.getDOT())
+    // if (debugConfig.printModuleGraphPng) {
+    //   shell.exec(`dot -Grankdir=TB -Gnodesep=1.0 -Granksep=1.0 -Gconcentrate=true -Gsplines=true -Tpng ${debugConfig.cli.outputsPath + "/" + 'moduleGraph.DOT'} > ${debugConfig.cli.outputsPath + "/" + 'moduleGraph.png'}`)
+    // }
   }
 }

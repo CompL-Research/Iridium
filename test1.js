@@ -1,337 +1,1271 @@
-"use strict";
-// // 1. Let bindings are unusable before init
-// console.log(pokemon)
-// let pokemon = "Pikachu"
-// // 
-// // Cannot access 'pokemon' before initialization
-// // 
-
-// // 2. Function declarations are hoisted up
-// foo()
-// function foo() { console.log("foo") }
-// // 
-// // foo
-// // 
-
-// // 3. Cannot access before initialization
-// let a = new A()
-// class A {}
-
-// // 4. Let bindings are unusable before init
-// foo()
-// let foo = function() { console.log("foo") }
-// // 
-// // Cannot access 'pokemon' before initialization
-// //
-
-// // 5. Let after let
-// let foo = 100
-// console.log(foo)
-// let foo = 11110
-// console.log(foo)
-// // 
-// // Identifier 'foo' has already been declared
-// // 
-
-// // 6. Function foo and boo mutual recursion
-// boo(5)
-// function foo(a) { console.log("foo"); if (a >= 0) boo(a-1) }
-// function boo(a) { console.log("boo"); if (a >= 0) foo(a-1) }
-
-// // 7. Exports of var declarations behave the same
-// console.log(a)
-// export let a = 199
-
-// // 8. Exports of function declarations behave like normal function declarations
-// foo()
-// export function foo() {
-//   console.log("foo")
-// }
-
-// // 9. Multiple vars
-// var a = 19
-// var a = 20
-// var a = 21
-// console.log(a)
-
-// // 10. Export default declarations
-// foo()
-// export default function foo() {
-//   console.log("foo")
-// }
-
-// // 11.
-// foo()
-// import {foo} from './exp.js'
-
-// // 12.
-// let a = (1,2,function() { })
-// console.log(a.name) // -> ''
-
-// // 13.
-// let a = (function() { })
-// console.log(a.name) // -> 'a'
-
-
-// 
-// 1. Let bindings
-//  - Unusable before init, but we know that it will exist.
-//  - Only one binding per scope
-// 2. Var bindings
-//  - Hoisted and set to 'undefined' value
-//  - Any number of bindings can be made, acts as redefinitions.
-// 4. Function declarations
-//  - Hoist to top
-// 5. Class declarations
-//  - No hoisting, behaves like let bindings
-// 6. Imports
-//  - Can be hoisted to the top of the file
-
-
-// // CASE 1: a is undefined
-// console.log(a) // ReferenceError: a is not defined
-
-// // CASE 2: b may be defined somewhere down the line
-// console.log(b) // undefined
-// if (b) {
-//   if (b) {
-//     if (b) {
-//       var b = 100;
-//     }
-//   }
-// }
-
-// // CASE 3: c may be defined in a function scope
-// console.log(c) // ReferenceError: c is not defined
-// (() => { var c = 100 })()
-
-// // CASE 4: switch case
-// console.log(d) // undefined
-
-// switch(true) {
-//   case 1:
-//     var d = 100;
-//     break;
-//   default:
-//     var d = 11;
-// }
-
-// // CASE 5: while loop
-// console.log(e) // undefined
-
-// while (false) {
-//   var e = 121
-// }
-
-// // CASE 6: For loop
-// console.log(f) // undefined
-// for (;;) {
-//   var f = 121
-//   break;
-// }
-
-// // CASE 7: While/do While loop
-// console.log(g) // undefined
-// console.log(h) // undefined
-// while (false) {
-//   var g = 11
-// }
-
-// do {
-//   var h = 11
-// } while (false)
-
-
-// CASE 8: for in and for of loop
-
-// let obj = []
-// console.log(i) // undefined
-// console.log(j) // undefined
-
-// for (let _ in obj) {
-//   var i = 10
-// }
-
-// for (let _ of obj) {
-//   var j = 10
-// }
-
-
-// CASE 1: Optional Member Expr
-
-// let a = { t: { f: function() { console.log(this.data) }, data: 101 } };
-
-// let t = a.t?.[[(console.log("side effect"), "f")]]
-// t.call(a.t);
-
-
-// let i = 0
-// console.log(`[Set Interval] ${i++}`);
-// setInterval(() => {
-//   console.log(`[DOPE] ${i++}`);
-// }, 1000)
-
-// new Promise((resolve, reject)=> {
-//   console.log("[I PROMISE TO BEHAVE]")
-// })
-
-// async function foo() {
-//   console.log(`[Foo starting] ${i++}`)
-
-//   let p = new Promise((resolve, reject)=> {
-//     setTimeout(() => {
-//       console.log(`[TIMEOUT] ${i++}`);
-//       resolve()
-//     }, 5000)
-//   })
-
-//   await p;
-//   console.log(`[Foo ending] ${i++}`)
-
-// }
-
-// foo()
-
-// // Ordinary Object
-// let o1 = { boo: 100 }
-// let o2 = {}
-// Object.setPrototypeOf(o2, o1);
-// // o2.prototype = o1
-// console.log(o2.boo)
-
-// // function object
-// function f() {
-// }
-
-// // array exotic object
-// let o3 = [1,2,3]
-
-
-// ArrayBuffer
-// let ab = new ArrayBuffer(2); // 2 bytes
-// let dataView = new DataView(ab);
-// dataView.setInt8(0, 100);
-// dataView.setInt8(1, 101);
-// console.log(ab)
-// console.log(dataView)
-// console.log(new Uint8Array(ab).toString())
-
-// let f = (a) => {
-//   console.log("Final res: ",a)
-// }
-
-// let abv = new Promise((resolve, reject) => {
-//   setTimeout(() => { resolve("bc"); }, 1000)
-// })
-
-// f ("a" + (await abv) + "d")
-
-// let f = a => {
-//   let f$1 = console.log("Final res: ", a);
-// };
-// let abv$3 = Promise;
-// let NAMELESS_ANON_FN$7 = [(resolve, reject) => {
-//   let NAMELESS_ANON_FN$6 = [() => {
-//     let abv$5 = resolve("bc");
-//   }][0];
-//   let abv$4 = setTimeout(NAMELESS_ANON_FN$6, 1000);
-// }][0];
-// let abv$2 = new abv$3(NAMELESS_ANON_FN$7);
-// let abv = abv$2;
-// let js3$8 = f(await (async () => {
-//   let js3$11 = "a";
-//   let js3$12 = await abv;
-//   let js3$10 = js3$11 + js3$12;
-//   let js3$13 = "d";
-//   let js3$9 = js3$10 + js3$13;
-//   return js3$9;
-// })());
-
-// let b = new Promise((resolve, reject) => {
-//   setTimeout(() => { resolve("234") }, 1000);
-// });
-// let res = "1" + (await ((async () => await b )())) + "5"
-// console.log(res)
-
-// export * as b from "test.js"
-// let a = 1
-// export {a}
-
-
-// console.log(a)
-// export const a = 10
-
-// export var { b, c: { d: e } } = { b: 1, c: { d: 121 } }
-
-// console.log(b, e)
-
-// let [[[a],b,c] = [[11],12,13]] = [undefined, 2, 3, 4]
-// console.log(a,b,c)
-
-// let k = ""
-// let { ["a" + k] : [a, b, c] = [1,2,3], d, ...e } = { a: undefined, d: 4, e: 11, f: 12, g: 13 }
-// console.log(a, b, c, d, e)
-
-
-// let a, b, c, d;
-// [a, b, c, d] = [1,2,3,4];
-// console.log(a,b,c,d);
-
-
-// let k = 1;
-// let a;
-// console.log(1 + ({["" + k]: a } = [1,2,3,4]))
-
-
-// let a = 12;
-// let b = 13;
-// let c = 14;
-// let d = 15;
-// let e = 1;
-// e *= b/c+d;
-// console.log(a,b,c,d,e)
-
-// const a = { duration: 50 };
-// a.speed ??= 25;
-// console.log(a.speed);
-
-// export default function xx() {
-
-// }
-
-// let { b, c: { d: e } } = undefined
-
-// 
-// IRIDIUM
-// 
-
-// 1.
+// // 1.
 // import "source";
-// import { x as y } from "source";
+// import { zxx as y } from "source";
 // import * as x from "source";
 // import z from "source";
 
-// BB0 [Module]:
-// IMPORT "source";
-// IMPORT { x as y } from "source";
-// IMPORT * as x from "source";
-// IMPORT { default as z } from "source";
-
-// 2.
-
+// // 2.
+// let ID = 1
+// let local = 1
 // export default ID
+// export { local as remote }
+// export { local as remote2 } from "FROM"
+// export * as REMOTE from "FROM"
+// export * from "FROM"
 
+// // 3. 
+// debugger;
+// // return...
+// throw 1;
 
-// let k = 1;
-// let a;
-// console.log(1 + ({["" + k]: a } = [1,2,3,4]))
-
-
-// try {
-//   let a = 1;
-// } catch([a, ...{x: { y: boo }}]) {
-//   let b = 2;
+// // 4.
+// function foo() {
+//   let test = "foo";
 // }
 
 
-export default function() { console.log("test1.js"); }
+// // 5. Ifstmt
+// let t = false;
+// if (t) {
+//   let a = `ABC${t}def`;
+// }
+// if (t) {
+//   let a = 123;
+//   if (!t) {
+//     let b = 121;
+//   }
+// } else {
+//   let b = 123;
+//   if (b) {
+//     let x = 14;
+//   } else {
+//     let x = 1;
+//   }
+// }
+
+// // 6. FunctionScope
+// function fn() {
+//   var a = 1;
+//   try {
+//     throw 'stuff3';
+//     return;
+//   } catch (a) {
+//     // catch parameter shadowing var variable
+//     console.log(a, 'stuff3');
+//   }
+//   console.log(a, 1);
+//   return foo;
+// }
+// fn()
+
+
+// // 7.Try Catch
+// try {
+//   var xxa = 1;
+// } catch([a, ...{x: { y: boo }}]) {
+//   let b = 2;
+// }
+// try {
+//   let a = 1;
+// } finally {
+//   let b = 2;
+// }
+// try {
+//   let a = 1;
+// } catch {
+//   let b = 2;
+// } finally {
+//   var caas = 3;
+// }
+
+
+
+// // 8. Template Literals
+// let a = `a,b,c${g}da`
+// let b = tag`a,b,c${g}da`
+
+
+// 9. Call Expression
+// let f = function(a,b,c) {  }
+
+// f(a,b*c,(b*c,6,7) );
+// g.h.i(a,b*c,(b*c,6,7) );
+// (g?.h)?.i(a,b*c,(b*c,6,7) );
+
+// // 10. CallExpressions
+// import("boo");
+// f(a,b*c,(b*c,6,7));
+// // c. Super [ID,...ID]
+// // d. V8IntrinsicIdentifier [ID,...ID]
+
+
+// // // 11. Meta Property
+// function Foo() {
+//   import.meta
+//   if (!new.target) {
+//     throw new Error("Foo() must be called with new");
+//   }
+//   console.log("Foo instantiated with new");
+// }
+// new Foo(); // Logs "Foo instantiated with new"
+// Foo(); // Throws "Foo() must be called with new"
+
+
+// // 12. Yield/Await
+// async function* Foo() {
+//   yield 
+//   yield 10;
+//   await 10;
+// }
+
+// 13. ThisExpression
+// function foo() {
+//   let b = this;
+//   this.boo;
+// }
+
+// // 14. Binops
+// // OPA = "+" | "-" | "/" | "%" | "*" | "**"
+// var a = 1 + 1;
+// var a = 1 - 1;
+// var a = 1 / 1;
+// var a = 1 % 1;
+// var a = 1 * 1;
+// var a = 1 ** 1;
+
+// // OPB = "&" | "|" | ">>" | ">>>" | "<<" | "^"
+// var a = 1 & 1;
+// var a = 1 | 1;
+// var a = 1 >> 1;
+// var a = 1 >>> 1;
+// var a = 1 << 1;
+// var a = 1 ^ 1;
+
+// // OPC =  "==" | "===" | "!=" | "!==" 
+// var a = 1 == 1;
+// var a = 1 === 1;
+// var a = 1 != 1;
+// var a = 1 !== 1;
+
+// // OPD = "in"
+// var a = class boo {
+//   #boo = 1
+//   test() {
+//     #boo in { boo: 1 };
+//   }
+// }
+// var a = "boo" in { boo: 1 };
+
+// // OPE = "instanceof" 
+// var a = a instanceof boo;
+
+// // OPF = ">" | "<" | ">=" | "<="
+// var a = 1 > 1;
+// var a = 1 < 1;
+// var a = 1 >= 1;
+// var a = 1 <= 1;
+
+// // 15. Assignments
+// var a, b, c, d = { e: 1, f: { g: 2 } }, pokemon;
+// // simple assn
+// a = b = c = d;
+
+// // member assn
+// d.e = d.f
+
+// // this assn
+// globalThis.boo = a;
+
+// // super assn.
+// // 
+// // 
+
+// // arrpatassn
+// [a, b] = [b, a];
+
+// // objpatassn
+// ({ f: { g: pokemon } } = d);
+// console.log(a, b, c, d, pokemon)
+
+
+// 16. Optional Chaining
+
+// let a;
+// a = a.b.c.d?.e; // Optional chain at terminals
+// a = a.b.c.d?.e();   // Optional chain at terminals
+// a = a.b.c?.d.e;     // One intermediate optional chain
+// a = a.b.c?.d().e;     // One intermediate optional chain
+// a = a.b.c?.d().e();     // One intermediate optional chain
+// a = a.b.c?.d.e();     // One intermediate optional chain
+
+// a = a?.()
+
+// a = a.b().c?.().b?.c;
+// a = b[x?.z()]?.c;
+
+
+// export default function MyApp() {
+//   let a;
+//   a = a?.v[(test) ? 1 : 2].c?.().d.e.f?.g;
+//   return a;
+// }
+
+// foo.b.x(() => { console.log("Boo") },23)
+
+// let a = (a, pokemon = 199, ...{x, y: { mee: { te: { s : xxz = "h" } } }}) => {
+//   return a + pokemon + xxz
+// }
+
+// a("M", 12, { x: 100, y: { mee: { te: { s: "h" } } }})
+
+// let { x: { y: xs } } = { x: { y: "Meetesh" } }
+// console.log(xs)
+
+// let a = (a, pokemon = 199, ...{ 0: { x : x }, 1: y, 2: z }) => {
+//   return (a + pokemon + (y + z) + x).toLowerCase() 
+// }
+// console.log(a("Ba", "", { x: "a", y: 1, z: 2 }))
+
+
+
+
+// console.log(("B" + "a" + +"b" + "a" ).toLowerCase())
+
+// function Test() { console.log("Outer Test", this); }
+// function foo(a = Test()) {
+//   let x = Test()
+//   function Test() { console.log("Inner Test"); }
+// }
+
+// foo()
+
+
+// 
+// 1. Argument: a = Test, "Test is a let binding"
+//      
+//      Here Test is searched in the argument scope,
+//      and it behaves like a let binding, throwing reference error
+//      as it could not be found.
+// 
+// var Test = "outer"
+// function f1(a = Test, Test = "args") {
+//   var Test = "inner" 
+//   return a + Test;
+// }
+// console.log(f1()) // Test uninit error, undefinedinner in babel
+
+
+// // 
+// // 2. Argument: (a, a, a=1)
+// //      
+// //      Duplicate parameter name not allowed in this context
+// // 
+// function f2(a,a,a = 1) {
+//   return a;
+// }
+// console.log(f2()) // Error
+
+// // 
+// // 3. Argument: (a,a,a) { SCRIPT MODE }
+// //      
+// //      returns undefined... a gets set to undefined for missing
+// //      argument.
+// // 
+// function f3(a, a, a) {
+//   return a;
+// }
+
+// console.log(f3(1,2)) // 
+
+// // 
+// // 4. Argument: (a)
+// //      
+// //      returns 10... hoisting "a = undefined" to the top of the scope
+// //      is wrong because argument evaluation takes precedence over
+// //      setting "a = undefined"
+// // 
+// function f3(a) {
+//   var a;
+//   return a;
+// }
+
+// console.log(f3(10)) // 10
+
+
+// function f3({ f: { g: a } }) {
+//   var a;
+//   try {
+//     eval('var a');
+//     console.log("a was a var")
+//   } catch (error) {
+//     console.log("a was a let/const")
+//   }
+
+//   return a;
+// }
+
+// console.log(f3({ f: { g: 12 } })) // 10
+
+// // 
+// // Semantics of arguments most closely resemble "var", 
+// // in their own function scope.
+// // 
+
+// function f4({ f: { g: a } }, test = a) {
+//   return test;
+// }
+
+// console.log(f4({ f: { g: 12 } })) // 10
+
+
+// // 
+// // Code that breaks after babel
+// // 
+// var test = 100
+// function f4({ f: { g: a = test } }, test) {
+//   return a;
+// }
+
+// console.log(f4({ f: { gg: 12 } })) // 10
+
+
+// // Transformation that might work, but doesnt...
+// var test = 100
+// function f4_patched(arg1, arg2) {
+//   var { f: temp1 } = arg1
+//   var { g: a = test } = temp1
+
+//   return ((arg2) => {
+//     var test = arg2;
+//     return (() => {
+//       return a;
+//     })()
+//   })(arg2)
+// }
+
+// console.log(f4_patched({ f: { gg: 12 } })) // 10
+
+// var test = 100
+// function f4({ f: { g: a = test } }, test) {
+//   return a;
+// }
+// console.log(f4({f:{}}))
+
+// import a from "./test1.js"
+// import b from "./test1.cjs"
+// console.log(a, b)
+
+// const x = {
+//   get value() {
+//     console.log("value getter called")
+//     return { get boo() { console.log("boo getter called"); return undefined; }, set boo(a) { console.log("boo setter called"); }  };
+//   },
+//   set value(v) {
+//     console.log("value setter called");
+//   },
+// };
+
+// x.value.boo ??= 2;
+
+// let log = console.log
+// let a = 3;
+// let b = -2;
+// log(a > 0 && b > 0);
+// // Expected output: false
+
+// let a = 3;
+// let b = -2;
+// log(a > 0 || b > 0);
+// Expected output: true
+
+// const foo = null ?? 'default string';
+// log(foo);
+// // Expected output: "default string"
+
+// const baz = 0 ?? 42;
+// log(baz);
+// // Expected output: 0
+
+// export default function test(arg) {
+//   let a = {}
+//   let b = test ? a?.b() : tt;
+// }
+
+
+// a.x(function foo() { var a, b, c; console.log(a, b, c); })
+
+// let a;
+// a = {
+//   f1(a = Test) {
+//     return a;
+//   },
+//   moo(a, b, c,) {
+//   },
+//   [a]: a,
+//   ...a
+// }
+
+
+// a = function() {
+//   a = {
+//     get [f1]() {
+//       return a;
+//     },
+//     moo(a, b, c,) {
+//     },
+//     [a]: a,
+//     ...a
+//   }
+// }
+
+// let b;
+
+
+// let foo = (a) => {
+//   console.log(a.name)
+// }
+
+// foo(() => { console.log("boo") }, [1,2,,3,,,4])
+
+// a[a?.a()].c?.().d?.[e].f?.g;
+
+
+// let a = new Array(() => { console.log("boo") }, [1,2,,3,,,4])
+
+// let a = delete ((a * b + c) == 6)
+
+// let Global = false
+// function test(
+//     foo = ((a) => (a ? bas : 1))(Global), // missing error
+//     baz = () => bas, // ok, accessing 'bas' is deferred
+//     bas,
+// ) {
+//     return {foo,baz}
+// }
+// test(undefined,undefined,3)
+
+// let a = {
+//   foo() {
+//     return this.x;
+//   },
+//   x: 10
+// }
+// let b = a.foo()
+// console.log(b)
+
+// let c = { x: 2 }
+
+// b = a.foo.apply(c)
+// console.log(a.foo.apply(c))
+
+
+// export default function() { }
+// import f from "./test.js"
+// console.log(f.name)
+
+
+// 
+// Binding creation of x in catch is conditionally validly/invalidly bound
+// 
+
+// 
+// Works
+// 
+// (function() {
+//   try {
+//       throw new Error("err");
+//   } catch (x) {
+//       var x = 100
+//       var y = 100
+//       var z = 100
+//       console.log(x)
+//   }
+//   console.log(x, y, z)
+// })();
+
+// 
+// Does not work
+// 
+// (function() {
+//   try {
+//       throw new Error(["err"]);
+//   } catch ([x]) {
+//       var x = 100
+//       var y = 100
+//       var z = 100
+//       console.log(x)
+//   }
+//   console.log(x, y, z)
+// })();
+
+
+// // 
+// // Test to check the evaluation order of effects when creating classes
+// // 
+// var probeBefore = function() { console.log("[probe before]");  return C; };
+// var probeHeritage;
+// var C = 'outside';
+
+// const Test = class C extends ( // <- This evaluation happens under a specific new scope
+//   (
+//     console.log("super stuff"), 
+//     probeHeritage = function() { console.log("[probe after]"); return C; }, // This (i.e. C) is a non-writable property
+//     function () {}
+//   )
+// ) {
+//   static [(console.log("[static-field-1] name init"), "field1")] = (console.log("[static-field-1] value init", Object.getOwnPropertyNames(this)), 1);
+
+//   #private1 = (console.log("[private-1] value init"), 1);;
+//   static #staticprivate1 = (console.log("[static-private-1] value init"), 1);;
+//   [(console.log("[local-field-1] name init"), "field1")] = (console.log("[local-field-1] value init"), 1);
+//   [(console.log("[local-method-1] name init", this), "local-method-1")]() { }
+//   static [(console.log("[static-method-1] name init"), "local-method-1")]() { }
+//   static {
+//     console.log("[static-block-1]", this,  this === C, this.field1, this.field2, this.field3)
+//   }
+
+//   #private2 = (console.log("[private-2] value init"), 1);;
+//   [(console.log("[local-field-2] name init"), "field2")] = (console.log("[local-field-2] value init"), 1);
+//   static [(console.log("[static-field-2] name init"), "field2")] = (console.log("[static-field-2] value init"), 1);
+//   [(console.log("[local-method-2] name init"), "local-method-2")]() { }
+//   static [(console.log("[static-method-2] name init"), "local-method-2")]() { }
+//   static {
+//     console.log("[static-block-2]", this === C, this.field1, this.field2, this.field3)
+//   }
+
+//   #private3 = (console.log("[private-3] value init"), 1);;
+//   [(console.log("[local-field-3] name init"), "field3")] = (console.log("[local-field-3] value init"), 1);
+//   static [(console.log("[static-field-3] name init"), "field3")] = (console.log("[static-field-3] value init"), 1);
+//   [(console.log("[local-method-3] name init"), "local-method-3")]() { }
+//   static [(console.log("[static-method-3] name init"), "local-method-3")]() { }
+//   static {
+//     console.log("[static-block-3]", this === C, this.field1, this.field2, this.field3)
+//   }
+// }
+
+// console.log("--- Instantiation ---")
+// let t = new Test()
+// console.log(t)
+// probeBefore()
+// probeHeritage()
+
+// var t;
+
+// class Test extends (
+//   t = 10,
+//   console.log("1", t),
+//   function() {}
+// ) {
+//   [[console.log("2", t), t = 12, console.log("3", t)]] = 1
+// }
+
+
+// export default () => {
+//   console.log("Test")
+// }
+
+// import a from "./test.js"
+
+// console.log(a.name)
+
+
+// Class Test
+
+// var Global = "global 1"
+// let clos; 
+
+// let Test = class Global extends ( console.log(a), clos = () => { console.log("Global: ", Global) } ) {
+// }
+
+
+// function foo({x : {b : [b]}}) {
+//     var a = 10;
+    
+//     class A {
+//         [a] = (console.log("a"), a)
+//         static {
+//             var a = 1;
+//             var b = 2;
+//             console.log("a inside: ", a);
+//         }
+
+//         static {
+//             console.log("a inside (continued): ", a);
+//             console.log("b inside (continued): ", b);
+
+//         }
+//     };
+
+//     console.log("a outside: ", a)
+// }
+
+
+// class Test {
+//   [(console.log(this), "a")] = 10
+
+//   static {
+//     console.log(this, Test, this === Test)
+//   }
+// }
+
+// class Test {  
+//   [(console.log("[1]"), "constructor")]() { console.log("Non statically resolvable constructor called"); }
+//   constructor() { console.log("Statically resolvable constructor1 called"); } // <- Semantics only use syntax to bind the constructor 
+//   [(console.log("[1]"), "constructor")]() { console.log("Non statically resolvable constructor called"); }
+
+//   [(console.log("[2]"), "boo")]() { console.log("Non Statically resolvable method boo called"); }
+//   boo() { console.log("Statically resolvable method boo called;") }
+  
+//   foo() { console.log("Statically resolvable method foo called;") }
+//   [(console.log("[2]"), "foo")]() { console.log("Non Statically resolvable method foo called"); }
+// }
+// let o = new Test();
+// o.boo()
+// o.foo()
+
+// Object.getPrototypeOf(o).constructor() // <- Userspace can only access the non-statically resolvable constructor
+
+
+// class Test extends (
+//   console.log("test"),
+//   a = 12
+// ){
+//   [f1] = "f1 res"
+//   #f2 = "f2 res"
+//   f3 = "f3 res"
+
+//   static [f4] = "f1 res"
+//   static #f5 = "f2 res"
+//   static {
+//     console.log("nbb", this)
+//   }
+//   static f6 = "f3 res"
+
+// }
+
+// console.log(Test, Object.getOwnPropertyNames(Test.prototype.constructor))
+
+// class Test extends (
+//   console.log("Hello World", this, this === Test),
+//   function() {}
+// ) { 
+// }
+
+// import a from './test.js'
+
+// let cls = class extends (
+//   console.log("Hello World", a),
+//   function () {}
+// ){
+//   a = 12
+//   static {
+//     var a = 12;
+//   }
+
+//   b = 2
+//   static {
+//     var x = 121;
+//   }
+
+// }
+
+// let res = delete delete delete 1
+
+// let res2 = res ? 1 : 2;
+
+
+// let o = {
+//   foo(a, b) { console.log(this.f1 === a, this.f2 === b) },
+//   f1: 1,
+//   f2: 3
+// }
+// o.foo(function() {}, class { a = 10 })
+
+// let a = false;
+// while(a++) {
+//   if (a) {
+//     continue;
+//   } else {
+//     break;
+//   }
+// }
+
+// for (let i = 0; i < 10; i++) {
+//   if (i) {
+//     continue;
+//   } else {
+//     break;
+//   }
+// }
+
+// {
+//   let a = 12;
+//   {
+//     console.log(a)
+//   }
+// }
+
+// for (let [a, {b: c}] = [12, { b: 22 }];  c*x <= 99*a; c++) {
+//   console.log(a, c)
+// }
+
+// let a = 0;
+// do {
+//   console.log(a)
+//   a++;
+// } while(a < 10)
+
+// switch((console.log("test"), 4)) {
+//   case ((console.log("case 1 test"),1)):
+//     console.log("case 1 body")
+//     break;
+//   case ((console.log("case 2 test"),2)):
+//     console.log("case 2 body")
+//     break;
+//   case ((console.log("case 3 test"),3)):
+//     console.log("case 3 body") 
+//     break;
+//   case ((console.log("case 4 test"),4)):
+//     console.log("case 4 body")
+//     break;
+//   case ((console.log("case 5 test"),5)):
+//     console.log("case 5 body")
+//     break;
+//   default:
+//     console.log("Default case")
+// }
+
+// let a = "mee"
+// for (let [a, {b: t}] of []) {
+//   console.log(a)
+// }
+
+
+// class A extends (function() {}, function() {}, function() { }) {
+//   a = (console.log("test"))
+// }
+
+// let a = 1;
+// if (a) {
+//   let b = 1;
+// } else {
+//   let c = 2
+// }
+
+// if (a) {
+//   let d = 3;
+// }
+
+// // 7.Try Catch
+// try {
+//   var xxa = 1;
+// } catch([a, ...{x: { y: boo }}]) {
+//   let b = 2;
+// }
+// try {
+//   let a = 1;
+// } finally {
+//   let b = 2;
+// }
+// try {
+//   let a = 1;
+// } catch {
+//   let b = 2;
+// } finally {
+//   var caas = 3;
+// }
+
+// let a = 1;
+
+// while(a) {
+//   // console.log(test);
+//   continue;
+//   break;
+// }
+
+// {
+
+// }
+
+// {
+//   let a = 11;
+// }
+
+// let a = false;
+// testing: while(a) {
+//   console.log(test);
+//   continue testing;
+//   break;
+//   break testing;
+// }
+
+// for (let a of [1,2,3]) {
+//   let a = 2;
+// }
+
+// for (let a in [1,2,3]) {
+//   let a = 2;
+// }
+
+// for (let a = 12; a < 12; a++) {
+//   let b = 22;
+// }
+
+// let a = 12;
+// do {
+//   a = 11
+// } while(a < 12)
+
+// let a = 112;
+// let x = 2;
+
+// let z = a ? b * c + d / 23 : 12
+
+
+// let a = 1;
+// if (a) {
+//   (a ? a : a);
+// } else {
+//   ((a.a) ? a.a : a.a);
+// }
+
+// let a = false;
+// while((a.x ? a : a.xx.a)) {
+//   console.log(test);
+//   continue;
+//   break;
+// }
+
+// let a;
+// for ([a] of [[1],[23]]) {
+//   console.log(a);
+//   break;
+// }
+
+// let a;
+// for (let [[a]] of [[[11]],[[22]]]) {
+//   console.log(a);
+// }
+
+
+// for (let a = x ? 1 : 2 ? 3 : 4; a ? b : c ? d : e ; a++) {
+//   console.log("1")
+// }
+
+// let a = 0;
+// do {
+//   console.log(a)
+//   a++;
+// } while(a < 10)
+
+
+// switch((console.log("test"), 4)) {
+//   case ((console.log("case 1 test"),1)):
+//     console.log("case 1 body")
+//     break;
+//   case ((console.log("case 2 test"),2)):
+//     console.log("case 2 body")
+//     break;
+//   default:
+//     console.log("Default case")
+// }
+
+// a.x(xx.x.d, xxx.x ? 1 : 2, b ? c ? c : d : e)
+
+// delete delete (xxx.x ? 1 : 2)
+
+// function foo({x : {b : [b]}}) {
+//     var a = 10;
+    
+//     class A {
+//         [a] = (console.log("a"), a)
+//         static {
+//             var a = 1;
+//             var b = 2;
+//             console.log("a inside: ", a);
+//         }
+
+//         static {
+//             console.log("a inside (continued): ", a);
+//             console.log("b inside (continued): ", b);
+
+//         }
+//     };
+
+//     // console.log("a outside: ", a)
+// }
+
+
+// class Test {
+//   #hello = 10
+//   static test(o) {
+//     let containsHello = #hello in o
+//     console.log(containsHello)
+//   }
+// }
+
+// class Boo {
+
+//   #hello = 11
+
+//   static foo = 12
+  
+//   static test(o) {
+//     let containsHello = #hello in o
+//     console.log(containsHello)
+//   }
+// }
+
+// Boo.test(new Boo())
+// Boo.test(new Test())
+// Test.test(new Boo())
+// Test.test(new Test())
+
+// var a = 10;
+
+// var a; // <- Does this have an effect later?
+
+// console.log(a)
+
+
+// let foo = 12;
+
+// class Test {
+//   [foo] = 12
+// }
+
+// console.log(foo)
+
+// class Test {
+//   x = 10
+//   boo() {
+//     let test = {
+//       a() {
+//         console.log("a: ", this);
+//       },
+//       b: () =>{
+//         console.log("b: ", this);
+//       },
+//       c: function() {
+//         console.log("c: ", this);
+//       }
+//     };
+//     test.a();
+//     let t1 = test.a
+//     t1();
+    
+//     test.b();
+//     let t2 = test.b
+//     t2();
+
+//     test.c();
+//     let t3 = test.c
+//     t3()
+//   }
+// }
+
+// (new Test()).boo()
+
+
+
+// class TTT {
+//   constructor() {
+//     this.b = 212
+//   }
+//   a = () => { console.log("a", this); }
+//   b = 12
+//   c() {
+//     console.log("c", this);
+//   }
+// }
+
+// class BBB extends TTT {
+//   b = 13
+// }
+
+// let o = (new BBB())
+// o.b = 11
+// let boo = o.a
+// boo()
+// boo = o.c
+// boo()
+
+// let test = {
+//   a() {
+//     console.log("a: ", this);
+//   },
+//   b: () =>{
+//     console.log("b: ", this);
+//   },
+//   c: function() {
+//     console.log("c: ", this);
+//   }
+// };
+
+
+// class TTT {
+//   f1 = () => { }
+//   f2 = 12
+//   m1() {
+//     console.log("m1: ", this)
+//   }
+
+//   static f2 = 2
+//   static m2() {
+//     console.log("m2: ", this)
+//   }
+// }
+
+// (new TTT()).m1()
+// TTT.m2()
+
+// loop1: for (let i = 0; i < 3; i++) {
+//   // The second for statement is labeled "loop2"
+//   loop2: for (let j = 0; j < 3; j++) {
+//     if (i === 1 && j === 1) {
+//       continue loop1;
+//     }
+//     console.log(`i = ${i}, j = ${j}`);
+//   }
+// }
+
+// let a;
+// while(a) {
+//   switch(a){
+//     case 1:
+//       console.log("Boo")
+//       continue;
+//     case 2:
+//       console.log("Boo1")
+//       break;
+//     default:
+//       console.log("Flower")
+//   }
+// }
+
+// let test = (a) => {
+//   if (a) return 1;
+//   return; 
+// }
+
+// export default function MyApp(boop) {
+//   return <>
+//     {boop ? <Foo> Hello </Foo> : <Bar> World </Bar>}
+//     Hello World
+//   </>;
+// }
+
+// const Component = () => <div className="pikachu"></div>
+// 
+// const profile = (
+//   <Component.a>
+//     {test ? <img src="avatar.png" className="profile" /> : <h3>{[user.firstName, user.lastName].join(" ")}</h3>}
+    
+//   </Component.a>
+// );
+
+
+// class A {
+//   [(console.log("hello"), "boo")] = 12
+//   bar = 14
+
+//   static [(1, "bart")] = 12
+// }
+
+// let a;
+
+// import x from "boo";
+
+// let a;
+// let z = 1;
+// a[z] = 12;
+// a[a[z]] = 13;
+
+
+// class Test {
+//   a = () => (console.log(this))
+//   b() {
+//     console.log(this)
+//   }
+// }
+
+// let o = new Test()
+// let t1 = o.a;
+// t1()
+// let t2 = o.b;
+// t2()
+
+// function a() {
+//   if (new.target) console.log("a was called by new")
+//   else console.log("normal execution")
+// }
+
+// a();
+// new a();
+
+// let a = { 
+//   container: 12,
+//   set x(a) { this.container = 10; },
+//   get x() { a = 12; return this.container; }
+// };
+
+// console.log(a)
+// a.x = 12;
+// console.log(a.x)
+
+
+// let a = "12";
+// console.log(++a);
+
+// let loop = {
+//   set do(a) { return a > this.limit ? this.onEnd() : (this.body(a), this.do = ++a); },
+// }
+
+// loop.limit = 10;
+// loop.body = (i) => {
+//   console.log(`At iteration: ${i}`)
+// }
+// loop.onEnd = () => {
+//   console.log("Loop End")
+// }
+// loop.do = 5;
+
+// let { a: { b = 12 }} = 1
+// var [a] = 12
+
+// let boo = 1;
+// let x = boo = 2;
+
+// import { a as b } from "THERE"
+
+
+// let b = {
+//   set [f](p) { a = 2; this[f] = 2; /**/ this[f] = 2; },
+// }
+
+// b[f] = 1;
+
+// let a = [1,2,3]
+// let b = [...a]
+// b[0] = 12;
+// b[{}] = 13;
+
+// let x = { a: 1, b: 2, c: 3 }
+// let n = {b: 2223, ...x}
+
+// class Boo {
+
+// }
+
+// let heritage;
+// if (console) {
+//   heritage = Boo;
+// } else {
+//   heritage = {
+//     goon: 12
+//   }
+// }
+
+// class Test extends Boo {
+//   constructor() {}
+// }
+
+// let a = "12";
+// let foo = { a: {} }
+// if (a) {
+//   a = "f";
+//   foo = { b: {} }
+// }
+
+// let x = {}
+// a[a] = foo;
+
+// let a = {}
+// let f = "g"
+// if (true) {
+//   a[f] = { get x() {}, boo() {} }
+// } else {
+//   a[f] = { get x() {}, boo() {} }
+// }
+// a.g.boo();
+
+// let b;
+// let a = () => {
+//   b = {};
+// }
+
+// a();
+
+
+// let f = "f";
+// let a = {
+//   set f(a) { this.f = a; }
+// };
+// a[f] = 12;
+
+// let x = {
+//   set a(a) {
+//     this.a = 3;
+//     this.b = 5;
+//     this.a = 6;
+//   },
+//   set b(a) {
+//     this.a = 4;
+//   },
+// }
+
+// x.a = 2;
+
+// let test = false;
+// let Comp1 = <div></div>
+// let Comp2 = <div></div>
+// let Comp3 = <div></div>
+
+// export const f = <div a={12}>
+//   {
+//     test ? Comp1 : Comp2
+//   }
+//   {
+//     test && <Comp3/>
+//   }
+//   <div>3</div>
+//   <div>4</div>
+//   5
+// </div>
+
+
+
+// export let {a, b: foo} = { a: 1, b: 121 }
+
+
+// let x = {
+//   f: 12,
+//   [xx]: 13
+// }
+
+// let b = x.f;
+
+// let x = [7,8,9];
+
+// let a = (boo) => {
+//   x = boo;
+// }
+
+// let boo = a({
+//   container: 12,
+//   get f() { return this.container; },
+//   set f(a) { this.container = a; }
+// })
+
+// let res = x.f;
+
+// let log = console.log;
+
+// let x = log;
+
+// while (true) {
+//   x = x.log;
+// }
+
+import A from 'test1.js';
+console.log(A);

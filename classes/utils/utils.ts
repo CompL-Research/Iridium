@@ -7,6 +7,13 @@ import fs from 'fs';
 import path from 'path';
 export class JS3GenerationError extends Error { }
 
+export const initializeOutputsPath = () => {
+  if (fs.existsSync(debugConfig.cli.outputsPath)) {
+    fs.rmSync(debugConfig.cli.outputsPath, { recursive: true, force: true });
+  }
+  fs.mkdirSync(debugConfig.cli.outputsPath);
+}
+
 export const hashGraph = (graph: GLIB.Graph) => {
   const nodes = graph.nodes().sort();
   const edges = graph.edges()

@@ -25,7 +25,7 @@ const { project, debugConfig } = workerData; // <- This is buggy, we get the old
 
 function startPlayground() {
   console.log("[PLAYGROUND WORKER] starting playground")
-  const port = debugConfig.playgroundPort
+  const port = debugConfig.cli.playgroundPort
   const io = new Server({
     connectionStateRecovery: {}
   });

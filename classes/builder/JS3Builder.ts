@@ -1,14 +1,13 @@
 import debugConfig from "#debugConfig";
 import babel from '@babel/core';
 import _generator from "@babel/generator";
-import { ImportDeclaration, Node } from "@babel/types";
 import assert from "node:assert";
 import fs from "node:fs";
+import path from "node:path";
 import { ProjectFile } from "../ProjectFile.ts";
 import { handleProgram } from "./JS3Helpers/HandleProgram.ts";
-import { JS3AllowedBlockStatement, JS3File, JS3Program, JS3Program_body } from "./JS3Helpers/JS3Types.ts";
 import { generateJS3File } from "./JS3Helpers/JS3Constructors.ts";
-
+import { JS3AllowedBlockStatement, JS3File, JS3Program_body } from "./JS3Helpers/JS3Types.ts";
 
 const generator = _generator["default"]
 
@@ -54,6 +53,7 @@ export default class JS3Builder {
     this.generatedAST = generateJS3File(js3Program, file)
     this.generateCode()
     this.generateURI()
+    this.saveGeneratedFile()
   }
 
   generateCode() {
@@ -67,7 +67,7 @@ export default class JS3Builder {
       presets.push(['@babel/preset-typescript'])
     }
 
-    if (debugConfig.test262) 
+    if (debugConfig.cli.test262)
       this.generatedAST.trailingComments = this.generatedAST.comments
 
     const { code, map, ast } = babel.transformFromAstSync(this.generatedAST, this.projectFile.initData.sourceCode, {
@@ -84,7 +84,7 @@ export default class JS3Builder {
 
     this.generatedCode = code;
     this.sourceMap = JSON.stringify(map)
-    this.generatedAST  = ast
+    this.generatedAST = ast
   }
 
   generateURI() {
@@ -112,43 +112,7 @@ export default class JS3Builder {
   }
 
   saveGeneratedFile() {
-
-    if (debugConfig.operationMode === "iri") {
-      fs.writeFileSync(debugConfig.outputsPath + "/" + "test.3js", this.generatedCode);
-    }
-
-    if (debugConfig.operationMode === "js3") {
-      fs.writeFileSync(debugConfig.outputsPath, this.generatedCode);
-
-      // fs.writeFile(debugConfig.outputsPath, this.generatedCode, 'utf8', (err) => {
-      //   if (err) {
-      //     debugConfig.logger.error(`[JS3 Builder] Error writing to file at path: ${debugConfig.outputsPath}`, [err]);
-      //   }
-      // });
-    }
-
-    // if (debugConfig.js3ResultPath) {
-    //   // DEBUG
-    //   fs.writeFile(debugConfig.js3ResultPath, this.generatedCode, 'utf8', (err) => {
-    //     if (err) {
-    //       debugConfig.logger.error('Error writing to file[1]', [err]);
-    //     }
-    //   });
-    // }
-
-    // // DEBUG
-    // fs.writeFile(debugConfig.js3DebugPath + "/JS3" + this.projectFile.uname, this.generatedCode, 'utf8', (err) => {
-    //   if (err) {
-    //     debugConfig.logger.error('Error writing to file[2]', [err]);
-    //   }
-    // });
-
-    // // DEBUG
-    // fs.writeFile(debugConfig.js3DebugPath + "/JS3" + this.projectFile.uname + ".map", this.sourceMap, 'utf8', (err) => {
-    //   if (err) {
-    //     debugConfig.logger.error('Error writing to file[3]', [err]);
-    //   }
-    // });
+    fs.writeFileSync(debugConfig.cli.outputsPath + "/" + path.basename(this.projectFile.uname, path.extname(this.projectFile.uname)) + ".js3", this.generatedCode);
   }
 
 }

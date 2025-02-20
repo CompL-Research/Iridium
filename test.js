@@ -1048,12 +1048,12 @@
 //   return; 
 // }
 
-// export default function MyApp(boop) {
-//   return <>
-//     {boop ? <Foo> Hello </Foo> : <Bar> World </Bar>}
-//     Hello World
-//   </>;
-// }
+export default function MyApp(boop) {
+  return <>
+    {boop ? <Foo> Hello </Foo> : <Bar> World </Bar>}
+    Hello World
+  </>;
+}
 
 // const Component = () => <div className="pikachu"></div>
 // 
@@ -1267,5 +1267,5 @@
 //   x = x.log;
 // }
 
-import A from 'test1.js';
-console.log(A);
+// import A from 'test1.js';
+// console.log(A);

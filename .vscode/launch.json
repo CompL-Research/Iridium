@@ -25,6 +25,26 @@
             "type": "node"
         },
         {
+            "name": "Launch iri index.js",
+            "request": "launch",
+            "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
+            "args": [
+                "--import=tsx",
+                "/home/meetesh/wd/Iridium/iridium.ts",
+                "iri",
+                "/home/meetesh/wd/webpack-bundle-analyzer/src/index.js"
+            ],
+            "outFiles": ["${workspaceFolder}/classes/**/*.ts"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/playground/**",
+                "**/temp/**",
+                "**/tests/**",
+                "**/node_modules/**"
+            ],
+            "type": "node"
+        },
+        {
             "name": "Launch js3 test.js",
             "request": "launch",
             "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",

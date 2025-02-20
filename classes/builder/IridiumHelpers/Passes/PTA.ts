@@ -4,10 +4,9 @@
 
 import debugConfig from "#debugConfig";
 import { generateContextKey, hashGraph, popSet } from "#utils";
-import { execSync } from "node:child_process";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { IS_ClassStaticPropInit } from "../ALL_IS/IS_ClassStaticPropInit.ts";
-import { IS_BImport } from "../ALL_IS/IS_Imports_Exports.ts";
+import { IS_AExport, IS_BExport, IS_BImport, IS_CExport, IS_DExport, IS_EExport } from "../ALL_IS/IS_Imports_Exports.ts";
 import { IS1_AssignmentStmt, IS1_DeclarationStmt } from "../ALL_IS/IS_VarDecl.ts";
 import { BB } from "../BB.ts";
 import { IRIDIUM_FG } from "../IRIDIUM.ts";
@@ -15,13 +14,13 @@ import { IRIDIUM_FG } from "../IRIDIUM.ts";
 import GLIB from "#graphlib";
 import { Environment } from "../I_GENERAL/I_Environment.ts";
 import { handleSimpleAssignmentStatement } from "./PTA/handleAssignments.ts";
-import { GlobalNode, ImportNode, StackNode } from "./PTA/nodes.ts";
+import { DummyObject, GlobalNode, ImportNode, KnownFunctionNode, ModuleExportsNode, StackNode } from "./PTA/nodes.ts";
 import { PTAGraph } from "./PTA/PTAGraph.ts";
 import { PTARecorder } from "./PTA/PTARecorder.ts";
 import { handleRVals } from "./PTA/rvalHandler.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./PTA/util.ts";
+import { IV_StringLiteral } from "../ALL_RVal/IV_Literals.ts";
 
-const SAVE_RECORDING: boolean = true;
 const STATE_CURBING: boolean = true;
 
 type BBIdx = string;
@@ -42,6 +41,18 @@ export function startPTA(rootFG: IRIDIUM_FG) {
     BOUNDARY_PTAGRAPH.declareNode(heapNode);
     BOUNDARY_PTAGRAPH.drawStackToHeapEdge(stackNode, [heapNode]);
   }
+
+  let reactDomNode = new ImportNode("react-dom/client", new IV_StringLiteral(undefined, "react-dom/client"), true);
+  BOUNDARY_PTAGRAPH.declareNode(reactDomNode);
+
+  let createRoot = new KnownFunctionNode("createRoot", 0);
+  BOUNDARY_PTAGRAPH.declareNode(createRoot);
+
+  BOUNDARY_PTAGRAPH.drawHeapToHeapEdge([reactDomNode], [createRoot], ['createRoot'], true);
+
+  let exports = new ModuleExportsNode("EXPORT");
+  BOUNDARY_PTAGRAPH.declareNode(exports);
+
   ContextualPTAHandler("$", "$", BOUNDARY_PTAGRAPH, rootFG)
 }
 
@@ -105,15 +116,7 @@ export function PTA(rootFG: IRIDIUM_FG, BOUNDARY_PTAGRAPH: PTAGraph) {
   rootFG.nodes().forEach((bbIdx: BBIdx) => flowMap.set(bbIdx, new PTAGraph()));
 
   let recorder = new PTARecorder()
-
   let step = 1
-
-  if (SAVE_RECORDING) {
-    try {
-      execSync(`rm outputs/PTA/* 2>/dev/null`);
-    } catch (e) { } finally { }
-    recorder.init()
-  }
 
   // Do one pass in DTree order, this will ensure all defs dominate uses...
   let dTree = GLIB.alg.dominatorTarjan(rootFG, '' + rootFG.rootBB.idx, false)
@@ -158,11 +161,6 @@ export function PTA(rootFG: IRIDIUM_FG, BOUNDARY_PTAGRAPH: PTAGraph) {
 
     PTA_OUT_RES.set(currBBIDx, nextGraph)
 
-    if (SAVE_RECORDING) {
-      const saving = `outputs/PTA/BB${currBBIDx}_OUT`;
-      nextGraph.saveDotToFile(saving)
-    }
-
     // Add successors to worklist if there was a change
     if (!flowMap.has(currBBIDx)) throw new Error("Expected flowmap to have a graph for each node");
     let oldGraph = flowMap.get(currBBIDx)
@@ -182,12 +180,6 @@ export function PTA(rootFG: IRIDIUM_FG, BOUNDARY_PTAGRAPH: PTAGraph) {
     doWorklist(popSet(worklist));
   }
 
-  if (SAVE_RECORDING) {
-    try {
-      execSync(`rm outputs/PTA/*.DOT 2>/dev/null`);
-    } catch(e) {} finally {}
-  }
-
   // Send back the sink, we need it to merge closures!!!!
   let sinks = rootFG.sinks();
   if (sinks.length !== 1) debugConfig.logger.throwIriError("Expected exactly one sink in PTA!!")
@@ -202,14 +194,31 @@ function flowFunction(rootFG: IRIDIUM_FG, nextGraph: PTAGraph, currBBIDx: BBIdx,
     stackInstOffset++;
     if (i instanceof IS_BImport) {
       // import { remote as local } from FROM
-      let stackID = getStackQualifiedName(i.local.lookupName(), currBB)
-      let stackNode = new StackNode(stackID)
-      nextGraph.declareNode(stackNode)
-      let heapObj = getHeapQualifiedName(i.remote.lookupName(), currBBIDx, stackInstOffset)
-      let heapNode = new ImportNode(heapObj, i.remote, i.FROM)
-      nextGraph.declareNode(heapNode)
-      nextGraph.clearSuccessors(stackNode.id)
-      nextGraph.drawStackToHeapEdge(stackNode, [heapNode])
+      let stackID = getStackQualifiedName(i.local.lookupName(), currBB);
+      let stackNode = new StackNode(stackID);
+      nextGraph.declareNode(stackNode);
+
+      // 
+      // ImportNode
+      // 
+      let heapNode = new ImportNode(i.FROM.value, i.FROM, true);
+      nextGraph.declareNode(heapNode);
+      nextGraph.clearSuccessors(stackNode.id);
+
+      let remoteLookupID = i.remote instanceof IV_Identifier ? i.remote.lookupName() : i.remote.value;
+
+      if (i.FROM.value === "react-dom/client" && remoteLookupID === "createRoot") {
+        console.log("Skipping adding createRoot --> react-dom/client DUMMY")
+        nextGraph.drawStackToHeapEdge(stackNode, [nextGraph.getPTANode("createRoot")]);
+      } else {
+        if (!nextGraph.hasField(heapNode.id, remoteLookupID)) nextGraph.addField(heapNode.id, remoteLookupID);
+        let remoteDummyNode = new DummyObject(getHeapQualifiedName(remoteLookupID, currBBIDx, stackInstOffset));
+        nextGraph.declareNode(remoteDummyNode);
+  
+        nextGraph.drawHeapToHeapEdge([heapNode], [remoteDummyNode], [remoteLookupID], true);
+        nextGraph.drawStackToHeapEdge(stackNode, [remoteDummyNode]);
+      }
+      
     } else if (i instanceof IS_ClassStaticPropInit) {
       debugConfig.logger.throwIriError("PTA TODO: IS_ClassStaticPropInit")
       // // obj[prop] = rval
@@ -230,6 +239,27 @@ function flowFunction(rootFG: IRIDIUM_FG, nextGraph: PTAGraph, currBBIDx: BBIdx,
       } else {
         debugConfig.logger.throwIriError("PTA TODO: Assignment with destructured assignment")
       }
+    } else if (i instanceof IS_AExport) {
+      // export default ID
+      let heapNode = nextGraph.getPTANode("EXPORT");
+      let pointees = nextGraph.getPointees(getStackQualifiedName(i.id.lookupName(), currBB));
+      nextGraph.drawHeapToHeapEdge([heapNode], pointees, ["default"], true);
+    } else if (i instanceof IS_BExport) {
+      // Export local as remote
+      let pointees = nextGraph.getPointees(getStackQualifiedName(i.local.lookupName(), currBB));
+      let heapNode = nextGraph.getPTANode("EXPORT");
+
+      let remote : string;
+      if (i.remote instanceof IV_Identifier) remote = i.remote.lookupName();
+      else remote = i.remote.value;
+
+      nextGraph.drawHeapToHeapEdge([heapNode], pointees, [remote], true);
+    } else if (i instanceof IS_CExport) {
+      debugConfig.logger.throwIriError("PTA: IS_CExport not yet supported");
+    } else if (i instanceof IS_DExport) {
+      debugConfig.logger.throwIriError("PTA: IS_DExport not yet supported");
+    } else if (i instanceof IS_EExport) {
+      debugConfig.logger.throwIriError("PTA: IS_EExport not yet supported");
     }
   }
 }

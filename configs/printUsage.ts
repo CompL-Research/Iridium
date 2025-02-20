@@ -1,6 +1,8 @@
 import chalk from 'chalk'
 import debugConfig from "#debugConfig"
 import commandLineUsage from 'command-line-usage'
+import path from 'path'
+import fs from 'fs'
 
 type UsageSectionObject = {
   content?: any,
@@ -8,9 +10,41 @@ type UsageSectionObject = {
   header?: String,
   optionList?: any
 }
+
+// 
+// General Usage Info
+// 
+const defaultUsageInfo : UsageSectionsArray = [
+  {
+    header: "=== Iridium ===",
+    content: [
+      'This project provides infrastructure to allow static analysis of {italic react} based applications.',
+      '$ ./iridium <command> [OPTIONS]',
+      '$ ./iridium js3 help',
+      '$ ./iridium iri help',
+      '$ ./iridium help'
+    ]
+  },
+  {
+    header: 'Command List',
+    content: [
+      { name: 'help', summary: 'Display this information.' },
+      // { name: 'analyze', summary: 'Run static analysis over a project.' },
+      { name: 'js3', summary: 'Generate JS3 file and print to stdout' },
+      { name: 'iri', summary: 'Generate Iridium file (.iri) and print to stdout' },
+      { name: 'stats', summary: 'Codespace stats.' },
+      { name: 'version', summary: 'Print the version.' }
+    ]
+  },
+]
+
 type UsageSectionsArray = Array<UsageSectionObject>
 
-const COMMON_OPTIONS = [
+// 
+// === JS3 Related ===
+// 
+
+const JS3_OPTIONS = [
   {
     name: 'outputs-path',
     description: 'Path to outputs directory (For JS3 this must be an file path).',
@@ -21,76 +55,20 @@ const COMMON_OPTIONS = [
   {
     name: 'test-262',
     description: 'Preserves comments when translating to JS3 (needed for test262 tests to run).',
+    alias: 't',
     type: Boolean
   },
-]
-
-const JS3_OPTIONAL_LANGUAGE_SUPPORT = [
+  {
+    name: 'source-type',
+    description: 'Source Type ("module" | "script" | "unambigious" (default)).',
+    alias: 's',
+    type: String
+  },
   {
     name: 'allow-lang-with-support',
     description: 'Allow js3 syntax support for `with`',
+    alias: 'w',
     type: Boolean
-  }
-]
-
-const defaultUsageInfo : UsageSectionsArray = [
-  {
-    header: "=== Iridium ===",
-    content: [
-      'This project provides infrastructure to allow static analysis of {italic react} based applications.',
-      '$ ./iridium <command> [OPTIONS]',
-      '$ ./iridium help'
-    ]
-  },
-  {
-    header: 'Command List',
-    content: [
-      { name: 'help', summary: 'Display this information.' },
-      { name: 'analyze', summary: 'Run static analysis over a project.' },
-      { name: 'js3', summary: 'Generate JS3 file and print to stdout' },
-      { name: 'iri', summary: 'Generate Iridium file (.iri) and print to stdout' },
-      { name: 'stats', summary: 'Codespace stats.' },
-      { name: 'version', summary: 'Print the version.' }
-    ]
-  },
-]
-
-export const analyzeUsageInfo : UsageSectionsArray = [
-  {
-    header: "=== Analyze ===",
-    content: [
-      `$ ./iridium analyze {bold <path-to-project>} [OPTIONS]`
-    ]
-  },
-  {
-    header: 'Analyze Options',
-    optionList: [
-      ...COMMON_OPTIONS,
-      {
-        name: 'folder',
-        description: 'Specify a folder where the analysis should begin (relative path such as {italic ./app}, {italic ./src}, {italic ./src/pages/}).',
-        alias: 'f',
-        type: String,
-        typeLabel: '{underline path} ...'
-      },
-      {
-        name: 'enable-playground',
-        description: `Enable interactive playground for Iridium (default: ${debugConfig.enablePlayground})`,
-        alias: 'p',
-        type: Boolean,
-      },
-      {
-        name: 'module-graph-png',
-        description: `Save the generated module graph as a png (default: ${debugConfig.printModuleGraphPng})`,
-        type: Boolean,
-      },
-      {
-        name: 'port',
-        description: `The port used by Iridium backend server (Default: ${debugConfig.playgroundPort})`,
-        type: Number,
-      },
-      ...JS3_OPTIONAL_LANGUAGE_SUPPORT
-    ]
   }
 ]
 
@@ -104,17 +82,49 @@ export const js3UsageInfo : UsageSectionsArray= [
   {
     header: 'JS3 Options',
     optionList: [
-      ...COMMON_OPTIONS,
-      {
-        name: 'source-type',
-        description: 'Source Type ("module" | "script" | "unambigious" (default)).',
-        alias: 's',
-        type: String
-      },
-      ...JS3_OPTIONAL_LANGUAGE_SUPPORT
+      ...JS3_OPTIONS,
     ]
   }
 ]
+
+// 
+// === IRIDIUM Related ===
+// 
+
+const IRI_OPTIONS = [
+  {
+    name: 'outputs-path',
+    description: 'Path to outputs directory (For JS3 this must be an file path).',
+    alias: 'o',
+    type: String,
+    typeLabel: '{underline path} ...'
+  },
+  {
+    name: 'test-262',
+    description: 'Preserves comments when translating to JS3 (needed for test262 tests to run).',
+    alias: 't',
+    type: Boolean
+  },
+  {
+    name: 'source-type',
+    description: 'Source Type ("module" | "script" | "unambigious" (default)).',
+    alias: 's',
+    type: String
+  },
+  {
+    name: 'allow-lang-with-support',
+    description: 'Allow js3 syntax support for `with`',
+    alias: 'w',
+    type: Boolean
+  },
+  {
+    name: 'save-pta-graph',
+    description: 'Save generated PTA graphs',
+    alias: 'g',
+    type: Boolean
+  },
+]
+
 
 export const iriUsageInfo : UsageSectionsArray= [
   {
@@ -126,17 +136,89 @@ export const iriUsageInfo : UsageSectionsArray= [
   {
     header: 'Iridium Options',
     optionList: [
-      ...COMMON_OPTIONS,
-      {
-        name: 'source-type',
-        description: 'Source Type ("module" | "script" | "unambigious" (default)).',
-        alias: 's',
-        type: String
-      },
-      ...JS3_OPTIONAL_LANGUAGE_SUPPORT
+      ...IRI_OPTIONS,
     ]
   }
 ]
+
+// 
+// General Exports
+// 
+export const handleOutputsPath = (options: any) => {
+  if (options["outputs-path"] === null) {
+    console.log(chalk.red("Outputs path not provided"))
+    process.exit(1)
+  }
+  debugConfig.cli.outputsPath = path.resolve("./" + options["outputs-path"])
+}
+export const handleProjectBasePath = (options: any) => {
+  if (options["base-path"] === null) {
+    console.log(chalk.red("Project Base Path"))
+    process.exit(1)
+  }
+  let basePath = options["base-path"]
+
+  if (!fs.existsSync(basePath)) {
+    console.error(`[ERROR] Project base path does not exist: ${basePath}`);
+    process.exit(1);
+  }
+}
+
+export const handleTest262 = () => debugConfig.cli.test262 = true;
+export const handleLangWithSupport = () => debugConfig.cli.allowLangWithSupport = true;
+export const handleSavePTAGraph = () => debugConfig.cli.savePTAGraph = true;
+
+export const handleSourceType = (options: any) => {
+  if (options["source-type"] === null) {
+    console.log(chalk.red("JS3 mode is not provided"))
+    process.exit(1)
+  }
+  debugConfig.cli.sourceType = options["source-type"]
+}
+
+
+
+// export const analyzeUsageInfo : UsageSectionsArray = [
+//   {
+//     header: "=== Analyze ===",
+//     content: [
+//       `$ ./iridium analyze {bold <path-to-project>} [OPTIONS]`
+//     ]
+//   },
+//   {
+//     header: 'Analyze Options',
+//     optionList: [
+//       ...COMMON_OPTIONS,
+//       {
+//         name: 'folder',
+//         description: 'Specify a folder where the analysis should begin (relative path such as {italic ./app}, {italic ./src}, {italic ./src/pages/}).',
+//         alias: 'f',
+//         type: String,
+//         typeLabel: '{underline path} ...'
+//       },
+//       {
+//         name: 'enable-playground',
+//         description: `Enable interactive playground for Iridium (default: ${debugConfig.enablePlayground})`,
+//         alias: 'p',
+//         type: Boolean,
+//       },
+//       {
+//         name: 'module-graph-png',
+//         description: `Save the generated module graph as a png (default: ${debugConfig.cli.printModuleGraphPng})`,
+//         type: Boolean,
+//       },
+//       {
+//         name: 'port',
+//         description: `The port used by Iridium backend server (Default: ${debugConfig.playgroundPort})`,
+//         type: Number,
+//       },
+//       ...JS3_OPTIONAL_LANGUAGE_SUPPORT
+//     ]
+//   }
+// ]
+
+
+
 
 export function printDefaultUsage(header: String) {
   let sections: UsageSectionsArray = [ // Sometimes the type system is just annoying
@@ -151,18 +233,18 @@ export function printDefaultUsage(header: String) {
   console.log(usage)
 }
 
-export function printAnalyzeUsage(header: String) {
-  let sections: UsageSectionsArray = [ // Sometimes the type system is just annoying
-    {
-      content: chalk.red(header),
-      raw: true
-    },
+// export function printAnalyzeUsage(header: String) {
+//   let sections: UsageSectionsArray = [ // Sometimes the type system is just annoying
+//     {
+//       content: chalk.red(header),
+//       raw: true
+//     },
 
-    ...analyzeUsageInfo
-  ]
-  const usage = commandLineUsage(sections)
-  console.log(usage)
-}
+//     ...analyzeUsageInfo
+//   ]
+//   const usage = commandLineUsage(sections)
+//   console.log(usage)
+// }
 
 export function printJS3Usage(header: String) {
   let sections: UsageSectionsArray = [ // Sometimes the type system is just annoying

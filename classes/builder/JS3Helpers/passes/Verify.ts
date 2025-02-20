@@ -91,7 +91,7 @@ export function verifyJS3AllowedBlockStatement(node: JS3AllowedBlockStatement) {
   
   if (isJS3WithStatement(node)) {
     // Assert that support for this language feature was enabled in the flags, might be off in which case we throw an error
-    assert(debugConfig.allowLangWithSupport)
+    assert(debugConfig.cli.allowLangWithSupport)
     verifyJS3WithStatement(node)
   } else if (isJS3WhileStatement(node)) {
     verifyJS3ContainedExprKey(node.test)

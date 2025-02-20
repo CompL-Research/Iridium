@@ -443,6 +443,8 @@ export function handleCallExpression(node: CallExpression, otherProps: OtherProp
 
   // JSX Frag...
   if (isIdentifier(orig_callee) && orig_callee.name === "###JSXFRAG###") {
+    debugConfig.logger.throwJS3Error(`TODO JS3JSX // debug JSXFRAG callee`);
+
     let fin_callee: JS3JSXCallExpression_callee = orig_callee; // Handling prop callee 
 
     let orig_arguments = node.arguments; // Handling prop arguments
