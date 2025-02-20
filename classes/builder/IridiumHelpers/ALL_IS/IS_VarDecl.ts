@@ -399,7 +399,7 @@ export class IS1_DeclarationStmt extends ALL_IS {
       : isJS3ObjectPattern(this.LVal)
         ? ObjPatToString(this.LVal)
         : this.LVal.name;
-    return `${printScopedSpace(space)}▏💌 ${lval} = ${this.RVal.toString()};`;
+    return `${printScopedSpace(space)}▏ 💌 ${lval} = ${this.RVal.toString()};`;
   }
 
   toDOT(space = 0) {
