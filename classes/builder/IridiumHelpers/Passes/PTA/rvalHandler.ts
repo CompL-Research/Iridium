@@ -74,7 +74,7 @@ import {
   handleCallExpression,
   handleMemberAssignment,
   handleSimpleAssignmentStatement,
-} from "./handleAssignments.ts";
+} from "./handlers.ts";
 import {
   BigIntNode,
   BooleanNode,

@@ -22,7 +22,7 @@ import {
 import GLIB from "#graphlib";
 import { IV_StringLiteral } from "../ALL_RVal/IV_Literals.ts";
 import { Environment } from "../I_GENERAL/I_Environment.ts";
-import { handleSimpleAssignmentStatement } from "./PTA/handleAssignments.ts";
+import { handleSimpleAssignmentStatement } from "./PTA/handlers.ts";
 import { IRIDIUM_FG } from "./PTA/IRIDIUM_FG.ts";
 import {
   DummyObject,
