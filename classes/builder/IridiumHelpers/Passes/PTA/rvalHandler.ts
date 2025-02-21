@@ -69,27 +69,22 @@ import {
 } from "../../ALL_RVal/IV_Unop.ts";
 import { IV_UpdateExpression } from "../../ALL_RVal/IV_UpdateExpression.ts";
 import { IV_AWAIT, IV_YIELD } from "../../ALL_RVal/IV_YIELD_AWAIT.ts";
-import { BB, FunctionReturn } from "../../BB.ts";
-import { I_Function_params } from "../../I_GENERAL/I_Function.ts";
-import { ContextualPTAHandler } from "../PTA.ts";
+import { BB } from "../../BB.ts";
 import {
+  handleCallExpression,
   handleMemberAssignment,
   handleSimpleAssignmentStatement,
 } from "./handleAssignments.ts";
-import { IRIDIUM_FG } from "./IRIDIUM_FG.ts";
 import {
   BigIntNode,
   BooleanNode,
   ClassObject,
   CSepObject,
   DecimalNode,
-  DummyObject,
   FJSXObject,
   GetSpecialClosure,
   GlobalNode,
   JSXObject,
-  KnownFunctionNode,
-  KnownResultObj,
   NullNode,
   NumericNode,
   OrdinaryArrayObject,
@@ -97,9 +92,7 @@ import {
   OrdinaryObject,
   PJSXObject,
   PTANode,
-  ReactRenderRoot,
   SetSpecialClosure,
-  StackNode,
   StringNode,
   UnknownResultObj,
   Valid_Stack_To_Heap_Pointees,
@@ -317,345 +310,18 @@ export const handleRVals = (
     nextGraph.declareNode(resObj);
     return [resObj];
   } else if (rVal instanceof IV_Call) {
-    const res: Set<PTANode> = new Set();
-    const calleeObj = nextGraph.getPointees(
+    const callees = nextGraph.getPointees(
       getStackQualifiedName(rVal.callee.lookupName(), currBB),
     );
-    const closureResults: Array<PTAGraph> = [];
-    const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
 
-    for (const c of calleeObj) {
-      if (c instanceof OrdinaryFunctionObject) {
-        const meth = c.meth;
-        let closureGraph: IRIDIUM_FG;
-        if (meth instanceof ISP_ObjectMethod) closureGraph = meth.funBody;
-        else closureGraph = meth.func.funBody;
-
-        let calleeArgs: I_Function_params;
-        if (meth instanceof ISP_ObjectMethod) calleeArgs = meth.params;
-        else calleeArgs = meth.func.params;
-
-        let rootBB: BB;
-        if (meth instanceof ISP_ObjectMethod) rootBB = meth.funBody.rootBB;
-        else rootBB = meth.func.funBody.rootBB;
-
-        const closureContextPTA = new PTAGraph();
-        closureContextPTA.union(nextGraph);
-
-        //
-        // Create arguments object
-        //
-        const argumentsObj = new OrdinaryArrayObject(
-          getHeapQualifiedName("argumentsObj", currBBIDx, stackInstOffset),
-        );
-        closureContextPTA.declareNode(argumentsObj);
-        let i = 0;
-        let lastMapped = i;
-        for (; i < rVal.args.length; i++) {
-          const currArg = rVal.args[i];
-          if (currArg instanceof IV_Identifier) {
-            const pointees = closureContextPTA.getPointees(
-              getStackQualifiedName(currArg.lookupName(), currBB),
-            );
-            // ArgumentsObj --[i]--> pointees
-            closureContextPTA.drawHeapToHeapEdge(
-              [argumentsObj],
-              pointees,
-              ["" + i],
-              true,
-            );
-            lastMapped = i;
-          } else {
-            if (i + 1 !== rVal.args.length)
-              debugConfig.logger.throwIriError(
-                "Expecting Spread operator to be the last supplied argument",
-              );
-            const pointees = closureContextPTA.getPointees(
-              getStackQualifiedName(currArg.arg.lookupName(), currBB),
-            );
-            // ArgumentsObj --[*]--> pointees
-            for (const pp of pointees) {
-              const spreadPointees = getSpreadPointees(
-                closureContextPTA,
-                pp,
-                iContext,
-              );
-              closureContextPTA.drawHeapToHeapEdge(
-                [argumentsObj],
-                [...spreadPointees],
-                ["*"],
-                true,
-              );
-            }
-          }
-        }
-
-        //
-        // Match formals (or the other one... I forgor),
-        //
-        let j = 0;
-        for (; j < calleeArgs.length; j++) {
-          const currArg = calleeArgs[j];
-          if (currArg instanceof IV_Identifier) {
-            const argStackQualifiedName = getStackQualifiedName(
-              currArg.lookupName(),
-              rootBB,
-            );
-            const argStackNode = new StackNode(argStackQualifiedName);
-            closureContextPTA.declareNode(argStackNode);
-            if (j <= lastMapped) {
-              //
-              // argStackQualifiedName --> argumentsObj.j
-              //
-              if (!closureContextPTA.hasField(argumentsObj.id, "" + j))
-                debugConfig.logger.throwIriError("Expecting field to exist");
-              const pointees = closureContextPTA.getFieldPointees(
-                argumentsObj,
-                "" + j,
-                iContext,
-                true,
-                false,
-              );
-              closureContextPTA.drawStackToHeapEdge(argStackNode, [
-                ...pointees,
-              ]);
-            } else {
-              //
-              // argStackQualifiedName --> argumentsObj.*
-              //
-              if (!closureContextPTA.hasField(argumentsObj.id, "*"))
-                debugConfig.logger.throwIriError("Expecting field to exist");
-              const pointees = closureContextPTA.getFieldPointees(
-                argumentsObj,
-                "*",
-                iContext,
-                true,
-              );
-              closureContextPTA.drawStackToHeapEdge(argStackNode, [
-                ...pointees,
-              ]);
-            }
-          } else {
-            if (j + 1 !== calleeArgs.length)
-              debugConfig.logger.throwIriError(
-                "Expecting Spread operator to be the last function argument",
-              );
-            const spillHolderObj = new OrdinaryArrayObject(
-              getHeapQualifiedName(
-                currArg.arg.lookupName(),
-                currBBIDx,
-                stackInstOffset,
-              ),
-            );
-            closureContextPTA.declareNode(spillHolderObj);
-            const argStackQualifiedName = getStackQualifiedName(
-              currArg.arg.lookupName(),
-              rootBB,
-            );
-            const argStackNode = new StackNode(argStackQualifiedName);
-            closureContextPTA.declareNode(argStackNode);
-            let counter = 0;
-            for (let k = j; k <= lastMapped; k++) {
-              //
-              // argStackQualifiedName ---> spillHolderObj --[k]--> U {argumentsObj.j...argumentsObj.lastMapped}
-              //
-              if (!closureContextPTA.hasField(argumentsObj.id, "" + k))
-                debugConfig.logger.throwIriError("Expecting field to exist");
-              const pointees = closureContextPTA.getFieldPointees(
-                argumentsObj,
-                "" + k,
-                iContext,
-                true,
-                false,
-              );
-              closureContextPTA.drawHeapToHeapEdge(
-                [spillHolderObj],
-                [...pointees],
-                ["" + counter],
-                true,
-              );
-              counter++;
-            }
-            // argStackQualifiedName ---> spillHolderObj --[k]--> argumentsObj.*
-            if (closureContextPTA.hasField(argumentsObj.id, "*")) {
-              const pointees = closureContextPTA.getFieldPointees(
-                argumentsObj,
-                "*",
-                iContext,
-                true,
-              );
-              closureContextPTA.drawHeapToHeapEdge(
-                [spillHolderObj],
-                [...pointees],
-                ["*"],
-                true,
-              );
-            }
-            closureContextPTA.drawStackToHeapEdge(argStackNode, [
-              spillHolderObj,
-            ]);
-          }
-        }
-
-        //
-        // Evaluate Closure
-        //
-        const nextt = ContextualPTAHandler(
-          c.id,
-          iContext,
-          closureContextPTA,
-          closureGraph,
-        );
-        const sinks = closureGraph.sinks();
-        if (sinks.length !== 1)
-          debugConfig.logger.throwIriError(
-            `Sinks length !== 1, found ${sinks.length}`,
-          );
-        const sink = sinks[0];
-        const sinkBB = closureGraph.getBBNode(sink);
-
-        //
-        // Point to all stuff the return can point to
-        //
-        if (sinkBB instanceof FunctionReturn) {
-          const argLookupName = getStackQualifiedName(
-            sinkBB.arg.lookupName(),
-            sinkBB,
-          );
-          const pointees = nextt.getPointees(argLookupName);
-          pointees.forEach((p) => res.add(p));
-        } else
-          debugConfig.logger.throwIriError(
-            `Expected sinks to be Function Returns in closures!!! found ${sinkBB.scope}`,
-          );
-        closureResults.push(nextt);
-      } else if (c instanceof UnknownResultObj || c instanceof DummyObject) {
-        let hasClosure = false;
-        // Check if the arguments point to any closure object
-        let i = 0;
-        outer: for (; i < rVal.args.length; i++) {
-          const currArg = rVal.args[i];
-          if (currArg instanceof IV_Identifier) {
-            const pointees = nextGraph.getPointees(
-              getStackQualifiedName(currArg.lookupName(), currBB),
-            );
-
-            for (const p of pointees) {
-              if (p instanceof OrdinaryFunctionObject) {
-                hasClosure = true;
-                break outer;
-              }
-            }
-          } else {
-            if (i + 1 !== rVal.args.length)
-              debugConfig.logger.throwIriError(
-                "Expecting Spread operator to be the last supplied argument",
-              );
-            const pointees = nextGraph.getPointees(
-              getStackQualifiedName(currArg.arg.lookupName(), currBB),
-            );
-            // ArgumentsObj --[*]--> pointees
-            for (const pp of pointees) {
-              const spreadPointees = getSpreadPointees(nextGraph, pp, iContext);
-              for (const sp of spreadPointees) {
-                if (sp instanceof OrdinaryFunctionObject) {
-                  hasClosure = true;
-                  break outer;
-                }
-              }
-            }
-          }
-        }
-
-        if (!hasClosure) {
-          console.warn(
-            `PTA is skipping analysis as no closures escape at this call site...`,
-          );
-          const resObj = new UnknownResultObj(
-            getHeapQualifiedName("IV_Call", currBBIDx, stackInstOffset),
-          );
-          nextGraph.declareNode(resObj);
-          return [resObj];
-        } else {
-          debugConfig.logger.throwIriError(
-            `PTA must resolve call site as closure might escape!!!`,
-          );
-        }
-      } else if (c instanceof KnownFunctionNode) {
-        // createRoot
-        if (c.idx === 0) {
-          const knownResObj = new KnownResultObj(
-            getHeapQualifiedName(
-              `KnownFunctionNode_${0}`,
-              currBBIDx,
-              stackInstOffset,
-            ),
-            0,
-          );
-          nextGraph.addPTANode(knownResObj);
-
-          const render = new KnownFunctionNode("render", 1);
-          nextGraph.declareNode(render);
-          nextGraph.drawHeapToHeapEdge(
-            [knownResObj],
-            [render],
-            ["render"],
-            true,
-          );
-
-          res.add(knownResObj);
-        } else if (c.idx === 1) {
-          const knownResObj = new ReactRenderRoot(
-            getHeapQualifiedName(
-              `ReactRenderRoot_${0}`,
-              currBBIDx,
-              stackInstOffset,
-            ),
-          );
-          nextGraph.addPTANode(knownResObj);
-
-          const pointees: Set<PTANode> = new Set();
-
-          for (let i = 0; i < rVal.args.length; i++) {
-            const currArg = rVal.args[i];
-            if (currArg instanceof IV_Identifier) {
-              nextGraph
-                .getPointees(
-                  getStackQualifiedName(currArg.lookupName(), currBB),
-                )
-                .forEach((p) => pointees.add(p));
-            } else {
-              if (i + 1 !== rVal.args.length)
-                debugConfig.logger.throwIriError(
-                  "Expecting Spread operator to be the last supplied argument",
-                );
-              nextGraph
-                .getPointees(
-                  getStackQualifiedName(currArg.arg.lookupName(), currBB),
-                )
-                .forEach((p) => pointees.add(p));
-            }
-          }
-
-          nextGraph.drawHeapToHeapEdge(
-            [knownResObj],
-            [...pointees],
-            ["root"],
-            true,
-          );
-
-          return [knownResObj];
-        } else {
-          console.warn(`PTA [KnownFunctionNode]: ${c.idx}`);
-        }
-      } else {
-        console.warn(
-          `PTA is skipping analysis of non-callable object: ${c.id}`,
-        );
-      }
-    }
-
-    nextGraph.union(...closureResults);
+    const res = handleCallExpression(
+      nextGraph,
+      callees,
+      rVal.args,
+      currBB,
+      currBBIDx,
+      stackInstOffset,
+    );
     return [...res];
   } else if (rVal instanceof IV_SuperCall) {
     const resObj = new UnknownResultObj(
@@ -1207,12 +873,33 @@ export const handleRVals = (
     );
     nextGraph.declareNode(resObj);
 
+    //
+    // Process Component Closures
+    //
+
+    const funObjs = currComponentPointees.filter(
+      (n) => n instanceof OrdinaryFunctionObject,
+    );
+
+    const evalRes = handleCallExpression(
+      nextGraph,
+      funObjs,
+      [rVal.props],
+      currBB,
+      currBBIDx,
+      stackInstOffset,
+    );
+
     nextGraph.drawHeapToHeapEdge(
       [resObj],
-      currComponentPointees,
+      currComponentPointees.filter(
+        (n) => !(n instanceof OrdinaryFunctionObject),
+      ),
       ["component"],
       true,
     );
+
+    nextGraph.drawHeapToHeapEdge([resObj], [...evalRes], ["component"], true);
 
     for (const c of rVal.children) {
       const pointees = nextGraph.getPointees(

@@ -329,7 +329,7 @@ export default class IRIDIUM_MODULE {
   js3builder: JS3Builder;
   node: JS3Program;
   fgContext: Array<IRIDIUM_FG> = [];
-  static EXPANSION_THRESHOLD: number = 1;
+  static SEARCH_THRESHOLD: number = 10;
   fg: IRIDIUM_FG = undefined;
   projectBasePath: string;
 
@@ -458,56 +458,68 @@ export default class IRIDIUM_MODULE {
       existingIN.addPTANode(resNode);
     };
 
-    if (level < IRIDIUM_MODULE.EXPANSION_THRESHOLD) {
-      console.log(`Expansion Level: ${level}`);
-      const resolvedSources = resolveSources(
-        res,
-        PTA_OUT_RES.get(res.sinks()[0]),
-      );
-      for (const iSource of resolvedSources) {
-        const resolvedPath = resolveModuleImport(
-          iSource.FROM.value,
-          this.js3builder.projectFile.absoluteFilePath,
-          this.projectBasePath,
+    if (level === 0) {
+      for (let i = 0; i < IRIDIUM_MODULE.SEARCH_THRESHOLD; i++) {
+        console.log(`Expanding Search Space ${i}`);
+        const resolvedSources = resolveSources(
+          res,
+          PTA_OUT_RES.get(res.sinks()[0]),
         );
-        try {
-          console.log(`Resolving: ${iSource.FROM} --> ${resolvedPath}`);
-          // 1. Loading The File
-          const projectFile = new ProjectFile(
-            resolvedPath,
+        if (resolvedSources.size === 0) {
+          console.log(
+            `Concluding Search Space Early ${i}/${IRIDIUM_MODULE.SEARCH_THRESHOLD}`,
+          );
+          break;
+        }
+        for (const iSource of resolvedSources) {
+          const resolvedPath = resolveModuleImport(
+            iSource.FROM.value,
+            this.js3builder.projectFile.absoluteFilePath,
             this.projectBasePath,
           );
-          projectFile.initSync(debugConfig.cli.sourceType);
-          if (projectFile.initData.parseStatus !== "parsed")
-            debugConfig.logger.throwJS3Error(
-              "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
+          try {
+            console.log(`Resolving: ${iSource.FROM} --> ${resolvedPath}`);
+            // 1. Loading The File
+            const projectFile = new ProjectFile(
+              resolvedPath,
+              this.projectBasePath,
             );
+            projectFile.initSync(debugConfig.cli.sourceType);
+            if (projectFile.initData.parseStatus !== "parsed")
+              debugConfig.logger.throwJS3Error(
+                "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
+              );
 
-          // 2. Constructing JS3
-          const js3Builder = new JS3Builder(projectFile);
-          js3Builder.build();
-          const fileNode = js3Builder.generatedAST;
-          const programNode = fileNode.program;
+            // 2. Constructing JS3
+            const js3Builder = new JS3Builder(projectFile);
+            js3Builder.build();
+            const fileNode = js3Builder.generatedAST;
+            const programNode = fileNode.program;
 
-          // 3. Constructing Iridium
-          const directives: Array<string> = [];
-          programNode.directives.forEach((d) => directives.push(d.value.value));
-          const sourceType = programNode.sourceType;
-          const iri_container = new I_Container(
-            fileNode,
-            projectFile,
-            js3Builder,
-            directives,
-            sourceType,
-            debugConfig.cli.projectBase,
-          );
-          iri_container.build(level + 1);
+            // 3. Constructing Iridium
+            const directives: Array<string> = [];
+            programNode.directives.forEach((d) =>
+              directives.push(d.value.value),
+            );
+            const sourceType = programNode.sourceType;
+            const iri_container = new I_Container(
+              fileNode,
+              projectFile,
+              js3Builder,
+              directives,
+              sourceType,
+              debugConfig.cli.projectBase,
+            );
+            iri_container.build(level + 1);
 
-          updateResolvedNode(iSource, iri_container);
-        } catch (e) {
-          debugConfig.logger.error("Failed to generate Iridium: ", e);
-          process.exit(1);
+            updateResolvedNode(iSource, iri_container);
+          } catch (e) {
+            debugConfig.logger.error("Failed to generate Iridium: ", e);
+            process.exit(1);
+          }
         }
+
+        startPTA(res);
       }
     }
 

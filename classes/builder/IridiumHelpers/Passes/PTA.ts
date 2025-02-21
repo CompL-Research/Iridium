@@ -49,13 +49,10 @@ export const PTA_OUT_RES: Map<string, PTAGraph> = new Map();
 
 export function startPTA(rootFG: IRIDIUM_FG) {
   const rootBBIdx: string = "" + rootFG.rootBB.idx;
-  console.log("Processing Root: ", rootBBIdx);
   if (PTA_IN_RES.has(rootBBIdx)) {
-    console.log("Has IN: ", rootBBIdx);
     const BOUNDARY_PTAGRAPH = PTA_IN_RES.get(rootBBIdx);
-    ContextualPTAHandler("$", "$", BOUNDARY_PTAGRAPH, rootFG);
+    ContextualPTAHandler(rootBBIdx, "$", BOUNDARY_PTAGRAPH, rootFG);
   } else {
-    console.log("No IN: ", rootBBIdx);
     // Initialize Boundary PTA
     const BOUNDARY_PTAGRAPH = new PTAGraph();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -87,7 +84,7 @@ export function startPTA(rootFG: IRIDIUM_FG) {
     const exports = new ModuleExportsNode("EXPORT");
     BOUNDARY_PTAGRAPH.declareNode(exports);
 
-    ContextualPTAHandler("$", "$", BOUNDARY_PTAGRAPH, rootFG);
+    ContextualPTAHandler(rootBBIdx, "$", BOUNDARY_PTAGRAPH, rootFG);
   }
 }
 
