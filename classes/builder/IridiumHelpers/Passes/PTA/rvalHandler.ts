@@ -83,7 +83,6 @@ import {
   DecimalNode,
   FJSXObject,
   GetSpecialClosure,
-  GlobalNode,
   JSXObject,
   NullNode,
   NumericNode,
@@ -161,12 +160,10 @@ export const handleRVals = (
   // IS1_DeclarationStmt
   if (rVal instanceof IV_NUBD) {
     const ID = getStackQualifiedName("NUBD", currBB);
-    if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new GlobalNode(ID));
-    return [nextGraph.getPTANode(ID)];
+    return nextGraph.getPointees(ID);
   } else if (rVal instanceof IV_Identifier && rVal.name === "undefined") {
     const ID = getStackQualifiedName("undefined", currBB);
-    if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new GlobalNode(ID));
-    return [nextGraph.getPTANode(ID)];
+    return nextGraph.getPointees(ID);
   } else if (rVal instanceof IV_CTHIS) {
     return nextGraph.getPointees(
       getStackQualifiedName(IV_CTHIS.lookupName(), currBB),

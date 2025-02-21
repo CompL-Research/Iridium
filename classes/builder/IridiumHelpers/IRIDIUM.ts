@@ -329,7 +329,7 @@ export default class IRIDIUM_MODULE {
   js3builder: JS3Builder;
   node: JS3Program;
   fgContext: Array<IRIDIUM_FG> = [];
-  static SEARCH_THRESHOLD: number = 10;
+  static SEARCH_THRESHOLD: number = 2;
   fg: IRIDIUM_FG = undefined;
   projectBasePath: string;
 
@@ -377,7 +377,6 @@ export default class IRIDIUM_MODULE {
     cleanupBBs(res);
 
     this.fg = res;
-
     // Start PTA
     startPTA(res);
 
@@ -523,8 +522,8 @@ export default class IRIDIUM_MODULE {
       }
     }
 
-    // Re-run PTA after composition
-    startPTA(res);
+    // // Re-run PTA after composition
+    // startPTA(res);
 
     if (debugConfig.cli.savePTAGraph) {
       const filename = path.basename(

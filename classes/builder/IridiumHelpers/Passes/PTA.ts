@@ -22,21 +22,21 @@ import {
 import GLIB from "#graphlib";
 import { IV_StringLiteral } from "../ALL_RVal/IV_Literals.ts";
 import { Environment } from "../I_GENERAL/I_Environment.ts";
-import { handleSimpleAssignmentStatement } from "./PTA/handlers.ts";
+import {
+  handleBImportNode,
+  handleSimpleAssignmentStatement,
+} from "./PTA/handlers.ts";
 import { IRIDIUM_FG } from "./PTA/IRIDIUM_FG.ts";
 import {
-  DummyObject,
   GlobalNode,
   ImportNode,
   KnownFunctionNode,
   ModuleExportsNode,
-  OrdinaryObject,
   StackNode,
 } from "./PTA/nodes.ts";
 import { PTAGraph } from "./PTA/PTAGraph.ts";
 import { handleRVals } from "./PTA/rvalHandler.ts";
-import { getHeapQualifiedName, getStackQualifiedName } from "./PTA/util.ts";
-import { I_Container } from "../I_GENERAL/I_Container.ts";
+import { getStackQualifiedName } from "./PTA/util.ts";
 
 const STATE_CURBING: boolean = true;
 
@@ -243,92 +243,7 @@ function flowFunction(
   for (const i of currBB.statements) {
     stackInstOffset++;
     if (i instanceof IS_BImport) {
-      // import { remote as local } from FROM
-      const stackID = getStackQualifiedName(i.local.lookupName(), currBB);
-      const stackNode = new StackNode(stackID);
-      nextGraph.declareNode(stackNode);
-      nextGraph.clearSuccessors(stackNode.id);
-
-      const remoteLookupID =
-        i.remote instanceof IV_Identifier
-          ? i.remote.lookupName()
-          : i.remote.value;
-
-      if (!nextGraph.hasNode(i.FROM.value)) {
-        //
-        // ImportNode
-        //
-        nextGraph.declareNode(new ImportNode(i.FROM.value, i.FROM, true));
-      }
-
-      const heapNode = nextGraph.getPTANode(i.FROM.value);
-
-      if (heapNode instanceof ImportNode) {
-        // If this is already a resolved node, then compose the PTA
-        if (heapNode.isResolved()) {
-          const replacementNode = new OrdinaryObject(
-            getHeapQualifiedName("resolvedImport", currBBIDx, stackInstOffset),
-          );
-          const resolvedPTA: I_Container = heapNode.resolvedContainer;
-          const moduleFG = resolvedPTA.module.fg;
-          const sinks = moduleFG.sinks();
-          if (sinks.length === 1) {
-            const sink = sinks[0];
-            const outFG = PTA_OUT_RES.get(sink);
-            const nnn = new PTAGraph();
-            nnn.union(outFG);
-            const exportsNode = nnn.getPTANode("EXPORT");
-            nnn.replacePTANode(exportsNode, replacementNode);
-            nextGraph.union(nnn);
-            const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
-            //
-            // stackID --->resolvedObject---[remote]-->pointees
-            //
-            handleSimpleAssignmentStatement(nextGraph, stackID, [
-              ...nextGraph.getFieldPointees(
-                replacementNode,
-                remoteLookupID,
-                iContext,
-                true,
-                true,
-              ),
-            ]);
-          } else {
-            debugConfig.logger.throwIriError(
-              "Expecting only only one sink in a FG",
-            );
-          }
-        } else {
-          if (
-            i.FROM.value === "react-dom/client" &&
-            remoteLookupID === "createRoot"
-          ) {
-            console.log(
-              "Skipping adding createRoot --> react-dom/client DUMMY",
-            );
-            nextGraph.drawStackToHeapEdge(stackNode, [
-              nextGraph.getPTANode("createRoot"),
-            ]);
-          } else {
-            if (!nextGraph.hasField(heapNode.id, remoteLookupID))
-              nextGraph.addField(heapNode.id, remoteLookupID);
-            const remoteDummyNode = new DummyObject(
-              getHeapQualifiedName(remoteLookupID, currBBIDx, stackInstOffset),
-            );
-            nextGraph.declareNode(remoteDummyNode);
-
-            nextGraph.drawHeapToHeapEdge(
-              [heapNode],
-              [remoteDummyNode],
-              [remoteLookupID],
-              true,
-            );
-            nextGraph.drawStackToHeapEdge(stackNode, [remoteDummyNode]);
-          }
-        }
-      } else {
-        debugConfig.logger.throwIriError("Expected Import Node here");
-      }
+      handleBImportNode(nextGraph, i, currBB, currBBIDx, stackInstOffset);
     } else if (i instanceof IS_ClassStaticPropInit) {
       debugConfig.logger.throwIriError("PTA TODO: IS_ClassStaticPropInit");
       // // obj[prop] = rval

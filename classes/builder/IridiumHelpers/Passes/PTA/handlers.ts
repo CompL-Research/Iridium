@@ -1,17 +1,22 @@
 import debugConfig from "#debugConfig";
+import { popSet } from "#utils";
 import { IV_Identifier } from "../../ALL_AMP/ALL_AMP.ts";
+import { IS_BImport } from "../../ALL_IS/IS_Imports_Exports.ts";
 import { ISP_ArgSpread, ISP_ObjectMethod } from "../../ALL_RVal/ALL_ISP.ts";
 import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
 import { BB, FunctionReturn } from "../../BB.ts";
+import { I_Container } from "../../I_GENERAL/I_Container.ts";
 import { I_Function_params } from "../../I_GENERAL/I_Function.ts";
-import { ContextualPTAHandler } from "../PTA.ts";
+import { ContextualPTAHandler, PTA_OUT_RES } from "../PTA.ts";
 import { IRIDIUM_FG } from "./IRIDIUM_FG.ts";
 import {
   DummyObject,
+  ImportNode,
   KnownFunctionNode,
   KnownResultObj,
   OrdinaryArrayObject,
   OrdinaryFunctionObject,
+  OrdinaryObject,
   PTANode,
   ReactRenderRoot,
   SetSpecialClosure,
@@ -22,6 +27,129 @@ import {
 import { PTAGraph } from "./PTAGraph.ts";
 import { getSpreadPointees } from "./rvalHandler.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
+
+export const handleResolvedImportNode = (
+  nextGraph: PTAGraph,
+  rootNode: ImportNode,
+  stackID: string,
+  remoteLookupID: string,
+  currBBIDx: string,
+  stackInstOffset: number,
+) => {
+  const worklist: Set<ImportNode> = new Set();
+  // Initialize Worklist
+  worklist.add(rootNode);
+  while (worklist.size > 0) {
+    const heapNode = popSet(worklist);
+    nextGraph.removePTANode(heapNode);
+
+    const replacementNode = new OrdinaryObject(
+      getHeapQualifiedName(
+        `_EXPORT(${heapNode.FROM.value})`,
+        currBBIDx,
+        stackInstOffset,
+      ),
+    );
+    const resolvedPTA: I_Container = heapNode.resolvedContainer;
+    const moduleFG = resolvedPTA.module.fg;
+    const sinks = moduleFG.sinks();
+    if (sinks.length === 1) {
+      const sink = sinks[0];
+      const outFG = PTA_OUT_RES.get(sink);
+      const nnn = new PTAGraph();
+      nnn.union(outFG);
+      const exportsNode = nnn.getPTANode("EXPORT");
+      nnn.replacePTANode(exportsNode, replacementNode);
+      nextGraph.union(nnn);
+
+      const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
+      //
+      // stackID --->resolvedObject---[remote]-->pointees
+      //
+      handleSimpleAssignmentStatement(nextGraph, stackID, [
+        ...nextGraph.getFieldPointees(
+          replacementNode,
+          remoteLookupID,
+          iContext,
+          true,
+          true,
+        ),
+      ]);
+    } else {
+      debugConfig.logger.throwIriError("Expecting only only one sink in a FG");
+    }
+
+    // Update Worklist
+    const remainingImportNodes: Array<ImportNode> = nextGraph
+      .nodes()
+      .map((n) => nextGraph.nodeMap.get(n))
+      .filter((n) => n instanceof ImportNode)
+      .filter((n) => n.isResolved());
+    remainingImportNodes.forEach((n) => worklist.add(n));
+  }
+};
+
+// import { remote as local } from FROM
+export const handleBImportNode = (
+  nextGraph: PTAGraph,
+  i: IS_BImport,
+  currBB: BB,
+  currBBIDx: string,
+  stackInstOffset: number,
+) => {
+  const stackID = getStackQualifiedName(i.local.lookupName(), currBB);
+  const stackNode = new StackNode(stackID);
+  nextGraph.declareNode(stackNode);
+  nextGraph.clearSuccessors(stackNode.id);
+
+  const remoteLookupID =
+    i.remote instanceof IV_Identifier ? i.remote.lookupName() : i.remote.value;
+
+  if (!nextGraph.hasNode(i.FROM.value)) {
+    nextGraph.declareNode(new ImportNode(i.FROM.value, i.FROM, true));
+  }
+
+  const heapNode = nextGraph.getPTANode(i.FROM.value);
+
+  if (heapNode instanceof ImportNode) {
+    // If this is already a resolved node, then compose the PTA
+    if (heapNode.isResolved()) {
+      handleResolvedImportNode(
+        nextGraph,
+        heapNode,
+        stackID,
+        remoteLookupID,
+        currBBIDx,
+        stackInstOffset,
+      );
+    } else if (
+      i.FROM.value === "react-dom/client" &&
+      remoteLookupID === "createRoot"
+    ) {
+      debugConfig.logger.log("[Primitive Import] react-dom/client");
+      nextGraph.drawStackToHeapEdge(stackNode, [
+        nextGraph.getPTANode("createRoot"),
+      ]);
+    } else {
+      if (!nextGraph.hasField(heapNode.id, remoteLookupID))
+        nextGraph.addField(heapNode.id, remoteLookupID);
+      const remoteDummyNode = new DummyObject(
+        getHeapQualifiedName(remoteLookupID, currBBIDx, stackInstOffset),
+      );
+      nextGraph.declareNode(remoteDummyNode);
+
+      nextGraph.drawHeapToHeapEdge(
+        [heapNode],
+        [remoteDummyNode],
+        [remoteLookupID],
+        true,
+      );
+      nextGraph.drawStackToHeapEdge(stackNode, [remoteDummyNode]);
+    }
+  } else {
+    debugConfig.logger.throwIriError("Expected Import Node here");
+  }
+};
 
 export const handleOrdinaryFunctionObjectCall = (
   nextGraph: PTAGraph,

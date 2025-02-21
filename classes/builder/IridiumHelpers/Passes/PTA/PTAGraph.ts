@@ -44,7 +44,7 @@ export class PTAGraph extends GLIB.Graph {
   }
 
   removePTANode(n: PTANode) {
-    if (this.hasNode(n.id)) return;
+    if (!this.hasNode(n.id)) return;
     this.removeNode(n.id);
     this.nodeMap.delete(n.id);
   }
@@ -66,6 +66,7 @@ export class PTAGraph extends GLIB.Graph {
         if (wNode instanceof PNode) {
           this.addField(newNode.id, e.name);
           const newPnode = this.getField(newNode.id, e.name);
+          this.setEdge(newNode.id, newPnode.id, e.name, e.name);
           this.replacePTANode(wNode, newPnode);
           this.removePTANode(wNode);
         } else {
@@ -107,7 +108,13 @@ export class PTAGraph extends GLIB.Graph {
 
   // Stack to Heap Edge
   drawStackToHeapEdge(stackNode: StackNode, heapNodes: Array<PTANode>) {
-    heapNodes.forEach((h) => this.setEdge(stackNode.id, h.id, "S", "S"));
+    heapNodes.forEach((h) => {
+      if (h instanceof StackNode)
+        debugConfig.logger.throwIriError(
+          `Tried to draw a Stack->Stack Edge: ${stackNode.id} --> ${h.id}`,
+        );
+      this.setEdge(stackNode.id, h.id, "S", "S");
+    });
   }
 
   // Heap to Heap Edge
