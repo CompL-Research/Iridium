@@ -329,7 +329,7 @@ export default class IRIDIUM_MODULE {
   js3builder: JS3Builder;
   node: JS3Program;
   fgContext: Array<IRIDIUM_FG> = [];
-  static SEARCH_THRESHOLD: number = 2;
+  static SEARCH_THRESHOLD: number = 10;
   fg: IRIDIUM_FG = undefined;
   projectBasePath: string;
 
@@ -518,7 +518,29 @@ export default class IRIDIUM_MODULE {
           }
         }
 
+        if (debugConfig.cli.savePTAGraph) {
+          const filename = path.basename(
+            this.js3builder.projectFile.uname,
+            this.js3builder.projectFile.extension,
+          );
+          const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
+          PTA_OUT_RES.get(res.sinks()[0]).saveDotToFile(
+            `${PTAPATH}/${filename}_EXPANSION_LEVEL_${i}_IN`,
+          );
+        }
+
         startPTA(res);
+
+        if (debugConfig.cli.savePTAGraph) {
+          const filename = path.basename(
+            this.js3builder.projectFile.uname,
+            this.js3builder.projectFile.extension,
+          );
+          const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
+          PTA_OUT_RES.get(res.sinks()[0]).saveDotToFile(
+            `${PTAPATH}/${filename}_EXPANSION_LEVEL_${i}_OUT`,
+          );
+        }
       }
     }
 

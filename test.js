@@ -13,7 +13,7 @@
 // export * as REMOTE from "FROM"
 // export * from "FROM"
 
-// // 3. 
+// // 3.
 // debugger;
 // // return...
 // throw 1;
@@ -22,7 +22,6 @@
 // function foo() {
 //   let test = "foo";
 // }
-
 
 // // 5. Ifstmt
 // let t = false;
@@ -58,7 +57,6 @@
 // }
 // fn()
 
-
 // // 7.Try Catch
 // try {
 //   var xxa = 1;
@@ -78,12 +76,9 @@
 //   var caas = 3;
 // }
 
-
-
 // // 8. Template Literals
 // let a = `a,b,c${g}da`
 // let b = tag`a,b,c${g}da`
-
 
 // 9. Call Expression
 // let f = function(a,b,c) {  }
@@ -98,7 +93,6 @@
 // // c. Super [ID,...ID]
 // // d. V8IntrinsicIdentifier [ID,...ID]
 
-
 // // // 11. Meta Property
 // function Foo() {
 //   import.meta
@@ -110,10 +104,9 @@
 // new Foo(); // Logs "Foo instantiated with new"
 // Foo(); // Throws "Foo() must be called with new"
 
-
 // // 12. Yield/Await
 // async function* Foo() {
-//   yield 
+//   yield
 //   yield 10;
 //   await 10;
 // }
@@ -141,7 +134,7 @@
 // var a = 1 << 1;
 // var a = 1 ^ 1;
 
-// // OPC =  "==" | "===" | "!=" | "!==" 
+// // OPC =  "==" | "===" | "!=" | "!=="
 // var a = 1 == 1;
 // var a = 1 === 1;
 // var a = 1 != 1;
@@ -156,7 +149,7 @@
 // }
 // var a = "boo" in { boo: 1 };
 
-// // OPE = "instanceof" 
+// // OPE = "instanceof"
 // var a = a instanceof boo;
 
 // // OPF = ">" | "<" | ">=" | "<="
@@ -177,8 +170,8 @@
 // globalThis.boo = a;
 
 // // super assn.
-// // 
-// // 
+// //
+// //
 
 // // arrpatassn
 // [a, b] = [b, a];
@@ -186,7 +179,6 @@
 // // objpatassn
 // ({ f: { g: pokemon } } = d);
 // console.log(a, b, c, d, pokemon)
-
 
 // 16. Optional Chaining
 
@@ -202,7 +194,6 @@
 
 // a = a.b().c?.().b?.c;
 // a = b[x?.z()]?.c;
-
 
 // export default function MyApp() {
 //   let a;
@@ -222,12 +213,9 @@
 // console.log(xs)
 
 // let a = (a, pokemon = 199, ...{ 0: { x : x }, 1: y, 2: z }) => {
-//   return (a + pokemon + (y + z) + x).toLowerCase() 
+//   return (a + pokemon + (y + z) + x).toLowerCase()
 // }
 // console.log(a("Ba", "", { x: "a", y: 1, z: 2 }))
-
-
-
 
 // console.log(("B" + "a" + +"b" + "a" ).toLowerCase())
 
@@ -239,58 +227,55 @@
 
 // foo()
 
-
-// 
+//
 // 1. Argument: a = Test, "Test is a let binding"
-//      
+//
 //      Here Test is searched in the argument scope,
 //      and it behaves like a let binding, throwing reference error
 //      as it could not be found.
-// 
+//
 // var Test = "outer"
 // function f1(a = Test, Test = "args") {
-//   var Test = "inner" 
+//   var Test = "inner"
 //   return a + Test;
 // }
 // console.log(f1()) // Test uninit error, undefinedinner in babel
 
-
-// // 
+// //
 // // 2. Argument: (a, a, a=1)
-// //      
+// //
 // //      Duplicate parameter name not allowed in this context
-// // 
+// //
 // function f2(a,a,a = 1) {
 //   return a;
 // }
 // console.log(f2()) // Error
 
-// // 
+// //
 // // 3. Argument: (a,a,a) { SCRIPT MODE }
-// //      
+// //
 // //      returns undefined... a gets set to undefined for missing
 // //      argument.
-// // 
+// //
 // function f3(a, a, a) {
 //   return a;
 // }
 
-// console.log(f3(1,2)) // 
+// console.log(f3(1,2)) //
 
-// // 
+// //
 // // 4. Argument: (a)
-// //      
+// //
 // //      returns 10... hoisting "a = undefined" to the top of the scope
 // //      is wrong because argument evaluation takes precedence over
 // //      setting "a = undefined"
-// // 
+// //
 // function f3(a) {
 //   var a;
 //   return a;
 // }
 
 // console.log(f3(10)) // 10
-
 
 // function f3({ f: { g: a } }) {
 //   var a;
@@ -306,10 +291,10 @@
 
 // console.log(f3({ f: { g: 12 } })) // 10
 
-// // 
-// // Semantics of arguments most closely resemble "var", 
+// //
+// // Semantics of arguments most closely resemble "var",
 // // in their own function scope.
-// // 
+// //
 
 // function f4({ f: { g: a } }, test = a) {
 //   return test;
@@ -317,17 +302,15 @@
 
 // console.log(f4({ f: { g: 12 } })) // 10
 
-
-// // 
+// //
 // // Code that breaks after babel
-// // 
+// //
 // var test = 100
 // function f4({ f: { g: a = test } }, test) {
 //   return a;
 // }
 
 // console.log(f4({ f: { gg: 12 } })) // 10
-
 
 // // Transformation that might work, but doesnt...
 // var test = 100
@@ -391,7 +374,6 @@
 //   let b = test ? a?.b() : tt;
 // }
 
-
 // a.x(function foo() { var a, b, c; console.log(a, b, c); })
 
 // let a;
@@ -404,7 +386,6 @@
 //   [a]: a,
 //   ...a
 // }
-
 
 // a = function() {
 //   a = {
@@ -420,7 +401,6 @@
 
 // let b;
 
-
 // let foo = (a) => {
 //   console.log(a.name)
 // }
@@ -428,7 +408,6 @@
 // foo(() => { console.log("boo") }, [1,2,,3,,,4])
 
 // a[a?.a()].c?.().d?.[e].f?.g;
-
 
 // let a = new Array(() => { console.log("boo") }, [1,2,,3,,,4])
 
@@ -458,19 +437,17 @@
 // b = a.foo.apply(c)
 // console.log(a.foo.apply(c))
 
-
 // export default function() { }
 // import f from "./test.js"
 // console.log(f.name)
 
-
-// 
+//
 // Binding creation of x in catch is conditionally validly/invalidly bound
-// 
+//
 
-// 
+//
 // Works
-// 
+//
 // (function() {
 //   try {
 //       throw new Error("err");
@@ -483,9 +460,9 @@
 //   console.log(x, y, z)
 // })();
 
-// 
+//
 // Does not work
-// 
+//
 // (function() {
 //   try {
 //       throw new Error(["err"]);
@@ -498,17 +475,16 @@
 //   console.log(x, y, z)
 // })();
 
-
-// // 
+// //
 // // Test to check the evaluation order of effects when creating classes
-// // 
+// //
 // var probeBefore = function() { console.log("[probe before]");  return C; };
 // var probeHeritage;
 // var C = 'outside';
 
 // const Test = class C extends ( // <- This evaluation happens under a specific new scope
 //   (
-//     console.log("super stuff"), 
+//     console.log("super stuff"),
 //     probeHeritage = function() { console.log("[probe after]"); return C; }, // This (i.e. C) is a non-writable property
 //     function () {}
 //   )
@@ -559,7 +535,6 @@
 //   [[console.log("2", t), t = 12, console.log("3", t)]] = 1
 // }
 
-
 // export default () => {
 //   console.log("Test")
 // }
@@ -568,19 +543,17 @@
 
 // console.log(a.name)
 
-
 // Class Test
 
 // var Global = "global 1"
-// let clos; 
+// let clos;
 
 // let Test = class Global extends ( console.log(a), clos = () => { console.log("Global: ", Global) } ) {
 // }
 
-
 // function foo({x : {b : [b]}}) {
 //     var a = 10;
-    
+
 //     class A {
 //         [a] = (console.log("a"), a)
 //         static {
@@ -599,7 +572,6 @@
 //     console.log("a outside: ", a)
 // }
 
-
 // class Test {
 //   [(console.log(this), "a")] = 10
 
@@ -608,14 +580,14 @@
 //   }
 // }
 
-// class Test {  
+// class Test {
 //   [(console.log("[1]"), "constructor")]() { console.log("Non statically resolvable constructor called"); }
-//   constructor() { console.log("Statically resolvable constructor1 called"); } // <- Semantics only use syntax to bind the constructor 
+//   constructor() { console.log("Statically resolvable constructor1 called"); } // <- Semantics only use syntax to bind the constructor
 //   [(console.log("[1]"), "constructor")]() { console.log("Non statically resolvable constructor called"); }
 
 //   [(console.log("[2]"), "boo")]() { console.log("Non Statically resolvable method boo called"); }
 //   boo() { console.log("Statically resolvable method boo called;") }
-  
+
 //   foo() { console.log("Statically resolvable method foo called;") }
 //   [(console.log("[2]"), "foo")]() { console.log("Non Statically resolvable method foo called"); }
 // }
@@ -624,7 +596,6 @@
 // o.foo()
 
 // Object.getPrototypeOf(o).constructor() // <- Userspace can only access the non-statically resolvable constructor
-
 
 // class Test extends (
 //   console.log("test"),
@@ -648,7 +619,7 @@
 // class Test extends (
 //   console.log("Hello World", this, this === Test),
 //   function() {}
-// ) { 
+// ) {
 // }
 
 // import a from './test.js'
@@ -672,7 +643,6 @@
 // let res = delete delete delete 1
 
 // let res2 = res ? 1 : 2;
-
 
 // let o = {
 //   foo(a, b) { console.log(this.f1 === a, this.f2 === b) },
@@ -723,7 +693,7 @@
 //     console.log("case 2 body")
 //     break;
 //   case ((console.log("case 3 test"),3)):
-//     console.log("case 3 body") 
+//     console.log("case 3 body")
 //     break;
 //   case ((console.log("case 4 test"),4)):
 //     console.log("case 4 body")
@@ -739,7 +709,6 @@
 // for (let [a, {b: t}] of []) {
 //   console.log(a)
 // }
-
 
 // class A extends (function() {}, function() {}, function() { }) {
 //   a = (console.log("test"))
@@ -821,7 +790,6 @@
 
 // let z = a ? b * c + d / 23 : 12
 
-
 // let a = 1;
 // if (a) {
 //   (a ? a : a);
@@ -847,7 +815,6 @@
 //   console.log(a);
 // }
 
-
 // for (let a = x ? 1 : 2 ? 3 : 4; a ? b : c ? d : e ; a++) {
 //   console.log("1")
 // }
@@ -857,7 +824,6 @@
 //   console.log(a)
 //   a++;
 // } while(a < 10)
-
 
 // switch((console.log("test"), 4)) {
 //   case ((console.log("case 1 test"),1)):
@@ -876,7 +842,7 @@
 
 // function foo({x : {b : [b]}}) {
 //     var a = 10;
-    
+
 //     class A {
 //         [a] = (console.log("a"), a)
 //         static {
@@ -895,7 +861,6 @@
 //     // console.log("a outside: ", a)
 // }
 
-
 // class Test {
 //   #hello = 10
 //   static test(o) {
@@ -909,7 +874,7 @@
 //   #hello = 11
 
 //   static foo = 12
-  
+
 //   static test(o) {
 //     let containsHello = #hello in o
 //     console.log(containsHello)
@@ -926,7 +891,6 @@
 // var a; // <- Does this have an effect later?
 
 // console.log(a)
-
 
 // let foo = 12;
 
@@ -953,7 +917,7 @@
 //     test.a();
 //     let t1 = test.a
 //     t1();
-    
+
 //     test.b();
 //     let t2 = test.b
 //     t2();
@@ -965,8 +929,6 @@
 // }
 
 // (new Test()).boo()
-
-
 
 // class TTT {
 //   constructor() {
@@ -1001,7 +963,6 @@
 //     console.log("c: ", this);
 //   }
 // };
-
 
 // class TTT {
 //   f1 = () => { }
@@ -1045,25 +1006,26 @@
 
 // let test = (a) => {
 //   if (a) return 1;
-//   return; 
+//   return;
 // }
 
-export default function MyApp(boop) {
-  return <>
-    {boop ? <Foo> Hello </Foo> : <Bar> World </Bar>}
-    Hello World
-  </>;
-}
+// export default function MyApp(boop) {
+//   return (
+//     <>
+//       {boop ? <Foo> Hello </Foo> : <Bar> World </Bar>}
+//       Hello World
+//     </>
+//   );
+// }
 
 // const Component = () => <div className="pikachu"></div>
-// 
+//
 // const profile = (
 //   <Component.a>
 //     {test ? <img src="avatar.png" className="profile" /> : <h3>{[user.firstName, user.lastName].join(" ")}</h3>}
-    
+
 //   </Component.a>
 // );
-
 
 // class A {
 //   [(console.log("hello"), "boo")] = 12
@@ -1080,7 +1042,6 @@ export default function MyApp(boop) {
 // let z = 1;
 // a[z] = 12;
 // a[a[z]] = 13;
-
 
 // class Test {
 //   a = () => (console.log(this))
@@ -1103,7 +1064,7 @@ export default function MyApp(boop) {
 // a();
 // new a();
 
-// let a = { 
+// let a = {
 //   container: 12,
 //   set x(a) { this.container = 10; },
 //   get x() { a = 12; return this.container; }
@@ -1112,7 +1073,6 @@ export default function MyApp(boop) {
 // console.log(a)
 // a.x = 12;
 // console.log(a.x)
-
 
 // let a = "12";
 // console.log(++a);
@@ -1137,7 +1097,6 @@ export default function MyApp(boop) {
 // let x = boo = 2;
 
 // import { a as b } from "THERE"
-
 
 // let b = {
 //   set [f](p) { a = 2; this[f] = 2; /**/ this[f] = 2; },
@@ -1196,7 +1155,6 @@ export default function MyApp(boop) {
 
 // a();
 
-
 // let f = "f";
 // let a = {
 //   set f(a) { this.f = a; }
@@ -1233,10 +1191,7 @@ export default function MyApp(boop) {
 //   5
 // </div>
 
-
-
 // export let {a, b: foo} = { a: 1, b: 121 }
-
 
 // let x = {
 //   f: 12,
@@ -1260,7 +1215,6 @@ export default function MyApp(boop) {
 // let res = x.f;
 
 // let log = console.log;
-
 // let x = log;
 
 // while (true) {
@@ -1269,3 +1223,8 @@ export default function MyApp(boop) {
 
 // import A from 'test1.js';
 // console.log(A);
+
+let x = {};
+let y = {};
+x.f = 10;
+y.f = 12;

@@ -41,7 +41,7 @@ export const handleResolvedImportNode = (
   worklist.add(rootNode);
   while (worklist.size > 0) {
     const heapNode = popSet(worklist);
-    nextGraph.removePTANode(heapNode);
+    console.log(`Processing: ${heapNode.FROM}`);
 
     const replacementNode = new OrdinaryObject(
       getHeapQualifiedName(
@@ -61,23 +61,27 @@ export const handleResolvedImportNode = (
       const exportsNode = nnn.getPTANode("EXPORT");
       nnn.replacePTANode(exportsNode, replacementNode);
       nextGraph.union(nnn);
+      nextGraph.UnifyStackTargets(heapNode, replacementNode);
 
       const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
-      //
-      // stackID --->resolvedObject---[remote]-->pointees
-      //
-      handleSimpleAssignmentStatement(nextGraph, stackID, [
-        ...nextGraph.getFieldPointees(
-          replacementNode,
-          remoteLookupID,
-          iContext,
-          true,
-          true,
-        ),
-      ]);
+      if (heapNode === rootNode) {
+        //
+        // stackID --->resolvedObject---[remote]-->pointees
+        //
+        handleSimpleAssignmentStatement(nextGraph, stackID, [
+          ...nextGraph.getFieldPointees(
+            replacementNode,
+            remoteLookupID,
+            iContext,
+            true,
+            true,
+          ),
+        ]);
+      }
     } else {
       debugConfig.logger.throwIriError("Expecting only only one sink in a FG");
     }
+    nextGraph.removePTANodeAndFields(heapNode);
 
     // Update Worklist
     const remainingImportNodes: Array<ImportNode> = nextGraph

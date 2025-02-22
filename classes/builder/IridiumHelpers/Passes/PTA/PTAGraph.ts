@@ -1,5 +1,5 @@
 import debugConfig from "#debugConfig";
-import GLIB from "#graphlib";
+import GLIB, { Edge } from "#graphlib";
 import fs from "node:fs";
 import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
 import { FunctionReturn } from "../../BB.ts";
@@ -43,10 +43,100 @@ export class PTAGraph extends GLIB.Graph {
     this.nodeMap.set(n.id, n);
   }
 
+  removePTANodeAndFields(n: PTANode) {
+    if (!this.hasNode(n.id)) return;
+    const outEdges = this.outEdges(n.id);
+    if (outEdges) {
+      for (const e of outEdges) {
+        const target = this.getPTANode(e.w);
+        if (target instanceof PNode) {
+          this.removePTANode(target);
+        }
+      }
+    }
+    this.removePTANode(n);
+  }
+
   removePTANode(n: PTANode) {
     if (!this.hasNode(n.id)) return;
     this.removeNode(n.id);
     this.nodeMap.delete(n.id);
+  }
+
+  // Transfer stack edges from o1 to o2 recursively
+  UnifyStackTargets(o1: PTANode, o2: PTANode) {
+    const outEdges = this.outEdges(o1.id);
+    if (outEdges) {
+      for (const e of outEdges) {
+        const currentField = e.name;
+        // Check if o2 does not have the field...
+        if (!this.hasField(o2.id, currentField)) {
+          this.addField(o2.id, currentField);
+          const o2PNode = this.getField(o2.id, currentField);
+          this.setEdge(o2.id, o2PNode.id, currentField, currentField);
+          const o1PNode = this.getPTANode(e.w);
+          const outEdgesFromO1PNode = this.outEdges(o1PNode.id);
+          if (outEdgesFromO1PNode) {
+            for (const ee of outEdgesFromO1PNode) {
+              this.setEdge(o2PNode.id, ee.w, ee.name, ee.name);
+            }
+          }
+        } else {
+          const o1PNode = this.getPTANode(e.w);
+          const o2PNode = this.getField(o2.id, currentField);
+
+          const edgesToTransfer: Set<Edge> = new Set();
+
+          const outEdgesFromO1PNode = this.outEdges(o1PNode.id);
+          if (outEdgesFromO1PNode) {
+            for (const ee of outEdgesFromO1PNode) {
+              const w = this.getPTANode(ee.w);
+              if (w instanceof DummyObject) {
+                const inEdges = this.inEdges(w.id);
+                if (inEdges) for (const ff of inEdges) edgesToTransfer.add(ff);
+              } else {
+                // For non dummy objects, draw an edge from o2Pnode to w
+                this.setEdge(o2PNode.id, w.id, ee.name, ee.name);
+              }
+            }
+          }
+
+          const outEdgesFromO2PNode = this.outEdges(o2PNode.id);
+          if (outEdgesFromO2PNode) {
+            for (const ee of outEdgesFromO2PNode) {
+              // Transfer incoming edges
+              for (const ff of edgesToTransfer) {
+                this.setEdge(ff.v, ee.w, ff.name, ff.name);
+              }
+            }
+          }
+
+          // Recursively unify targets
+          if (outEdgesFromO1PNode && outEdgesFromO2PNode) {
+            for (const ee of outEdgesFromO1PNode) {
+              const xx = this.getPTANode(ee.w);
+              if (xx instanceof DummyObject) {
+                for (const ff of outEdgesFromO2PNode) {
+                  const yy = this.getPTANode(ff.w);
+                  this.UnifyStackTargets(xx, yy);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    // # Iterate over all the fields of o1
+    // for (f of o1.fields) {
+    //   # If o2 does not have the field, create a field and copy over the target object there.
+    //   # Else
+    //   #   iterate over (o1.f.w's) -> x:
+    //   #     If x is Dummy, remember all incoming edges to x that need to be transferred to all nodes o2.f.pointees
+    //   #     Else make o2.f... point to w
+    //   #     If x is Dummy, UnifyStackTargets(x, each o2.f.pointees)
+    //   #
+    //   #
+    // }
   }
 
   replacePTANode(oldNode: PTANode, newNode: PTANode) {
@@ -58,17 +148,19 @@ export class PTAGraph extends GLIB.Graph {
     this.addPTANode(newNode); // Ensure new node is added
 
     const outEdges = this.outEdges(oldNode.id);
-    // Transfer incoming edges
+    // Transfer outgoing edges
     if (outEdges) {
       outEdges.forEach((e) => {
         // If e.w is a Proxy Node, replace the proxy first
         const wNode = this.getPTANode(e.w);
         if (wNode instanceof PNode) {
+          this.setEdge(newNode.id, wNode.id, e.name, e.name);
+
           this.addField(newNode.id, e.name);
           const newPnode = this.getField(newNode.id, e.name);
-          this.setEdge(newNode.id, newPnode.id, e.name, e.name);
           this.replacePTANode(wNode, newPnode);
           this.removePTANode(wNode);
+          this.setEdge(newNode.id, newPnode.id, e.name, e.name);
         } else {
           this.setEdge(newNode.id, e.w, e.name, e.name);
           this.removeEdge(e.v, e.w, e.name);

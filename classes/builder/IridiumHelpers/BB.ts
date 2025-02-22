@@ -157,7 +157,7 @@ export class BB {
   }
 
   printHeader() {
-    return `BB${this.idx} [${this.scope}]`;
+    return `BB${this.idx} -- E${this.env.idx} [${this.scope}]`;
   }
 
   printHeaderDOT() {
@@ -219,7 +219,7 @@ export class FunctionArgInitBB extends BB {
   }
 
   printHeader() {
-    return `BB${this.idx} [${this.scope}] { args: ${this.args.length} }`;
+    return `BB${this.idx} -- E${this.env.idx} [${this.scope}] { args: ${this.args.length} }`;
   }
 }
 
@@ -265,7 +265,7 @@ export class FunctionReturn extends BB {
   }
 
   printHeader() {
-    return `BB${this.idx} [${this.scope}] { return: ${this.arg.toString()} }`;
+    return `BB${this.idx} -- E${this.env.idx} [${this.scope}] { return: ${this.arg.toString()} }`;
   }
 }
 
@@ -292,7 +292,7 @@ export class ClassInitBB extends BB {
   }
 
   printHeader() {
-    return `BB${this.idx} [${this.scope} ~ ClassInit [${this.className ? this.className.toString() : ""}]]`;
+    return `BB${this.idx} -- E${this.env.idx} [${this.scope} ~ ClassInit [${this.className ? this.className.toString() : ""}]]`;
   }
 
   create() {
@@ -314,7 +314,7 @@ export class ClassStaticBB extends BB {
   }
 
   printHeader() {
-    return `BB${this.idx} [${this.scope}] ${this.comment !== "" ? "//" + this.comment : ""}`;
+    return `BB${this.idx} -- E${this.env.idx} [${this.scope}] ${this.comment !== "" ? "//" + this.comment : ""}`;
   }
 
   create() {
@@ -340,7 +340,7 @@ export class ClassPropInitBB extends BB {
   }
 
   printHeader() {
-    return `BB${this.idx} [${this.scope}] ${this.comment ? "// " + this.comment : ""}`;
+    return `BB${this.idx} -- E${this.env.idx} [${this.scope}] ${this.comment ? "// " + this.comment : ""}`;
   }
 
   create() {
@@ -402,7 +402,7 @@ export class TryBB extends BlockBB {
   }
 
   printHeader() {
-    return `BB${this.idx} [${this.scope} ~ Try]`;
+    return `BB${this.idx} -- E${this.env.idx} [${this.scope} ~ Try]`;
   }
 }
 
@@ -427,7 +427,7 @@ export class CatchBB extends BlockBB {
   }
 
   printHeader() {
-    return `BB${this.idx} [${this.scope} ~ Catch(${this.arg ? this.arg.toString() : ""})]`;
+    return `BB${this.idx} -- E${this.env.idx} [${this.scope} ~ Catch(${this.arg ? this.arg.toString() : ""})]`;
   }
 }
 
@@ -467,17 +467,17 @@ export class LoopHeadBB extends BlockBB {
 
   create() {
     if (
-      !isJS3ForStatement(this.node) ||
-      !isJS3DoWhileStatement(this.node) ||
-      !isJS3ForInStatement(this.node) ||
-      !isJS3ForOfStatement(this.node) ||
-      !isJS3WhileStatement(this.node)
+      isJS3ForStatement(this.node) ||
+      isJS3DoWhileStatement(this.node) ||
+      isJS3ForInStatement(this.node) ||
+      isJS3ForOfStatement(this.node) ||
+      isJS3WhileStatement(this.node)
     ) {
-      debugConfig.logger.throwIriError(
-        "Expected node to be JS3ForStatement | JS3DoWhileStatement | JS3ForInStatement | JS3ForOfStatement | JS3WhileStatement",
-      );
-    } else {
       return new LoopHeadBB(this.env, this.node);
+    } else {
+      debugConfig.logger.throwIriError(
+        `Expected node to be JS3ForStatement | JS3DoWhileStatement | JS3ForInStatement | JS3ForOfStatement | JS3WhileStatement, GOT: ${this.node.type}`,
+      );
     }
   }
 
