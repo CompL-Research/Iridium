@@ -20,6 +20,7 @@ import {
   isNullLiteral,
   isNumericLiteral,
   isObjectPattern,
+  isObjectProperty,
   isOptionalCallExpression,
   isOptionalMemberExpression,
   isPrivateName,
@@ -75,6 +76,7 @@ import {
   isJS3ContextualCallExpression,
   isJS3ContinueStatement,
   isJS3DebuggerStatement,
+  isJS3DefaultExportMemberExpression,
   isJS3DoWhileStatement,
   isJS3EmptyStatement,
   isJS3ExportAllDeclaration,
@@ -137,6 +139,7 @@ import {
   JS3ContextualCallExpression,
   JS3ContinueStatement,
   JS3DebuggerStatement,
+  JS3DefaultExportMemberExpression,
   JS3DoWhileStatement,
   JS3ExportAllDeclaration,
   JS3ExportDefaultDeclaration,
@@ -324,7 +327,7 @@ import { ProjectFile } from "classes/ProjectFile.ts";
 import { I_Container } from "./I_GENERAL/I_Container.ts";
 
 const generate = _generate.default;
-
+const RESOLUTION_CACHE: Map<string, I_Container> = new Map();
 export default class IRIDIUM_MODULE {
   js3builder: JS3Builder;
   node: JS3Program;
@@ -380,21 +383,21 @@ export default class IRIDIUM_MODULE {
     // Start PTA
     startPTA(res);
 
-    if (debugConfig.cli.savePTAGraph) {
-      const filename = path.basename(
-        this.js3builder.projectFile.uname,
-        this.js3builder.projectFile.extension,
-      );
-      const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
-      // Iterate over all the nodes of this file
-      const nodes = res.nodes();
-      for (const n of nodes) {
-        const inRes = PTA_IN_RES.get(n);
-        const outRes = PTA_OUT_RES.get(n);
-        inRes.saveDotToFile(`${PTAPATH}/${filename}_uncomposed_${n}_IN`);
-        outRes.saveDotToFile(`${PTAPATH}/${filename}_uncomposed${n}_OUT`);
-      }
-    }
+    // if (debugConfig.cli.savePTAGraph) {
+    //   const filename = path.basename(
+    //     this.js3builder.projectFile.uname,
+    //     this.js3builder.projectFile.extension,
+    //   );
+    //   const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
+    //   // Iterate over all the nodes of this file
+    //   const nodes = res.nodes();
+    //   for (const n of nodes) {
+    //     const inRes = PTA_IN_RES.get(n);
+    //     const outRes = PTA_OUT_RES.get(n);
+    //     inRes.saveDotToFile(`${PTAPATH}/${filename}_uncomposed_${n}_IN`);
+    //     outRes.saveDotToFile(`${PTAPATH}/${filename}_uncomposed${n}_OUT`);
+    //   }
+    // }
 
     const successorPTAClosure = (
       pta: PTAGraph,
@@ -458,14 +461,24 @@ export default class IRIDIUM_MODULE {
     };
 
     if (level === 0) {
+      if (debugConfig.cli.savePTAGraph) {
+        const filename = path.basename(
+          this.js3builder.projectFile.uname,
+          this.js3builder.projectFile.extension,
+        );
+        const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
+        PTA_OUT_RES.get(res.sinks()[0]).saveDotToFile(
+          `${PTAPATH}/${filename}_BEFORE_EXPANSION_OUT`,
+        );
+      }
       for (let i = 0; i < IRIDIUM_MODULE.SEARCH_THRESHOLD; i++) {
-        console.log(`Expanding Search Space ${i}`);
+        debugConfig.logger.log(`Expanding Search Space ${i}`);
         const resolvedSources = resolveSources(
           res,
           PTA_OUT_RES.get(res.sinks()[0]),
         );
         if (resolvedSources.size === 0) {
-          console.log(
+          debugConfig.logger.log(
             `Concluding Search Space Early ${i}/${IRIDIUM_MODULE.SEARCH_THRESHOLD}`,
           );
           break;
@@ -477,41 +490,57 @@ export default class IRIDIUM_MODULE {
             this.projectBasePath,
           );
           try {
-            console.log(`Resolving: ${iSource.FROM} --> ${resolvedPath}`);
-            // 1. Loading The File
-            const projectFile = new ProjectFile(
-              resolvedPath,
-              this.projectBasePath,
-            );
-            projectFile.initSync(debugConfig.cli.sourceType);
-            if (projectFile.initData.parseStatus !== "parsed")
-              debugConfig.logger.throwJS3Error(
-                "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
+            if (
+              resolvedPath.includes("@mui") ||
+              resolvedPath.includes("react-redux")
+            ) {
+              debugConfig.logger.log(`Skipping: ${resolvedPath}`);
+              continue;
+            }
+            if (RESOLUTION_CACHE.has(resolvedPath)) {
+              debugConfig.logger.log(`[CACHED]: ${resolvedPath}`);
+              updateResolvedNode(iSource, RESOLUTION_CACHE.get(resolvedPath));
+            } else {
+              debugConfig.logger.log(
+                `Resolving: ${iSource.FROM} --> ${resolvedPath}`,
               );
+              // 1. Loading The File
+              const projectFile = new ProjectFile(
+                resolvedPath,
+                this.projectBasePath,
+              );
+              projectFile.initSync(debugConfig.cli.sourceType);
+              if (projectFile.initData.parseStatus !== "parsed")
+                debugConfig.logger.throwJS3Error(
+                  "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
+                );
 
-            // 2. Constructing JS3
-            const js3Builder = new JS3Builder(projectFile);
-            js3Builder.build();
-            const fileNode = js3Builder.generatedAST;
-            const programNode = fileNode.program;
+              // 2. Constructing JS3
+              const js3Builder = new JS3Builder(projectFile);
+              js3Builder.build();
+              const fileNode = js3Builder.generatedAST;
+              const programNode = fileNode.program;
 
-            // 3. Constructing Iridium
-            const directives: Array<string> = [];
-            programNode.directives.forEach((d) =>
-              directives.push(d.value.value),
-            );
-            const sourceType = programNode.sourceType;
-            const iri_container = new I_Container(
-              fileNode,
-              projectFile,
-              js3Builder,
-              directives,
-              sourceType,
-              debugConfig.cli.projectBase,
-            );
-            iri_container.build(level + 1);
+              // 3. Constructing Iridium
+              const directives: Array<string> = [];
+              programNode.directives.forEach((d) =>
+                directives.push(d.value.value),
+              );
+              const sourceType = programNode.sourceType;
+              const iri_container = new I_Container(
+                fileNode,
+                projectFile,
+                js3Builder,
+                directives,
+                sourceType,
+                debugConfig.cli.projectBase,
+              );
+              iri_container.build(level + 1);
 
-            updateResolvedNode(iSource, iri_container);
+              RESOLUTION_CACHE.set(resolvedPath, iri_container);
+
+              updateResolvedNode(iSource, iri_container);
+            }
           } catch (e) {
             debugConfig.logger.error("Failed to generate Iridium: ", e);
             process.exit(1);
@@ -524,7 +553,7 @@ export default class IRIDIUM_MODULE {
             this.js3builder.projectFile.extension,
           );
           const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
-          PTA_OUT_RES.get(res.sinks()[0]).saveDotToFile(
+          PTA_IN_RES.get(res.sinks()[0]).saveDotToFile(
             `${PTAPATH}/${filename}_EXPANSION_LEVEL_${i}_IN`,
           );
         }
@@ -547,21 +576,21 @@ export default class IRIDIUM_MODULE {
     // // Re-run PTA after composition
     // startPTA(res);
 
-    if (debugConfig.cli.savePTAGraph) {
-      const filename = path.basename(
-        this.js3builder.projectFile.uname,
-        this.js3builder.projectFile.extension,
-      );
-      const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
-      // Iterate over all the nodes of this file
-      const nodes = res.nodes();
-      for (const n of nodes) {
-        const inRes = PTA_IN_RES.get(n);
-        const outRes = PTA_OUT_RES.get(n);
-        inRes.saveDotToFile(`${PTAPATH}/${filename}_composed_${n}_IN`);
-        outRes.saveDotToFile(`${PTAPATH}/${filename}_composed${n}_OUT`);
-      }
-    }
+    // if (debugConfig.cli.savePTAGraph) {
+    //   const filename = path.basename(
+    //     this.js3builder.projectFile.uname,
+    //     this.js3builder.projectFile.extension,
+    //   );
+    //   const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
+    //   // Iterate over all the nodes of this file
+    //   const nodes = res.nodes();
+    //   for (const n of nodes) {
+    //     const inRes = PTA_IN_RES.get(n);
+    //     const outRes = PTA_OUT_RES.get(n);
+    //     inRes.saveDotToFile(`${PTAPATH}/${filename}_composed_${n}_IN`);
+    //     outRes.saveDotToFile(`${PTAPATH}/${filename}_composed${n}_OUT`);
+    //   }
+    // }
   }
 
   // // Set/Get current BB
@@ -752,6 +781,11 @@ export default class IRIDIUM_MODULE {
     // JS3AnonMemberExpression
     else if (isJS3AnonMemberExpression(init)) {
       return this.handleJS3AnonMemberExpression(init);
+    }
+
+    // JS3DefaultExportMemberExpression
+    else if (isJS3DefaultExportMemberExpression(init)) {
+      return this.handleJS3DefaultExportMemberExpression(init);
     } else {
       debugConfig.logger.throwIriError(
         `IRIDIUM: Unhandled Statement ${init.type}, ${init.js3type ? init.js3type : undefined}`,
@@ -1049,6 +1083,33 @@ export default class IRIDIUM_MODULE {
   //
   // ***********************       RVALUES        ***********************
   //
+
+  handleJS3DefaultExportMemberExpression(
+    node: JS3DefaultExportMemberExpression,
+  ) {
+    const objProp = node.object.properties[0];
+    if (node.object.properties.length === 1 && isObjectProperty(objProp)) {
+      const val = objProp.value;
+      if (
+        isJS3FunctionExpression(val) ||
+        isJS3ClassExpression(val) ||
+        isJS3ArrowFunctionExpression(val)
+      ) {
+        const res = this.handleJS3AssnInit(val);
+        if (
+          res instanceof IV_FunctionExpression ||
+          res instanceof IV_ClassExpression
+        )
+          res.name = new IV_Identifier(undefined, "default");
+        return res;
+      } else {
+        debugConfig.logger.throwIriError("Invalid value type");
+      }
+    } else {
+      debugConfig.logger.throwIriError("Expecting a objProp");
+    }
+    return null;
+  }
 
   // *********************** Iridium_ClassExpression ***********************
   handleJS3ClassExpression(

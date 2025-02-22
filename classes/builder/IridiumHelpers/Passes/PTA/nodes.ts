@@ -186,7 +186,7 @@ export class CSepObject extends PTANode {
   }
 
   dotStyle() {
-    return `[xlabel="${this.id}",label="",shape="doublecircle",style="filled", fillcolor="yellow"]`;
+    return `[xlabel="${this.id.replace(/"/g, '\\"')}",label="",shape="doublecircle",style="filled", fillcolor="yellow"]`;
   }
 }
 
@@ -424,7 +424,7 @@ export class PNode extends PTANode {
   }
 
   dotStyle() {
-    return `[xlabel="${this.id}",label="",shape="doublecircle",style="filled", fillcolor="gray"]`;
+    return `[xlabel="${this.id.replace(/"/g, '\\"')}",label="",shape="doublecircle",style="filled", fillcolor="gray"]`;
   }
 }
 

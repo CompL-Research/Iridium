@@ -131,7 +131,9 @@ export class IV_PJSX extends ALL_RVal {
   ) {
     super(node, "PJSX");
     if (!PRIMITIVE_TAGS.includes(tag.value))
-      debugConfig.logger.throwIriError("Non Primitive JSX String Literal tag");
+      debugConfig.logger.warn(
+        `Non Primitive JSX String Literal tag: ${tag.value}`,
+      );
     this.tag = tag;
     this.props = props;
     this.children = children;

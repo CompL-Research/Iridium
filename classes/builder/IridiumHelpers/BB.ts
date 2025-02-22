@@ -123,8 +123,9 @@ export class BB {
 
   toString(space = 0) {
     const stmts = [];
+    let i = 0;
     this.statements.forEach((s) => {
-      stmts.push(s.toString(space));
+      stmts.push(`${i++} ${s.toString(space)}`);
     });
 
     if (this.branchTerminal) {

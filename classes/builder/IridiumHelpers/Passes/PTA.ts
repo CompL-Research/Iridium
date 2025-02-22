@@ -273,9 +273,7 @@ function flowFunction(
           handleRVals(nextGraph, i.RVal, currBB, currBBIDx, stackInstOffset),
         );
       } else {
-        debugConfig.logger.throwIriError(
-          "PTA TODO: Assignment with destructured assignment",
-        );
+        debugConfig.logger.error("Assignment with destructured assignment");
       }
     } else if (i instanceof IS_AExport) {
       // export default ID

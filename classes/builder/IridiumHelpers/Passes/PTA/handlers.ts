@@ -41,11 +41,11 @@ export const handleResolvedImportNode = (
   worklist.add(rootNode);
   while (worklist.size > 0) {
     const heapNode = popSet(worklist);
-    console.log(`Processing: ${heapNode.FROM}`);
+    debugConfig.logger.log(`Processing: ${heapNode.FROM}`);
 
     const replacementNode = new OrdinaryObject(
       getHeapQualifiedName(
-        `_EXPORT(${heapNode.FROM.value})`,
+        `${heapNode.resolvedContainer.projectFile.uname}`,
         currBBIDx,
         stackInstOffset,
       ),
@@ -63,6 +63,12 @@ export const handleResolvedImportNode = (
       nextGraph.union(nnn);
       nextGraph.UnifyStackTargets(heapNode, replacementNode);
 
+      nextGraph.removePTANodeAndFields(heapNode);
+
+      const finalReplacement = new OrdinaryObject(heapNode.id);
+      nextGraph.addPTANode(finalReplacement);
+      nextGraph.replacePTANode(replacementNode, finalReplacement);
+
       const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
       if (heapNode === rootNode) {
         //
@@ -70,7 +76,7 @@ export const handleResolvedImportNode = (
         //
         handleSimpleAssignmentStatement(nextGraph, stackID, [
           ...nextGraph.getFieldPointees(
-            replacementNode,
+            finalReplacement,
             remoteLookupID,
             iContext,
             true,
@@ -81,7 +87,6 @@ export const handleResolvedImportNode = (
     } else {
       debugConfig.logger.throwIriError("Expecting only only one sink in a FG");
     }
-    nextGraph.removePTANodeAndFields(heapNode);
 
     // Update Worklist
     const remainingImportNodes: Array<ImportNode> = nextGraph
@@ -105,15 +110,17 @@ export const handleBImportNode = (
   const stackNode = new StackNode(stackID);
   nextGraph.declareNode(stackNode);
   nextGraph.clearSuccessors(stackNode.id);
+  const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
 
   const remoteLookupID =
     i.remote instanceof IV_Identifier ? i.remote.lookupName() : i.remote.value;
 
-  if (!nextGraph.hasNode(i.FROM.value)) {
-    nextGraph.declareNode(new ImportNode(i.FROM.value, i.FROM, true));
+  const heapID = getHeapQualifiedName("IMPORT", currBBIDx, stackInstOffset);
+  if (!nextGraph.hasNode(heapID)) {
+    nextGraph.declareNode(new ImportNode(heapID, i.FROM, true));
   }
 
-  const heapNode = nextGraph.getPTANode(i.FROM.value);
+  const heapNode = nextGraph.getPTANode(heapID);
 
   if (heapNode instanceof ImportNode) {
     // If this is already a resolved node, then compose the PTA
@@ -150,6 +157,15 @@ export const handleBImportNode = (
       );
       nextGraph.drawStackToHeapEdge(stackNode, [remoteDummyNode]);
     }
+  } else if (heapNode instanceof OrdinaryObject) {
+    const pointees = nextGraph.getFieldPointees(
+      heapNode,
+      remoteLookupID,
+      iContext,
+      true,
+      true,
+    );
+    nextGraph.drawStackToHeapEdge(stackNode, [...pointees]);
   } else {
     debugConfig.logger.throwIriError("Expected Import Node here");
   }
@@ -246,29 +262,56 @@ export const handleOrdinaryFunctionObjectCall = (
         //
         // argStackQualifiedName --> argumentsObj.j
         //
-        if (!closureContextPTA.hasField(argumentsObj.id, "" + j))
-          debugConfig.logger.throwIriError("Expecting field to exist");
-        const pointees = closureContextPTA.getFieldPointees(
-          argumentsObj,
-          "" + j,
-          iContext,
-          true,
-          false,
-        );
+        let pointees;
+        if (!closureContextPTA.hasField(argumentsObj.id, "" + j)) {
+          debugConfig.logger.error("Expecting field to exist");
+          pointees = closureContextPTA.getPointees("undefined");
+        } else {
+          pointees = closureContextPTA.getFieldPointees(
+            argumentsObj,
+            "" + j,
+            iContext,
+            true,
+            false,
+          );
+        }
         closureContextPTA.drawStackToHeapEdge(argStackNode, [...pointees]);
+        // if (!closureContextPTA.hasField(argumentsObj.id, "" + j))
+        //   debugConfig.logger.throwIriError("Expecting field to exist");
+        // const pointees = closureContextPTA.getFieldPointees(
+        //   argumentsObj,
+        //   "" + j,
+        //   iContext,
+        //   true,
+        //   false,
+        // );
+        // closureContextPTA.drawStackToHeapEdge(argStackNode, [...pointees]);
       } else {
         //
         // argStackQualifiedName --> argumentsObj.*
         //
-        if (!closureContextPTA.hasField(argumentsObj.id, "*"))
-          debugConfig.logger.throwIriError("Expecting field to exist");
-        const pointees = closureContextPTA.getFieldPointees(
-          argumentsObj,
-          "*",
-          iContext,
-          true,
-        );
+        let pointees;
+        if (!closureContextPTA.hasField(argumentsObj.id, "*")) {
+          debugConfig.logger.error("Expecting field to exist");
+          pointees = closureContextPTA.getPointees("undefined");
+        } else {
+          pointees = closureContextPTA.getFieldPointees(
+            argumentsObj,
+            "*",
+            iContext,
+            true,
+          );
+        }
         closureContextPTA.drawStackToHeapEdge(argStackNode, [...pointees]);
+        // if (!closureContextPTA.hasField(argumentsObj.id, "*"))
+        //   debugConfig.logger.throwIriError("Expecting field to exist");
+        // const pointees = closureContextPTA.getFieldPointees(
+        //   argumentsObj,
+        //   "*",
+        //   iContext,
+        //   true,
+        // );
+        // closureContextPTA.drawStackToHeapEdge(argStackNode, [...pointees]);
       }
     } else {
       if (j + 1 !== calleeArgs.length)
@@ -411,7 +454,7 @@ export const handleUnknownDummyObjectCall = (
   }
 
   if (!hasClosure) {
-    console.warn(
+    debugConfig.logger.warn(
       `PTA is skipping analysis as no closures escape at this call site...`,
     );
     const resObj = new UnknownResultObj(
@@ -420,7 +463,7 @@ export const handleUnknownDummyObjectCall = (
     nextGraph.declareNode(resObj);
     return [resObj];
   } else {
-    debugConfig.logger.throwIriError(
+    debugConfig.logger.error(
       `PTA must resolve call site as closure might escape!!!`,
     );
   }
@@ -553,7 +596,7 @@ export const handleMemberAssignment = (
   origNextGraph: PTAGraph,
   us: Array<Valid_Stack_To_Heap_Pointees>,
   vs: Array<PTANode>,
-  ps: Set<string>,
+  ps: Set<string> | Array<string>,
   currBB: BB,
   currBBIDx: string,
   stackInstOffset: number,
