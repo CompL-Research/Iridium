@@ -4,7 +4,7 @@
 
 import debugConfig from "#debugConfig";
 import { generateContextKey, hashGraph, popSet } from "#utils";
-import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
+import { IV_Identifier, IV_PrivateName } from "../ALL_AMP/ALL_AMP.ts";
 import { IS_ClassStaticPropInit } from "../ALL_IS/IS_ClassStaticPropInit.ts";
 import {
   IS_AExport,
@@ -20,7 +20,10 @@ import {
 } from "../ALL_IS/IS_VarDecl.ts";
 
 import GLIB from "#graphlib";
-import { IV_StringLiteral } from "../ALL_RVal/IV_Literals.ts";
+import {
+  IV_NumericLiteral,
+  IV_StringLiteral,
+} from "../ALL_RVal/IV_Literals.ts";
 import { Environment } from "../I_GENERAL/I_Environment.ts";
 import {
   handleBImportNode,
@@ -32,12 +35,32 @@ import {
   ImportNode,
   KnownFunctionNode,
   ModuleExportsNode,
+  OrdinaryObject,
+  PTANode,
   StackNode,
 } from "./PTA/nodes.ts";
 import { PTAGraph } from "./PTA/PTAGraph.ts";
-import { handleRVals } from "./PTA/rvalHandler.ts";
-import { getStackQualifiedName } from "./PTA/util.ts";
+import { dissernProps, handleRVals } from "./PTA/rvalHandler.ts";
+import { getHeapQualifiedName, getStackQualifiedName } from "./PTA/util.ts";
 import { BB } from "../BB.ts";
+import {
+  isJS3AssnObjectProperty,
+  isJS3ObjectPattern,
+  isJS3PrivateName,
+  JS3PrivateName,
+} from "classes/builder/JS3Helpers/JS3Types.ts";
+import {
+  BigIntLiteral,
+  DecimalLiteral,
+  Identifier,
+  isBigIntLiteral,
+  isDecimalLiteral,
+  isIdentifier,
+  isNumericLiteral,
+  isStringLiteral,
+  NumericLiteral,
+  StringLiteral,
+} from "@babel/types";
 
 const STATE_CURBING: boolean = true;
 
@@ -235,6 +258,32 @@ export function PTA(rootFG: IRIDIUM_FG, BOUNDARY_PTAGRAPH: PTAGraph) {
   return sinkPTA;
 }
 
+const getKeyString = (
+  k:
+    | Identifier
+    | StringLiteral
+    | NumericLiteral
+    | BigIntLiteral
+    | DecimalLiteral
+    | JS3PrivateName,
+) => {
+  if (isIdentifier(k)) {
+    return k.name;
+  } else if (isStringLiteral(k)) {
+    return k.value;
+  } else if (isNumericLiteral(k)) {
+    const iriNumericLiteral = new IV_NumericLiteral(k, k.value);
+    return iriNumericLiteral.lookupName();
+  } else if (isBigIntLiteral(k)) {
+    return k.value;
+  } else if (isDecimalLiteral(k)) {
+    return k.value;
+  } else if (isJS3PrivateName(k)) {
+    const iriPrivate = new IV_PrivateName(k, IV_Identifier.from(k.id));
+    return iriPrivate.lookupName();
+  }
+};
+
 function flowFunction(
   rootFG: IRIDIUM_FG,
   nextGraph: PTAGraph,
@@ -267,17 +316,116 @@ function flowFunction(
       );
     } else if (i instanceof IS1_AssignmentStmt) {
       if (i.LVal instanceof IV_Identifier) {
-        const qualifiedLVal = getStackQualifiedName(
-          i.LVal.lookupName(),
-          currBB,
-        );
-        handleSimpleAssignmentStatement(
+        const lookupName = i.LVal.lookupName();
+        const qualifiedLVal = getStackQualifiedName(lookupName, currBB);
+        const RValPointees = handleRVals(
           nextGraph,
-          qualifiedLVal,
-          handleRVals(nextGraph, i.RVal, currBB, currBBIDx, stackInstOffset),
+          i.RVal,
+          currBB,
+          currBBIDx,
+          stackInstOffset,
         );
+        handleSimpleAssignmentStatement(nextGraph, qualifiedLVal, RValPointees);
+      } else if (isJS3ObjectPattern(i.LVal)) {
+        const objDestLVal = i.LVal;
+        const RValPointees = handleRVals(
+          nextGraph,
+          i.RVal,
+          currBB,
+          currBBIDx,
+          stackInstOffset,
+        );
+        for (const p of objDestLVal.properties) {
+          if (isJS3AssnObjectProperty(p)) {
+            //
+            // JS3AssnObjectProp ==> {[x] : stackNode} = RVal
+            //
+            // stackNode = [RValPointees][x]
+            //
+            const lookupName = getKeyString(p.key);
+            const dissernedProps: Set<string> = dissernProps(
+              nextGraph,
+              lookupName,
+              p.computed && getStackQualifiedName(lookupName, currBB),
+              p.computed,
+            );
+
+            if (dissernedProps.size === 0) dissernedProps.add("*");
+
+            // [RValPointees].x
+            const res: Set<PTANode> = new Set();
+            const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
+
+            const closureResults: Array<PTAGraph> = [];
+            for (const u of RValPointees) {
+              for (const p of dissernedProps) {
+                nextGraph
+                  .getFieldPointees(u, p, iContext, true, true)
+                  .forEach((r) => res.add(r));
+              }
+            }
+            nextGraph.union(...closureResults);
+
+            handleSimpleAssignmentStatement(
+              nextGraph,
+              getStackQualifiedName(
+                IV_Identifier.from(p.value).lookupName(),
+                currBB,
+              ),
+              res,
+            );
+          } else {
+            // ...ID = RVal
+            // Approximate => ID = DUP(RVal)
+            const duplicateRValPointees: Set<PTANode> = new Set();
+            for (const rValPointee of RValPointees) {
+              const duplicateRVal = new OrdinaryObject(
+                getHeapQualifiedName("spreadObj", currBBIDx, stackInstOffset),
+              );
+              nextGraph.addPTANode(duplicateRVal);
+              duplicateRValPointees.add(duplicateRVal);
+
+              const outEdges = nextGraph.outEdges(rValPointee.id);
+              if (outEdges) {
+                for (const e of outEdges) {
+                  const prop = e.name;
+                  if (!nextGraph.hasField(duplicateRVal.id, prop)) {
+                    nextGraph.addField(duplicateRVal.id, prop);
+                    nextGraph.setEdge(
+                      duplicateRVal.id,
+                      nextGraph.getField(duplicateRVal.id, prop).id,
+                      prop,
+                      prop,
+                    );
+                  }
+                  const existingPNode = nextGraph.getPTANode(e.w);
+                  const newPNode = nextGraph.getField(duplicateRVal.id, prop);
+
+                  const pNodePointeeEdges = nextGraph.outEdges(
+                    existingPNode.id,
+                  );
+                  if (pNodePointeeEdges) {
+                    for (const ee of pNodePointeeEdges) {
+                      nextGraph.setEdge(newPNode.id, ee.w, ee.name, ee.name);
+                    }
+                  }
+                }
+              }
+            }
+            handleSimpleAssignmentStatement(
+              nextGraph,
+              getStackQualifiedName(
+                IV_Identifier.from(p.argument).lookupName(),
+                currBB,
+              ),
+              duplicateRValPointees,
+            );
+          }
+        }
       } else {
-        debugConfig.logger.error("Assignment with destructured assignment");
+        debugConfig.logger.throwIriError(
+          `Assignment with destructured assignment: ${i.toString()}`,
+        );
       }
     } else if (i instanceof IS_AExport) {
       // export default ID

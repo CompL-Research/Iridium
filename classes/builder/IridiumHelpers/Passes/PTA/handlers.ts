@@ -629,7 +629,7 @@ export const handleCallExpression = (
 export const handleSimpleAssignmentStatement = (
   nextGraph: PTAGraph,
   qualifiedStackId: string,
-  rVal: Array<PTANode>,
+  rVal: Array<PTANode> | Set<PTANode>,
 ) => {
   const stackNode = new StackNode(qualifiedStackId);
   if (!nextGraph.hasNode(stackNode.id)) nextGraph.declareNode(stackNode);

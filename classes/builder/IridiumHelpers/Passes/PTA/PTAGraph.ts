@@ -199,7 +199,10 @@ export class PTAGraph extends GLIB.Graph {
   }
 
   // Stack to Heap Edge
-  drawStackToHeapEdge(stackNode: StackNode, heapNodes: Array<PTANode>) {
+  drawStackToHeapEdge(
+    stackNode: StackNode,
+    heapNodes: Array<PTANode> | Set<PTANode>,
+  ) {
     heapNodes.forEach((h) => {
       if (h instanceof StackNode)
         debugConfig.logger.throwIriError(

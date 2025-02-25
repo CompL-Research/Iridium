@@ -1229,10 +1229,26 @@
 // x.f = 10;
 // y.f = 12;
 
-import boo from "./test1.js";
-let x = 13;
-let foo = () => {
-  x = 12;
+// import boo from "./test1.js";
+// let x = 13;
+// let foo = () => {
+//   x = 12;
+// };
+// boo(foo);
+// let res = x;
+
+let boo = {
+  a: 10,
+  b: { c: 11, d: 12 },
+  x: { x: 13 },
 };
-boo(foo);
-let res = x;
+let {
+  a: t1,
+  b: { c: t2, d: t3 },
+  ...x
+} = boo;
+
+let res1 = t1;
+let res2 = t2;
+let res3 = t3;
+let res4 = x.x.x;
