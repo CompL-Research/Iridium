@@ -37,6 +37,7 @@ import {
 import { PTAGraph } from "./PTA/PTAGraph.ts";
 import { handleRVals } from "./PTA/rvalHandler.ts";
 import { getStackQualifiedName } from "./PTA/util.ts";
+import { BB } from "../BB.ts";
 
 const STATE_CURBING: boolean = true;
 
@@ -65,6 +66,7 @@ export function startPTA(rootFG: IRIDIUM_FG) {
     }
 
     const reactDomNode = new ImportNode(
+      undefined,
       "react-dom/client",
       new IV_StringLiteral(undefined, "react-dom/client"),
       true,
@@ -197,6 +199,8 @@ export function PTA(rootFG: IRIDIUM_FG, BOUNDARY_PTAGRAPH: PTAGraph) {
     const inGraph = new PTAGraph();
     inGraph.union(nextGraph);
     PTA_IN_RES.set(currBBIDx, inGraph);
+
+    debugConfig.logger.warn(`Processing: ${currBBIDx}/${BB.count}`);
 
     // Flow Function
     flowFunction(rootFG, nextGraph, currBBIDx, step);

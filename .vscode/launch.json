@@ -34,8 +34,8 @@
                 "--import=tsx",
                 "/home/meetesh/wd/Iridium/iridium.ts",
                 "iri",
-                "/home/meetesh/wd/webpack-bundle-analyzer/src/index.js",
-                "/home/meetesh/wd/webpack-bundle-analyzer/",
+                "./temp/frontendViz/src/index.js",
+                "./temp/frontendViz/",
                 "-g"
             ],
             "outFiles": ["${workspaceFolder}/classes/**/*.ts", "${workspaceFolder}/*.ts"],

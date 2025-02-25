@@ -7,10 +7,12 @@ import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
 import { BB, FunctionReturn } from "../../BB.ts";
 import { I_Container } from "../../I_GENERAL/I_Container.ts";
 import { I_Function_params } from "../../I_GENERAL/I_Function.ts";
+import { predecessorPTAClosure, successorPTAClosure } from "../../PTAUtil.ts";
 import { ContextualPTAHandler, PTA_OUT_RES } from "../PTA.ts";
 import { IRIDIUM_FG } from "./IRIDIUM_FG.ts";
 import {
   DummyObject,
+  ECall,
   ImportNode,
   KnownFunctionNode,
   KnownResultObj,
@@ -60,6 +62,7 @@ export const handleResolvedImportNode = (
       nnn.union(outFG);
       const exportsNode = nnn.getPTANode("EXPORT");
       nnn.replacePTANode(exportsNode, replacementNode);
+
       nextGraph.union(nnn);
       nextGraph.UnifyStackTargets(heapNode, replacementNode);
 
@@ -68,6 +71,16 @@ export const handleResolvedImportNode = (
       const finalReplacement = new OrdinaryObject(heapNode.id);
       nextGraph.addPTANode(finalReplacement);
       nextGraph.replacePTANode(replacementNode, finalReplacement);
+
+      // Mark all reachable objects from 'finalReplacement' node as EXTERNAL_CONTEXT
+      const nodeClosure: Set<string> = successorPTAClosure(
+        nextGraph,
+        finalReplacement.id,
+      );
+
+      for (const n of nodeClosure) {
+        nextGraph.getPTANode(n).EXTERNAL_CONTEXT = true;
+      }
 
       const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
       if (heapNode === rootNode) {
@@ -117,7 +130,7 @@ export const handleBImportNode = (
 
   const heapID = getHeapQualifiedName("IMPORT", currBBIDx, stackInstOffset);
   if (!nextGraph.hasNode(heapID)) {
-    nextGraph.declareNode(new ImportNode(heapID, i.FROM, true));
+    nextGraph.declareNode(new ImportNode(i, heapID, i.FROM, true));
   }
 
   const heapNode = nextGraph.getPTANode(heapID);
@@ -410,6 +423,7 @@ export const handleOrdinaryFunctionObjectCall = (
 
 export const handleUnknownDummyObjectCall = (
   nextGraph: PTAGraph,
+  c: DummyObject,
   args: Array<IV_Identifier | ISP_ArgSpread>,
   currBB: BB,
   currBBIDx: string,
@@ -463,9 +477,36 @@ export const handleUnknownDummyObjectCall = (
     nextGraph.declareNode(resObj);
     return [resObj];
   } else {
-    debugConfig.logger.error(
-      `PTA must resolve call site as closure might escape!!!`,
+    debugConfig.logger.warn(
+      `Introducing ECall Node to handle escaping closures`,
     );
+
+    const rootSet = predecessorPTAClosure(nextGraph, c.id);
+    const resolvedSources: Array<ImportNode> = [];
+
+    for (const n of rootSet) {
+      const curr = nextGraph.getPTANode(n);
+      if (curr instanceof ImportNode && !resolvedSources.includes(curr))
+        resolvedSources.push(curr);
+    }
+
+    if (resolvedSources.length === 0) {
+      debugConfig.logger.error(`Failed to resolve call to Dummy Object!`);
+    }
+
+    resolvedSources.forEach((iNode: ImportNode) => {
+      const eCallNode = new ECall(
+        getHeapQualifiedName(`ECALL_` + iNode.id, currBBIDx, stackInstOffset),
+        iNode,
+      );
+      nextGraph.addPTANode(eCallNode);
+    });
+
+    const resObj = new UnknownResultObj(
+      getHeapQualifiedName("IV_ECall", currBBIDx, stackInstOffset),
+    );
+    nextGraph.declareNode(resObj);
+    return [resObj];
   }
 };
 
@@ -551,11 +592,15 @@ export const handleCallExpression = (
         currBBIDx,
         stackInstOffset,
       );
-      evalRes.forEach((n) => res.add(n));
+      evalRes.forEach((n) => {
+        if (c.EXTERNAL_CONTEXT) n.EXTERNAL_CONTEXT = true;
+        res.add(n);
+      });
       closureResults.push(nextt);
     } else if (c instanceof UnknownResultObj || c instanceof DummyObject) {
       handleUnknownDummyObjectCall(
         nextGraph,
+        c,
         args,
         currBB,
         currBBIDx,

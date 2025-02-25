@@ -4,10 +4,12 @@ import debugConfig from "#debugConfig";
 import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
 import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
 import { I_Container } from "../../I_GENERAL/I_Container.ts";
+import { IS_BImport } from "../../ALL_IS/IS_Imports_Exports.ts";
 
 export class PTANode {
   static DUMMY_THRESHOLD: number = 3;
   dummyLevel: number = 0;
+  EXTERNAL_CONTEXT: boolean = false;
   id: string;
   constructor(id: string) {
     this.id = id;
@@ -18,6 +20,10 @@ export class PTANode {
       "Expected all extensions of PTANode to override toString",
     );
     return "";
+  }
+
+  color(): string {
+    return "black";
   }
 
   dotStyle(): string {
@@ -66,8 +72,12 @@ export class KnownFunctionNode extends PTANode {
     return "KnownFunction";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "orange";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="octagon",style="filled",fillcolor="orange"]`;
+    return `[xlabel="${this.toString()}",shape="octagon",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -83,8 +93,12 @@ export class ModuleExportsNode extends PTANode {
     return "ModuleExportsNode";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "aquamarine";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="rectangle",style="filled",fillcolor="aquamarine"]`;
+    return `[xlabel="${this.toString()}",shape="rectangle",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -100,8 +114,12 @@ export class ReactRenderRoot extends PTANode {
     return "ReactRenderRoot";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "aquamarine";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="rectangle",style="filled",fillcolor="aquamarine"]`;
+    return `[xlabel="${this.toString()}",shape="rectangle",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -117,8 +135,12 @@ export class DummyObject extends PTANode {
     return "DummyObject";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "orange";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="square",style="filled",fillcolor="orange"]`;
+    return `[xlabel="${this.toString()}",shape="square",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -134,8 +156,12 @@ export class PJSXObject extends PTANode {
     return "PJSXObject";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "white";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="square"]`;
+    return `[xlabel="${this.toString()}",shape="square",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -151,8 +177,12 @@ export class JSXObject extends PTANode {
     return "JSXObject";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "white";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="square"]`;
+    return `[xlabel="${this.toString()}",shape="square",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -168,8 +198,12 @@ export class FJSXObject extends PTANode {
     return "FJSXObject";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "white";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="square"]`;
+    return `[xlabel="${this.toString()}",shape="square",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -185,8 +219,35 @@ export class CSepObject extends PTANode {
     return "CSepObject";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "yellow";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.id.replace(/"/g, '\\"')}",label="",shape="doublecircle",style="filled", fillcolor="yellow"]`;
+    return `[xlabel="${this.id.replace(/"/g, '\\"')}",label="",shape="doublecircle",style="filled", fillcolor="${this.color()}"]`;
+  }
+}
+
+//
+// ECall
+//
+export class ECall extends PTANode {
+  iNode: ImportNode;
+  constructor(id: string, iNode: ImportNode) {
+    super(id);
+    this.iNode = iNode;
+  }
+
+  toString() {
+    return "ECall";
+  }
+
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "yellow";
+  }
+
+  dotStyle() {
+    return `[xlabel="${this.toString()}",shape="rectangle",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -202,8 +263,12 @@ export class OrdinaryObject extends PTANode {
     return "OrdinaryObject";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "white";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="square"]`;
+    return `[xlabel="${this.toString()}",shape="square",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -230,8 +295,12 @@ export class OrdinaryFunctionObject extends PTANode {
     return "OrdinaryFunctionObject";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "white";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="octagon"]`;
+    return `[xlabel="${this.toString()}",shape="octagon",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -247,8 +316,12 @@ export class OrdinaryArrayObject extends PTANode {
     return "OrdinaryArrayObject";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "white";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="square"]`;
+    return `[xlabel="${this.toString()}",shape="square",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -264,8 +337,12 @@ export class ArrowArrayObject extends PTANode {
     return "ArrowArrayObject";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "white";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="octagon"]`;
+    return `[xlabel="${this.toString()}",shape="octagon",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -281,8 +358,12 @@ export class ClassObject extends PTANode {
     return "ClassObject";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "white";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="doubleoctagon"]`;
+    return `[xlabel="${this.toString()}",shape="doubleoctagon",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -298,8 +379,12 @@ export class GlobalNode extends PTANode {
     return "GlobalNode";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "gray";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="square",style="filled", fillcolor="gray"]`;
+    return `[xlabel="${this.toString()}",shape="square",style="filled", fillcolor="${this.color()}"]`;
   }
 }
 
@@ -315,8 +400,12 @@ export class UnknownResultObj extends PTANode {
     return "UnknownResultObj";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "gray";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="square",style="filled", fillcolor="gray"]`;
+    return `[xlabel="${this.toString()}",shape="square",style="filled", fillcolor="${this.color()}"]`;
   }
 }
 
@@ -334,8 +423,12 @@ export class KnownResultObj extends PTANode {
     return "KnownResultObj";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "orange";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="square",style="filled", fillcolor="orange"]`;
+    return `[xlabel="${this.toString()}",shape="square",style="filled", fillcolor="${this.color()}"]`;
   }
 }
 
@@ -354,8 +447,12 @@ export class SetSpecialClosure extends PTANode {
     return "SetSpecialClosure";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "gray";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="octagon",style="filled", fillcolor="gray"]`;
+    return `[xlabel="${this.toString()}",shape="octagon",style="filled", fillcolor="${this.color()}"]`;
   }
 }
 
@@ -374,8 +471,12 @@ export class GetSpecialClosure extends PTANode {
     return "GetSpecialClosure_meth";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "gray";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="octagon",style="filled", fillcolor="gray"]`;
+    return `[xlabel="${this.toString()}",shape="octagon",style="filled", fillcolor="${this.color()}"]`;
   }
 }
 
@@ -383,11 +484,18 @@ export class GetSpecialClosure extends PTANode {
 // ImportNode
 //
 export class ImportNode extends PTANode {
+  source: IS_BImport | undefined;
   FROM: IV_StringLiteral;
   isStatic: boolean = true;
   resolvedContainer: I_Container = null;
-  constructor(id: string, FROM: IV_StringLiteral, isStatic: boolean) {
+  constructor(
+    source: IS_BImport | undefined,
+    id: string,
+    FROM: IV_StringLiteral,
+    isStatic: boolean,
+  ) {
     super(id);
+    this.source = source;
     this.FROM = FROM;
     this.isStatic = isStatic;
   }
@@ -404,10 +512,16 @@ export class ImportNode extends PTANode {
     return `[isStatic: ${this.isStatic}]`;
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT
+      ? "darkseagreen2"
+      : this.isResolved()
+        ? "green"
+        : "yellow";
+  }
+
   dotStyle() {
-    if (this.isResolved())
-      return `[xlabel="${this.toString().replace(/"/g, '\\"')}",shape="square",style="filled",fillcolor="green"]`;
-    return `[xlabel="${this.toString().replace(/"/g, '\\"')}",shape="square",style="filled",fillcolor="yellow"]`;
+    return `[xlabel="${this.toString().replace(/"/g, '\\"')}",shape="square",style="filled",fillcolor="${this.color()}"]`;
   }
 }
 
@@ -423,8 +537,12 @@ export class PNode extends PTANode {
     return "PNode";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "gray";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.id.replace(/"/g, '\\"')}",label="",shape="doublecircle",style="filled", fillcolor="gray"]`;
+    return `[xlabel="${this.id.replace(/"/g, '\\"')}",label="",shape="doublecircle",style="filled", fillcolor="${this.color()}"]`;
   }
 }
 
@@ -440,8 +558,12 @@ export class LiteralNode extends PTANode {
     return "LiteralNode";
   }
 
+  color(): string {
+    return this.EXTERNAL_CONTEXT ? "darkseagreen2" : "green";
+  }
+
   dotStyle() {
-    return `[xlabel="${this.toString()}",shape="rectangle",style="filled", fillcolor="green"]`;
+    return `[xlabel="${this.toString()}",shape="rectangle",style="filled", fillcolor="${this.color()}"]`;
   }
 }
 

@@ -1224,7 +1224,15 @@
 // import A from 'test1.js';
 // console.log(A);
 
-let x = {};
-let y = {};
-x.f = 10;
-y.f = 12;
+// let x = {};
+// let y = {};
+// x.f = 10;
+// y.f = 12;
+
+import boo from "./test1.js";
+let x = 13;
+let foo = () => {
+  x = 12;
+};
+boo(foo);
+let res = x;

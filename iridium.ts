@@ -72,7 +72,7 @@ function iri(filePath) {
       ensurePathExists(PTAPATH);
     }
     // 1. Loading The File
-    const projectFile = new ProjectFile(filePath, path.dirname(filePath));
+    const projectFile = new ProjectFile(filePath, debugConfig.cli.projectBase);
     projectFile.initSync(debugConfig.cli.sourceType);
     if (projectFile.initData.parseStatus !== "parsed")
       debugConfig.logger.throwJS3Error(
