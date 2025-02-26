@@ -1,10 +1,11 @@
 import debugConfig from "#debugConfig";
 import GLIB from "#graphlib";
 import { CommentBlock, CommentLine } from "@babel/types";
-import { execSync } from "child_process";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
+import ts from "typescript";
+
 export class JS3GenerationError extends Error {}
 
 export const hasPackageJson = (folderPath) => {
@@ -88,105 +89,146 @@ export function generateCommentBlock(comment: string): CommentBlock {
 }
 
 export function resolveModuleImport(
-  source: string,
-  absoluteFilePath: string,
-  projectBasePath: string,
+  importPath: string,
+  currentFile: string,
+  basePath: string,
 ): string | undefined {
-  let nodeResolutionError;
-  // Try resolving using node.resolve
-  const command = `/home/meetesh/.nvm/versions/node/v20.18.0/bin/node -e "process.stdout.write(require.resolve('${source}', { paths: [ '${path.dirname(absoluteFilePath)}', '${projectBasePath}' ] }))" 2>/dev/null`;
+  const options = {
+    esModuleInterop: true,
+    jsx: "react",
+    lib: ["es2020", "dom", "esnext"],
+    skipLibCheck: true,
+    sourceMap: true,
+    target: "ES2020",
+    module: "es2020",
+    noUnusedLocals: true,
+    noUnusedParameters: true,
+    downlevelIteration: true,
+    strict: false,
+    resolveJsonModule: true,
+    plugins: [{ name: "typescript-strict-plugin" }],
+    paths: {
+      "@assets/*": ["assets/*"],
+      "@locale/*": ["locale/*"],
+      "@dashboard/*": ["src/*"],
+      "@test/*": ["testUtils/*"],
+    },
+    moduleResolution: ts.ModuleResolutionKind.NodeJs,
+    baseUrl: basePath,
+  };
 
-  try {
-    // Execute the command synchronously with the specified working directory
-    const result = execSync(command, {
-      cwd: projectBasePath,
-      encoding: "utf-8",
-    });
-    return result;
-  } catch (error) {
-    nodeResolutionError = error;
-  }
-  // Try resolution of possible NextJs aliased import
-  try {
-    const componentsData = fs.readFileSync(
-      `${projectBasePath}/components.json`,
-      "utf8",
-    );
-    const jsonData = JSON.parse(componentsData);
-    const declaredAliases = jsonData["aliases"];
-    const aliases = Object.keys(declaredAliases);
-    const performReplacement = (src, before, after) =>
-      src.startsWith(before) ? src.replace(before, `${after}`) : src;
-    let modifiedSource = source;
-    for (const key of aliases) {
-      const replacement = aliases[key];
-      if (modifiedSource.startsWith(key)) {
-        modifiedSource = performReplacement(modifiedSource, key, replacement);
-        break;
-      }
-    }
-    let final = performReplacement(modifiedSource, "@/", `${projectBasePath}/`);
-    // Handle relative imports
-    if (final.startsWith("./")) {
-      final = performReplacement(
-        final,
-        "./",
-        `${path.dirname(absoluteFilePath)}/`,
-      );
-      final = path.resolve(final);
-    }
-    // Handle relative imports
-    if (final.startsWith("../")) {
-      final = performReplacement(
-        final,
-        "../",
-        `${path.dirname(absoluteFilePath)}/../`,
-      );
-      final = path.resolve(final);
-    }
-    const searchDir = path.dirname(final);
-    const command = `find ${searchDir} -type f -name '${path.basename(final)}.*'`;
-    // Execute the command synchronously with the specified working directory
-    // console.log(`(${source}) Executed: ${command}`)
-    const result = execSync(command, {
-      cwd: projectBasePath,
-      encoding: "utf-8", // Get the output as a string
-    });
-    const parsedResult = result.split("\n");
-    // Preserve only valid candidates
-    const basename = path.basename(final);
-    const regex = new RegExp(`^${basename}\\.[^.]+$`);
-    const candidates = parsedResult.filter((item) =>
-      regex.test(path.basename(item)),
-    );
-    if (candidates.length !== 1) {
-      throw new Error(result);
-    }
-    // Ensure file exists
-    if (!fs.existsSync(candidates[0])) {
-      throw new Error();
-    }
-    return candidates[0];
-  } catch (e) {
-    // Log any errors or standard error output
-    debugConfig.logger.error(
-      `======================= IMPORT ERR =====================`,
-    );
-    debugConfig.logger.error(`command: ${command}`);
-    debugConfig.logger.error(`Working with: ${absoluteFilePath}`);
+  const result = ts.resolveModuleName(importPath, currentFile, options, ts.sys);
 
+  if (result.resolvedModule) {
+    return result.resolvedModule.resolvedFileName;
+  } else {
     debugConfig.logger.error(
-      `Import resolution failed for specifier ${source}`,
+      `Failed to resolve import: ${importPath} @ ${currentFile}`,
     );
-    if (nodeResolutionError.stderr) {
-      debugConfig.logger.error(
-        `Node ERR: ${nodeResolutionError.stderr.toString()}`,
-      );
-    }
-    debugConfig.logger.error(`NextJs ERR: ${e}`);
-    debugConfig.logger.error(
-      `======================= XXXXXXXXXX =====================`,
-    );
+    return undefined;
   }
-  return undefined;
 }
+
+// export function resolveModuleImport(
+//   source: string,
+//   absoluteFilePath: string,
+//   projectBasePath: string,
+// ): string | undefined {
+//   let nodeResolutionError;
+//   // Try resolving using node.resolve
+//   const command = `/home/meetesh/.nvm/versions/node/v20.18.0/bin/node -e "process.stdout.write(require.resolve('${source}', { paths: [ '${path.dirname(absoluteFilePath)}', '${projectBasePath}' ] }))" 2>/dev/null`;
+
+//   try {
+//     // Execute the command synchronously with the specified working directory
+//     const result = execSync(command, {
+//       cwd: projectBasePath,
+//       encoding: "utf-8",
+//     });
+//     return result;
+//   } catch (error) {
+//     nodeResolutionError = error;
+//   }
+//   // Try resolution of possible NextJs aliased import
+//   try {
+//     const componentsData = fs.readFileSync(
+//       `${projectBasePath}/components.json`,
+//       "utf8",
+//     );
+//     const jsonData = JSON.parse(componentsData);
+//     const declaredAliases = jsonData["aliases"];
+//     const aliases = Object.keys(declaredAliases);
+//     const performReplacement = (src, before, after) =>
+//       src.startsWith(before) ? src.replace(before, `${after}`) : src;
+//     let modifiedSource = source;
+//     for (const key of aliases) {
+//       const replacement = aliases[key];
+//       if (modifiedSource.startsWith(key)) {
+//         modifiedSource = performReplacement(modifiedSource, key, replacement);
+//         break;
+//       }
+//     }
+//     let final = performReplacement(modifiedSource, "@/", `${projectBasePath}/`);
+//     // Handle relative imports
+//     if (final.startsWith("./")) {
+//       final = performReplacement(
+//         final,
+//         "./",
+//         `${path.dirname(absoluteFilePath)}/`,
+//       );
+//       final = path.resolve(final);
+//     }
+//     // Handle relative imports
+//     if (final.startsWith("../")) {
+//       final = performReplacement(
+//         final,
+//         "../",
+//         `${path.dirname(absoluteFilePath)}/../`,
+//       );
+//       final = path.resolve(final);
+//     }
+//     const searchDir = path.dirname(final);
+//     const command = `find ${searchDir} -type f -name '${path.basename(final)}.*'`;
+//     // Execute the command synchronously with the specified working directory
+//     // console.log(`(${source}) Executed: ${command}`)
+//     const result = execSync(command, {
+//       cwd: projectBasePath,
+//       encoding: "utf-8", // Get the output as a string
+//     });
+//     const parsedResult = result.split("\n");
+//     // Preserve only valid candidates
+//     const basename = path.basename(final);
+//     const regex = new RegExp(`^${basename}\\.[^.]+$`);
+//     const candidates = parsedResult.filter((item) =>
+//       regex.test(path.basename(item)),
+//     );
+//     if (candidates.length !== 1) {
+//       throw new Error(result);
+//     }
+//     // Ensure file exists
+//     if (!fs.existsSync(candidates[0])) {
+//       throw new Error();
+//     }
+//     return candidates[0];
+//   } catch (e) {
+//     // Log any errors or standard error output
+//     debugConfig.logger.error(
+//       `======================= IMPORT ERR =====================`,
+//     );
+//     debugConfig.logger.error(`command: ${command}`);
+//     debugConfig.logger.error(`Working with: ${absoluteFilePath}`);
+
+//     debugConfig.logger.error(
+//       `Import resolution failed for specifier ${source}`,
+//     );
+//     if (nodeResolutionError.stderr) {
+//       debugConfig.logger.error(
+//         `Node ERR: ${nodeResolutionError.stderr.toString()}`,
+//       );
+//     }
+//     debugConfig.logger.error(`NextJs ERR: ${e}`);
+//     debugConfig.logger.error(
+//       `======================= XXXXXXXXXX =====================`,
+//     );
+//   }
+//   return undefined;
+// }

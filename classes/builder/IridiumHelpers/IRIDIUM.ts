@@ -322,10 +322,19 @@ import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
 import { PTA_IN_RES, PTA_OUT_RES, startPTA } from "./Passes/PTA.ts";
 import { IRIDIUM_FG } from "./Passes/PTA/IRIDIUM_FG.ts";
-import { ECall, ImportNode, ReactRenderRoot } from "./Passes/PTA/nodes.ts";
+import {
+  DummyObject,
+  ECall,
+  GlobalNode,
+  ImportNode,
+  LiteralNode,
+  ReactRenderRoot,
+  StackNode,
+  UnknownResultObj,
+} from "./Passes/PTA/nodes.ts";
 import { PTAGraph } from "./Passes/PTA/PTAGraph.ts";
 
-const generate = _generate.default;
+// const genersate = _generate.default;
 export const RESOLUTION_CACHE: Map<string, I_Container> = new Map();
 export default class IRIDIUM_MODULE {
   js3builder: JS3Builder;
@@ -333,6 +342,7 @@ export default class IRIDIUM_MODULE {
   fgContext: Array<IRIDIUM_FG> = [];
   static SEARCH_THRESHOLD: number = 10;
   static ECALL_LIMIT: number = 5;
+  static GLOBAL_CONTEXT: Array<string> = [];
   fg: IRIDIUM_FG = undefined;
   projectBasePath: string;
 
@@ -355,6 +365,9 @@ export default class IRIDIUM_MODULE {
 
   // Build FlowGraph
   build(level: number = 0) {
+    IRIDIUM_MODULE.GLOBAL_CONTEXT.push(
+      this.js3builder.projectFile.absoluteFilePath,
+    );
     const GLOBAL_ENV = new GlobalEnvironment(undefined);
     const MAIN_ENV = new Environment(GLOBAL_ENV);
 
@@ -389,6 +402,7 @@ export default class IRIDIUM_MODULE {
         iNode.FROM,
         iNode.isStatic,
       );
+      resNode.importContext = iNode.importContext;
       resNode.addContainer(container);
       existingIN.addPTANode(resNode);
     };
@@ -425,13 +439,7 @@ export default class IRIDIUM_MODULE {
         debugConfig.logger.log(
           `[startPTA]: found ${resolvedSources.length} ECall Nodes`,
         );
-        handleResolvedSources(
-          resolvedSources,
-          this.js3builder.projectFile.absoluteFilePath,
-          this.js3builder.projectFile.projectBasePath,
-          updateResolvedNode,
-          level,
-        );
+        handleResolvedSources(resolvedSources, updateResolvedNode, level);
       }
       eCallResolved++;
     } while (eCallResolved < IRIDIUM_MODULE.ECALL_LIMIT);
@@ -475,13 +483,7 @@ export default class IRIDIUM_MODULE {
           break;
         }
 
-        handleResolvedSources(
-          resolvedSources,
-          this.js3builder.projectFile.absoluteFilePath,
-          this.js3builder.projectFile.projectBasePath,
-          updateResolvedNode,
-          level,
-        );
+        handleResolvedSources(resolvedSources, updateResolvedNode, level);
 
         if (debugConfig.cli.savePTAGraph) {
           const filename = path.basename(
@@ -520,17 +522,22 @@ export default class IRIDIUM_MODULE {
       for (const r of rootSet) {
         successorPTAClosure(finalPTARes, r.id, nodesToRetain);
       }
-      const predNodesToRetain: Set<string> = new Set();
-      for (const r of nodesToRetain) {
-        predecessorPTAClosure(finalPTARes, r).forEach((n) =>
-          predNodesToRetain.add(n),
-        );
-      }
-      predNodesToRetain.forEach((n) => nodesToRetain.add(n));
+      // const predNodesToRetain: Set<string> = new Set();
+      // for (const r of nodesToRetain) {
+      //   predecessorPTAClosure(finalPTARes, r).forEach((n) =>
+      //     predNodesToRetain.add(n),
+      //   );
+      // }
+      // predNodesToRetain.forEach((n) => nodesToRetain.add(n));
       for (const n of existingNodes) {
         if (
-          !nodesToRetain.has(n)
-          // || finalPTARes.getPTANode(n) instanceof DummyObject
+          !nodesToRetain.has(n) ||
+          finalPTARes.getPTANode(n) instanceof ImportNode ||
+          finalPTARes.getPTANode(n) instanceof StackNode ||
+          finalPTARes.getPTANode(n) instanceof DummyObject ||
+          finalPTARes.getPTANode(n) instanceof GlobalNode ||
+          finalPTARes.getPTANode(n) instanceof LiteralNode ||
+          finalPTARes.getPTANode(n) instanceof UnknownResultObj
         ) {
           finalPTARes.removePTANode(finalPTARes.getPTANode(n));
         }
@@ -562,6 +569,7 @@ export default class IRIDIUM_MODULE {
     //     outRes.saveDotToFile(`${PTAPATH}/${filename}_composed${n}_OUT`);
     //   }
     // }
+    IRIDIUM_MODULE.GLOBAL_CONTEXT.pop();
   }
 
   // // Set/Get current BB
@@ -880,7 +888,7 @@ export default class IRIDIUM_MODULE {
       } else {
         toLowerLval = generateIdentifier(arg, "$TODO_IRI_UNDEFINED$");
         debugConfig.logger.throwIriError(
-          `Iridium function arg, LVAL is unsupported: ${generate(arg).code}`,
+          `Iridium function arg, LVAL is unsupported: ${_generate(arg).code}`,
         );
       }
 
@@ -969,7 +977,7 @@ export default class IRIDIUM_MODULE {
       } else {
         toLowerLval = generateIdentifier(arg, "$TODO_IRI_UNDEFINED$");
         debugConfig.logger.throwIriError(
-          `Iridium function arg, LVAL is unsupported: ${generate(arg).code}`,
+          `Iridium function arg, LVAL is unsupported: ${_generate(arg).code}`,
         );
       }
     }
@@ -1852,8 +1860,8 @@ export default class IRIDIUM_MODULE {
     const genesisNode = getGenesisNode(parentNode);
     // Assert that genesisNode's optional field is always true
     if (!genesisNode.optional) {
-      console.log("Node:", generate(parentNode).code);
-      console.log("Genesis Node:", generate(genesisNode).code);
+      console.log("Node:", _generate(parentNode).code);
+      console.log("Genesis Node:", _generate(genesisNode).code);
       debugConfig.logger.throwIriError(
         "Optional field of the genesis node is always expected to be true!",
       );
@@ -3687,7 +3695,7 @@ export default class IRIDIUM_MODULE {
 
     if (isJS3ExportSpecifier(specifier) && isStringLiteral(stmt.source)) {
       // case b.
-      // export {LOCAL as REMOTE} from FROM
+      // export {FIELD as REMOTE} from FROM
       const local = new IV_Identifier(specifier.local, specifier.local.name);
       let remote: IV_Identifier | IV_StringLiteral;
       if (isIdentifier(specifier.exported)) {

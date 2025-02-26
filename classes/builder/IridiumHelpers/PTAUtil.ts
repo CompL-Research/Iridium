@@ -64,25 +64,21 @@ export const resolveSources = (
 
 export const handleResolvedSources = (
   resolvedSources: Set<ImportNode> | Array<ImportNode>,
-  absFilePath: string,
-  projBasePath: string,
   updateResolvedNode: (iNode: ImportNode, container: I_Container) => void,
   level: number,
 ) => {
+  const projBasePath = debugConfig.cli.projectBase;
   for (const iSource of resolvedSources) {
+    const absFilePath: string = iSource.importContext;
+    if (!absFilePath)
+      debugConfig.logger.throwIriError("Abs File Path Missing!!");
     const resolvedPath = resolveModuleImport(
       iSource.FROM.value,
       absFilePath,
       projBasePath,
     );
     try {
-      if (
-        resolvedPath.includes(
-          "/home/meetesh/wd/Iridium/temp/frontendViz/node_modules/@mui/material/node/index.js",
-        ) ||
-        resolvedPath.includes("/@mui/material/node/styles/index.js") ||
-        resolvedPath.includes("react-redux")
-      ) {
+      if (resolvedPath.includes("node_modules")) {
         debugConfig.logger.log(`Skipping: ${resolvedPath}`);
         continue;
       }
@@ -126,7 +122,7 @@ export const handleResolvedSources = (
         updateResolvedNode(iSource, iri_container);
       }
     } catch (e) {
-      debugConfig.logger.error("Failed to generate Iridium: ", e);
+      debugConfig.logger.throwIriError(`Failed to generate Iridium: ${e}`);
       process.exit(1);
     }
   }

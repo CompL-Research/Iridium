@@ -99,7 +99,7 @@ function iri(filePath) {
     );
     iri_container.build();
   } catch (e) {
-    debugConfig.logger.error("Failed to generate Iridium: ", e);
+    debugConfig.logger.throwIriError(`Failed to generate Iridium: ${e}`);
     process.exit(1);
   }
 }

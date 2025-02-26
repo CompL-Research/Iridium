@@ -18,14 +18,14 @@ import {
   generateJS3VariableDeclarationfromBaseNode,
   generateJS3VariableDeclaratorfromBaseNode,
 } from "../JS3Constructors.ts";
-const traverse = _traverse.default;
+// const traverse = _traverse.default;
 
 // Algorithm
 // 1. Move all top-level imports to the top
 // 2. Move all function declarations to the top
 
 export function transform(node: JS3File) {
-  traverse(node, {
+  _traverse(node, {
     Program(path) {
       const varBindings = [];
       for (const key in path.scope.bindings) {

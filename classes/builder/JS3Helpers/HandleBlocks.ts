@@ -885,7 +885,10 @@ export function handleDeclaratorRec(
       fin$res,
       LVal,
     );
-    const tempVar = generateTempIdentifier(LVal, "tempID");
+    const tempVar = generateTempIdentifier(
+      LVal,
+      otherProps.getNewTemporary("tempID"),
+    );
     const finDeclarator = generateJS3VariableDeclaratorfromBaseNode(
       tempVar,
       generateJS3AssignmentExpressionfromBaseNode("=", fin$res, condExpr, LVal),

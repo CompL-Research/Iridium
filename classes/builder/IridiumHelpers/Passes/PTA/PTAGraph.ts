@@ -68,9 +68,24 @@ export class PTAGraph extends GLIB.Graph {
     const outEdges = this.outEdges(o1.id);
     if (outEdges) {
       for (const e of outEdges) {
+        //
+        // o1 --[f]--> [O1]
+        //
+        // case 1: o2 does not have the field
+        //  make: o2--[field]--> [o1]
+        //
+        // case 2: o2 has the field
+        //  collect all in edges to [O1]
+        //  for each pointee of {field U *} in o2, transfer edges
+        //  for all {O1 : o is dummies} unify with [for each pointee of {field U *} in o2]
+
         const currentField = e.name;
-        // Check if o2 does not have the field...
-        if (!this.hasField(o2.id, currentField)) {
+        if (
+          currentField !== "*" &&
+          !this.hasField(o2.id, currentField) &&
+          !this.hasField(o2.id, "*")
+        ) {
+          // Check if o2 does not have the field...
           this.addField(o2.id, currentField);
           const o2PNode = this.getField(o2.id, currentField);
           this.setEdge(o2.id, o2PNode.id, currentField, currentField);
@@ -83,42 +98,61 @@ export class PTAGraph extends GLIB.Graph {
           }
         } else {
           const o1PNode = this.getPTANode(e.w);
-          const o2PNode = this.getField(o2.id, currentField);
 
-          const edgesToTransfer: Set<Edge> = new Set();
+          const o2PNodes: Set<PNode> = new Set();
+          if (this.hasField(o2.id, "*")) {
+            o2PNodes.add(this.getField(o2.id, "*"));
+          } else if (!this.hasField(o2.id, currentField)) {
+            this.addField(o2.id, currentField);
+            const o2PNode = this.getField(o2.id, currentField);
+            this.setEdge(o2.id, o2PNode.id, currentField, currentField);
+          }
 
-          const outEdgesFromO1PNode = this.outEdges(o1PNode.id);
-          if (outEdgesFromO1PNode) {
-            for (const ee of outEdgesFromO1PNode) {
-              const w = this.getPTANode(ee.w);
-              if (w instanceof DummyObject) {
-                const inEdges = this.inEdges(w.id);
-                if (inEdges) for (const ff of inEdges) edgesToTransfer.add(ff);
-              } else {
-                // For non dummy objects, draw an edge from o2Pnode to w
-                this.setEdge(o2PNode.id, w.id, ee.name, ee.name);
-              }
+          if (currentField === "*") {
+            const outEdges = this.outEdges(o2.id);
+            if (outEdges) {
+              for (const e of outEdges) o2PNodes.add(this.getPTANode(e.w));
             }
           }
 
-          const outEdgesFromO2PNode = this.outEdges(o2PNode.id);
-          if (outEdgesFromO2PNode) {
-            for (const ee of outEdgesFromO2PNode) {
-              // Transfer incoming edges
-              for (const ff of edgesToTransfer) {
-                this.setEdge(ff.v, ee.w, ff.name, ff.name);
+          o2PNodes.add(this.getField(o2.id, currentField));
+
+          for (const o2PNode of o2PNodes) {
+            const edgesToTransfer: Set<Edge> = new Set();
+
+            const outEdgesFromO1PNode = this.outEdges(o1PNode.id);
+            if (outEdgesFromO1PNode) {
+              for (const ee of outEdgesFromO1PNode) {
+                const w = this.getPTANode(ee.w);
+                if (w instanceof DummyObject) {
+                  const inEdges = this.inEdges(w.id);
+                  if (inEdges)
+                    for (const ff of inEdges) edgesToTransfer.add(ff);
+                } else {
+                  // For non dummy objects, draw an edge from o2Pnode to w
+                  this.setEdge(o2PNode.id, w.id, ee.name, ee.name);
+                }
               }
             }
-          }
+            const outEdgesFromO2PNode = this.outEdges(o2PNode.id);
+            if (outEdgesFromO2PNode) {
+              for (const ee of outEdgesFromO2PNode) {
+                // Transfer incoming edges
+                for (const ff of edgesToTransfer) {
+                  this.setEdge(ff.v, ee.w, ff.name, ff.name);
+                }
+              }
+            }
 
-          // Recursively unify targets
-          if (outEdgesFromO1PNode && outEdgesFromO2PNode) {
-            for (const ee of outEdgesFromO1PNode) {
-              const xx = this.getPTANode(ee.w);
-              if (xx instanceof DummyObject) {
-                for (const ff of outEdgesFromO2PNode) {
-                  const yy = this.getPTANode(ff.w);
-                  this.UnifyStackTargets(xx, yy);
+            // Recursively unify targets
+            if (outEdgesFromO1PNode && outEdgesFromO2PNode) {
+              for (const ee of outEdgesFromO1PNode) {
+                const xx = this.getPTANode(ee.w);
+                if (xx instanceof DummyObject) {
+                  for (const ff of outEdgesFromO2PNode) {
+                    const yy = this.getPTANode(ff.w);
+                    this.UnifyStackTargets(xx, yy);
+                  }
                 }
               }
             }
@@ -126,17 +160,6 @@ export class PTAGraph extends GLIB.Graph {
         }
       }
     }
-    // # Iterate over all the fields of o1
-    // for (f of o1.fields) {
-    //   # If o2 does not have the field, create a field and copy over the target object there.
-    //   # Else
-    //   #   iterate over (o1.f.w's) -> x:
-    //   #     If x is Dummy, remember all incoming edges to x that need to be transferred to all nodes o2.f.pointees
-    //   #     Else make o2.f... point to w
-    //   #     If x is Dummy, UnifyStackTargets(x, each o2.f.pointees)
-    //   #
-    //   #
-    // }
   }
 
   replacePTANode(oldNode: PTANode, newNode: PTANode) {
@@ -214,8 +237,8 @@ export class PTAGraph extends GLIB.Graph {
 
   // Heap to Heap Edge
   drawHeapToHeapEdge(
-    us: Array<Valid_Stack_To_Heap_Pointees>,
-    vs: Array<Valid_Stack_To_Heap_Pointees>,
+    us: Array<Valid_Stack_To_Heap_Pointees> | Set<Valid_Stack_To_Heap_Pointees>,
+    vs: Array<Valid_Stack_To_Heap_Pointees> | Set<Valid_Stack_To_Heap_Pointees>,
     ps: Set<string> | Array<string>,
     enumerable: boolean,
   ): Array<
@@ -544,32 +567,6 @@ export class PTAGraph extends GLIB.Graph {
       const processedKey = key.replace(/"/g, '\\"');
       const dotStyle = value.dotStyle();
       res.push(`  "${processedKey}"${dotStyle}`);
-
-      // // Stack Values
-      // if (value instanceof StackNode)
-
-      // // Literals
-      // else if (value instanceof LiteralNode)
-      //   res.push(`  "${processedKey}"[xlabel="${label}",shape="square", style="filled", fillcolor="green"]`)
-
-      // // Literals
-      // else if (value instanceof PNode)
-      //   res.push(`  "${processedKey}"[xlabel="${label}",shape="doublecircle", style="filled", fillcolor="gray"]`)
-
-      // // Lazy Heap Node
-      // else if (value instanceof ImportNode)
-      //   res.push(`  "${processedKey}"[xlabel="${label}",shape="square", style="filled", fillcolor="yellow"]`)
-
-      // // Ordinary Object
-      // else if (value instanceof OrdinaryObject)
-      //   res.push(`  "${processedKey}"[xlabel="${label}",,shape="square", style="filled", fillcolor="gray"]`)
-
-      // // Ordinary Function Object
-      // else if (value instanceof OrdinaryFunctionObject)
-      //   res.push(`  "${processedKey}"[xlabel="${label}",,shape="octagon", style="filled", fillcolor="gray"]`)
-
-      // // Heap Objects
-      // else res.push(`  "${processedKey}"[shape="rectangle"]`)
     }
 
     for (const e of this.edges()) {

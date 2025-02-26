@@ -4,7 +4,11 @@ import debugConfig from "#debugConfig";
 import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
 import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
 import { I_Container } from "../../I_GENERAL/I_Container.ts";
-import { IS_BImport } from "../../ALL_IS/IS_Imports_Exports.ts";
+import {
+  IS_BImport,
+  IS_CExport,
+  IS_EExport,
+} from "../../ALL_IS/IS_Imports_Exports.ts";
 
 export class PTANode {
   static DUMMY_THRESHOLD: number = 3;
@@ -484,12 +488,13 @@ export class GetSpecialClosure extends PTANode {
 // ImportNode
 //
 export class ImportNode extends PTANode {
-  source: IS_BImport | undefined;
+  source: IS_BImport | IS_CExport | IS_EExport | undefined;
   FROM: IV_StringLiteral;
   isStatic: boolean = true;
   resolvedContainer: I_Container = null;
+  importContext: string | undefined;
   constructor(
-    source: IS_BImport | undefined,
+    source: IS_BImport | IS_CExport | IS_EExport | undefined,
     id: string,
     FROM: IV_StringLiteral,
     isStatic: boolean,

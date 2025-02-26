@@ -21,35 +21,6 @@ import {
 
 import GLIB from "#graphlib";
 import {
-  IV_NumericLiteral,
-  IV_StringLiteral,
-} from "../ALL_RVal/IV_Literals.ts";
-import { Environment } from "../I_GENERAL/I_Environment.ts";
-import {
-  handleBImportNode,
-  handleSimpleAssignmentStatement,
-} from "./PTA/handlers.ts";
-import { IRIDIUM_FG } from "./PTA/IRIDIUM_FG.ts";
-import {
-  GlobalNode,
-  ImportNode,
-  KnownFunctionNode,
-  ModuleExportsNode,
-  OrdinaryObject,
-  PTANode,
-  StackNode,
-} from "./PTA/nodes.ts";
-import { PTAGraph } from "./PTA/PTAGraph.ts";
-import { dissernProps, handleRVals } from "./PTA/rvalHandler.ts";
-import { getHeapQualifiedName, getStackQualifiedName } from "./PTA/util.ts";
-import { BB } from "../BB.ts";
-import {
-  isJS3AssnObjectProperty,
-  isJS3ObjectPattern,
-  isJS3PrivateName,
-  JS3PrivateName,
-} from "classes/builder/JS3Helpers/JS3Types.ts";
-import {
   BigIntLiteral,
   DecimalLiteral,
   Identifier,
@@ -61,6 +32,37 @@ import {
   NumericLiteral,
   StringLiteral,
 } from "@babel/types";
+import {
+  isJS3ObjectPattern,
+  isJS3PrivateName,
+  JS3PrivateName,
+} from "classes/builder/JS3Helpers/JS3Types.ts";
+import {
+  IV_NumericLiteral,
+  IV_StringLiteral,
+} from "../ALL_RVal/IV_Literals.ts";
+import { BB } from "../BB.ts";
+import { Environment } from "../I_GENERAL/I_Environment.ts";
+import {
+  handleArrayDestructuring,
+  handleBImportNode,
+  handleCExportNode,
+  handleEExportNode,
+  handleObjectDestructuring,
+  handleSimpleAssignmentStatement,
+} from "./PTA/handlers.ts";
+import { IRIDIUM_FG } from "./PTA/IRIDIUM_FG.ts";
+import {
+  GlobalNode,
+  ImportNode,
+  KnownFunctionNode,
+  ModuleExportsNode,
+  StackNode,
+} from "./PTA/nodes.ts";
+import { PTAGraph } from "./PTA/PTAGraph.ts";
+import { handleRVals } from "./PTA/rvalHandler.ts";
+import { getStackQualifiedName } from "./PTA/util.ts";
+import IRIDIUM_MODULE from "../IRIDIUM.ts";
 
 const STATE_CURBING: boolean = true;
 
@@ -81,7 +83,9 @@ export function startPTA(rootFG: IRIDIUM_FG) {
     const BOUNDARY_PTAGRAPH = new PTAGraph();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const [o, _] of rootFG.rootBB.env.parent.bindings) {
-      const stackNode = new StackNode("ENV0$" + o);
+      const stackNode = new StackNode(
+        "ENV" + rootFG.rootBB.env.parent.idx + "$" + o,
+      );
       BOUNDARY_PTAGRAPH.declareNode(stackNode);
       const heapNode = new GlobalNode(o);
       BOUNDARY_PTAGRAPH.declareNode(heapNode);
@@ -94,6 +98,8 @@ export function startPTA(rootFG: IRIDIUM_FG) {
       new IV_StringLiteral(undefined, "react-dom/client"),
       true,
     );
+    reactDomNode.importContext =
+      IRIDIUM_MODULE.GLOBAL_CONTEXT[IRIDIUM_MODULE.GLOBAL_CONTEXT.length - 1];
     BOUNDARY_PTAGRAPH.declareNode(reactDomNode);
 
     const createRoot = new KnownFunctionNode("createRoot", 0);
@@ -223,8 +229,6 @@ export function PTA(rootFG: IRIDIUM_FG, BOUNDARY_PTAGRAPH: PTAGraph) {
     inGraph.union(nextGraph);
     PTA_IN_RES.set(currBBIDx, inGraph);
 
-    debugConfig.logger.warn(`Processing: ${currBBIDx}/${BB.count}`);
-
     // Flow Function
     flowFunction(rootFG, nextGraph, currBBIDx, step);
 
@@ -258,7 +262,7 @@ export function PTA(rootFG: IRIDIUM_FG, BOUNDARY_PTAGRAPH: PTAGraph) {
   return sinkPTA;
 }
 
-const getKeyString = (
+export const getKeyString = (
   k:
     | Identifier
     | StringLiteral
@@ -335,96 +339,30 @@ function flowFunction(
           currBBIDx,
           stackInstOffset,
         );
-        for (const p of objDestLVal.properties) {
-          if (isJS3AssnObjectProperty(p)) {
-            //
-            // JS3AssnObjectProp ==> {[x] : stackNode} = RVal
-            //
-            // stackNode = [RValPointees][x]
-            //
-            const lookupName = getKeyString(p.key);
-            const dissernedProps: Set<string> = dissernProps(
-              nextGraph,
-              lookupName,
-              p.computed && getStackQualifiedName(lookupName, currBB),
-              p.computed,
-            );
-
-            if (dissernedProps.size === 0) dissernedProps.add("*");
-
-            // [RValPointees].x
-            const res: Set<PTANode> = new Set();
-            const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
-
-            const closureResults: Array<PTAGraph> = [];
-            for (const u of RValPointees) {
-              for (const p of dissernedProps) {
-                nextGraph
-                  .getFieldPointees(u, p, iContext, true, true)
-                  .forEach((r) => res.add(r));
-              }
-            }
-            nextGraph.union(...closureResults);
-
-            handleSimpleAssignmentStatement(
-              nextGraph,
-              getStackQualifiedName(
-                IV_Identifier.from(p.value).lookupName(),
-                currBB,
-              ),
-              res,
-            );
-          } else {
-            // ...ID = RVal
-            // Approximate => ID = DUP(RVal)
-            const duplicateRValPointees: Set<PTANode> = new Set();
-            for (const rValPointee of RValPointees) {
-              const duplicateRVal = new OrdinaryObject(
-                getHeapQualifiedName("spreadObj", currBBIDx, stackInstOffset),
-              );
-              nextGraph.addPTANode(duplicateRVal);
-              duplicateRValPointees.add(duplicateRVal);
-
-              const outEdges = nextGraph.outEdges(rValPointee.id);
-              if (outEdges) {
-                for (const e of outEdges) {
-                  const prop = e.name;
-                  if (!nextGraph.hasField(duplicateRVal.id, prop)) {
-                    nextGraph.addField(duplicateRVal.id, prop);
-                    nextGraph.setEdge(
-                      duplicateRVal.id,
-                      nextGraph.getField(duplicateRVal.id, prop).id,
-                      prop,
-                      prop,
-                    );
-                  }
-                  const existingPNode = nextGraph.getPTANode(e.w);
-                  const newPNode = nextGraph.getField(duplicateRVal.id, prop);
-
-                  const pNodePointeeEdges = nextGraph.outEdges(
-                    existingPNode.id,
-                  );
-                  if (pNodePointeeEdges) {
-                    for (const ee of pNodePointeeEdges) {
-                      nextGraph.setEdge(newPNode.id, ee.w, ee.name, ee.name);
-                    }
-                  }
-                }
-              }
-            }
-            handleSimpleAssignmentStatement(
-              nextGraph,
-              getStackQualifiedName(
-                IV_Identifier.from(p.argument).lookupName(),
-                currBB,
-              ),
-              duplicateRValPointees,
-            );
-          }
-        }
+        handleObjectDestructuring(
+          nextGraph,
+          objDestLVal,
+          RValPointees,
+          currBB,
+          currBBIDx,
+          stackInstOffset,
+        );
       } else {
-        debugConfig.logger.throwIriError(
-          `Assignment with destructured assignment: ${i.toString()}`,
+        const objDestLVal = i.LVal;
+        const RValPointees = handleRVals(
+          nextGraph,
+          i.RVal,
+          currBB,
+          currBBIDx,
+          stackInstOffset,
+        );
+        handleArrayDestructuring(
+          nextGraph,
+          objDestLVal,
+          RValPointees,
+          currBB,
+          currBBIDx,
+          stackInstOffset,
         );
       }
     } else if (i instanceof IS_AExport) {
@@ -447,11 +385,11 @@ function flowFunction(
 
       nextGraph.drawHeapToHeapEdge([heapNode], pointees, [remote], true);
     } else if (i instanceof IS_CExport) {
-      debugConfig.logger.throwIriError("PTA: IS_CExport not yet supported");
+      handleCExportNode(nextGraph, i, currBB, currBBIDx, stackInstOffset);
     } else if (i instanceof IS_DExport) {
       debugConfig.logger.throwIriError("PTA: IS_DExport not yet supported");
     } else if (i instanceof IS_EExport) {
-      debugConfig.logger.throwIriError("PTA: IS_EExport not yet supported");
+      handleEExportNode(nextGraph, i, currBB, currBBIDx, stackInstOffset);
     }
   }
 }

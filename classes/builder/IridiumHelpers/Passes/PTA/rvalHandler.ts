@@ -71,8 +71,10 @@ import { IV_UpdateExpression } from "../../ALL_RVal/IV_UpdateExpression.ts";
 import { IV_AWAIT, IV_YIELD } from "../../ALL_RVal/IV_YIELD_AWAIT.ts";
 import { BB } from "../../BB.ts";
 import {
+  handleArrayDestructuring,
   handleCallExpression,
   handleMemberAssignment,
+  handleObjectDestructuring,
   handleSimpleAssignmentStatement,
 } from "./handlers.ts";
 import {
@@ -530,9 +532,43 @@ export const handleRVals = (
     // My god I forgot this!!!
     return res;
   } else if (rVal instanceof IV_ArrPatAssn) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ArrPatAssn");
+    const objDestLVal = rVal.LVal;
+    const RValPointees = handleRVals(
+      nextGraph,
+      rVal.RVal,
+      currBB,
+      currBBIDx,
+      stackInstOffset,
+    );
+    handleArrayDestructuring(
+      nextGraph,
+      objDestLVal,
+      RValPointees,
+      currBB,
+      currBBIDx,
+      stackInstOffset,
+    );
+
+    return RValPointees;
   } else if (rVal instanceof IV_ObjPatAssn) {
-    debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_ObjPatAssn");
+    const objDestLVal = rVal.LVal;
+    const RValPointees = handleRVals(
+      nextGraph,
+      rVal.RVal,
+      currBB,
+      currBBIDx,
+      stackInstOffset,
+    );
+    handleObjectDestructuring(
+      nextGraph,
+      objDestLVal,
+      RValPointees,
+      currBB,
+      currBBIDx,
+      stackInstOffset,
+    );
+
+    return RValPointees;
   }
 
   // t_IV_ObjectExpression
