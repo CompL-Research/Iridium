@@ -41,8 +41,8 @@
             "program": "/home/meetesh/wd/Iridium/iridium.ts",
             "args": [
                 "iri",
-                "./temp/saleor-dashboard/src/index.tsx",
-                "./temp/saleor-dashboard/",
+                "./temp/frontendViz/src/index.js",
+                "./temp/frontendViz/",
                 "-g"
             ],
             "cwd": "${workspaceFolder}",

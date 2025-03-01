@@ -1,5 +1,4 @@
 import debugConfig from "#debugConfig";
-import { popSet } from "#utils";
 import {
   JS3ArrayPattern,
   JS3ObjectPattern,
@@ -14,7 +13,6 @@ import {
 import { ISP_ArgSpread, ISP_ObjectMethod } from "../../ALL_RVal/ALL_ISP.ts";
 import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
 import { BB, FunctionReturn } from "../../BB.ts";
-import { I_Container } from "../../I_GENERAL/I_Container.ts";
 import { I_Function_params } from "../../I_GENERAL/I_Function.ts";
 import IRIDIUM_MODULE from "../../IRIDIUM.ts";
 import { predecessorPTAClosure, successorPTAClosure } from "../../PTAUtil.ts";
@@ -40,6 +38,8 @@ import { PTAGraph } from "./PTAGraph.ts";
 import { dissernProps, getSpreadPointees } from "./rvalHandler.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
 import { isIdentifier } from "@babel/types";
+import { popSet } from "#utils";
+import { I_Container } from "../../I_GENERAL/I_Container.ts";
 export const handleObjectDestructuring = (
   nextGraph: PTAGraph,
   objDestLVal: JS3ObjectPattern,
@@ -239,6 +239,7 @@ export const handleResolvedImportNode = (
   // Initialize Worklist
   worklist.add(rootNode);
   while (worklist.size > 0) {
+    // Update Worklist
     const heapNode = popSet(worklist);
     debugConfig.logger.log(
       `Processing: ${heapNode.FROM} [worklist has ${worklist.size} remaining]`,
@@ -865,6 +866,13 @@ export const handleUnknownDummyObjectCall = (
     nextGraph.declareNode(resObj);
     ress.add(resObj);
     return ress;
+
+    // const resObj = new UnknownResultObj(
+    //   getHeapQualifiedName("IV_Call", currBBIDx, stackInstOffset),
+    // );
+    // nextGraph.declareNode(resObj);
+    // ress.add(resObj);
+    // return ress;
   }
 };
 

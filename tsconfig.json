@@ -18,5 +18,15 @@
         "./externalDeps/graphlib-with-dominator-algo/index.js"
       ]
     },
+    "exclude": [
+      "node_modules",
+      "dist",
+      "build",
+      "out",
+      ".git",
+      "temp",
+      "tests",
+      "outputs",
+    ]
   }
 }

@@ -310,7 +310,6 @@ import { IV_FJSX, IV_JSX, IV_PJSX } from "./ALL_RVal/IV_JSX.ts";
 import { I_Container } from "./I_GENERAL/I_Container.ts";
 import {
   handleResolvedSources,
-  predecessorPTAClosure,
   resolveSources,
   successorPTAClosure,
 } from "./PTAUtil.ts";

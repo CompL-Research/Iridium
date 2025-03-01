@@ -41,7 +41,6 @@ import {
   IV_NumericLiteral,
   IV_StringLiteral,
 } from "../ALL_RVal/IV_Literals.ts";
-import { BB } from "../BB.ts";
 import { Environment } from "../I_GENERAL/I_Environment.ts";
 import {
   handleArrayDestructuring,
@@ -63,8 +62,9 @@ import { PTAGraph } from "./PTA/PTAGraph.ts";
 import { handleRVals } from "./PTA/rvalHandler.ts";
 import { getStackQualifiedName } from "./PTA/util.ts";
 import IRIDIUM_MODULE from "../IRIDIUM.ts";
+import { successorPTAClosure } from "../PTAUtil.ts";
 
-const STATE_CURBING: boolean = true;
+export const STATE_CURBING: boolean = true;
 
 type BBIdx = string;
 
@@ -119,12 +119,14 @@ export function startPTA(rootFG: IRIDIUM_FG) {
   }
 }
 
-const curbStateContext = (rootState: Environment, fg: PTAGraph) => {
+export const curbStateContext = (rootState: Environment, fg: PTAGraph) => {
   //
   // envs from future that are children of the rootState must not be curbed, this will cause unnecessary computation to take place
   //
 
-  const toRemove: Array<StackNode> = [];
+  const nodesToPreserve: Set<string> = new Set();
+  const toRemove: Set<StackNode> = new Set();
+
   const checkReachableDown = (currEnv: Environment, targetEnvIdx: number) => {
     if (!currEnv) return false;
     if (currEnv.idx === targetEnvIdx) return true;
@@ -140,17 +142,43 @@ const curbStateContext = (rootState: Environment, fg: PTAGraph) => {
     return false;
   };
 
+  // Curb based on reachable "rootset"
   for (const n of fg.nodeMap.values()) {
+    if (n instanceof ImportNode) {
+      nodesToPreserve.add(n.id);
+      successorPTAClosure(fg, n.id).forEach((succ) =>
+        nodesToPreserve.add(succ),
+      );
+    }
+    if (n instanceof ModuleExportsNode) {
+      nodesToPreserve.add(n.id);
+      successorPTAClosure(fg, n.id).forEach((succ) =>
+        nodesToPreserve.add(succ),
+      );
+    }
+    if (n instanceof GlobalNode) {
+      nodesToPreserve.add(n.id);
+      successorPTAClosure(fg, n.id).forEach((succ) =>
+        nodesToPreserve.add(succ),
+      );
+    }
     if (n instanceof StackNode) {
       const envID = parseInt(n.id.split("$")[0].slice(3));
       if (
-        checkReachableDown(rootState, envID) === false &&
-        checkReachableUp(rootState, envID) === false
+        checkReachableDown(rootState, envID) ||
+        checkReachableUp(rootState, envID)
       ) {
-        toRemove.push(n);
+        nodesToPreserve.add(n.id);
+        successorPTAClosure(fg, n.id).forEach((succ) =>
+          nodesToPreserve.add(succ),
+        );
       }
     }
   }
+
+  for (const n of fg.nodes())
+    if (!nodesToPreserve.has(n)) toRemove.add(fg.getPTANode(n));
+
   toRemove.forEach((n) => fg.removePTANode(n));
 };
 

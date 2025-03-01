@@ -1267,28 +1267,28 @@
 // x(clos);
 // y(clos);
 
-// import all, { test2, test3 } from "./test1.js";
+import all, { test2, test3 } from "./test1.js";
 
-// let c = () => {};
-// test3(c);
+let c = () => {};
+test3(c);
 
-// const res1 = all;
-// const res2 = test2;
-// test3(c);
+const res1 = all;
+const res2 = test2;
+test3(c);
 
 // import {test3} from "./test1.js";
 // test3(() => {})
 
-let a, b, rest;
-[a, b] = [10, 20];
+// let a, b, rest;
+// [a, b] = [10, 20];
 
-console.log(a);
-// Expected output: 10
+// console.log(a);
+// // Expected output: 10
 
-console.log(b);
-// Expected output: 20
+// console.log(b);
+// // Expected output: 20
 
-[a, b, ...rest] = [10, 20, 30, 40, 50];
+// [a, b, ...rest] = [10, 20, 30, 40, 50];
 
-console.log(rest);
-// Expected output: Array [30, 40, 50]
+// console.log(rest);
+// // Expected output: Array [30, 40, 50]

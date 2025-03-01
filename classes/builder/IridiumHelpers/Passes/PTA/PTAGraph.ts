@@ -102,7 +102,8 @@ export class PTAGraph extends GLIB.Graph {
           const o2PNodes: Set<PNode> = new Set();
           if (this.hasField(o2.id, "*")) {
             o2PNodes.add(this.getField(o2.id, "*"));
-          } else if (!this.hasField(o2.id, currentField)) {
+          }
+          if (!this.hasField(o2.id, currentField)) {
             this.addField(o2.id, currentField);
             const o2PNode = this.getField(o2.id, currentField);
             this.setEdge(o2.id, o2PNode.id, currentField, currentField);
