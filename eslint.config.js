@@ -11,6 +11,7 @@ export default [
     languageOptions: {
       globals: globals.browser,
     },
+    ignores: ["node_modules", "dist", "build", "out", ".git", "temp", "tests", "outputs", "classes/builder/IridiumHelpers/Passes/PTA-UOW"]
   },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,

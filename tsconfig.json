@@ -8,6 +8,7 @@
     "temp",
     "tests",
     "outputs",
+    "/home/meetesh/wd/Iridium/classes/builder/IridiumHelpers/Passes/PTA-UOW/PTA.ts",
   ],
   "compilerOptions": {
     "module": "NodeNext",
@@ -18,15 +19,9 @@
     "baseUrl": ".",
     "moduleResolution": "NodeNext",
     "paths": {
-      "#debugConfig": [
-        "./configs/debug.ts"
-      ],
-      "#utils": [
-        "./classes/utils/utils.ts"
-      ],
-      "#graphlib": [
-        "./externalDeps/graphlib-with-dominator-algo/index.js"
-      ]
-    },
+      "#debugConfig": ["./configs/debug.ts"],
+      "#utils": ["./classes/utils/utils.ts"],
+      "#graphlib": ["./externalDeps/graphlib-with-dominator-algo/index.js"]
+    }
   }
 }
