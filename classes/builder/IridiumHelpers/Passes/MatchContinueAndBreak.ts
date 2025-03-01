@@ -12,7 +12,7 @@ import {
 import GLIB from "#graphlib";
 import { IS_Break, IS_LBreak } from "../ALL_IS/IS_Break.ts";
 import { IS_Continue, IS_LContinue } from "../ALL_IS/IS_Continue.ts";
-import { IRIDIUM_FG } from "./PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 export function matchContinueAndBreak(rootFG: IRIDIUM_FG) {
   traverseFGLexical(rootFG, (fg: IRIDIUM_FG) => {

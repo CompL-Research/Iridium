@@ -6,7 +6,7 @@ import {
   ISP_ObjectProperty,
 } from "./ALL_ISP.ts";
 import { ALL_RVal } from "./ALL_RVal.ts";
-import { IRIDIUM_FG } from "../Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 export class IV_ObjectExpression extends ALL_RVal {
   properties: Array<ISP_ObjectMethod | ISP_ObjectProperty | ISP_ArgSpread>;

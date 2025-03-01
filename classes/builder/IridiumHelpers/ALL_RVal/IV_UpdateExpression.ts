@@ -8,7 +8,7 @@ import {
 import { ALL_RVal } from "./ALL_RVal.ts";
 import { ISP_Super } from "./ALL_ISP.ts";
 import { IV_This } from "./IV_This.ts";
-import { IRIDIUM_FG } from "../Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 export class IV_UpdateExpression extends ALL_RVal {
   argument:

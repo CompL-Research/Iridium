@@ -4,7 +4,7 @@
 
 import { ALL_IS } from "../ALL_IS/ALL_IS.ts";
 import { BB } from "../BB.ts";
-import { IRIDIUM_FG } from "../Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 // We can add more things here when we add new visitors
 export type InstTraversalContext = { bb: BB };

@@ -22,7 +22,7 @@ import {
 import { ALL_RVal, IV_ASSIGNABLE } from "../ALL_RVal/ALL_RVal.ts";
 import { IV_This } from "./IV_This.ts";
 import { ISP_Super } from "./ALL_ISP.ts";
-import { IRIDIUM_FG } from "../Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 export class IV_SimpleAssn extends ALL_RVal {
   LVal: IV_Identifier;

@@ -28,7 +28,7 @@ import { IV_FunctionExpression } from "../ALL_RVal/IV_FunctionExpression.ts";
 import { IV_NUBD } from "../ALL_RVal/IV_NonLang.ts";
 import { IV_This } from "../ALL_RVal/IV_This.ts";
 import { traverseFGLexical } from "../Visitors/traverse.ts";
-import { IRIDIUM_FG } from "./PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 const isAncestor = (u, v, dTree) => {
   const uData = dTree.node(u);

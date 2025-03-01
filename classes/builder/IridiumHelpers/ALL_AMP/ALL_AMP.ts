@@ -7,7 +7,7 @@ import { printScopedSpace } from "#utils";
 import { Identifier, V8IntrinsicIdentifier } from "@babel/types";
 import { IV_This } from "../ALL_RVal/IV_This.ts";
 import { ISP_Super } from "../ALL_RVal/ALL_ISP.ts";
-import { IRIDIUM_FG } from "../Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 type AmphibiousNodes =
   | JS3MemberExpression

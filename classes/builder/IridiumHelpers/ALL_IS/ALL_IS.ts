@@ -3,7 +3,7 @@ import {
   JS3ClassExpression,
 } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { printScopedSpace, printSpace } from "#utils";
-import { IRIDIUM_FG } from "../Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 export type ALL_IS_NODE =
   | JS3AllowedProgStatement

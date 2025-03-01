@@ -7,7 +7,7 @@ import {
   ISP_StaticClassProperty,
   ISP_ClassMethod,
 } from "./ALL_ISP.ts";
-import { IRIDIUM_FG } from "../Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 export type IV_ClassExpression_properties = Array<
   ISP_ClassProperty | ISP_StaticClassProperty | ISP_ClassMethod

@@ -38,7 +38,6 @@ import {
   optionalMemberExpression,
   ThisExpression,
 } from "@babel/types";
-import path from "node:path";
 
 import JS3Builder from "../JS3Builder.ts";
 import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
@@ -308,30 +307,13 @@ import { Environment, GlobalEnvironment } from "./I_GENERAL/I_Environment.ts";
 
 import { IV_FJSX, IV_JSX, IV_PJSX } from "./ALL_RVal/IV_JSX.ts";
 import { I_Container } from "./I_GENERAL/I_Container.ts";
-import {
-  handleResolvedSources,
-  resolveSources,
-  successorPTAClosure,
-} from "./PTAUtil.ts";
 import { addThisInitToFunctionBoundaries } from "./Passes/AddThisInitToFunctionBoundaries.ts";
 import { cleanupBBs } from "./Passes/BBCleanup.ts";
 import { hoistDeclarations } from "./Passes/DeclarationHoisting.ts";
 import { initializeEnvDefs } from "./Passes/EnvInit.ts";
 import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
-import { PTA_IN_RES, PTA_OUT_RES, startPTA } from "./Passes/PTA.ts";
-import { IRIDIUM_FG } from "./Passes/PTA/IRIDIUM_FG.ts";
-import {
-  DummyObject,
-  ECall,
-  GlobalNode,
-  ImportNode,
-  LiteralNode,
-  ReactRenderRoot,
-  StackNode,
-  UnknownResultObj,
-} from "./Passes/PTA/nodes.ts";
-import { PTAGraph } from "./Passes/PTA/PTAGraph.ts";
+import { IRIDIUM_FG } from "./I_GENERAL/IRIDIUM_FG.ts";
 
 // const genersate = _generate.default;
 export const RESOLUTION_CACHE: Map<string, I_Container> = new Map();
@@ -363,7 +345,7 @@ export default class IRIDIUM_MODULE {
   }
 
   // Build FlowGraph
-  build(level: number = 0) {
+  build() {
     IRIDIUM_MODULE.GLOBAL_CONTEXT.push(
       this.js3builder.projectFile.absoluteFilePath,
     );
@@ -392,183 +374,6 @@ export default class IRIDIUM_MODULE {
     cleanupBBs(res);
 
     this.fg = res;
-
-    const updateResolvedNode = (iNode: ImportNode, container: I_Container) => {
-      const existingIN = PTA_IN_RES.get("" + this.fg.rootBB.idx);
-      const resNode = new ImportNode(
-        iNode.source,
-        iNode.id,
-        iNode.FROM,
-        iNode.isStatic,
-      );
-      resNode.importContext = iNode.importContext;
-      resNode.addContainer(container);
-      existingIN.addPTANode(resNode);
-    };
-
-    // Start PTA
-    let eCallResolved = 0;
-    do {
-      debugConfig.logger.log(
-        `[startPTA]: { file: ${this.js3builder.projectFile.absoluteFilePath}, eCallResolved: ${eCallResolved} }`,
-      );
-      startPTA(res);
-      if (debugConfig.cli.savePTAGraph) {
-        const filename = path.basename(
-          this.js3builder.projectFile.uname,
-          this.js3builder.projectFile.extension,
-        );
-        const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
-        PTA_OUT_RES.get(res.sinks()[0]).saveDotToFile(
-          `${PTAPATH}/${filename}_ECALL_LEVEL_${eCallResolved}`,
-        );
-      }
-      const outPTA = PTA_OUT_RES.get(res.sinks()[0]);
-      const resolvedSources = outPTA
-        .nodes()
-        .map((n) => outPTA.getPTANode(n))
-        .filter((n) => n instanceof ECall)
-        .map((n) => n.iNode);
-      if (resolvedSources.length === 0) {
-        debugConfig.logger.log(
-          `Completing Module PTA Summary, no more ECall Nodes`,
-        );
-        break;
-      } else {
-        debugConfig.logger.log(
-          `[startPTA]: found ${resolvedSources.length} ECall Nodes`,
-        );
-        handleResolvedSources(resolvedSources, updateResolvedNode, level);
-      }
-      eCallResolved++;
-    } while (eCallResolved < IRIDIUM_MODULE.ECALL_LIMIT);
-
-    if (level === 0) {
-      if (debugConfig.cli.savePTAGraph) {
-        const filename = path.basename(
-          this.js3builder.projectFile.uname,
-          this.js3builder.projectFile.extension,
-        );
-        const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
-        PTA_OUT_RES.get(res.sinks()[0]).saveDotToFile(
-          `${PTAPATH}/${filename}_BEFORE_EXPANSION_OUT`,
-        );
-      }
-
-      // After initial PTA analysis of a module, we will expand the
-      // search until 'SEARCH_THRESHOLD', i.e. at each step find the
-      // reachable expandable nodes, resolve them if we can and re-run
-      // the PTA analysis.
-      for (let i = 0; i < IRIDIUM_MODULE.SEARCH_THRESHOLD; i++) {
-        debugConfig.logger.log(`Expanding Search Space ${i}`);
-
-        const currPTA = PTA_OUT_RES.get(res.sinks()[0]);
-
-        // Rootset is the set of nodes where we want to start our analysis,
-        // reachability from the rootSet decides what sources we expand
-        const rootSet = currPTA
-          .nodes()
-          .map((n) => currPTA.getPTANode(n))
-          .filter((n) => n instanceof ReactRenderRoot);
-        const resolvedSources: Set<ImportNode> = resolveSources(
-          rootSet,
-          currPTA,
-        );
-
-        if (resolvedSources.size === 0) {
-          debugConfig.logger.log(
-            `Concluding Search Space Early ${i}/${IRIDIUM_MODULE.SEARCH_THRESHOLD}`,
-          );
-          break;
-        }
-
-        handleResolvedSources(resolvedSources, updateResolvedNode, level);
-
-        if (debugConfig.cli.savePTAGraph) {
-          const filename = path.basename(
-            this.js3builder.projectFile.uname,
-            this.js3builder.projectFile.extension,
-          );
-          const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
-          PTA_IN_RES.get(res.sinks()[0]).saveDotToFile(
-            `${PTAPATH}/${filename}_EXPANSION_LEVEL_${i}_IN`,
-          );
-        }
-
-        startPTA(res);
-
-        if (debugConfig.cli.savePTAGraph) {
-          const filename = path.basename(
-            this.js3builder.projectFile.uname,
-            this.js3builder.projectFile.extension,
-          );
-          const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
-          PTA_OUT_RES.get(res.sinks()[0]).saveDotToFile(
-            `${PTAPATH}/${filename}_EXPANSION_LEVEL_${i}_OUT`,
-          );
-        }
-      }
-
-      // Save final filtered graph
-      const finalPTARes = new PTAGraph();
-      finalPTARes.union(PTA_OUT_RES.get(res.sinks()[0]));
-      const existingNodes = finalPTARes.nodes();
-      const rootSet = finalPTARes
-        .nodes()
-        .map((n) => finalPTARes.getPTANode(n))
-        .filter((n) => n instanceof ReactRenderRoot);
-      const nodesToRetain: Set<string> = new Set();
-      for (const r of rootSet) {
-        successorPTAClosure(finalPTARes, r.id, nodesToRetain);
-      }
-      // const predNodesToRetain: Set<string> = new Set();
-      // for (const r of nodesToRetain) {
-      //   predecessorPTAClosure(finalPTARes, r).forEach((n) =>
-      //     predNodesToRetain.add(n),
-      //   );
-      // }
-      // predNodesToRetain.forEach((n) => nodesToRetain.add(n));
-      for (const n of existingNodes) {
-        if (
-          !nodesToRetain.has(n) ||
-          finalPTARes.getPTANode(n) instanceof ImportNode ||
-          finalPTARes.getPTANode(n) instanceof StackNode ||
-          finalPTARes.getPTANode(n) instanceof DummyObject ||
-          finalPTARes.getPTANode(n) instanceof GlobalNode ||
-          finalPTARes.getPTANode(n) instanceof LiteralNode ||
-          finalPTARes.getPTANode(n) instanceof UnknownResultObj
-        ) {
-          finalPTARes.removePTANode(finalPTARes.getPTANode(n));
-        }
-      }
-      const filename = path.basename(
-        this.js3builder.projectFile.uname,
-        this.js3builder.projectFile.extension,
-      );
-      finalPTARes.saveDotToFile(
-        `${debugConfig.cli.outputsPath}/${filename}_REACT_PTA`,
-      );
-    }
-
-    // // Re-run PTA after composition
-    // startPTA(res);
-
-    // if (debugConfig.cli.savePTAGraph) {
-    //   const filename = path.basename(
-    //     this.js3builder.projectFile.uname,
-    //     this.js3builder.projectFile.extension,
-    //   );
-    //   const PTAPATH = debugConfig.cli.outputsPath + "/PTA";
-    //   // Iterate over all the nodes of this file
-    //   const nodes = res.nodes();
-    //   for (const n of nodes) {
-    //     const inRes = PTA_IN_RES.get(n);
-    //     const outRes = PTA_OUT_RES.get(n);
-    //     inRes.saveDotToFile(`${PTAPATH}/${filename}_composed_${n}_IN`);
-    //     outRes.saveDotToFile(`${PTAPATH}/${filename}_composed${n}_OUT`);
-    //   }
-    // }
-    IRIDIUM_MODULE.GLOBAL_CONTEXT.pop();
   }
 
   // // Set/Get current BB

@@ -28,7 +28,7 @@ import { ALL_RVal, IV_ASSIGNABLE } from "../ALL_RVal/ALL_RVal.ts";
 import { IV_ClassExpression } from "../ALL_RVal/IV_ClassExpression.ts";
 import { IV_CTHIS, IV_NUBD, IV_STHIS } from "../ALL_RVal/IV_NonLang.ts";
 import { IV_This } from "../ALL_RVal/IV_This.ts";
-import { IRIDIUM_FG } from "../Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 import { ALL_IS } from "./ALL_IS.ts";
 import { IS_Return } from "./IS_Debugger_Return_Throw.ts";
 import { IS_FunDecl } from "./IS_FunDecl.ts";

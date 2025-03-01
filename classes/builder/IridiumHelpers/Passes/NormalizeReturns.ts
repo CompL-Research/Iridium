@@ -11,7 +11,7 @@ import {
   traverseFGLexical,
   traverseInstruction,
 } from "../Visitors/traverse.ts";
-import { IRIDIUM_FG } from "./PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 export function normalizeReturns(rootFG: IRIDIUM_FG) {
   traverseFGLexical(rootFG, (fg: IRIDIUM_FG) => {

@@ -17,7 +17,7 @@ import {
 import { BB } from "../BB.ts";
 import { Environment } from "../I_GENERAL/I_Environment.ts";
 import { traverseInstructionRecDepthFirst } from "../Visitors/traverse.ts";
-import { IRIDIUM_FG } from "./PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 export function initializeEnvDefs(rootFG: IRIDIUM_FG) {
   const fgEnvsMap: Map<IRIDIUM_FG, Set<Environment>> = new Map();

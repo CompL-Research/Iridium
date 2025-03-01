@@ -31,7 +31,7 @@ import {
 } from "@babel/types";
 import { I_Function } from "../I_GENERAL/I_Function.ts";
 import { IV_CTHIS } from "./IV_NonLang.ts";
-import { IRIDIUM_FG } from "../Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 // ISP = Iridium SPecial; values that appear as a part of an R Value but never as R_Values directly.
 export class ISP_Super {

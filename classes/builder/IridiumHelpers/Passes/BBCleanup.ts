@@ -2,7 +2,7 @@
 
 import { BB } from "../BB.ts";
 import { traverseBBLexical, traverseFGLexical } from "../Visitors/traverse.ts";
-import { IRIDIUM_FG } from "./PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 export function cleanupBBs(fg: IRIDIUM_FG) {
   let change;

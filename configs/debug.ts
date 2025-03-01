@@ -1,4 +1,4 @@
-import { IRIDIUM_FG } from "classes/builder/IridiumHelpers/Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "classes/builder/IridiumHelpers/I_GENERAL/IRIDIUM_FG.ts";
 import Logger from "../classes/debugger/Logger.ts";
 
 const config: {

@@ -3,7 +3,7 @@ import { JS3JSXCallExpression } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { ALL_RVal } from "./ALL_RVal.ts";
 import { IV_StringLiteral } from "./IV_Literals.ts";
-import { IRIDIUM_FG } from "../Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 export const PRIMITIVE_TAGS = [
   "a",

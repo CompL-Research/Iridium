@@ -17,7 +17,7 @@ import { I_Function_params } from "../../I_GENERAL/I_Function.ts";
 import IRIDIUM_MODULE from "../../IRIDIUM.ts";
 import { predecessorPTAClosure, successorPTAClosure } from "../../PTAUtil.ts";
 import { ContextualPTAHandler, getKeyString, PTA_OUT_RES } from "../PTA.ts";
-import { IRIDIUM_FG } from "./IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../../../I_GENERAL/IRIDIUM_FG.ts";
 import {
   DummyObject,
   ECall,

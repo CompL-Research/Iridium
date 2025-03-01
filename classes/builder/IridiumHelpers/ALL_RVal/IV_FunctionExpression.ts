@@ -6,7 +6,7 @@ import { I_Function } from "../I_GENERAL/I_Function.ts";
 import { ISP_RestElement } from "./ALL_ISP.ts";
 import { ALL_RVal } from "./ALL_RVal.ts";
 import { IV_CTHIS } from "./IV_NonLang.ts";
-import { IRIDIUM_FG } from "../Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 export class IV_FunctionExpression extends ALL_RVal {
   func: I_Function;

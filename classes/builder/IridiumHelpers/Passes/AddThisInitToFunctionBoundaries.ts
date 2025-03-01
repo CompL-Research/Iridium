@@ -31,7 +31,7 @@ import { IV_ObjectExpression } from "../ALL_RVal/IV_ObjectExpression.ts";
 import { IV_This } from "../ALL_RVal/IV_This.ts";
 import { BB } from "../BB.ts";
 import { traverseInstructionRecDepthFirst } from "../Visitors/traverse.ts";
-import { IRIDIUM_FG } from "./PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 export function addThisInitToFunctionBoundaries(rootFG: IRIDIUM_FG) {
   type ToScope =

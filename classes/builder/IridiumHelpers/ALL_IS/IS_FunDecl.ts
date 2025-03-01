@@ -5,7 +5,7 @@ import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { ISP_RestElement } from "../ALL_RVal/ALL_ISP.ts";
 import { IV_CTHIS } from "../ALL_RVal/IV_NonLang.ts";
 import { I_Function } from "../I_GENERAL/I_Function.ts";
-import { IRIDIUM_FG } from "../Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 import { ALL_IS } from "./ALL_IS.ts";
 
 export class IS_FunDecl extends ALL_IS {

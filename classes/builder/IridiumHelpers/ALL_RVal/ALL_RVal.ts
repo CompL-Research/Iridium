@@ -11,7 +11,7 @@ import {
   IV_SuperLookupPA,
   IV_ThisLookupPA,
 } from "../ALL_AMP/ALL_AMP.ts";
-import { IRIDIUM_FG } from "../Passes/PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 
 type IRI_ASSN_TYPE =
   | t_IV_Literals

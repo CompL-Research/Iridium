@@ -50,7 +50,7 @@ import {
   handleObjectDestructuring,
   handleSimpleAssignmentStatement,
 } from "./PTA/handlers.ts";
-import { IRIDIUM_FG } from "./PTA/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "../../I_GENERAL/IRIDIUM_FG.ts";
 import {
   GlobalNode,
   ImportNode,
