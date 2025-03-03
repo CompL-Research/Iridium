@@ -314,6 +314,7 @@ import { initializeEnvDefs } from "./Passes/EnvInit.ts";
 import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
 import { IRIDIUM_FG } from "./I_GENERAL/IRIDIUM_FG.ts";
+import { initializeWorld } from "./Passes/PTA.ts";
 
 // const genersate = _generate.default;
 export const RESOLUTION_CACHE: Map<string, I_Container> = new Map();
@@ -373,7 +374,16 @@ export default class IRIDIUM_MODULE {
     initializeEnvDefs(res);
     cleanupBBs(res);
 
+    debugConfig.logger.warn(res.saveIridiumToString());
+
     this.fg = res;
+  }
+
+  // Start PTA
+  performPTA() {
+    if (!this.fg)
+      debugConfig.logger.throwIriError("Expected fg to be built before PTA...");
+    initializeWorld(this.js3builder.projectFile.uname, this.fg);
   }
 
   // // Set/Get current BB

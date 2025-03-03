@@ -8,12 +8,27 @@ import {
 import debugConfig from "#debugConfig";
 import GLIB from "#graphlib";
 import { popSet } from "#utils";
-
+import {
+  IS_AExport,
+  IS_BExport,
+  IS_BImport,
+  IS_CExport,
+  IS_DExport,
+  IS_EExport,
+} from "../ALL_IS/IS_Imports_Exports.ts";
+import { IS_ClassStaticPropInit } from "../ALL_IS/IS_ClassStaticPropInit.ts";
+import {
+  IS1_DeclarationStmt,
+  IS1_AssignmentStmt,
+} from "../ALL_IS/IS_VarDecl.ts";
+import { getStackQualifiedName } from "./PTA_STUFF/util.ts";
+import { handleSimpleAssignmentStatement } from "./PTA_STUFF/PTAHandlers.ts";
+import { handleRVals } from "./PTA_STUFF/RValHandlers.ts";
 //
 // A world can be in three states:
-//  1. !PTA_WORLD.has            ===> Not Seen Before
-//  2. !PTA_WORLD.has && isNull  ===> Under Process
-//  3. !PTA_WORLD.has && !isNull ===> Processed
+//  1. !PTA_WORLD.has()            ===> Not Seen Before
+//  2. !PTA_WORLD.has() && isNull  ===> Under Process
+//  3. !PTA_WORLD.has() && !isNull ===> Processed
 //
 export const PTA_WORLD: Map<string, PTAFlowData> = new Map();
 export const PTA_WORLD_CURRMUTABLE_DATA: Map<string, PTAFlowData> = new Map();
@@ -44,8 +59,6 @@ export const PTA = (
     .nodes()
     .forEach((bbIdx: BBIdx) => flowMap.set(bbIdx, NewPTAFlowData()));
 
-  let step = 0;
-
   // Do one pass in DTree order, this will ensure all defs dominate uses...
   const dTree = GLIB.alg.dominatorTarjan(rootFG, "" + rootFG.rootBB.idx, false);
 
@@ -69,7 +82,6 @@ export const PTA = (
   visitDFS("" + rootFG.rootBB.idx);
 
   const doWorklist = (currBBIDx: string) => {
-    step++;
     // Incoming Set
     let inGraph: PTAFlowData;
     const preds = rootFG.predecessors(currBBIDx);
@@ -86,7 +98,7 @@ export const PTA = (
       mutableFlowData: PTAFlowData,
     ) {
       PTA_WORLD_CURRMUTABLE_DATA.set(uname, mutableFlowData);
-      flowFunction(uname, rootFG, mutableFlowData, currBBIDx, step);
+      flowFunction(uname, rootFG, mutableFlowData, currBBIDx);
     });
 
     // Add successors to worklist if there was a change
@@ -124,5 +136,115 @@ export const flowFunction = (
   rootFG: IRIDIUM_FG,
   mutableFlowData: PTAFlowData,
   currBBIDx: string,
-  step: number,
-) => {};
+) => {
+  const currBB = rootFG.getBBNode(currBBIDx);
+  let stackInstOffset = 0;
+  for (const i of currBB.statements) {
+    stackInstOffset++;
+    if (i instanceof IS_BImport) {
+      debugConfig.logger.throwIriError("PTA TODO: IS_BImport");
+      // handleBImportNode(nextGraph, i, currBB, currBBIDx, stackInstOffset);
+    } else if (i instanceof IS_ClassStaticPropInit) {
+      debugConfig.logger.throwIriError("PTA TODO: IS_ClassStaticPropInit");
+      // // obj[prop] = rval
+      // // obj.prop = rval
+      // let rValID = getStackQualifiedName(i.RVal.lookupName(), currBB)
+      // nextGraph.ensureNode(rValID)
+
+      // let rValPointees = nextGraph.getPointees(rValID)
+
+      // // handleMemberAssignment(nextGraph, i.obj.lookupName(), rValPointees, i.prop.lookupName(), i.computed);
+    } else if (i instanceof IS1_DeclarationStmt) {
+      const qualifiedLVal = getStackQualifiedName(i.LVal.lookupName(), currBB);
+      handleSimpleAssignmentStatement(
+        mutableFlowData,
+        qualifiedLVal,
+        handleRVals(
+          mutableFlowData,
+          i.RVal,
+          currBB,
+          currBBIDx,
+          stackInstOffset,
+        ),
+      );
+    } else if (i instanceof IS1_AssignmentStmt) {
+      debugConfig.logger.throwIriError("PTA TODO: IS1_AssignmentStmt");
+      // if (i.LVal instanceof IV_Identifier) {
+      //   const lookupName = i.LVal.lookupName();
+      //   const qualifiedLVal = getStackQualifiedName(lookupName, currBB);
+      //   const RValPointees = handleRVals(
+      //     nextGraph,
+      //     i.RVal,
+      //     currBB,
+      //     currBBIDx,
+      //     stackInstOffset,
+      //   );
+      //   handleSimpleAssignmentStatement(nextGraph, qualifiedLVal, RValPointees);
+      // } else if (isJS3ObjectPattern(i.LVal)) {
+      //   const objDestLVal = i.LVal;
+      //   const RValPointees = handleRVals(
+      //     nextGraph,
+      //     i.RVal,
+      //     currBB,
+      //     currBBIDx,
+      //     stackInstOffset,
+      //   );
+      //   handleObjectDestructuring(
+      //     nextGraph,
+      //     objDestLVal,
+      //     RValPointees,
+      //     currBB,
+      //     currBBIDx,
+      //     stackInstOffset,
+      //   );
+      // } else {
+      //   const objDestLVal = i.LVal;
+      //   const RValPointees = handleRVals(
+      //     nextGraph,
+      //     i.RVal,
+      //     currBB,
+      //     currBBIDx,
+      //     stackInstOffset,
+      //   );
+      //   handleArrayDestructuring(
+      //     nextGraph,
+      //     objDestLVal,
+      //     RValPointees,
+      //     currBB,
+      //     currBBIDx,
+      //     stackInstOffset,
+      //   );
+      // }
+    } else if (i instanceof IS_AExport) {
+      debugConfig.logger.throwIriError("PTA TODO: IS_AExport");
+      // // export default ID
+      // const heapNode = nextGraph.getPTANode("EXPORT");
+      // const pointees = nextGraph.getPointees(
+      //   getStackQualifiedName(i.id.lookupName(), currBB),
+      // );
+      // nextGraph.drawHeapToHeapEdge([heapNode], pointees, ["default"], true);
+    } else if (i instanceof IS_BExport) {
+      debugConfig.logger.throwIriError("PTA TODO: IS_BExport");
+      // // Export local as remote
+      // const pointees = nextGraph.getPointees(
+      //   getStackQualifiedName(i.local.lookupName(), currBB),
+      // );
+      // const heapNode = nextGraph.getPTANode("EXPORT");
+
+      // let remote: string;
+      // if (i.remote instanceof IV_Identifier) remote = i.remote.lookupName();
+      // else remote = i.remote.value;
+
+      // nextGraph.drawHeapToHeapEdge([heapNode], pointees, [remote], true);
+    } else if (i instanceof IS_CExport) {
+      debugConfig.logger.throwIriError("PTA TODO: IS_CExport");
+      // handleCExportNode(nextGraph, i, currBB, currBBIDx, stackInstOffset);
+    } else if (i instanceof IS_DExport) {
+      debugConfig.logger.throwIriError("PTA TODO: IS_DExport");
+      // debugConfig.logger.throwIriError("PTA: IS_DExport not yet supported");
+    } else if (i instanceof IS_EExport) {
+      debugConfig.logger.throwIriError("PTA TODO: IS_EExport");
+      // handleEExportNode(nextGraph, i, currBB, currBBIDx, stackInstOffset);
+    }
+  }
+};

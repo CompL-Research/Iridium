@@ -25,6 +25,12 @@ export const arePTAFlowDataEqual = (
   return a.equals(b);
 };
 
+// Force update pointees when making a stack node update
+export const addStackPTANode = (CURR: PTAFlowData, node: PTAFlowNode) => {
+  GLOBAL_NODE_MAP.set(node.id, node);
+  CURR.set(node.id, ISet());
+};
+
 export const addPTANode = (CURR: PTAFlowData, node: PTAFlowNode) => {
   if (!GLOBAL_NODE_MAP.has(node.id)) GLOBAL_NODE_MAP.set(node.id, node);
   if (!CURR.has(node.id)) CURR.set(node.id, ISet());
@@ -56,7 +62,7 @@ export const ensureNodeIDAndGetPTANode = (
 export const addStackEdges = (
   CURR: PTAFlowData,
   u: StackNode,
-  vs: Set<HeapNode>,
+  vs: Set<PTAFlowNode> | Array<PTAFlowNode>,
 ) => {
   assertPTANode(CURR, u);
   if (!CURR.has(u.id)) CURR.set(u.id, ISet());
@@ -64,20 +70,25 @@ export const addStackEdges = (
     assertPTANode(CURR, v);
     if (!CURR.has(u.id)) CURR.set(v.id, ISet());
     const e = PTAEdge.constructStackEdge(u.id, v.id);
-    CURR.get(v.id).add(e.getPTAEdge());
+
+    // Mutations must be used when doing operations in the containing set's
+    CURR.set(
+      u.id,
+      CURR.get(v.id).withMutations((data) => {
+        data.add(e.getPTAEdge());
+      }),
+    );
   }
 };
 
 export const getPointees = (CURR: PTAFlowData, u: StackNode) => {
   assertPTANode(CURR, u);
   if (!CURR.has(u.id)) CURR.set(u.id, ISet());
-  const res: Set<PTANODEID> = new Set();
   const outEdges = CURR.get(u.id);
   const outVs: ISet<PTAFlowNode> = outEdges.map((e) =>
     ensureNodeIDAndGetPTANode(CURR, PTAEdge.from(u.id, e).v),
   );
-  outVs.forEach((v) => res.add(v.id));
-  return res;
+  return outVs;
 };
 
 //
@@ -125,8 +136,35 @@ export class PTAEdge {
 
 export class PTAFlowNode {
   id: string;
+  constructor(id: string) {
+    this.id = id;
+  }
 }
 
-export class StackNode extends PTAFlowNode {}
+export class StackNode extends PTAFlowNode {
+  constructor(id: string) {
+    super(id);
+  }
+}
 
-export class HeapNode extends PTAFlowNode {}
+export class HeapNode extends PTAFlowNode {
+  constructor(id: string) {
+    super(id);
+  }
+}
+
+export class IRIDUM_GLOBAL extends PTAFlowNode {
+  constructor(id: string) {
+    super(id);
+  }
+}
+
+//
+// We keep a track of literal nodes so we can dissern the fields in cases
+// in cases where we have computed field references.
+//
+export class LiteralNode extends HeapNode {
+  constructor(id: string) {
+    super(id);
+  }
+}
