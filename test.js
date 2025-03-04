@@ -1298,5 +1298,9 @@
 let x;
 let y = {
   [x]: "Hi",
+  boo(a) {
+    console.log(a);
+  },
 };
 x = y;
+y.boo();

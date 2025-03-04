@@ -5,7 +5,10 @@ import {
   ISP_ObjectProperty,
 } from "../../ALL_RVal/ALL_ISP.ts";
 import { IV_ASSIGNABLE } from "../../ALL_RVal/ALL_RVal.ts";
+import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
 import { IV_SimpleAssn } from "../../ALL_RVal/IV_Assignment.ts";
+import { IV_Call } from "../../ALL_RVal/IV_Call.ts";
+import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
 import {
   IV_DecimalLiteral,
   IV_BigIntLiteral,
@@ -21,6 +24,7 @@ import {
   addHeapEdges,
   addPTANode,
   ensureNodeIDAndGetPTANode,
+  ensureNodeIDAndGetStackNode,
   GetClosureNode,
   getPointees,
   GLOBAL_NODE_MAP,
@@ -34,7 +38,10 @@ import {
   SetClosureNode,
   StackNode,
 } from "./PTAFlowData.ts";
-import { handleSimpleAssignmentStatement } from "./PTAHandlers.ts";
+import {
+  handleCallExpression,
+  handleSimpleAssignmentStatement,
+} from "./PTAHandlers.ts";
 import {
   dissernPointees,
   getHeapQualifiedName,
@@ -132,10 +139,7 @@ export const handleRVals = (
   // AMP
   else if (rVal instanceof IV_Identifier) {
     const ID = getStackQualifiedName(rVal.lookupName(), currBB);
-    const stackNode = GLOBAL_NODE_MAP.has(ID)
-      ? GLOBAL_NODE_MAP.get(ID)
-      : new StackNode(ID);
-    assert(stackNode instanceof StackNode);
+    const stackNode = ensureNodeIDAndGetStackNode(mutableFlowData, ID);
     return [...getPointees(mutableFlowData, stackNode)];
   }
   // else if (rVal instanceof IV_MemberExpressionPA) {
@@ -293,21 +297,27 @@ export const handleRVals = (
   //   );
   //   nextGraph.declareNode(resObj);
   //   return [resObj];
-  // } else if (rVal instanceof IV_Call) {
-  //   const callees = nextGraph.getPointees(
-  //     getStackQualifiedName(rVal.callee.lookupName(), currBB),
-  //   );
+  // }
+  else if (rVal instanceof IV_Call) {
+    const ID = getStackQualifiedName(rVal.callee.lookupName(), currBB);
+    const stackNode = GLOBAL_NODE_MAP.has(ID)
+      ? GLOBAL_NODE_MAP.get(ID)
+      : new StackNode(ID);
+    assert(stackNode instanceof StackNode);
 
-  //   const res = handleCallExpression(
-  //     nextGraph,
-  //     callees,
-  //     rVal.args,
-  //     currBB,
-  //     currBBIDx,
-  //     stackInstOffset,
-  //   );
-  //   return [...res];
-  // } else if (rVal instanceof IV_SuperCall) {
+    const callees = getPointees(mutableFlowData, stackNode);
+
+    const res = handleCallExpression(
+      mutableFlowData,
+      callees,
+      rVal.args,
+      currBB,
+      currBBIDx,
+      stackInstOffset,
+    );
+    return [...res];
+  }
+  // else if (rVal instanceof IV_SuperCall) {
   //   const resObj = new UnknownResultObj(
   //     getHeapQualifiedName("IV_SuperCall", currBBIDx, stackInstOffset),
   //   );
@@ -735,25 +745,31 @@ export const handleRVals = (
   //   return [resObj];
   // }
 
-  // // t_IV_FunctionExpression
-  // else if (rVal instanceof IV_FunctionExpression) {
-  //   const funID = getHeapQualifiedName("funExpr", currBBIDx, stackInstOffset);
-  //   const funObj = new OrdinaryFunctionObject(funID, rVal);
-  //   if (!nextGraph.hasNode(funID)) nextGraph.addPTANode(funObj);
-  //   return [funObj];
-  // }
+  // t_IV_FunctionExpression
+  else if (rVal instanceof IV_FunctionExpression) {
+    const funID = getHeapQualifiedName("funExpr", currBBIDx, stackInstOffset);
+    const funNode = GLOBAL_NODE_MAP.has(funID)
+      ? GLOBAL_NODE_MAP.get(funID)
+      : new OrdinaryFunctionNode(funID, rVal);
+    assert(funNode instanceof OrdinaryFunctionNode);
+    addPTANode(mutableFlowData, funNode);
+    return [funNode];
+  }
 
-  // // t_IV_ArrowFunctionExpression
-  // else if (rVal instanceof IV_ArrowFunctionExpression) {
-  //   const funID = getHeapQualifiedName(
-  //     "arrowFunExpr",
-  //     currBBIDx,
-  //     stackInstOffset,
-  //   );
-  //   const funObj = new OrdinaryFunctionObject(funID, rVal);
-  //   if (!nextGraph.hasNode(funID)) nextGraph.addPTANode(funObj);
-  //   return [funObj];
-  // }
+  // t_IV_ArrowFunctionExpression
+  else if (rVal instanceof IV_ArrowFunctionExpression) {
+    const funID = getHeapQualifiedName(
+      "arrowFunExpr",
+      currBBIDx,
+      stackInstOffset,
+    );
+    const funNode = GLOBAL_NODE_MAP.has(funID)
+      ? GLOBAL_NODE_MAP.get(funID)
+      : new OrdinaryFunctionNode(funID, rVal);
+    assert(funNode instanceof OrdinaryFunctionNode);
+    addPTANode(mutableFlowData, funNode);
+    return [funNode];
+  }
 
   // // t_IV_NewExpression
   // else if (rVal instanceof IV_NewExpression) {

@@ -70,6 +70,26 @@ export const ensureNodeIDAndGetPTANode = (
   return undefined;
 };
 
+export const ensureNodeIDAndGetStackNode = (
+  CURR: PTAFlowData,
+  nodeID: string,
+): StackNode => {
+  if (!GLOBAL_NODE_MAP.has(nodeID))
+    debugConfig.logger.throwIriError(
+      `Stack PTA Node not found for ID: ${nodeID}`,
+    );
+  else {
+    const currPTANode = GLOBAL_NODE_MAP.get(nodeID);
+    assertPTANode(CURR, currPTANode);
+    if (currPTANode instanceof StackNode) return currPTANode;
+    else
+      debugConfig.logger.throwIriError(
+        `Expected type StackNode for ID: ${nodeID}`,
+      );
+  }
+  return undefined;
+};
+
 // Graph Manipulation Methods
 export const addStackEdges = (
   CURR: PTAFlowData,
@@ -96,7 +116,7 @@ export const addHeapEdges = (
   CURR: PTAFlowData,
   u: PTAFlowNode,
   fields: Set<string> | Array<string>,
-  vs: Set<PTAFlowNode> | Array<PTAFlowNode>,
+  vs: Set<PTAFlowNode> | Array<PTAFlowNode> | ISet<PTAFlowNode>,
   enumerable: boolean = true,
 ) => {
   assertPTANode(CURR, u);
@@ -193,6 +213,12 @@ export class PTAFlowNode {
 }
 
 export class StackNode extends PTAFlowNode {
+  constructor(id: string) {
+    super(id);
+  }
+}
+
+export class OrdinaryArrayNode extends PTAFlowNode {
   constructor(id: string) {
     super(id);
   }
