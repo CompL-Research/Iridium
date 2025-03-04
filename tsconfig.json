@@ -1,15 +1,4 @@
 {
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-    "out",
-    ".git",
-    "temp",
-    "tests",
-    "outputs",
-    "/home/meetesh/wd/Iridium/classes/builder/IridiumHelpers/Passes/PTA-UOW/PTA.ts",
-  ],
   "compilerOptions": {
     "module": "NodeNext",
     "esModuleInterop": true,

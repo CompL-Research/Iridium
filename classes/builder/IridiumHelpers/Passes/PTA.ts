@@ -22,8 +22,12 @@ import {
   IS1_AssignmentStmt,
 } from "../ALL_IS/IS_VarDecl.ts";
 import { getStackQualifiedName } from "./PTA_STUFF/util.ts";
-import { handleSimpleAssignmentStatement } from "./PTA_STUFF/PTAHandlers.ts";
+import {
+  handleSimpleAssignmentStatement,
+  handleBImportNode,
+} from "./PTA_STUFF/PTAHandlers.ts";
 import { handleRVals } from "./PTA_STUFF/RValHandlers.ts";
+import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 //
 // A world can be in three states:
 //  1. !PTA_WORLD.has()            ===> Not Seen Before
@@ -142,8 +146,7 @@ export const flowFunction = (
   for (const i of currBB.statements) {
     stackInstOffset++;
     if (i instanceof IS_BImport) {
-      debugConfig.logger.throwIriError("PTA TODO: IS_BImport");
-      // handleBImportNode(nextGraph, i, currBB, currBBIDx, stackInstOffset);
+      handleBImportNode(mutableFlowData, i, currBB, currBBIDx, stackInstOffset);
     } else if (i instanceof IS_ClassStaticPropInit) {
       debugConfig.logger.throwIriError("PTA TODO: IS_ClassStaticPropInit");
       // // obj[prop] = rval
@@ -168,19 +171,25 @@ export const flowFunction = (
         ),
       );
     } else if (i instanceof IS1_AssignmentStmt) {
-      debugConfig.logger.throwIriError("PTA TODO: IS1_AssignmentStmt");
-      // if (i.LVal instanceof IV_Identifier) {
-      //   const lookupName = i.LVal.lookupName();
-      //   const qualifiedLVal = getStackQualifiedName(lookupName, currBB);
-      //   const RValPointees = handleRVals(
-      //     nextGraph,
-      //     i.RVal,
-      //     currBB,
-      //     currBBIDx,
-      //     stackInstOffset,
-      //   );
-      //   handleSimpleAssignmentStatement(nextGraph, qualifiedLVal, RValPointees);
-      // } else if (isJS3ObjectPattern(i.LVal)) {
+      if (i.LVal instanceof IV_Identifier) {
+        const lookupName = i.LVal.lookupName();
+        const qualifiedLVal = getStackQualifiedName(lookupName, currBB);
+        const RValPointees = handleRVals(
+          mutableFlowData,
+          i.RVal,
+          currBB,
+          currBBIDx,
+          stackInstOffset,
+        );
+        handleSimpleAssignmentStatement(
+          mutableFlowData,
+          qualifiedLVal,
+          RValPointees,
+        );
+      } else {
+        debugConfig.logger.throwIriError("PTA TODO: Destructuring Assignment");
+      }
+      // else if (isJS3ObjectPattern(i.LVal)) {
       //   const objDestLVal = i.LVal;
       //   const RValPointees = handleRVals(
       //     nextGraph,

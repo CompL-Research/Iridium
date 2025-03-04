@@ -1,38 +1,66 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import debugConfig from "#debugConfig";
 import { IV_Identifier } from "../../ALL_AMP/ALL_AMP.ts";
+import {
+  ISP_ObjectMethod,
+  ISP_ObjectProperty,
+} from "../../ALL_RVal/ALL_ISP.ts";
 import { IV_ASSIGNABLE } from "../../ALL_RVal/ALL_RVal.ts";
+import { IV_SimpleAssn } from "../../ALL_RVal/IV_Assignment.ts";
+import {
+  IV_DecimalLiteral,
+  IV_BigIntLiteral,
+  IV_StringLiteral,
+  IV_NumericLiteral,
+  IV_NullLiteral,
+  IV_BooleanLiteral,
+} from "../../ALL_RVal/IV_Literals.ts";
 import { IV_CTHIS, IV_NUBD, IV_STHIS } from "../../ALL_RVal/IV_NonLang.ts";
+import { IV_ObjectExpression } from "../../ALL_RVal/IV_ObjectExpression.ts";
 import { BB } from "../../BB.ts";
 import {
+  addHeapEdges,
   addPTANode,
   ensureNodeIDAndGetPTANode,
+  GetClosureNode,
   getPointees,
+  GLOBAL_NODE_MAP,
   IRIDUM_GLOBAL,
+  LiteralNode,
+  OrdinaryFunctionNode,
+  OrdinaryObjectNode,
+  PTAEdge,
   PTAFlowData,
   PTAFlowNode,
+  SetClosureNode,
+  StackNode,
 } from "./PTAFlowData.ts";
-import { getStackQualifiedName } from "./util.ts";
+import { handleSimpleAssignmentStatement } from "./PTAHandlers.ts";
+import {
+  dissernPointees,
+  getHeapQualifiedName,
+  getStackQualifiedName,
+} from "./util.ts";
+import assert from "node:assert";
 
-// export const dissernProps = (
-//   nextGraph: PTAGraph,
-//   name: string,
-//   stackQualifiedName: string,
-//   computed: boolean,
-// ): Set<string> => {
-//   const res: Set<string> = new Set();
-//   if (!computed) {
-//     res.add(name);
-//     return res;
-//   }
-//   //
-//   // We have a computed prop, we must find all the literals it points to and see if we can resolve it.
-//   //
-//   nextGraph.ensureNode(stackQualifiedName);
-//   const propPointees: Array<Valid_Stack_To_Heap_Pointees> =
-//     nextGraph.getPointees(stackQualifiedName);
-//   return dissernPointees(propPointees);
-// };
+export const dissernProps = (
+  mutableFlowData: PTAFlowData,
+  name: string,
+  stackQualifiedName: string,
+  computed: boolean,
+): Set<string> => {
+  const res: Set<string> = new Set();
+  if (!computed) {
+    res.add(name);
+    return res;
+  }
+  //
+  // We have a computed prop, we must find all the literals it points to and see if we can resolve it.
+  //
+  const node = ensureNodeIDAndGetPTANode(mutableFlowData, stackQualifiedName);
+  assert(node instanceof StackNode);
+  const propPointees = getPointees(mutableFlowData, node);
+  return dissernPointees(propPointees);
+};
 
 // export const getSpreadPointees = (
 //   nextGraph: PTAGraph,
@@ -70,33 +98,47 @@ export const handleRVals = (
 
   // IS1_DeclarationStmt
   if (rVal instanceof IV_NUBD) {
-    const nubdNode = new IRIDUM_GLOBAL("NUBD");
-    addPTANode(mutableFlowData, nubdNode);
-    return [ensureNodeIDAndGetPTANode(mutableFlowData, "NUBD")];
+    const ID = "NUBD";
+    const node = GLOBAL_NODE_MAP.has(ID)
+      ? GLOBAL_NODE_MAP.get(ID)
+      : new IRIDUM_GLOBAL(ID);
+    assert(node instanceof IRIDUM_GLOBAL);
+    addPTANode(mutableFlowData, node);
+    return [node];
   } else if (rVal instanceof IV_Identifier && rVal.name === "undefined") {
-    const nubdNode = new IRIDUM_GLOBAL("undefined");
-    addPTANode(mutableFlowData, nubdNode);
-    return [ensureNodeIDAndGetPTANode(mutableFlowData, "undefined")];
+    const ID = "undefined";
+    const node = GLOBAL_NODE_MAP.has(ID)
+      ? GLOBAL_NODE_MAP.get(ID)
+      : new IRIDUM_GLOBAL(ID);
+    assert(node instanceof IRIDUM_GLOBAL);
+    addPTANode(mutableFlowData, node);
+    return [node];
   } else if (rVal instanceof IV_CTHIS) {
-    const cThis = ensureNodeIDAndGetPTANode(
-      mutableFlowData,
-      getStackQualifiedName(IV_CTHIS.lookupName(), currBB),
-    );
-    return [...getPointees(mutableFlowData, cThis)];
+    debugConfig.logger.throwIriError("TODO: Handle IV_CTHIS");
+    // const cThis = ensureNodeIDAndGetPTANode(
+    //   mutableFlowData,
+    //   getStackQualifiedName(IV_CTHIS.lookupName(), currBB),
+    // );
+    // return [...getPointees(mutableFlowData, cThis)];
   } else if (rVal instanceof IV_STHIS) {
-    const sThis = ensureNodeIDAndGetPTANode(
-      mutableFlowData,
-      getStackQualifiedName(IV_STHIS.lookupName(), currBB),
-    );
-    return [...getPointees(mutableFlowData, sThis)];
+    debugConfig.logger.throwIriError("TODO: Handle IV_STHIS");
+    // const sThis = ensureNodeIDAndGetPTANode(
+    //   mutableFlowData,
+    //   getStackQualifiedName(IV_STHIS.lookupName(), currBB),
+    // );
+    // return [...getPointees(mutableFlowData, sThis)];
   }
 
-  // // AMP
-  // else if (rVal instanceof IV_Identifier) {
-  //   return nextGraph.getPointees(
-  //     getStackQualifiedName(rVal.lookupName(), currBB),
-  //   );
-  // } else if (rVal instanceof IV_MemberExpressionPA) {
+  // AMP
+  else if (rVal instanceof IV_Identifier) {
+    const ID = getStackQualifiedName(rVal.lookupName(), currBB);
+    const stackNode = GLOBAL_NODE_MAP.has(ID)
+      ? GLOBAL_NODE_MAP.get(ID)
+      : new StackNode(ID);
+    assert(stackNode instanceof StackNode);
+    return [...getPointees(mutableFlowData, stackNode)];
+  }
+  // else if (rVal instanceof IV_MemberExpressionPA) {
   //   // a.x
   //   const res: Set<PTANode> = new Set();
   //   const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
@@ -170,33 +212,61 @@ export const handleRVals = (
   //   return [...res];
   // }
 
-  // // ALL_RVal
-  // // t_IV_Literals
-  // else if (rVal instanceof IV_DecimalLiteral) {
-  //   const ID = rVal.lookupName();
-  //   if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new DecimalNode(ID));
-  //   return [nextGraph.getPTANode(ID)];
-  // } else if (rVal instanceof IV_BigIntLiteral) {
-  //   const ID = rVal.lookupName();
-  //   if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new BigIntNode(ID));
-  //   return [nextGraph.getPTANode(ID)];
-  // } else if (rVal instanceof IV_StringLiteral) {
-  //   const ID = rVal.value;
-  //   if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new StringNode(ID));
-  //   return [nextGraph.getPTANode(ID)];
-  // } else if (rVal instanceof IV_NumericLiteral) {
-  //   const ID = rVal.lookupName();
-  //   if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new NumericNode(ID));
-  //   return [nextGraph.getPTANode(ID)];
-  // } else if (rVal instanceof IV_NullLiteral) {
-  //   const ID = rVal.lookupName();
-  //   if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new NullNode(ID));
-  //   return [nextGraph.getPTANode(ID)];
-  // } else if (rVal instanceof IV_BooleanLiteral) {
-  //   const ID = rVal.lookupName();
-  //   if (!nextGraph.hasNode(ID)) nextGraph.addPTANode(new BooleanNode(ID));
-  //   return [nextGraph.getPTANode(ID)];
-  // }
+  // ALL_RVal
+  // t_IV_Literals
+  else if (rVal instanceof IV_DecimalLiteral) {
+    const ID = rVal.lookupName();
+    const node = GLOBAL_NODE_MAP.has(ID)
+      ? GLOBAL_NODE_MAP.get(ID)
+      : new LiteralNode(ID, rVal);
+    assert(node instanceof LiteralNode);
+    assert(node.node instanceof IV_DecimalLiteral);
+    addPTANode(mutableFlowData, node);
+    return [node];
+  } else if (rVal instanceof IV_BigIntLiteral) {
+    const ID = rVal.lookupName();
+    const node = GLOBAL_NODE_MAP.has(ID)
+      ? GLOBAL_NODE_MAP.get(ID)
+      : new LiteralNode(ID, rVal);
+    assert(node instanceof LiteralNode);
+    assert(node.node instanceof IV_BigIntLiteral);
+    addPTANode(mutableFlowData, node);
+    return [node];
+  } else if (rVal instanceof IV_StringLiteral) {
+    const ID = rVal.value;
+    const node = GLOBAL_NODE_MAP.has(ID)
+      ? GLOBAL_NODE_MAP.get(ID)
+      : new LiteralNode(ID, rVal);
+    assert(node instanceof LiteralNode);
+    assert(node.node instanceof IV_StringLiteral);
+    addPTANode(mutableFlowData, node);
+    return [node];
+  } else if (rVal instanceof IV_NumericLiteral) {
+    const ID = rVal.lookupName();
+    const node = GLOBAL_NODE_MAP.has(ID)
+      ? GLOBAL_NODE_MAP.get(ID)
+      : new LiteralNode(ID, rVal);
+    assert(node instanceof LiteralNode);
+    assert(node.node instanceof IV_NumericLiteral);
+    addPTANode(mutableFlowData, node);
+    return [node];
+  } else if (rVal instanceof IV_NullLiteral) {
+    const ID = rVal.lookupName();
+    const node = GLOBAL_NODE_MAP.has(ID)
+      ? GLOBAL_NODE_MAP.get(ID)
+      : new LiteralNode(ID, rVal);
+    assert(node instanceof LiteralNode);
+    assert(node.node instanceof IV_NullLiteral);
+    addPTANode(mutableFlowData, node);
+  } else if (rVal instanceof IV_BooleanLiteral) {
+    const ID = rVal.lookupName();
+    const node = GLOBAL_NODE_MAP.has(ID)
+      ? GLOBAL_NODE_MAP.get(ID)
+      : new LiteralNode(ID, rVal);
+    assert(node instanceof LiteralNode);
+    assert(node.node instanceof IV_BooleanLiteral);
+    addPTANode(mutableFlowData, node);
+  }
 
   // // t_IV_Regexp
   // else if (rVal instanceof IV_Regexp) {
@@ -327,22 +397,20 @@ export const handleRVals = (
   //   return [resObj];
   // }
 
-  // // t_IV_ASSN
-  // else if (rVal instanceof IV_SimpleAssn) {
-  //   const res = handleRVals(
-  //     nextGraph,
-  //     rVal.RVal,
-  //     currBB,
-  //     currBBIDx,
-  //     stackInstOffset,
-  //   );
-  //   handleSimpleAssignmentStatement(
-  //     nextGraph,
-  //     getStackQualifiedName(rVal.LVal.lookupName(), currBB),
-  //     res,
-  //   );
-  //   return res;
-  // } else if (rVal instanceof IV_MemberAssn) {
+  // t_IV_ASSN
+  else if (rVal instanceof IV_SimpleAssn) {
+    const res = handleRVals(
+      mutableFlowData,
+      rVal.RVal,
+      currBB,
+      currBBIDx,
+      stackInstOffset,
+    );
+    const ID = getStackQualifiedName(rVal.LVal.lookupName(), currBB);
+    handleSimpleAssignmentStatement(mutableFlowData, ID, res);
+    return res;
+  }
+  // else if (rVal instanceof IV_MemberAssn) {
   //   // a.x = RVal
   //   const receiver = getStackQualifiedName(
   //     rVal.LVal.object.lookupName(),
@@ -486,122 +554,114 @@ export const handleRVals = (
   //   return RValPointees;
   // }
 
-  // // t_IV_ObjectExpression
-  // else if (rVal instanceof IV_ObjectExpression) {
-  //   // [Ordinary Object]
-  //   const objExprID = getHeapQualifiedName(
-  //     "objExpr",
-  //     currBBIDx,
-  //     stackInstOffset,
-  //   );
-  //   const objExprObj = new OrdinaryObject(objExprID);
-  //   if (!nextGraph.hasNode(objExprID)) nextGraph.addPTANode(objExprObj);
+  // t_IV_ObjectExpression
+  else if (rVal instanceof IV_ObjectExpression) {
+    // [Ordinary Object]
+    const objExprID = getHeapQualifiedName(
+      "objExpr",
+      currBBIDx,
+      stackInstOffset,
+    );
 
-  //   // Process Fields
-  //   let i = 0;
-  //   for (const p of rVal.properties) {
-  //     if (p instanceof ISP_ObjectMethod) {
-  //       const dissernedProps: Set<string> = dissernProps(
-  //         nextGraph,
-  //         p.key.lookupName(),
-  //         p.computed && getStackQualifiedName(p.key.lookupName(), currBB),
-  //         p.computed,
-  //       );
-  //       if (dissernedProps.size === 0) dissernedProps.add("*");
-  //       let pointee:
-  //         | OrdinaryFunctionObject
-  //         | GetSpecialClosure
-  //         | SetSpecialClosure;
-  //       if (p.kind === "method") {
-  //         pointee = new OrdinaryFunctionObject(
-  //           getHeapQualifiedName("ObjMeth" + i, currBBIDx, stackInstOffset),
-  //           p,
-  //         );
-  //       } else if (p.kind === "get") {
-  //         pointee = new GetSpecialClosure(
-  //           getHeapQualifiedName("GetMeth" + i, currBBIDx, stackInstOffset),
-  //           p,
-  //         );
-  //       } else if (p.kind === "set") {
-  //         pointee = new SetSpecialClosure(
-  //           getHeapQualifiedName("SetMeth" + i, currBBIDx, stackInstOffset),
-  //           p,
-  //         );
-  //       }
-  //       nextGraph.addPTANode(pointee);
+    const objNode = GLOBAL_NODE_MAP.has(objExprID)
+      ? GLOBAL_NODE_MAP.get(objExprID)
+      : new OrdinaryObjectNode(objExprID);
+    assert(objNode instanceof OrdinaryObjectNode);
+    addPTANode(mutableFlowData, objNode);
 
-  //       //
-  //       // It is safe to ignore the pending closures because we are performing set operation without
-  //       // actually invoking any setters, so this should work
-  //       //
+    // Process Fields
+    let i = 0;
+    for (const p of rVal.properties) {
+      if (p instanceof ISP_ObjectMethod) {
+        const dissernedProps: Set<string> = dissernProps(
+          mutableFlowData,
+          p.key.lookupName(),
+          p.computed && getStackQualifiedName(p.key.lookupName(), currBB),
+          p.computed,
+        );
 
-  //       nextGraph.drawHeapToHeapEdge(
-  //         [objExprObj],
-  //         [pointee],
-  //         dissernedProps,
-  //         true,
-  //       );
-  //     } else if (p instanceof ISP_ObjectProperty) {
-  //       const dissernedProps: Set<string> = dissernProps(
-  //         nextGraph,
-  //         p.key.lookupName(),
-  //         p.computed && getStackQualifiedName(p.key.lookupName(), currBB),
-  //         p.computed,
-  //       );
-  //       if (dissernedProps.size === 0) dissernedProps.add("*");
-  //       //
-  //       // [Ordinary Object] --[dissernedProps]--> PNode --e--> RVal(s)
-  //       //                                               --h--> UNCHANGED
+        let pointee: OrdinaryFunctionNode | SetClosureNode | GetClosureNode;
+        if (p.kind === "method") {
+          const ID = getHeapQualifiedName(
+            "ObjMeth" + i,
+            currBBIDx,
+            stackInstOffset,
+          );
+          const node = GLOBAL_NODE_MAP.has(ID)
+            ? GLOBAL_NODE_MAP.get(ID)
+            : new OrdinaryFunctionNode(ID, p);
+          assert(node instanceof OrdinaryFunctionNode);
+          pointee = node;
+        } else if (p.kind === "get") {
+          const ID = getHeapQualifiedName(
+            "GetMeth" + i,
+            currBBIDx,
+            stackInstOffset,
+          );
+          const node = GLOBAL_NODE_MAP.has(ID)
+            ? GLOBAL_NODE_MAP.get(ID)
+            : new GetClosureNode(ID, p);
+          assert(node instanceof GetClosureNode);
+          pointee = node;
+        } else if (p.kind === "set") {
+          const ID = getHeapQualifiedName(
+            "SetMeth" + i,
+            currBBIDx,
+            stackInstOffset,
+          );
+          const node = GLOBAL_NODE_MAP.has(ID)
+            ? GLOBAL_NODE_MAP.get(ID)
+            : new SetClosureNode(ID, p);
+          assert(node instanceof SetClosureNode);
+          pointee = node;
+        }
+        addPTANode(mutableFlowData, pointee);
+        addHeapEdges(mutableFlowData, objNode, dissernedProps, [pointee], true);
+      } else if (p instanceof ISP_ObjectProperty) {
+        const dissernedProps: Set<string> = dissernProps(
+          mutableFlowData,
+          p.key.lookupName(),
+          p.computed && getStackQualifiedName(p.key.lookupName(), currBB),
+          p.computed,
+        );
+        // Get propValuePointees
+        const pointees = handleRVals(
+          mutableFlowData,
+          p.value,
+          currBB,
+          currBBIDx,
+          stackInstOffset,
+        );
+        addHeapEdges(mutableFlowData, objNode, dissernedProps, pointees, true);
+      } else {
+        const pointees = handleRVals(
+          mutableFlowData,
+          p.arg,
+          currBB,
+          currBBIDx,
+          stackInstOffset,
+        );
 
-  //       // Get propValuePointees
-  //       const pointees = nextGraph.getPointees(
-  //         getStackQualifiedName(p.value.lookupName(), currBB),
-  //       );
-
-  //       //
-  //       // It is safe to ignore the pending closures because we are performing set operation without
-  //       // actually invoking any setters, so this should work
-  //       //
-
-  //       nextGraph.drawHeapToHeapEdge(
-  //         [objExprObj],
-  //         pointees,
-  //         dissernedProps,
-  //         true,
-  //       );
-  //     } else {
-  //       const pointees = nextGraph.getPointees(
-  //         getStackQualifiedName(p.arg.lookupName(), currBB),
-  //       );
-  //       //
-  //       // [p] --[fields]--> PNodes
-  //       //
-  //       //
-  //       // [Ordinary Object] --mergePNodes(PNodes)--> Objs
-  //       for (const p of pointees) {
-  //         const edges = nextGraph.outEdges(p.id);
-  //         if (edges) {
-  //           for (const e of edges) {
-  //             const field = e.name;
-  //             if (!nextGraph.hasField(objExprObj.id, field))
-  //               nextGraph.addField(objExprObj.id, field);
-
-  //             const targetPNode = nextGraph.getField(objExprObj.id, field);
-  //             nextGraph.setEdge(objExprID, targetPNode.id, field, field);
-  //             const outwardFromPNode = nextGraph.outEdges(e.w);
-  //             if (outwardFromPNode) {
-  //               for (const oE of outwardFromPNode) {
-  //                 nextGraph.setEdge(targetPNode.id, oE.w, oE.name, oE.name);
-  //               }
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-  //     i++;
-  //   }
-  //   return [objExprObj];
-  // }
+        const edgesToAdd: Set<string> = new Set();
+        for (const pointee of pointees) {
+          const pointeeEdges = mutableFlowData.get(pointee.id);
+          pointeeEdges.forEach((e) => {
+            const origEdge = PTAEdge.from(pointee.id, e);
+            edgesToAdd.add(
+              PTAEdge.constructHeapEdge(
+                objNode.id,
+                origEdge.field,
+                origEdge.flag,
+                origEdge.v,
+              ).getPTAEdge(),
+            );
+          });
+        }
+      }
+      i++;
+    }
+    return [objNode];
+  }
 
   // // t_IV_ArrayExpression
   // else if (rVal instanceof IV_ArrayExpression) {
@@ -873,7 +933,7 @@ export const handleRVals = (
   // }
 
   debugConfig.logger.throwIriError(
-    "TODO: PTA - Unreachable fallthrough reached, something is prolly wrong in the code!!!",
+    `TODO: PTA - Unreachable fallthrough reached, something is prolly wrong in the code!!! : ${rVal.toString()}`,
   );
 
   return [...res];

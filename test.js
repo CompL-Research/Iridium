@@ -1293,4 +1293,10 @@
 // console.log(rest);
 // // Expected output: Array [30, 40, 50]
 
-import { test } from "test1.js";
+// import { test } from "test1.js";
+
+let x;
+let y = {
+  [x]: "Hi",
+};
+x = y;
