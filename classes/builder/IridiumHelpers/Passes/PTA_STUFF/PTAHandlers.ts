@@ -22,6 +22,7 @@ import {
   hasFieldPTANode,
   unionAllMutablePTAFlowData,
   printPTAFlowData,
+  GetClosureNode,
 } from "./PTAFlowData.ts";
 import { BB, FunctionReturn } from "../../BB.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
@@ -34,6 +35,7 @@ import { I_Function_params } from "../../I_GENERAL/I_Function.ts";
 import { handleRVals } from "./RValHandlers.ts";
 import { PTA, PTA_HASH_MAP, PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "../PTA.ts";
 import { hashGraph, saveFlowDataToFile, saveFlowDataToGraph } from "#utils"
+import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
 
 const a = saveFlowDataToFile;
 const b = saveFlowDataToGraph;
@@ -86,11 +88,12 @@ export const handleBImportNode = (
 export const handleOrdinaryFunctionObjectCall = (
   uname: string,
   mutableFlowData: PTAFlowData,
-  c: OrdinaryFunctionNode,
+  c: OrdinaryFunctionNode | GetClosureNode,
   args: Array<IV_Identifier | ISP_ArgSpread>,
   currBB: BB,
   currBBIDx: string,
   stackInstOffset: number,
+  objectContext: Array<PTAFlowNode> | undefined,
 ): [PTAFlowData, string, StackNode] => {
   let calleeArgs: I_Function_params;
   if (c.meth instanceof ISP_ObjectMethod) calleeArgs = c.meth.params;
@@ -117,8 +120,21 @@ export const handleOrdinaryFunctionObjectCall = (
       boundaryEnv,
       currBB,
       currBBIDx,
-      stackInstOffset
+      stackInstOffset,
     );
+
+    if (objectContext) {
+      const C_THIS_ID = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB);
+      const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
+            ? GLOBAL_NODE_MAP.get(C_THIS_ID)
+            : new StackNode(C_THIS_ID);
+      assert(stackNode instanceof StackNode);
+      addPTANode(boundaryEnv, stackNode);
+
+      addStackEdges(boundaryEnv, stackNode, objectContext);
+    }
+
+
 
     // PTA Eval with curbed env as eval context
     handleClosureCall(argumentsNode, args.length, calleeArgs, closureWorld, closureGraph, boundaryEnv);
@@ -371,6 +387,7 @@ export const handleCallExpression = (
   currBB: BB,
   currBBIDx: string,
   stackInstOffset: number,
+  objectContext: Array<PTAFlowNode> | undefined,
 ): Set<PTAFlowNode> => {
   const res: Set<PTAFlowNode> = new Set();
   const closureResults: Array<[PTAFlowData, string, StackNode]> = [];
@@ -384,6 +401,19 @@ export const handleCallExpression = (
         currBB,
         currBBIDx,
         stackInstOffset,
+        objectContext
+      )
+      closureResults.push([flowData, world, returnNode]);
+    } else if (c instanceof GetClosureNode) {
+      const [flowData, world, returnNode] = handleOrdinaryFunctionObjectCall(
+        uname,
+        mutableFlowData,
+        c,
+        args,
+        currBB,
+        currBBIDx,
+        stackInstOffset,
+        objectContext
       )
       closureResults.push([flowData, world, returnNode]);
     } else {

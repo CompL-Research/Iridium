@@ -1,5 +1,5 @@
 import debugConfig from "#debugConfig";
-import { IV_Identifier, IV_MemberExpressionPA } from "../../ALL_AMP/ALL_AMP.ts";
+import { IV_Identifier, IV_MemberExpressionPA, IV_ThisLookupPA } from "../../ALL_AMP/ALL_AMP.ts";
 import {
   ISP_ObjectMethod,
   ISP_ObjectProperty,
@@ -20,6 +20,7 @@ import {
 } from "../../ALL_RVal/IV_Literals.ts";
 import { IV_CTHIS, IV_NUBD, IV_STHIS } from "../../ALL_RVal/IV_NonLang.ts";
 import { IV_ObjectExpression } from "../../ALL_RVal/IV_ObjectExpression.ts";
+import { IV_This } from "../../ALL_RVal/IV_This.ts";
 import { BB } from "../../BB.ts";
 import {
   addHeapEdges,
@@ -124,12 +125,9 @@ export const handleRVals = (
     addPTANode(mutableFlowData, node);
     return [node];
   } else if (rVal instanceof IV_CTHIS) {
-    debugConfig.logger.throwIriError("TODO: Handle IV_CTHIS");
-    // const cThis = ensureNodeIDAndGetPTANode(
-    //   mutableFlowData,
-    //   getStackQualifiedName(IV_CTHIS.lookupName(), currBB),
-    // );
-    // return [...getPointees(mutableFlowData, cThis)];
+    const ID = getStackQualifiedName(IV_CTHIS.lookupName(), currBB);
+    const stackNode = ensureNodeIDAndGetStackNode(mutableFlowData, ID);
+    return [...getPointees(mutableFlowData, stackNode)];
   } else if (rVal instanceof IV_STHIS) {
     debugConfig.logger.throwIriError("TODO: Handle IV_STHIS");
     // const sThis = ensureNodeIDAndGetPTANode(
@@ -163,38 +161,53 @@ export const handleRVals = (
       for (const p of dissernedProps) {
         const [pointees, closures] = getFieldPointees(mutableFlowData, u, p);
         pointees.forEach((p) => res.add(p));
-        if (closures.length > 0)
-          debugConfig.logger.error("Skipping closure evaluation for IV_MemberExpressionPA")
+        handleCallExpression(
+          uname,
+          mutableFlowData,
+          closures,
+          [],
+          currBB,
+          currBBIDx,
+          stackInstOffset,
+          [u]
+        ).forEach((r) => res.add(r))
+      }
+    }
+    return [...res];
+  } else if (rVal instanceof IV_ThisLookupPA) {
+    // IV_This.x
+    const receiverID = getStackQualifiedName(IV_This.lookupName(), currBB);
+    const receiverStackNode = ensureNodeIDAndGetStackNode(mutableFlowData, receiverID);
+    const receiverPointees = getPointees(mutableFlowData, receiverStackNode);
+
+    const dissernedProps: Set<string> = dissernProps(
+      mutableFlowData,
+      rVal.property.lookupName(),
+      rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB),
+      rVal.computed,
+    );
+
+    const res: Set<PTAFlowNode> = new Set();
+    for (const u of receiverPointees) {
+      for (const p of dissernedProps) {
+        const [pointees, closures] = getFieldPointees(mutableFlowData, u, p);
+        pointees.forEach((p) => res.add(p));
+        handleCallExpression(
+          uname,
+          mutableFlowData,
+          closures,
+          [],
+          currBB,
+          currBBIDx,
+          stackInstOffset,
+          [u]
+        ).forEach((r) => res.add(r))
       }
     }
     return [...res];
   } 
   // 
-  // else if (rVal instanceof IV_ThisLookupPA) {
-  //   // IV_This.x
-  //   const res: Set<PTANode> = new Set();
-  //   const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
-  //   const receiver = getStackQualifiedName(IV_This.lookupName(), currBB);
-  //   const receiverPointees: Array<Valid_Stack_To_Heap_Pointees> =
-  //     nextGraph.getPointees(receiver);
-  //   const dissernedProps: Set<string> = dissernProps(
-  //     nextGraph,
-  //     rVal.property.lookupName(),
-  //     rVal.computed &&
-  //       getStackQualifiedName(rVal.property.lookupName(), currBB),
-  //     rVal.computed,
-  //   );
-  //   if (dissernedProps.size === 0) dissernedProps.add("*");
-
-  //   const closureResults: Array<PTAGraph> = [];
-  //   for (const u of receiverPointees) {
-  //     for (const p of dissernedProps) {
-  //       nextGraph.getFieldPointees(u, p, iContext).forEach((r) => res.add(r));
-  //     }
-  //   }
-  //   nextGraph.union(...closureResults);
-  //   return [...res];
-  // } else if (rVal instanceof IV_SuperLookupPA) {
+  // else if (rVal instanceof IV_SuperLookupPA) {
   //   // ISP_Super.x
   //   const res: Set<PTANode> = new Set();
   //   const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
@@ -313,6 +326,14 @@ export const handleRVals = (
 
     const callees = getPointees(mutableFlowData, stackNode);
 
+    let calleeContext : Array<PTAFlowNode>;
+
+    if (rVal.staticThis) {
+      calleeContext = [...callees];
+    } else {
+      calleeContext = undefined;
+    }
+
     const res = handleCallExpression(
       uname,
       mutableFlowData,
@@ -321,6 +342,7 @@ export const handleRVals = (
       currBB,
       currBBIDx,
       stackInstOffset,
+      calleeContext
     );
     return [...res];
   }
@@ -477,7 +499,9 @@ export const handleRVals = (
   //     stackInstOffset,
   //   );
   //   return res;
-  // } else if (rVal instanceof IV_ThisAssn) {
+  // } 
+  // 
+  // else if (rVal instanceof IV_ThisAssn) {
   //   // THIS.x = RVal
   //   const receiver = getStackQualifiedName(IV_This.lookupName(), currBB);
   //   const receiverPointees: Array<Valid_Stack_To_Heap_Pointees> =
@@ -631,7 +655,7 @@ export const handleRVals = (
           );
           const node = GLOBAL_NODE_MAP.has(ID)
             ? GLOBAL_NODE_MAP.get(ID)
-            : new GetClosureNode(ID, p);
+            : new GetClosureNode(ID, p, uname);
           assert(node instanceof GetClosureNode);
           pointee = node;
         } else if (p.kind === "set") {

@@ -218,7 +218,7 @@ export const getPointees = (CURR: PTAFlowData, u: StackNode) => {
   return outVs;
 };
 
-export const getFieldPointees = (CURR: PTAFlowData, u: PTAFlowNode, field: string, enumerable: boolean = true) => {
+export const getFieldPointees = (CURR: PTAFlowData, u: PTAFlowNode, field: string, enumerable: boolean = true): [Array<PTAFlowNode>, Array<GetClosureNode>] => {
   assertPTANode(CURR, u);
   const outNodes = 
     [...CURR.get(u.id)]
@@ -350,9 +350,11 @@ export class SetClosureNode extends PTAFlowNode {
 export type GetSpecialClosure_meth = ISP_ObjectMethod;
 export class GetClosureNode extends PTAFlowNode {
   meth: GetSpecialClosure_meth;
-  constructor(id: string, meth: GetSpecialClosure_meth) {
+  world: string;
+  constructor(id: string, meth: GetSpecialClosure_meth, world: string) {
     super(id);
     this.meth = meth;
+    this.world = world;
   }
 }
 
