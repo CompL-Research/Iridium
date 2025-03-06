@@ -1,5 +1,5 @@
 import debugConfig from "#debugConfig";
-import { IV_Identifier } from "../../ALL_AMP/ALL_AMP.ts";
+import { IV_Identifier, IV_MemberExpressionPA } from "../../ALL_AMP/ALL_AMP.ts";
 import {
   ISP_ObjectMethod,
   ISP_ObjectProperty,
@@ -7,6 +7,7 @@ import {
 import { IV_ASSIGNABLE } from "../../ALL_RVal/ALL_RVal.ts";
 import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
 import { IV_SimpleAssn } from "../../ALL_RVal/IV_Assignment.ts";
+import { IV_FBINOP } from "../../ALL_RVal/IV_Binop.ts";
 import { IV_Call } from "../../ALL_RVal/IV_Call.ts";
 import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
 import {
@@ -26,6 +27,7 @@ import {
   ensureNodeIDAndGetPTANode,
   ensureNodeIDAndGetStackNode,
   GetClosureNode,
+  getFieldPointees,
   getPointees,
   GLOBAL_NODE_MAP,
   IRIDUM_GLOBAL,
@@ -95,6 +97,7 @@ export const dissernProps = (
 // };
 
 export const handleRVals = (
+  uname: string,
   mutableFlowData: PTAFlowData,
   rVal: IV_ASSIGNABLE,
   currBB: BB,
@@ -142,31 +145,32 @@ export const handleRVals = (
     const stackNode = ensureNodeIDAndGetStackNode(mutableFlowData, ID);
     return [...getPointees(mutableFlowData, stackNode)];
   }
-  // else if (rVal instanceof IV_MemberExpressionPA) {
-  //   // a.x
-  //   const res: Set<PTANode> = new Set();
-  //   const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
-  //   const receiver = getStackQualifiedName(rVal.object.lookupName(), currBB);
-  //   const receiverPointees: Array<Valid_Stack_To_Heap_Pointees> =
-  //     nextGraph.getPointees(receiver);
-  //   const dissernedProps: Set<string> = dissernProps(
-  //     nextGraph,
-  //     rVal.property.lookupName(),
-  //     rVal.computed &&
-  //       getStackQualifiedName(rVal.property.lookupName(), currBB),
-  //     rVal.computed,
-  //   );
-  //   if (dissernedProps.size === 0) dissernedProps.add("*");
+  else if (rVal instanceof IV_MemberExpressionPA) {
+    // a.x    
+    const receiverID = getStackQualifiedName(rVal.object.lookupName(), currBB);
+    const receiverStackNode = ensureNodeIDAndGetStackNode(mutableFlowData, receiverID);
+    const receiverPointees = getPointees(mutableFlowData, receiverStackNode);
 
-  //   const closureResults: Array<PTAGraph> = [];
-  //   for (const u of receiverPointees) {
-  //     for (const p of dissernedProps) {
-  //       nextGraph.getFieldPointees(u, p, iContext).forEach((r) => res.add(r));
-  //     }
-  //   }
-  //   nextGraph.union(...closureResults);
-  //   return [...res];
-  // } else if (rVal instanceof IV_ThisLookupPA) {
+    const dissernedProps: Set<string> = dissernProps(
+      mutableFlowData,
+      rVal.property.lookupName(),
+      rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB),
+      rVal.computed,
+    );
+
+    const res: Set<PTAFlowNode> = new Set();
+    for (const u of receiverPointees) {
+      for (const p of dissernedProps) {
+        const [pointees, closures] = getFieldPointees(mutableFlowData, u, p);
+        pointees.forEach((p) => res.add(p));
+        if (closures.length > 0)
+          debugConfig.logger.error("Skipping closure evaluation for IV_MemberExpressionPA")
+      }
+    }
+    return [...res];
+  } 
+  // 
+  // else if (rVal instanceof IV_ThisLookupPA) {
   //   // IV_This.x
   //   const res: Set<PTANode> = new Set();
   //   const iContext = "BB" + currBBIDx + ":" + stackInstOffset;
@@ -262,6 +266,7 @@ export const handleRVals = (
     assert(node instanceof LiteralNode);
     assert(node.node instanceof IV_NullLiteral);
     addPTANode(mutableFlowData, node);
+    return [node];
   } else if (rVal instanceof IV_BooleanLiteral) {
     const ID = rVal.lookupName();
     const node = GLOBAL_NODE_MAP.has(ID)
@@ -270,6 +275,7 @@ export const handleRVals = (
     assert(node instanceof LiteralNode);
     assert(node.node instanceof IV_BooleanLiteral);
     addPTANode(mutableFlowData, node);
+    return [node];
   }
 
   // // t_IV_Regexp
@@ -308,6 +314,7 @@ export const handleRVals = (
     const callees = getPointees(mutableFlowData, stackNode);
 
     const res = handleCallExpression(
+      uname,
       mutableFlowData,
       callees,
       rVal.args,
@@ -399,17 +406,31 @@ export const handleRVals = (
   //   );
   //   nextGraph.declareNode(resObj);
   //   return [resObj];
-  // } else if (rVal instanceof IV_FBINOP) {
-  //   const resObj = new UnknownResultObj(
-  //     getHeapQualifiedName("IV_FBINOP", currBBIDx, stackInstOffset),
-  //   );
-  //   nextGraph.declareNode(resObj);
-  //   return [resObj];
-  // }
+  // } 
+  else if (rVal instanceof IV_FBINOP) {
+    const trueID = "true";
+    const trueNode = GLOBAL_NODE_MAP.has(trueID)
+      ? GLOBAL_NODE_MAP.get(trueID)
+      : new LiteralNode(trueID, new IV_BooleanLiteral(undefined, true));
+    assert(trueNode instanceof LiteralNode);
+    assert(trueNode.node instanceof IV_BooleanLiteral);
+    addPTANode(mutableFlowData, trueNode);
+
+    const falseID = "false";
+    const falseNode = GLOBAL_NODE_MAP.has(falseID)
+      ? GLOBAL_NODE_MAP.get(falseID)
+      : new LiteralNode(falseID, new IV_BooleanLiteral(undefined, false));
+    assert(falseNode instanceof LiteralNode);
+    assert(falseNode.node instanceof IV_BooleanLiteral);
+    addPTANode(mutableFlowData, falseNode);
+
+    return [trueNode, falseNode];
+  }
 
   // t_IV_ASSN
   else if (rVal instanceof IV_SimpleAssn) {
     const res = handleRVals(
+      uname,
       mutableFlowData,
       rVal.RVal,
       currBB,
@@ -599,7 +620,7 @@ export const handleRVals = (
           );
           const node = GLOBAL_NODE_MAP.has(ID)
             ? GLOBAL_NODE_MAP.get(ID)
-            : new OrdinaryFunctionNode(ID, p);
+            : new OrdinaryFunctionNode(ID, p, uname);
           assert(node instanceof OrdinaryFunctionNode);
           pointee = node;
         } else if (p.kind === "get") {
@@ -636,6 +657,7 @@ export const handleRVals = (
         );
         // Get propValuePointees
         const pointees = handleRVals(
+          uname,
           mutableFlowData,
           p.value,
           currBB,
@@ -645,6 +667,7 @@ export const handleRVals = (
         addHeapEdges(mutableFlowData, objNode, dissernedProps, pointees, true);
       } else {
         const pointees = handleRVals(
+          uname,
           mutableFlowData,
           p.arg,
           currBB,
@@ -750,7 +773,7 @@ export const handleRVals = (
     const funID = getHeapQualifiedName("funExpr", currBBIDx, stackInstOffset);
     const funNode = GLOBAL_NODE_MAP.has(funID)
       ? GLOBAL_NODE_MAP.get(funID)
-      : new OrdinaryFunctionNode(funID, rVal);
+      : new OrdinaryFunctionNode(funID, rVal, uname);
     assert(funNode instanceof OrdinaryFunctionNode);
     addPTANode(mutableFlowData, funNode);
     return [funNode];
@@ -765,7 +788,7 @@ export const handleRVals = (
     );
     const funNode = GLOBAL_NODE_MAP.has(funID)
       ? GLOBAL_NODE_MAP.get(funID)
-      : new OrdinaryFunctionNode(funID, rVal);
+      : new OrdinaryFunctionNode(funID, rVal, uname);
     assert(funNode instanceof OrdinaryFunctionNode);
     addPTANode(mutableFlowData, funNode);
     return [funNode];

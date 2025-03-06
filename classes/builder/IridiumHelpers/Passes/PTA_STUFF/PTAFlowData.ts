@@ -1,5 +1,4 @@
 import debugConfig from "#debugConfig";
-import { Map as IMap, Set as ISet } from "immutable";
 import {
   IV_DecimalLiteral,
   IV_BigIntLiteral,
@@ -13,38 +12,72 @@ import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpre
 import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
 
 //
+// Utility methods for printing
+//
+export const printPTAFlowData = (data: PTAFlowData) => {
+  for (const ele of data) {
+    console.warn(`${ele[0]} --> [${[...ele[1]].join(",")}]`);
+  }
+};
+
+//
 // PTA FLOW DATA and related functions
 //
 export type PTANODEID = string;
 export type PTAEDGEID = string;
-export type PTAFlowData = IMap<PTANODEID, ISet<PTAEDGEID>>; // PTANODEID -----> FIELD::FLAG::PTANODEID
-export const NewPTAFlowData = (): IMap<PTANODEID, ISet<PTAEDGEID>> => IMap(); // Construct Flow Value
+export type PTAFlowData = Map<PTANODEID, Set<PTAEDGEID>>; // PTANODEID -----> FIELD::FLAG::PTANODEID
+export const NewPTAFlowData = (): Map<PTANODEID, Set<PTAEDGEID>> => new Map(); // Construct Flow Value
+
+export const unionAllMutablePTAFlowData = (
+  mutableFlowData: PTAFlowData,
+  ...flowDataList: PTAFlowData[]
+) => {
+  for (const map2 of flowDataList) {
+    for (const [key, set] of map2) {
+      if (mutableFlowData.has(key)) {
+        const combinedSet = new Set([...mutableFlowData.get(key), ...set]);
+        mutableFlowData.set(key, combinedSet);
+      } else {
+        mutableFlowData.set(key, new Set(set));
+      }
+    }
+  }
+  return mutableFlowData;
+};
 
 export const unionAllPTAFlowData = (
   ...flowDataList: PTAFlowData[]
 ): PTAFlowData => {
-  return flowDataList.reduce(
-    (acc, curr) => acc.mergeWith((setA, setB) => setA.union(setB), curr),
-    IMap<PTANODEID, ISet<PTAEDGEID>>(),
-  );
+  return unionAllMutablePTAFlowData(new Map(), ...flowDataList);
 };
 
 export const arePTAFlowDataEqual = (
-  a: PTAFlowData,
-  b: PTAFlowData,
+  map1: PTAFlowData,
+  map2: PTAFlowData,
 ): boolean => {
-  return a.equals(b);
+  if (map1.size !== map2.size) return false;
+
+  for (const [key, set1] of map1) {
+    const set2 = map2.get(key);
+    if (!set2 || set1.size !== set2.size) return false;
+
+    for (const value of set1) {
+      if (!set2.has(value)) return false;
+    }
+  }
+
+  return true;
 };
 
 // Force update pointees when making a stack node update
 export const addStackPTANode = (CURR: PTAFlowData, node: PTAFlowNode) => {
   GLOBAL_NODE_MAP.set(node.id, node);
-  CURR.set(node.id, ISet());
+  CURR.set(node.id, new Set());
 };
 
 export const addPTANode = (CURR: PTAFlowData, node: PTAFlowNode) => {
   if (!GLOBAL_NODE_MAP.has(node.id)) GLOBAL_NODE_MAP.set(node.id, node);
-  if (!CURR.has(node.id)) CURR.set(node.id, ISet());
+  if (!CURR.has(node.id)) CURR.set(node.id, new Set());
 };
 
 export const assertPTANode = (CURR: PTAFlowData, node: PTAFlowNode) => {
@@ -54,6 +87,29 @@ export const assertPTANode = (CURR: PTAFlowData, node: PTAFlowNode) => {
     debugConfig.logger.throwIriError(
       `PTA Node not found in FLOWDATA: ${node.id}`,
     );
+};
+
+export const hasFieldPTANode = (CURR: PTAFlowData, node: PTAFlowNode, field: string) => {
+  assertPTANode(CURR, node);
+  const nodeID = node.id;
+  const outEdges = CURR.get(nodeID);
+  for (const e of outEdges) {
+    const pEdge = PTAEdge.from(nodeID, e);
+    if (pEdge.field === field) return true;
+  }
+  return false;
+};
+
+export const assertFieldPTANode = (CURR: PTAFlowData, node: PTAFlowNode, field: string) => {
+  assertPTANode(CURR, node);
+  const nodeID = node.id;
+  const outEdges = CURR.get(nodeID);
+  for (const e of outEdges) {
+    const pEdge = PTAEdge.from(nodeID, e);
+    if (pEdge.field === field) return true;
+  }
+  debugConfig.logger.throwIriError(`Field missing: (${nodeID}, ${field})`);
+  return false;
 };
 
 export const ensureNodeIDAndGetPTANode = (
@@ -91,62 +147,95 @@ export const ensureNodeIDAndGetStackNode = (
 };
 
 // Graph Manipulation Methods
+export const addSelfLoop = (
+  CURR: PTAFlowData,
+  u: RemoteNode,
+  enumerable: boolean = true,
+) => {
+  assertPTANode(CURR, u);
+
+  const e = PTAEdge.constructHeapEdge(
+    u.id,
+    "*",
+    enumerable ? "E" : "H",
+    u.id,
+  );
+
+  CURR.get(u.id).add(e.getPTAEdge());
+};
+
 export const addStackEdges = (
   CURR: PTAFlowData,
   u: StackNode,
   vs: Set<PTAFlowNode> | Array<PTAFlowNode>,
 ) => {
   assertPTANode(CURR, u);
-  if (!CURR.has(u.id)) CURR.set(u.id, ISet());
+  CURR.set(u.id, new Set());
 
-  // Mutations must be used when doing operations in the containing set's
-  CURR.set(
-    u.id,
-    CURR.get(u.id).withMutations((data) => {
-      for (const v of vs) {
-        assertPTANode(CURR, v);
-        const e = PTAEdge.constructStackEdge(u.id, v.id);
-        data.add(e.getPTAEdge());
-      }
-    }),
-  );
+  const edgesContainer = CURR.get(u.id);
+
+  for (const v of vs) {
+    assertPTANode(CURR, v);
+    const e = PTAEdge.constructStackEdge(u.id, v.id);
+    edgesContainer.add(e.getPTAEdge());
+  }
 };
 
 export const addHeapEdges = (
   CURR: PTAFlowData,
   u: PTAFlowNode,
   fields: Set<string> | Array<string>,
-  vs: Set<PTAFlowNode> | Array<PTAFlowNode> | ISet<PTAFlowNode>,
+  vs: Set<PTAFlowNode> | Array<PTAFlowNode>,
   enumerable: boolean = true,
 ) => {
   assertPTANode(CURR, u);
-  CURR.set(
-    u.id,
-    CURR.get(u.id).withMutations((data) => {
-      for (const field of fields) {
-        for (const v of vs) {
-          assertPTANode(CURR, v);
-          const e = PTAEdge.constructHeapEdge(
-            u.id,
-            field,
-            enumerable ? "E" : "H",
-            v.id,
-          );
-          data.add(e.getPTAEdge());
-        }
-      }
-    }),
-  );
+
+  const data = CURR.get(u.id);
+
+  for (const field of fields) {
+    for (const v of vs) {
+      assertPTANode(CURR, v);
+      const e = PTAEdge.constructHeapEdge(
+        u.id,
+        field,
+        enumerable ? "E" : "H",
+        v.id,
+      );
+      data.add(e.getPTAEdge());
+    }
+  }
 };
 
 export const getPointees = (CURR: PTAFlowData, u: StackNode) => {
   assertPTANode(CURR, u);
-  if (!CURR.has(u.id)) CURR.set(u.id, ISet());
+  if (!CURR.has(u.id)) CURR.set(u.id, new Set());
   const outEdges = CURR.get(u.id);
-  const outVs: ISet<PTAFlowNode> = outEdges.map((e) =>
-    ensureNodeIDAndGetPTANode(CURR, PTAEdge.from(u.id, e).v),
+  const outVs: Set<PTAFlowNode> = new Set();
+  
+  outEdges.forEach((e) =>
+    outVs.add(ensureNodeIDAndGetPTANode(CURR, PTAEdge.from(u.id, e).v))
   );
   return outVs;
+};
+
+export const getFieldPointees = (CURR: PTAFlowData, u: PTAFlowNode, field: string, enumerable: boolean = true) => {
+  assertPTANode(CURR, u);
+  const outNodes = 
+    [...CURR.get(u.id)]
+    .filter(
+      (e) => (PTAEdge.from(u.id, e).field === field || PTAEdge.from(u.id, e).field === "*") && (enumerable && PTAEdge.from(u.id, e).flag === "E")
+    )
+    .map((e) => ensureNodeIDAndGetPTANode(CURR, PTAEdge.from(u.id, e).v));
+
+  const outVs = 
+    outNodes
+    .filter((n) => !(n instanceof SetClosureNode || n instanceof GetClosureNode));
+
+  const pendingClosures = 
+    outNodes
+    .filter((n) => (n instanceof GetClosureNode));
+
+  return [outVs, pendingClosures];
 };
 
 //
@@ -236,7 +325,8 @@ export type OrdinaryFunctionObject_meth =
   | IV_ArrowFunctionExpression;
 export class OrdinaryFunctionNode extends PTAFlowNode {
   meth: OrdinaryFunctionObject_meth;
-  constructor(id: string, meth: OrdinaryFunctionObject_meth) {
+  world: string;
+  constructor(id: string, meth: OrdinaryFunctionObject_meth, world: string) {
     super(id);
     if (meth instanceof ISP_ObjectMethod && meth.kind !== "method") {
       debugConfig.logger.throwIriError(
@@ -244,6 +334,7 @@ export class OrdinaryFunctionNode extends PTAFlowNode {
       );
     }
     this.meth = meth;
+    this.world = world;
   }
 }
 
@@ -266,8 +357,10 @@ export class GetClosureNode extends PTAFlowNode {
 }
 
 export class RemoteNode extends PTAFlowNode {
-  constructor(id: string) {
+  FROM: string;
+  constructor(id: string, FROM: string) {
     super(id);
+    this.FROM = FROM;
   }
 }
 

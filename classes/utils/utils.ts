@@ -1,12 +1,13 @@
 import debugConfig from "#debugConfig";
-import GLIB from "#graphlib";
 import { CommentBlock, CommentLine } from "@babel/types";
+import { execSync } from "child_process";
+import { PTAEdge, PTAFlowData } from "classes/builder/IridiumHelpers/Passes/PTA_STUFF/PTAFlowData.ts";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import ts from "typescript";
 
-export class JS3GenerationError extends Error {}
+export class JS3GenerationError extends Error { }
 
 export const hasPackageJson = (folderPath) => {
   return fs.existsSync(path.join(folderPath, "package.json"));
@@ -23,20 +24,56 @@ export const initializeOutputsPath = () => {
   ensurePathExists(debugConfig.cli.outputsPath);
 };
 
-export const hashGraph = (graph: GLIB.Graph) => {
-  const nodes = graph.nodes().sort();
-  const edges = graph
-    .edges()
-    .map(({ v, w, name }) => ({
-      v,
-      w,
-      name,
-      attrs: graph.edge(v, w, name),
-    }))
-    .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
-  const graphString = JSON.stringify({ nodes, edges });
+export const hashGraph = (boundaryEnv: PTAFlowData, bbContext: number) => {
+  const nodes: Array<string> = [];
+  const edges: Array<string> = [];
+
+  for (const n of boundaryEnv.keys())
+    edges.push(n);
+
+  for (const es of boundaryEnv.values())
+    for (const e of es)
+      edges.push(e);
+
+  nodes.sort();
+  edges.sort();
+
+  const graphString = JSON.stringify({ nodes, edges, bbContext });
   return crypto.createHash("sha256").update(graphString).digest("hex");
 };
+
+export const saveFlowDataToGraph = (flowData: PTAFlowData) => {
+  const res = [];
+  res.push("digraph gg {");
+  // res.push("  graph [nodesep=1.0, ranksep=1.5]; // Adjust separation")
+  for (const [u, es] of flowData.entries()) {
+    res.push(`"${u.replace(/"/g, '\\"')}";`);
+    for (const e of es) {
+      const edge = PTAEdge.from(u, e)
+      res.push(
+        "  \"" +
+        edge.u.replace(/"/g, '\\"') +
+        "\" -> \"" +
+        edge.v.replace(/"/g, '\\"') +
+        `"[ label="${edge.field.replace(/"/g, '\\"')}" ];`,
+      );
+    }
+  }
+  res.push("}");
+  return res.join("\n");
+}
+
+let idx = 0;
+
+export const saveFlowDataToFile = (path: string, flowData: PTAFlowData) => {
+  path = "outputs/PTA/" + idx++ + "_" + path;
+  try {
+    fs.writeFileSync(path + ".DOT", saveFlowDataToGraph(flowData));
+    execSync(`dot -Tpng ${path + ".DOT"} -o ${path + ".png"}`);
+  } catch (err) {
+    console.error("File write failed:", err);
+  }
+}
 
 export const generateContextKey = (
   objectContext: string,

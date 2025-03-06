@@ -1,13 +1,19 @@
 import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 import {
+  addPTANode,
+  addStackEdges,
   arePTAFlowDataEqual,
+  GLOBAL_NODE_MAP,
+  IRIDUM_GLOBAL,
   NewPTAFlowData,
+  printPTAFlowData,
   PTAFlowData,
+  StackNode,
   unionAllPTAFlowData,
 } from "./PTA_STUFF/PTAFlowData.ts";
 import debugConfig from "#debugConfig";
 import GLIB from "#graphlib";
-import { popSet } from "#utils";
+import { popSet, saveFlowDataToFile, saveFlowDataToGraph } from "#utils";
 import {
   IS_AExport,
   IS_BExport,
@@ -28,6 +34,10 @@ import {
 } from "./PTA_STUFF/PTAHandlers.ts";
 import { handleRVals } from "./PTA_STUFF/RValHandlers.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
+import assert from "node:assert";
+
+const aa = saveFlowDataToFile;
+const bb = saveFlowDataToGraph;
 //
 // A world can be in three states:
 //  1. !PTA_WORLD.has()            ===> Not Seen Before
@@ -35,13 +45,31 @@ import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 //  3. !PTA_WORLD.has() && !isNull ===> Processed
 //
 export const PTA_WORLD: Map<string, PTAFlowData> = new Map();
-export const PTA_WORLD_CURRMUTABLE_DATA: Map<string, PTAFlowData> = new Map();
+export const PTA_WORLD_CURRMUTABLE_DATA: Map<string, Array<PTAFlowData>> = new Map();
+export const PTA_HASH_MAP: Map<string, PTAFlowData> = new Map();
 
 export const initializeWorld = (uname: string, fg: IRIDIUM_FG) => {
-  const worldData: PTAFlowData = NewPTAFlowData();
   PTA_WORLD.set(uname, null);
-  PTA(uname, fg, worldData);
-  PTA_WORLD.set(uname, worldData);
+  const initialWorldData: PTAFlowData = NewPTAFlowData();
+  const globalEnv = fg.rootBB.env.parent;
+
+  for (const binding of globalEnv.bindings) {
+    const globalNode = GLOBAL_NODE_MAP.has(binding[0])
+      ? GLOBAL_NODE_MAP.get(binding[0])
+      : new IRIDUM_GLOBAL(binding[0]);
+    assert(globalNode instanceof IRIDUM_GLOBAL);
+    addPTANode(initialWorldData, globalNode);
+
+    const refToBinding = getStackQualifiedName(binding[0], fg.rootBB);
+    const stackNode = GLOBAL_NODE_MAP.has(refToBinding)
+      ? GLOBAL_NODE_MAP.get(refToBinding)
+      : new StackNode(refToBinding);
+    assert(stackNode instanceof StackNode);
+    addPTANode(initialWorldData, stackNode);
+    addStackEdges(initialWorldData, stackNode, [globalNode]);
+  }
+
+  PTA_WORLD.set(uname, PTA(uname, fg, initialWorldData));
 };
 
 type BBIdx = string;
@@ -50,6 +78,7 @@ export const PTA = (
   rootFG: IRIDIUM_FG,
   BOUNDARY_PTAGRAPH: PTAFlowData,
 ) => {
+  if (!PTA_WORLD_CURRMUTABLE_DATA.has(uname)) PTA_WORLD_CURRMUTABLE_DATA.set(uname, []);
   // Assert that there is only one source in the flowgraph
   if (rootFG.sources().length !== 1)
     debugConfig.logger.throwIriError(
@@ -87,30 +116,26 @@ export const PTA = (
 
   const doWorklist = (currBBIDx: string) => {
     // Incoming Set
-    let inGraph: PTAFlowData;
+    let nextGraph: PTAFlowData;
     const preds = rootFG.predecessors(currBBIDx);
     if (preds && preds.length > 0) {
-      inGraph = unionAllPTAFlowData(
+      nextGraph = unionAllPTAFlowData(
         ...preds.map((bbIdx: BBIdx) => flowMap.get(bbIdx)),
       );
     } else {
-      inGraph = unionAllPTAFlowData(...[BOUNDARY_PTAGRAPH]);
+      nextGraph = unionAllPTAFlowData(...[BOUNDARY_PTAGRAPH]);
     }
 
-    // Flow Function
-    const outGraph = inGraph.withMutations(function (
-      mutableFlowData: PTAFlowData,
-    ) {
-      PTA_WORLD_CURRMUTABLE_DATA.set(uname, mutableFlowData);
-      flowFunction(uname, rootFG, mutableFlowData, currBBIDx);
-    });
+    PTA_WORLD_CURRMUTABLE_DATA.get(uname).push(nextGraph);
+    flowFunction(uname, rootFG, nextGraph, currBBIDx);
+    PTA_WORLD_CURRMUTABLE_DATA.get(uname).pop();
 
     // Add successors to worklist if there was a change
     if (!flowMap.has(currBBIDx))
       throw new Error("Expected flowmap to have a graph for each node");
     const oldGraph = flowMap.get(currBBIDx);
-    if (!arePTAFlowDataEqual(outGraph, oldGraph)) {
-      flowMap.set(currBBIDx, outGraph);
+    if (!arePTAFlowDataEqual(nextGraph, oldGraph)) {
+      flowMap.set(currBBIDx, nextGraph);
       const succ = rootFG.successors(currBBIDx);
       if (succ) succ.forEach((bbIdx: BBIdx) => worklist.add(bbIdx));
     }
@@ -144,7 +169,8 @@ export const flowFunction = (
   const currBB = rootFG.getBBNode(currBBIDx);
   let stackInstOffset = 0;
   for (const i of currBB.statements) {
-    stackInstOffset++;
+    debugConfig.logger.error(`At stmt ${i.toString()}`);
+
     if (i instanceof IS_BImport) {
       handleBImportNode(mutableFlowData, i, currBB, currBBIDx, stackInstOffset);
     } else if (i instanceof IS_ClassStaticPropInit) {
@@ -163,6 +189,7 @@ export const flowFunction = (
         mutableFlowData,
         qualifiedLVal,
         handleRVals(
+          uname,
           mutableFlowData,
           i.RVal,
           currBB,
@@ -175,6 +202,7 @@ export const flowFunction = (
         const lookupName = i.LVal.lookupName();
         const qualifiedLVal = getStackQualifiedName(lookupName, currBB);
         const RValPointees = handleRVals(
+          uname,
           mutableFlowData,
           i.RVal,
           currBB,
@@ -254,6 +282,12 @@ export const flowFunction = (
     } else if (i instanceof IS_EExport) {
       debugConfig.logger.throwIriError("PTA TODO: IS_EExport");
       // handleEExportNode(nextGraph, i, currBB, currBBIDx, stackInstOffset);
+    } else {
+      debugConfig.logger.throwIriError("PTA TODO: UNHANDLED");
     }
+    debugConfig.logger.error(`After stmt ${i.toString()}`);
+    // saveFlowDataToFile(`${currBBIDx}_${stackInstOffset}`, mutableFlowData)
+    // printPTAFlowData(mutableFlowData);
+    stackInstOffset++;
   }
 };

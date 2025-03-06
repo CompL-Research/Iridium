@@ -1,6 +1,5 @@
 import { BB } from "../../BB.ts";
 import { LiteralNode, PTAFlowNode } from "./PTAFlowData.ts";
-import { Set as ISet } from "immutable";
 
 //
 // All references are qualified from the environmen they load from
@@ -24,7 +23,7 @@ export const getHeapQualifiedName = (
 //
 // Whatever pointees we can resolve to literals, we resolve statically
 //
-export const dissernPointees = (ns: Array<PTAFlowNode> | ISet<PTAFlowNode>) => {
+export const dissernPointees = (ns: Array<PTAFlowNode> | Set<PTAFlowNode>) => {
   const res: Set<string> = new Set();
   for (const n of ns) {
     if (n instanceof LiteralNode) res.add(n.id);

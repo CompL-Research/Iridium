@@ -1295,12 +1295,42 @@
 
 // import { test } from "test1.js";
 
-let x;
-let y = {
-  [x]: "Hi",
-  boo(a) {
-    console.log(a);
-  },
-};
-x = y;
-y.boo();
+// let x;
+// let y = {
+//   a: 1,
+//   b: 2,
+//   set c(a) {
+//     this.b = a;
+//   },
+//   get c() { return this.b }
+// };
+// let m = y.a;
+// let n = y.b;
+// let o = y.c;
+
+// let a = 10;
+
+// if (false) {
+//   a = 12;
+// } else {
+//   a = 13;
+// }
+// let res = a;
+
+// let a = () => {
+
+// };
+
+// a();
+
+// let x = 11;
+// let b = () => { 
+//   x = 12; 
+//   if (true) {
+//     b();
+//     x = 13;
+//   } else {
+//     x = 122;
+//   }
+// };
+// b();
