@@ -1,11 +1,17 @@
 import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 import {
+  addHeapEdges,
   addPTANode,
+  addSelfLoop,
   addStackEdges,
   arePTAFlowDataEqual,
+  ensureNodeIDAndGetPTANode,
+  ensureNodeIDAndGetStackNode,
+  getPointees,
   GLOBAL_NODE_MAP,
   IRIDUM_GLOBAL,
   NewPTAFlowData,
+  OrdinaryObjectNode,
   printPTAFlowData,
   PTAFlowData,
   StackNode,
@@ -45,11 +51,15 @@ const bb = saveFlowDataToGraph;
 //  3. !PTA_WORLD.has() && !isNull ===> Processed
 //
 export const PTA_WORLD: Map<string, PTAFlowData> = new Map();
+export const PTA_WORLD_FG: Map<string, IRIDIUM_FG> = new Map();
 export const PTA_WORLD_CURRMUTABLE_DATA: Map<string, Array<PTAFlowData>> = new Map();
 export const PTA_HASH_MAP: Map<string, PTAFlowData> = new Map();
 
+export const getEXPORTID = (uname: string) => { return `${uname}_EXPORT`; }
+
 export const initializeWorld = (uname: string, fg: IRIDIUM_FG) => {
   PTA_WORLD.set(uname, null);
+  PTA_WORLD_FG.set(uname, fg);
   const initialWorldData: PTAFlowData = NewPTAFlowData();
   const globalEnv = fg.rootBB.env.parent;
 
@@ -58,7 +68,9 @@ export const initializeWorld = (uname: string, fg: IRIDIUM_FG) => {
       ? GLOBAL_NODE_MAP.get(binding[0])
       : new IRIDUM_GLOBAL(binding[0], uname);
     assert(globalNode instanceof IRIDUM_GLOBAL);
+  
     addPTANode(initialWorldData, globalNode);
+    addSelfLoop(initialWorldData, globalNode, true);
 
     const refToBinding = getStackQualifiedName(binding[0], fg.rootBB);
     const stackNode = GLOBAL_NODE_MAP.has(refToBinding)
@@ -66,8 +78,18 @@ export const initializeWorld = (uname: string, fg: IRIDIUM_FG) => {
       : new StackNode(refToBinding, uname);
     assert(stackNode instanceof StackNode);
     addPTANode(initialWorldData, stackNode);
+
     addStackEdges(initialWorldData, stackNode, [globalNode]);
   }
+
+  const exportID = getEXPORTID(uname);
+
+  const exportNode = GLOBAL_NODE_MAP.has(exportID)
+    ? GLOBAL_NODE_MAP.get(exportID)
+    : new OrdinaryObjectNode(exportID, uname);
+  assert(exportNode instanceof OrdinaryObjectNode);
+
+  addPTANode(initialWorldData, exportNode);
 
   PTA_WORLD.set(uname, PTA(uname, fg, initialWorldData));
 };
@@ -169,7 +191,7 @@ export const flowFunction = (
   const currBB = rootFG.getBBNode(currBBIDx);
   let stackInstOffset = 0;
   for (const i of currBB.statements) {
-    debugConfig.logger.error(`At stmt ${i.toString()}`);
+    // debugConfig.logger.error(`At stmt ${i.toString()}`);
 
     if (i instanceof IS_BImport) {
       handleBImportNode(uname, mutableFlowData, i, currBB, currBBIDx, stackInstOffset);
@@ -263,18 +285,19 @@ export const flowFunction = (
       // );
       // nextGraph.drawHeapToHeapEdge([heapNode], pointees, ["default"], true);
     } else if (i instanceof IS_BExport) {
-      debugConfig.logger.throwIriError("PTA TODO: IS_BExport");
-      // // Export local as remote
-      // const pointees = nextGraph.getPointees(
-      //   getStackQualifiedName(i.local.lookupName(), currBB),
-      // );
-      // const heapNode = nextGraph.getPTANode("EXPORT");
+      // debugConfig.logger.throwIriError("PTA TODO: IS_BExport");
+      // Export local as remote
+      const localID = getStackQualifiedName(i.local.lookupName(), currBB);
+      const localNode = ensureNodeIDAndGetStackNode(mutableFlowData, localID);
+      const pointees = getPointees(mutableFlowData, localNode);
 
-      // let remote: string;
-      // if (i.remote instanceof IV_Identifier) remote = i.remote.lookupName();
-      // else remote = i.remote.value;
+      const exportNode = ensureNodeIDAndGetPTANode(mutableFlowData, getEXPORTID(uname));
 
-      // nextGraph.drawHeapToHeapEdge([heapNode], pointees, [remote], true);
+      let field: string;
+      if (i.remote instanceof IV_Identifier) field = i.remote.lookupName();
+      else field = i.remote.value;
+
+      addHeapEdges(mutableFlowData, exportNode, field, pointees, true);
     } else if (i instanceof IS_CExport) {
       debugConfig.logger.throwIriError("PTA TODO: IS_CExport");
       // handleCExportNode(nextGraph, i, currBB, currBBIDx, stackInstOffset);
@@ -287,7 +310,7 @@ export const flowFunction = (
     } else {
       debugConfig.logger.throwIriError("PTA TODO: UNHANDLED");
     }
-    debugConfig.logger.error(`After stmt ${i.toString()}`);
+    // debugConfig.logger.error(`After stmt ${i.toString()}`);
     // saveFlowDataToFile(`${currBBIDx}_${stackInstOffset}`, mutableFlowData)
     // printPTAFlowData(mutableFlowData);
     stackInstOffset++;

@@ -1,6 +1,6 @@
 type LogItem = {
   timestamp: string;
-  level: "general" | "warn" | "error";
+  level: "general" | "warn" | "error" | "success";
   message: string;
   objects: Array<object>;
 };
@@ -35,11 +35,13 @@ export default class Logger {
     this.logData.push(item);
     if (!this.printToConsole) return;
     if (item.level === "general") {
-      console.log(`LOG: [${item.timestamp}] ${item.message}`);
+      console.log(`${item.message}`);
     } else if (item.level === "warn") {
-      console.warn(`WRN: [${item.timestamp}] ${item.message}`);
+      console.log('\x1b[34m%s\x1b[0m', `${item.message}`);
+    } else if (item.level === "success") {
+      console.log('\x1b[32m%s\x1b[0m', `${item.message}`);
     } else {
-      console.error(`ERR: [${item.timestamp}] ${item.message}`);
+      console.error(`${item.message}`);
     }
   }
 
@@ -70,6 +72,17 @@ export default class Logger {
     const data: LogItem = {
       timestamp: this.getTimestampSinceEpoch(timestamp),
       level: "error",
+      message,
+      objects,
+    };
+    this.#generateLog(data);
+  }
+
+  success(message: string, objects: Array<object> = []) {
+    const timestamp = new Date().valueOf();
+    const data: LogItem = {
+      timestamp: this.getTimestampSinceEpoch(timestamp),
+      level: "success",
       message,
       objects,
     };

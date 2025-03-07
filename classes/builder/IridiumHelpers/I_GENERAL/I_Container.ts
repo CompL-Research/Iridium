@@ -1,6 +1,6 @@
 import debugConfig from "#debugConfig";
 import { printScopedSpace } from "#utils";
-import JS3Builder from "classes/builder/JS3Builder.ts";
+import JS3Builder, { JS3BuilderUtils } from "classes/builder/JS3Builder.ts";
 import { JS3File } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { ProjectFile } from "classes/ProjectFile.ts";
 import fs from "node:fs";
@@ -15,11 +15,13 @@ export class I_Container {
   directives: Array<string>;
   sourceType: "script" | "module";
   projectBasePath: string;
+  utils: JS3BuilderUtils;
 
   constructor(
     node: JS3File,
     projectFile: ProjectFile,
     js3Builder: JS3Builder,
+    utils: JS3BuilderUtils,
     directives: Array<string>,
     sourceType: "script" | "module",
     projectBasePath: string,
@@ -28,6 +30,7 @@ export class I_Container {
     this.projectFile = projectFile;
     this.module = null;
     this.js3Builder = js3Builder;
+    this.utils = utils;
     this.directives = directives;
     this.sourceType = sourceType;
     this.projectBasePath = projectBasePath;
@@ -36,6 +39,7 @@ export class I_Container {
   build() {
     const iri_module: IRIDIUM_MODULE = new IRIDIUM_MODULE(
       this.js3Builder,
+      this.utils,
       this.projectBasePath,
     );
     iri_module.build();

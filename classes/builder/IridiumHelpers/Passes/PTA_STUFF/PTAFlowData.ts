@@ -149,7 +149,7 @@ export const ensureNodeIDAndGetStackNode = (
 // Graph Manipulation Methods
 export const addSelfLoop = (
   CURR: PTAFlowData,
-  u: RemoteNode,
+  u: PTAFlowNode,
   enumerable: boolean = true,
 ) => {
   assertPTANode(CURR, u);
@@ -236,6 +236,13 @@ export const getFieldPointees = (CURR: PTAFlowData, u: PTAFlowNode, field: strin
     )
     .map((e) => ensureNodeIDAndGetPTANode(CURR, PTAEdge.from(u.id, e).v));
 
+  if (outNodes.length === 0) {
+    const ukn = new UnknownNode("UNKNOWN", u.world);
+    addPTANode(CURR, ukn);
+    CURR.get(u.id).add(PTAEdge.constructHeapEdge(u.id, "*", "E", ukn.id).getPTAEdge())
+    return [[ukn], []]
+  }
+
   const outVs = 
     outNodes
     .filter((n) => !(n instanceof SetClosureNode || n instanceof GetClosureNode));
@@ -256,6 +263,7 @@ export const GLOBAL_NODE_MAP: Map<PTANODEID, PTAFlowNode> = new Map();
 // Mapping from PTANODEID ---> uname (this is the resolved path for the import node)
 //
 export const GLOBAL_RESOLUTION_MAP: Map<PTANODEID, string> = new Map();
+export const GLOBAL_RESOLUTION_SKIP_MAP: Set<PTANODEID> = new Set();
 
 //
 // Helper functions to ensure, assert, etc PTANodes...
@@ -473,6 +481,23 @@ export class IRIDUM_GLOBAL extends PTAFlowNode {
     const shape = "rectangle";
     const style = "filled";
     const color = "gray";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
+  }
+}
+
+export class UnknownNode extends PTAFlowNode {
+  constructor(id: string, world: string) {
+    super(id, world);
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "rectangle";
+    const style = "filled";
+    const color = "red";
     return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }

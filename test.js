@@ -1333,3 +1333,11 @@
 //   }
 // };
 // b();
+
+// import { fun as remoteFun } from "test1.js";
+
+// x = 1;
+
+// export const fun = (ff) => { ff(fun); x = 2; };
+
+// fun(remoteFun);

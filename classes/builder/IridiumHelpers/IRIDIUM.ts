@@ -39,7 +39,7 @@ import {
   ThisExpression,
 } from "@babel/types";
 
-import JS3Builder from "../JS3Builder.ts";
+import JS3Builder, { JS3BuilderUtils } from "../JS3Builder.ts";
 import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
 import {
   handleExpression,
@@ -315,7 +315,9 @@ import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
 import { IRIDIUM_FG } from "./I_GENERAL/IRIDIUM_FG.ts";
 import { initializeWorld, PTA_WORLD } from "./Passes/PTA.ts";
-import { saveFlowDataToFile } from "#utils";
+import { resolveModuleImport, saveFlowDataToFile } from "#utils";
+import { ensureNodeIDAndGetPTANode, GLOBAL_RESOLUTION_MAP, GLOBAL_RESOLUTION_SKIP_MAP, RemoteNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
+import { GLOBAL_UNAME_PATH_MAP, ProjectFile } from "classes/ProjectFile.ts";
 
 // const genersate = _generate.default;
 export const RESOLUTION_CACHE: Map<string, I_Container> = new Map();
@@ -324,14 +326,14 @@ export default class IRIDIUM_MODULE {
   node: JS3Program;
   fgContext: Array<IRIDIUM_FG> = [];
   static SEARCH_THRESHOLD: number = 10;
-  static ECALL_LIMIT: number = 5;
-  static GLOBAL_CONTEXT: Array<string> = [];
   fg: IRIDIUM_FG = undefined;
   projectBasePath: string;
+  utils: JS3BuilderUtils
 
-  constructor(js3builder: JS3Builder, projectBasePath: string) {
+  constructor(js3builder: JS3Builder, utils: JS3BuilderUtils, projectBasePath: string) {
     this.node = js3builder.generatedAST.program;
     this.js3builder = js3builder;
+    this.utils = utils;
     this.projectBasePath = projectBasePath;
   }
 
@@ -348,9 +350,6 @@ export default class IRIDIUM_MODULE {
 
   // Build FlowGraph
   build() {
-    IRIDIUM_MODULE.GLOBAL_CONTEXT.push(
-      this.js3builder.projectFile.absoluteFilePath,
-    );
     const GLOBAL_ENV = new GlobalEnvironment(undefined);
     const MAIN_ENV = new Environment(GLOBAL_ENV);
 
@@ -384,9 +383,86 @@ export default class IRIDIUM_MODULE {
   performPTA() {
     if (!this.fg)
       debugConfig.logger.throwIriError("Expected fg to be built before PTA...");
-    initializeWorld(this.js3builder.projectFile.uname, this.fg);
 
-    saveFlowDataToFile(this.js3builder.projectFile.uname, PTA_WORLD.get(this.js3builder.projectFile.uname))
+    const world = this.js3builder.projectFile.uname;
+    let expansionLevel = 0;
+    while (true) {
+      expansionLevel++;
+      if (expansionLevel > IRIDIUM_MODULE.SEARCH_THRESHOLD) {
+        debugConfig.logger.warn(`Reached SEARCH_THRESHOLD for "${world}" @ "${GLOBAL_UNAME_PATH_MAP.get(world)}"`);
+        break;
+      }
+      initializeWorld(this.js3builder.projectFile.uname, this.fg);
+
+      const worldData = PTA_WORLD.get(world);
+      const remoteNodes =
+        [...worldData.keys()]
+          .map((n) => ensureNodeIDAndGetPTANode(worldData, n))
+          .filter((n) => n instanceof RemoteNode)
+
+      const unresolvedRemoteNodes = remoteNodes.filter((n) => !GLOBAL_RESOLUTION_MAP.has(n.id) && !GLOBAL_RESOLUTION_SKIP_MAP.has(n.id));
+
+      if (unresolvedRemoteNodes.length === 0) {
+        debugConfig.logger.warn(
+          `Concluding search early: ${expansionLevel}`
+        );
+        break;
+      }
+
+      for (const node of unresolvedRemoteNodes) {
+        const importFilePath = GLOBAL_UNAME_PATH_MAP.get(node.world);
+        const toResolve = node.FROM;
+        try {
+          debugConfig.logger.warn(`Starting Resolution of ${toResolve} from "${importFilePath}"`)
+
+          const filePath = resolveModuleImport(toResolve, importFilePath, debugConfig.cli.projectBase);
+
+          if (!filePath) throw new Error();
+
+          // 1. Loading The File
+          const projectFile = new ProjectFile(filePath, debugConfig.cli.projectBase);
+          projectFile.initSync(debugConfig.cli.sourceType);
+          if (projectFile.initData.parseStatus !== "parsed")
+            debugConfig.logger.throwJS3Error(
+              "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
+            );
+
+          if (PTA_WORLD.has(projectFile.uname)) {
+            GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
+            debugConfig.logger.success(`Skipping already resolved reference: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
+
+          } else {
+            // 2. Constructing JS3
+            const js3Builder = new JS3Builder(projectFile);
+            js3Builder.build();
+            const fileNode = js3Builder.generatedAST;
+            const programNode = fileNode.program;
+
+            // 3. Constructing Iridium
+            const directives: Array<string> = [];
+            programNode.directives.forEach((d) => directives.push(d.value.value));
+            const sourceType = programNode.sourceType;
+            const iri_container = new I_Container(
+              fileNode,
+              projectFile,
+              js3Builder,
+              this.utils,
+              directives,
+              sourceType,
+              debugConfig.cli.projectBase,
+            );
+            iri_container.build();
+            GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
+            debugConfig.logger.success(`Successfully Resolved: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
+          }
+
+
+        } catch (e) {
+          debugConfig.logger.error(`Failed to resolve: "${toResolve}" from "${importFilePath}"`)
+          GLOBAL_RESOLUTION_SKIP_MAP.add(node.id);
+        }
+      }
+    }
   }
 
   // // Set/Get current BB
@@ -606,7 +682,7 @@ export default class IRIDIUM_MODULE {
     resID: IV_Identifier | undefined = undefined,
   ) {
     // Generate 3JS code
-    const otherProps = this.js3builder.utils;
+    const otherProps = this.utils;
     const js3SpillHolder: JS3BlockStatement_body = [];
     const updatedProps = {
       ...otherProps,
@@ -714,13 +790,13 @@ export default class IRIDIUM_MODULE {
       //
       const toLowerRVal: Identifier = generateIdentifier(
         arg,
-        this.js3builder.utils.getNewTemporary(`farg${i++}`),
+        this.utils.getNewTemporary(`farg${i++}`),
       );
 
       //
       // 3. Generate code in curr
       //
-      const otherProps = this.js3builder.utils;
+      const otherProps = this.utils;
       const js3SpillHolder: JS3BlockStatement_body = [];
       const updatedProps = {
         ...otherProps,
@@ -818,7 +894,7 @@ export default class IRIDIUM_MODULE {
     // Initialize Return Block
     const retId = new IV_Identifier(
       undefined,
-      this.js3builder.utils.getNewTemporary(undefined),
+      this.utils.getNewTemporary(undefined),
     );
     const retStmt = new IS_SimpleVarDecl(
       undefined,
@@ -985,7 +1061,7 @@ export default class IRIDIUM_MODULE {
     //
     const classExprValHolder = new IV_Identifier(
       undefined,
-      this.js3builder.utils.getNewTemporary("classExprRes"),
+      this.utils.getNewTemporary("classExprRes"),
     );
     classExprValHolder.isValue = true;
     const initClassExprValToNUBD = new IS_SimpleVarDecl(
@@ -1024,7 +1100,7 @@ export default class IRIDIUM_MODULE {
     if (node.superClass) {
       IRI_heritage = new IV_Identifier(
         undefined,
-        this.js3builder.utils.getNewTemporary("heritageResult"),
+        this.utils.getNewTemporary("heritageResult"),
       );
       IRI_heritage.isValue = true;
       this.lowerExprToBB(node.superClass, classInitBB, IRI_heritage);
@@ -1043,7 +1119,7 @@ export default class IRIDIUM_MODULE {
         if (bodyElem.computed) {
           const valResID = new IV_Identifier(
             undefined,
-            this.js3builder.utils.getNewTemporary("computedName"),
+            this.utils.getNewTemporary("computedName"),
           );
           valResID.isValue = true;
           this.lowerExprToBB(bodyElem.key, fgContext.getCurrentBB(), valResID);
@@ -1136,7 +1212,7 @@ export default class IRIDIUM_MODULE {
 
           const valResID = new IV_Identifier(
             undefined,
-            this.js3builder.utils.getNewTemporary(undefined),
+            this.utils.getNewTemporary(undefined),
           );
           valResID.isValue = true;
           const propComputationBlock = new ClassPropInitBB(
@@ -1234,7 +1310,7 @@ export default class IRIDIUM_MODULE {
     );
     const finInitClassRes = new IV_Identifier(
       undefined,
-      this.js3builder.utils.getNewTemporary(undefined),
+      this.utils.getNewTemporary(undefined),
     );
     fgContext
       .getCurrentBB()
@@ -1308,7 +1384,7 @@ export default class IRIDIUM_MODULE {
 
         const valResID = new IV_Identifier(
           undefined,
-          this.js3builder.utils.getNewTemporary(undefined),
+          this.utils.getNewTemporary(undefined),
         );
         valResID.isValue = true;
 
@@ -1642,11 +1718,11 @@ export default class IRIDIUM_MODULE {
     parentNode: OptionalMemberExpression | OptionalCallExpression,
     existingState:
       | {
-          resID: IV_Identifier;
-          fallthruBlock: BB;
-          postBB: BB;
-          callExprContext: boolean;
-        }
+        resID: IV_Identifier;
+        fallthruBlock: BB;
+        postBB: BB;
+        callExprContext: boolean;
+      }
       | undefined = undefined,
   ) {
     const fgContext = this.getCurrentFGContext();
@@ -1711,7 +1787,7 @@ export default class IRIDIUM_MODULE {
       // Declare chainResHolder in the starting BB
       const resID = new IV_Identifier(
         undefined,
-        this.js3builder.utils.getNewTemporary("chainRes"),
+        this.utils.getNewTemporary("chainRes"),
       );
       resID.isChainedValue = true;
       // Create a declaration in the parent BB for resID
@@ -1725,7 +1801,7 @@ export default class IRIDIUM_MODULE {
         "let",
         new IV_Identifier(
           undefined,
-          this.js3builder.utils.getNewTemporary(undefined),
+          this.utils.getNewTemporary(undefined),
         ),
         new IV_SimpleAssn(
           undefined,
@@ -1761,7 +1837,7 @@ export default class IRIDIUM_MODULE {
     // Set terminal
     const genesisTestRes = new IV_Identifier(
       undefined,
-      this.js3builder.utils.getNewTemporary("testRes"),
+      this.utils.getNewTemporary("testRes"),
     );
     genesisTestTerminalBB.branchTerminal = new BranchTerminal(
       parentNode,
@@ -1923,7 +1999,7 @@ export default class IRIDIUM_MODULE {
             "let",
             new IV_Identifier(
               undefined,
-              this.js3builder.utils.getNewTemporary(undefined),
+              this.utils.getNewTemporary(undefined),
             ),
             new IV_SimpleAssn(
               undefined,
@@ -2214,7 +2290,7 @@ export default class IRIDIUM_MODULE {
   handleJS3ContextualCallExpression(node: JS3ContextualCallExpression) {
     const LVal = new IV_Identifier(
       undefined,
-      this.js3builder.utils.getNewTemporary("ccallCallee"),
+      this.utils.getNewTemporary("ccallCallee"),
     );
     LVal.isValue = true;
     const RVal = this.handleJS3AssnInit(node.callee);
@@ -2393,7 +2469,7 @@ export default class IRIDIUM_MODULE {
 
       const testResult = new IV_Identifier(
         undefined,
-        this.js3builder.utils.getNewTemporary("testResult"),
+        this.utils.getNewTemporary("testResult"),
       );
       caseTestTerminalBB.branchTerminal = new BranchTerminal(
         c,
@@ -2474,7 +2550,7 @@ export default class IRIDIUM_MODULE {
 
     const testIV = new IV_Identifier(
       undefined,
-      this.js3builder.utils.getNewTemporary("loopTest"),
+      this.utils.getNewTemporary("loopTest"),
     );
     testIV.isValue = true;
 
@@ -2545,7 +2621,7 @@ export default class IRIDIUM_MODULE {
 
     const testIV = new IV_Identifier(
       undefined,
-      this.js3builder.utils.getNewTemporary("loopTest"),
+      this.utils.getNewTemporary("loopTest"),
     );
     testIV.isValue = true;
 
@@ -2579,7 +2655,7 @@ export default class IRIDIUM_MODULE {
     if (isJS3LoopDeclaration(stmt.init)) {
       // Simplify Declarations into JS3
       const kind = stmt.init.kind;
-      const otherProps = this.js3builder.utils;
+      const otherProps = this.utils;
       const js3SpillHolder: JS3BlockStatement_body = [];
       const updatedProps = {
         ...otherProps,
@@ -2683,7 +2759,7 @@ export default class IRIDIUM_MODULE {
 
     const testIV = new IV_Identifier(
       undefined,
-      this.js3builder.utils.getNewTemporary("loopTest"),
+      this.utils.getNewTemporary("loopTest"),
     );
     testIV.isValue = true;
 
@@ -2715,7 +2791,7 @@ export default class IRIDIUM_MODULE {
     else inop = new IV_OfIterator(stmt, IV_Identifier.from(stmt.right));
     const iteratorIV = new IV_Identifier(
       undefined,
-      this.js3builder.utils.getNewTemporary(undefined),
+      this.utils.getNewTemporary(undefined),
     );
     initBB.statements.push(
       new IS_SimpleVarDecl(undefined, "let", iteratorIV, inop),
@@ -2738,7 +2814,7 @@ export default class IRIDIUM_MODULE {
     const getNext = new IV_LoopNext(stmt, iteratorIV);
     const nextResHolder = new IV_Identifier(
       undefined,
-      this.js3builder.utils.getNewTemporary(undefined),
+      this.utils.getNewTemporary(undefined),
     );
     const nextResStmt = new IS_SimpleVarDecl(
       undefined,
@@ -2756,7 +2832,7 @@ export default class IRIDIUM_MODULE {
     if (isJS3LoopDeclaration(stmt.left)) {
       // Simplify Declarations into JS3
       const kind = stmt.left.kind;
-      const otherProps = this.js3builder.utils;
+      const otherProps = this.utils;
       const js3SpillHolder: JS3BlockStatement_body = [];
       const updatedProps = {
         ...otherProps,
@@ -2813,14 +2889,14 @@ export default class IRIDIUM_MODULE {
       this.handleJS3ProgramBody(js3SpillHolder);
     } else {
       // Simplify Declarations into JS3
-      const otherProps = this.js3builder.utils;
+      const otherProps = this.utils;
       const js3SpillHolder: JS3BlockStatement_body = [];
       const updatedProps = {
         ...otherProps,
         others: { ...otherProps.others, holder: js3SpillHolder },
       };
 
-      const tempGen = this.js3builder.utils.getNewTemporary;
+      const tempGen = this.utils.getNewTemporary;
 
       const generator = (
         LVal:
@@ -3011,7 +3087,7 @@ export default class IRIDIUM_MODULE {
     // Set Terminal
     const test: IV_Identifier = new IV_Identifier(
       undefined,
-      this.js3builder.utils.getNewTemporary("whileTestRes"),
+      this.utils.getNewTemporary("whileTestRes"),
     );
     test.isValue = true;
     testBodyTerminalBB.branchTerminal = new BranchTerminal(

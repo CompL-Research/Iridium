@@ -3,6 +3,7 @@ import {
   ensurePathExists,
   hasPackageJson,
   initializeOutputsPath,
+  saveFlowDataToFile,
 } from "#utils";
 import chalk from "chalk";
 import { I_Container } from "classes/builder/IridiumHelpers/I_GENERAL/I_Container.ts";
@@ -25,6 +26,7 @@ import {
   printJS3Usage,
 } from "./configs/printUsage.ts";
 import { projectStats } from "./configs/projectStats.ts";
+import { PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "classes/builder/IridiumHelpers/Passes/PTA.ts";
 
 const VERSION = "0.5a";
 const directories = ["./classes", "./configs", "./docs", "./playground/src"];
@@ -93,11 +95,25 @@ function iri(filePath) {
       fileNode,
       projectFile,
       js3Builder,
+      js3Builder.utils,
       directives,
       sourceType,
       debugConfig.cli.projectBase,
     );
     iri_container.build();
+
+    for(const [key, values] of PTA_WORLD_CURRMUTABLE_DATA.entries()) {
+      if (values.length > 1) debugConfig.logger.throwIriError(`Expected world stack to be 0 or 1, found: ${values.length}`);
+      if (values.length === 0) continue;
+      const lastWorldData = values[0];
+      PTA_WORLD.set(key, lastWorldData);
+    }
+
+    if (debugConfig.cli.savePTAGraph) {
+      for(const [key, value] of PTA_WORLD.entries()) {
+        saveFlowDataToFile(key, value);
+      }
+    }
   } catch (e) {
     debugConfig.logger.throwIriError(`Failed to generate Iridium: ${e}`);
     process.exit(1);

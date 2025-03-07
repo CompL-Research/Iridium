@@ -23,6 +23,8 @@ export class InitData {
   }
 }
 
+export const GLOBAL_UNAME_PATH_MAP: Map<string, string> = new Map();
+
 export class ProjectFile {
   absoluteFilePath: string;
   projectBasePath: string;
@@ -58,6 +60,8 @@ export class ProjectFile {
     this.filename = path.basename(absoluteFilePath);
     this.filepath = path.dirname(absoluteFilePath);
     this.initData = new InitData();
+
+    GLOBAL_UNAME_PATH_MAP.set(this.uname, this.absoluteFilePath);
   }
 
   // #transformImports(program: Program, result: Map<t.Node, string | null>) {

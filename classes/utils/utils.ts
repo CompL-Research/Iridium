@@ -160,7 +160,7 @@ export function resolveModuleImport(
     return result.resolvedModule.resolvedFileName;
   } else {
     debugConfig.logger.error(
-      `Failed to resolve import: ${importPath} @ ${currentFile}`,
+      `Failed to resolve import: ${importPath} @ ${currentFile}: ${result}`,
     );
     return undefined;
   }

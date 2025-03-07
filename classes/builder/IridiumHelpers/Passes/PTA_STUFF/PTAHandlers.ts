@@ -8,7 +8,7 @@ import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
 import { BB, FunctionReturn } from "../../BB.ts";
 import { IRIDIUM_FG } from "../../I_GENERAL/IRIDIUM_FG.ts";
 import { I_Function_params } from "../../I_GENERAL/I_Function.ts";
-import { PTA, PTA_HASH_MAP, PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "../PTA.ts";
+import { getEXPORTID, PTA, PTA_HASH_MAP, PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "../PTA.ts";
 import {
   GLOBAL_NODE_MAP,
   GLOBAL_RESOLUTION_MAP,
@@ -27,6 +27,7 @@ import {
   addStackEdges,
   addStackPTANode,
   assertFieldPTANode,
+  ensureNodeIDAndGetPTANode,
   ensureNodeIDAndGetStackNode,
   getFieldPointees,
   getPointees,
@@ -116,8 +117,10 @@ export const handleFieldAssignmentStatement = (
   }
 
   for (const [closureResult, closureWorld, returnObj] of closureResults) {
-    if (PTA_WORLD.get(closureWorld) !== null) {
-      debugConfig.logger.throwIriError("TODO: // Update a closed world");
+    const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(closureWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length > 0;
+
+    if (!hasMutableWorld) {
+      debugConfig.logger.throwIriError("TODO: // Update a world with no instance");
     } else {
       const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(closureWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length > 0;
 
@@ -172,7 +175,22 @@ export const handleBImportNode = (
   addPTANode(mutableFlowData, remoteNode);
 
   if (GLOBAL_RESOLUTION_MAP.has(heapID)) {
-    debugConfig.logger.throwIriError("TODO: Handle resolved nodes");
+    const resolvedUname = GLOBAL_RESOLUTION_MAP.get(heapID);
+
+    let field: string;
+    if (i.remote instanceof IV_Identifier) field = i.remote.name;
+    else field = i.remote.value;
+
+    if (PTA_WORLD.has(resolvedUname)) {
+      const worldData = PTA_WORLD.get(resolvedUname);
+      if (worldData === null) debugConfig.logger.throwIriError("TODO: Resolved world is not closed yet!!");
+      else {
+        const exportedNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(resolvedUname));
+        const [pointees, clposu] = getFieldPointees(worldData, exportedNode, field, true);
+        pointees.forEach((p) => addPTANode(mutableFlowData, p));
+        addStackEdges(mutableFlowData, stackNode, pointees);
+      }
+    }
   } else {
     addSelfLoop(mutableFlowData, remoteNode, true);
     addStackEdges(mutableFlowData, stackNode, [remoteNode]);
@@ -280,65 +298,68 @@ export const handleOrdinaryFunctionObjectCall = (
 
   const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(closureWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length > 0;
 
+  let boundaryEnv: PTAFlowData;
+
   if (!hasMutableWorld) {
-    debugConfig.logger.throwIriError("PTA TODO: calling closure to a immutable world");
-  } else {
-    const closureWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length - 1];
-    const boundaryEnv = unionAllPTAFlowData(closureWorldData);
-    // Add arguments node
-    const argumentsNode = initializeArgumentsObj(
-      closureWorld,
-      args,
-      calleeArgs.length,
-      boundaryEnv,
-      currBB,
-      currBBIDx,
-      stackInstOffset,
-    );
-
-    if (objectContext) {
-      const C_THIS_ID = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB);
-      const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
-        ? GLOBAL_NODE_MAP.get(C_THIS_ID)
-        : new StackNode(C_THIS_ID, closureWorld);
-      assert(stackNode instanceof StackNode);
-      addPTANode(boundaryEnv, stackNode);
-
-      addStackEdges(boundaryEnv, stackNode, objectContext);
-    }
-
-
-
-    // PTA Eval with curbed env as eval context
-    handleClosureCall(argumentsNode, args.length, calleeArgs, closureWorld, closureGraph, boundaryEnv);
-    boundaryEnv.delete(argumentsNode.id);
-
-    const sinks = closureGraph.sinks();
-    if (sinks.length !== 1)
-      debugConfig.logger.throwIriError(
-        `Sinks length !== 1, found ${sinks.length}`,
-      );
-    const sink = sinks[0];
-    const sinkBB = closureGraph.getBBNode(sink);
-
-    //
-    // Point to all stuff the return can point to
-    //
-    if (!(sinkBB instanceof FunctionReturn)) {
-      debugConfig.logger.throwIriError(
-        `Expected sinks to be Function Returns in closures!!! found ${sinkBB.scope}`,
-      );
-      return undefined
-    };
-    const argLookupName = getStackQualifiedName(
-      sinkBB.arg.lookupName(),
-      sinkBB,
-    );
-    return [boundaryEnv, closureWorld, ensureNodeIDAndGetStackNode(boundaryEnv, argLookupName)];
+    boundaryEnv = PTA_WORLD.get(closureWorld);
+    // 
+    if (!PTA_WORLD_CURRMUTABLE_DATA.has(closureWorld)) PTA_WORLD_CURRMUTABLE_DATA.set(closureWorld, []);
+    const worldInstance = unionAllPTAFlowData(PTA_WORLD.get(closureWorld));
+    PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).push(worldInstance);
   }
+  const closureWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length - 1];
+  boundaryEnv = unionAllPTAFlowData(closureWorldData);
 
-  debugConfig.logger.throwIriError("TODO: Ordinary Function Call");
-  return undefined;
+  
+  // Add arguments node
+  const argumentsNode = initializeArgumentsObj(
+    closureWorld,
+    args,
+    calleeArgs.length,
+    boundaryEnv,
+    mutableFlowData,
+    currBB,
+    currBBIDx,
+    stackInstOffset,
+  );
+
+  if (objectContext) {
+    const C_THIS_ID = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB);
+    const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
+      ? GLOBAL_NODE_MAP.get(C_THIS_ID)
+      : new StackNode(C_THIS_ID, closureWorld);
+    assert(stackNode instanceof StackNode);
+    addPTANode(boundaryEnv, stackNode);
+
+    addStackEdges(boundaryEnv, stackNode, objectContext);
+  }
+  // PTA Eval with curbed env as eval context
+  handleClosureCall(argumentsNode, args.length, calleeArgs, closureWorld, closureGraph, boundaryEnv);
+  boundaryEnv.delete(argumentsNode.id);
+
+  const sinks = closureGraph.sinks();
+  if (sinks.length !== 1)
+    debugConfig.logger.throwIriError(
+      `Sinks length !== 1, found ${sinks.length}`,
+    );
+  const sink = sinks[0];
+  const sinkBB = closureGraph.getBBNode(sink);
+
+  //
+  // Point to all stuff the return can point to
+  //
+  if (!(sinkBB instanceof FunctionReturn)) {
+    debugConfig.logger.throwIriError(
+      `Expected sinks to be Function Returns in closures!!! found ${sinkBB.scope}`,
+    );
+    return undefined
+  };
+  const argLookupName = getStackQualifiedName(
+    sinkBB.arg.lookupName(),
+    sinkBB,
+  );
+
+  return [boundaryEnv, closureWorld, ensureNodeIDAndGetStackNode(boundaryEnv, argLookupName)];
 };
 
 export const initializeArgumentsObj = (
@@ -346,6 +367,7 @@ export const initializeArgumentsObj = (
   callerArgs: Array<IV_Identifier | ISP_ArgSpread>,
   expectedArgsLen: number,
   boundaryEnv: PTAFlowData,
+  pointeeEnv: PTAFlowData,
   currBB: BB,
   currBBIDx: string,
   stackInstOffset: number,
@@ -368,8 +390,11 @@ export const initializeArgumentsObj = (
     const currArg = callerArgs[i];
     if (currArg instanceof IV_Identifier) {
       const ID = getStackQualifiedName(currArg.lookupName(), currBB);
-      const stackNode = ensureNodeIDAndGetStackNode(boundaryEnv, ID);
-      const pointees = getPointees(boundaryEnv, stackNode);
+      const stackNode = ensureNodeIDAndGetStackNode(pointeeEnv, ID);
+      const pointees = getPointees(pointeeEnv, stackNode);
+
+      pointees.forEach((p) => addPTANode(boundaryEnv, p));
+
       // ArgumentsObj --[i]--> pointees
 
       handleFieldAssignmentStatement(boundaryEnv, [argumentsNode], ["" + i], pointees, true, currBB, currBBIDx, stackInstOffset);
@@ -381,8 +406,9 @@ export const initializeArgumentsObj = (
         );
 
       const ID = getStackQualifiedName(currArg.arg.lookupName(), currBB);
-      const stackNode = ensureNodeIDAndGetStackNode(boundaryEnv, ID);
-      const pointees = getPointees(boundaryEnv, stackNode);
+      const stackNode = ensureNodeIDAndGetStackNode(pointeeEnv, ID);
+      const pointees = getPointees(pointeeEnv, stackNode);
+      pointees.forEach((p) => addPTANode(boundaryEnv, p));
       // ArgumentsObj --[*]--> pointees
       const edgesHolder = boundaryEnv.get(argumentsNode.id);
 
@@ -444,10 +470,10 @@ export const handleClosureCall = (
   const boundaryHash = hashGraph(boundaryEnv, closureFG.rootBB.idx);
   if (PTA_HASH_MAP.has(boundaryHash)) {
     if (PTA_HASH_MAP.get(boundaryHash)) {
-      debugConfig.logger.error(`Boundary Hash reused: ${boundaryHash}`);
+      debugConfig.logger.success(`Boundary Hash reused: ${boundaryHash}`);
       unionAllMutablePTAFlowData(boundaryEnv, PTA_HASH_MAP.get(boundaryHash));
     } else {
-      debugConfig.logger.error(`Boundary Null Hash: ${boundaryHash}`);
+      debugConfig.logger.warn(`Boundary Null Hash: ${boundaryHash}`);
     }
     return;
   }
@@ -584,8 +610,10 @@ export const handleCallExpression = (
   }
 
   for (const [closureResult, closureWorld, returnObj] of closureResults) {
-    if (PTA_WORLD.get(closureWorld) !== null) {
-      debugConfig.logger.throwIriError("TODO: // Update a closed world");
+    const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(closureWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length > 0;
+
+    if (!hasMutableWorld) {
+      debugConfig.logger.throwIriError("TODO: // Update a world with no instance");
     } else {
       const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(closureWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length > 0;
 
@@ -595,13 +623,21 @@ export const handleCallExpression = (
       const mutableWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length - 1];
 
       const pointees = getPointees(closureResult, returnObj);
-      if (closureWorld === uname)
-        pointees.forEach((p) => res.add(p))
-      else
-        debugConfig.logger.throwIriError("TODO: Handle Remote Object Returns");
 
+      for (const p of pointees) {
+        if (p.world !== closureWorld) {
+          addPTANode(mutableWorldData, p);
+        }
+      }
+
+      pointees.forEach((p) => res.add(p))
       unionAllMutablePTAFlowData(mutableWorldData, closureResult);
     }
   }
+  res.forEach((p) => {
+    if (p.world !== uname) {
+      addPTANode(mutableFlowData, p);
+    }
+  })
   return res;
 };
