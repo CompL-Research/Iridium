@@ -184,26 +184,35 @@ export const addStackEdges = (
 export const addHeapEdges = (
   CURR: PTAFlowData,
   u: PTAFlowNode,
-  fields: Set<string> | Array<string>,
+  field: string,
   vs: Set<PTAFlowNode> | Array<PTAFlowNode>,
   enumerable: boolean = true,
-) => {
+): Array<[SetClosureNode, PTAFlowNode, Array<PTAFlowNode> | Set<PTAFlowNode>]> => {
+
   assertPTANode(CURR, u);
 
-  const data = CURR.get(u.id);
+  const outEdges = CURR.get(u.id);
 
-  for (const field of fields) {
-    for (const v of vs) {
-      assertPTANode(CURR, v);
-      const e = PTAEdge.constructHeapEdge(
-        u.id,
-        field,
-        enumerable ? "E" : "H",
-        v.id,
-      );
-      data.add(e.getPTAEdge());
-    }
+  const pendingClosures: Array<[SetClosureNode, PTAFlowNode, Array<PTAFlowNode> | Set<PTAFlowNode>]> = 
+    [...outEdges.values()]
+    .map((e) => PTAEdge.from(u.id, e))
+    .filter((e) => e.field === field)
+    .map((e) => ensureNodeIDAndGetPTANode(CURR, e.v))
+    .filter((node) => node instanceof SetClosureNode)
+    .map((node) => [node, u, vs])
+  
+
+  // Create new edges to vs
+  for (const v of vs) {
+    const e = PTAEdge.constructHeapEdge(
+      u.id,
+      field,
+      enumerable ? "E" : "H",
+      v.id,
+    );
+    outEdges.add(e.getPTAEdge());
   }
+  return pendingClosures;
 };
 
 export const getPointees = (CURR: PTAFlowData, u: StackNode) => {
@@ -341,9 +350,11 @@ export class OrdinaryFunctionNode extends PTAFlowNode {
 export type SetSpecialClosure_meth = ISP_ObjectMethod;
 export class SetClosureNode extends PTAFlowNode {
   meth: SetSpecialClosure_meth;
-  constructor(id: string, meth: SetSpecialClosure_meth) {
+  world: string;
+  constructor(id: string, meth: SetSpecialClosure_meth, world: string) {
     super(id);
     this.meth = meth;
+    this.world = world;
   }
 }
 

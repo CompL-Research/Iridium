@@ -1,44 +1,137 @@
-import { IS_BImport } from "../../ALL_IS/IS_Imports_Exports.ts";
-import {
-  PTAFlowData,
-  PTAFlowNode,
-  StackNode,
-  addStackPTANode,
-  addStackEdges,
-  GLOBAL_RESOLUTION_MAP,
-  addPTANode,
-  GLOBAL_NODE_MAP,
-  RemoteNode,
-  OrdinaryFunctionNode,
-  OrdinaryArrayNode,
-  getPointees,
-  addHeapEdges,
-  ensureNodeIDAndGetStackNode,
-  PTAEdge,
-  addSelfLoop,
-  unionAllPTAFlowData,
-  assertFieldPTANode,
-  getFieldPointees,
-  hasFieldPTANode,
-  unionAllMutablePTAFlowData,
-  printPTAFlowData,
-  GetClosureNode,
-} from "./PTAFlowData.ts";
-import { BB, FunctionReturn } from "../../BB.ts";
-import { getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
 import debugConfig from "#debugConfig";
+import { hashGraph, saveFlowDataToFile, saveFlowDataToGraph } from "#utils";
 import assert from "node:assert";
-import { IV_Identifier } from "../../ALL_AMP/ALL_AMP.ts";
+import { IV_Identifier, IV_PrivateName } from "../../ALL_AMP/ALL_AMP.ts";
+import { IS_BImport } from "../../ALL_IS/IS_Imports_Exports.ts";
 import { ISP_ArgSpread, ISP_ObjectMethod } from "../../ALL_RVal/ALL_ISP.ts";
+import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
+import { BB, FunctionReturn } from "../../BB.ts";
 import { IRIDIUM_FG } from "../../I_GENERAL/IRIDIUM_FG.ts";
 import { I_Function_params } from "../../I_GENERAL/I_Function.ts";
-import { handleRVals } from "./RValHandlers.ts";
 import { PTA, PTA_HASH_MAP, PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "../PTA.ts";
-import { hashGraph, saveFlowDataToFile, saveFlowDataToGraph } from "#utils"
-import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
+import {
+  GLOBAL_NODE_MAP,
+  GLOBAL_RESOLUTION_MAP,
+  GetClosureNode,
+  OrdinaryArrayNode,
+  OrdinaryFunctionNode,
+  PTAEdge,
+  PTAFlowData,
+  PTAFlowNode,
+  RemoteNode,
+  SetClosureNode,
+  StackNode,
+  addHeapEdges,
+  addPTANode,
+  addSelfLoop,
+  addStackEdges,
+  addStackPTANode,
+  assertFieldPTANode,
+  ensureNodeIDAndGetStackNode,
+  getFieldPointees,
+  getPointees,
+  hasFieldPTANode,
+  unionAllMutablePTAFlowData,
+  unionAllPTAFlowData
+} from "./PTAFlowData.ts";
+import { dissernProps, handleRVals } from "./RValHandlers.ts";
+import { getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
 
 const a = saveFlowDataToFile;
 const b = saveFlowDataToGraph;
+
+// a[f]
+export const handleFieldReference = (
+  uname: string,
+  mutableFlowData: PTAFlowData,
+  stackQualifiedReceiverID: string,
+  field: IV_Identifier | IV_PrivateName,
+  computed: boolean,
+  currBB: BB,
+  currBBIDx: string,
+  stackInstOffset: number,
+) => {
+  const receiverStackNode = ensureNodeIDAndGetStackNode(mutableFlowData, stackQualifiedReceiverID);
+  const receiverPointees = getPointees(mutableFlowData, receiverStackNode);
+
+  const dissernedProps: Set<string> = dissernProps(
+    mutableFlowData,
+    field.lookupName(),
+    computed && getStackQualifiedName(field.lookupName(), currBB),
+    computed,
+  );
+
+  const res: Set<PTAFlowNode> = new Set();
+  for (const u of receiverPointees) {
+    for (const p of dissernedProps) {
+      const [pointees, closures] = getFieldPointees(mutableFlowData, u, p);
+      pointees.forEach((p) => res.add(p));
+      handleCallExpression(
+        uname,
+        mutableFlowData,
+        closures,
+        [],
+        currBB,
+        currBBIDx,
+        stackInstOffset,
+        [u]
+      ).forEach((r) => res.add(r))
+    }
+  }
+  return [...res];
+}
+
+
+// a[f] = [PONTEES]
+export const handleFieldAssignmentStatement = (
+  uname: string,
+  mutableFlowData: PTAFlowData,
+  us: Array<PTAFlowNode> | Set<PTAFlowNode>,
+  fields: Set<string> | Array<string>,
+  vs: Array<PTAFlowNode> | Set<PTAFlowNode>,
+  enumerable: boolean,
+  currBB: BB,
+  currBBIDx: string,
+  stackInstOffset: number,
+
+) => {
+  const pendingClosures: Array<[SetClosureNode, PTAFlowNode, Array<PTAFlowNode> | Set<PTAFlowNode>]> = [];
+  const closureResults: Array<[PTAFlowData, string, StackNode]> = [];
+
+  for (const u of us) {
+    for (const field of fields) {
+      pendingClosures.push(...addHeapEdges(mutableFlowData, u, field, vs, enumerable));
+    }
+  }
+
+  for (const [closure, objContext, args] of pendingClosures) {
+    const [flowData, world, returnNode] = handleSetClosureCall(
+      closure,
+      objContext,
+      args,
+      currBBIDx,
+      stackInstOffset
+    )
+
+    closureResults.push([flowData, world, returnNode]);
+  }
+
+  for (const [closureResult, closureWorld, returnObj] of closureResults) {
+    if (PTA_WORLD.get(closureWorld) !== null) {
+      debugConfig.logger.throwIriError("TODO: // Update a closed world");
+    } else {
+      const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(closureWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length > 0;
+
+      // World already has an instance
+      if (!hasMutableWorld) debugConfig.logger.throwIriError("An open world must have a mutable data active");
+
+      const mutableWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length - 1];
+
+      unionAllMutablePTAFlowData(mutableWorldData, closureResult);
+    }
+  }
+}
+
 
 // a = [POINTEES]
 export const handleSimpleAssignmentStatement = (
@@ -85,6 +178,91 @@ export const handleBImportNode = (
   }
 };
 
+export const handleSetClosureCall = (
+  closure: SetClosureNode,
+  objectContext: PTAFlowNode,
+  targets: Array<PTAFlowNode> | Set<PTAFlowNode>,
+  currBBIDx: string,
+  stackInstOffset: number,
+): [PTAFlowData, string, StackNode] => {
+  let calleeArgs: I_Function_params = closure.meth.params;
+  let closureGraph: IRIDIUM_FG = closure.meth.funBody;
+  const closureWorld = closure.world;
+
+  const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(closureWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length > 0;
+
+  if (!hasMutableWorld) {
+    debugConfig.logger.throwIriError("PTA TODO: calling closure to a immutable world");
+  } else {
+    const closureWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length - 1];
+    const boundaryEnv = unionAllPTAFlowData(closureWorldData);
+    // Add arguments node
+    const argsID = getHeapQualifiedName(
+      "argumentsObj",
+      currBBIDx,
+      stackInstOffset,
+    );
+
+    const argumentsNode = GLOBAL_NODE_MAP.has(argsID)
+      ? GLOBAL_NODE_MAP.get(argsID)
+      : new OrdinaryArrayNode(argsID);
+    assert(argumentsNode instanceof OrdinaryArrayNode);
+    addPTANode(boundaryEnv, argumentsNode);
+
+    const pendingClosures = addHeapEdges(boundaryEnv, argumentsNode, "0", targets, true);
+
+    if (pendingClosures.length > 0)
+      debugConfig.logger.throwIriError("Unexpected pending closures when making SetClosure Call")
+
+    if (calleeArgs.length !== 1)
+      debugConfig.logger.throwIriError("Expected set closures to have exactly one argument")
+
+
+
+    const C_THIS_ID = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB);
+    const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
+      ? GLOBAL_NODE_MAP.get(C_THIS_ID)
+      : new StackNode(C_THIS_ID);
+    assert(stackNode instanceof StackNode);
+    addPTANode(boundaryEnv, stackNode);
+
+    addStackEdges(boundaryEnv, stackNode, [objectContext]);
+
+
+
+    // PTA Eval with curbed env as eval context
+    handleClosureCall(argumentsNode, 1, calleeArgs, closureWorld, closureGraph, boundaryEnv);
+    boundaryEnv.delete(argumentsNode.id);
+
+    const sinks = closureGraph.sinks();
+    if (sinks.length !== 1)
+      debugConfig.logger.throwIriError(
+        `Sinks length !== 1, found ${sinks.length}`,
+      );
+    const sink = sinks[0];
+    const sinkBB = closureGraph.getBBNode(sink);
+
+    //
+    // Point to all stuff the return can point to
+    //
+    if (!(sinkBB instanceof FunctionReturn)) {
+      debugConfig.logger.throwIriError(
+        `Expected sinks to be Function Returns in closures!!! found ${sinkBB.scope}`,
+      );
+      return undefined
+    };
+    const argLookupName = getStackQualifiedName(
+      sinkBB.arg.lookupName(),
+      sinkBB,
+    );
+    return [boundaryEnv, closureWorld, ensureNodeIDAndGetStackNode(boundaryEnv, argLookupName)];
+  }
+
+  debugConfig.logger.throwIriError("TODO: Ordinary Function Call");
+  return undefined;
+
+}
+
 export const handleOrdinaryFunctionObjectCall = (
   uname: string,
   mutableFlowData: PTAFlowData,
@@ -126,8 +304,8 @@ export const handleOrdinaryFunctionObjectCall = (
     if (objectContext) {
       const C_THIS_ID = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB);
       const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
-            ? GLOBAL_NODE_MAP.get(C_THIS_ID)
-            : new StackNode(C_THIS_ID);
+        ? GLOBAL_NODE_MAP.get(C_THIS_ID)
+        : new StackNode(C_THIS_ID);
       assert(stackNode instanceof StackNode);
       addPTANode(boundaryEnv, stackNode);
 
@@ -168,6 +346,98 @@ export const handleOrdinaryFunctionObjectCall = (
   return undefined;
 };
 
+export const initializeArgumentsObjFromPTANodes = (
+  uname: string,
+  callerArgs: Array<IV_Identifier | ISP_ArgSpread>,
+  expectedArgsLen: number,
+  boundaryEnv: PTAFlowData,
+  currBB: BB,
+  currBBIDx: string,
+  stackInstOffset: number,
+): OrdinaryArrayNode => {
+  const argsID = getHeapQualifiedName(
+    "argumentsObj",
+    currBBIDx,
+    stackInstOffset,
+  );
+
+  const argumentsNode = GLOBAL_NODE_MAP.has(argsID)
+    ? GLOBAL_NODE_MAP.get(argsID)
+    : new OrdinaryArrayNode(argsID);
+  assert(argumentsNode instanceof OrdinaryArrayNode);
+  addPTANode(boundaryEnv, argumentsNode);
+
+  const suppliedArgs = callerArgs.length;
+
+  for (let i = 0; i < suppliedArgs; i++) {
+    const currArg = callerArgs[i];
+    if (currArg instanceof IV_Identifier) {
+      const ID = getStackQualifiedName(currArg.lookupName(), currBB);
+      const stackNode = ensureNodeIDAndGetStackNode(boundaryEnv, ID);
+      const pointees = getPointees(boundaryEnv, stackNode);
+      // ArgumentsObj --[i]--> pointees
+
+      handleFieldAssignmentStatement(uname, boundaryEnv, [argumentsNode], ["" + i], pointees, true, currBB, currBBIDx, stackInstOffset);
+
+    } else {
+      if (i + 1 !== suppliedArgs)
+        debugConfig.logger.throwIriError(
+          "Expecting Spread operator to be the last supplied argument",
+        );
+
+      const ID = getStackQualifiedName(currArg.arg.lookupName(), currBB);
+      const stackNode = ensureNodeIDAndGetStackNode(boundaryEnv, ID);
+      const pointees = getPointees(boundaryEnv, stackNode);
+      // ArgumentsObj --[*]--> pointees
+      const edgesHolder = boundaryEnv.get(argumentsNode.id);
+
+      for (const pp of pointees) {
+        const outEdges = boundaryEnv.get(pp.id);
+        for (const e of outEdges) {
+          const constructedEdge = PTAEdge.from(pp.id, e);
+          edgesHolder.add(
+            PTAEdge.constructHeapEdge(
+              argumentsNode.id,
+              "*",
+              "E",
+              constructedEdge.v,
+            ).getPTAEdge(),
+          );
+        }
+      }
+    }
+  }
+
+  // Do argument matching
+  // case 1: supplied args === expected args
+  // case 2: supplied args > expected args
+  // case 3: supplied args < expected args
+  const undefID = new IV_Identifier(undefined, "undefined");
+  const undefPointee = handleRVals(
+    uname,
+    boundaryEnv,
+    undefID,
+    currBB,
+    currBBIDx,
+    stackInstOffset,
+  )[0];
+
+  if (suppliedArgs < expectedArgsLen) {
+    const edgesHolder = boundaryEnv.get(argumentsNode.id)
+    for (let i = suppliedArgs; i <= expectedArgsLen; i++) {
+      edgesHolder.add(
+        PTAEdge.constructHeapEdge(
+          argumentsNode.id,
+          "" + i,
+          "E",
+          undefPointee.id,
+        ).getPTAEdge(),
+      );
+    }
+  }
+  return argumentsNode;
+}
+
 export const initializeArgumentsObj = (
   uname: string,
   callerArgs: Array<IV_Identifier | ISP_ArgSpread>,
@@ -198,7 +468,9 @@ export const initializeArgumentsObj = (
       const stackNode = ensureNodeIDAndGetStackNode(boundaryEnv, ID);
       const pointees = getPointees(boundaryEnv, stackNode);
       // ArgumentsObj --[i]--> pointees
-      addHeapEdges(boundaryEnv, argumentsNode, ["" + i], pointees, true);
+
+      handleFieldAssignmentStatement(uname, boundaryEnv, [argumentsNode], ["" + i], pointees, true, currBB, currBBIDx, stackInstOffset);
+
     } else {
       if (i + 1 !== suppliedArgs)
         debugConfig.logger.throwIriError(
@@ -295,8 +567,8 @@ export const handleClosureCall = (
         ? GLOBAL_NODE_MAP.get(argStackQualifiedName)
         : new StackNode(argStackQualifiedName);
       assert(argStackNode instanceof StackNode);
-      addPTANode(boundaryEnv, argumentsNode);
-      
+      addPTANode(boundaryEnv, argStackNode);
+
       assertFieldPTANode(boundaryEnv, argumentsNode, currField);
 
       const [pointees, closures] = getFieldPointees(boundaryEnv, argumentsNode, currField);
@@ -318,7 +590,7 @@ export const handleClosureCall = (
       const spillHolderObj = GLOBAL_NODE_MAP.has(spillHolderID)
         ? GLOBAL_NODE_MAP.get(spillHolderID)
         : new OrdinaryArrayNode(spillHolderID);
-      
+
       assert(spillHolderObj instanceof OrdinaryArrayNode);
       addPTANode(boundaryEnv, argumentsNode);
 
@@ -332,7 +604,7 @@ export const handleClosureCall = (
       assert(spillHolderObj instanceof StackNode);
 
       addStackEdges(boundaryEnv, argStackNode, [spillHolderObj]);
-      
+
       let counter = 0;
       for (let k = j; k <= callerArgs; k++) {
         //
@@ -345,13 +617,8 @@ export const handleClosureCall = (
         if (closures.length > 0)
           debugConfig.logger.error("Unexpected closure in arguments object: handleClosureCall function");
 
-        addHeapEdges(
-          boundaryEnv,
-          spillHolderObj,
-          ["" + counter],
-          pointees,
-          true
-        );
+        handleFieldAssignmentStatement(world, boundaryEnv, [spillHolderObj], ["" + counter], pointees, true, closureFG.rootBB, "" + closureFG.rootBB.idx, 0);
+
         counter++;
       }
 
@@ -359,14 +626,8 @@ export const handleClosureCall = (
         const [pointees, closures] = getFieldPointees(boundaryEnv, argumentsNode, "*");
         if (closures.length > 0)
           debugConfig.logger.error("Unexpected closure in arguments object: handleClosureCall function");
-  
-        addHeapEdges(
-          boundaryEnv,
-          spillHolderObj,
-          ["*"],
-          pointees,
-          true
-        );
+
+        handleFieldAssignmentStatement(world, boundaryEnv, [spillHolderObj], ["*"], pointees, true, closureFG.rootBB, "" + closureFG.rootBB.idx, 0);
       }
     }
   }
@@ -374,10 +635,8 @@ export const handleClosureCall = (
   const resultEnv = PTA(world, closureFG, boundaryEnv);
   unionAllMutablePTAFlowData(boundaryEnv, resultEnv);
   PTA_HASH_MAP.set(boundaryHash, resultEnv);
-  
-}
 
-const x = printPTAFlowData;
+}
 
 export const handleCallExpression = (
   uname: string,
@@ -429,13 +688,13 @@ export const handleCallExpression = (
 
       // World already has an instance
       if (!hasMutableWorld) debugConfig.logger.throwIriError("An open world must have a mutable data active");
-      
+
       const mutableWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length - 1];
 
       const pointees = getPointees(closureResult, returnObj);
-      if (closureWorld === uname) 
+      if (closureWorld === uname)
         pointees.forEach((p) => res.add(p))
-      else 
+      else
         debugConfig.logger.throwIriError("TODO: Handle Remote Object Returns");
 
       unionAllMutablePTAFlowData(mutableWorldData, closureResult);

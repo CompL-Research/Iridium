@@ -1306,7 +1306,6 @@ let y = {
 };
 let m = y.a;
 let n = y.b;
-y.c = 12;
 let o = y.c;
 
 // let a = 10;
