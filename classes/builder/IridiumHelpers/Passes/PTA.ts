@@ -56,14 +56,14 @@ export const initializeWorld = (uname: string, fg: IRIDIUM_FG) => {
   for (const binding of globalEnv.bindings) {
     const globalNode = GLOBAL_NODE_MAP.has(binding[0])
       ? GLOBAL_NODE_MAP.get(binding[0])
-      : new IRIDUM_GLOBAL(binding[0]);
+      : new IRIDUM_GLOBAL(binding[0], uname);
     assert(globalNode instanceof IRIDUM_GLOBAL);
     addPTANode(initialWorldData, globalNode);
 
     const refToBinding = getStackQualifiedName(binding[0], fg.rootBB);
     const stackNode = GLOBAL_NODE_MAP.has(refToBinding)
       ? GLOBAL_NODE_MAP.get(refToBinding)
-      : new StackNode(refToBinding);
+      : new StackNode(refToBinding, uname);
     assert(stackNode instanceof StackNode);
     addPTANode(initialWorldData, stackNode);
     addStackEdges(initialWorldData, stackNode, [globalNode]);
@@ -172,7 +172,7 @@ export const flowFunction = (
     debugConfig.logger.error(`At stmt ${i.toString()}`);
 
     if (i instanceof IS_BImport) {
-      handleBImportNode(mutableFlowData, i, currBB, currBBIDx, stackInstOffset);
+      handleBImportNode(uname, mutableFlowData, i, currBB, currBBIDx, stackInstOffset);
     } else if (i instanceof IS_ClassStaticPropInit) {
       debugConfig.logger.throwIriError("PTA TODO: IS_ClassStaticPropInit");
       // // obj[prop] = rval
@@ -186,6 +186,7 @@ export const flowFunction = (
     } else if (i instanceof IS1_DeclarationStmt) {
       const qualifiedLVal = getStackQualifiedName(i.LVal.lookupName(), currBB);
       handleSimpleAssignmentStatement(
+        uname,
         mutableFlowData,
         qualifiedLVal,
         handleRVals(
@@ -210,6 +211,7 @@ export const flowFunction = (
           stackInstOffset,
         );
         handleSimpleAssignmentStatement(
+          uname,
           mutableFlowData,
           qualifiedLVal,
           RValPointees,

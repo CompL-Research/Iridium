@@ -305,26 +305,71 @@ export class PTAEdge {
 
 export class PTAFlowNode {
   id: string;
-  constructor(id: string) {
+  world: string;
+  constructor(id: string, world: string) {
     this.id = id;
+    this.world = world;
+  }
+
+  dotName(): string {
+    debugConfig.logger.throwIriError("Extected a subclass to extend 'dotName'");
+    return "";
+  }
+
+  dotNodeStyle(): string {
+    debugConfig.logger.throwIriError("Extected a subclass to extend 'toDot'");
+    return "";
   }
 }
 
 export class StackNode extends PTAFlowNode {
-  constructor(id: string) {
-    super(id);
+  constructor(id: string, world: string) {
+    super(id, world);
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "plain";
+    const style = "filled";
+    const color = "white";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }
 
 export class OrdinaryArrayNode extends PTAFlowNode {
-  constructor(id: string) {
-    super(id);
+  constructor(id: string, world: string) {
+    super(id, world);
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "rectangle";
+    const style = "filled";
+    const color = "white";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }
 
 export class OrdinaryObjectNode extends PTAFlowNode {
-  constructor(id: string) {
-    super(id);
+  constructor(id: string, world: string) {
+    super(id, world);
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "rectangle";
+    const style = "filled";
+    const color = "white";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }
 
@@ -334,52 +379,101 @@ export type OrdinaryFunctionObject_meth =
   | IV_ArrowFunctionExpression;
 export class OrdinaryFunctionNode extends PTAFlowNode {
   meth: OrdinaryFunctionObject_meth;
-  world: string;
   constructor(id: string, meth: OrdinaryFunctionObject_meth, world: string) {
-    super(id);
+    super(id, world);
     if (meth instanceof ISP_ObjectMethod && meth.kind !== "method") {
       debugConfig.logger.throwIriError(
         "Object methods that are not normal functions cannot occupy a ordinary function object",
       );
     }
     this.meth = meth;
-    this.world = world;
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "note";
+    const style = "filled";
+    const color = "white";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }
 
 export type SetSpecialClosure_meth = ISP_ObjectMethod;
 export class SetClosureNode extends PTAFlowNode {
   meth: SetSpecialClosure_meth;
-  world: string;
   constructor(id: string, meth: SetSpecialClosure_meth, world: string) {
-    super(id);
+    super(id, world);
     this.meth = meth;
-    this.world = world;
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "note";
+    const style = "filled";
+    const color = "white";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }
 
 export type GetSpecialClosure_meth = ISP_ObjectMethod;
 export class GetClosureNode extends PTAFlowNode {
   meth: GetSpecialClosure_meth;
-  world: string;
   constructor(id: string, meth: GetSpecialClosure_meth, world: string) {
-    super(id);
+    super(id, world);
     this.meth = meth;
-    this.world = world;
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "note";
+    const style = "filled";
+    const color = "white";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }
 
 export class RemoteNode extends PTAFlowNode {
   FROM: string;
-  constructor(id: string, FROM: string) {
-    super(id);
+  constructor(id: string, FROM: string, world: string) {
+    super(id, world);
     this.FROM = FROM;
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "rectangle";
+    const style = "filled";
+    const color = "gray";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }
 
 export class IRIDUM_GLOBAL extends PTAFlowNode {
-  constructor(id: string) {
-    super(id);
+  constructor(id: string, world: string) {
+    super(id, world);
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "rectangle";
+    const style = "filled";
+    const color = "gray";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }
 
@@ -396,8 +490,19 @@ type IV_Literals =
   | IV_BooleanLiteral;
 export class LiteralNode extends PTAFlowNode {
   node: IV_Literals;
-  constructor(id: string, node: IV_Literals) {
-    super(id);
+  constructor(id: string, node: IV_Literals, world: string) {
+    super(id, world);
     this.node = node;
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "rectangle";
+    const style = "filled";
+    const color = "green";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }

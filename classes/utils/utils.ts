@@ -1,7 +1,7 @@
 import debugConfig from "#debugConfig";
 import { CommentBlock, CommentLine } from "@babel/types";
 import { execSync } from "child_process";
-import { PTAEdge, PTAFlowData } from "classes/builder/IridiumHelpers/Passes/PTA_STUFF/PTAFlowData.ts";
+import { ensureNodeIDAndGetPTANode, PTAEdge, PTAFlowData } from "classes/builder/IridiumHelpers/Passes/PTA_STUFF/PTAFlowData.ts";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
@@ -47,15 +47,14 @@ export const saveFlowDataToGraph = (flowData: PTAFlowData) => {
   res.push("digraph gg {");
   // res.push("  graph [nodesep=1.0, ranksep=1.5]; // Adjust separation")
   for (const [u, es] of flowData.entries()) {
-    res.push(`"${u.replace(/"/g, '\\"')}";`);
+    const ptaNode = ensureNodeIDAndGetPTANode(flowData, u);
+    res.push(`${ptaNode.dotName()}${ptaNode.dotNodeStyle()};`)
     for (const e of es) {
       const edge = PTAEdge.from(u, e)
+      const uNode = ensureNodeIDAndGetPTANode(flowData, edge.u);
+      const vNode = ensureNodeIDAndGetPTANode(flowData, edge.v);
       res.push(
-        "  \"" +
-        edge.u.replace(/"/g, '\\"') +
-        "\" -> \"" +
-        edge.v.replace(/"/g, '\\"') +
-        `"[ label="${edge.field.replace(/"/g, '\\"')}" ];`,
+        `${uNode.dotName()} -> ${vNode.dotName()}[ label="${edge.field.replace(/"/g, '\\"')}" ]`
       );
     }
   }
@@ -154,6 +153,7 @@ export function resolveModuleImport(
     baseUrl: basePath,
   };
 
+  // @ts-ignore
   const result = ts.resolveModuleName(importPath, currentFile, options, ts.sys);
 
   if (result.resolvedModule) {

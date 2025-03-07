@@ -89,7 +89,7 @@ export const handleRVals = (
     const ID = "NUBD";
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
-      : new IRIDUM_GLOBAL(ID);
+      : new IRIDUM_GLOBAL(ID, uname);
     assert(node instanceof IRIDUM_GLOBAL);
     addPTANode(mutableFlowData, node);
     return [node];
@@ -97,7 +97,7 @@ export const handleRVals = (
     const ID = "undefined";
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
-      : new IRIDUM_GLOBAL(ID);
+      : new IRIDUM_GLOBAL(ID, uname);
     assert(node instanceof IRIDUM_GLOBAL);
     addPTANode(mutableFlowData, node);
     return [node];
@@ -131,7 +131,7 @@ export const handleRVals = (
     const ID = rVal.lookupName();
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
-      : new LiteralNode(ID, rVal);
+      : new LiteralNode(ID, rVal, uname);
     assert(node instanceof LiteralNode);
     assert(node.node instanceof IV_DecimalLiteral);
     addPTANode(mutableFlowData, node);
@@ -140,7 +140,7 @@ export const handleRVals = (
     const ID = rVal.lookupName();
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
-      : new LiteralNode(ID, rVal);
+      : new LiteralNode(ID, rVal, uname);
     assert(node instanceof LiteralNode);
     assert(node.node instanceof IV_BigIntLiteral);
     addPTANode(mutableFlowData, node);
@@ -149,7 +149,7 @@ export const handleRVals = (
     const ID = rVal.value;
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
-      : new LiteralNode(ID, rVal);
+      : new LiteralNode(ID, rVal, uname);
     assert(node instanceof LiteralNode);
     assert(node.node instanceof IV_StringLiteral);
     addPTANode(mutableFlowData, node);
@@ -158,7 +158,7 @@ export const handleRVals = (
     const ID = rVal.lookupName();
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
-      : new LiteralNode(ID, rVal);
+      : new LiteralNode(ID, rVal, uname);
     assert(node instanceof LiteralNode);
     assert(node.node instanceof IV_NumericLiteral);
     addPTANode(mutableFlowData, node);
@@ -167,7 +167,7 @@ export const handleRVals = (
     const ID = rVal.lookupName();
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
-      : new LiteralNode(ID, rVal);
+      : new LiteralNode(ID, rVal, uname);
     assert(node instanceof LiteralNode);
     assert(node.node instanceof IV_NullLiteral);
     addPTANode(mutableFlowData, node);
@@ -176,7 +176,7 @@ export const handleRVals = (
     const ID = rVal.lookupName();
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
-      : new LiteralNode(ID, rVal);
+      : new LiteralNode(ID, rVal, uname);
     assert(node instanceof LiteralNode);
     assert(node.node instanceof IV_BooleanLiteral);
     addPTANode(mutableFlowData, node);
@@ -205,7 +205,7 @@ export const handleRVals = (
     const ID = getStackQualifiedName(rVal.callee.lookupName(), currBB);
     const stackNode = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
-      : new StackNode(ID);
+      : new StackNode(ID, uname);
     assert(stackNode instanceof StackNode);
 
     const callees = getPointees(mutableFlowData, stackNode);
@@ -317,7 +317,7 @@ export const handleRVals = (
     const trueID = "true";
     const trueNode = GLOBAL_NODE_MAP.has(trueID)
       ? GLOBAL_NODE_MAP.get(trueID)
-      : new LiteralNode(trueID, new IV_BooleanLiteral(undefined, true));
+      : new LiteralNode(trueID, new IV_BooleanLiteral(undefined, true), uname);
     assert(trueNode instanceof LiteralNode);
     assert(trueNode.node instanceof IV_BooleanLiteral);
     addPTANode(mutableFlowData, trueNode);
@@ -325,7 +325,7 @@ export const handleRVals = (
     const falseID = "false";
     const falseNode = GLOBAL_NODE_MAP.has(falseID)
       ? GLOBAL_NODE_MAP.get(falseID)
-      : new LiteralNode(falseID, new IV_BooleanLiteral(undefined, false));
+      : new LiteralNode(falseID, new IV_BooleanLiteral(undefined, false), uname);
     assert(falseNode instanceof LiteralNode);
     assert(falseNode.node instanceof IV_BooleanLiteral);
     addPTANode(mutableFlowData, falseNode);
@@ -344,7 +344,7 @@ export const handleRVals = (
       stackInstOffset,
     );
     const ID = getStackQualifiedName(rVal.LVal.lookupName(), currBB);
-    handleSimpleAssignmentStatement(mutableFlowData, ID, res);
+    handleSimpleAssignmentStatement(uname, mutableFlowData, ID, res);
     return res;
   } else if (rVal instanceof IV_MemberAssn) {
     // a.x = RVal
@@ -372,7 +372,6 @@ export const handleRVals = (
     );
 
     handleFieldAssignmentStatement(
-      uname,
       mutableFlowData,
       receiverPointees,
       dissernedProps,
@@ -409,7 +408,6 @@ export const handleRVals = (
     );
 
     handleFieldAssignmentStatement(
-      uname,
       mutableFlowData,
       receiverPointees,
       dissernedProps,
@@ -507,7 +505,7 @@ export const handleRVals = (
 
     const objNode = GLOBAL_NODE_MAP.has(objExprID)
       ? GLOBAL_NODE_MAP.get(objExprID)
-      : new OrdinaryObjectNode(objExprID);
+      : new OrdinaryObjectNode(objExprID, uname);
     assert(objNode instanceof OrdinaryObjectNode);
     addPTANode(mutableFlowData, objNode);
 
@@ -559,7 +557,6 @@ export const handleRVals = (
         }
         addPTANode(mutableFlowData, pointee);
         handleFieldAssignmentStatement(
-          uname,
           mutableFlowData,
           [objNode],
           dissernedProps,
@@ -587,7 +584,6 @@ export const handleRVals = (
           stackInstOffset,
         );
         handleFieldAssignmentStatement(
-          uname,
           mutableFlowData,
           [objNode],
           dissernedProps,

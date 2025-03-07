@@ -84,7 +84,6 @@ export const handleFieldReference = (
 
 // a[f] = [PONTEES]
 export const handleFieldAssignmentStatement = (
-  uname: string,
   mutableFlowData: PTAFlowData,
   us: Array<PTAFlowNode> | Set<PTAFlowNode>,
   fields: Set<string> | Array<string>,
@@ -135,13 +134,14 @@ export const handleFieldAssignmentStatement = (
 
 // a = [POINTEES]
 export const handleSimpleAssignmentStatement = (
+  uname: string,
   mutableFlowData: PTAFlowData,
   qualifiedStackId: string,
   vs: Array<PTAFlowNode> | Set<PTAFlowNode>,
 ) => {
   const u = GLOBAL_NODE_MAP.has(qualifiedStackId)
     ? GLOBAL_NODE_MAP.get(qualifiedStackId)
-    : new StackNode(qualifiedStackId);
+    : new StackNode(qualifiedStackId, uname);
   assert(u instanceof StackNode);
   addStackPTANode(mutableFlowData, u);
   addStackEdges(mutableFlowData, u, vs);
@@ -149,6 +149,7 @@ export const handleSimpleAssignmentStatement = (
 
 // import { remote as local } from FROM
 export const handleBImportNode = (
+  uname: string,
   mutableFlowData: PTAFlowData,
   i: IS_BImport,
   currBB: BB,
@@ -158,14 +159,14 @@ export const handleBImportNode = (
   const stackID = getStackQualifiedName(i.local.lookupName(), currBB);
   const stackNode = GLOBAL_NODE_MAP.has(stackID)
     ? GLOBAL_NODE_MAP.get(stackID)
-    : new StackNode(stackID);
+    : new StackNode(stackID, uname);
   assert(stackNode instanceof StackNode);
   addPTANode(mutableFlowData, stackNode);
 
   const heapID = getHeapQualifiedName("IMPORT", currBBIDx, stackInstOffset);
   const remoteNode = GLOBAL_NODE_MAP.has(heapID)
     ? GLOBAL_NODE_MAP.get(heapID)
-    : new RemoteNode(heapID, i.FROM.value);
+    : new RemoteNode(heapID, i.FROM.value, uname);
 
   assert(remoteNode instanceof RemoteNode);
   addPTANode(mutableFlowData, remoteNode);
@@ -205,7 +206,7 @@ export const handleSetClosureCall = (
 
     const argumentsNode = GLOBAL_NODE_MAP.has(argsID)
       ? GLOBAL_NODE_MAP.get(argsID)
-      : new OrdinaryArrayNode(argsID);
+      : new OrdinaryArrayNode(argsID, closureWorld);
     assert(argumentsNode instanceof OrdinaryArrayNode);
     addPTANode(boundaryEnv, argumentsNode);
 
@@ -217,19 +218,13 @@ export const handleSetClosureCall = (
     if (calleeArgs.length !== 1)
       debugConfig.logger.throwIriError("Expected set closures to have exactly one argument")
 
-
-
     const C_THIS_ID = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB);
     const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
       ? GLOBAL_NODE_MAP.get(C_THIS_ID)
-      : new StackNode(C_THIS_ID);
+      : new StackNode(C_THIS_ID, closureWorld);
     assert(stackNode instanceof StackNode);
     addPTANode(boundaryEnv, stackNode);
-
     addStackEdges(boundaryEnv, stackNode, [objectContext]);
-
-
-
     // PTA Eval with curbed env as eval context
     handleClosureCall(argumentsNode, 1, calleeArgs, closureWorld, closureGraph, boundaryEnv);
     boundaryEnv.delete(argumentsNode.id);
@@ -292,7 +287,7 @@ export const handleOrdinaryFunctionObjectCall = (
     const boundaryEnv = unionAllPTAFlowData(closureWorldData);
     // Add arguments node
     const argumentsNode = initializeArgumentsObj(
-      uname,
+      closureWorld,
       args,
       calleeArgs.length,
       boundaryEnv,
@@ -305,7 +300,7 @@ export const handleOrdinaryFunctionObjectCall = (
       const C_THIS_ID = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB);
       const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
         ? GLOBAL_NODE_MAP.get(C_THIS_ID)
-        : new StackNode(C_THIS_ID);
+        : new StackNode(C_THIS_ID, closureWorld);
       assert(stackNode instanceof StackNode);
       addPTANode(boundaryEnv, stackNode);
 
@@ -346,100 +341,8 @@ export const handleOrdinaryFunctionObjectCall = (
   return undefined;
 };
 
-export const initializeArgumentsObjFromPTANodes = (
-  uname: string,
-  callerArgs: Array<IV_Identifier | ISP_ArgSpread>,
-  expectedArgsLen: number,
-  boundaryEnv: PTAFlowData,
-  currBB: BB,
-  currBBIDx: string,
-  stackInstOffset: number,
-): OrdinaryArrayNode => {
-  const argsID = getHeapQualifiedName(
-    "argumentsObj",
-    currBBIDx,
-    stackInstOffset,
-  );
-
-  const argumentsNode = GLOBAL_NODE_MAP.has(argsID)
-    ? GLOBAL_NODE_MAP.get(argsID)
-    : new OrdinaryArrayNode(argsID);
-  assert(argumentsNode instanceof OrdinaryArrayNode);
-  addPTANode(boundaryEnv, argumentsNode);
-
-  const suppliedArgs = callerArgs.length;
-
-  for (let i = 0; i < suppliedArgs; i++) {
-    const currArg = callerArgs[i];
-    if (currArg instanceof IV_Identifier) {
-      const ID = getStackQualifiedName(currArg.lookupName(), currBB);
-      const stackNode = ensureNodeIDAndGetStackNode(boundaryEnv, ID);
-      const pointees = getPointees(boundaryEnv, stackNode);
-      // ArgumentsObj --[i]--> pointees
-
-      handleFieldAssignmentStatement(uname, boundaryEnv, [argumentsNode], ["" + i], pointees, true, currBB, currBBIDx, stackInstOffset);
-
-    } else {
-      if (i + 1 !== suppliedArgs)
-        debugConfig.logger.throwIriError(
-          "Expecting Spread operator to be the last supplied argument",
-        );
-
-      const ID = getStackQualifiedName(currArg.arg.lookupName(), currBB);
-      const stackNode = ensureNodeIDAndGetStackNode(boundaryEnv, ID);
-      const pointees = getPointees(boundaryEnv, stackNode);
-      // ArgumentsObj --[*]--> pointees
-      const edgesHolder = boundaryEnv.get(argumentsNode.id);
-
-      for (const pp of pointees) {
-        const outEdges = boundaryEnv.get(pp.id);
-        for (const e of outEdges) {
-          const constructedEdge = PTAEdge.from(pp.id, e);
-          edgesHolder.add(
-            PTAEdge.constructHeapEdge(
-              argumentsNode.id,
-              "*",
-              "E",
-              constructedEdge.v,
-            ).getPTAEdge(),
-          );
-        }
-      }
-    }
-  }
-
-  // Do argument matching
-  // case 1: supplied args === expected args
-  // case 2: supplied args > expected args
-  // case 3: supplied args < expected args
-  const undefID = new IV_Identifier(undefined, "undefined");
-  const undefPointee = handleRVals(
-    uname,
-    boundaryEnv,
-    undefID,
-    currBB,
-    currBBIDx,
-    stackInstOffset,
-  )[0];
-
-  if (suppliedArgs < expectedArgsLen) {
-    const edgesHolder = boundaryEnv.get(argumentsNode.id)
-    for (let i = suppliedArgs; i <= expectedArgsLen; i++) {
-      edgesHolder.add(
-        PTAEdge.constructHeapEdge(
-          argumentsNode.id,
-          "" + i,
-          "E",
-          undefPointee.id,
-        ).getPTAEdge(),
-      );
-    }
-  }
-  return argumentsNode;
-}
-
 export const initializeArgumentsObj = (
-  uname: string,
+  remoteWorld: string,
   callerArgs: Array<IV_Identifier | ISP_ArgSpread>,
   expectedArgsLen: number,
   boundaryEnv: PTAFlowData,
@@ -455,7 +358,7 @@ export const initializeArgumentsObj = (
 
   const argumentsNode = GLOBAL_NODE_MAP.has(argsID)
     ? GLOBAL_NODE_MAP.get(argsID)
-    : new OrdinaryArrayNode(argsID);
+    : new OrdinaryArrayNode(argsID, remoteWorld);
   assert(argumentsNode instanceof OrdinaryArrayNode);
   addPTANode(boundaryEnv, argumentsNode);
 
@@ -469,7 +372,7 @@ export const initializeArgumentsObj = (
       const pointees = getPointees(boundaryEnv, stackNode);
       // ArgumentsObj --[i]--> pointees
 
-      handleFieldAssignmentStatement(uname, boundaryEnv, [argumentsNode], ["" + i], pointees, true, currBB, currBBIDx, stackInstOffset);
+      handleFieldAssignmentStatement(boundaryEnv, [argumentsNode], ["" + i], pointees, true, currBB, currBBIDx, stackInstOffset);
 
     } else {
       if (i + 1 !== suppliedArgs)
@@ -506,7 +409,7 @@ export const initializeArgumentsObj = (
   // case 3: supplied args < expected args
   const undefID = new IV_Identifier(undefined, "undefined");
   const undefPointee = handleRVals(
-    uname,
+    remoteWorld,
     boundaryEnv,
     undefID,
     currBB,
@@ -565,7 +468,7 @@ export const handleClosureCall = (
 
       const argStackNode = GLOBAL_NODE_MAP.has(argStackQualifiedName)
         ? GLOBAL_NODE_MAP.get(argStackQualifiedName)
-        : new StackNode(argStackQualifiedName);
+        : new StackNode(argStackQualifiedName, world);
       assert(argStackNode instanceof StackNode);
       addPTANode(boundaryEnv, argStackNode);
 
@@ -589,7 +492,7 @@ export const handleClosureCall = (
 
       const spillHolderObj = GLOBAL_NODE_MAP.has(spillHolderID)
         ? GLOBAL_NODE_MAP.get(spillHolderID)
-        : new OrdinaryArrayNode(spillHolderID);
+        : new OrdinaryArrayNode(spillHolderID, world);
 
       assert(spillHolderObj instanceof OrdinaryArrayNode);
       addPTANode(boundaryEnv, argumentsNode);
@@ -600,7 +503,7 @@ export const handleClosureCall = (
       );
       const argStackNode = GLOBAL_NODE_MAP.has(argStackID)
         ? GLOBAL_NODE_MAP.get(argStackID)
-        : new StackNode(argStackID);
+        : new StackNode(argStackID, world);
       assert(spillHolderObj instanceof StackNode);
 
       addStackEdges(boundaryEnv, argStackNode, [spillHolderObj]);
@@ -617,7 +520,7 @@ export const handleClosureCall = (
         if (closures.length > 0)
           debugConfig.logger.error("Unexpected closure in arguments object: handleClosureCall function");
 
-        handleFieldAssignmentStatement(world, boundaryEnv, [spillHolderObj], ["" + counter], pointees, true, closureFG.rootBB, "" + closureFG.rootBB.idx, 0);
+        handleFieldAssignmentStatement(boundaryEnv, [spillHolderObj], ["" + counter], pointees, true, closureFG.rootBB, "" + closureFG.rootBB.idx, 0);
 
         counter++;
       }
@@ -627,7 +530,7 @@ export const handleClosureCall = (
         if (closures.length > 0)
           debugConfig.logger.error("Unexpected closure in arguments object: handleClosureCall function");
 
-        handleFieldAssignmentStatement(world, boundaryEnv, [spillHolderObj], ["*"], pointees, true, closureFG.rootBB, "" + closureFG.rootBB.idx, 0);
+        handleFieldAssignmentStatement(boundaryEnv, [spillHolderObj], ["*"], pointees, true, closureFG.rootBB, "" + closureFG.rootBB.idx, 0);
       }
     }
   }
