@@ -2,6 +2,7 @@ import debugConfig from "#debugConfig";
 import assert from "node:assert";
 import { IV_Identifier, IV_MemberExpressionPA, IV_SuperLookupPA, IV_ThisLookupPA } from "../../ALL_AMP/ALL_AMP.ts";
 import {
+  ISP_ArgSpread,
   ISP_ObjectMethod,
   ISP_ObjectProperty
 } from "../../ALL_RVal/ALL_ISP.ts";
@@ -27,15 +28,20 @@ import {
   addHeapEdges,
   addPTANode,
   ClassNode,
+  CSepNode,
   ensureNodeIDAndGetPTANode,
   ensureNodeIDAndGetStackNode,
+  FJSXNode,
+  getAllFields,
   GetClosureNode,
   getPointees,
   GLOBAL_NODE_MAP,
   IRIDUM_GLOBAL,
   LiteralNode,
+  OrdinaryArrayNode,
   OrdinaryFunctionNode,
   OrdinaryObjectNode,
+  PJSXNode,
   PTAEdge,
   PTAFlowData,
   PTAFlowNode,
@@ -58,6 +64,9 @@ import { IV_Regexp } from "../../ALL_RVal/IV_Regexp.ts";
 import { IV_TemplateLiteral } from "../../ALL_RVal/IV_Templates.ts";
 import { IV_NewExpression } from "../../ALL_RVal/IV_NewExpression.ts";
 import { IV_ClassExpression } from "../../ALL_RVal/IV_ClassExpression.ts";
+import { IV_ConditionalExpression } from "../../ALL_RVal/IV_ConditionalExpression.ts";
+import { IV_FJSX, IV_JSX, IV_PJSX } from "../../ALL_RVal/IV_JSX.ts";
+import { IV_ArrayExpression } from "../../ALL_RVal/IV_ArrayExpression.ts";
 
 export const dissernProps = (
   mutableFlowData: PTAFlowData,
@@ -122,10 +131,26 @@ export const handleRVals = (
   }
   else if (rVal instanceof IV_MemberExpressionPA) {
     const receiverID = getStackQualifiedName(rVal.object.lookupName(), currBB);
-    return handleFieldReference(uname, mutableFlowData, receiverID, rVal.property, rVal.computed, currBB, currBBIDx, stackInstOffset);
+    const receiverStackNode = ensureNodeIDAndGetStackNode(mutableFlowData, receiverID);
+    const receiverPointees = getPointees(mutableFlowData, receiverStackNode);
+    const dissernedProps: Set<string> = dissernProps(
+      mutableFlowData,
+      rVal.property.lookupName(),
+      rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB),
+      rVal.computed,
+    );
+    return handleFieldReference(uname, mutableFlowData, receiverPointees, dissernedProps, currBB, currBBIDx, stackInstOffset);
   } else if (rVal instanceof IV_ThisLookupPA) {
     const receiverID = getStackQualifiedName(IV_This.lookupName(), currBB);
-    return handleFieldReference(uname, mutableFlowData, receiverID, rVal.property, rVal.computed, currBB, currBBIDx, stackInstOffset);
+    const receiverStackNode = ensureNodeIDAndGetStackNode(mutableFlowData, receiverID);
+    const receiverPointees = getPointees(mutableFlowData, receiverStackNode);
+    const dissernedProps: Set<string> = dissernProps(
+      mutableFlowData,
+      rVal.property.lookupName(),
+      rVal.computed && getStackQualifiedName(rVal.property.lookupName(), currBB),
+      rVal.computed,
+    );
+    return handleFieldReference(uname, mutableFlowData, receiverPointees, dissernedProps, currBB, currBBIDx, stackInstOffset);
   } else if (rVal instanceof IV_SuperLookupPA) {
     debugConfig.logger.throwIriError("TODO: Handle IV_SuperLookupPA");
   }
@@ -599,107 +624,114 @@ export const handleRVals = (
           stackInstOffset
         );
       } else {
-        const pointees = handleRVals(
-          uname,
-          mutableFlowData,
-          p.arg,
-          currBB,
-          currBBIDx,
-          stackInstOffset,
-        );
+        debugConfig.logger.throwIriError("PTA TODO: OBJ spread")
+        // const pointees = handleRVals(
+        //   uname,
+        //   mutableFlowData,
+        //   p.arg,
+        //   currBB,
+        //   currBBIDx,
+        //   stackInstOffset,
+        // );
 
-        const edgesToAdd: Set<string> = new Set();
-        for (const pointee of pointees) {
-          const pointeeEdges = mutableFlowData.get(pointee.id);
-          pointeeEdges.forEach((e) => {
-            const origEdge = PTAEdge.from(pointee.id, e);
-            edgesToAdd.add(
-              PTAEdge.constructHeapEdge(
-                objNode.id,
-                origEdge.field,
-                origEdge.flag,
-                origEdge.v,
-              ).getPTAEdge(),
-            );
-          });
-        }
+        // const edgesToAdd: Set<string> = new Set();
+        // for (const pointee of pointees) {
+        //   const pointeeEdges = mutableFlowData.get(pointee.id);
+        //   pointeeEdges.forEach((e) => {
+        //     const origEdge = PTAEdge.from(pointee.id, e);
+        //     edgesToAdd.add(
+        //       PTAEdge.constructHeapEdge(
+        //         objNode.id,
+        //         origEdge.field,
+        //         origEdge.flag,
+        //         origEdge.v,
+        //       ).getPTAEdge(),
+        //     );
+        //   });
+        // }
       }
       i++;
     }
     return [objNode];
   }
 
-  // // t_IV_ArrayExpression
-  // else if (rVal instanceof IV_ArrayExpression) {
-  //   //
-  //   // [OrdinaryArrayObject]
-  //   //
+  // t_IV_ArrayExpression
+  else if (rVal instanceof IV_ArrayExpression) {
+    //
+    // [OrdinaryArrayObject]
+    //
 
-  //   const mainObjID = getHeapQualifiedName(
-  //     "arrExpr",
-  //     currBBIDx,
-  //     stackInstOffset,
-  //   );
-  //   const mainObj = new OrdinaryArrayObject(mainObjID);
-  //   if (!nextGraph.hasNode(mainObjID)) nextGraph.addPTANode(mainObj);
+    const mainObjID = getHeapQualifiedName(
+      "arrExpr",
+      currBBIDx,
+      stackInstOffset,
+    );
+    const objNode = GLOBAL_NODE_MAP.has(mainObjID)
+      ? GLOBAL_NODE_MAP.get(mainObjID)
+      : new OrdinaryArrayNode(mainObjID, uname);
+    assert(objNode instanceof OrdinaryArrayNode);
+    addPTANode(mutableFlowData, objNode);
 
-  //   let i = 0;
-  //   const initTuple: Array<[string, IV_Identifier | ISP_ArgSpread]> = [];
-  //   let hasSpread = false;
-  //   for (const p of rVal.elements) {
-  //     if (hasSpread || p instanceof ISP_ArgSpread) {
-  //       initTuple.push(["*", p]);
-  //       hasSpread = true;
-  //     } else {
-  //       initTuple.push([`${i}`, p]);
-  //     }
-  //     i++;
-  //   }
+    let i = 0;
+    const initTuple: Array<[string, IV_Identifier | ISP_ArgSpread]> = [];
+    let hasSpread = false;
+    for (const p of rVal.elements) {
+      if (hasSpread || p instanceof ISP_ArgSpread) {
+        initTuple.push(["*", p]);
+        hasSpread = true;
+      } else {
+        initTuple.push([`${i}`, p]);
+      }
+      i++;
+    }
 
-  //   for (const [field, o] of initTuple) {
-  //     if (o instanceof IV_Identifier) {
-  //       //
-  //       // [OrdinaryArrayObject] --field--> pointees(ID)
-  //       //
-  //       const lookupId = getStackQualifiedName(o.lookupName(), currBB);
-  //       const pointees = nextGraph.getPointees(lookupId);
-  //       nextGraph.drawHeapToHeapEdge([mainObj], pointees, [field], true);
-  //     } else {
-  //       //
-  //       // [OrdinaryArrayObject] --field--> { PTANode(allOutwardEdges(x)) | x = pointees(ID) }
-  //       //
-  //       const lookupId = getStackQualifiedName(o.arg.lookupName(), currBB);
-  //       const pointees = nextGraph.getPointees(lookupId);
+    for (const [field, o] of initTuple) {
+      if (o instanceof IV_Identifier) {
+        //
+        // [OrdinaryArrayObject] --field--> pointees(ID)
+        //
+        const lookupID = getStackQualifiedName(o.lookupName(), currBB);
+        const lookupNode = ensureNodeIDAndGetStackNode(mutableFlowData, lookupID);
+        const pointees = getPointees(mutableFlowData, lookupNode);
+        handleFieldAssignmentStatement(mutableFlowData, [objNode], [field], pointees, true, currBB, currBBIDx, stackInstOffset);
+      } else {
+        //
+        // [OrdinaryArrayObject] --field--> { PTANode(allOutwardEdges(x)) | x = pointees(ID) }
+        //
+        const lookupID = getStackQualifiedName(o.arg.lookupName(), currBB);
+        const lookupNode = ensureNodeIDAndGetStackNode(mutableFlowData, lookupID);
+        const pointees = getPointees(mutableFlowData, lookupNode);
 
-  //       for (const p of pointees) {
-  //         const edges = nextGraph.outEdges(p.id);
-  //         const resultObjs: Array<PTANode> = edges
-  //           ? edges.map((e) => nextGraph.getPTANode(e.w))
-  //           : [];
-  //         nextGraph.drawHeapToHeapEdge([mainObj], resultObjs, [field], true);
-  //       }
-  //     }
-  //   }
+        for (const p of pointees) {
+          
+          const allFields = getAllFields(mutableFlowData, p);
+          const pps = handleFieldReference(uname, mutableFlowData, [p], allFields, currBB, currBBIDx, stackInstOffset);
 
-  //   return [mainObj];
-  // }
+          handleFieldAssignmentStatement(mutableFlowData, [objNode], ["*"], pps, true, currBB, currBBIDx, stackInstOffset);
+        }
+      }
+    }
 
-  // // t_IV_ConditionalExpression
-  // else if (rVal instanceof IV_ConditionalExpression) {
-  //   const resObj = new CSepObject(
-  //     getHeapQualifiedName("CondExpr", currBBIDx, stackInstOffset),
-  //   );
-  //   nextGraph.declareNode(resObj);
-  //   const pointees1 = nextGraph.getPointees(
-  //     getStackQualifiedName(rVal.consequent.lookupName(), currBB),
-  //   );
-  //   const pointees2 = nextGraph.getPointees(
-  //     getStackQualifiedName(rVal.alternate.lookupName(), currBB),
-  //   );
-  //   for (const p of pointees1) nextGraph.setEdge(resObj.id, p.id, "T", "T");
-  //   for (const p of pointees2) nextGraph.setEdge(resObj.id, p.id, "F", "F");
-  //   return [resObj];
-  // }
+    return [objNode];
+  }
+
+  // t_IV_ConditionalExpression
+  else if (rVal instanceof IV_ConditionalExpression) {
+    debugConfig.logger.throwIriError("PTA TODO: IV_ConditionalExpression")
+    // const resObj = new CSepNode(
+    //   getHeapQualifiedName("CondExpr", currBBIDx, stackInstOffset),
+    // );
+    // nextGraph.declareNode(resObj);
+    // const pointees1 = nextGraph.getPointees(
+    //   getStackQualifiedName(rVal.consequent.lookupName(), currBB),
+    // );
+    // const pointees2 = nextGraph.getPointees(
+    //   getStackQualifiedName(rVal.alternate.lookupName(), currBB),
+    // );
+    // for (const p of pointees1) nextGraph.setEdge(resObj.id, p.id, "T", "T");
+    // for (const p of pointees2) nextGraph.setEdge(resObj.id, p.id, "F", "F");
+    // return [resObj];
+  }
 
   // t_IV_FunctionExpression
   else if (rVal instanceof IV_FunctionExpression) {
@@ -730,10 +762,11 @@ export const handleRVals = (
   // t_IV_NewExpression
   else if (rVal instanceof IV_NewExpression) {
     // debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_NewExpression")
-    const resObj = new UnknownNode(
-      getHeapQualifiedName("IV_NewExpression", currBBIDx, stackInstOffset),
-      uname,
-    );
+    const ID = getHeapQualifiedName("IV_NewExpression", currBBIDx, stackInstOffset)
+    const resObj = GLOBAL_NODE_MAP.has(ID)
+      ? GLOBAL_NODE_MAP.get(ID)
+      : new UnknownNode(ID, uname);
+    assert(resObj instanceof UnknownNode);
     addPTANode(mutableFlowData, resObj);
     return [resObj];
   }
@@ -785,7 +818,10 @@ export const handleRVals = (
       currBBIDx,
       stackInstOffset,
     );
-    const mainObj = new ClassNode(mainObjID, rVal, uname);
+    const mainObj = GLOBAL_NODE_MAP.has(mainObjID)
+      ? GLOBAL_NODE_MAP.get(mainObjID)
+      : new ClassNode(mainObjID, rVal, uname);
+    assert(mainObj instanceof ClassNode);
     addPTANode(mutableFlowData, mainObj);
 
     if (rVal.heritage) {
@@ -827,79 +863,87 @@ export const handleRVals = (
   // }
 
   // // t_IV_JSX
-  // else if (rVal instanceof IV_PJSX) {
-  //   const resObj = new PJSXObject(
-  //     getHeapQualifiedName("PJSX", currBBIDx, stackInstOffset),
-  //   );
-  //   nextGraph.declareNode(resObj);
+  else if (rVal instanceof IV_PJSX) {
+    const pJSXID = getHeapQualifiedName("PJSX", currBBIDx, stackInstOffset)
+    const pJSXObj = GLOBAL_NODE_MAP.has(pJSXID)
+      ? GLOBAL_NODE_MAP.get(pJSXID)
+      : new PJSXNode(pJSXID, uname);
+    assert(pJSXObj instanceof PJSXNode);
+    addPTANode(mutableFlowData, pJSXObj);
 
-  //   for (const c of rVal.children) {
-  //     const pointees = nextGraph.getPointees(
-  //       getStackQualifiedName(c.lookupName(), currBB),
-  //     );
-  //     nextGraph.drawHeapToHeapEdge([resObj], pointees, ["children"], true);
-  //   }
-  //   return [resObj];
-  // } else if (rVal instanceof IV_JSX) {
-  //   const currComponentPointees = nextGraph.getPointees(
-  //     getStackQualifiedName(rVal.tag.lookupName(), currBB),
-  //   );
+    for (const c of rVal.children) {
+      const childID = getStackQualifiedName(c.lookupName(), currBB);
+      const childStackNode = ensureNodeIDAndGetStackNode(mutableFlowData, childID);
+      const pointees = getPointees(mutableFlowData, childStackNode);
+      handleFieldAssignmentStatement(mutableFlowData, [pJSXObj], ["^Children^"], pointees, true, currBB, currBBIDx, stackInstOffset);
+    }
+    return [pJSXObj];
+  } 
+  else if (rVal instanceof IV_JSX) {
+    debugConfig.logger.throwIriError(`TODO: PTA - IV_JSX`,);
+  
+    // const currComponentPointees = nextGraph.getPointees(
+    //   getStackQualifiedName(rVal.tag.lookupName(), currBB),
+    // );
 
-  //   const resObj = new JSXObject(
-  //     getHeapQualifiedName("JSX", currBBIDx, stackInstOffset),
-  //   );
-  //   nextGraph.declareNode(resObj);
+    // const resObj = new JSXObject(
+    //   getHeapQualifiedName("JSX", currBBIDx, stackInstOffset),
+    // );
+    // nextGraph.declareNode(resObj);
 
-  //   //
-  //   // Process Component Closures
-  //   //
+    // //
+    // // Process Component Closures
+    // //
 
-  //   const funObjs = currComponentPointees.filter(
-  //     (n) => n instanceof OrdinaryFunctionObject,
-  //   );
+    // const funObjs = currComponentPointees.filter(
+    //   (n) => n instanceof OrdinaryFunctionObject,
+    // );
 
-  //   const evalRes = handleCallExpression(
-  //     nextGraph,
-  //     funObjs,
-  //     [rVal.props],
-  //     currBB,
-  //     currBBIDx,
-  //     stackInstOffset,
-  //   );
+    // const evalRes = handleCallExpression(
+    //   nextGraph,
+    //   funObjs,
+    //   [rVal.props],
+    //   currBB,
+    //   currBBIDx,
+    //   stackInstOffset,
+    // );
 
-  //   nextGraph.drawHeapToHeapEdge(
-  //     [resObj],
-  //     currComponentPointees.filter(
-  //       (n) => !(n instanceof OrdinaryFunctionObject),
-  //     ),
-  //     ["component"],
-  //     true,
-  //   );
+    // nextGraph.drawHeapToHeapEdge(
+    //   [resObj],
+    //   currComponentPointees.filter(
+    //     (n) => !(n instanceof OrdinaryFunctionObject),
+    //   ),
+    //   ["component"],
+    //   true,
+    // );
 
-  //   nextGraph.drawHeapToHeapEdge([resObj], [...evalRes], ["component"], true);
+    // nextGraph.drawHeapToHeapEdge([resObj], [...evalRes], ["component"], true);
 
-  //   for (const c of rVal.children) {
-  //     const pointees = nextGraph.getPointees(
-  //       getStackQualifiedName(c.lookupName(), currBB),
-  //     );
-  //     nextGraph.drawHeapToHeapEdge([resObj], pointees, ["children"], true);
-  //   }
+    // for (const c of rVal.children) {
+    //   const pointees = nextGraph.getPointees(
+    //     getStackQualifiedName(c.lookupName(), currBB),
+    //   );
+    //   nextGraph.drawHeapToHeapEdge([resObj], pointees, ["children"], true);
+    // }
 
-  //   return [resObj];
-  // } else if (rVal instanceof IV_FJSX) {
-  //   const resObj = new FJSXObject(
-  //     getHeapQualifiedName("FJSX", currBBIDx, stackInstOffset),
-  //   );
-  //   nextGraph.declareNode(resObj);
+    // return [resObj];
+  }
+  else if (rVal instanceof IV_FJSX) {
+    const fJSXID = getHeapQualifiedName("FJSX", currBBIDx, stackInstOffset)
+    const fJSXObj = GLOBAL_NODE_MAP.has(fJSXID)
+      ? GLOBAL_NODE_MAP.get(fJSXID)
+      : new FJSXNode(fJSXID, uname);
+    assert(fJSXObj instanceof FJSXNode);
+    addPTANode(mutableFlowData, fJSXObj);
 
-  //   for (const c of rVal.children) {
-  //     const pointees = nextGraph.getPointees(
-  //       getStackQualifiedName(c.lookupName(), currBB),
-  //     );
-  //     nextGraph.drawHeapToHeapEdge([resObj], pointees, ["children"], true);
-  //   }
-  //   return [resObj];
-  // }
+    for (const c of rVal.children) {
+      const childID = getStackQualifiedName(c.lookupName(), currBB);
+      const childStackNode = ensureNodeIDAndGetStackNode(mutableFlowData, childID);
+      const pointees = getPointees(mutableFlowData, childStackNode);
+      handleFieldAssignmentStatement(mutableFlowData, [fJSXObj], ["^Children^"], pointees, true, currBB, currBBIDx, stackInstOffset);
+    }
+    return [fJSXObj];
+  }
 
   debugConfig.logger.throwIriError(
     `TODO: PTA - Unreachable fallthrough reached, something is prolly wrong in the code!!! : ${rVal.toString()}`,

@@ -15,11 +15,11 @@
 
 // let b = x;
 
-class Boo {
+// class Boo {
 
-};
+// };
 
-let x = new Boo();
+// let x = new Boo();
 
 // let b = "test1";
 
@@ -28,3 +28,5 @@ let x = new Boo();
 //   b = x;
 //   return old;
 // };
+
+export const Component = () => <div></div>

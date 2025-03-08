@@ -349,6 +349,21 @@ export const addHeapEdges = (
   return pendingClosures;
 };
 
+
+// 
+// Get all fields for a given node
+// 
+export const getAllFields = (CURR: PTAFlowData, u: PTAFlowNode): Set<string> => {
+  assertPTANode(CURR, u);
+  const res: Set<string> = new Set();
+
+  const worldInstance = getMutableWorldInstance(u.world);
+  assertPTANode(worldInstance, u);
+  
+  worldInstance.get(u.id).forEach((e) => res.add(PTAEdge.from(u.id, e).field))
+  return res;
+};
+
 // 
 // Ensure that a given PTAFlowData has StackNode of nodeID and return it
 // 
@@ -584,6 +599,12 @@ export class GetClosureNode extends PTAFlowNode {
   }
 }
 
+export class CSepNode extends PTAFlowNode {
+  constructor(id: string, world: string) {
+    super(id, world);
+  }
+}
+
 export class ClassNode extends PTAFlowNode {
   classExpr: IV_ClassExpression;
   constructor(id: string, classExpr: IV_ClassExpression, world: string) {
@@ -635,6 +656,40 @@ export class IRIDUM_GLOBAL extends PTAFlowNode {
     const shape = "rectangle";
     const style = "filled";
     const color = "gray";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
+  }
+}
+
+export class PJSXNode extends PTAFlowNode {
+  constructor(id: string, world: string) {
+    super(id, world);
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "rectangle";
+    const style = "filled";
+    const color = "pink";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
+  }
+}
+
+export class FJSXNode extends PTAFlowNode {
+  constructor(id: string, world: string) {
+    super(id, world);
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "rectangle";
+    const style = "filled";
+    const color = "pink";
     return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }

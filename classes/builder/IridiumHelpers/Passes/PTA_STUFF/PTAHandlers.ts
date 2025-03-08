@@ -46,26 +46,17 @@ import { getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
 export const handleFieldReference = (
   uname: string,
   mutableFlowData: PTAFlowData,
-  stackQualifiedReceiverID: string,
-  field: IV_Identifier | IV_PrivateName,
-  computed: boolean,
+  receiverPointees: Set<PTAFlowNode> | Array<PTAFlowNode>,
+  dissernedProps: Set<string> | Array<string>,
   currBB: BB,
   currBBIDx: string,
   stackInstOffset: number,
+  toSkip: Set<string> = new Set()
 ) => {
-  const receiverStackNode = ensureNodeIDAndGetStackNode(mutableFlowData, stackQualifiedReceiverID);
-  const receiverPointees = getPointees(mutableFlowData, receiverStackNode);
-
-  const dissernedProps: Set<string> = dissernProps(
-    mutableFlowData,
-    field.lookupName(),
-    computed && getStackQualifiedName(field.lookupName(), currBB),
-    computed,
-  );
-
   const res: Set<PTAFlowNode> = new Set();
   for (const u of receiverPointees) {
     for (const p of dissernedProps) {
+      if (toSkip.has(p)) continue;
       const [pointees, closures] = getFieldPointees(mutableFlowData, u, p);
       pointees.forEach((p) => res.add(p));
       handleCallExpression(

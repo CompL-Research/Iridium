@@ -1352,8 +1352,33 @@
 //   return x;
 // }
 
-class Boo {
+// class Boo {
 
-};
+// };
 
-let x = new Boo();
+// let x = new Boo();
+
+// import { Component } from "./test1.js";
+
+// export const fun = ({ a, b, ...c}) => {
+//   return <div>
+//     123
+//     <div></div>
+//     <>
+//       <div></div>
+//     </>
+//     {/* <Component /> */}
+//   </div>
+// }
+
+// let a = [1,2,3];
+// let x = [...a];
+// let b = [...a, 4, 5, 6]
+// let res;
+// for (const b of a) {
+//   res = b;
+// }
+
+let a = { a: 1, b: 2, c: 3 }
+let b = { d: 4, e: 5 }
+// let c = { ...a, ...b }
