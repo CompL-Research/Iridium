@@ -15,10 +15,16 @@
 
 // let b = x;
 
-let b = "test1";
+class Boo {
 
-export const ff = (x) => {
-  let old = b;
-  b = x;
-  return old;
 };
+
+let x = new Boo();
+
+// let b = "test1";
+
+// export const ff = (x) => {
+//   let old = b;
+//   b = x;
+//   return old;
+// };

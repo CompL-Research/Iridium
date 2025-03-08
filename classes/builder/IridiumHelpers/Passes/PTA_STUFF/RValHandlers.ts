@@ -24,7 +24,9 @@ import { IV_ObjectExpression } from "../../ALL_RVal/IV_ObjectExpression.ts";
 import { IV_This } from "../../ALL_RVal/IV_This.ts";
 import { BB } from "../../BB.ts";
 import {
+  addHeapEdges,
   addPTANode,
+  ClassNode,
   ensureNodeIDAndGetPTANode,
   ensureNodeIDAndGetStackNode,
   GetClosureNode,
@@ -38,7 +40,8 @@ import {
   PTAFlowData,
   PTAFlowNode,
   SetClosureNode,
-  StackNode
+  StackNode,
+  UnknownNode
 } from "./PTAFlowData.ts";
 import {
   handleCallExpression,
@@ -53,6 +56,8 @@ import {
 } from "./util.ts";
 import { IV_Regexp } from "../../ALL_RVal/IV_Regexp.ts";
 import { IV_TemplateLiteral } from "../../ALL_RVal/IV_Templates.ts";
+import { IV_NewExpression } from "../../ALL_RVal/IV_NewExpression.ts";
+import { IV_ClassExpression } from "../../ALL_RVal/IV_ClassExpression.ts";
 
 export const dissernProps = (
   mutableFlowData: PTAFlowData,
@@ -722,15 +727,16 @@ export const handleRVals = (
     return [funNode];
   }
 
-  // // t_IV_NewExpression
-  // else if (rVal instanceof IV_NewExpression) {
-  //   // debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_NewExpression")
-  //   const resObj = new UnknownResultObj(
-  //     getHeapQualifiedName("IV_NewExpression", currBBIDx, stackInstOffset),
-  //   );
-  //   nextGraph.declareNode(resObj);
-  //   return [resObj];
-  // }
+  // t_IV_NewExpression
+  else if (rVal instanceof IV_NewExpression) {
+    // debugConfig.logger.throwIriError("TODO: PTA - RVal - IV_NewExpression")
+    const resObj = new UnknownNode(
+      getHeapQualifiedName("IV_NewExpression", currBBIDx, stackInstOffset),
+      uname,
+    );
+    addPTANode(mutableFlowData, resObj);
+    return [resObj];
+  }
 
   // // t_IV_UnaryExpression
   // else if (rVal instanceof IV_AUNOP) {
@@ -768,34 +774,30 @@ export const handleRVals = (
   //   return [resObj];
   // }
 
-  // // t_IV_ClassExpression
-  // else if (rVal instanceof IV_ClassExpression) {
-  //   //
-  //   // [ClassObject]
-  //   //
+  // t_IV_ClassExpression
+  else if (rVal instanceof IV_ClassExpression) {
+    //
+    // [ClassObject]
+    //
 
-  //   const mainObjID = getHeapQualifiedName(
-  //     "classExpr",
-  //     currBBIDx,
-  //     stackInstOffset,
-  //   );
-  //   const mainObj = new ClassObject(mainObjID);
-  //   if (!nextGraph.hasNode(mainObjID)) nextGraph.addPTANode(mainObj);
+    const mainObjID = getHeapQualifiedName(
+      "classExpr",
+      currBBIDx,
+      stackInstOffset,
+    );
+    const mainObj = new ClassNode(mainObjID, rVal, uname);
+    addPTANode(mutableFlowData, mainObj);
 
-  //   if (rVal.heritage) {
-  //     const pointees = nextGraph.getPointees(
-  //       getStackQualifiedName(rVal.heritage.lookupName(), currBB),
-  //     );
-  //     nextGraph.drawHeapToHeapEdge(
-  //       [mainObj],
-  //       pointees,
-  //       ["$$hertitage$$"],
-  //       true,
-  //     );
-  //   }
+    if (rVal.heritage) {
+      const heritageID = getStackQualifiedName(rVal.heritage.lookupName(), currBB);
+      const heritageNode = ensureNodeIDAndGetStackNode(mutableFlowData, heritageID);
+      assert(heritageNode instanceof StackNode);
+      const pointees = getPointees(mutableFlowData, heritageNode);
+      addHeapEdges(mutableFlowData, mainObj, "^HERITAGE^", pointees, true);
+    }
 
-  //   return [mainObj];
-  // }
+    return [mainObj];
+  }
 
   // // t_IV_ForIterators
   // else if (rVal instanceof IV_InIterator) {

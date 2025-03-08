@@ -11,6 +11,7 @@ import { ISP_ObjectMethod } from "../../ALL_RVal/ALL_ISP.ts";
 import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
 import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
 import { PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "../PTA.ts";
+import { IV_ClassExpression } from "../../ALL_RVal/IV_ClassExpression.ts";
 
 //
 // Utility methods for printing
@@ -579,6 +580,25 @@ export class GetClosureNode extends PTAFlowNode {
     const shape = "note";
     const style = "filled";
     const color = "white";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
+  }
+}
+
+export class ClassNode extends PTAFlowNode {
+  classExpr: IV_ClassExpression;
+  constructor(id: string, classExpr: IV_ClassExpression, world: string) {
+    super(id, world);
+    this.classExpr = classExpr;
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "note";
+    const style = "filled";
+    const color = "yellow";
     return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }

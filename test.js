@@ -1342,12 +1342,18 @@
 
 // fun(remoteFun);
 
-import { ff } from "test1.js";
-// import { x } from "test2.js";
+// import { ff } from "test1.js";
+// // import { x } from "test2.js";
 
-let x = "test";
+// let x = "test";
 
-export const fun = () => {
-  x = ff(x);
-  return x;
-}
+// export const fun = () => {
+//   x = ff(x);
+//   return x;
+// }
+
+class Boo {
+
+};
+
+let x = new Boo();
