@@ -305,19 +305,20 @@ import {
 } from "./BB.ts";
 import { Environment, GlobalEnvironment } from "./I_GENERAL/I_Environment.ts";
 
+import assert from "node:assert";
 import { IV_FJSX, IV_JSX, IV_PJSX } from "./ALL_RVal/IV_JSX.ts";
 import { I_Container } from "./I_GENERAL/I_Container.ts";
+import { IRIDIUM_FG } from "./I_GENERAL/IRIDIUM_FG.ts";
 import { addThisInitToFunctionBoundaries } from "./Passes/AddThisInitToFunctionBoundaries.ts";
 import { cleanupBBs } from "./Passes/BBCleanup.ts";
 import { hoistDeclarations } from "./Passes/DeclarationHoisting.ts";
 import { initializeEnvDefs } from "./Passes/EnvInit.ts";
 import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
-import { IRIDIUM_FG } from "./I_GENERAL/IRIDIUM_FG.ts";
-import { initializeWorld, PTA_WORLD } from "./Passes/PTA.ts";
-import { resolveModuleImport, saveFlowDataToFile } from "#utils";
-import { ensureNodeIDAndGetPTANode, GLOBAL_RESOLUTION_MAP, GLOBAL_RESOLUTION_SKIP_MAP, RemoteNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
-import { GLOBAL_UNAME_PATH_MAP, ProjectFile } from "classes/ProjectFile.ts";
+import { getEXPORTID, initializeWorld, PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "./Passes/PTA.ts";
+import { addPTANode, addStackEdges, ensureNodeIDAndGetPTANode, getMutableWorldInstance, getPointees, GLOBAL_NODE_MAP, StackNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
+import { handleCallExpression } from "./Passes/PTA_STUFF/PTAHandlers.ts";
+
 
 // const genersate = _generate.default;
 export const RESOLUTION_CACHE: Map<string, I_Container> = new Map();
@@ -374,94 +375,127 @@ export default class IRIDIUM_MODULE {
     initializeEnvDefs(res);
     cleanupBBs(res);
 
-    debugConfig.logger.warn(res.saveIridiumToString());
-
     this.fg = res;
   }
 
   // Start PTA
-  performPTA() {
+  performPTA(topLevel: boolean) {
     if (!this.fg)
       debugConfig.logger.throwIriError("Expected fg to be built before PTA...");
 
-    const world = this.js3builder.projectFile.uname;
-    let expansionLevel = 0;
-    while (true) {
-      expansionLevel++;
-      if (expansionLevel > IRIDIUM_MODULE.SEARCH_THRESHOLD) {
-        debugConfig.logger.warn(`Reached SEARCH_THRESHOLD for "${world}" @ "${GLOBAL_UNAME_PATH_MAP.get(world)}"`);
-        break;
-      }
+    if (topLevel) {
+      const world = this.js3builder.projectFile.uname;
+
       initializeWorld(this.js3builder.projectFile.uname, this.fg);
 
-      const worldData = PTA_WORLD.get(world);
-      const remoteNodes =
-        [...worldData.keys()]
-          .map((n) => ensureNodeIDAndGetPTANode(worldData, n))
-          .filter((n) => n instanceof RemoteNode)
+      if(PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
 
-      const unresolvedRemoteNodes = remoteNodes.filter((n) => !GLOBAL_RESOLUTION_MAP.has(n.id) && !GLOBAL_RESOLUTION_SKIP_MAP.has(n.id));
+      const worldData = getMutableWorldInstance(world);
 
-      if (unresolvedRemoteNodes.length === 0) {
-        debugConfig.logger.warn(
-          `Concluding search early: ${expansionLevel}`
-        );
-        break;
-      }
+      // Add finalResNode
+      const rootNodeID = "TREEROOT";
+      const rootNode = GLOBAL_NODE_MAP.has(rootNodeID)
+        ? GLOBAL_NODE_MAP.get(rootNodeID)
+        : new StackNode(rootNodeID, world);
+      assert(rootNode instanceof StackNode);
+      rootNode.color = "cyan";
+      addPTANode(worldData, rootNode);
 
-      for (const node of unresolvedRemoteNodes) {
-        const importFilePath = GLOBAL_UNAME_PATH_MAP.get(node.world);
-        const toResolve = node.FROM;
-        try {
-          debugConfig.logger.warn(`Starting Resolution of ${toResolve} from "${importFilePath}"`)
+      // Get call closures from top level export
+      const exportsNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(this.js3builder.projectFile.uname));
+      const exportPointees = getPointees(worldData, exportsNode);
 
-          const filePath = resolveModuleImport(toResolve, importFilePath, debugConfig.cli.projectBase);
+      const sinks = this.fg.sinks();
+      if (sinks.length !== 1) debugConfig.logger.throwIriError(`Expected atmost one sink, found ${sinks.length}`);
+      const sinkBB = this.fg.getBBNode(sinks[0]);
 
-          if (!filePath) throw new Error();
+      const res = handleCallExpression(world, worldData, exportPointees, [], sinkBB, sinks[0], 0, undefined);
+      addStackEdges(worldData, rootNode, res);
 
-          // 1. Loading The File
-          const projectFile = new ProjectFile(filePath, debugConfig.cli.projectBase);
-          projectFile.initSync(debugConfig.cli.sourceType);
-          if (projectFile.initData.parseStatus !== "parsed")
-            debugConfig.logger.throwJS3Error(
-              "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
-            );
+      PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
+      if(PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
 
-          if (PTA_WORLD.has(projectFile.uname)) {
-            GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
-            debugConfig.logger.success(`Skipping already resolved reference: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
-
-          } else {
-            // 2. Constructing JS3
-            const js3Builder = new JS3Builder(projectFile);
-            js3Builder.build();
-            const fileNode = js3Builder.generatedAST;
-            const programNode = fileNode.program;
-
-            // 3. Constructing Iridium
-            const directives: Array<string> = [];
-            programNode.directives.forEach((d) => directives.push(d.value.value));
-            const sourceType = programNode.sourceType;
-            const iri_container = new I_Container(
-              fileNode,
-              projectFile,
-              js3Builder,
-              this.utils,
-              directives,
-              sourceType,
-              debugConfig.cli.projectBase,
-            );
-            iri_container.build();
-            GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
-            debugConfig.logger.success(`Successfully Resolved: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
-          }
+      // Get successor closure
 
 
-        } catch (e) {
-          debugConfig.logger.error(`Failed to resolve: "${toResolve}" from "${importFilePath}"`)
-          GLOBAL_RESOLUTION_SKIP_MAP.add(node.id);
-        }
-      }
+      // let expansionLevel = 0;
+      // while (true) {
+      //   expansionLevel++;
+      //   if (expansionLevel > IRIDIUM_MODULE.SEARCH_THRESHOLD) {
+      //     debugConfig.logger.warn(`Reached SEARCH_THRESHOLD for "${world}" @ "${GLOBAL_UNAME_PATH_MAP.get(world)}"`);
+      //     break;
+      //   }
+        
+
+      //   const worldData = PTA_WORLD.get(world);
+      //   const remoteNodes =
+      //     [...worldData.keys()]
+      //       .map((n) => ensureNodeIDAndGetPTANode(worldData, n))
+      //       .filter((n) => n instanceof RemoteNode)
+
+      //   const unresolvedRemoteNodes = remoteNodes.filter((n) => !GLOBAL_RESOLUTION_MAP.has(n.id) && !GLOBAL_RESOLUTION_SKIP_MAP.has(n.id));
+
+      //   if (unresolvedRemoteNodes.length === 0) {
+      //     debugConfig.logger.warn(
+      //       `Concluding search early: ${expansionLevel}`
+      //     );
+      //     break;
+      //   }
+
+      //   for (const node of unresolvedRemoteNodes) {
+      //     const importFilePath = GLOBAL_UNAME_PATH_MAP.get(node.world);
+      //     const toResolve = node.FROM;
+      //     try {
+      //       debugConfig.logger.warn(`Starting Resolution of ${toResolve} from "${importFilePath}"`)
+
+      //       const filePath = resolveModuleImport(toResolve, importFilePath, debugConfig.cli.projectBase);
+
+      //       if (!filePath) throw new Error();
+
+      //       // 1. Loading The File
+      //       const projectFile = new ProjectFile(filePath, debugConfig.cli.projectBase);
+      //       projectFile.initSync(debugConfig.cli.sourceType);
+      //       if (projectFile.initData.parseStatus !== "parsed")
+      //         debugConfig.logger.throwJS3Error(
+      //           "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
+      //         );
+
+      //       if (PTA_WORLD.has(projectFile.uname)) {
+      //         GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
+      //         debugConfig.logger.success(`Skipping already resolved reference: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
+
+      //       } else {
+      //         // 2. Constructing JS3
+      //         const js3Builder = new JS3Builder(projectFile);
+      //         js3Builder.build();
+      //         const fileNode = js3Builder.generatedAST;
+      //         const programNode = fileNode.program;
+
+      //         // 3. Constructing Iridium
+      //         const directives: Array<string> = [];
+      //         programNode.directives.forEach((d) => directives.push(d.value.value));
+      //         const sourceType = programNode.sourceType;
+      //         const iri_container = new I_Container(
+      //           fileNode,
+      //           projectFile,
+      //           js3Builder,
+      //           this.utils,
+      //           directives,
+      //           sourceType,
+      //           debugConfig.cli.projectBase,
+      //         );
+      //         iri_container.build();
+      //         GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
+      //         debugConfig.logger.success(`Successfully Resolved: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
+      //       }
+
+
+      //     } catch (e) {
+      //       debugConfig.logger.error(`Failed to resolve: "${toResolve}" from "${importFilePath}"`)
+      //       GLOBAL_RESOLUTION_SKIP_MAP.add(node.id);
+      //     }
+      //   }
+      // }
     }
   }
 

@@ -100,7 +100,7 @@ function iri(filePath) {
       sourceType,
       debugConfig.cli.projectBase,
     );
-    iri_container.build();
+    iri_container.build(true);
 
     for(const [key, values] of PTA_WORLD_CURRMUTABLE_DATA.entries()) {
       if (values.length > 1) debugConfig.logger.throwIriError(`Expected world stack to be 0 or 1, found: ${values.length}`);

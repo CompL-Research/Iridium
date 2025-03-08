@@ -27,6 +27,7 @@ import {
   addStackEdges,
   addStackPTANode,
   assertFieldPTANode,
+  ensureAndGetMutableWorldInstance,
   ensureNodeIDAndGetPTANode,
   ensureNodeIDAndGetStackNode,
   getFieldPointees,
@@ -206,7 +207,11 @@ export const handleSetClosureCall = (
   let closureGraph: IRIDIUM_FG = closure.meth.funBody;
   const closureWorld = closure.world;
 
-  let boundaryEnv: PTAFlowData = unionAllPTAFlowData(getMutableWorldInstance(closureWorld));
+  let boundaryEnv: PTAFlowData = unionAllPTAFlowData(ensureAndGetMutableWorldInstance(closureWorld));
+
+  PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).push(boundaryEnv);
+
+  // let boundaryEnv: PTAFlowData = unionAllPTAFlowData(getMutableWorldInstance(closureWorld));
 
   // Add arguments node
   const argsID = getHeapQualifiedName(
@@ -261,6 +266,8 @@ export const handleSetClosureCall = (
     sinkBB.arg.lookupName(),
     sinkBB,
   );
+
+  PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).pop();
   return [boundaryEnv, closureWorld, ensureNodeIDAndGetStackNode(boundaryEnv, argLookupName)];
 }
 
@@ -284,7 +291,9 @@ export const handleOrdinaryFunctionObjectCall = (
 
   const closureWorld = c.world;
 
-  let boundaryEnv: PTAFlowData = unionAllPTAFlowData(getMutableWorldInstance(closureWorld));
+  let boundaryEnv: PTAFlowData = unionAllPTAFlowData(ensureAndGetMutableWorldInstance(closureWorld));
+
+  PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).push(boundaryEnv);
 
   // Add arguments node
   const argumentsNode = initializeArgumentsObj(
@@ -334,6 +343,7 @@ export const handleOrdinaryFunctionObjectCall = (
     sinkBB,
   );
 
+  PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).pop();
   return [boundaryEnv, closureWorld, ensureNodeIDAndGetStackNode(boundaryEnv, argLookupName)];
 };
 
@@ -417,6 +427,8 @@ export const initializeArgumentsObj = (
     currBBIDx,
     stackInstOffset,
   )[0];
+
+  addPTANode(boundaryEnv, undefPointee);
 
   if (suppliedArgs < expectedArgsLen) {
     const edgesHolder = boundaryEnv.get(argumentsNode.id)

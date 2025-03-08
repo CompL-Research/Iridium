@@ -36,16 +36,16 @@ export class I_Container {
     this.projectBasePath = projectBasePath;
   }
 
-  build() {
+  build(topLevel: boolean = false) {
     const iri_module: IRIDIUM_MODULE = new IRIDIUM_MODULE(
       this.js3Builder,
       this.utils,
       this.projectBasePath,
     );
     iri_module.build();
-    iri_module.performPTA();
     this.module = iri_module;
     this.saveGeneratedFile();
+    iri_module.performPTA(topLevel);
   }
 
   saveGeneratedFile() {

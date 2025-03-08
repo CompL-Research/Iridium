@@ -175,6 +175,16 @@ export const getPointees = (CURR: PTAFlowData, u: StackNode) => {
   return outVs;
 };
 
+export const ensureAndGetMutableWorldInstance = (nodeWorld: string): PTAFlowData => {
+  if (!PTA_WORLD.has(nodeWorld) && !PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld)) debugConfig.logger.throwIriError(`World not found: ${nodeWorld}`);
+  const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length > 0;
+  if (!hasMutableWorld) {
+    debugConfig.logger.throwIriError("Expected a mutable instance to exist!!");
+  }
+  const closureWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length - 1];
+  return closureWorldData;
+}
+
 // 
 // Returns the latest mutable world instance for a given object
 // 
@@ -383,6 +393,8 @@ export class PTAEdge {
 export class PTAFlowNode {
   id: string;
   world: string;
+  color: string = "white";
+
   constructor(id: string, world: string) {
     this.id = id;
     this.world = world;
@@ -400,6 +412,7 @@ export class PTAFlowNode {
 }
 
 export class StackNode extends PTAFlowNode {
+  
   constructor(id: string, world: string) {
     super(id, world);
   }
@@ -411,8 +424,7 @@ export class StackNode extends PTAFlowNode {
   dotNodeStyle() {
     const shape = "plain";
     const style = "filled";
-    const color = "white";
-    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${this.color}"]`;
   }
 }
 

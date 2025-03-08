@@ -11,6 +11,10 @@
 // export * from "test2.js";
 // export default 111;
 
+import { x } from "test2.js";
+
+x();
+
 export const remoteObj = {
   y: {
     z: 100

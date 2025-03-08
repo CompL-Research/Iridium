@@ -1344,8 +1344,7 @@
 
 import { remoteObj } from "test1.js";
 
-let x = remoteObj;
+export const fun = (a,b,c,d) => {
 
-let y = x.y;
-
-y.z = 12;
+  return remoteObj;
+}
