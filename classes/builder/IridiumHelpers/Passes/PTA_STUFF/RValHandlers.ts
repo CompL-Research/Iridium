@@ -8,7 +8,7 @@ import {
 } from "../../ALL_RVal/ALL_ISP.ts";
 import { IV_ASSIGNABLE } from "../../ALL_RVal/ALL_RVal.ts";
 import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
-import { IV_MemberAssn, IV_SimpleAssn, IV_ThisAssn } from "../../ALL_RVal/IV_Assignment.ts";
+import { IV_ArrPatAssn, IV_MemberAssn, IV_ObjPatAssn, IV_SimpleAssn, IV_ThisAssn } from "../../ALL_RVal/IV_Assignment.ts";
 import { IV_FBINOP } from "../../ALL_RVal/IV_Binop.ts";
 import { IV_Call } from "../../ALL_RVal/IV_Call.ts";
 import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
@@ -50,9 +50,11 @@ import {
   UnknownNode
 } from "./PTAFlowData.ts";
 import {
+  handleArrayDestructuringAssignmentStatement,
   handleCallExpression,
   handleFieldAssignmentStatement,
   handleFieldReference,
+  handleObjectDestructuringAssignmentStatement,
   handleSimpleAssignmentStatement,
 } from "./PTAHandlers.ts";
 import {
@@ -412,7 +414,7 @@ export const handleRVals = (
       stackInstOffset
     );
     return res;
-  }  else if (rVal instanceof IV_ThisAssn) {
+  } else if (rVal instanceof IV_ThisAssn) {
     // this.x = RVal
     const RVal = rVal.RVal;
     const res = handleRVals(
@@ -448,7 +450,45 @@ export const handleRVals = (
       stackInstOffset
     );
     return res;
-  } 
+  } else if (rVal instanceof IV_ArrPatAssn) {
+    const RValPointees = handleRVals(
+      uname,
+      mutableFlowData,
+      rVal.RVal,
+      currBB,
+      currBBIDx,
+      stackInstOffset,
+    );
+    handleArrayDestructuringAssignmentStatement(
+      uname,
+      mutableFlowData,
+      rVal.LVal.elements,
+      RValPointees,
+      currBB,
+      currBBIDx,
+      stackInstOffset
+    );
+    return RValPointees;
+  } else if (rVal instanceof IV_ObjPatAssn) {
+    const RValPointees = handleRVals(
+      uname,
+      mutableFlowData,
+      rVal.RVal,
+      currBB,
+      currBBIDx,
+      stackInstOffset,
+    );
+    handleObjectDestructuringAssignmentStatement(
+      uname,
+      mutableFlowData,
+      rVal.LVal.properties,
+      RValPointees,
+      currBB,
+      currBBIDx,
+      stackInstOffset
+    );
+    return RValPointees;
+  }
   // 
   // else if (rVal instanceof IV_SuperAssn) {
   //   // SUPER.x = RVal
@@ -484,45 +524,9 @@ export const handleRVals = (
   //   );
   //   // My god I forgot this!!!
   //   return res;
-  // } else if (rVal instanceof IV_ArrPatAssn) {
-  //   const objDestLVal = rVal.LVal;
-  //   const RValPointees = handleRVals(
-  //     nextGraph,
-  //     rVal.RVal,
-  //     currBB,
-  //     currBBIDx,
-  //     stackInstOffset,
-  //   );
-  //   handleArrayDestructuring(
-  //     nextGraph,
-  //     objDestLVal,
-  //     RValPointees,
-  //     currBB,
-  //     currBBIDx,
-  //     stackInstOffset,
-  //   );
-
-  //   return RValPointees;
-  // } else if (rVal instanceof IV_ObjPatAssn) {
-  //   const objDestLVal = rVal.LVal;
-  //   const RValPointees = handleRVals(
-  //     nextGraph,
-  //     rVal.RVal,
-  //     currBB,
-  //     currBBIDx,
-  //     stackInstOffset,
-  //   );
-  //   handleObjectDestructuring(
-  //     nextGraph,
-  //     objDestLVal,
-  //     RValPointees,
-  //     currBB,
-  //     currBBIDx,
-  //     stackInstOffset,
-  //   );
-
-  //   return RValPointees;
-  // }
+  // } 
+  // 
+  
 
   // t_IV_ObjectExpression
   else if (rVal instanceof IV_ObjectExpression) {

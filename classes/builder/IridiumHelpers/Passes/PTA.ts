@@ -1,8 +1,29 @@
+import debugConfig from "#debugConfig";
+import GLIB from "#graphlib";
+import { popSet } from "#utils";
+import {
+  isIdentifier
+} from "@babel/types";
+import { isJS3AssnObjectProperty, isJS3ObjectPattern } from "classes/builder/JS3Helpers/JS3Types.ts";
+import assert from "node:assert";
+import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
+import { IS_ClassStaticPropInit } from "../ALL_IS/IS_ClassStaticPropInit.ts";
+import {
+  IS_AExport,
+  IS_BExport,
+  IS_BImport,
+  IS_CExport,
+  IS_DExport,
+  IS_EExport,
+} from "../ALL_IS/IS_Imports_Exports.ts";
+import {
+  IS1_AssignmentStmt,
+  IS1_DeclarationStmt,
+} from "../ALL_IS/IS_VarDecl.ts";
 import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
 import {
   addHeapEdges,
   addPTANode,
-  addSelfLoop,
   addStackEdges,
   arePTAFlowDataEqual,
   ensureNodeIDAndGetPTANode,
@@ -13,52 +34,21 @@ import {
   IRIDUM_GLOBAL,
   NewPTAFlowData,
   OrdinaryObjectNode,
-  printPTAFlowData,
   PTAEdge,
   PTAFlowData,
   StackNode,
-  unionAllPTAFlowData,
+  unionAllPTAFlowData
 } from "./PTA_STUFF/PTAFlowData.ts";
-import debugConfig from "#debugConfig";
-import GLIB from "#graphlib";
-import { popSet, saveFlowDataToFile, saveFlowDataToGraph } from "#utils";
 import {
-  BigIntLiteral,
-  DecimalLiteral,
-  Identifier,
-  isBigIntLiteral,
-  isDecimalLiteral,
-  isIdentifier,
-  isNumericLiteral,
-  isStringLiteral,
-  NumericLiteral,
-  StringLiteral
-} from "@babel/types";
-import {
-  IS_AExport,
-  IS_BExport,
-  IS_BImport,
-  IS_CExport,
-  IS_DExport,
-  IS_EExport,
-} from "../ALL_IS/IS_Imports_Exports.ts";
-import { IS_ClassStaticPropInit } from "../ALL_IS/IS_ClassStaticPropInit.ts";
-import {
-  IS1_DeclarationStmt,
-  IS1_AssignmentStmt,
-} from "../ALL_IS/IS_VarDecl.ts";
-import { getHeapQualifiedName, getStackQualifiedName } from "./PTA_STUFF/util.ts";
-import {
-  handleSimpleAssignmentStatement,
+  handleArrayDestructuringAssignmentStatement,
   handleBImportNode,
   handleFieldAssignmentStatement,
   handleFieldReference,
+  handleObjectDestructuringAssignmentStatement,
+  handleSimpleAssignmentStatement,
 } from "./PTA_STUFF/PTAHandlers.ts";
 import { handleRVals } from "./PTA_STUFF/RValHandlers.ts";
-import { IV_Identifier, IV_PrivateName } from "../ALL_AMP/ALL_AMP.ts";
-import assert from "node:assert";
-import { isJS3AssnObjectProperty, isJS3ObjectPattern, isJS3PrivateName, JS3PrivateName } from "classes/builder/JS3Helpers/JS3Types.ts";
-import { IV_NumericLiteral } from "../ALL_RVal/IV_Literals.ts";
+import { getHeapQualifiedName, getStackQualifiedName } from "./PTA_STUFF/util.ts";
 //
 // A world can be in three states:
 //  1. !PTA_WORLD.has()            ===> Not Seen Before
@@ -195,31 +185,7 @@ export const PTA = (
   return sinkPTA;
 };
 
-export const getKeyString = (
-  k:
-    | Identifier
-    | StringLiteral
-    | NumericLiteral
-    | BigIntLiteral
-    | DecimalLiteral
-    | JS3PrivateName,
-) => {
-  if (isIdentifier(k)) {
-    return k.name;
-  } else if (isStringLiteral(k)) {
-    return k.value;
-  } else if (isNumericLiteral(k)) {
-    const iriNumericLiteral = new IV_NumericLiteral(k, k.value);
-    return iriNumericLiteral.lookupName();
-  } else if (isBigIntLiteral(k)) {
-    return k.value;
-  } else if (isDecimalLiteral(k)) {
-    return k.value;
-  } else if (isJS3PrivateName(k)) {
-    const iriPrivate = new IV_PrivateName(k, IV_Identifier.from(k.id));
-    return iriPrivate.lookupName();
-  }
-};
+
 
 // Flow Functions operates on a mutable data structure,
 // this is done to allow batch to the otherwise immutable dataflow data.
@@ -279,63 +245,27 @@ export const flowFunction = (
           qualifiedLVal,
           RValPointees,
         );
-      }
-      else if (isJS3ObjectPattern(i.LVal)) {
-        const toSkip: Set<string> = new Set();
-        for (const p of i.LVal.properties) {
-          if (isJS3AssnObjectProperty(p)) {
-            // Field to lookup
-            const field: string = getKeyString(p.key);
-            toSkip.add(field);
-            
-            // Stack binding to create
-            const bindingID = getStackQualifiedName(p.value.name, currBB);
-            const bindingNode = GLOBAL_NODE_MAP.has(bindingID)
-              ? GLOBAL_NODE_MAP.get(bindingID)
-              : new StackNode(bindingID, uname);
-            assert(bindingNode instanceof StackNode);
-
-            // Propagate Edges
-            const vs = handleFieldReference(uname, mutableFlowData, RValPointees, [field], currBB, currBBIDx, stackInstOffset);
-            handleSimpleAssignmentStatement(uname, mutableFlowData, bindingID, vs)            
-          } else {
-            toSkip.delete("*");
-
-            const fieldsToProcess: Set<string> = new Set();
-            
-            for (const p of RValPointees) {
-              getAllFields(mutableFlowData, p).forEach((f) => fieldsToProcess.add(f));
-            }
-
-            for (const s of toSkip) fieldsToProcess.delete(s);
-            
-            // Stack binding to create
-            const bindingID = getStackQualifiedName(p.argument.name, currBB);
-            const bindingNode = GLOBAL_NODE_MAP.has(bindingID)
-              ? GLOBAL_NODE_MAP.get(bindingID)
-              : new StackNode(bindingID, uname);
-            assert(bindingNode instanceof StackNode);
-            addPTANode(mutableFlowData, bindingNode);
-            
-            // Temporary Result Holder
-            const destObjID = getHeapQualifiedName("DestRestObj", currBBIDx, stackInstOffset);
-            const destObjNode = GLOBAL_NODE_MAP.has(destObjID)
-              ? GLOBAL_NODE_MAP.get(destObjID)
-              : new OrdinaryObjectNode(destObjID, uname);
-            assert(destObjNode instanceof OrdinaryObjectNode);
-            addPTANode(mutableFlowData, destObjNode);
-
-            for (const field of fieldsToProcess) {
-              const vs = handleFieldReference(uname, mutableFlowData, RValPointees, [field], currBB, currBBIDx, stackInstOffset);
-              handleFieldAssignmentStatement(mutableFlowData, [destObjNode], [field], vs, true, currBB, currBBIDx, stackInstOffset)
-            }
-
-            handleSimpleAssignmentStatement(uname, mutableFlowData, bindingID, [destObjNode])            
-          }
-        }
+      } else if (isJS3ObjectPattern(i.LVal)) {
+        handleObjectDestructuringAssignmentStatement(
+          uname,
+          mutableFlowData,
+          i.LVal.properties,
+          RValPointees,
+          currBB,
+          currBBIDx,
+          stackInstOffset
+        );
       } else {
-        debugConfig.logger.throwIriError("PTA TODO: Destructuring Assignment");
-      } 
+        handleArrayDestructuringAssignmentStatement(
+          uname,
+          mutableFlowData,
+          i.LVal.elements,
+          RValPointees,
+          currBB,
+          currBBIDx,
+          stackInstOffset
+        );
+      }
       // 
       // else {
       //   const objDestLVal = i.LVal;

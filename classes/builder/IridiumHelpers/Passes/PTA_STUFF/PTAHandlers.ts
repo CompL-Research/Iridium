@@ -15,6 +15,7 @@ import {
   GetClosureNode,
   OrdinaryArrayNode,
   OrdinaryFunctionNode,
+  OrdinaryObjectNode,
   PTAEdge,
   PTAFlowData,
   PTAFlowNode,
@@ -32,6 +33,7 @@ import {
   ensureMutableWorldInstance,
   ensureNodeIDAndGetPTANode,
   ensureNodeIDAndGetStackNode,
+  getAllFields,
   getFieldPointees,
   getMutableWorldInstance,
   getPointees,
@@ -41,6 +43,20 @@ import {
 } from "./PTAFlowData.ts";
 import { dissernProps, handleRVals } from "./RValHandlers.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
+import { isJS3AssnObjectProperty, isJS3PrivateName, JS3ArrayPattern_elements, JS3ObjectPattern_properties, JS3PrivateName } from "classes/builder/JS3Helpers/JS3Types.ts";
+import {
+  BigIntLiteral,
+  DecimalLiteral,
+  Identifier,
+  isBigIntLiteral,
+  isDecimalLiteral,
+  isIdentifier,
+  isNumericLiteral,
+  isStringLiteral,
+  NumericLiteral,
+  StringLiteral
+} from "@babel/types";
+import { IV_NumericLiteral } from "../../ALL_RVal/IV_Literals.ts";
 
 // a[f]
 export const handleFieldReference = (
@@ -126,6 +142,161 @@ export const handleFieldAssignmentStatement = (
   }
 }
 
+const getKeyString = (
+  k:
+    | Identifier
+    | StringLiteral
+    | NumericLiteral
+    | BigIntLiteral
+    | DecimalLiteral
+    | JS3PrivateName,
+) => {
+  if (isIdentifier(k)) {
+    return k.name;
+  } else if (isStringLiteral(k)) {
+    return k.value;
+  } else if (isNumericLiteral(k)) {
+    const iriNumericLiteral = new IV_NumericLiteral(k, k.value);
+    return iriNumericLiteral.lookupName();
+  } else if (isBigIntLiteral(k)) {
+    return k.value;
+  } else if (isDecimalLiteral(k)) {
+    return k.value;
+  } else if (isJS3PrivateName(k)) {
+    const iriPrivate = new IV_PrivateName(k, IV_Identifier.from(k.id));
+    return iriPrivate.lookupName();
+  }
+};
+
+// { a: t1, b: t2, ...t3 } = [POINTEES]
+export const handleObjectDestructuringAssignmentStatement = (
+  uname: string,
+  mutableFlowData: PTAFlowData,
+  properties: JS3ObjectPattern_properties,
+  RValPointees: Array<PTAFlowNode> | Set<PTAFlowNode>,
+  currBB: BB,
+  currBBIDx: string,
+  stackInstOffset: number,
+) => {
+  const toSkip: Set<string> = new Set();
+  for (const p of properties) {
+    if (isJS3AssnObjectProperty(p)) {
+      // Field to lookup
+      const field: string = getKeyString(p.key);
+      toSkip.add(field);
+
+      // Stack binding to create
+      const bindingID = getStackQualifiedName(p.value.name, currBB);
+      const bindingNode = GLOBAL_NODE_MAP.has(bindingID)
+        ? GLOBAL_NODE_MAP.get(bindingID)
+        : new StackNode(bindingID, uname);
+      assert(bindingNode instanceof StackNode);
+
+      // Propagate Edges
+      const vs = handleFieldReference(uname, mutableFlowData, RValPointees, [field], currBB, currBBIDx, stackInstOffset);
+      handleSimpleAssignmentStatement(uname, mutableFlowData, bindingID, vs)
+    } else {
+      toSkip.delete("*");
+
+      const fieldsToProcess: Set<string> = new Set();
+
+      for (const p of RValPointees) {
+        getAllFields(mutableFlowData, p).forEach((f) => fieldsToProcess.add(f));
+      }
+
+      for (const s of toSkip) fieldsToProcess.delete(s);
+
+      // Stack binding to create
+      const bindingID = getStackQualifiedName(p.argument.name, currBB);
+      const bindingNode = GLOBAL_NODE_MAP.has(bindingID)
+        ? GLOBAL_NODE_MAP.get(bindingID)
+        : new StackNode(bindingID, uname);
+      assert(bindingNode instanceof StackNode);
+      addPTANode(mutableFlowData, bindingNode);
+
+      // Temporary Result Holder
+      const destObjID = getHeapQualifiedName("DestRestObj", currBBIDx, stackInstOffset);
+      const destObjNode = GLOBAL_NODE_MAP.has(destObjID)
+        ? GLOBAL_NODE_MAP.get(destObjID)
+        : new OrdinaryObjectNode(destObjID, uname);
+      assert(destObjNode instanceof OrdinaryObjectNode);
+      addPTANode(mutableFlowData, destObjNode);
+
+      for (const field of fieldsToProcess) {
+        const vs = handleFieldReference(uname, mutableFlowData, RValPointees, [field], currBB, currBBIDx, stackInstOffset);
+        handleFieldAssignmentStatement(mutableFlowData, [destObjNode], [field], vs, true, currBB, currBBIDx, stackInstOffset)
+      }
+
+      handleSimpleAssignmentStatement(uname, mutableFlowData, bindingID, [destObjNode])
+    }
+  }
+};
+
+// [a, b, ...c] = [POINTEES]
+export const handleArrayDestructuringAssignmentStatement = (
+  uname: string,
+  mutableFlowData: PTAFlowData,
+  properties: JS3ArrayPattern_elements,
+  RValPointees: Array<PTAFlowNode> | Set<PTAFlowNode>,
+  currBB: BB,
+  currBBIDx: string,
+  stackInstOffset: number,
+) => {
+  const toSkip: Set<string> = new Set();
+  let count = 0;
+  for (const p of properties) {
+    if (isIdentifier(p)) {
+      // Field to lookup
+      const field: string = "" + count;
+      toSkip.add(field);
+
+      // Stack binding to create
+      const bindingID = getStackQualifiedName(p.name, currBB);
+      const bindingNode = GLOBAL_NODE_MAP.has(bindingID)
+        ? GLOBAL_NODE_MAP.get(bindingID)
+        : new StackNode(bindingID, uname);
+      assert(bindingNode instanceof StackNode);
+
+      // Propagate Edges
+      const vs = handleFieldReference(uname, mutableFlowData, RValPointees, [field], currBB, currBBIDx, stackInstOffset);
+      handleSimpleAssignmentStatement(uname, mutableFlowData, bindingID, vs)
+    } else {
+      toSkip.delete("*");
+
+      const fieldsToProcess: Set<string> = new Set();
+
+      for (const p of RValPointees) {
+        getAllFields(mutableFlowData, p).forEach((f) => fieldsToProcess.add(f));
+      }
+
+      for (const s of toSkip) fieldsToProcess.delete(s);
+
+      // Stack binding to create
+      const bindingID = getStackQualifiedName(p.argument.name, currBB);
+      const bindingNode = GLOBAL_NODE_MAP.has(bindingID)
+        ? GLOBAL_NODE_MAP.get(bindingID)
+        : new StackNode(bindingID, uname);
+      assert(bindingNode instanceof StackNode);
+      addPTANode(mutableFlowData, bindingNode);
+
+      // Temporary Result Holder
+      const destObjID = getHeapQualifiedName("DestRestObj", currBBIDx, stackInstOffset);
+      const destObjNode = GLOBAL_NODE_MAP.has(destObjID)
+        ? GLOBAL_NODE_MAP.get(destObjID)
+        : new OrdinaryArrayNode(destObjID, uname);
+      assert(destObjNode instanceof OrdinaryArrayNode);
+      addPTANode(mutableFlowData, destObjNode);
+
+      for (const field of fieldsToProcess) {
+        const vs = handleFieldReference(uname, mutableFlowData, RValPointees, [field], currBB, currBBIDx, stackInstOffset);
+        handleFieldAssignmentStatement(mutableFlowData, [destObjNode], ["*"], vs, true, currBB, currBBIDx, stackInstOffset)
+      }
+
+      handleSimpleAssignmentStatement(uname, mutableFlowData, bindingID, [destObjNode])
+    }
+    count++;
+  }
+};
 
 // a = [POINTEES]
 export const handleSimpleAssignmentStatement = (
