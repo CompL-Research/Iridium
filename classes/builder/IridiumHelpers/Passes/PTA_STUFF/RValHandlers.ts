@@ -242,7 +242,7 @@ export const handleRVals = (
 
     const callees = getPointees(mutableFlowData, stackNode);
 
-    let calleeContext : Array<PTAFlowNode>;
+    let calleeContext: Array<PTAFlowNode>;
 
     if (rVal.staticThis) {
       calleeContext = [...callees];
@@ -526,7 +526,7 @@ export const handleRVals = (
   //   return res;
   // } 
   // 
-  
+
 
   // t_IV_ObjectExpression
   else if (rVal instanceof IV_ObjectExpression) {
@@ -600,7 +600,7 @@ export const handleRVals = (
           currBBIDx,
           stackInstOffset
         );
-        
+
       } else if (p instanceof ISP_ObjectProperty) {
         const dissernedProps: Set<string> = dissernProps(
           mutableFlowData,
@@ -628,31 +628,22 @@ export const handleRVals = (
           stackInstOffset
         );
       } else {
-        debugConfig.logger.throwIriError("PTA TODO: OBJ spread")
-        // const pointees = handleRVals(
-        //   uname,
-        //   mutableFlowData,
-        //   p.arg,
-        //   currBB,
-        //   currBBIDx,
-        //   stackInstOffset,
-        // );
-
-        // const edgesToAdd: Set<string> = new Set();
-        // for (const pointee of pointees) {
-        //   const pointeeEdges = mutableFlowData.get(pointee.id);
-        //   pointeeEdges.forEach((e) => {
-        //     const origEdge = PTAEdge.from(pointee.id, e);
-        //     edgesToAdd.add(
-        //       PTAEdge.constructHeapEdge(
-        //         objNode.id,
-        //         origEdge.field,
-        //         origEdge.flag,
-        //         origEdge.v,
-        //       ).getPTAEdge(),
-        //     );
-        //   });
-        // }
+        const RValPointees = handleRVals(
+          uname,
+          mutableFlowData,
+          p.arg,
+          currBB,
+          currBBIDx,
+          stackInstOffset,
+        );
+        const fieldsToProcess: Set<string> = new Set();
+        for (const p of RValPointees) {
+          getAllFields(mutableFlowData, p).forEach((f) => fieldsToProcess.add(f));
+        }
+        for (const field of fieldsToProcess) {
+          const vs = handleFieldReference(uname, mutableFlowData, RValPointees, [field], currBB, currBBIDx, stackInstOffset);
+          handleFieldAssignmentStatement(mutableFlowData, [objNode], ["*"], vs, true, currBB, currBBIDx, stackInstOffset)
+        }
       }
       i++;
     }
@@ -707,7 +698,7 @@ export const handleRVals = (
         const pointees = getPointees(mutableFlowData, lookupNode);
 
         for (const p of pointees) {
-          
+
           const allFields = getAllFields(mutableFlowData, p);
           const pps = handleFieldReference(uname, mutableFlowData, [p], allFields, currBB, currBBIDx, stackInstOffset);
 
@@ -882,10 +873,10 @@ export const handleRVals = (
       handleFieldAssignmentStatement(mutableFlowData, [pJSXObj], ["^Children^"], pointees, true, currBB, currBBIDx, stackInstOffset);
     }
     return [pJSXObj];
-  } 
+  }
   else if (rVal instanceof IV_JSX) {
     debugConfig.logger.throwIriError(`TODO: PTA - IV_JSX`,);
-  
+
     // const currComponentPointees = nextGraph.getPointees(
     //   getStackQualifiedName(rVal.tag.lookupName(), currBB),
     // );
