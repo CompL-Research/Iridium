@@ -30,6 +30,7 @@ import {
   ensureNodeIDAndGetPTANode,
   ensureNodeIDAndGetStackNode,
   getFieldPointees,
+  getMutableWorldInstance,
   getPointees,
   hasFieldPTANode,
   unionAllMutablePTAFlowData,
@@ -37,9 +38,6 @@ import {
 } from "./PTAFlowData.ts";
 import { dissernProps, handleRVals } from "./RValHandlers.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./util.ts";
-
-const a = saveFlowDataToFile;
-const b = saveFlowDataToGraph;
 
 // a[f]
 export const handleFieldReference = (
@@ -208,72 +206,62 @@ export const handleSetClosureCall = (
   let closureGraph: IRIDIUM_FG = closure.meth.funBody;
   const closureWorld = closure.world;
 
-  const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(closureWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length > 0;
+  let boundaryEnv: PTAFlowData = unionAllPTAFlowData(getMutableWorldInstance(closureWorld));
 
-  if (!hasMutableWorld) {
-    debugConfig.logger.throwIriError("PTA TODO: calling closure to a immutable world");
-  } else {
-    const closureWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length - 1];
-    const boundaryEnv = unionAllPTAFlowData(closureWorldData);
-    // Add arguments node
-    const argsID = getHeapQualifiedName(
-      "argumentsObj",
-      currBBIDx,
-      stackInstOffset,
+  // Add arguments node
+  const argsID = getHeapQualifiedName(
+    "argumentsObj",
+    currBBIDx,
+    stackInstOffset,
+  );
+
+  const argumentsNode = GLOBAL_NODE_MAP.has(argsID)
+    ? GLOBAL_NODE_MAP.get(argsID)
+    : new OrdinaryArrayNode(argsID, closureWorld);
+  assert(argumentsNode instanceof OrdinaryArrayNode);
+  addPTANode(boundaryEnv, argumentsNode);
+
+  const pendingClosures = addHeapEdges(boundaryEnv, argumentsNode, "0", targets, true);
+
+  if (pendingClosures.length > 0)
+    debugConfig.logger.throwIriError("Unexpected pending closures when making SetClosure Call")
+
+  if (calleeArgs.length !== 1)
+    debugConfig.logger.throwIriError("Expected set closures to have exactly one argument")
+
+  const C_THIS_ID = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB);
+  const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
+    ? GLOBAL_NODE_MAP.get(C_THIS_ID)
+    : new StackNode(C_THIS_ID, closureWorld);
+  assert(stackNode instanceof StackNode);
+  addPTANode(boundaryEnv, stackNode);
+  addStackEdges(boundaryEnv, stackNode, [objectContext]);
+  // PTA Eval with curbed env as eval context
+  handleClosureCall(argumentsNode, 1, calleeArgs, closureWorld, closureGraph, boundaryEnv);
+  boundaryEnv.delete(argumentsNode.id);
+
+  const sinks = closureGraph.sinks();
+  if (sinks.length !== 1)
+    debugConfig.logger.throwIriError(
+      `Sinks length !== 1, found ${sinks.length}`,
     );
+  const sink = sinks[0];
+  const sinkBB = closureGraph.getBBNode(sink);
 
-    const argumentsNode = GLOBAL_NODE_MAP.has(argsID)
-      ? GLOBAL_NODE_MAP.get(argsID)
-      : new OrdinaryArrayNode(argsID, closureWorld);
-    assert(argumentsNode instanceof OrdinaryArrayNode);
-    addPTANode(boundaryEnv, argumentsNode);
-
-    const pendingClosures = addHeapEdges(boundaryEnv, argumentsNode, "0", targets, true);
-
-    if (pendingClosures.length > 0)
-      debugConfig.logger.throwIriError("Unexpected pending closures when making SetClosure Call")
-
-    if (calleeArgs.length !== 1)
-      debugConfig.logger.throwIriError("Expected set closures to have exactly one argument")
-
-    const C_THIS_ID = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB);
-    const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
-      ? GLOBAL_NODE_MAP.get(C_THIS_ID)
-      : new StackNode(C_THIS_ID, closureWorld);
-    assert(stackNode instanceof StackNode);
-    addPTANode(boundaryEnv, stackNode);
-    addStackEdges(boundaryEnv, stackNode, [objectContext]);
-    // PTA Eval with curbed env as eval context
-    handleClosureCall(argumentsNode, 1, calleeArgs, closureWorld, closureGraph, boundaryEnv);
-    boundaryEnv.delete(argumentsNode.id);
-
-    const sinks = closureGraph.sinks();
-    if (sinks.length !== 1)
-      debugConfig.logger.throwIriError(
-        `Sinks length !== 1, found ${sinks.length}`,
-      );
-    const sink = sinks[0];
-    const sinkBB = closureGraph.getBBNode(sink);
-
-    //
-    // Point to all stuff the return can point to
-    //
-    if (!(sinkBB instanceof FunctionReturn)) {
-      debugConfig.logger.throwIriError(
-        `Expected sinks to be Function Returns in closures!!! found ${sinkBB.scope}`,
-      );
-      return undefined
-    };
-    const argLookupName = getStackQualifiedName(
-      sinkBB.arg.lookupName(),
-      sinkBB,
+  //
+  // Point to all stuff the return can point to
+  //
+  if (!(sinkBB instanceof FunctionReturn)) {
+    debugConfig.logger.throwIriError(
+      `Expected sinks to be Function Returns in closures!!! found ${sinkBB.scope}`,
     );
-    return [boundaryEnv, closureWorld, ensureNodeIDAndGetStackNode(boundaryEnv, argLookupName)];
-  }
-
-  debugConfig.logger.throwIriError("TODO: Ordinary Function Call");
-  return undefined;
-
+    return undefined
+  };
+  const argLookupName = getStackQualifiedName(
+    sinkBB.arg.lookupName(),
+    sinkBB,
+  );
+  return [boundaryEnv, closureWorld, ensureNodeIDAndGetStackNode(boundaryEnv, argLookupName)];
 }
 
 export const handleOrdinaryFunctionObjectCall = (
@@ -296,21 +284,8 @@ export const handleOrdinaryFunctionObjectCall = (
 
   const closureWorld = c.world;
 
-  const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(closureWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length > 0;
+  let boundaryEnv: PTAFlowData = unionAllPTAFlowData(getMutableWorldInstance(closureWorld));
 
-  let boundaryEnv: PTAFlowData;
-
-  if (!hasMutableWorld) {
-    boundaryEnv = PTA_WORLD.get(closureWorld);
-    // 
-    if (!PTA_WORLD_CURRMUTABLE_DATA.has(closureWorld)) PTA_WORLD_CURRMUTABLE_DATA.set(closureWorld, []);
-    const worldInstance = unionAllPTAFlowData(PTA_WORLD.get(closureWorld));
-    PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).push(worldInstance);
-  }
-  const closureWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length - 1];
-  boundaryEnv = unionAllPTAFlowData(closureWorldData);
-
-  
   // Add arguments node
   const argumentsNode = initializeArgumentsObj(
     closureWorld,

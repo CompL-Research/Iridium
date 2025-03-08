@@ -13,6 +13,7 @@ import {
   NewPTAFlowData,
   OrdinaryObjectNode,
   printPTAFlowData,
+  PTAEdge,
   PTAFlowData,
   StackNode,
   unionAllPTAFlowData,
@@ -41,9 +42,6 @@ import {
 import { handleRVals } from "./PTA_STUFF/RValHandlers.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import assert from "node:assert";
-
-const aa = saveFlowDataToFile;
-const bb = saveFlowDataToGraph;
 //
 // A world can be in three states:
 //  1. !PTA_WORLD.has()            ===> Not Seen Before
@@ -70,7 +68,7 @@ export const initializeWorld = (uname: string, fg: IRIDIUM_FG) => {
     assert(globalNode instanceof IRIDUM_GLOBAL);
   
     addPTANode(initialWorldData, globalNode);
-    addSelfLoop(initialWorldData, globalNode, true);
+    initialWorldData.get(globalNode.id).add(PTAEdge.constructHeapEdge(globalNode.id, "*", "E", globalNode.id).getPTAEdge());
 
     const refToBinding = getStackQualifiedName(binding[0], fg.rootBB);
     const stackNode = GLOBAL_NODE_MAP.has(refToBinding)

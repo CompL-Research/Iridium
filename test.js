@@ -1341,3 +1341,11 @@
 // export const fun = (ff) => { ff(fun); x = 2; };
 
 // fun(remoteFun);
+
+import { remoteObj } from "test1.js";
+
+let x = remoteObj;
+
+let y = x.y;
+
+y.z = 12;

@@ -10,3 +10,9 @@
 
 // export * from "test2.js";
 // export default 111;
+
+export const remoteObj = {
+  y: {
+    z: 100
+  }
+};

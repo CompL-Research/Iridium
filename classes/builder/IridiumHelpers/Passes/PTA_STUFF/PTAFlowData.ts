@@ -10,6 +10,7 @@ import {
 import { ISP_ObjectMethod } from "../../ALL_RVal/ALL_ISP.ts";
 import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
 import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
+import { PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "../PTA.ts";
 
 //
 // Utility methods for printing
@@ -69,17 +70,26 @@ export const arePTAFlowDataEqual = (
   return true;
 };
 
-// Force update pointees when making a stack node update
+
+// 
+// Add PTAFlowNode to PTAFlowData and set pointees to a new set, also update GLOBAL_NODE_MAP. 
+// 
 export const addStackPTANode = (CURR: PTAFlowData, node: PTAFlowNode) => {
   GLOBAL_NODE_MAP.set(node.id, node);
   CURR.set(node.id, new Set());
 };
 
+// 
+// Add a given PTAFlowNode to PTAFlowData to GLOBAL_NODE_MAP and PTAFlowDatam if it already exists, do nothing.
+// 
 export const addPTANode = (CURR: PTAFlowData, node: PTAFlowNode) => {
   if (!GLOBAL_NODE_MAP.has(node.id)) GLOBAL_NODE_MAP.set(node.id, node);
   if (!CURR.has(node.id)) CURR.set(node.id, new Set());
 };
 
+// 
+// Ensure a given PTAFlowNode exists in the provided PTAFlowData
+// 
 export const assertPTANode = (CURR: PTAFlowData, node: PTAFlowNode) => {
   if (!GLOBAL_NODE_MAP.has(node.id))
     debugConfig.logger.throwIriError(`PTA Node not found: ${node.id}`);
@@ -89,29 +99,10 @@ export const assertPTANode = (CURR: PTAFlowData, node: PTAFlowNode) => {
     );
 };
 
-export const hasFieldPTANode = (CURR: PTAFlowData, node: PTAFlowNode, field: string) => {
-  assertPTANode(CURR, node);
-  const nodeID = node.id;
-  const outEdges = CURR.get(nodeID);
-  for (const e of outEdges) {
-    const pEdge = PTAEdge.from(nodeID, e);
-    if (pEdge.field === field) return true;
-  }
-  return false;
-};
 
-export const assertFieldPTANode = (CURR: PTAFlowData, node: PTAFlowNode, field: string) => {
-  assertPTANode(CURR, node);
-  const nodeID = node.id;
-  const outEdges = CURR.get(nodeID);
-  for (const e of outEdges) {
-    const pEdge = PTAEdge.from(nodeID, e);
-    if (pEdge.field === field) return true;
-  }
-  debugConfig.logger.throwIriError(`Field missing: (${nodeID}, ${field})`);
-  return false;
-};
-
+// 
+// Ensure that a given PTAFlowData has PTANode of nodeID and return it
+// 
 export const ensureNodeIDAndGetPTANode = (
   CURR: PTAFlowData,
   nodeID: string,
@@ -126,6 +117,9 @@ export const ensureNodeIDAndGetPTANode = (
   return undefined;
 };
 
+// 
+// Ensure that a given PTAFlowData has StackNode of nodeID and return it
+// 
 export const ensureNodeIDAndGetStackNode = (
   CURR: PTAFlowData,
   nodeID: string,
@@ -146,24 +140,9 @@ export const ensureNodeIDAndGetStackNode = (
   return undefined;
 };
 
-// Graph Manipulation Methods
-export const addSelfLoop = (
-  CURR: PTAFlowData,
-  u: PTAFlowNode,
-  enumerable: boolean = true,
-) => {
-  assertPTANode(CURR, u);
-
-  const e = PTAEdge.constructHeapEdge(
-    u.id,
-    "*",
-    enumerable ? "E" : "H",
-    u.id,
-  );
-
-  CURR.get(u.id).add(e.getPTAEdge());
-};
-
+// 
+// Reset pointees of the StackNode in the given PTAFlowData and set it to the provided set of PTAFlowNodes
+// 
 export const addStackEdges = (
   CURR: PTAFlowData,
   u: StackNode,
@@ -181,40 +160,9 @@ export const addStackEdges = (
   }
 };
 
-export const addHeapEdges = (
-  CURR: PTAFlowData,
-  u: PTAFlowNode,
-  field: string,
-  vs: Set<PTAFlowNode> | Array<PTAFlowNode>,
-  enumerable: boolean = true,
-): Array<[SetClosureNode, PTAFlowNode, Array<PTAFlowNode> | Set<PTAFlowNode>]> => {
-
-  assertPTANode(CURR, u);
-
-  const outEdges = CURR.get(u.id);
-
-  const pendingClosures: Array<[SetClosureNode, PTAFlowNode, Array<PTAFlowNode> | Set<PTAFlowNode>]> = 
-    [...outEdges.values()]
-    .map((e) => PTAEdge.from(u.id, e))
-    .filter((e) => e.field === field)
-    .map((e) => ensureNodeIDAndGetPTANode(CURR, e.v))
-    .filter((node) => node instanceof SetClosureNode)
-    .map((node) => [node, u, vs])
-  
-
-  // Create new edges to vs
-  for (const v of vs) {
-    const e = PTAEdge.constructHeapEdge(
-      u.id,
-      field,
-      enumerable ? "E" : "H",
-      v.id,
-    );
-    outEdges.add(e.getPTAEdge());
-  }
-  return pendingClosures;
-};
-
+// 
+// Return the pointees of a given StackNode in PTAFlowData
+// 
 export const getPointees = (CURR: PTAFlowData, u: StackNode) => {
   assertPTANode(CURR, u);
   if (!CURR.has(u.id)) CURR.set(u.id, new Set());
@@ -227,19 +175,137 @@ export const getPointees = (CURR: PTAFlowData, u: StackNode) => {
   return outVs;
 };
 
+// 
+// Returns the latest mutable world instance for a given object
+// 
+export const getMutableWorldInstance = (nodeWorld: string): PTAFlowData => {
+  if (!PTA_WORLD.has(nodeWorld) && !PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld)) debugConfig.logger.throwIriError(`World not found: ${nodeWorld}`);
+  const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length > 0;
+  if (!hasMutableWorld) {
+    if (!PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld)) PTA_WORLD_CURRMUTABLE_DATA.set(nodeWorld, []);
+    const immutableInstance = PTA_WORLD.get(nodeWorld);
+    const worldInstance = unionAllPTAFlowData(immutableInstance);
+    PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).push(worldInstance);
+  }
+  const closureWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length - 1];
+  return closureWorldData;
+}
+
+// 
+// TODO (update WORLD operation): Check if a given PTAFlowNode has a field
+// 
+export const hasFieldPTANode = (CURR: PTAFlowData, node: PTAFlowNode, field: string) => {
+  assertPTANode(CURR, node);
+  const nodeID = node.id;
+  const worldInstance = getMutableWorldInstance(node.world);
+  const outEdges = worldInstance.get(nodeID);
+  for (const e of outEdges) {
+    const pEdge = PTAEdge.from(nodeID, e);
+    if (pEdge.field === field) return true;
+  }
+  return false;
+};
+
+// 
+// TODO (update WORLD operation): Assert that a given field exists for an object
+// 
+export const assertFieldPTANode = (CURR: PTAFlowData, node: PTAFlowNode, field: string) => {
+  assertPTANode(CURR, node);
+  const nodeID = node.id;
+  const worldInstance = getMutableWorldInstance(node.world);
+  const outEdges = worldInstance.get(nodeID);
+  for (const e of outEdges) {
+    const pEdge = PTAEdge.from(nodeID, e);
+    if (pEdge.field === field) return true;
+  }
+  debugConfig.logger.throwIriError(`Field missing: (${nodeID}, ${field})`);
+  return false;
+};
+
+
+// 
+// TODO (update WORLD operation): Ensure that a given PTAFlowData has StackNode of nodeID and return it
+// 
+export const addSelfLoop = (
+  CURR: PTAFlowData,
+  u: PTAFlowNode,
+  enumerable: boolean = true,
+) => {
+  assertPTANode(CURR, u);
+  const worldInstance = getMutableWorldInstance(u.world);
+  assertPTANode(worldInstance, u);
+  const e = PTAEdge.constructHeapEdge(
+    u.id,
+    "*",
+    enumerable ? "E" : "H",
+    u.id,
+  );
+  worldInstance.get(u.id).add(e.getPTAEdge());
+};
+
+// 
+// TODO (update WORLD operation): Set the given field of PTAFlowNode to Set<PTAFlowNodes>
+// 
+export const addHeapEdges = (
+  CURR: PTAFlowData,
+  u: PTAFlowNode,
+  field: string,
+  vs: Set<PTAFlowNode> | Array<PTAFlowNode>,
+  enumerable: boolean = true,
+): Array<[SetClosureNode, PTAFlowNode, Array<PTAFlowNode> | Set<PTAFlowNode>]> => {
+  assertPTANode(CURR, u);
+
+  const worldInstance = getMutableWorldInstance(u.world);
+  assertPTANode(worldInstance, u);
+
+  const outEdges = worldInstance.get(u.id);
+
+  const pendingClosures: Array<[SetClosureNode, PTAFlowNode, Array<PTAFlowNode> | Set<PTAFlowNode>]> = 
+    [...outEdges.values()]
+    .map((e) => PTAEdge.from(u.id, e))
+    .filter((e) => e.field === field)
+    .map((e) => ensureNodeIDAndGetPTANode(worldInstance, e.v))
+    .filter((node) => node instanceof SetClosureNode)
+    .map((node) => [node, u, vs])
+  
+
+  // Create new edges to vs
+  for (const v of vs) {
+    const e = PTAEdge.constructHeapEdge(
+      u.id,
+      field,
+      enumerable ? "E" : "H",
+      v.id,
+    );
+    addPTANode(worldInstance, v);
+    outEdges.add(e.getPTAEdge());
+  }
+
+  pendingClosures.forEach((n) => addPTANode(CURR, n[0]));
+  return pendingClosures;
+};
+
+// 
+// TODO (update WORLD operation): Ensure that a given PTAFlowData has StackNode of nodeID and return it
+// 
 export const getFieldPointees = (CURR: PTAFlowData, u: PTAFlowNode, field: string, enumerable: boolean = true): [Array<PTAFlowNode>, Array<GetClosureNode>] => {
   assertPTANode(CURR, u);
+
+  const worldInstance = getMutableWorldInstance(u.world);
+  assertPTANode(worldInstance, u);
+
+
   const outNodes = 
-    [...CURR.get(u.id)]
+    [...worldInstance.get(u.id)]
     .filter(
       (e) => (PTAEdge.from(u.id, e).field === field || PTAEdge.from(u.id, e).field === "*") && (enumerable && PTAEdge.from(u.id, e).flag === "E")
     )
-    .map((e) => ensureNodeIDAndGetPTANode(CURR, PTAEdge.from(u.id, e).v));
+    .map((e) => ensureNodeIDAndGetPTANode(worldInstance, PTAEdge.from(u.id, e).v));
 
   if (outNodes.length === 0) {
     const ukn = new UnknownNode("UNKNOWN", u.world);
-    addPTANode(CURR, ukn);
-    CURR.get(u.id).add(PTAEdge.constructHeapEdge(u.id, "*", "E", ukn.id).getPTAEdge())
+    addPTANode(worldInstance, ukn);
+    worldInstance.get(u.id).add(PTAEdge.constructHeapEdge(u.id, "*", "E", ukn.id).getPTAEdge())
     return [[ukn], []]
   }
 
@@ -250,6 +316,9 @@ export const getFieldPointees = (CURR: PTAFlowData, u: PTAFlowNode, field: strin
   const pendingClosures = 
     outNodes
     .filter((n) => (n instanceof GetClosureNode));
+
+  outVs.forEach((v) => addPTANode(CURR, v));
+  pendingClosures.forEach((v) => addPTANode(CURR, v));
 
   return [outVs, pendingClosures];
 };
