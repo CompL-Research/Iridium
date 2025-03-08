@@ -11,12 +11,14 @@
 // export * from "test2.js";
 // export default 111;
 
-import { x } from "test2.js";
+// import { x } from "test2.js";
 
-x();
+// let b = x;
 
-export const remoteObj = {
-  y: {
-    z: 100
-  }
+let b = "test1";
+
+export const ff = (x) => {
+  let old = b;
+  b = x;
+  return old;
 };

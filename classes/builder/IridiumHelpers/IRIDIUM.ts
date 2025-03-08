@@ -316,8 +316,10 @@ import { initializeEnvDefs } from "./Passes/EnvInit.ts";
 import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
 import { getEXPORTID, initializeWorld, PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "./Passes/PTA.ts";
-import { addPTANode, addStackEdges, ensureNodeIDAndGetPTANode, getMutableWorldInstance, getPointees, GLOBAL_NODE_MAP, StackNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
+import { addPTANode, addStackEdges, ensureNodeIDAndGetPTANode, getMutableWorldInstance, getPointees, getSuccessorClosureImmutable, GLOBAL_NODE_MAP, GLOBAL_RESOLUTION_MAP, GLOBAL_RESOLUTION_SKIP_MAP, RemoteNode, StackNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
 import { handleCallExpression } from "./Passes/PTA_STUFF/PTAHandlers.ts";
+import { GLOBAL_UNAME_PATH_MAP, ProjectFile } from "classes/ProjectFile.ts";
+import { resolveModuleImport } from "#utils";
 
 
 // const genersate = _generate.default;
@@ -384,118 +386,130 @@ export default class IRIDIUM_MODULE {
       debugConfig.logger.throwIriError("Expected fg to be built before PTA...");
 
     if (topLevel) {
+      debugConfig.logger.warn("Starting top level analysis");
       const world = this.js3builder.projectFile.uname;
+      let expansionLevel = 0;
+      while (true) {
+        expansionLevel++;
+        debugConfig.logger.warn(`Expansion Level: ${expansionLevel}`);
 
+        if (expansionLevel > IRIDIUM_MODULE.SEARCH_THRESHOLD) {
+          debugConfig.logger.warn(`Reached SEARCH_THRESHOLD for "${world}" @ "${GLOBAL_UNAME_PATH_MAP.get(world)}"`);
+          break;
+        }
+
+        initializeWorld(this.js3builder.projectFile.uname, this.fg);
+
+        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
+
+        const worldData = getMutableWorldInstance(world);
+
+        // Add finalResNode
+        const rootNodeID = "TREEROOT";
+        const rootNode = GLOBAL_NODE_MAP.has(rootNodeID)
+          ? GLOBAL_NODE_MAP.get(rootNodeID)
+          : new StackNode(rootNodeID, world);
+        assert(rootNode instanceof StackNode);
+        rootNode.color = "cyan";
+        addPTANode(worldData, rootNode);
+
+        // Get call closures from top level export
+        const exportsNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(this.js3builder.projectFile.uname));
+        const exportPointees = getPointees(worldData, exportsNode);
+
+        const sinks = this.fg.sinks();
+        if (sinks.length !== 1) debugConfig.logger.throwIriError(`Expected atmost one sink, found ${sinks.length}`);
+        const sinkBB = this.fg.getBBNode(sinks[0]);
+
+        const res = handleCallExpression(world, worldData, exportPointees, [], sinkBB, sinks[0], 0, undefined);
+        addStackEdges(worldData, rootNode, res);
+
+        // Collapse Mutable Instances
+        for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
+          if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
+          if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
+          PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
+        }
+
+        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
+
+        // Get successor closure
+        const remoteNodes =
+          [...getSuccessorClosureImmutable(rootNode)]
+            .filter((n) => n instanceof RemoteNode);
+
+        const unresolvedRemoteNodes = remoteNodes.filter((n) => !GLOBAL_RESOLUTION_MAP.has(n.id) && !GLOBAL_RESOLUTION_SKIP_MAP.has(n.id));
+        if (unresolvedRemoteNodes.length === 0) {
+          debugConfig.logger.warn(
+            `Concluding search early: ${expansionLevel}`
+          );
+          break;
+        }
+
+        for (const node of unresolvedRemoteNodes) {
+          const importFilePath = GLOBAL_UNAME_PATH_MAP.get(node.world);
+          const toResolve = node.FROM;
+          try {
+            debugConfig.logger.warn(`Starting Resolution of ${toResolve} from "${importFilePath}"`)
+
+            const filePath = resolveModuleImport(toResolve, importFilePath, debugConfig.cli.projectBase);
+
+            if (!filePath) throw new Error();
+
+            // 1. Loading The File
+            const projectFile = new ProjectFile(filePath, debugConfig.cli.projectBase);
+            projectFile.initSync(debugConfig.cli.sourceType);
+            if (projectFile.initData.parseStatus !== "parsed")
+              debugConfig.logger.throwJS3Error(
+                "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
+              );
+
+            if (PTA_WORLD.has(projectFile.uname)) {
+              GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
+              debugConfig.logger.success(`Skipping cyclic reference: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
+
+            } else {
+              // 2. Constructing JS3
+              const js3Builder = new JS3Builder(projectFile);
+              js3Builder.build();
+              const fileNode = js3Builder.generatedAST;
+              const programNode = fileNode.program;
+
+              // 3. Constructing Iridium
+              const directives: Array<string> = [];
+              programNode.directives.forEach((d) => directives.push(d.value.value));
+              const sourceType = programNode.sourceType;
+              const iri_container = new I_Container(
+                fileNode,
+                projectFile,
+                js3Builder,
+                this.utils,
+                directives,
+                sourceType,
+                debugConfig.cli.projectBase,
+              );
+              iri_container.build();
+              GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
+              debugConfig.logger.success(`Successfully Resolved: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
+            }
+          } catch (e) {
+            debugConfig.logger.error(`Failed to resolve: "${toResolve}" from "${importFilePath}"`)
+            GLOBAL_RESOLUTION_SKIP_MAP.add(node.id);
+          }
+        }
+      }
+
+      debugConfig.logger.warn(`Completed top level analysis: ${world}`);
+
+    } else {
+      const world = this.js3builder.projectFile.uname;
+      debugConfig.logger.warn(`Starting non-top level analysis: ${world}`);
+      
       initializeWorld(this.js3builder.projectFile.uname, this.fg);
 
-      if(PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
+      if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
+      debugConfig.logger.warn(`Completed non-top level analysis: ${world}`);
 
-      const worldData = getMutableWorldInstance(world);
-
-      // Add finalResNode
-      const rootNodeID = "TREEROOT";
-      const rootNode = GLOBAL_NODE_MAP.has(rootNodeID)
-        ? GLOBAL_NODE_MAP.get(rootNodeID)
-        : new StackNode(rootNodeID, world);
-      assert(rootNode instanceof StackNode);
-      rootNode.color = "cyan";
-      addPTANode(worldData, rootNode);
-
-      // Get call closures from top level export
-      const exportsNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(this.js3builder.projectFile.uname));
-      const exportPointees = getPointees(worldData, exportsNode);
-
-      const sinks = this.fg.sinks();
-      if (sinks.length !== 1) debugConfig.logger.throwIriError(`Expected atmost one sink, found ${sinks.length}`);
-      const sinkBB = this.fg.getBBNode(sinks[0]);
-
-      const res = handleCallExpression(world, worldData, exportPointees, [], sinkBB, sinks[0], 0, undefined);
-      addStackEdges(worldData, rootNode, res);
-
-      PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
-      if(PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
-
-      // Get successor closure
-
-
-      // let expansionLevel = 0;
-      // while (true) {
-      //   expansionLevel++;
-      //   if (expansionLevel > IRIDIUM_MODULE.SEARCH_THRESHOLD) {
-      //     debugConfig.logger.warn(`Reached SEARCH_THRESHOLD for "${world}" @ "${GLOBAL_UNAME_PATH_MAP.get(world)}"`);
-      //     break;
-      //   }
-        
-
-      //   const worldData = PTA_WORLD.get(world);
-      //   const remoteNodes =
-      //     [...worldData.keys()]
-      //       .map((n) => ensureNodeIDAndGetPTANode(worldData, n))
-      //       .filter((n) => n instanceof RemoteNode)
-
-      //   const unresolvedRemoteNodes = remoteNodes.filter((n) => !GLOBAL_RESOLUTION_MAP.has(n.id) && !GLOBAL_RESOLUTION_SKIP_MAP.has(n.id));
-
-      //   if (unresolvedRemoteNodes.length === 0) {
-      //     debugConfig.logger.warn(
-      //       `Concluding search early: ${expansionLevel}`
-      //     );
-      //     break;
-      //   }
-
-      //   for (const node of unresolvedRemoteNodes) {
-      //     const importFilePath = GLOBAL_UNAME_PATH_MAP.get(node.world);
-      //     const toResolve = node.FROM;
-      //     try {
-      //       debugConfig.logger.warn(`Starting Resolution of ${toResolve} from "${importFilePath}"`)
-
-      //       const filePath = resolveModuleImport(toResolve, importFilePath, debugConfig.cli.projectBase);
-
-      //       if (!filePath) throw new Error();
-
-      //       // 1. Loading The File
-      //       const projectFile = new ProjectFile(filePath, debugConfig.cli.projectBase);
-      //       projectFile.initSync(debugConfig.cli.sourceType);
-      //       if (projectFile.initData.parseStatus !== "parsed")
-      //         debugConfig.logger.throwJS3Error(
-      //           "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
-      //         );
-
-      //       if (PTA_WORLD.has(projectFile.uname)) {
-      //         GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
-      //         debugConfig.logger.success(`Skipping already resolved reference: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
-
-      //       } else {
-      //         // 2. Constructing JS3
-      //         const js3Builder = new JS3Builder(projectFile);
-      //         js3Builder.build();
-      //         const fileNode = js3Builder.generatedAST;
-      //         const programNode = fileNode.program;
-
-      //         // 3. Constructing Iridium
-      //         const directives: Array<string> = [];
-      //         programNode.directives.forEach((d) => directives.push(d.value.value));
-      //         const sourceType = programNode.sourceType;
-      //         const iri_container = new I_Container(
-      //           fileNode,
-      //           projectFile,
-      //           js3Builder,
-      //           this.utils,
-      //           directives,
-      //           sourceType,
-      //           debugConfig.cli.projectBase,
-      //         );
-      //         iri_container.build();
-      //         GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
-      //         debugConfig.logger.success(`Successfully Resolved: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
-      //       }
-
-
-      //     } catch (e) {
-      //       debugConfig.logger.error(`Failed to resolve: "${toResolve}" from "${importFilePath}"`)
-      //       GLOBAL_RESOLUTION_SKIP_MAP.add(node.id);
-      //     }
-      //   }
-      // }
     }
   }
 

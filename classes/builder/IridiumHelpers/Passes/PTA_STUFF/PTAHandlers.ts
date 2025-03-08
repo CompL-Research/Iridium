@@ -21,6 +21,7 @@ import {
   RemoteNode,
   SetClosureNode,
   StackNode,
+  UnknownNode,
   addHeapEdges,
   addPTANode,
   addSelfLoop,
@@ -28,6 +29,7 @@ import {
   addStackPTANode,
   assertFieldPTANode,
   ensureAndGetMutableWorldInstance,
+  ensureMutableWorldInstance,
   ensureNodeIDAndGetPTANode,
   ensureNodeIDAndGetStackNode,
   getFieldPointees,
@@ -181,14 +183,11 @@ export const handleBImportNode = (
     else field = i.remote.value;
 
     if (PTA_WORLD.has(resolvedUname)) {
-      const worldData = PTA_WORLD.get(resolvedUname);
-      if (worldData === null) debugConfig.logger.throwIriError("TODO: Resolved world is not closed yet!!");
-      else {
-        const exportedNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(resolvedUname));
-        const [pointees, clposu] = getFieldPointees(worldData, exportedNode, field, true);
-        pointees.forEach((p) => addPTANode(mutableFlowData, p));
-        addStackEdges(mutableFlowData, stackNode, pointees);
-      }
+      const worldData = getMutableWorldInstance(resolvedUname);
+      const exportedNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(resolvedUname));
+      const [pointees, closures] = getFieldPointees(worldData, exportedNode, field, true);
+      pointees.forEach((p) => addPTANode(mutableFlowData, p));
+      addStackEdges(mutableFlowData, stackNode, pointees);
     }
   } else {
     addSelfLoop(mutableFlowData, remoteNode, true);
@@ -591,6 +590,19 @@ export const handleCallExpression = (
         objectContext
       )
       closureResults.push([flowData, world, returnNode]);
+    } else if (c instanceof RemoteNode || c instanceof UnknownNode) {
+      for (const a of args) {
+        let ID;
+        if (a instanceof IV_Identifier) {
+          ID = getStackQualifiedName(a.lookupName(), currBB);
+        } else {
+          ID = getStackQualifiedName(a.arg.lookupName(), currBB);
+        }
+        const stackNode = ensureNodeIDAndGetStackNode(mutableFlowData, ID);
+        const pointees = getPointees(mutableFlowData, stackNode);
+        pointees.forEach((n) => res.add(n));
+      }
+      res.add(c);
     } else {
       console.warn(`PTA is skipping analysis of non-callable object: ${c.id}`);
     }

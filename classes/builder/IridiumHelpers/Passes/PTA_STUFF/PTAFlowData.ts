@@ -70,6 +70,61 @@ export const arePTAFlowDataEqual = (
   return true;
 };
 
+// 
+// Returns the immutable world instance for the given world
+// 
+export const getImmutableWorldInstance = (nodeWorld: string): PTAFlowData => {
+  if (!PTA_WORLD.has(nodeWorld) && !PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld)) debugConfig.logger.throwIriError(`World not found: ${nodeWorld}`);
+  const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length > 0;
+  if (hasMutableWorld) {
+    debugConfig.logger.throwIriError("Expected no mutable world instances to be active...")
+  }
+  return PTA_WORLD.get(nodeWorld);
+}
+
+// 
+// Returns the latest mutable world instance for a given object
+// 
+export const getMutableWorldInstance = (nodeWorld: string): PTAFlowData => {
+  if (!PTA_WORLD.has(nodeWorld) && !PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld)) debugConfig.logger.throwIriError(`World not found: ${nodeWorld}`);
+  const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length > 0;
+  if (!hasMutableWorld) {
+    if (!PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld)) PTA_WORLD_CURRMUTABLE_DATA.set(nodeWorld, []);
+    const immutableInstance = PTA_WORLD.get(nodeWorld);
+    const worldInstance = unionAllPTAFlowData(immutableInstance);
+    PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).push(worldInstance);
+  }
+  const closureWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length - 1];
+  return closureWorldData;
+}
+
+// 
+// When something is imported, we ensure we start a mutable instance for it
+// 
+export const ensureMutableWorldInstance = (nodeWorld: string) => {
+  if (!PTA_WORLD.has(nodeWorld) && !PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld)) debugConfig.logger.throwIriError(`World not found: ${nodeWorld}`);
+  const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length > 0;
+  if (!hasMutableWorld) {
+    if (!PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld)) PTA_WORLD_CURRMUTABLE_DATA.set(nodeWorld, []);
+    const immutableInstance = PTA_WORLD.get(nodeWorld);
+    const worldInstance = unionAllPTAFlowData(immutableInstance);
+    PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).push(worldInstance);
+  }
+}
+
+// 
+// Ensure that a mutable world instance exists and return it
+// 
+export const ensureAndGetMutableWorldInstance = (nodeWorld: string): PTAFlowData => {
+  if (!PTA_WORLD.has(nodeWorld) && !PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld)) debugConfig.logger.throwIriError(`World not found: ${nodeWorld}`);
+  const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length > 0;
+  if (!hasMutableWorld) {
+    debugConfig.logger.throwIriError("Expected a mutable instance to exist!!");
+  }
+  const closureWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length - 1];
+  return closureWorldData;
+}
+
 
 // 
 // Add PTAFlowNode to PTAFlowData and set pointees to a new set, also update GLOBAL_NODE_MAP. 
@@ -175,34 +230,32 @@ export const getPointees = (CURR: PTAFlowData, u: StackNode) => {
   return outVs;
 };
 
-export const ensureAndGetMutableWorldInstance = (nodeWorld: string): PTAFlowData => {
-  if (!PTA_WORLD.has(nodeWorld) && !PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld)) debugConfig.logger.throwIriError(`World not found: ${nodeWorld}`);
-  const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length > 0;
-  if (!hasMutableWorld) {
-    debugConfig.logger.throwIriError("Expected a mutable instance to exist!!");
-  }
-  const closureWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length - 1];
-  return closureWorldData;
+
+// 
+// Gets the successor closure, 
+// 
+
+export const getSuccessorClosureImmutable = (u: StackNode, res: Set<PTAFlowNode> = new Set()) => {
+  res.add(u);
+  
+  const world = u.world;
+  const worldInstance = getImmutableWorldInstance(world);
+  assertPTANode(worldInstance, u);
+ 
+  const outNodes = [...worldInstance.get(u.id)]
+    .map(e => ensureNodeIDAndGetPTANode(worldInstance, PTAEdge.from(u.id, e).v));
+  
+  outNodes.forEach((outNode) => {
+    if (!res.has(outNode)) {
+      getSuccessorClosureImmutable(outNode, res);
+    }
+  });
+
+  return res;
 }
 
 // 
-// Returns the latest mutable world instance for a given object
-// 
-export const getMutableWorldInstance = (nodeWorld: string): PTAFlowData => {
-  if (!PTA_WORLD.has(nodeWorld) && !PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld)) debugConfig.logger.throwIriError(`World not found: ${nodeWorld}`);
-  const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length > 0;
-  if (!hasMutableWorld) {
-    if (!PTA_WORLD_CURRMUTABLE_DATA.has(nodeWorld)) PTA_WORLD_CURRMUTABLE_DATA.set(nodeWorld, []);
-    const immutableInstance = PTA_WORLD.get(nodeWorld);
-    const worldInstance = unionAllPTAFlowData(immutableInstance);
-    PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).push(worldInstance);
-  }
-  const closureWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(nodeWorld).length - 1];
-  return closureWorldData;
-}
-
-// 
-// TODO (update WORLD operation): Check if a given PTAFlowNode has a field
+// Check if a given PTAFlowNode has a field
 // 
 export const hasFieldPTANode = (CURR: PTAFlowData, node: PTAFlowNode, field: string) => {
   assertPTANode(CURR, node);
@@ -217,7 +270,7 @@ export const hasFieldPTANode = (CURR: PTAFlowData, node: PTAFlowNode, field: str
 };
 
 // 
-// TODO (update WORLD operation): Assert that a given field exists for an object
+// Assert that a given field exists for an object
 // 
 export const assertFieldPTANode = (CURR: PTAFlowData, node: PTAFlowNode, field: string) => {
   assertPTANode(CURR, node);
@@ -234,7 +287,7 @@ export const assertFieldPTANode = (CURR: PTAFlowData, node: PTAFlowNode, field: 
 
 
 // 
-// TODO (update WORLD operation): Ensure that a given PTAFlowData has StackNode of nodeID and return it
+// Ensure that a given PTAFlowData has StackNode of nodeID and return it
 // 
 export const addSelfLoop = (
   CURR: PTAFlowData,
@@ -254,7 +307,7 @@ export const addSelfLoop = (
 };
 
 // 
-// TODO (update WORLD operation): Set the given field of PTAFlowNode to Set<PTAFlowNodes>
+// Set the given field of PTAFlowNode to Set<PTAFlowNodes>
 // 
 export const addHeapEdges = (
   CURR: PTAFlowData,
@@ -296,7 +349,7 @@ export const addHeapEdges = (
 };
 
 // 
-// TODO (update WORLD operation): Ensure that a given PTAFlowData has StackNode of nodeID and return it
+// Ensure that a given PTAFlowData has StackNode of nodeID and return it
 // 
 export const getFieldPointees = (CURR: PTAFlowData, u: PTAFlowNode, field: string, enumerable: boolean = true): [Array<PTAFlowNode>, Array<GetClosureNode>] => {
   assertPTANode(CURR, u);

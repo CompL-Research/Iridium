@@ -1342,9 +1342,12 @@
 
 // fun(remoteFun);
 
-import { remoteObj } from "test1.js";
+import { ff } from "test1.js";
+// import { x } from "test2.js";
 
-export const fun = (a,b,c,d) => {
+let x = "test";
 
-  return remoteObj;
+export const fun = () => {
+  x = ff(x);
+  return x;
 }
