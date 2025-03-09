@@ -1,3 +1,4 @@
+import { IV_StringLiteral } from "../../ALL_RVal/IV_Literals.ts";
 import { BB } from "../../BB.ts";
 import { LiteralNode, PTAFlowNode } from "./PTAFlowData.ts";
 
@@ -26,7 +27,10 @@ export const getHeapQualifiedName = (
 export const dissernPointees = (ns: Array<PTAFlowNode> | Set<PTAFlowNode>) => {
   const res: Set<string> = new Set();
   for (const n of ns) {
-    if (n instanceof LiteralNode) res.add(n.id);
+    if (n instanceof LiteralNode) {
+      if (n.node instanceof IV_StringLiteral) res.add(n.node.value)
+      else res.add(n.id);
+    }
     else res.add("*");
   }
   if (res.size === 0) res.add("*");

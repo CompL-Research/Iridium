@@ -365,6 +365,17 @@ export const getAllFields = (CURR: PTAFlowData, u: PTAFlowNode): Set<string> => 
 };
 
 // 
+// Get all fields for a given nodes
+// 
+export const getAllFieldsOfNodes = (CURR: PTAFlowData, us: Set<PTAFlowNode> | Array<PTAFlowNode>): Set<string> => {
+  const res: Set<string> = new Set();
+  for (const u of us) {
+    getAllFields(CURR, u).forEach((u) => res.add(u));
+  }
+  return res;
+};
+
+// 
 // Ensure that a given PTAFlowData has StackNode of nodeID and return it
 // 
 export const getFieldPointees = (CURR: PTAFlowData, u: PTAFlowNode, field: string, enumerable: boolean = true): [Array<PTAFlowNode>, Array<GetClosureNode>] => {
@@ -384,6 +395,7 @@ export const getFieldPointees = (CURR: PTAFlowData, u: PTAFlowNode, field: strin
   if (outNodes.length === 0) {
     const ukn = new UnknownNode("UNKNOWN", u.world);
     addPTANode(worldInstance, ukn);
+    addPTANode(CURR, ukn);
     worldInstance.get(u.id).add(PTAEdge.constructHeapEdge(u.id, "*", "E", ukn.id).getPTAEdge())
     return [[ukn], []]
   }
@@ -656,6 +668,23 @@ export class IRIDUM_GLOBAL extends PTAFlowNode {
     const shape = "rectangle";
     const style = "filled";
     const color = "gray";
+    return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
+  }
+}
+
+export class JSXNode extends PTAFlowNode {
+  constructor(id: string, world: string) {
+    super(id, world);
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "rectangle";
+    const style = "filled";
+    const color = "chocolate";
     return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }

@@ -1384,6 +1384,41 @@
 // a = [1, 2, 3, 4, 5];
 // [b, c] = a;
 
-let a = { a: 1, b: 2, c: 3 }
-let b = { a: 4, b: 5, c: 6 }
-let c = { ...a, ...b }
+// let a = { a: 1, b: 2, c: 3 }
+// let b = { a: 4, b: 5, c: 6 }
+// let c = { ...a, ...b }
+
+// import {M1} from "./M1.js";
+// import M2 from "./M2.js";
+
+// const M1 = ({children}) => {
+
+//   return <div> {children} </div>
+// }
+// const M2 = () => {
+//   return <div> M2 </div>
+// }
+
+
+// export const App = () => {
+//   return <M1>
+//     <div></div>
+//   </M1>
+// }
+
+// export default foo = 12;
+
+// import * as foo from "./test1.js";
+
+// // const a = foo.M1;
+
+// export const xx = () => {
+//   return foo.M1
+// }
+
+function foo() {
+  let x = this.foo;
+  return x;
+}
+
+export {foo}; 

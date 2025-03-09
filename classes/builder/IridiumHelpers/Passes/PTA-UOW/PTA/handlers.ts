@@ -984,7 +984,7 @@ export const handleCallExpression = (
       );
       evalRes.forEach((n) => res.add(n));
     } else {
-      console.warn(`PTA is skipping analysis of non-callable object: ${c.id}`);
+      debugConfig.logger.error(`PTA is skipping analysis of non-callable object: ${c.id}`);
     }
   }
 

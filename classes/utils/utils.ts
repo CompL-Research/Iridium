@@ -1,6 +1,8 @@
 import debugConfig from "#debugConfig";
 import { CommentBlock, CommentLine } from "@babel/types";
 import { execSync } from "child_process";
+import { I_Container } from "classes/builder/IridiumHelpers/I_GENERAL/I_Container.ts";
+import { IRIDIUM_FG } from "classes/builder/IridiumHelpers/I_GENERAL/IRIDIUM_FG.ts";
 import { ensureNodeIDAndGetPTANode, PTAEdge, PTAFlowData } from "classes/builder/IridiumHelpers/Passes/PTA_STUFF/PTAFlowData.ts";
 import crypto from "crypto";
 import fs from "fs";
@@ -64,6 +66,16 @@ export const saveFlowDataToGraph = (flowData: PTAFlowData) => {
 
 let idx = 0;
 
+export const saveRenderTreeDataToFile = (path: string, flowData: PTAFlowData) => {
+  path = "outputs/" + idx++ + "_" + path;
+  try {
+    fs.writeFileSync(path + ".DOT", saveFlowDataToGraph(flowData));
+    execSync(`dot -Tpng ${path + ".DOT"} -o ${path + ".png"}`);
+  } catch (err) {
+    console.error("File write failed:", err);
+  }
+}
+
 export const saveFlowDataToFile = (path: string, flowData: PTAFlowData) => {
   path = "outputs/PTA/" + idx++ + "_" + path;
   try {
@@ -73,6 +85,17 @@ export const saveFlowDataToFile = (path: string, flowData: PTAFlowData) => {
     console.error("File write failed:", err);
   }
 }
+
+export const saveFlowGraphToFile = (path: string, flowGraph: I_Container) => {
+  path = "outputs/" + idx++ + "_" + path;
+  try {
+    fs.writeFileSync(path + ".DOT", flowGraph.toDOT());
+    execSync(`dot -Tpng ${path + ".DOT"} -o ${path + ".png"}`);
+  } catch (err) {
+    console.error("File write failed:", err);
+  }
+}
+
 
 export const generateContextKey = (
   objectContext: string,

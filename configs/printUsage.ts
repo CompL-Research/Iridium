@@ -127,6 +127,12 @@ const IRI_OPTIONS = [
     alias: "g",
     type: Boolean,
   },
+  {
+    name: "save-flow-graph",
+    description: "Save generated IRIDIUM Flowgraphs as DOT/pngs",
+    alias: "f",
+    type: Boolean,
+  },
 ];
 
 export const iriUsageInfo: UsageSectionsArray = [
@@ -169,6 +175,7 @@ export const handleTest262 = () => (debugConfig.cli.test262 = true);
 export const handleLangWithSupport = () =>
   (debugConfig.cli.allowLangWithSupport = true);
 export const handleSavePTAGraph = () => (debugConfig.cli.savePTAGraph = true);
+export const handleSaveFlowGraph = () => (debugConfig.cli.saveFlowGraph = true);
 
 export const handleSourceType = (options: any) => {
   if (options["source-type"] === null) {

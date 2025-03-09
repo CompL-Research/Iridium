@@ -97,8 +97,8 @@
                 "--import=tsx",
                 "/home/meetesh/wd/Iridium/iridium.ts",
                 "iri",
-                "./temp/saleor-dashboard/src/index.tsx",
-                "./temp/saleor-dashboard/",
+                "./M1.js",
+                ".",
                 "-g"
             ],
             "outFiles": [

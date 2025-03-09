@@ -29,4 +29,8 @@
 //   return old;
 // };
 
-export const Component = () => <div></div>
+// export const Component = () => <div></div>
+
+export const M1 = 12;
+export const M2 = 12;
+export const M3 = 12;

@@ -10,9 +10,11 @@ import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { IS_ClassStaticPropInit } from "../ALL_IS/IS_ClassStaticPropInit.ts";
 import {
   IS_AExport,
+  IS_AImport,
   IS_BExport,
   IS_BImport,
   IS_CExport,
+  IS_CImport,
   IS_DExport,
   IS_EExport,
 } from "../ALL_IS/IS_Imports_Exports.ts";
@@ -42,6 +44,7 @@ import {
 import {
   handleArrayDestructuringAssignmentStatement,
   handleBImportNode,
+  handleCImportNode,
   handleFieldAssignmentStatement,
   handleFieldReference,
   handleObjectDestructuringAssignmentStatement,
@@ -49,6 +52,8 @@ import {
 } from "./PTA_STUFF/PTAHandlers.ts";
 import { handleRVals } from "./PTA_STUFF/RValHandlers.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./PTA_STUFF/util.ts";
+import { IS_Noop } from "../ALL_IS/ALL_IS.ts";
+import { traverseInstructionRecDepthFirst } from "../Visitors/traverse.ts";
 //
 // A world can be in three states:
 //  1. !PTA_WORLD.has()            ===> Not Seen Before
@@ -99,6 +104,26 @@ export const initializeWorld = (uname: string, fg: IRIDIUM_FG) => {
   PTA_WORLD.set(uname, PTA(uname, fg, initialWorldData));
 };
 
+function reversePostOrder(graph: GLIB.Graph, root: string) {
+  const visited: Set<string> = new Set();
+  const result: Array<string> = [];
+
+  function dfs(node) {
+    if (visited.has(node)) return;
+    visited.add(node);
+
+    const neighbors = graph.successors(node) || [];
+    for (const neighbor of neighbors) {
+      dfs(neighbor);
+    }
+    
+    result.push(node); // post-order: add after visiting children
+  }
+
+  dfs(root);
+  return result.reverse(); // reverse post-order
+}
+
 type BBIdx = string;
 export const PTA = (
   uname: string,
@@ -120,26 +145,26 @@ export const PTA = (
     .forEach((bbIdx: BBIdx) => flowMap.set(bbIdx, NewPTAFlowData()));
 
   // Do one pass in DTree order, this will ensure all defs dominate uses...
-  const dTree = GLIB.alg.dominatorTarjan(rootFG, "" + rootFG.rootBB.idx, false);
+  // const dTree = GLIB.alg.dominatorTarjan(rootFG, "" + rootFG.rootBB.idx, false);
 
-  const visited = new Set();
-  const dfsOrder: Array<string> = [];
-  // DFS function
-  const visitDFS = (node) => {
-    visited.add(node); // Mark node as visited
-    dfsOrder.push(node);
+  // const visited = new Set();
+  // const dfsOrder: Array<string> = [];
+  // // DFS function
+  // const visitDFS = (node) => {
+  //   visited.add(node); // Mark node as visited
+  //   dfsOrder.push(node);
 
-    // Visit successors in DFS
-    const successors = dTree.successors(node);
-    if (successors) {
-      for (const succ of successors) {
-        if (visited.has(succ)) continue; // Skip already visited nodes
-        visitDFS(succ); // Recursive DFS call
-      }
-    }
-  };
+  //   // Visit successors in DFS
+  //   const successors = dTree.successors(node);
+  //   if (successors) {
+  //     for (const succ of successors) {
+  //       if (visited.has(succ)) continue; // Skip already visited nodes
+  //       visitDFS(succ); // Recursive DFS call
+  //     }
+  //   }
+  // };
 
-  visitDFS("" + rootFG.rootBB.idx);
+  // visitDFS("" + rootFG.rootBB.idx);
 
   const doWorklist = (currBBIDx: string) => {
     // Incoming Set
@@ -168,7 +193,10 @@ export const PTA = (
     }
   };
 
-  for (const currBBIDx of dfsOrder) {
+  // Visit all nodes in reverse post order
+  const firstTraversalOrder = reversePostOrder(rootFG, "" + rootFG.rootBB.idx);
+
+  for (const currBBIDx of firstTraversalOrder) {
     doWorklist(currBBIDx);
   }
 
@@ -202,6 +230,8 @@ export const flowFunction = (
 
     if (i instanceof IS_BImport) {
       handleBImportNode(uname, mutableFlowData, i, currBB, currBBIDx, stackInstOffset);
+    } else if (i instanceof IS_CImport) {
+      handleCImportNode(uname, mutableFlowData, i, currBB, currBBIDx, stackInstOffset);
     } else if (i instanceof IS_ClassStaticPropInit) {
       debugConfig.logger.throwIriError("PTA TODO: IS_ClassStaticPropInit");
       // // obj[prop] = rval
@@ -266,35 +296,18 @@ export const flowFunction = (
           stackInstOffset
         );
       }
-      // 
-      // else {
-      //   const objDestLVal = i.LVal;
-      //   const RValPointees = handleRVals(
-      //     nextGraph,
-      //     i.RVal,
-      //     currBB,
-      //     currBBIDx,
-      //     stackInstOffset,
-      //   );
-      //   handleArrayDestructuring(
-      //     nextGraph,
-      //     objDestLVal,
-      //     RValPointees,
-      //     currBB,
-      //     currBBIDx,
-      //     stackInstOffset,
-      //   );
-      // }
     } else if (i instanceof IS_AExport) {
-      debugConfig.logger.throwIriError("PTA TODO: IS_AExport");
-      // // export default ID
-      // const heapNode = nextGraph.getPTANode("EXPORT");
-      // const pointees = nextGraph.getPointees(
-      //   getStackQualifiedName(i.id.lookupName(), currBB),
-      // );
-      // nextGraph.drawHeapToHeapEdge([heapNode], pointees, ["default"], true);
+      // export default ID
+      const localID = getStackQualifiedName(i.id.lookupName(), currBB);
+      const localNode = ensureNodeIDAndGetStackNode(mutableFlowData, localID);
+      const pointees = getPointees(mutableFlowData, localNode);
+
+      const exportNode = ensureNodeIDAndGetPTANode(mutableFlowData, getEXPORTID(uname));
+
+      let field: string = "default";
+
+      addHeapEdges(mutableFlowData, exportNode, field, pointees, true);
     } else if (i instanceof IS_BExport) {
-      // debugConfig.logger.throwIriError("PTA TODO: IS_BExport");
       // Export local as remote
       const localID = getStackQualifiedName(i.local.lookupName(), currBB);
       const localNode = ensureNodeIDAndGetStackNode(mutableFlowData, localID);
@@ -316,8 +329,12 @@ export const flowFunction = (
     } else if (i instanceof IS_EExport) {
       debugConfig.logger.throwIriError("PTA TODO: IS_EExport");
       // handleEExportNode(nextGraph, i, currBB, currBBIDx, stackInstOffset);
+    } else if (i instanceof IS_Noop) {
+      /* NOOP */
+    } else if (i instanceof IS_AImport) {
+      /* NOOP */
     } else {
-      debugConfig.logger.throwIriError("PTA TODO: UNHANDLED");
+      debugConfig.logger.throwIriError(`PTA TODO: UNHANDLED: ${i.toString()}`);
     }
     // debugConfig.logger.error(`After stmt ${i.toString()}`);
     // saveFlowDataToFile(`${currBBIDx}_${stackInstOffset}`, mutableFlowData)

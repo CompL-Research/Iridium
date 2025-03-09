@@ -1,5 +1,5 @@
 import debugConfig from "#debugConfig";
-import { printScopedSpace } from "#utils";
+import { printScopedSpace, saveFlowGraphToFile } from "#utils";
 import JS3Builder, { JS3BuilderUtils } from "classes/builder/JS3Builder.ts";
 import { JS3File } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { ProjectFile } from "classes/ProjectFile.ts";
@@ -45,6 +45,9 @@ export class I_Container {
     iri_module.build();
     this.module = iri_module;
     this.saveGeneratedFile();
+    if(debugConfig.cli.saveFlowGraph) {
+      saveFlowGraphToFile(this.js3Builder.projectFile.uname,this);
+    }
     iri_module.performPTA(topLevel);
   }
 

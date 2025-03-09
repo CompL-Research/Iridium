@@ -16,6 +16,7 @@ import path from "path";
 import {
   handleLangWithSupport,
   handleOutputsPath,
+  handleSaveFlowGraph,
   handleSavePTAGraph,
   handleSourceType,
   handleTest262,
@@ -67,6 +68,8 @@ function js3(filePath) {
 }
 
 function iri(filePath) {
+  // debugConfig.logger.printToConsole = false;
+
   try {
     initializeOutputsPath();
     if (debugConfig.cli.savePTAGraph) {
@@ -103,11 +106,10 @@ function iri(filePath) {
     iri_container.build(true);
 
     for(const [key, values] of PTA_WORLD_CURRMUTABLE_DATA.entries()) {
-      if (values.length > 1) debugConfig.logger.throwIriError(`Expected world stack to be 0 or 1, found: ${values.length}`);
-      if (values.length === 0) continue;
-      const lastWorldData = values[0];
-      PTA_WORLD.set(key, lastWorldData);
+      if (values.length !== 0) debugConfig.logger.throwIriError(`Expected world stack to be 0 or 1, found: ${values.length}`);
     }
+
+    iri_container.module.saveRenderTree()
 
     if (debugConfig.cli.savePTAGraph) {
       for(const [key, value] of PTA_WORLD.entries()) {
@@ -206,6 +208,8 @@ if (mainCommand === "js3") {
     if ("source-type" in options) handleSourceType(options);
     if ("allow-lang-with-support" in options) handleLangWithSupport();
     if ("save-pta-graph" in options) handleSavePTAGraph();
+    if ("save-flow-graph" in options) handleSaveFlowGraph();
+
   }
   iri(PATH_TO_JS);
 } else if (mainCommand === "version") {

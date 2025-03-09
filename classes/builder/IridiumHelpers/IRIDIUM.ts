@@ -306,7 +306,7 @@ import {
 import { Environment, GlobalEnvironment } from "./I_GENERAL/I_Environment.ts";
 
 import assert from "node:assert";
-import { IV_FJSX, IV_JSX, IV_PJSX } from "./ALL_RVal/IV_JSX.ts";
+import { IV_FJSX, IV_JSX, IV_PJSX, PRIMITIVE_TAGS } from "./ALL_RVal/IV_JSX.ts";
 import { I_Container } from "./I_GENERAL/I_Container.ts";
 import { IRIDIUM_FG } from "./I_GENERAL/IRIDIUM_FG.ts";
 import { addThisInitToFunctionBoundaries } from "./Passes/AddThisInitToFunctionBoundaries.ts";
@@ -315,11 +315,11 @@ import { hoistDeclarations } from "./Passes/DeclarationHoisting.ts";
 import { initializeEnvDefs } from "./Passes/EnvInit.ts";
 import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
-import { getEXPORTID, initializeWorld, PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "./Passes/PTA.ts";
-import { addPTANode, addStackEdges, ensureNodeIDAndGetPTANode, getMutableWorldInstance, getPointees, getSuccessorClosureImmutable, GLOBAL_NODE_MAP, GLOBAL_RESOLUTION_MAP, GLOBAL_RESOLUTION_SKIP_MAP, RemoteNode, StackNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
+import { getEXPORTID, initializeWorld, PTA_HASH_MAP, PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "./Passes/PTA.ts";
+import { addPTANode, addStackEdges, ensureNodeIDAndGetPTANode, ensureNodeIDAndGetStackNode, getImmutableWorldInstance, getMutableWorldInstance, getPointees, getSuccessorClosureImmutable, GLOBAL_NODE_MAP, GLOBAL_RESOLUTION_MAP, GLOBAL_RESOLUTION_SKIP_MAP, RemoteNode, StackNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
 import { handleCallExpression } from "./Passes/PTA_STUFF/PTAHandlers.ts";
 import { GLOBAL_UNAME_PATH_MAP, ProjectFile } from "classes/ProjectFile.ts";
-import { resolveModuleImport } from "#utils";
+import { resolveModuleImport, saveFlowDataToFile, saveRenderTreeDataToFile } from "#utils";
 
 
 // const genersate = _generate.default;
@@ -382,6 +382,7 @@ export default class IRIDIUM_MODULE {
 
   // Start PTA
   performPTA(topLevel: boolean) {
+    PTA_HASH_MAP.clear();
     if (!this.fg)
       debugConfig.logger.throwIriError("Expected fg to be built before PTA...");
 
@@ -390,6 +391,7 @@ export default class IRIDIUM_MODULE {
       const world = this.js3builder.projectFile.uname;
       let expansionLevel = 0;
       while (true) {
+        
         expansionLevel++;
         debugConfig.logger.warn(`Expansion Level: ${expansionLevel}`);
 
@@ -400,7 +402,15 @@ export default class IRIDIUM_MODULE {
 
         initializeWorld(this.js3builder.projectFile.uname, this.fg);
 
-        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
+        // // Collapse Mutable Instances
+        // for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
+        //   if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
+        //   if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
+        //   PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
+        // }
+
+        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) 
+          debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
 
         const worldData = getMutableWorldInstance(world);
 
@@ -431,7 +441,8 @@ export default class IRIDIUM_MODULE {
           PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
         }
 
-        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
+        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) 
+          debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
 
         // Get successor closure
         const remoteNodes =
@@ -446,6 +457,7 @@ export default class IRIDIUM_MODULE {
           break;
         }
 
+        const worldsToRefresh: Set<string> = new Set();
         for (const node of unresolvedRemoteNodes) {
           const importFilePath = GLOBAL_UNAME_PATH_MAP.get(node.world);
           const toResolve = node.FROM;
@@ -467,7 +479,10 @@ export default class IRIDIUM_MODULE {
             if (PTA_WORLD.has(projectFile.uname)) {
               GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
               debugConfig.logger.success(`Skipping cyclic reference: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
-
+              if (node.world !== world) {
+                debugConfig.logger.warn(`Adding cyclic reference "${node.world}" to refresh list`);
+                worldsToRefresh.add(node.world);
+              }
             } else {
               // 2. Constructing JS3
               const js3Builder = new JS3Builder(projectFile);
@@ -488,14 +503,34 @@ export default class IRIDIUM_MODULE {
                 sourceType,
                 debugConfig.cli.projectBase,
               );
+              RESOLUTION_CACHE.set(projectFile.uname, iri_container);
               iri_container.build();
               GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
-              debugConfig.logger.success(`Successfully Resolved: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
+              debugConfig.logger.success(`Successfully Resolved: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}": ${[...PTA_WORLD_CURRMUTABLE_DATA.entries()].map((k) => `${k[0]}=${k[1].length}`).join(",")}`)
+
+              if (node.world !== world) {
+                debugConfig.logger.warn(`Adding "${node.world}" to refresh list`);
+                worldsToRefresh.add(node.world);
+              }
             }
           } catch (e) {
             debugConfig.logger.error(`Failed to resolve: "${toResolve}" from "${importFilePath}"`)
             GLOBAL_RESOLUTION_SKIP_MAP.add(node.id);
           }
+        }
+
+        for (const worldToRefresh of worldsToRefresh) {
+          debugConfig.logger.success(`Refreshing World: ${worldToRefresh}`)
+
+          const moduleToUpdate = RESOLUTION_CACHE.get(worldToRefresh);
+          moduleToUpdate.module.performPTA(false);
+        }
+
+        // Collapse Mutable Instances
+        for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
+          if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
+          if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
+          PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
         }
       }
 
@@ -507,10 +542,28 @@ export default class IRIDIUM_MODULE {
       
       initializeWorld(this.js3builder.projectFile.uname, this.fg);
 
-      if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
       debugConfig.logger.warn(`Completed non-top level analysis: ${world}`);
 
     }
+  }
+
+  saveRenderTree() {
+    const world = this.js3builder.projectFile.uname;
+    const worldData = PTA_WORLD.get(world)
+
+    // Get call closures from top level export
+    const rootNodeID = "TREEROOT";
+    const rootNode = ensureNodeIDAndGetStackNode(worldData, rootNodeID);
+    const closure = getSuccessorClosureImmutable(rootNode)
+    
+    const edges: Map<string, Set<string>> = new Map();
+    
+    for (const n of closure) {
+      const nodeWorld = getImmutableWorldInstance(n.world);
+      edges.set(n.id, nodeWorld.get(n.id))
+    }
+
+    saveRenderTreeDataToFile("RenderTree", edges);
   }
 
   // // Set/Get current BB
@@ -2304,9 +2357,9 @@ export default class IRIDIUM_MODULE {
         }
       }
 
-      if (tag instanceof IV_Identifier)
-        return new IV_JSX(node, tag, props, children);
-      else return new IV_PJSX(node, tag, props, children);
+      if (tag instanceof IV_StringLiteral && PRIMITIVE_TAGS.includes(tag.value)) 
+        return new IV_PJSX(node, tag, props, children);
+      else return new IV_JSX(node, tag, props, children);
     }
   }
 

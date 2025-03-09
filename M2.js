@@ -1,5 +1,4 @@
-import { test1 } from "./M1.js";
+import { M3 } from "./M3.js";
 
-test1;
+export { M3 as M2 };
 
-export const test2 = console.log("test2");

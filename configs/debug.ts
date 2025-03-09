@@ -10,6 +10,7 @@ const config: {
     sourceType: string;
     printModuleGraphPng: boolean;
     savePTAGraph: boolean;
+    saveFlowGraph: boolean;
     enablePlayground: boolean;
     playgroundPort: number;
     projectBase: string;
@@ -28,6 +29,7 @@ const config: {
     sourceType: "unambiguous",
     printModuleGraphPng: false,
     savePTAGraph: false,
+    saveFlowGraph: false,
     enablePlayground: false,
     playgroundPort: 4000,
     projectBase: undefined,

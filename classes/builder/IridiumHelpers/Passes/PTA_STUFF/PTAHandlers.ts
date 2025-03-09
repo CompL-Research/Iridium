@@ -2,7 +2,7 @@ import debugConfig from "#debugConfig";
 import { hashGraph, saveFlowDataToFile, saveFlowDataToGraph } from "#utils";
 import assert from "node:assert";
 import { IV_Identifier, IV_PrivateName } from "../../ALL_AMP/ALL_AMP.ts";
-import { IS_BImport } from "../../ALL_IS/IS_Imports_Exports.ts";
+import { IS_BImport, IS_CImport } from "../../ALL_IS/IS_Imports_Exports.ts";
 import { ISP_ArgSpread, ISP_ObjectMethod } from "../../ALL_RVal/ALL_ISP.ts";
 import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
 import { BB, FunctionReturn } from "../../BB.ts";
@@ -57,6 +57,8 @@ import {
   StringLiteral
 } from "@babel/types";
 import { IV_NumericLiteral } from "../../ALL_RVal/IV_Literals.ts";
+import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
+
 
 // a[f]
 export const handleFieldReference = (
@@ -328,14 +330,8 @@ export const handleBImportNode = (
     : new StackNode(stackID, uname);
   assert(stackNode instanceof StackNode);
   addPTANode(mutableFlowData, stackNode);
-
+  
   const heapID = getHeapQualifiedName("IMPORT", currBBIDx, stackInstOffset);
-  const remoteNode = GLOBAL_NODE_MAP.has(heapID)
-    ? GLOBAL_NODE_MAP.get(heapID)
-    : new RemoteNode(heapID, i.FROM.value, uname);
-
-  assert(remoteNode instanceof RemoteNode);
-  addPTANode(mutableFlowData, remoteNode);
 
   if (GLOBAL_RESOLUTION_MAP.has(heapID)) {
     const resolvedUname = GLOBAL_RESOLUTION_MAP.get(heapID);
@@ -350,6 +346,51 @@ export const handleBImportNode = (
       const [pointees, closures] = getFieldPointees(worldData, exportedNode, field, true);
       pointees.forEach((p) => addPTANode(mutableFlowData, p));
       addStackEdges(mutableFlowData, stackNode, pointees);
+    }
+  } else {
+    const remoteNode = GLOBAL_NODE_MAP.has(heapID)
+      ? GLOBAL_NODE_MAP.get(heapID)
+      : new RemoteNode(heapID, i.FROM.value, uname);
+
+    assert(remoteNode instanceof RemoteNode);
+    addPTANode(mutableFlowData, remoteNode);
+    addSelfLoop(mutableFlowData, remoteNode, true);
+    addStackEdges(mutableFlowData, stackNode, [remoteNode]);
+  }
+};
+
+// import * as local from FROM
+export const handleCImportNode = (
+  uname: string,
+  mutableFlowData: PTAFlowData,
+  i: IS_CImport,
+  currBB: BB,
+  currBBIDx: string,
+  stackInstOffset: number,
+) => {
+  const stackID = getStackQualifiedName(i.local.lookupName(), currBB);
+  const stackNode = GLOBAL_NODE_MAP.has(stackID)
+    ? GLOBAL_NODE_MAP.get(stackID)
+    : new StackNode(stackID, uname);
+  assert(stackNode instanceof StackNode);
+  addPTANode(mutableFlowData, stackNode);
+
+  const heapID = getHeapQualifiedName("IMPORT", currBBIDx, stackInstOffset);
+  const remoteNode = GLOBAL_NODE_MAP.has(heapID)
+    ? GLOBAL_NODE_MAP.get(heapID)
+    : new RemoteNode(heapID, i.FROM.value, uname);
+
+  assert(remoteNode instanceof RemoteNode);
+  addPTANode(mutableFlowData, remoteNode);
+
+  if (GLOBAL_RESOLUTION_MAP.has(heapID)) {
+    const resolvedUname = GLOBAL_RESOLUTION_MAP.get(heapID);
+
+    if (PTA_WORLD.has(resolvedUname)) {
+      const worldData = getMutableWorldInstance(resolvedUname);
+      const exportedNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(resolvedUname));
+      addPTANode(mutableFlowData, exportedNode);
+      addStackEdges(mutableFlowData, stackNode, [exportedNode]);
     }
   } else {
     addSelfLoop(mutableFlowData, remoteNode, true);
@@ -368,7 +409,7 @@ export const handleSetClosureCall = (
   let closureGraph: IRIDIUM_FG = closure.meth.funBody;
   const closureWorld = closure.world;
 
-  let boundaryEnv: PTAFlowData = unionAllPTAFlowData(ensureAndGetMutableWorldInstance(closureWorld));
+  let boundaryEnv: PTAFlowData = unionAllPTAFlowData(getMutableWorldInstance(closureWorld));
 
   PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).push(boundaryEnv);
 
@@ -452,7 +493,7 @@ export const handleOrdinaryFunctionObjectCall = (
 
   const closureWorld = c.world;
 
-  let boundaryEnv: PTAFlowData = unionAllPTAFlowData(ensureAndGetMutableWorldInstance(closureWorld));
+  let boundaryEnv: PTAFlowData = unionAllPTAFlowData(getMutableWorldInstance(closureWorld));
 
   PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).push(boundaryEnv);
 
@@ -477,9 +518,127 @@ export const handleOrdinaryFunctionObjectCall = (
     addPTANode(boundaryEnv, stackNode);
 
     addStackEdges(boundaryEnv, stackNode, objectContext);
+  } else if (!(c.meth instanceof IV_ArrowFunctionExpression)) {
+    const C_THIS_ID = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB);
+    const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
+      ? GLOBAL_NODE_MAP.get(C_THIS_ID)
+      : new StackNode(C_THIS_ID, closureWorld);
+    assert(stackNode instanceof StackNode);
+    addPTANode(boundaryEnv, stackNode);
+
+    const undefID = new IV_Identifier(undefined, "undefined");
+    const undefPointee = handleRVals(
+      closureWorld,
+      boundaryEnv,
+      undefID,
+      currBB,
+      currBBIDx,
+      stackInstOffset,
+    )[0];
+
+    addPTANode(boundaryEnv, undefPointee);
+
+    addStackEdges(boundaryEnv, stackNode, [undefPointee]);
   }
   // PTA Eval with curbed env as eval context
   handleClosureCall(argumentsNode, args.length, calleeArgs, closureWorld, closureGraph, boundaryEnv);
+  boundaryEnv.delete(argumentsNode.id);
+
+  const sinks = closureGraph.sinks();
+  if (sinks.length !== 1)
+    debugConfig.logger.throwIriError(
+      `Sinks length !== 1, found ${sinks.length}`,
+    );
+  const sink = sinks[0];
+  const sinkBB = closureGraph.getBBNode(sink);
+
+  //
+  // Point to all stuff the return can point to
+  //
+  if (!(sinkBB instanceof FunctionReturn)) {
+    debugConfig.logger.throwIriError(
+      `Expected sinks to be Function Returns in closures!!! found ${sinkBB.scope}`,
+    );
+    return undefined
+  };
+  const argLookupName = getStackQualifiedName(
+    sinkBB.arg.lookupName(),
+    sinkBB,
+  );
+
+  PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).pop();
+  return [boundaryEnv, closureWorld, ensureNodeIDAndGetStackNode(boundaryEnv, argLookupName)];
+};
+
+export const handleJSXFunctionObjectCall = (
+  uname: string,
+  mutableFlowData: PTAFlowData,
+  c: OrdinaryFunctionNode | GetClosureNode,
+  args: OrdinaryObjectNode,
+  currBB: BB,
+  currBBIDx: string,
+  stackInstOffset: number,
+  objectContext: Array<PTAFlowNode> | undefined,
+): [PTAFlowData, string, StackNode] => {
+  let calleeArgs: I_Function_params;
+  if (c.meth instanceof ISP_ObjectMethod) calleeArgs = c.meth.params;
+  else calleeArgs = c.meth.func.params;
+
+  let closureGraph: IRIDIUM_FG;
+  if (c.meth instanceof ISP_ObjectMethod) closureGraph = c.meth.funBody;
+  else closureGraph = c.meth.func.funBody;
+
+  const closureWorld = c.world;
+
+  let boundaryEnv: PTAFlowData = unionAllPTAFlowData(getMutableWorldInstance(closureWorld));
+
+  PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).push(boundaryEnv);
+
+  // Add arguments node
+  const argumentsNode = initializeJSXArgumentsObj(
+    closureWorld,
+    args,
+    calleeArgs.length,
+    boundaryEnv,
+    mutableFlowData,
+    currBB,
+    currBBIDx,
+    stackInstOffset,
+  );
+
+  if (objectContext) {
+    const C_THIS_ID = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB);
+    const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
+      ? GLOBAL_NODE_MAP.get(C_THIS_ID)
+      : new StackNode(C_THIS_ID, closureWorld);
+    assert(stackNode instanceof StackNode);
+    addPTANode(boundaryEnv, stackNode);
+
+    addStackEdges(boundaryEnv, stackNode, objectContext);
+  } else if (!(c.meth instanceof IV_ArrowFunctionExpression)) {
+    const C_THIS_ID = getStackQualifiedName(IV_CTHIS.lookupName(), closureGraph.rootBB);
+    const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
+      ? GLOBAL_NODE_MAP.get(C_THIS_ID)
+      : new StackNode(C_THIS_ID, closureWorld);
+    assert(stackNode instanceof StackNode);
+    addPTANode(boundaryEnv, stackNode);
+
+    const undefID = new IV_Identifier(undefined, "undefined");
+    const undefPointee = handleRVals(
+      closureWorld,
+      boundaryEnv,
+      undefID,
+      currBB,
+      currBBIDx,
+      stackInstOffset,
+    )[0];
+
+    addPTANode(boundaryEnv, undefPointee);
+
+    addStackEdges(boundaryEnv, stackNode, [undefPointee]);
+  }
+  // PTA Eval with curbed env as eval context
+  handleClosureCall(argumentsNode, 1, calleeArgs, closureWorld, closureGraph, boundaryEnv);
   boundaryEnv.delete(argumentsNode.id);
 
   const sinks = closureGraph.sinks();
@@ -574,6 +733,63 @@ export const initializeArgumentsObj = (
       }
     }
   }
+
+  // Do argument matching
+  // case 1: supplied args === expected args
+  // case 2: supplied args > expected args
+  // case 3: supplied args < expected args
+  const undefID = new IV_Identifier(undefined, "undefined");
+  const undefPointee = handleRVals(
+    remoteWorld,
+    boundaryEnv,
+    undefID,
+    currBB,
+    currBBIDx,
+    stackInstOffset,
+  )[0];
+
+  addPTANode(boundaryEnv, undefPointee);
+
+  if (suppliedArgs < expectedArgsLen) {
+    const edgesHolder = boundaryEnv.get(argumentsNode.id)
+    for (let i = suppliedArgs; i <= expectedArgsLen; i++) {
+      edgesHolder.add(
+        PTAEdge.constructHeapEdge(
+          argumentsNode.id,
+          "" + i,
+          "E",
+          undefPointee.id,
+        ).getPTAEdge(),
+      );
+    }
+  }
+  return argumentsNode;
+}
+
+export const initializeJSXArgumentsObj = (
+  remoteWorld: string,
+  callerArgs: OrdinaryObjectNode,
+  expectedArgsLen: number,
+  boundaryEnv: PTAFlowData,
+  pointeeEnv: PTAFlowData,
+  currBB: BB,
+  currBBIDx: string,
+  stackInstOffset: number,
+): OrdinaryArrayNode => {
+  const argsID = getHeapQualifiedName(
+    "argumentsObj",
+    currBBIDx,
+    stackInstOffset,
+  );
+
+  const argumentsNode = GLOBAL_NODE_MAP.has(argsID)
+    ? GLOBAL_NODE_MAP.get(argsID)
+    : new OrdinaryArrayNode(argsID, remoteWorld);
+  assert(argumentsNode instanceof OrdinaryArrayNode);
+  addPTANode(boundaryEnv, argumentsNode);
+
+  const suppliedArgs = 1;
+  handleFieldAssignmentStatement(boundaryEnv, [argumentsNode], ["" + 0], [callerArgs], true, currBB, currBBIDx, stackInstOffset);
 
   // Do argument matching
   // case 1: supplied args === expected args
@@ -766,7 +982,85 @@ export const handleCallExpression = (
       }
       res.add(c);
     } else {
-      console.warn(`PTA is skipping analysis of non-callable object: ${c.id}`);
+      debugConfig.logger.error(`PTA is skipping analysis of non-callable object: ${c.id}`);
+    }
+  }
+
+  for (const [closureResult, closureWorld, returnObj] of closureResults) {
+    const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(closureWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length > 0;
+
+    if (!hasMutableWorld) {
+      debugConfig.logger.throwIriError("TODO: // Update a world with no instance");
+    } else {
+      const hasMutableWorld = PTA_WORLD_CURRMUTABLE_DATA.has(closureWorld) && PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length > 0;
+
+      // World already has an instance
+      if (!hasMutableWorld) debugConfig.logger.throwIriError("An open world must have a mutable data active");
+
+      const mutableWorldData = PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld)[PTA_WORLD_CURRMUTABLE_DATA.get(closureWorld).length - 1];
+
+      const pointees = getPointees(closureResult, returnObj);
+
+      for (const p of pointees) {
+        if (p.world !== closureWorld) {
+          addPTANode(mutableWorldData, p);
+        }
+      }
+
+      pointees.forEach((p) => res.add(p))
+      unionAllMutablePTAFlowData(mutableWorldData, closureResult);
+    }
+  }
+  res.forEach((p) => {
+    if (p.world !== uname) {
+      addPTANode(mutableFlowData, p);
+    }
+  })
+  return res;
+};
+
+export const handleJSXCallExpression = (
+  uname: string,
+  mutableFlowData: PTAFlowData,
+  callees: Array<PTAFlowNode> | Set<PTAFlowNode>,
+  args: OrdinaryObjectNode,
+  currBB: BB,
+  currBBIDx: string,
+  stackInstOffset: number,
+  objectContext: Array<PTAFlowNode> | undefined,
+): Set<PTAFlowNode> => {
+  const res: Set<PTAFlowNode> = new Set();
+  const closureResults: Array<[PTAFlowData, string, StackNode]> = [];
+  for (const c of callees) {
+    if (c instanceof OrdinaryFunctionNode) {
+      const [flowData, world, returnNode] = handleJSXFunctionObjectCall(
+        uname,
+        mutableFlowData,
+        c,
+        args,
+        currBB,
+        currBBIDx,
+        stackInstOffset,
+        objectContext
+      )
+      closureResults.push([flowData, world, returnNode]);
+    } else if (c instanceof GetClosureNode) {
+      const [flowData, world, returnNode] = handleJSXFunctionObjectCall(
+        uname,
+        mutableFlowData,
+        c,
+        args,
+        currBB,
+        currBBIDx,
+        stackInstOffset,
+        objectContext
+      )
+      closureResults.push([flowData, world, returnNode]);
+    } else if (c instanceof RemoteNode || c instanceof UnknownNode) {
+      res.add(args);
+      res.add(c);
+    } else {
+      debugConfig.logger.error(`PTA is skipping analysis of non-callable object: ${c.id}`);
     }
   }
 
