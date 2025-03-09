@@ -28,6 +28,7 @@ import {
 } from "./configs/printUsage.ts";
 import { projectStats } from "./configs/projectStats.ts";
 import { PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "classes/builder/IridiumHelpers/Passes/PTA.ts";
+import { printPTAFlowData } from "classes/builder/IridiumHelpers/Passes/PTA_STUFF/PTAFlowData.ts";
 
 const VERSION = "0.5a";
 const directories = ["./classes", "./configs", "./docs", "./playground/src"];
@@ -106,16 +107,18 @@ function iri(filePath) {
     iri_container.build(true);
 
     for(const [key, values] of PTA_WORLD_CURRMUTABLE_DATA.entries()) {
-      if (values.length !== 0) debugConfig.logger.throwIriError(`Expected world stack to be 0 or 1, found: ${values.length}`);
+      if (values.length !== 0) debugConfig.logger.throwIriError(`Expected world stack to be 0, found: ${values.length}`);
     }
-
-    iri_container.module.saveRenderTree()
 
     if (debugConfig.cli.savePTAGraph) {
       for(const [key, value] of PTA_WORLD.entries()) {
         saveFlowDataToFile(key, value);
+        // debugConfig.logger.warn(`PTA Flow Data for ${key}`);
+        // printPTAFlowData(value);
       }
     }
+
+    iri_container.module.saveRenderTree()
   } catch (e) {
     debugConfig.logger.throwIriError(`Failed to generate Iridium: ${e}`);
     process.exit(1);

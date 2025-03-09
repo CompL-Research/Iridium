@@ -18,7 +18,7 @@ import { IV_ClassExpression } from "../../ALL_RVal/IV_ClassExpression.ts";
 //
 export const printPTAFlowData = (data: PTAFlowData) => {
   for (const ele of data) {
-    console.warn(`${ele[0]} --> [${[...ele[1]].join(",")}]`);
+    debugConfig.logger.error(`${ele[0]} --> [${[...ele[1]].join(",")}]`);
   }
 };
 

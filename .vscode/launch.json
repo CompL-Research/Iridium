@@ -97,9 +97,8 @@
                 "--import=tsx",
                 "/home/meetesh/wd/Iridium/iridium.ts",
                 "iri",
-                "./M1.js",
-                ".",
-                "-g"
+                "./temp/frontendViz/src/App.js",
+                "./temp/frontendViz/"
             ],
             "outFiles": [
                 "${workspaceFolder}/classes/**/*.ts",

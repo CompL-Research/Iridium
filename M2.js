@@ -1,4 +1,3 @@
-import { M3 } from "./M3.js";
+export * from "./M3.js";
 
-export { M3 as M2 };
-
+export const M2 = () => <div> M2 Temp </div>

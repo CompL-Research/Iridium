@@ -56,7 +56,6 @@ import {
   handleCallExpression,
   handleFieldAssignmentStatement,
   handleFieldReference,
-  handleJSXCallExpression,
   handleObjectDestructuringAssignmentStatement,
   handleSimpleAssignmentStatement,
 } from "./PTAHandlers.ts";
@@ -949,7 +948,7 @@ export const handleRVals = (
     handleFieldAssignmentStatement(mutableFlowData, [argsNode], ["children"], childrenNodes, true, currBB, currBBIDx, stackInstOffset);
 
     // evalRes
-    const evalRes = handleJSXCallExpression(uname, mutableFlowData, componentPointees, argsNode, currBB, currBBIDx, stackInstOffset, undefined)
+    const evalRes = handleCallExpression(uname, mutableFlowData, componentPointees, argsNode, currBB, currBBIDx, stackInstOffset, undefined)
 
     handleFieldAssignmentStatement(mutableFlowData, [JSXObj], ["^render^"], evalRes, true, currBB, currBBIDx, stackInstOffset);
 

@@ -319,8 +319,46 @@ import { getEXPORTID, initializeWorld, PTA_HASH_MAP, PTA_WORLD, PTA_WORLD_CURRMU
 import { addPTANode, addStackEdges, ensureNodeIDAndGetPTANode, ensureNodeIDAndGetStackNode, getImmutableWorldInstance, getMutableWorldInstance, getPointees, getSuccessorClosureImmutable, GLOBAL_NODE_MAP, GLOBAL_RESOLUTION_MAP, GLOBAL_RESOLUTION_SKIP_MAP, RemoteNode, StackNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
 import { handleCallExpression } from "./Passes/PTA_STUFF/PTAHandlers.ts";
 import { GLOBAL_UNAME_PATH_MAP, ProjectFile } from "classes/ProjectFile.ts";
-import { resolveModuleImport, saveFlowDataToFile, saveRenderTreeDataToFile } from "#utils";
+import { popSet, resolveModuleImport, saveFlowDataToFile, saveRenderTreeDataToFile } from "#utils";
+import { Graph } from "#graphlib";
 
+
+const IMPORT_TREE = new Graph({ multigraph: true })
+
+class Queue {
+  items = []
+  constructor() {
+    this.items = [];
+  }
+
+  // Add an element to the end of the queue
+  enqueue(item) {
+    this.items.push(item);
+  }
+
+  // Remove and return the element at the front of the queue
+  dequeue() {
+    if (this.isEmpty()) {
+      return null;
+    }
+    return this.items.shift();
+  }
+
+  // Peek at the front element without removing it
+  front() {
+    return this.isEmpty() ? null : this.items[0];
+  }
+
+  // Check if the queue is empty
+  isEmpty() {
+    return this.items.length === 0;
+  }
+
+  // Get the size of the queue
+  size() {
+    return this.items.length;
+  }
+}
 
 // const genersate = _generate.default;
 export const RESOLUTION_CACHE: Map<string, I_Container> = new Map();
@@ -391,7 +429,8 @@ export default class IRIDIUM_MODULE {
       const world = this.js3builder.projectFile.uname;
       let expansionLevel = 0;
       while (true) {
-        
+        const start = performance.now();
+
         expansionLevel++;
         debugConfig.logger.warn(`Expansion Level: ${expansionLevel}`);
 
@@ -401,13 +440,6 @@ export default class IRIDIUM_MODULE {
         }
 
         initializeWorld(this.js3builder.projectFile.uname, this.fg);
-
-        // // Collapse Mutable Instances
-        // for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
-        //   if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
-        //   if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
-        //   PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
-        // }
 
         if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) 
           debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
@@ -454,15 +486,18 @@ export default class IRIDIUM_MODULE {
           debugConfig.logger.warn(
             `Concluding search early: ${expansionLevel}`
           );
+          const end = performance.now();
+          debugConfig.logger.success(`Execution time: ${end - start} ms`);
+  
           break;
         }
 
-        const worldsToRefresh: Set<string> = new Set();
+        // const worldsToRefresh: Set<string> = new Set();
         for (const node of unresolvedRemoteNodes) {
           const importFilePath = GLOBAL_UNAME_PATH_MAP.get(node.world);
           const toResolve = node.FROM;
           try {
-            debugConfig.logger.warn(`Starting Resolution of ${toResolve} from "${importFilePath}"`)
+            // debugConfig.logger.warn(`Starting Resolution of ${toResolve} from "${importFilePath}"`)
 
             const filePath = resolveModuleImport(toResolve, importFilePath, debugConfig.cli.projectBase);
 
@@ -478,11 +513,10 @@ export default class IRIDIUM_MODULE {
 
             if (PTA_WORLD.has(projectFile.uname)) {
               GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
-              debugConfig.logger.success(`Skipping cyclic reference: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
-              if (node.world !== world) {
-                debugConfig.logger.warn(`Adding cyclic reference "${node.world}" to refresh list`);
-                worldsToRefresh.add(node.world);
-              }
+
+              if (!IMPORT_TREE.hasNode(node.world)) IMPORT_TREE.setNode(node.world);
+              IMPORT_TREE.setEdge(node.world, projectFile.uname, "imports", "imports");
+
             } else {
               // 2. Constructing JS3
               const js3Builder = new JS3Builder(projectFile);
@@ -506,12 +540,15 @@ export default class IRIDIUM_MODULE {
               RESOLUTION_CACHE.set(projectFile.uname, iri_container);
               iri_container.build();
               GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
-              debugConfig.logger.success(`Successfully Resolved: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}": ${[...PTA_WORLD_CURRMUTABLE_DATA.entries()].map((k) => `${k[0]}=${k[1].length}`).join(",")}`)
+              // debugConfig.logger.success(`Successfully Resolved: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}": ${[...PTA_WORLD_CURRMUTABLE_DATA.entries()].map((k) => `${k[0]}=${k[1].length}`).join(",")}`)
+              
+              if (!IMPORT_TREE.hasNode(node.world)) IMPORT_TREE.setNode(node.world);
+              IMPORT_TREE.setEdge(node.world, projectFile.uname, "imports", "imports");
 
-              if (node.world !== world) {
-                debugConfig.logger.warn(`Adding "${node.world}" to refresh list`);
-                worldsToRefresh.add(node.world);
-              }
+              // if (node.world !== world) {
+              //   debugConfig.logger.warn(`Adding "${node.world}" to refresh list`);
+              //   // worldsToRefresh.add(node.world);
+              // }
             }
           } catch (e) {
             debugConfig.logger.error(`Failed to resolve: "${toResolve}" from "${importFilePath}"`)
@@ -519,30 +556,45 @@ export default class IRIDIUM_MODULE {
           }
         }
 
-        for (const worldToRefresh of worldsToRefresh) {
-          debugConfig.logger.success(`Refreshing World: ${worldToRefresh}`)
-
-          const moduleToUpdate = RESOLUTION_CACHE.get(worldToRefresh);
-          moduleToUpdate.module.performPTA(false);
-        }
-
+        const workQueue: Queue = new Queue();
+        const refreshed: Set<string> = new Set();
+        IMPORT_TREE.sinks().forEach((s) => workQueue.enqueue(s));
+        do {
+          const worldToRefresh = workQueue.dequeue();
+          if (worldToRefresh !== world) {
+            // debugConfig.logger.error(`Refreshing World: ${worldToRefresh}`);
+            const moduleToUpdate = RESOLUTION_CACHE.get(worldToRefresh);
+            moduleToUpdate.module.performPTA(false);
+            refreshed.add(worldToRefresh);
+            const predecessors = IMPORT_TREE.predecessors(worldToRefresh);
+            if (predecessors) {
+              for (const pred of predecessors) {
+                if (!refreshed.has(pred)) workQueue.enqueue(pred);
+              }
+            }
+          }
+        } while (!workQueue.isEmpty());
+        
         // Collapse Mutable Instances
         for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
           if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
           if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
           PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
         }
+
+        const end = performance.now();
+        debugConfig.logger.success(`Execution time: ${end - start} ms`);
       }
 
-      debugConfig.logger.warn(`Completed top level analysis: ${world}`);
+      // debugConfig.logger.warn(`Completed top level analysis: ${world}`);
 
     } else {
       const world = this.js3builder.projectFile.uname;
-      debugConfig.logger.warn(`Starting non-top level analysis: ${world}`);
+      // debugConfig.logger.warn(`Starting non-top level analysis: ${world}`);
       
       initializeWorld(this.js3builder.projectFile.uname, this.fg);
 
-      debugConfig.logger.warn(`Completed non-top level analysis: ${world}`);
+      // debugConfig.logger.warn(`Completed non-top level analysis: ${world}`);
 
     }
   }

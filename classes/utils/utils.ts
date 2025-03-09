@@ -180,7 +180,25 @@ export function resolveModuleImport(
   const result = ts.resolveModuleName(importPath, currentFile, options, ts.sys);
 
   if (result.resolvedModule) {
-    return result.resolvedModule.resolvedFileName;
+    const { resolvedFileName, extension } = result.resolvedModule;
+
+    // Prioritize JS/TS files over .d.ts
+    if (extension !== ts.Extension.Dts) {
+      return resolvedFileName;
+    }
+
+    // Attempt to find the corresponding JS/TS file
+    const possibleExtensions = ['.js', '.jsx', '.ts', '.tsx', '/index.js'];
+    for (const ext of possibleExtensions) {
+      const jsFile = resolvedFileName.replace(/\.d\.ts$/, ext);
+      if (ts.sys.fileExists(jsFile)) {
+        return jsFile;
+      }
+    }
+
+    // Fallback to the .d.ts file if nothing else is found
+    return resolvedFileName;
+
   } else {
     debugConfig.logger.error(
       `Failed to resolve import: ${importPath} @ ${currentFile}: ${result}`,

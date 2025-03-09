@@ -42,9 +42,13 @@ import {
   unionAllPTAFlowData
 } from "./PTA_STUFF/PTAFlowData.ts";
 import {
+  handleAExportNode,
   handleArrayDestructuringAssignmentStatement,
+  handleBExportNode,
   handleBImportNode,
+  handleCExportNode,
   handleCImportNode,
+  handleEExportNode,
   handleFieldAssignmentStatement,
   handleFieldReference,
   handleObjectDestructuringAssignmentStatement,
@@ -297,38 +301,15 @@ export const flowFunction = (
         );
       }
     } else if (i instanceof IS_AExport) {
-      // export default ID
-      const localID = getStackQualifiedName(i.id.lookupName(), currBB);
-      const localNode = ensureNodeIDAndGetStackNode(mutableFlowData, localID);
-      const pointees = getPointees(mutableFlowData, localNode);
-
-      const exportNode = ensureNodeIDAndGetPTANode(mutableFlowData, getEXPORTID(uname));
-
-      let field: string = "default";
-
-      addHeapEdges(mutableFlowData, exportNode, field, pointees, true);
+      handleAExportNode(uname, mutableFlowData, i, currBB);
     } else if (i instanceof IS_BExport) {
-      // Export local as remote
-      const localID = getStackQualifiedName(i.local.lookupName(), currBB);
-      const localNode = ensureNodeIDAndGetStackNode(mutableFlowData, localID);
-      const pointees = getPointees(mutableFlowData, localNode);
-
-      const exportNode = ensureNodeIDAndGetPTANode(mutableFlowData, getEXPORTID(uname));
-
-      let field: string;
-      if (i.remote instanceof IV_Identifier) field = i.remote.lookupName();
-      else field = i.remote.value;
-
-      addHeapEdges(mutableFlowData, exportNode, field, pointees, true);
+      handleBExportNode(uname, mutableFlowData, i, currBB);
     } else if (i instanceof IS_CExport) {
-      debugConfig.logger.throwIriError("PTA TODO: IS_CExport");
-      // handleCExportNode(nextGraph, i, currBB, currBBIDx, stackInstOffset);
+      handleCExportNode(uname, mutableFlowData, i, currBB, currBBIDx, stackInstOffset);
     } else if (i instanceof IS_DExport) {
       debugConfig.logger.throwIriError("PTA TODO: IS_DExport");
-      // debugConfig.logger.throwIriError("PTA: IS_DExport not yet supported");
     } else if (i instanceof IS_EExport) {
-      debugConfig.logger.throwIriError("PTA TODO: IS_EExport");
-      // handleEExportNode(nextGraph, i, currBB, currBBIDx, stackInstOffset);
+      handleEExportNode(uname, mutableFlowData, i, currBB, currBBIDx, stackInstOffset);
     } else if (i instanceof IS_Noop) {
       /* NOOP */
     } else if (i instanceof IS_AImport) {
