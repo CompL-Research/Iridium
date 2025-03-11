@@ -29,6 +29,7 @@ import {
 import { projectStats } from "./configs/projectStats.ts";
 import { PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "classes/builder/IridiumHelpers/Passes/PTA.ts";
 import { printPTAFlowData } from "classes/builder/IridiumHelpers/Passes/PTA_STUFF/PTAFlowData.ts";
+import { RESOLUTION_CACHE } from "classes/builder/IridiumHelpers/IRIDIUM.ts";
 
 const VERSION = "0.5a";
 const directories = ["./classes", "./configs", "./docs", "./playground/src"];
@@ -104,6 +105,7 @@ function iri(filePath) {
       sourceType,
       debugConfig.cli.projectBase,
     );
+    RESOLUTION_CACHE.set(projectFile.uname, iri_container);
     iri_container.build(true);
 
     for(const [key, values] of PTA_WORLD_CURRMUTABLE_DATA.entries()) {

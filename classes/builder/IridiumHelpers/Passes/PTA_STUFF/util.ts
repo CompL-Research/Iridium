@@ -7,6 +7,9 @@ import { LiteralNode, PTAFlowNode } from "./PTAFlowData.ts";
 //
 export const getStackQualifiedName = (lookupID: string, currBB: BB): string => {
   const declaredEnv = currBB.env.findEnvContaining(lookupID);
+  if (!declaredEnv) {
+    console.error(`declared Env not found for: ${lookupID}`);
+  }
   return "ENV" + declaredEnv.idx + "$" + lookupID;
 };
 

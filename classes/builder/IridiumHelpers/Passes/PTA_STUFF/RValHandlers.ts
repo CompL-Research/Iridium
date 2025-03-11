@@ -10,7 +10,7 @@ import { IV_ASSIGNABLE } from "../../ALL_RVal/ALL_RVal.ts";
 import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpression.ts";
 import { IV_ArrPatAssn, IV_MemberAssn, IV_ObjPatAssn, IV_SimpleAssn, IV_ThisAssn } from "../../ALL_RVal/IV_Assignment.ts";
 import { IV_ABINOP, IV_BBINOP, IV_CBINOP, IV_DBINOP, IV_EBINOP, IV_FBINOP } from "../../ALL_RVal/IV_Binop.ts";
-import { IV_Call } from "../../ALL_RVal/IV_Call.ts";
+import { IV_Call, IV_ImportCall } from "../../ALL_RVal/IV_Call.ts";
 import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
 import {
   IV_BigIntLiteral,
@@ -27,6 +27,7 @@ import { BB } from "../../BB.ts";
 import {
   addHeapEdges,
   addPTANode,
+  addSelfLoop,
   ClassNode,
   CSepNode,
   ensureNodeIDAndGetPTANode,
@@ -65,7 +66,7 @@ import {
   getStackQualifiedName,
 } from "./util.ts";
 import { IV_Regexp } from "../../ALL_RVal/IV_Regexp.ts";
-import { IV_TemplateLiteral } from "../../ALL_RVal/IV_Templates.ts";
+import { IV_TaggedTemplateCall, IV_TemplateLiteral } from "../../ALL_RVal/IV_Templates.ts";
 import { IV_NewExpression } from "../../ALL_RVal/IV_NewExpression.ts";
 import { IV_ClassExpression } from "../../ALL_RVal/IV_ClassExpression.ts";
 import { IV_ConditionalExpression } from "../../ALL_RVal/IV_ConditionalExpression.ts";
@@ -73,12 +74,14 @@ import { IV_FJSX, IV_JSX, IV_PJSX } from "../../ALL_RVal/IV_JSX.ts";
 import { IV_ArrayExpression } from "../../ALL_RVal/IV_ArrayExpression.ts";
 import { IV_AUNOP, IV_BUNOP, IV_CUNOP, IV_DUNOP } from "../../ALL_RVal/IV_Unop.ts";
 import { IV_UpdateExpression } from "../../ALL_RVal/IV_UpdateExpression.ts";
+import { IV_ModuleMeta, IV_NewTarget } from "../../ALL_RVal/IV_META.ts";
+import { IV_InIterator, IV_OfIterator, IV_LoopNext, IV_HasLoopNext } from "../../ALL_RVal/IV_LoopIterators.ts";
+import { UnknownResultObj } from "../PTA-UOW/PTA/nodes.ts";
 
 // const assert = (val) => {
 //   if (!val) {
 //     console.log("Assertion Failed");
 //   }
-  
 // }
 
 export const dissernProps = (
@@ -177,6 +180,7 @@ export const handleRVals = (
       : new LiteralNode(ID, rVal, uname);
     assert(node instanceof LiteralNode);
     addPTANode(mutableFlowData, node);
+    node.world = uname;
     return [node];
   } else if (rVal instanceof IV_BigIntLiteral) {
     const ID = rVal.lookupName();
@@ -185,6 +189,7 @@ export const handleRVals = (
       : new LiteralNode(ID, rVal, uname);
     assert(node instanceof LiteralNode);
     addPTANode(mutableFlowData, node);
+    node.world = uname;
     return [node];
   } else if (rVal instanceof IV_StringLiteral) {
     const ID = rVal.lookupName();
@@ -192,6 +197,7 @@ export const handleRVals = (
       ? GLOBAL_NODE_MAP.get(ID)
       : new LiteralNode(ID, rVal, uname);
     assert(node instanceof LiteralNode);
+    node.world = uname;
     addPTANode(mutableFlowData, node);
     return [node];
   } else if (rVal instanceof IV_NumericLiteral) {
@@ -200,6 +206,7 @@ export const handleRVals = (
       ? GLOBAL_NODE_MAP.get(ID)
       : new LiteralNode(ID, rVal, uname);
     assert(node instanceof LiteralNode);
+    node.world = uname;
     addPTANode(mutableFlowData, node);
     return [node];
   } else if (rVal instanceof IV_NullLiteral) {
@@ -208,6 +215,7 @@ export const handleRVals = (
       ? GLOBAL_NODE_MAP.get(ID)
       : new LiteralNode(ID, rVal, uname);
     assert(node instanceof LiteralNode);
+    node.world = uname;
     addPTANode(mutableFlowData, node);
     return [node];
   } else if (rVal instanceof IV_BooleanLiteral) {
@@ -216,13 +224,18 @@ export const handleRVals = (
       ? GLOBAL_NODE_MAP.get(ID)
       : new LiteralNode(ID, rVal, uname);
     assert(node instanceof LiteralNode);
+    node.world = uname;
     addPTANode(mutableFlowData, node);
     return [node];
   }
 
   // t_IV_Regexp
   else if (rVal instanceof IV_Regexp) {
-    debugConfig.logger.throwIriError("TODO: Handle IV_Regexp");
+    const ID = getHeapQualifiedName("IV_Regexp", currBBIDx, stackInstOffset);
+    const resObj = new UnknownNode(ID, uname);
+    addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
+    return [resObj];
   }
 
   // t_IV_Templates
@@ -230,32 +243,52 @@ export const handleRVals = (
     const ID = getHeapQualifiedName("IV_TemplateLiteral", currBBIDx, stackInstOffset);
     const resObj = new UnknownNode(ID, uname);
     addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
     return [resObj];
-
-    // debugConfig.logger.throwIriError("TODO: Handle IV_TemplateLiteral");
   }
 
-  // // t_IV_Call
-  // else if (rVal instanceof IV_ImportCall) {
-  //   const resObj = new UnknownResultObj(
-  //     getHeapQualifiedName("IV_ImportCall", currBBIDx, stackInstOffset),
-  //   );
-  //   nextGraph.declareNode(resObj);
-  //   return [resObj];
-  // }
+  // t_IV_TaggedTemplates
+  else if (rVal instanceof IV_TaggedTemplateCall) {
+    const ID = getHeapQualifiedName("IV_TaggedTemplateCall", currBBIDx, stackInstOffset);
+    const resObj = new UnknownNode(ID, uname);
+    addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
+    return [resObj];
+  }
+
+  // t_IV_Call
+  else if (rVal instanceof IV_ImportCall) {
+    const ID = getHeapQualifiedName("IV_ImportCall", currBBIDx, stackInstOffset);
+    const resObj = new UnknownNode(ID, uname);
+    addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
+    return [resObj];
+    // const resObj = new UnknownResultObj(
+    //   getHeapQualifiedName("IV_ImportCall", currBBIDx, stackInstOffset),
+    // );
+    // nextGraph.declareNode(resObj);
+    // return [resObj];
+  }
   else if (rVal instanceof IV_Call) {
     const ID = getStackQualifiedName(rVal.callee.lookupName(), currBB);
     const stackNode = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
       : new StackNode(ID, uname);
     assert(stackNode instanceof StackNode);
+    addPTANode(mutableFlowData, stackNode);
 
     const callees = getPointees(mutableFlowData, stackNode);
 
-    let calleeContext: Array<PTAFlowNode>;
+    let calleeContext: Array<PTAFlowNode> | Set<PTAFlowNode>;
 
     if (rVal.staticThis) {
-      calleeContext = [...callees];
+      const ID = getStackQualifiedName(rVal.context, currBB);
+      const contextStackNode = GLOBAL_NODE_MAP.has(ID)
+        ? GLOBAL_NODE_MAP.get(ID)
+        : new StackNode(ID, uname);
+      assert(contextStackNode instanceof StackNode);
+      addPTANode(mutableFlowData, contextStackNode);
+      calleeContext = getPointees(mutableFlowData, contextStackNode);
     } else {
       calleeContext = undefined;
     }
@@ -286,20 +319,20 @@ export const handleRVals = (
   //   return [resObj];
   // }
 
-  // // t_IV_META
-  // else if (rVal instanceof IV_ModuleMeta) {
-  //   const resObj = new UnknownResultObj(
-  //     getHeapQualifiedName("IV_ModuleMeta", currBBIDx, stackInstOffset),
-  //   );
-  //   nextGraph.declareNode(resObj);
-  //   return [resObj];
-  // } else if (rVal instanceof IV_NewTarget) {
-  //   const resObj = new UnknownResultObj(
-  //     getHeapQualifiedName("IV_NewTarget", currBBIDx, stackInstOffset),
-  //   );
-  //   nextGraph.declareNode(resObj);
-  //   return [resObj];
-  // }
+  // t_IV_META
+  else if (rVal instanceof IV_ModuleMeta) {
+    const ID = getHeapQualifiedName("IV_ModuleMeta", currBBIDx, stackInstOffset);
+    const resObj = new UnknownNode(ID, uname);
+    addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
+    return [resObj];
+  } else if (rVal instanceof IV_NewTarget) {
+    const ID = getHeapQualifiedName("IV_NewTarget", currBBIDx, stackInstOffset);
+    const resObj = new UnknownNode(ID, uname);
+    addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
+    return [resObj];
+  }
 
   // // t_IV_YIELD_AWAIT
   // else if (rVal instanceof IV_YIELD) {
@@ -328,26 +361,31 @@ export const handleRVals = (
     const ID = getHeapQualifiedName("IV_ABINOP", currBBIDx, stackInstOffset);
     const resObj = new UnknownNode(ID, uname);
     addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
     return [resObj];
   } else if (rVal instanceof IV_BBINOP) {
     const ID = getHeapQualifiedName("IV_BBINOP", currBBIDx, stackInstOffset);
     const resObj = new UnknownNode(ID, uname);
     addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
     return [resObj];
   } else if (rVal instanceof IV_CBINOP) {
     const ID = getHeapQualifiedName("IV_CBINOP", currBBIDx, stackInstOffset);
     const resObj = new UnknownNode(ID, uname);
     addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
     return [resObj];
   } else if (rVal instanceof IV_DBINOP) {
     const ID = getHeapQualifiedName("IV_DBINOP", currBBIDx, stackInstOffset);
     const resObj = new UnknownNode(ID, uname);
     addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
     return [resObj];
   } else if (rVal instanceof IV_EBINOP) {
     const ID = getHeapQualifiedName("IV_EBINOP", currBBIDx, stackInstOffset);
     const resObj = new UnknownNode(ID, uname);
     addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
     return [resObj];
   } 
   else if (rVal instanceof IV_FBINOP) {
@@ -357,6 +395,7 @@ export const handleRVals = (
       : new LiteralNode(trueID, new IV_BooleanLiteral(undefined, true), uname);
     assert(trueNode instanceof LiteralNode);
     assert(trueNode.node instanceof IV_BooleanLiteral);
+    trueNode.world = uname;
     addPTANode(mutableFlowData, trueNode);
 
     const falseID = "false";
@@ -365,6 +404,7 @@ export const handleRVals = (
       : new LiteralNode(falseID, new IV_BooleanLiteral(undefined, false), uname);
     assert(falseNode instanceof LiteralNode);
     assert(falseNode.node instanceof IV_BooleanLiteral);
+    falseNode.world = uname;
     addPTANode(mutableFlowData, falseNode);
 
     return [trueNode, falseNode];
@@ -380,6 +420,9 @@ export const handleRVals = (
       currBBIDx,
       stackInstOffset,
     );
+  if (res.length === 0) 
+    debugConfig.logger.throwIriError("RValPointees can never be zero");
+
     const ID = getStackQualifiedName(rVal.LVal.lookupName(), currBB);
     handleSimpleAssignmentStatement(uname, mutableFlowData, ID, res);
     return res;
@@ -394,7 +437,9 @@ export const handleRVals = (
       currBBIDx,
       stackInstOffset,
     );
-
+    if (res.length === 0) 
+      debugConfig.logger.throwIriError("RValPointees can never be zero");
+  
     const LVal = rVal.LVal;
 
     const receiverID = getStackQualifiedName(LVal.object.lookupName(), currBB);
@@ -430,7 +475,9 @@ export const handleRVals = (
       currBBIDx,
       stackInstOffset,
     );
-
+    if (res.length === 0) 
+      debugConfig.logger.throwIriError("RValPointees can never be zero");
+  
     const LVal = rVal.LVal;
 
     const receiverID = getStackQualifiedName(IV_This.lookupName(), currBB);
@@ -464,6 +511,9 @@ export const handleRVals = (
       currBBIDx,
       stackInstOffset,
     );
+    if (RValPointees.length === 0) 
+      debugConfig.logger.throwIriError("RValPointees can never be zero");
+  
     handleArrayDestructuringAssignmentStatement(
       uname,
       mutableFlowData,
@@ -483,6 +533,9 @@ export const handleRVals = (
       currBBIDx,
       stackInstOffset,
     );
+    if (RValPointees.length === 0) 
+      debugConfig.logger.throwIriError("RValPointees can never be zero");
+
     handleObjectDestructuringAssignmentStatement(
       uname,
       mutableFlowData,
@@ -622,6 +675,9 @@ export const handleRVals = (
           currBBIDx,
           stackInstOffset,
         );
+        if (pointees.length === 0) 
+          debugConfig.logger.throwIriError("RValPointees can never be zero");
+    
         handleFieldAssignmentStatement(
           mutableFlowData,
           [objNode],
@@ -641,6 +697,9 @@ export const handleRVals = (
           currBBIDx,
           stackInstOffset,
         );
+        if (RValPointees.length === 0) 
+          debugConfig.logger.throwIriError("RValPointees can never be zero");
+
         const fieldsToProcess: Set<string> = new Set();
         for (const p of RValPointees) {
           getAllFields(mutableFlowData, p).forEach((f) => fieldsToProcess.add(f));
@@ -762,6 +821,7 @@ export const handleRVals = (
       : new UnknownNode(ID, uname);
     assert(resObj instanceof UnknownNode);
     addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
     return [resObj];
   }
 
@@ -770,21 +830,25 @@ export const handleRVals = (
     const ID = getHeapQualifiedName("IV_AUNOP", currBBIDx, stackInstOffset);
     const resObj = new UnknownNode(ID, uname);
     addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
     return [resObj];
   } else if (rVal instanceof IV_BUNOP) {
     const ID = getHeapQualifiedName("IV_BUNOP", currBBIDx, stackInstOffset);
     const resObj = new UnknownNode(ID, uname);
     addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
     return [resObj];
   } else if (rVal instanceof IV_CUNOP) {
     const ID = getHeapQualifiedName("IV_CUNOP", currBBIDx, stackInstOffset);
     const resObj = new UnknownNode(ID, uname);
     addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
     return [resObj];
   } else if (rVal instanceof IV_DUNOP) {
     const ID = getHeapQualifiedName("IV_DUNOP", currBBIDx, stackInstOffset);
     const resObj = new UnknownNode(ID, uname);
     addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
     return [resObj];
   }
 
@@ -793,6 +857,7 @@ export const handleRVals = (
     const ID = getHeapQualifiedName("IV_UpdateExpression", currBBIDx, stackInstOffset);
     const resObj = new UnknownNode(ID, uname);
     addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
     return [resObj];
   }
 
@@ -824,32 +889,32 @@ export const handleRVals = (
     return [mainObj];
   }
 
-  // // t_IV_ForIterators
-  // else if (rVal instanceof IV_InIterator) {
-  //   const resObj = new UnknownResultObj(
-  //     getHeapQualifiedName("IV_InIterator", currBBIDx, stackInstOffset),
-  //   );
-  //   nextGraph.declareNode(resObj);
-  //   return [resObj];
-  // } else if (rVal instanceof IV_OfIterator) {
-  //   const resObj = new UnknownResultObj(
-  //     getHeapQualifiedName("IV_OfIterator", currBBIDx, stackInstOffset),
-  //   );
-  //   nextGraph.declareNode(resObj);
-  //   return [resObj];
-  // } else if (rVal instanceof IV_LoopNext) {
-  //   const resObj = new UnknownResultObj(
-  //     getHeapQualifiedName("IV_LoopNext", currBBIDx, stackInstOffset),
-  //   );
-  //   nextGraph.declareNode(resObj);
-  //   return [resObj];
-  // } else if (rVal instanceof IV_HasLoopNext) {
-  //   const resObj = new UnknownResultObj(
-  //     getHeapQualifiedName("IV_HasLoopNext", currBBIDx, stackInstOffset),
-  //   );
-  //   nextGraph.declareNode(resObj);
-  //   return [resObj];
-  // }
+  // t_IV_ForIterators
+  else if (rVal instanceof IV_InIterator) {
+    const ID = getHeapQualifiedName("IV_InIterator", currBBIDx, stackInstOffset);
+    const resObj = new UnknownNode(ID, uname);
+    addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
+    return [resObj];
+  } else if (rVal instanceof IV_OfIterator) {
+    const ID = getHeapQualifiedName("IV_OfIterator", currBBIDx, stackInstOffset);
+    const resObj = new UnknownNode(ID, uname);
+    addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
+    return [resObj];
+  } else if (rVal instanceof IV_LoopNext) {
+    const ID = getHeapQualifiedName("IV_LoopNext", currBBIDx, stackInstOffset);
+    const resObj = new UnknownNode(ID, uname);
+    addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
+    return [resObj];
+  } else if (rVal instanceof IV_HasLoopNext) {
+    const ID = getHeapQualifiedName("IV_HasLoopNext", currBBIDx, stackInstOffset);
+    const resObj = new UnknownNode(ID, uname);
+    addPTANode(mutableFlowData, resObj);
+    addSelfLoop(mutableFlowData, resObj, true);
+    return [resObj];
+  }
 
   // // t_IV_JSX
   else if (rVal instanceof IV_PJSX) {
@@ -872,6 +937,8 @@ export const handleRVals = (
     let componentID: string;
     try {
       // Component Function
+      const declaredEnv = currBB.env.findEnvContaining(rVal.tag.lookupName());
+      declaredEnv.idx;
       componentID = getStackQualifiedName(rVal.tag.lookupName(), currBB);
     } catch(e) {
       // Treat as a PJSX
@@ -917,6 +984,13 @@ export const handleRVals = (
       assert(cStackNode instanceof StackNode);
       getPointees(mutableFlowData, cStackNode).forEach((c) => childrenNodes.add(c));
     });
+
+    for (const c of rVal.children) {
+      const childID = getStackQualifiedName(c.lookupName(), currBB);
+      const childStackNode = ensureNodeIDAndGetStackNode(mutableFlowData, childID);
+      const pointees = getPointees(mutableFlowData, childStackNode);
+      handleFieldAssignmentStatement(mutableFlowData, [JSXObj], ["passed-children"], pointees, true, currBB, currBBIDx, stackInstOffset);
+    }
 
     // Props
     const propsID = getStackQualifiedName(rVal.props.lookupName(), currBB);

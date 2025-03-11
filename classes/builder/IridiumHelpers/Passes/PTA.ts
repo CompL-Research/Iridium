@@ -58,6 +58,16 @@ import { handleRVals } from "./PTA_STUFF/RValHandlers.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./PTA_STUFF/util.ts";
 import { IS_Noop } from "../ALL_IS/ALL_IS.ts";
 import { traverseInstructionRecDepthFirst } from "../Visitors/traverse.ts";
+import { IS_Throw } from "../ALL_IS/IS_Debugger_Return_Throw.ts";
+import { IS_Break } from "../ALL_IS/IS_Break.ts";
+import { IS_Continue } from "../ALL_IS/IS_Continue.ts";
+
+// const assert = (val) => {
+//   if (!val) {
+//     console.log("Assertion Failed");
+//   } 
+// }
+
 //
 // A world can be in three states:
 //  1. !PTA_WORLD.has()            ===> Not Seen Before
@@ -106,6 +116,7 @@ export const initializeWorld = (uname: string, fg: IRIDIUM_FG) => {
   addPTANode(initialWorldData, exportNode);
 
   PTA_WORLD.set(uname, PTA(uname, fg, initialWorldData));
+  PTA_WORLD_CURRMUTABLE_DATA.set(uname, []);
 };
 
 function reversePostOrder(graph: GLIB.Graph, root: string) {
@@ -248,18 +259,21 @@ export const flowFunction = (
       // // handleMemberAssignment(nextGraph, i.obj.lookupName(), rValPointees, i.prop.lookupName(), i.computed);
     } else if (i instanceof IS1_DeclarationStmt) {
       const qualifiedLVal = getStackQualifiedName(i.LVal.lookupName(), currBB);
+      const RValPointees = handleRVals(
+        uname,
+        mutableFlowData,
+        i.RVal,
+        currBB,
+        currBBIDx,
+        stackInstOffset,
+      );
+      if (RValPointees.length === 0) 
+        debugConfig.logger.throwIriError("RValPointees can never be zero");
       handleSimpleAssignmentStatement(
         uname,
         mutableFlowData,
         qualifiedLVal,
-        handleRVals(
-          uname,
-          mutableFlowData,
-          i.RVal,
-          currBB,
-          currBBIDx,
-          stackInstOffset,
-        ),
+        RValPointees,
       );
     } else if (i instanceof IS1_AssignmentStmt) {
       const RValPointees = handleRVals(
@@ -270,6 +284,8 @@ export const flowFunction = (
         currBBIDx,
         stackInstOffset,
       );
+      if (RValPointees.length === 0) 
+        debugConfig.logger.throwIriError("RValPointees can never be zero");
       if (i.LVal instanceof IV_Identifier) {
         const lookupName = i.LVal.lookupName();
         const qualifiedLVal = getStackQualifiedName(lookupName, currBB);
@@ -314,7 +330,15 @@ export const flowFunction = (
       /* NOOP */
     } else if (i instanceof IS_AImport) {
       /* NOOP */
-    } else {
+    } else if (i instanceof IS_Throw) {
+      /* NOOP */
+    } else if (i instanceof IS_Break) {
+      /* NOOP */
+    } else if (i instanceof IS_Continue) {
+      /* NOOP */
+    }
+    
+    else {
       debugConfig.logger.throwIriError(`PTA TODO: UNHANDLED: ${i.toString()}`);
     }
     // debugConfig.logger.error(`After stmt ${i.toString()}`);

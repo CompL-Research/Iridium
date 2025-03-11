@@ -11,7 +11,7 @@ import {
   ISP_V8Intrinsic,
 } from "./ALL_ISP.ts";
 import { ALL_RVal } from "./ALL_RVal.ts";
-
+import debugConfig from "#debugConfig";
 export class IV_ImportCall extends ALL_RVal {
   args: Array<IV_Identifier | ISP_ArgSpread>;
 
@@ -49,6 +49,7 @@ export class IV_Call extends ALL_RVal {
   callee: IV_Identifier;
   args: Array<IV_Identifier | ISP_ArgSpread>;
   staticThis: boolean;
+  context: string = undefined;
 
   constructor(
     node:
@@ -58,11 +59,16 @@ export class IV_Call extends ALL_RVal {
     staticThis: boolean,
     callee: IV_Identifier,
     args: Array<IV_Identifier | ISP_ArgSpread>,
+    context: string = undefined,
   ) {
     super(node, "Call");
     this.staticThis = staticThis;
     this.callee = callee;
     this.args = args;
+    if (staticThis) {
+      if (!context) debugConfig.logger.throwIriError("Expected context to be provided for IV_Call");
+      this.context = context;
+    }
   }
 
   usedIdentifiers(): Set<string> {
@@ -78,7 +84,7 @@ export class IV_Call extends ALL_RVal {
 
   toString() {
     const args = this.args.map((e) => e.toString()).join(",");
-    return `<CALL${this.staticThis ? ", MaybeCalleeContext" : ""}> ${this.callee.toString()}(${args})`;
+    return `<CALL${this.staticThis ? `, MaybeCalleeContext(${this.context})` : ""}> ${this.callee.toString()}(${args})`;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

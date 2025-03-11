@@ -4,6 +4,7 @@ import { execSync } from "child_process";
 import { I_Container } from "classes/builder/IridiumHelpers/I_GENERAL/I_Container.ts";
 import { IRIDIUM_FG } from "classes/builder/IridiumHelpers/I_GENERAL/IRIDIUM_FG.ts";
 import { ensureNodeIDAndGetPTANode, PTAEdge, PTAFlowData } from "classes/builder/IridiumHelpers/Passes/PTA_STUFF/PTAFlowData.ts";
+import { Graph } from "#graphlib";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
@@ -87,9 +88,19 @@ export const saveFlowDataToFile = (path: string, flowData: PTAFlowData) => {
 }
 
 export const saveFlowGraphToFile = (path: string, flowGraph: I_Container) => {
-  path = "outputs/" + idx++ + "_" + path;
+  path = "outputs/FG_" + idx++ + "_" + path;
   try {
     fs.writeFileSync(path + ".DOT", flowGraph.toDOT());
+    execSync(`dot -Tpng ${path + ".DOT"} -o ${path + ".png"}`);
+  } catch (err) {
+    console.error("File write failed:", err);
+  }
+}
+
+export const saveFlowGraphToFileFromIRIDIUMFG = (path: string, flowGraph: IRIDIUM_FG) => {
+  path = "outputs/FG_" + idx++ + "_" + path;
+  try {
+    fs.writeFileSync(path + ".DOT", flowGraph.saveDot());
     execSync(`dot -Tpng ${path + ".DOT"} -o ${path + ".png"}`);
   } catch (err) {
     console.error("File write failed:", err);
@@ -147,6 +158,27 @@ export function generateCommentBlock(comment: string): CommentBlock {
   } as CommentBlock;
 }
 
+// Function to visit nodes in post-order (inward from leaves)
+export const postOrderTraversal = (graph: Graph, startNode: string): string[] => {
+  const visited = new Set<string>();
+  const result: string[] = [];
+
+  function dfs(node: string) {
+    if (visited.has(node)) return;
+    visited.add(node);
+
+    for (const neighbor of graph.successors(node) || []) {
+      dfs(neighbor);
+    }
+
+    result.push(node); // Post-order: add after visiting all children
+  }
+
+  dfs(startNode);
+  return result;
+}
+
+
 export function resolveModuleImport(
   importPath: string,
   currentFile: string,
@@ -166,11 +198,19 @@ export function resolveModuleImport(
     strict: false,
     resolveJsonModule: true,
     plugins: [{ name: "typescript-strict-plugin" }],
-    paths: {
-      "@assets/*": ["assets/*"],
-      "@locale/*": ["locale/*"],
-      "@dashboard/*": ["src/*"],
-      "@test/*": ["testUtils/*"],
+    // paths: {
+    //   "@assets/*": ["assets/*"],
+    //   "@locale/*": ["locale/*"],
+    //   "@dashboard/*": ["src/*"],
+    //   "@test/*": ["testUtils/*"],
+    // },
+    "paths": {
+      "@excalidraw/excalidraw": ["packages/excalidraw/index.tsx"],
+      "@excalidraw/utils": ["packages/utils/index.ts"],
+      "@excalidraw/math": ["packages/math/index.ts"],
+      "@excalidraw/excalidraw/*": ["packages/excalidraw/*"],
+      "@excalidraw/utils/*": ["packages/utils/*"],
+      "@excalidraw/math/*": ["packages/math/*"],
     },
     moduleResolution: ts.ModuleResolutionKind.NodeJs,
     baseUrl: basePath,
@@ -200,9 +240,9 @@ export function resolveModuleImport(
     return resolvedFileName;
 
   } else {
-    debugConfig.logger.error(
-      `Failed to resolve import: ${importPath} @ ${currentFile}: ${result}`,
-    );
+    // debugConfig.logger.error(
+    //   `Failed to resolve import: ${importPath} @ ${currentFile}: ${JSON.stringify(result)}`,
+    // );
     return undefined;
   }
 }

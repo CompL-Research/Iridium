@@ -149,10 +149,19 @@ export const addPTANode = (CURR: PTAFlowData, node: PTAFlowNode) => {
 export const assertPTANode = (CURR: PTAFlowData, node: PTAFlowNode) => {
   if (!GLOBAL_NODE_MAP.has(node.id))
     debugConfig.logger.throwIriError(`PTA Node not found: ${node.id}`);
-  if (!CURR.has(node.id))
-    debugConfig.logger.throwIriError(
-      `PTA Node not found in FLOWDATA: ${node.id}`,
-    );
+  if (!CURR.has(node.id)) {
+    const nn = GLOBAL_NODE_MAP.get(node.id);
+    if (nn instanceof LiteralNode) {
+      addPTANode(CURR, nn);
+    } else if (nn instanceof UnknownNode) {
+      addPTANode(CURR, nn);
+    } else {
+      debugConfig.logger.throwIriError(
+        `PTA Node not found in FLOWDATA: ${node.id} in world ${node.world}`,
+      );
+    }
+  }
+
 };
 
 
@@ -224,7 +233,7 @@ export const getPointees = (CURR: PTAFlowData, u: StackNode) => {
   if (!CURR.has(u.id)) CURR.set(u.id, new Set());
   const outEdges = CURR.get(u.id);
   const outVs: Set<PTAFlowNode> = new Set();
-  
+
   outEdges.forEach((e) =>
     outVs.add(ensureNodeIDAndGetPTANode(CURR, PTAEdge.from(u.id, e).v))
   );
@@ -238,14 +247,14 @@ export const getPointees = (CURR: PTAFlowData, u: StackNode) => {
 
 export const getSuccessorClosureImmutable = (u: StackNode, res: Set<PTAFlowNode> = new Set()) => {
   res.add(u);
-  
+
   const world = u.world;
   const worldInstance = getImmutableWorldInstance(world);
   assertPTANode(worldInstance, u);
- 
+
   const outNodes = [...worldInstance.get(u.id)]
     .map(e => ensureNodeIDAndGetPTANode(worldInstance, PTAEdge.from(u.id, e).v));
-  
+
   outNodes.forEach((outNode) => {
     if (!res.has(outNode)) {
       getSuccessorClosureImmutable(outNode, res);
@@ -324,14 +333,14 @@ export const addHeapEdges = (
 
   const outEdges = worldInstance.get(u.id);
 
-  const pendingClosures: Array<[SetClosureNode, PTAFlowNode, Array<PTAFlowNode> | Set<PTAFlowNode>]> = 
+  const pendingClosures: Array<[SetClosureNode, PTAFlowNode, Array<PTAFlowNode> | Set<PTAFlowNode>]> =
     [...outEdges.values()]
-    .map((e) => PTAEdge.from(u.id, e))
-    .filter((e) => e.field === field)
-    .map((e) => ensureNodeIDAndGetPTANode(worldInstance, e.v))
-    .filter((node) => node instanceof SetClosureNode)
-    .map((node) => [node, u, vs])
-  
+      .map((e) => PTAEdge.from(u.id, e))
+      .filter((e) => e.field === field)
+      .map((e) => ensureNodeIDAndGetPTANode(worldInstance, e.v))
+      .filter((node) => node instanceof SetClosureNode)
+      .map((node) => [node, u, vs])
+
 
   // Create new edges to vs
   for (const v of vs) {
@@ -359,7 +368,7 @@ export const getAllFields = (CURR: PTAFlowData, u: PTAFlowNode): Set<string> => 
 
   const worldInstance = getMutableWorldInstance(u.world);
   assertPTANode(worldInstance, u);
-  
+
   worldInstance.get(u.id).forEach((e) => res.add(PTAEdge.from(u.id, e).field))
   return res;
 };
@@ -385,12 +394,12 @@ export const getFieldPointees = (CURR: PTAFlowData, u: PTAFlowNode, field: strin
   assertPTANode(worldInstance, u);
 
 
-  const outNodes = 
+  const outNodes =
     [...worldInstance.get(u.id)]
-    .filter(
-      (e) => (PTAEdge.from(u.id, e).field === field || PTAEdge.from(u.id, e).field === "*") && (enumerable && PTAEdge.from(u.id, e).flag === "E")
-    )
-    .map((e) => ensureNodeIDAndGetPTANode(worldInstance, PTAEdge.from(u.id, e).v));
+      .filter(
+        (e) => (PTAEdge.from(u.id, e).field === field || PTAEdge.from(u.id, e).field === "*") && (enumerable && PTAEdge.from(u.id, e).flag === "E")
+      )
+      .map((e) => ensureNodeIDAndGetPTANode(worldInstance, PTAEdge.from(u.id, e).v));
 
   if (outNodes.length === 0) {
     const ukn = new UnknownNode("UNKNOWN", u.world);
@@ -400,13 +409,13 @@ export const getFieldPointees = (CURR: PTAFlowData, u: PTAFlowNode, field: strin
     return [[ukn], []]
   }
 
-  const outVs = 
+  const outVs =
     outNodes
-    .filter((n) => !(n instanceof SetClosureNode || n instanceof GetClosureNode));
+      .filter((n) => !(n instanceof SetClosureNode || n instanceof GetClosureNode));
 
-  const pendingClosures = 
+  const pendingClosures =
     outNodes
-    .filter((n) => (n instanceof GetClosureNode));
+      .filter((n) => (n instanceof GetClosureNode));
 
   outVs.forEach((v) => addPTANode(CURR, v));
   pendingClosures.forEach((v) => addPTANode(CURR, v));
@@ -445,7 +454,7 @@ export class PTAEdge {
   }
 
   static from(u: string, e: string) {
-    const [field, flag, v] = e.split("::");
+    const [field, flag, v] = e.split("M33+E5HW@SHE4E");
     return new PTAEdge(u, field, flag, v);
   }
 
@@ -463,7 +472,7 @@ export class PTAEdge {
   }
 
   getPTAEdge(): PTAEDGEID {
-    return `${this.field}::${this.flag}::${this.v}`;
+    return `${this.field}M33+E5HW@SHE4E${this.flag}M33+E5HW@SHE4E${this.v}`;
   }
 }
 
@@ -493,7 +502,7 @@ export class PTAFlowNode {
 }
 
 export class StackNode extends PTAFlowNode {
-  
+
   constructor(id: string, world: string) {
     super(id, world);
   }

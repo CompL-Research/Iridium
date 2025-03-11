@@ -40,10 +40,10 @@
             "name": "Bun: Launch iri index.js",
             "program": "/home/meetesh/wd/Iridium/iridium.ts",
             "args": [
-                "iri",
-                "./temp/frontendViz/src/index.js",
-                "./temp/frontendViz/",
-                "-g"
+              "iri",
+              "./temp/saleor-dashboard/src/index.tsx",
+              "./temp/saleor-dashboard/",
+              "-g"
             ],
             "cwd": "${workspaceFolder}",
             "env": {},
@@ -97,9 +97,9 @@
                 "--import=tsx",
                 "/home/meetesh/wd/Iridium/iridium.ts",
                 "iri",
-                "./temp/frontendViz/src/App.js",
-                "./temp/frontendViz/"
-            ],
+                "./temp/saleor-dashboard/src/index.tsx",
+                "./temp/saleor-dashboard/",
+              ],
             "outFiles": [
                 "${workspaceFolder}/classes/**/*.ts",
                 "${workspaceFolder}/*.ts"

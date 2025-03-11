@@ -3,4 +3,4 @@
 bun --import=tsx /home/meetesh/wd/Iridium/iridium.ts $*
 
 # npx clinic flame -- node --prof --import=tsx /home/meetesh/wd/Iridium/iridium.ts $*
-# node --enable-source-maps --import=tsx /home/meetesh/wd/Iridium/iridium.ts $*
+# node --import=tsx /home/meetesh/wd/Iridium/iridium.ts $*

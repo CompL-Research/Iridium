@@ -1737,31 +1737,50 @@ export function handleObjectProperty(
   // 3 fallthrough props, 3 restricted props
   const orig_key = node.key; // Handling prop key
   let fin_key: JS3ObjectProperty_key; // Handling prop key
-  if (isIdentifier(orig_key)) {
-    fin_key = orig_key;
-  } else if (isStringLiteral(orig_key)) {
-    fin_key = orig_key;
-  } else if (isNumericLiteral(orig_key)) {
-    fin_key = orig_key;
-  } else if (isBigIntLiteral(orig_key)) {
-    fin_key = orig_key;
-  } else if (isDecimalLiteral(orig_key)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ObjectProperty->key->DecimalLiteral",
-    );
-  } else if (isPrivateName(orig_key)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ObjectProperty->key->PrivateName",
-    );
-  } else if (
-    isFunctionExpression(orig_key) ||
-    isArrowFunctionExpression(orig_key) ||
-    isClassExpression(orig_key)
-  ) {
-    fin_key = lowerToAnonArrayExpr(orig_key, otherProps);
+  if (node.computed) {
+    if (
+      isFunctionExpression(orig_key) ||
+      isArrowFunctionExpression(orig_key) ||
+      isClassExpression(orig_key)
+    ) {
+      fin_key = lowerToAnonArrayExpr(orig_key, otherProps);
+    } else if (isPrivateName(orig_key)) {
+      debugConfig.logger.throwJS3Error(
+        "TODO // unhandled ObjectProperty->key->PrivateName",
+      );
+    } else {
+      fin_key = handleExpression(orig_key, otherProps);
+    }
   } else {
-    fin_key = handleExpression(orig_key, otherProps);
+    if (isIdentifier(orig_key)) {
+      fin_key = orig_key;
+    } else if (isStringLiteral(orig_key)) {
+      fin_key = orig_key;
+    } else if (isNumericLiteral(orig_key)) {
+      fin_key = orig_key;
+    } else if (isBigIntLiteral(orig_key)) {
+      fin_key = orig_key;
+    // } else if (isDecimalLiteral(orig_key)) {
+    //   debugConfig.logger.throwJS3Error(
+    //     "TODO // unhandled ObjectProperty->key->DecimalLiteral",
+    //   );
+    // } else if (isPrivateName(orig_key)) {
+    //   debugConfig.logger.throwJS3Error(
+    //     "TODO // unhandled ObjectProperty->key->PrivateName",
+    //   );
+    // } else if (
+    //   isFunctionExpression(orig_key) ||
+    //   isArrowFunctionExpression(orig_key) ||
+    //   isClassExpression(orig_key)
+    // ) {
+    //   fin_key = lowerToAnonArrayExpr(orig_key, otherProps);
+    } else {
+      debugConfig.logger.throwJS3Error(
+        "TODO // found expression for computed key",
+      );
+    }
   }
+  
 
   const orig_value = node.value; // Handling prop value
   let fin_value: JS3ObjectProperty_value; // Handling prop value

@@ -75,7 +75,7 @@ export class IV_JSX extends ALL_RVal {
     children: Array<IV_Identifier>,
   ) {
     super(node, "JSX");
-    if (tag instanceof IV_StringLiteral) debugConfig.logger.error(`Unexpected JSX tag ${tag.value}, casting to IV_Identifier and proceeding`);
+    // if (tag instanceof IV_StringLiteral) debugConfig.logger.error(`Unexpected JSX tag ${tag.value}, casting to IV_Identifier and proceeding`);
     this.tag = tag instanceof IV_StringLiteral ? new IV_Identifier(undefined, tag.value) : tag;
     this.props = props;
     this.children = children;

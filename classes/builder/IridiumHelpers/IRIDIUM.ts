@@ -37,6 +37,7 @@ import {
   OptionalMemberExpression,
   optionalMemberExpression,
   ThisExpression,
+  isCallExpression,
 } from "@babel/types";
 
 import JS3Builder, { JS3BuilderUtils } from "../JS3Builder.ts";
@@ -319,9 +320,22 @@ import { getEXPORTID, initializeWorld, PTA_HASH_MAP, PTA_WORLD, PTA_WORLD_CURRMU
 import { addPTANode, addStackEdges, ensureNodeIDAndGetPTANode, ensureNodeIDAndGetStackNode, getImmutableWorldInstance, getMutableWorldInstance, getPointees, getSuccessorClosureImmutable, GLOBAL_NODE_MAP, GLOBAL_RESOLUTION_MAP, GLOBAL_RESOLUTION_SKIP_MAP, RemoteNode, StackNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
 import { handleCallExpression } from "./Passes/PTA_STUFF/PTAHandlers.ts";
 import { GLOBAL_UNAME_PATH_MAP, ProjectFile } from "classes/ProjectFile.ts";
-import { popSet, resolveModuleImport, saveFlowDataToFile, saveRenderTreeDataToFile } from "#utils";
+import { popSet, postOrderTraversal, resolveModuleImport, saveFlowDataToFile, saveRenderTreeDataToFile } from "#utils";
 import { Graph } from "#graphlib";
+import { traverseInstruction } from "./Visitors/traverse.ts";
 
+let generate;
+if (typeof Bun !== 'undefined') {
+  generate = _generate;
+} else {
+  generate = _generate.default;
+}
+
+// const assert = (val) => {
+//   if (!val) {
+//     console.log("Assertion Failed");
+//   } 
+// }
 
 const IMPORT_TREE = new Graph({ multigraph: true })
 
@@ -360,8 +374,33 @@ class Queue {
   }
 }
 
-// const genersate = _generate.default;
 export const RESOLUTION_CACHE: Map<string, I_Container> = new Map();
+function areMapsEqual(
+  map1: Map<string, Set<string>>, 
+  map2: Map<string, Set<string>>
+): boolean {
+  if (map1.size !== map2.size) return false;
+
+  for (const [key, set1] of map1) {
+    const set2 = map2.get(key);
+    if (!set2 || set1.size !== set2.size) return false;
+
+    for (const value of set1) {
+      if (!set2.has(value)) return false;
+    }
+  }
+
+  return true;
+}
+
+function areSetsEqual(setA, setB) {
+  if (setA.size !== setB.size) return false;
+  for (let item of setA) {
+    if (!setB.has(item)) return false;
+  }
+  return true;
+}
+
 export default class IRIDIUM_MODULE {
   js3builder: JS3Builder;
   node: JS3Program;
@@ -411,6 +450,7 @@ export default class IRIDIUM_MODULE {
     hoistDeclarations(res);
     addThisInitToFunctionBoundaries(res);
     matchContinueAndBreak(res);
+    cleanupBBs(res);
     normalizeReturns(res);
     initializeEnvDefs(res);
     cleanupBBs(res);
@@ -420,6 +460,7 @@ export default class IRIDIUM_MODULE {
 
   // Start PTA
   performPTA(topLevel: boolean) {
+    const saver = saveFlowDataToFile;
     PTA_HASH_MAP.clear();
     if (!this.fg)
       debugConfig.logger.throwIriError("Expected fg to be built before PTA...");
@@ -427,6 +468,7 @@ export default class IRIDIUM_MODULE {
     if (topLevel) {
       debugConfig.logger.warn("Starting top level analysis");
       const world = this.js3builder.projectFile.uname;
+
       let expansionLevel = 0;
       while (true) {
         const start = performance.now();
@@ -439,9 +481,18 @@ export default class IRIDIUM_MODULE {
           break;
         }
 
-        initializeWorld(this.js3builder.projectFile.uname, this.fg);
+        if (PTA_WORLD.has(world)) getMutableWorldInstance(world);
+        initializeWorld(world, this.fg);
 
-        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) 
+        for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
+          if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
+          if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
+          PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
+        }
+
+        // initializeWorld(this.js3builder.projectFile.uname, this.fg);
+
+        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0)
           debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
 
         const worldData = getMutableWorldInstance(world);
@@ -466,14 +517,18 @@ export default class IRIDIUM_MODULE {
         const res = handleCallExpression(world, worldData, exportPointees, [], sinkBB, sinks[0], 0, undefined);
         addStackEdges(worldData, rootNode, res);
 
-        // Collapse Mutable Instances
+        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 1)
+          debugConfig.logger.throwIriError("Expected one mutable instance");
+
+        PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
+
         for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
           if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
           if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
           PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
         }
 
-        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0) 
+        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0)
           debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
 
         // Get successor closure
@@ -488,7 +543,7 @@ export default class IRIDIUM_MODULE {
           );
           const end = performance.now();
           debugConfig.logger.success(`Execution time: ${end - start} ms`);
-  
+
           break;
         }
 
@@ -540,8 +595,8 @@ export default class IRIDIUM_MODULE {
               RESOLUTION_CACHE.set(projectFile.uname, iri_container);
               iri_container.build();
               GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
-              // debugConfig.logger.success(`Successfully Resolved: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}": ${[...PTA_WORLD_CURRMUTABLE_DATA.entries()].map((k) => `${k[0]}=${k[1].length}`).join(",")}`)
-              
+              // debugConfig.logger.success(`Successfully Resolved: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
+
               if (!IMPORT_TREE.hasNode(node.world)) IMPORT_TREE.setNode(node.world);
               IMPORT_TREE.setEdge(node.world, projectFile.uname, "imports", "imports");
 
@@ -551,31 +606,54 @@ export default class IRIDIUM_MODULE {
               // }
             }
           } catch (e) {
-            debugConfig.logger.error(`Failed to resolve: "${toResolve}" from "${importFilePath}"`)
+            // debugConfig.logger.error(`Failed to resolve: "${toResolve}" from "${importFilePath}"`)
             GLOBAL_RESOLUTION_SKIP_MAP.add(node.id);
           }
         }
 
-        const workQueue: Queue = new Queue();
-        const refreshed: Set<string> = new Set();
-        IMPORT_TREE.sinks().forEach((s) => workQueue.enqueue(s));
-        do {
-          const worldToRefresh = workQueue.dequeue();
-          if (worldToRefresh !== world) {
-            // debugConfig.logger.error(`Refreshing World: ${worldToRefresh}`);
-            const moduleToUpdate = RESOLUTION_CACHE.get(worldToRefresh);
-            moduleToUpdate.module.performPTA(false);
-            refreshed.add(worldToRefresh);
-            const predecessors = IMPORT_TREE.predecessors(worldToRefresh);
-            if (predecessors) {
-              for (const pred of predecessors) {
-                if (!refreshed.has(pred)) workQueue.enqueue(pred);
+        const computeRefreshMap = (): [Set<string>, Map<string, Set<string>>] => {
+          const refreshTriggers: Set<string> = new Set();
+          const refreshMap: Map<string, Set<string>> = new Map();
+          for (const [currWorldWeAreLookingInto, currWorldData] of PTA_WORLD.entries()) {
+            for (const [nodeID, edges] of currWorldData) {
+              if (GLOBAL_RESOLUTION_MAP.has(nodeID)) {
+                console.log(`Refresh Trigger: ${nodeID} in world "${currWorldWeAreLookingInto}" from "${GLOBAL_NODE_MAP.get(nodeID).world}" -resolves to-> "${GLOBAL_RESOLUTION_MAP.get(nodeID)}"`)
+                refreshTriggers.add(nodeID);
+                // currWorldWeAreLookingInto needs to be refreshed, it has a resolveable node
+                const nodeWasBroughtFrom = GLOBAL_NODE_MAP.get(nodeID).world;
+                // If node was brought from myself, refresh myself
+                if (nodeWasBroughtFrom === currWorldWeAreLookingInto) {
+                  if (!refreshMap.has(currWorldWeAreLookingInto)) refreshMap.set(currWorldWeAreLookingInto, new Set());
+                } else {
+                  // Node was brought from a remote world, resolve that world first then resolve it
+                  if (!refreshMap.has(currWorldWeAreLookingInto)) refreshMap.set(currWorldWeAreLookingInto, new Set());
+                  refreshMap.get(currWorldWeAreLookingInto).add(nodeWasBroughtFrom);
+                }
               }
             }
           }
-        } while (!workQueue.isEmpty());
-        
-        // Collapse Mutable Instances
+          return [refreshTriggers, refreshMap];
+        }
+
+        let refreshCount = 0;
+
+        while (true) {
+          debugConfig.logger.warn(`Refresh Count: ${refreshCount++}`);
+          const postOrder = postOrderTraversal(IMPORT_TREE, world);
+          for (const worldToRefresh of postOrder) {
+            const moduleToUpdate = RESOLUTION_CACHE.get(worldToRefresh);
+            moduleToUpdate.module.performPTA(false);
+          }
+          const [refreshTriggers, refreshMap] = computeRefreshMap();
+
+          if (refreshMap.size !== 0) {
+            console.log("refreshMap: ", refreshMap.size);
+          } else {
+            break;
+          }
+  
+        }
+
         for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
           if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
           if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
@@ -586,16 +664,48 @@ export default class IRIDIUM_MODULE {
         debugConfig.logger.success(`Execution time: ${end - start} ms`);
       }
 
-      // debugConfig.logger.warn(`Completed top level analysis: ${world}`);
+      const worldData = getMutableWorldInstance(world);
 
+      // Add finalResNode
+      const rootNodeID = "TREEROOT";
+      const rootNode = GLOBAL_NODE_MAP.has(rootNodeID)
+        ? GLOBAL_NODE_MAP.get(rootNodeID)
+        : new StackNode(rootNodeID, world);
+      assert(rootNode instanceof StackNode);
+      rootNode.color = "cyan";
+      addPTANode(worldData, rootNode);
+
+      // Get call closures from top level export
+      const exportsNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(this.js3builder.projectFile.uname));
+      const exportPointees = getPointees(worldData, exportsNode);
+
+      const sinks = this.fg.sinks();
+      if (sinks.length !== 1) debugConfig.logger.throwIriError(`Expected atmost one sink, found ${sinks.length}`);
+      const sinkBB = this.fg.getBBNode(sinks[0]);
+
+      const res = handleCallExpression(world, worldData, exportPointees, [], sinkBB, sinks[0], 0, undefined);
+      addStackEdges(worldData, rootNode, res);
+
+      if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 1)
+        debugConfig.logger.throwIriError("Expected one mutable instance");
+
+      PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
+
+      for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
+        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
+        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
+        PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
+      }
     } else {
       const world = this.js3builder.projectFile.uname;
-      // debugConfig.logger.warn(`Starting non-top level analysis: ${world}`);
-      
-      initializeWorld(this.js3builder.projectFile.uname, this.fg);
+      if (PTA_WORLD.has(world)) getMutableWorldInstance(world);
+      initializeWorld(world, this.fg);
 
-      // debugConfig.logger.warn(`Completed non-top level analysis: ${world}`);
-
+      for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
+        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
+        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
+        PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
+      }
     }
   }
 
@@ -607,9 +717,9 @@ export default class IRIDIUM_MODULE {
     const rootNodeID = "TREEROOT";
     const rootNode = ensureNodeIDAndGetStackNode(worldData, rootNodeID);
     const closure = getSuccessorClosureImmutable(rootNode)
-    
+
     const edges: Map<string, Set<string>> = new Map();
-    
+
     for (const n of closure) {
       const nodeWorld = getImmutableWorldInstance(n.world);
       edges.set(n.id, nodeWorld.get(n.id))
@@ -830,7 +940,7 @@ export default class IRIDIUM_MODULE {
   // *********************** Lowering JS3Expressions into Iridium BB ***********************
   //
   lowerExprToBB(
-    from: JS3ContainedExprKey,
+    from: JS3ContainedExprKey | Expression,
     block: BB,
     resID: IV_Identifier | undefined = undefined,
   ) {
@@ -934,7 +1044,7 @@ export default class IRIDIUM_MODULE {
       } else {
         toLowerLval = generateIdentifier(arg, "$TODO_IRI_UNDEFINED$");
         debugConfig.logger.throwIriError(
-          `Iridium function arg, LVAL is unsupported: ${_generate(arg).code}`,
+          `Iridium function arg, LVAL is unsupported: ${generate(arg).code}`,
         );
       }
 
@@ -1023,7 +1133,7 @@ export default class IRIDIUM_MODULE {
       } else {
         toLowerLval = generateIdentifier(arg, "$TODO_IRI_UNDEFINED$");
         debugConfig.logger.throwIriError(
-          `Iridium function arg, LVAL is unsupported: ${_generate(arg).code}`,
+          `Iridium function arg, LVAL is unsupported: ${generate(arg).code}`,
         );
       }
     }
@@ -1874,7 +1984,7 @@ export default class IRIDIUM_MODULE {
         resID: IV_Identifier;
         fallthruBlock: BB;
         postBB: BB;
-        callExprContext: boolean;
+        callExprContext: [string, string] | undefined;
       }
       | undefined = undefined,
   ) {
@@ -1906,8 +2016,8 @@ export default class IRIDIUM_MODULE {
     const genesisNode = getGenesisNode(parentNode);
     // Assert that genesisNode's optional field is always true
     if (!genesisNode.optional) {
-      console.log("Node:", _generate(parentNode).code);
-      console.log("Genesis Node:", _generate(genesisNode).code);
+      console.log("Node:", generate(parentNode).code);
+      console.log("Genesis Node:", generate(genesisNode).code);
       debugConfig.logger.throwIriError(
         "Optional field of the genesis node is always expected to be true!",
       );
@@ -1965,7 +2075,7 @@ export default class IRIDIUM_MODULE {
       fallthruBlock.statements.push(fallthrough_assn);
 
       // Initialize State
-      existingState = { resID, fallthruBlock, postBB, callExprContext: false };
+      existingState = { resID, fallthruBlock, postBB, callExprContext: undefined };
     } else {
       genesisTestBB = fgContext.getCurrentBB();
     }
@@ -2003,23 +2113,62 @@ export default class IRIDIUM_MODULE {
     fgContext.setCurrentBB(genesisTestBB);
     this.lowerExprToBB(objectToSpill, genesisTestBB, genesisTestRes);
 
-    if (existingState.callExprContext) {
-      const first = genesisTestBB.statements[0];
-      if (
-        first instanceof IS_SimpleVarDecl &&
-        first.RVal instanceof IV_Call &&
-        first.RVal.callee instanceof IV_Identifier
-      ) {
-        first.RVal.staticThis = true;
-        first.RVal.callee.isValue = true;
-      } else {
-        debugConfig.logger.throwIriError(
-          "Expected first statement of spilled node to be a IV_Call",
-        );
+    if (existingState && existingState.callExprContext) {
+      console.log(`Transfer Context: ${existingState.callExprContext}`);
+      const [toReplace, replacement] = existingState.callExprContext;
+      let patched = 0;
+      let visited: Set<string> = new Set();
+      const visitBBs = (curr: string) => {
+        visited.add(curr);
+        const bb = fgContext.getBBNode(curr);
+        bb.statements.forEach((s) => {
+          if (s instanceof IS_SimpleVarDecl) {
+            if (s.RVal instanceof IV_Call && s.RVal.callee.lookupName() === toReplace) {
+              s.RVal.staticThis = true;
+              s.RVal.context = replacement;
+              patched++;
+            }
+          }
+        });
+        let succ = fgContext.successors(curr);
+        if (succ) {
+          succ.forEach((ss) => {
+            if (!visited.has(ss)) visitBBs(ss);
+          })
+        }
       }
+      visitBBs("" + genesisTestBB.idx);
+      if (patched !== 1) debugConfig.logger.throwIriError(`Failed to patch context: ${patched}`);
     }
 
-    existingState.callExprContext = isOptionalCallExpression(genesisNode);
+
+    const genesisTestLastSpillBB = this.getCurrentFGContext().getCurrentBB();
+    const contextStmt = genesisTestLastSpillBB.statements[genesisTestLastSpillBB.statements.length - 2];
+    const resStmt = genesisTestLastSpillBB.statements[genesisTestLastSpillBB.statements.length - 1];
+
+    if (isOptionalCallExpression(genesisNode)) {
+      let resID: string;
+      if (resStmt instanceof IS_SimpleVarDecl) {
+        resID = resStmt.LVal.lookupName();
+      } else {
+        debugConfig.logger.throwIriError("Expected IS_SimpleVarDecl as res stmt")
+      }
+      if (contextStmt instanceof IS_SimpleVarDecl) {
+        if (contextStmt.RVal instanceof IV_MemberExpressionPA) {
+          existingState.callExprContext = [resID, contextStmt.RVal.object.name];
+        } else if (contextStmt.RVal instanceof IV_ThisLookupPA) {
+          existingState.callExprContext = [resID, IV_This.lookupName()];
+        } else if (contextStmt.RVal instanceof IV_SuperLookupPA) {
+          existingState.callExprContext = [resID, ISP_Super.lookupName()];
+        } else {
+          existingState.callExprContext = undefined;
+        }
+      } else {
+        debugConfig.logger.throwIriError("Expected IS_SimpleVarDecl after lowering an optionalCallExpression")
+      }
+    } else {
+      existingState.callExprContext = undefined;
+    }
 
     // Handle Chain condition
     if (this.getCurrentFGContext() !== fgContext)
@@ -2130,17 +2279,46 @@ export default class IRIDIUM_MODULE {
     const containsOptionalNode = containsOptionalNodeCheck(patchedNode);
 
     if (!containsOptionalNode) {
+
       // Chain termination, all optional = true node were eliminated...
 
       // Get rid of all optional nodes
       patchedNode = patchRecursively(patchedNode);
 
       // Handle Chain termination.
-      // resID = ...terminal_expr
+      // resID = ...RESOLVED_CHAIN.[reference]
       if (this.getCurrentFGContext() !== fgContext)
         debugConfig.logger.throwIriError("FG Context not expected to change");
       fgContext.setCurrentBB(chainBB);
       const resHolderID: Identifier = this.lowerExprToBB(patchedNode, chainBB);
+
+      if (existingState && existingState.callExprContext) {
+        const [toReplace, replacement] = existingState.callExprContext;
+        let patched = 0;
+        let visited: Set<string> = new Set();
+        const visitBBs = (curr: string) => {
+          visited.add(curr);
+          const bb = fgContext.getBBNode(curr);
+          bb.statements.forEach((s) => {
+            if (s instanceof IS_SimpleVarDecl) {
+              if (s.RVal instanceof IV_Call && s.RVal.callee.lookupName() === toReplace) {
+                s.RVal.staticThis = true;
+                s.RVal.context = replacement;
+                patched++;
+              }
+            }
+          });
+          let succ = fgContext.successors(curr);
+          if (succ) {
+            succ.forEach((ss) => {
+              if (!visited.has(ss)) visitBBs(ss);
+            })
+          }
+        }
+        visitBBs("" + chainBB.idx);
+        if (patched !== 1) debugConfig.logger.throwIriError(`Failed to patch context: ${patched}`);
+      }
+
 
       if (this.getCurrentFGContext() !== fgContext)
         debugConfig.logger.throwIriError("FG Context not expected to change");
@@ -2161,25 +2339,6 @@ export default class IRIDIUM_MODULE {
             ),
           ),
         );
-
-      // Retain context in base cases like : a = x.a?.()
-      if (existingState.callExprContext) {
-        if (this.getCurrentFGContext() !== fgContext)
-          debugConfig.logger.throwIriError("FG Context not expected to change");
-        const first = fgContext.getCurrentBB().statements[0];
-        if (
-          first instanceof IS_SimpleVarDecl &&
-          first.RVal instanceof IV_Call &&
-          first.RVal.callee instanceof IV_Identifier
-        ) {
-          first.RVal.staticThis = true;
-          first.RVal.callee.isValue = true;
-        } else {
-          debugConfig.logger.throwIriError(
-            "Expected first statement of spilled node to be a IV_Call",
-          );
-        }
-      }
 
       if (this.getCurrentFGContext() !== fgContext)
         debugConfig.logger.throwIriError("FG Context not expected to change");
@@ -2409,7 +2568,7 @@ export default class IRIDIUM_MODULE {
         }
       }
 
-      if (tag instanceof IV_StringLiteral && PRIMITIVE_TAGS.includes(tag.value)) 
+      if (tag instanceof IV_StringLiteral && PRIMITIVE_TAGS.includes(tag.value))
         return new IV_PJSX(node, tag, props, children);
       else return new IV_JSX(node, tag, props, children);
     }
@@ -2499,7 +2658,25 @@ export default class IRIDIUM_MODULE {
         args.push(resHolder);
       }
     }
-    return new IV_Call(node, true, LVal, args);
+    let res;
+    if (isOptionalCallExpression(node.callee)) {
+      res = new IV_Call(node, false, LVal, args);
+    } else if (isJS3MemberExpression(node.callee)) {
+      let lookupName;
+      if (isIdentifier(node.callee.object)) {
+        lookupName = node.callee.object.name;
+      } else if (isThisExpression(node.callee)) {
+        lookupName = IV_This.lookupName();
+      } else {
+        lookupName = ISP_Super.lookupName();
+      }
+      res = new IV_Call(node, true, LVal, args, lookupName);
+    } else if (isOptionalMemberExpression(node.callee)) {
+      debugConfig.logger.throwIriError("Handle optional member expression for call expression");
+    } else {
+      res = new IV_Call(node, false, LVal, args);
+    }
+    return res;
   }
 
   // *********************** Iridium_This ***********************

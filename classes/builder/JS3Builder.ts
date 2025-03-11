@@ -13,6 +13,12 @@ import {
   JS3Program_body,
 } from "./JS3Helpers/JS3Types.ts";
 
+// const assert = (val) => {
+//   if (!val) {
+//     console.log("Assertion Failed");
+//   } 
+// }
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const generator = _generator["default"];
 

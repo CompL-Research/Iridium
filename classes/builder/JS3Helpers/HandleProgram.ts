@@ -95,7 +95,16 @@ import _generate from "@babel/generator";
 import _traverse from "@babel/traverse";
 import { handleDefaultExportNames } from "./GenericConstructs.ts";
 
-// const generate = _generate.default;
+let generate;
+let traverse;
+if (typeof Bun !== 'undefined') {
+  generate = _generate;
+  traverse = _traverse;
+} else {
+  generate = _generate.default;
+  traverse = _traverse.default;
+}
+
 // const trasverse = _traverse.default;
 
 type OtherProps = JS3BuilderUtils;
@@ -406,7 +415,7 @@ export function handleExportNamedDeclaration(
             );
 
             // Generate source string
-            const output = _generate(tempVarDecl);
+            const output = generate(tempVarDecl);
 
             // Generate AST
             const options = {
@@ -415,7 +424,7 @@ export function handleExportNamedDeclaration(
             const result = babel.transformSync(output.code, options);
 
             // Populate generated bindings
-            _traverse(result.ast, {
+            traverse(result.ast, {
               Program(path) {
                 for (const key in path.scope.bindings) {
                   const b = path.scope.bindings[key];
@@ -425,7 +434,7 @@ export function handleExportNamedDeclaration(
             });
           } catch (e) {
             debugConfig.logger.throwJS3Error(
-              `Failed lowering export declaration pattern: ${e}, ${_generate}`,
+              `Failed lowering export declaration pattern: ${e}`,
               [e, s, declaredBindings],
             );
           }

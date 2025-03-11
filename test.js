@@ -1416,9 +1416,45 @@
 //   return foo.M1
 // }
 
-function foo() {
-  let x = this.foo;
-  return x;
-}
+// function foo() {
+//   let x = this.foo;
+//   return x;
+// }
 
-export {foo}; 
+// export {foo}; 
+
+
+// let x = {
+//   f: {
+//     xx: 12,
+//     g(a) { console.log(a + this.xx) }
+//   }
+// }
+
+// let arg = 12;
+
+// x.f?.g(arg)
+
+// function foo() {
+//   return this.boo;
+// }
+
+// let f = {
+//   boo: 11,
+//   foo() {
+//     const aaa = console.log(this.boo)
+//     return aaa;
+//   }
+// };
+
+// f.foo();
+
+// let o = []
+
+import o from "./test1.js"
+
+let [x, y] = o;
+
+export const fun = () => {
+  return o;
+}
