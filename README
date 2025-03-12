@@ -1,4 +1,5 @@
 
+
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 ░        ░░       ░░░        ░░       ░░░        ░░  ░░░░  ░░  ░░░░  ░
 ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒   ▒▒   ▒
@@ -6,7 +7,7 @@
 ████  █████  ███  ██████  █████  ████  █████  █████  ████  ██  █  █  █
 █        ██  ████  ██        ██       ███        ███      ███  ████  █
 ██████████████████████████████████████████████████████████████████████
-Iridium Version: 0.4a
+Iridium Version: 0.6a
 
 
 === Iridium ===
@@ -14,13 +15,15 @@ Iridium Version: 0.4a
   This project provides infrastructure to allow static analysis of react based  
   applications.                                                                 
   $ ./iridium <command> [OPTIONS]                                               
+  $ ./iridium js3 help                                                          
+  $ ./iridium iri help                                                          
   $ ./iridium help                                                              
 
 Command List
 
   help      Display this information.                        
-  analyze   Run static analysis over a project.              
   js3       Generate JS3 file and print to stdout            
   iri       Generate Iridium file (.iri) and print to stdout 
   stats     Codespace stats.                                 
   version   Print the version.                               
+

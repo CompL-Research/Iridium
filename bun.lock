@@ -29,6 +29,7 @@
         "@babel/cli": "^7.25.9",
         "@babel/core": "^7.26.0",
         "@eslint/js": "^9.20.0",
+        "@types/bun": "^1.2.5",
         "eslint": "^9.20.1",
         "eslint-config-prettier": "^10.0.1",
         "eslint-plugin-prettier": "^5.2.3",
@@ -391,6 +392,8 @@
 
     "@tsconfig/node16": ["@tsconfig/node16@1.0.4", "", {}, "sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA=="],
 
+    "@types/bun": ["@types/bun@1.2.5", "", { "dependencies": { "bun-types": "1.2.5" } }, "sha512-w2OZTzrZTVtbnJew1pdFmgV99H0/L+Pvw+z1P67HaR18MHOzYnTYOi6qzErhK8HyT+DB782ADVPPE92Xu2/Opg=="],
+
     "@types/cookie": ["@types/cookie@0.4.1", "", {}, "sha512-XW/Aa8APYr6jSVVA1y/DEIZX0/GMKLEVekNG727R8cs56ahETkRAy/3DR7+fJyh7oUgGwNQaRfXCun0+KbWY7Q=="],
 
     "@types/cors": ["@types/cors@2.8.17", "", { "dependencies": { "@types/node": "*" } }, "sha512-8CGDvrBj1zgo2qE+oS3pOCyYNqCPryMWY2bGfwA0dcfopWGgxs+78df0Rs3rc9THP4JkOhLsAa+15VdpAqkcUA=="],
@@ -406,6 +409,8 @@
     "@types/json-schema": ["@types/json-schema@7.0.15", "", {}, "sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA=="],
 
     "@types/node": ["@types/node@20.14.12", "", { "dependencies": { "undici-types": "~5.26.4" } }, "sha512-r7wNXakLeSsGT0H1AU863vS2wa5wBOK4bWMjZz2wj+8nBx+m5PeIn0k8AloSLpRuiwdRQZwarZqHE4FNArPuJQ=="],
+
+    "@types/ws": ["@types/ws@8.5.14", "", { "dependencies": { "@types/node": "*" } }, "sha512-bd/YFLW+URhBzMXurx7lWByOu+xzU9+kb3RboOteXYDfW+tr+JZa99OyNmPINEGB/ahzKrEuc8rcv4gnpJmxTw=="],
 
     "@types/yargs": ["@types/yargs@17.0.33", "", { "dependencies": { "@types/yargs-parser": "*" } }, "sha512-WpxBCKWPLr4xSsHgz511rFJAM+wS28w2zEO1QDNY5zM/S8ok70NNfztH0xwhqKyaK0OHCbN98LDAZuy1ctxDkA=="],
 
@@ -482,6 +487,8 @@
     "browserslist": ["browserslist@4.24.2", "", { "dependencies": { "caniuse-lite": "^1.0.30001669", "electron-to-chromium": "^1.5.41", "node-releases": "^2.0.18", "update-browserslist-db": "^1.1.1" }, "bin": "cli.js" }, "sha512-ZIc+Q62revdMcqC6aChtW4jz3My3klmCO1fEmINZY/8J3EpBg5/A/D0AKmBveUh6pgoeycoMkVMko84tuYS+Gg=="],
 
     "bufferutil": ["bufferutil@4.0.8", "", { "dependencies": { "node-gyp-build": "^4.3.0" } }, "sha512-4T53u4PdgsXqKaIctwF8ifXlRTTmEPJ8iEPWFdGZvcf7sbwYo6FKFEX9eNNAnzFZ7EzJAQ3CJeOtCRA4rDp7Pw=="],
+
+    "bun-types": ["bun-types@1.2.5", "", { "dependencies": { "@types/node": "*", "@types/ws": "~8.5.10" } }, "sha512-3oO6LVGGRRKI4kHINx5PIdIgnLRb7l/SprhzqXapmoYkFl5m4j6EvALvbDVuuBFaamB46Ap6HCUxIXNLCGy+tg=="],
 
     "callsites": ["callsites@3.1.0", "", {}, "sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ=="],
 

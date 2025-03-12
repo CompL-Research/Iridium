@@ -17,6 +17,8 @@
 
 import { o } from "./M2.js"
 
+export const boo = () => "Hey";
+
 export const execute = () => {
   return o();
 }

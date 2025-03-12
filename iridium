@@ -1,6 +1,0 @@
-#!/bin/bash
-# node --max-old-space-size=300000 --opt --max-inlined-bytecode-size=999 --max-inlined-bytecode-size-cumulative=9999  --import=tsx /home/meetesh/wd/Iridium/iridium.ts $*
-bun --import=tsx /home/meetesh/wd/Iridium/iridium.ts $*
-
-# npx clinic flame -- node --prof --import=tsx /home/meetesh/wd/Iridium/iridium.ts $*
-# node --import=tsx /home/meetesh/wd/Iridium/iridium.ts $*

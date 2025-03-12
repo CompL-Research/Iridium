@@ -399,7 +399,7 @@ const handleFieldImportToStackNode = (
       }
     }
     if (pointees.size === 0) {
-      const importID = getHeapQualifiedName("FAILED_FIELD_IMPORT", currBBIDx, stackInstOffset);
+      const importID = getHeapQualifiedName(`FAILED_IMPORT_${field}_${resolvedUname}`, currBBIDx, stackInstOffset);
       const resObj = new UnknownNode(importID, uname);
       addPTANode(mutableFlowData, resObj);
       addSelfLoop(mutableFlowData, resObj, true);

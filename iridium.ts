@@ -31,7 +31,7 @@ import { PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "classes/builder/IridiumHe
 import { printPTAFlowData } from "classes/builder/IridiumHelpers/Passes/PTA_STUFF/PTAFlowData.ts";
 import { RESOLUTION_CACHE } from "classes/builder/IridiumHelpers/IRIDIUM.ts";
 
-const VERSION = "0.5a";
+const VERSION = "0.6a";
 const directories = ["./classes", "./configs", "./docs", "./playground/src"];
 
 debugConfig.versionNumber = `Iridium ${VERSION}`;
