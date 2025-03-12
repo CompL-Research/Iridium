@@ -376,7 +376,7 @@ class Queue {
 
 export const RESOLUTION_CACHE: Map<string, I_Container> = new Map();
 function areMapsEqual(
-  map1: Map<string, Set<string>>, 
+  map1: Map<string, Set<string>>,
   map2: Map<string, Set<string>>
 ): boolean {
   if (map1.size !== map2.size) return false;
@@ -458,6 +458,43 @@ export default class IRIDIUM_MODULE {
     this.fg = res;
   }
 
+  addTreeRoot(world: string) {
+    const worldData = getMutableWorldInstance(world);
+
+    // Add finalResNode
+    const rootNodeID = "TREEROOT";
+    const rootNode = GLOBAL_NODE_MAP.has(rootNodeID)
+      ? GLOBAL_NODE_MAP.get(rootNodeID)
+      : new StackNode(rootNodeID, world);
+    assert(rootNode instanceof StackNode, `Expected "TREEROOT" to be a StackNode`);
+    rootNode.color = "cyan";
+    addPTANode(worldData, rootNode);
+
+    // Get call closures from top level export
+    const exportsNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(this.js3builder.projectFile.uname));
+    const exportPointees = getPointees(worldData, exportsNode);
+
+    const sinks = this.fg.sinks();
+    if (sinks.length !== 1) debugConfig.logger.throwIriError(`Expected atmost one sink, found ${sinks.length}`);
+    const sinkBB = this.fg.getBBNode(sinks[0]);
+
+    const res = handleCallExpression(world, worldData, exportPointees, [], sinkBB, sinks[0], 0, undefined);
+    addStackEdges(worldData, rootNode, res);
+
+    if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 1)
+      debugConfig.logger.throwIriError("Expected one mutable instance");
+
+    PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
+
+    for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
+      if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
+      if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
+      PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
+    }
+
+    return rootNode;
+  }
+
   // Start PTA
   performPTA(topLevel: boolean) {
     const saver = saveFlowDataToFile;
@@ -480,56 +517,10 @@ export default class IRIDIUM_MODULE {
           debugConfig.logger.warn(`Reached SEARCH_THRESHOLD for "${world}" @ "${GLOBAL_UNAME_PATH_MAP.get(world)}"`);
           break;
         }
+        
+        this.performPTA(false);
 
-        if (PTA_WORLD.has(world)) getMutableWorldInstance(world);
-        initializeWorld(world, this.fg);
-
-        for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
-          if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
-          if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
-          PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
-        }
-
-        // initializeWorld(this.js3builder.projectFile.uname, this.fg);
-
-        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0)
-          debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
-
-        const worldData = getMutableWorldInstance(world);
-
-        // Add finalResNode
-        const rootNodeID = "TREEROOT";
-        const rootNode = GLOBAL_NODE_MAP.has(rootNodeID)
-          ? GLOBAL_NODE_MAP.get(rootNodeID)
-          : new StackNode(rootNodeID, world);
-        assert(rootNode instanceof StackNode);
-        rootNode.color = "cyan";
-        addPTANode(worldData, rootNode);
-
-        // Get call closures from top level export
-        const exportsNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(this.js3builder.projectFile.uname));
-        const exportPointees = getPointees(worldData, exportsNode);
-
-        const sinks = this.fg.sinks();
-        if (sinks.length !== 1) debugConfig.logger.throwIriError(`Expected atmost one sink, found ${sinks.length}`);
-        const sinkBB = this.fg.getBBNode(sinks[0]);
-
-        const res = handleCallExpression(world, worldData, exportPointees, [], sinkBB, sinks[0], 0, undefined);
-        addStackEdges(worldData, rootNode, res);
-
-        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 1)
-          debugConfig.logger.throwIriError("Expected one mutable instance");
-
-        PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
-
-        for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
-          if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
-          if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
-          PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
-        }
-
-        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 0)
-          debugConfig.logger.throwIriError("Expected no mutable instances to be active after analysis");
+        const rootNode = this.addTreeRoot(world);
 
         // Get successor closure
         const remoteNodes =
@@ -537,6 +528,7 @@ export default class IRIDIUM_MODULE {
             .filter((n) => n instanceof RemoteNode);
 
         const unresolvedRemoteNodes = remoteNodes.filter((n) => !GLOBAL_RESOLUTION_MAP.has(n.id) && !GLOBAL_RESOLUTION_SKIP_MAP.has(n.id));
+        
         if (unresolvedRemoteNodes.length === 0) {
           debugConfig.logger.warn(
             `Concluding search early: ${expansionLevel}`
@@ -651,7 +643,7 @@ export default class IRIDIUM_MODULE {
           } else {
             break;
           }
-  
+
         }
 
         for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
@@ -664,38 +656,8 @@ export default class IRIDIUM_MODULE {
         debugConfig.logger.success(`Execution time: ${end - start} ms`);
       }
 
-      const worldData = getMutableWorldInstance(world);
+      this.addTreeRoot(world);
 
-      // Add finalResNode
-      const rootNodeID = "TREEROOT";
-      const rootNode = GLOBAL_NODE_MAP.has(rootNodeID)
-        ? GLOBAL_NODE_MAP.get(rootNodeID)
-        : new StackNode(rootNodeID, world);
-      assert(rootNode instanceof StackNode);
-      rootNode.color = "cyan";
-      addPTANode(worldData, rootNode);
-
-      // Get call closures from top level export
-      const exportsNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(this.js3builder.projectFile.uname));
-      const exportPointees = getPointees(worldData, exportsNode);
-
-      const sinks = this.fg.sinks();
-      if (sinks.length !== 1) debugConfig.logger.throwIriError(`Expected atmost one sink, found ${sinks.length}`);
-      const sinkBB = this.fg.getBBNode(sinks[0]);
-
-      const res = handleCallExpression(world, worldData, exportPointees, [], sinkBB, sinks[0], 0, undefined);
-      addStackEdges(worldData, rootNode, res);
-
-      if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 1)
-        debugConfig.logger.throwIriError("Expected one mutable instance");
-
-      PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
-
-      for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
-        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
-        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
-        PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
-      }
     } else {
       const world = this.js3builder.projectFile.uname;
       if (PTA_WORLD.has(world)) getMutableWorldInstance(world);

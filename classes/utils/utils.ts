@@ -178,6 +178,10 @@ export const postOrderTraversal = (graph: Graph, startNode: string): string[] =>
   return result;
 }
 
+export const reversePostOrder = (graph: Graph, startNode: string): string[] => {
+  return postOrderTraversal(graph, startNode).reverse(); // reverse post-order
+}
+
 
 export function resolveModuleImport(
   importPath: string,

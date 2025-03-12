@@ -17,7 +17,6 @@ export class InitData {
   parseResult: ParseResult<t.File> | null = null;
   sourceMap: object | null = null;
 
-  // moduleImports: Map<ImportDeclaration, string | null> = new Map()
   toString() {
     return `{ "status": "${this.status}", "parseStatus": "${this.parseStatus}", "loc": ${this.loc ? this.loc : 0} }`;
   }
@@ -39,16 +38,17 @@ export class ProjectFile {
   }
 
   constructor(absoluteFilePath, projectBasePath) {
-    assert(absoluteFilePath !== null);
-    assert(projectBasePath !== null);
-    if (absoluteFilePath.startsWith(projectBasePath) === false) {
-      debugConfig.logger.error("File path: ", absoluteFilePath);
-      debugConfig.logger.error("Base path: ", projectBasePath);
+    assert(absoluteFilePath !== null, "🐖 absoluteFilePath is null");
+    assert(projectBasePath !== null, "🐖 projectBasePath is null");
+    const validPaths = absoluteFilePath.startsWith(projectBasePath)
+    if (!validPaths) {
+      debugConfig.logger.error(`File path: ${absoluteFilePath}`);
+      debugConfig.logger.error(`Base path: ${projectBasePath}`);
       debugConfig.logger.throwJS3Error(
         "File path does not start with project base path",
       );
     }
-    assert(absoluteFilePath.startsWith(projectBasePath) === true);
+    assert(validPaths, "🐖 File path does not start with project base path");
 
     this.absoluteFilePath = absoluteFilePath;
     this.projectBasePath = projectBasePath;
@@ -63,22 +63,6 @@ export class ProjectFile {
 
     GLOBAL_UNAME_PATH_MAP.set(this.uname, this.absoluteFilePath);
   }
-
-  // #transformImports(program: Program, result: Map<t.Node, string | null>) {
-  //   for (const stmtNode of program.body) {
-  //     if (isImportDeclaration(stmtNode)) {
-  //       const importSpecifier = stmtNode.source.value
-  //       // if (importSpecifier === "true/jsx-runtime") continue;
-  //       const resolved = resolveModuleImport(importSpecifier, this.absoluteFilePath, this.projectBasePath)
-  //       if (!resolved) {
-  //         result.set(stmtNode, null)
-  //         debugConfig.logger.error(`[Failed module import] ${importSpecifier}`)
-  //       } else {
-  //         result.set(stmtNode, resolved)
-  //       }
-  //     }
-  //   }
-  // }
 
   initSync(sourceType = "unambiguous", plugins = []) {
     const sourceCode = fs.readFileSync(this.absoluteFilePath, "utf-8");
@@ -101,17 +85,14 @@ export class ProjectFile {
           pragmaFrag: "###JSXFRAG###",
         },
       ],
+      ["@babel/preset-typescript"]
     ];
 
-    presets.push(["@babel/preset-typescript"]);
-
     const options = {
-      // cwd: this.projectBasePath,
       filename: this.filename,
       sourceType,
       ast: true,
       presets,
-      // sourceMaps: true,
       plugins: ["@babel/plugin-syntax-jsx", ...plugins],
     };
 
@@ -119,21 +100,5 @@ export class ProjectFile {
     this.initData.parseStatus = "parsed";
     this.initData.parseResult = result.ast;
     this.initData.sourceMap = result.map;
-
-    // // Resolve imports using the loaded file's AST
-    // this.#transformImports(result.ast.program, this.initData.moduleImports)
   }
-
-  // // Loads the file and creates an AST
-  // initAsync(sourceType = "unambiguous", plugins = []) {
-  //   const that = this;
-  //   // This will return a promise
-  //   return new Promise<void>((resolve) => {
-  //     try {
-  //       that.initSync(sourceType, plugins);
-  //     } finally {
-  //       resolve();
-  //     }
-  //   });
-  // }
 }

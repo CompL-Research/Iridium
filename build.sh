@@ -8,7 +8,7 @@ iridium=$(
 # node --import=tsx $wd/iridium.ts \$*
 
 # BunJS is the default execution env, recommended
-bun --import=tsx $wd/iridium.ts $*
+bun --import=tsx $wd/iridium.ts \$*
 END
 )
 

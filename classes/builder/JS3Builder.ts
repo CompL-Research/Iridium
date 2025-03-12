@@ -53,7 +53,7 @@ export default class JS3Builder {
         "JS3 Builder requires a parsed file as input, found unparsed file",
       );
     }
-    assert(file.initData.parseStatus === "parsed");
+    assert(file.initData.parseStatus === "parsed", `🐖 Expected parseStatus to be "parsed"`);
     this.projectFile = file;
     this.generatedAST = null;
     this.generatedCode = "// NOPE";
@@ -62,11 +62,11 @@ export default class JS3Builder {
   build() {
     const file = this.projectFile.initData.parseResult;
     const program = this.projectFile.initData.parseResult.program;
-    assert(program);
+    assert(program, `🐖 JS3 builder, program node is undefined`);
     const js3Program = handleProgram(program, this.utils);
     this.generatedAST = generateJS3File(js3Program, file);
     this.generateCode();
-    this.generateURI();
+    // this.generateURI();
     this.saveGeneratedFile();
   }
 
@@ -77,15 +77,8 @@ export default class JS3Builder {
         "@babel/preset-env",
         { targets: "last 2 Chrome versions", modules: false },
       ],
-      // ['@babel/preset-react', { runtime: "automatic", importSource: true }]
+      ["@babel/preset-typescript"]
     ];
-
-    if (
-      this.projectFile.extension === "ts" ||
-      this.projectFile.extension === "tsx"
-    ) {
-      presets.push(["@babel/preset-typescript"]);
-    }
 
     if (debugConfig.cli.test262)
       this.generatedAST.trailingComments = this.generatedAST.comments;
@@ -94,12 +87,10 @@ export default class JS3Builder {
       this.generatedAST,
       this.projectFile.initData.sourceCode,
       {
-        // cwd: this.projectFile.projectBasePath,
         filename: this.projectFile.uname,
-        // inputSourceMap: this.projectFile.sourceMap,
         ast: true,
         presets,
-        sourceMaps: true,
+        sourceMaps: "inline",
         plugins: ["@babel/plugin-syntax-jsx"],
       },
     );
@@ -109,37 +100,15 @@ export default class JS3Builder {
     this.generatedAST = ast;
   }
 
-  generateURI() {
-    // https://github.com/facebook/react
-    function utf16ToUTF8(s: string): string {
-      return unescape(encodeURIComponent(s));
-    }
-
-    function getSourceMapUrl(code: string, map: string): string | null {
-      code = utf16ToUTF8(code);
-      map = utf16ToUTF8(map);
-      return `https://evanw.github.io/source-map-visualization/#${btoa(
-        `${code.length}\0${code}${map.length}\0${map}`,
-      )}`;
-    }
-
-    const ast = this.generatedAST;
-    if (ast) {
-      const sourceMapUrl = getSourceMapUrl(
-        this.generatedCode,
-        JSON.stringify(this.sourceMap),
-      );
-      this.uri = sourceMapUrl;
-    }
-  }
-
   saveGeneratedFile() {
-    fs.writeFileSync(
-      debugConfig.cli.outputsPath +
-        "/" +
-        path.basename(this.projectFile.uname, this.projectFile.extension) +
-        ".js3",
-      this.generatedCode,
+    const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.projectFile.uname, this.projectFile.extension) + ".js3";
+    fs.writeFile(
+      filePath,
+      this.generatedCode
+      ,(e) => {
+        if (e) debugConfig.logger.error(`[Failed to save JS3]: ${path.basename(this.projectFile.uname, this.projectFile.extension)}`);
+        else debugConfig.logger.success(`[Saved JS3]: ${this.projectFile.uname}`);
+      }
     );
   }
 }

@@ -13,5 +13,5 @@
       "#graphlib": ["./externalDeps/graphlib-with-dominator-algo/index.js"]
     }
   },
-  "exclude": ["node_modules", "externalDeps", "outputs", "temp", "tests"]
+  "exclude": ["node_modules", "outputs", "temp", "tests"]
 }
