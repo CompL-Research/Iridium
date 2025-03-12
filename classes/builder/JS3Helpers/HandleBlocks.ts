@@ -224,7 +224,7 @@ import {
   generateTempIdentifier,
 } from "./JS3Constructors.ts";
 
-import { generateCommentLine } from "#utils";
+import { assertMessage, generateCommentLine } from "#utils";
 import assert from "node:assert";
 import {
   handleLoopDeclaration,
@@ -455,7 +455,7 @@ export function handleExpressionStatement(
 export function handleIfStatement(node: IfStatement, otherProps: OtherProps) {
   assert(
     Array.isArray(otherProps.others.holder),
-    `handleIfStatement expects an holder to spill intermediate values`,
+    assertMessage(import.meta.url, `😂 handleIfStatement expects an holder to spill intermediate values`)
   );
 
   const oldPrefix = otherProps.others.prefix;
@@ -559,7 +559,7 @@ export function handleReturnStatement(
 ) {
   assert(
     Array.isArray(otherProps.others.holder),
-    `handleReturnStatement expects an holder to spill intermediate values`,
+    assertMessage(import.meta.url, `😂 handleReturnStatement expects an holder to spill intermediate values`)
   );
 
   const oldPrefix = otherProps.others.prefix;
@@ -595,7 +595,7 @@ export function handleVariableDeclaration(
 ): Array<JS3AllowedBlockStatement> {
   assert(
     Array.isArray(otherProps.others.holder),
-    `handleVariableDeclaration expects an holder to spill intermediate values`,
+    assertMessage(import.meta.url, `😂 handleVariableDeclaration expects an holder to spill intermediate values`)
   );
 
   const holder: JS3BlockStatement_body = [];

@@ -320,7 +320,7 @@ import { getEXPORTID, initializeWorld, PTA_HASH_MAP, PTA_WORLD, PTA_WORLD_CURRMU
 import { addPTANode, addStackEdges, ensureNodeIDAndGetPTANode, ensureNodeIDAndGetStackNode, getImmutableWorldInstance, getMutableWorldInstance, getPointees, getSuccessorClosureImmutable, GLOBAL_NODE_MAP, GLOBAL_RESOLUTION_MAP, GLOBAL_RESOLUTION_SKIP_MAP, RemoteNode, StackNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
 import { handleCallExpression } from "./Passes/PTA_STUFF/PTAHandlers.ts";
 import { GLOBAL_UNAME_PATH_MAP, ProjectFile } from "classes/ProjectFile.ts";
-import { popSet, postOrderTraversal, resolveModuleImport, saveFlowDataToFile, saveRenderTreeDataToFile } from "#utils";
+import { assertMessage, popSet, postOrderTraversal, resolveModuleImport, saveFlowDataToFile, saveRenderTreeDataToFile } from "#utils";
 import { Graph } from "#graphlib";
 import { traverseInstruction } from "./Visitors/traverse.ts";
 
@@ -466,7 +466,7 @@ export default class IRIDIUM_MODULE {
     const rootNode = GLOBAL_NODE_MAP.has(rootNodeID)
       ? GLOBAL_NODE_MAP.get(rootNodeID)
       : new StackNode(rootNodeID, world);
-    assert(rootNode instanceof StackNode, `Expected "TREEROOT" to be a StackNode`);
+    assert(rootNode instanceof StackNode, assertMessage(import.meta.url, `🌸 Expected "TREEROOT" to be a StackNode`));
     rootNode.color = "cyan";
     addPTANode(worldData, rootNode);
 

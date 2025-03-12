@@ -254,6 +254,7 @@ import {
   JS3CallExpression_typeArguments,
   JS3CallExpression_typeParameters,
 } from "./JS3Types.ts";
+import { assertMessage } from "#utils";
 
 type OtherProps = JS3BuilderUtils;
 
@@ -268,7 +269,7 @@ export function handleExpression(
 ): Identifier {
   assert(
     Array.isArray(otherProps.others.holder),
-    `handleExpression expects an holder to spill intermediate values`,
+    assertMessage(import.meta.url, `😂 handleExpression expects an holder to spill intermediate values`)
   );
 
   let resultIdentifier = generateIdentifier(node, "$TODO");
@@ -927,7 +928,7 @@ export function handleCallExpression(
 ) {
   assert(
     Array.isArray(otherProps.others.holder),
-    `handleCallExpression expects an holder to spill intermediate values`,
+    assertMessage(import.meta.url, `😂 handleCallExpression expects an holder to spill intermediate values`)
   );
 
   const orig_typeArguments = node.typeArguments; // Handling prop typeArguments

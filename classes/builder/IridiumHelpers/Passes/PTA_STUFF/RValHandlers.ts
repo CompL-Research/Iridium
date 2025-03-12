@@ -77,6 +77,7 @@ import { IV_UpdateExpression } from "../../ALL_RVal/IV_UpdateExpression.ts";
 import { IV_ModuleMeta, IV_NewTarget } from "../../ALL_RVal/IV_META.ts";
 import { IV_InIterator, IV_OfIterator, IV_LoopNext, IV_HasLoopNext } from "../../ALL_RVal/IV_LoopIterators.ts";
 import { UnknownResultObj } from "../PTA-UOW/PTA/nodes.ts";
+import { assertMessage } from "#utils";
 
 // const assert = (val) => {
 //   if (!val) {
@@ -99,7 +100,7 @@ export const dissernProps = (
   // We have a computed prop, we must find all the literals it points to and see if we can resolve it.
   //
   const node = ensureNodeIDAndGetPTANode(mutableFlowData, stackQualifiedName);
-  assert(node instanceof StackNode);
+  assert(node instanceof StackNode, assertMessage(import.meta.url, `💔 "${node}" !instanceof StackNode`));
   const propPointees = getPointees(mutableFlowData, node);
   return dissernPointees(propPointees);
 };
@@ -120,7 +121,7 @@ export const handleRVals = (
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
       : new IRIDUM_GLOBAL(ID, uname);
-    assert(node instanceof IRIDUM_GLOBAL);
+    assert(node instanceof IRIDUM_GLOBAL, assertMessage(import.meta.url, `💔 "${node}" !instanceof IRIDUM_GLOBAL`));
     addPTANode(mutableFlowData, node);
     return [node];
   } else if (rVal instanceof IV_Identifier && rVal.name === "undefined") {
@@ -128,7 +129,7 @@ export const handleRVals = (
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
       : new IRIDUM_GLOBAL(ID, uname);
-    assert(node instanceof IRIDUM_GLOBAL);
+    assert(node instanceof IRIDUM_GLOBAL, assertMessage(import.meta.url, `💔 "${node}" !instanceof IRIDUM_GLOBAL`));
     addPTANode(mutableFlowData, node);
     return [node];
   } else if (rVal instanceof IV_CTHIS) {
@@ -178,7 +179,7 @@ export const handleRVals = (
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
       : new LiteralNode(ID, rVal, uname);
-    assert(node instanceof LiteralNode);
+    assert(node instanceof LiteralNode, assertMessage(import.meta.url, `💔 "${node}" !instanceof LiteralNode`));
     addPTANode(mutableFlowData, node);
     node.world = uname;
     return [node];
@@ -187,7 +188,7 @@ export const handleRVals = (
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
       : new LiteralNode(ID, rVal, uname);
-    assert(node instanceof LiteralNode);
+    assert(node instanceof LiteralNode, assertMessage(import.meta.url, `💔 "${node}" !instanceof LiteralNode`));
     addPTANode(mutableFlowData, node);
     node.world = uname;
     return [node];
@@ -196,7 +197,7 @@ export const handleRVals = (
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
       : new LiteralNode(ID, rVal, uname);
-    assert(node instanceof LiteralNode);
+    assert(node instanceof LiteralNode, assertMessage(import.meta.url, `💔 "${node}" !instanceof LiteralNode`));
     node.world = uname;
     addPTANode(mutableFlowData, node);
     return [node];
@@ -205,7 +206,7 @@ export const handleRVals = (
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
       : new LiteralNode(ID, rVal, uname);
-    assert(node instanceof LiteralNode);
+    assert(node instanceof LiteralNode, assertMessage(import.meta.url, `💔 "${node}" !instanceof LiteralNode`));
     node.world = uname;
     addPTANode(mutableFlowData, node);
     return [node];
@@ -214,7 +215,7 @@ export const handleRVals = (
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
       : new LiteralNode(ID, rVal, uname);
-    assert(node instanceof LiteralNode);
+    assert(node instanceof LiteralNode, assertMessage(import.meta.url, `💔 "${node}" !instanceof LiteralNode`));
     node.world = uname;
     addPTANode(mutableFlowData, node);
     return [node];
@@ -223,7 +224,7 @@ export const handleRVals = (
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
       : new LiteralNode(ID, rVal, uname);
-    assert(node instanceof LiteralNode);
+    assert(node instanceof LiteralNode, assertMessage(import.meta.url, `💔 "${node}" !instanceof LiteralNode`));
     node.world = uname;
     addPTANode(mutableFlowData, node);
     return [node];
@@ -274,7 +275,7 @@ export const handleRVals = (
     const stackNode = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
       : new StackNode(ID, uname);
-    assert(stackNode instanceof StackNode);
+    assert(stackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${stackNode}" !instanceof StackNode`));
     addPTANode(mutableFlowData, stackNode);
 
     const callees = getPointees(mutableFlowData, stackNode);
@@ -286,7 +287,7 @@ export const handleRVals = (
       const contextStackNode = GLOBAL_NODE_MAP.has(ID)
         ? GLOBAL_NODE_MAP.get(ID)
         : new StackNode(ID, uname);
-      assert(contextStackNode instanceof StackNode);
+      assert(contextStackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${contextStackNode}" !instanceof StackNode`));
       addPTANode(mutableFlowData, contextStackNode);
       calleeContext = getPointees(mutableFlowData, contextStackNode);
     } else {
@@ -393,8 +394,8 @@ export const handleRVals = (
     const trueNode = GLOBAL_NODE_MAP.has(trueID)
       ? GLOBAL_NODE_MAP.get(trueID)
       : new LiteralNode(trueID, new IV_BooleanLiteral(undefined, true), uname);
-    assert(trueNode instanceof LiteralNode);
-    assert(trueNode.node instanceof IV_BooleanLiteral);
+    assert(trueNode instanceof LiteralNode, assertMessage(import.meta.url, `💔 "${trueNode}" !instanceof StackNode`));
+    assert(trueNode.node instanceof IV_BooleanLiteral, assertMessage(import.meta.url, `💔 "${trueNode.node}" !instanceof IV_BooleanLiteral`));
     trueNode.world = uname;
     addPTANode(mutableFlowData, trueNode);
 
@@ -402,8 +403,8 @@ export const handleRVals = (
     const falseNode = GLOBAL_NODE_MAP.has(falseID)
       ? GLOBAL_NODE_MAP.get(falseID)
       : new LiteralNode(falseID, new IV_BooleanLiteral(undefined, false), uname);
-    assert(falseNode instanceof LiteralNode);
-    assert(falseNode.node instanceof IV_BooleanLiteral);
+    assert(falseNode instanceof LiteralNode, assertMessage(import.meta.url, `💔 "${falseNode}" !instanceof LiteralNode`));
+    assert(falseNode.node instanceof IV_BooleanLiteral, assertMessage(import.meta.url, `💔 "${falseNode.node}" !instanceof IV_BooleanLiteral`));
     falseNode.world = uname;
     addPTANode(mutableFlowData, falseNode);
 
@@ -598,7 +599,7 @@ export const handleRVals = (
     const objNode = GLOBAL_NODE_MAP.has(objExprID)
       ? GLOBAL_NODE_MAP.get(objExprID)
       : new OrdinaryObjectNode(objExprID, uname);
-    assert(objNode instanceof OrdinaryObjectNode);
+    assert(objNode instanceof OrdinaryObjectNode, assertMessage(import.meta.url, `💔 "${objNode}" !instanceof OrdinaryObjectNode`));
     addPTANode(mutableFlowData, objNode);
 
     // Process Fields
@@ -622,7 +623,7 @@ export const handleRVals = (
           const node = GLOBAL_NODE_MAP.has(ID)
             ? GLOBAL_NODE_MAP.get(ID)
             : new OrdinaryFunctionNode(ID, p, uname);
-          assert(node instanceof OrdinaryFunctionNode);
+          assert(node instanceof OrdinaryFunctionNode, assertMessage(import.meta.url, `💔 "${node}" !instanceof OrdinaryFunctionNode`));
           pointee = node;
         } else if (p.kind === "get") {
           const ID = getHeapQualifiedName(
@@ -633,7 +634,7 @@ export const handleRVals = (
           const node = GLOBAL_NODE_MAP.has(ID)
             ? GLOBAL_NODE_MAP.get(ID)
             : new GetClosureNode(ID, p, uname);
-          assert(node instanceof GetClosureNode);
+          assert(node instanceof GetClosureNode, assertMessage(import.meta.url, `💔 "${node}" !instanceof GetClosureNode`));
           pointee = node;
         } else if (p.kind === "set") {
           const ID = getHeapQualifiedName(
@@ -644,7 +645,7 @@ export const handleRVals = (
           const node = GLOBAL_NODE_MAP.has(ID)
             ? GLOBAL_NODE_MAP.get(ID)
             : new SetClosureNode(ID, p, uname);
-          assert(node instanceof SetClosureNode);
+          assert(node instanceof SetClosureNode, assertMessage(import.meta.url, `💔 "${node}" !instanceof SetClosureNode`));
           pointee = node;
         }
         addPTANode(mutableFlowData, pointee);
@@ -728,7 +729,7 @@ export const handleRVals = (
     const objNode = GLOBAL_NODE_MAP.has(mainObjID)
       ? GLOBAL_NODE_MAP.get(mainObjID)
       : new OrdinaryArrayNode(mainObjID, uname);
-    assert(objNode instanceof OrdinaryArrayNode);
+    assert(objNode instanceof OrdinaryArrayNode, assertMessage(import.meta.url, `💔 "${objNode}" !instanceof OrdinaryArrayNode`));
     addPTANode(mutableFlowData, objNode);
 
     let i = 0;
@@ -792,7 +793,7 @@ export const handleRVals = (
     const funNode = GLOBAL_NODE_MAP.has(funID)
       ? GLOBAL_NODE_MAP.get(funID)
       : new OrdinaryFunctionNode(funID, rVal, uname);
-    assert(funNode instanceof OrdinaryFunctionNode);
+    assert(funNode instanceof OrdinaryFunctionNode, assertMessage(import.meta.url, `💔 "${funNode}" !instanceof OrdinaryFunctionNode`));
     addPTANode(mutableFlowData, funNode);
     return [funNode];
   }
@@ -807,7 +808,7 @@ export const handleRVals = (
     const funNode = GLOBAL_NODE_MAP.has(funID)
       ? GLOBAL_NODE_MAP.get(funID)
       : new OrdinaryFunctionNode(funID, rVal, uname);
-    assert(funNode instanceof OrdinaryFunctionNode);
+    assert(funNode instanceof OrdinaryFunctionNode, assertMessage(import.meta.url, `💔 "${funNode}" !instanceof OrdinaryFunctionNode`));
     addPTANode(mutableFlowData, funNode);
     return [funNode];
   }
@@ -819,7 +820,7 @@ export const handleRVals = (
     const resObj = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
       : new UnknownNode(ID, uname);
-    assert(resObj instanceof UnknownNode);
+    assert(resObj instanceof UnknownNode, assertMessage(import.meta.url, `💔 "${resObj}" !instanceof UnknownNode`));
     addPTANode(mutableFlowData, resObj);
     addSelfLoop(mutableFlowData, resObj, true);
     return [resObj];
@@ -875,13 +876,13 @@ export const handleRVals = (
     const mainObj = GLOBAL_NODE_MAP.has(mainObjID)
       ? GLOBAL_NODE_MAP.get(mainObjID)
       : new ClassNode(mainObjID, rVal, uname);
-    assert(mainObj instanceof ClassNode);
+    assert(mainObj instanceof ClassNode, assertMessage(import.meta.url, `💔 "${mainObj}" !instanceof ClassNode`));
     addPTANode(mutableFlowData, mainObj);
 
     if (rVal.heritage) {
       const heritageID = getStackQualifiedName(rVal.heritage.lookupName(), currBB);
       const heritageNode = ensureNodeIDAndGetStackNode(mutableFlowData, heritageID);
-      assert(heritageNode instanceof StackNode);
+      assert(heritageNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${heritageNode}" !instanceof StackNode`));
       const pointees = getPointees(mutableFlowData, heritageNode);
       addHeapEdges(mutableFlowData, mainObj, "^HERITAGE^", pointees, true);
     }
@@ -922,7 +923,7 @@ export const handleRVals = (
     const pJSXObj = GLOBAL_NODE_MAP.has(pJSXID)
       ? GLOBAL_NODE_MAP.get(pJSXID)
       : new PJSXNode(pJSXID, uname);
-    assert(pJSXObj instanceof PJSXNode);
+    assert(pJSXObj instanceof PJSXNode, assertMessage(import.meta.url, `💔 "${pJSXObj}" !instanceof PJSXNode`));
     addPTANode(mutableFlowData, pJSXObj);
 
     for (const c of rVal.children) {
@@ -946,7 +947,7 @@ export const handleRVals = (
       const pJSXObj = GLOBAL_NODE_MAP.has(pJSXID)
         ? GLOBAL_NODE_MAP.get(pJSXID)
         : new PJSXNode(pJSXID, uname);
-      assert(pJSXObj instanceof PJSXNode);
+      assert(pJSXObj instanceof PJSXNode, assertMessage(import.meta.url, `💔 "${pJSXObj}" !instanceof PJSXNode`));
       addPTANode(mutableFlowData, pJSXObj);
 
       for (const c of rVal.children) {
@@ -963,14 +964,14 @@ export const handleRVals = (
     const JSXObj = GLOBAL_NODE_MAP.has(JSXID)
       ? GLOBAL_NODE_MAP.get(JSXID)
       : new JSXNode(JSXID, uname);
-    assert(JSXObj instanceof JSXNode);
+    assert(JSXObj instanceof JSXNode, assertMessage(import.meta.url, `💔 "${JSXObj}" !instanceof JSXNode`));
     addPTANode(mutableFlowData, JSXObj);
 
     // Component Function
     const componentStackNode = GLOBAL_NODE_MAP.has(componentID)
       ? GLOBAL_NODE_MAP.get(componentID)
       : new StackNode(componentID, uname);
-    assert(componentStackNode instanceof StackNode);
+    assert(componentStackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${componentStackNode}" !instanceof StackNode`));
 
     const componentPointees = getPointees(mutableFlowData, componentStackNode);
 
@@ -981,7 +982,7 @@ export const handleRVals = (
       const cStackNode = GLOBAL_NODE_MAP.has(cID)
         ? GLOBAL_NODE_MAP.get(cID)
         : new StackNode(cID, uname);
-      assert(cStackNode instanceof StackNode);
+      assert(cStackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${cStackNode}" !instanceof StackNode`));
       getPointees(mutableFlowData, cStackNode).forEach((c) => childrenNodes.add(c));
     });
 
@@ -997,14 +998,14 @@ export const handleRVals = (
     const propsStackNode = GLOBAL_NODE_MAP.has(propsID)
       ? GLOBAL_NODE_MAP.get(propsID)
       : new StackNode(propsID, uname);
-    assert(propsStackNode instanceof StackNode);
+    assert(propsStackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${propsStackNode}" !instanceof StackNode`));
 
     // ArgumentsObj
     const argsID = getHeapQualifiedName("JSXARGS", currBBIDx, stackInstOffset);
     const argsNode = GLOBAL_NODE_MAP.has(argsID)
       ? GLOBAL_NODE_MAP.get(argsID)
       : new OrdinaryObjectNode(argsID, uname);
-    assert(argsNode instanceof OrdinaryObjectNode);
+    assert(argsNode instanceof OrdinaryObjectNode, assertMessage(import.meta.url, `💔 "${argsNode}" !instanceof OrdinaryObjectNode`));
     addPTANode(mutableFlowData, argsNode);
     
     const propsPointees = getPointees(mutableFlowData, propsStackNode);
@@ -1036,7 +1037,7 @@ export const handleRVals = (
     const fJSXObj = GLOBAL_NODE_MAP.has(fJSXID)
       ? GLOBAL_NODE_MAP.get(fJSXID)
       : new FJSXNode(fJSXID, uname);
-    assert(fJSXObj instanceof FJSXNode);
+    assert(fJSXObj instanceof FJSXNode, assertMessage(import.meta.url, `💔 "${fJSXObj}" !instanceof FJSXNode`));
     addPTANode(mutableFlowData, fJSXObj);
 
     for (const c of rVal.children) {

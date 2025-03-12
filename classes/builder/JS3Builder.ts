@@ -1,6 +1,5 @@
 import debugConfig from "#debugConfig";
 import babel from "@babel/core";
-import _generator from "@babel/generator";
 import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
@@ -12,15 +11,7 @@ import {
   JS3File,
   JS3Program_body,
 } from "./JS3Helpers/JS3Types.ts";
-
-// const assert = (val) => {
-//   if (!val) {
-//     console.log("Assertion Failed");
-//   } 
-// }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const generator = _generator["default"];
+import { assertMessage } from "#utils";
 
 export type JS3BuilderUtils = {
   getNewTemporary: (prefix: string | undefined) => string;
@@ -53,7 +44,7 @@ export default class JS3Builder {
         "JS3 Builder requires a parsed file as input, found unparsed file",
       );
     }
-    assert(file.initData.parseStatus === "parsed", `🐖 Expected parseStatus to be "parsed"`);
+    assert(file.initData.parseStatus === "parsed", assertMessage(import.meta.url, `😂 Expected parseStatus to be "parsed"`));
     this.projectFile = file;
     this.generatedAST = null;
     this.generatedCode = "// NOPE";
@@ -62,11 +53,10 @@ export default class JS3Builder {
   build() {
     const file = this.projectFile.initData.parseResult;
     const program = this.projectFile.initData.parseResult.program;
-    assert(program, `🐖 JS3 builder, program node is undefined`);
+    assert(program, assertMessage(import.meta.url, `😂 JS3 builder, program node is undefined`));
     const js3Program = handleProgram(program, this.utils);
     this.generatedAST = generateJS3File(js3Program, file);
     this.generateCode();
-    // this.generateURI();
     this.saveGeneratedFile();
   }
 
@@ -105,7 +95,7 @@ export default class JS3Builder {
     fs.writeFile(
       filePath,
       this.generatedCode
-      ,(e) => {
+      , (e) => {
         if (e) debugConfig.logger.error(`[Failed to save JS3]: ${path.basename(this.projectFile.uname, this.projectFile.extension)}`);
         else debugConfig.logger.success(`[Saved JS3]: ${this.projectFile.uname}`);
       }

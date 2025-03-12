@@ -1,5 +1,5 @@
 import debugConfig from "#debugConfig";
-import { hashGraph, saveFlowDataToFile, saveFlowDataToGraph } from "#utils";
+import { assertMessage, hashGraph, saveFlowDataToFile, saveFlowDataToGraph } from "#utils";
 import assert from "node:assert";
 import { IV_Identifier, IV_PrivateName } from "../../ALL_AMP/ALL_AMP.ts";
 import { IS_AExport, IS_BExport, IS_BImport, IS_CExport, IS_CImport, IS_EExport } from "../../ALL_IS/IS_Imports_Exports.ts";
@@ -197,7 +197,7 @@ export const handleObjectDestructuringAssignmentStatement = (
       const bindingNode = GLOBAL_NODE_MAP.has(bindingID)
         ? GLOBAL_NODE_MAP.get(bindingID)
         : new StackNode(bindingID, uname);
-      assert(bindingNode instanceof StackNode);
+      assert(bindingNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${bindingNode}" !instanceof StackNode`));
 
       // Propagate Edges
       const vs = handleFieldReference(uname, mutableFlowData, RValPointees, [field], currBB, currBBIDx, stackInstOffset);
@@ -218,7 +218,7 @@ export const handleObjectDestructuringAssignmentStatement = (
       const bindingNode = GLOBAL_NODE_MAP.has(bindingID)
         ? GLOBAL_NODE_MAP.get(bindingID)
         : new StackNode(bindingID, uname);
-      assert(bindingNode instanceof StackNode);
+      assert(bindingNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${bindingNode}" !instanceof StackNode`));
       addPTANode(mutableFlowData, bindingNode);
 
       // Temporary Result Holder
@@ -226,7 +226,7 @@ export const handleObjectDestructuringAssignmentStatement = (
       const destObjNode = GLOBAL_NODE_MAP.has(destObjID)
         ? GLOBAL_NODE_MAP.get(destObjID)
         : new OrdinaryObjectNode(destObjID, uname);
-      assert(destObjNode instanceof OrdinaryObjectNode);
+      assert(destObjNode instanceof OrdinaryObjectNode, assertMessage(import.meta.url, `💔 "${destObjNode}" !instanceof OrdinaryObjectNode`));
       addPTANode(mutableFlowData, destObjNode);
 
       for (const field of fieldsToProcess) {
@@ -262,7 +262,7 @@ export const handleArrayDestructuringAssignmentStatement = (
       const bindingNode = GLOBAL_NODE_MAP.has(bindingID)
         ? GLOBAL_NODE_MAP.get(bindingID)
         : new StackNode(bindingID, uname);
-      assert(bindingNode instanceof StackNode);
+      assert(bindingNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${bindingNode}" !instanceof StackNode`));
 
       // Propagate Edges
       const vs = handleFieldReference(uname, mutableFlowData, RValPointees, [field], currBB, currBBIDx, stackInstOffset);
@@ -283,7 +283,7 @@ export const handleArrayDestructuringAssignmentStatement = (
       const bindingNode = GLOBAL_NODE_MAP.has(bindingID)
         ? GLOBAL_NODE_MAP.get(bindingID)
         : new StackNode(bindingID, uname);
-      assert(bindingNode instanceof StackNode);
+      assert(bindingNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${bindingNode}" !instanceof StackNode`));
       addPTANode(mutableFlowData, bindingNode);
 
       // Temporary Result Holder
@@ -291,7 +291,7 @@ export const handleArrayDestructuringAssignmentStatement = (
       const destObjNode = GLOBAL_NODE_MAP.has(destObjID)
         ? GLOBAL_NODE_MAP.get(destObjID)
         : new OrdinaryArrayNode(destObjID, uname);
-      assert(destObjNode instanceof OrdinaryArrayNode);
+      assert(destObjNode instanceof OrdinaryArrayNode, assertMessage(import.meta.url, `💔 "${destObjNode}" !instanceof OrdinaryArrayNode`));
       addPTANode(mutableFlowData, destObjNode);
 
       for (const field of fieldsToProcess) {
@@ -315,7 +315,7 @@ export const handleSimpleAssignmentStatement = (
   const u = GLOBAL_NODE_MAP.has(qualifiedStackId)
     ? GLOBAL_NODE_MAP.get(qualifiedStackId)
     : new StackNode(qualifiedStackId, uname);
-  assert(u instanceof StackNode);
+  assert(u instanceof StackNode, assertMessage(import.meta.url, `💔 "${u}" !instanceof StackNode`));
   addStackPTANode(mutableFlowData, u);
   addStackEdges(mutableFlowData, u, vs);
 };
@@ -340,7 +340,7 @@ export const handleBImportNode = (
   const stackNode = GLOBAL_NODE_MAP.has(stackID)
     ? GLOBAL_NODE_MAP.get(stackID)
     : new StackNode(stackID, uname);
-  assert(stackNode instanceof StackNode);
+  assert(stackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${stackNode}" !instanceof StackNode`));
   addPTANode(mutableFlowData, stackNode);
 
   let field: string;
@@ -364,7 +364,7 @@ export const handleCImportNode = (
   const stackNode = GLOBAL_NODE_MAP.has(stackID)
     ? GLOBAL_NODE_MAP.get(stackID)
     : new StackNode(stackID, uname);
-  assert(stackNode instanceof StackNode);
+  assert(stackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${stackNode}" !instanceof StackNode`));
   addPTANode(mutableFlowData, stackNode);
 
   handleImportToStackNode(uname, mutableFlowData, stackNode, i.FROM.value, currBBIDx, stackInstOffset);
@@ -411,7 +411,7 @@ const handleFieldImportToStackNode = (
       ? GLOBAL_NODE_MAP.get(heapID)
       : new RemoteNode(heapID, FROM, uname);
 
-    assert(remoteNode instanceof RemoteNode);
+    assert(remoteNode instanceof RemoteNode, assertMessage(import.meta.url, `💔 "${remoteNode}" !instanceof RemoteNode`));
     addPTANode(mutableFlowData, remoteNode);
     addSelfLoop(mutableFlowData, remoteNode, true);
     addStackEdges(mutableFlowData, stackNode, [remoteNode]);
@@ -441,7 +441,7 @@ const handleImportToStackNode = (
       ? GLOBAL_NODE_MAP.get(heapID)
       : new RemoteNode(heapID, FROM, uname);
 
-    assert(remoteNode instanceof RemoteNode);
+    assert(remoteNode instanceof RemoteNode, assertMessage(import.meta.url, `💔 "${remoteNode}" !instanceof RemoteNode`));
     addPTANode(mutableFlowData, remoteNode);
     addSelfLoop(mutableFlowData, remoteNode, true);
     addStackEdges(mutableFlowData, stackNode, [remoteNode]);
@@ -499,7 +499,7 @@ export const handleCExportNode = (
   const stackNode = GLOBAL_NODE_MAP.has(stackID)
     ? GLOBAL_NODE_MAP.get(stackID)
     : new StackNode(stackID, uname);
-  assert(stackNode instanceof StackNode);
+  assert(stackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${stackNode}" !instanceof StackNode`));
   addPTANode(mutableFlowData, stackNode);
 
   const field: string = i.local.name;
@@ -530,7 +530,7 @@ export const handleEExportNode = (
   const tempStackNode = GLOBAL_NODE_MAP.has(tempStackID)
     ? GLOBAL_NODE_MAP.get(tempStackID)
     : new StackNode(tempStackID, uname);
-  assert(tempStackNode instanceof StackNode);
+  assert(tempStackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${tempStackNode}" !instanceof StackNode`));
   addPTANode(mutableFlowData, tempStackNode);
 
   handleImportToStackNode(uname, mutableFlowData, tempStackNode, i.FROM.value, currBBIDx, stackInstOffset);
@@ -596,7 +596,7 @@ export const handleSetClosureCall = (
   const argumentsNode = GLOBAL_NODE_MAP.has(argsID)
     ? GLOBAL_NODE_MAP.get(argsID)
     : new OrdinaryArrayNode(argsID, closureWorld);
-  assert(argumentsNode instanceof OrdinaryArrayNode);
+  assert(argumentsNode instanceof OrdinaryArrayNode, assertMessage(import.meta.url, `💔 "${argumentsNode}" !instanceof OrdinaryArrayNode`));
   addPTANode(boundaryEnv, argumentsNode);
 
   const pendingClosures = addHeapEdges(boundaryEnv, argumentsNode, "0", targets, true);
@@ -611,7 +611,7 @@ export const handleSetClosureCall = (
   const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
     ? GLOBAL_NODE_MAP.get(C_THIS_ID)
     : new StackNode(C_THIS_ID, closureWorld);
-  assert(stackNode instanceof StackNode);
+  assert(stackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${stackNode}" !instanceof StackNode`));
   addPTANode(boundaryEnv, stackNode);
   addStackEdges(boundaryEnv, stackNode, [objectContext]);
   // PTA Eval with curbed env as eval context
@@ -703,7 +703,7 @@ export const handleOrdinaryFunctionObjectCall = (
       const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
         ? GLOBAL_NODE_MAP.get(C_THIS_ID)
         : new StackNode(C_THIS_ID, closureWorld);
-      assert(stackNode instanceof StackNode);
+      assert(stackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${stackNode}" !instanceof StackNode`));
       addPTANode(boundaryEnv, stackNode);
       addStackEdges(boundaryEnv, stackNode, objectContext);
     } else {
@@ -711,7 +711,7 @@ export const handleOrdinaryFunctionObjectCall = (
       const stackNode = GLOBAL_NODE_MAP.has(C_THIS_ID)
         ? GLOBAL_NODE_MAP.get(C_THIS_ID)
         : new StackNode(C_THIS_ID, closureWorld);
-      assert(stackNode instanceof StackNode);
+      assert(stackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${stackNode}" !instanceof StackNode`));
       addPTANode(boundaryEnv, stackNode);
       const undefID = new IV_Identifier(undefined, "undefined");
       const undefPointees = handleRVals(
@@ -781,7 +781,7 @@ export const initializeArgumentsObj = (
   const argumentsNode = GLOBAL_NODE_MAP.has(argsID)
     ? GLOBAL_NODE_MAP.get(argsID)
     : new OrdinaryArrayNode(argsID, remoteWorld);
-  assert(argumentsNode instanceof OrdinaryArrayNode);
+  assert(argumentsNode instanceof OrdinaryArrayNode, assertMessage(import.meta.url, `💔 "${argumentsNode}" !instanceof OrdinaryArrayNode`));
   addPTANode(boundaryEnv, argumentsNode);
 
   const suppliedArgs = callerArgs.length;
@@ -888,7 +888,7 @@ export const initializeJSXArgumentsObj = (
   const argumentsNode = GLOBAL_NODE_MAP.has(argsID)
     ? GLOBAL_NODE_MAP.get(argsID)
     : new OrdinaryArrayNode(argsID, remoteWorld);
-  assert(argumentsNode instanceof OrdinaryArrayNode);
+  assert(argumentsNode instanceof OrdinaryArrayNode, assertMessage(import.meta.url, `💔 "${argumentsNode}" !instanceof OrdinaryArrayNode`));
   addPTANode(boundaryEnv, argumentsNode);
 
   const suppliedArgs = 1;
@@ -965,7 +965,7 @@ export const handleClosureCall = (
       const argStackNode = GLOBAL_NODE_MAP.has(argStackQualifiedName)
         ? GLOBAL_NODE_MAP.get(argStackQualifiedName)
         : new StackNode(argStackQualifiedName, world);
-      assert(argStackNode instanceof StackNode);
+      assert(argStackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${argStackNode}" !instanceof StackNode`));
       addPTANode(boundaryEnv, argStackNode);
 
       assertFieldPTANode(boundaryEnv, argumentsNode, currField);
@@ -990,7 +990,7 @@ export const handleClosureCall = (
         ? GLOBAL_NODE_MAP.get(spillHolderID)
         : new OrdinaryArrayNode(spillHolderID, world);
 
-      assert(spillHolderObj instanceof OrdinaryArrayNode);
+      assert(spillHolderObj instanceof OrdinaryArrayNode, assertMessage(import.meta.url, `💔 "${spillHolderObj}" !instanceof OrdinaryArrayNode`));
       addPTANode(boundaryEnv, spillHolderObj);
 
       const argStackID = getStackQualifiedName(
@@ -1001,7 +1001,7 @@ export const handleClosureCall = (
         ? GLOBAL_NODE_MAP.get(argStackID)
         : new StackNode(argStackID, world);
       
-      assert(argStackNode instanceof StackNode);
+      assert(argStackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${argStackNode}" !instanceof StackNode`));
       addPTANode(boundaryEnv, argStackNode);
 
       addStackEdges(boundaryEnv, argStackNode, [spillHolderObj]);

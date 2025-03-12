@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import path from "path";
 
 import debugConfig from "#debugConfig";
+import { assertMessage } from "#utils";
 
 export class InitData {
   status: "loaded" | "failed" | "uninitialized" = "uninitialized";
@@ -38,8 +39,8 @@ export class ProjectFile {
   }
 
   constructor(absoluteFilePath, projectBasePath) {
-    assert(absoluteFilePath !== null, "🐖 absoluteFilePath is null");
-    assert(projectBasePath !== null, "🐖 projectBasePath is null");
+    assert(absoluteFilePath !== null, assertMessage(import.meta.url, "🐖 absoluteFilePath is null"));
+    assert(projectBasePath !== null, assertMessage(import.meta.url, "🐖 projectBasePath is null"));
     const validPaths = absoluteFilePath.startsWith(projectBasePath)
     if (!validPaths) {
       debugConfig.logger.error(`File path: ${absoluteFilePath}`);
@@ -48,7 +49,7 @@ export class ProjectFile {
         "File path does not start with project base path",
       );
     }
-    assert(validPaths, "🐖 File path does not start with project base path");
+    assert(validPaths, assertMessage(import.meta.url, "🐖 File path does not start with project base path"));
 
     this.absoluteFilePath = absoluteFilePath;
     this.projectBasePath = projectBasePath;

@@ -12,6 +12,10 @@ import ts from "typescript";
 
 export class JS3GenerationError extends Error { }
 
+export const assertMessage = (filePath: string, message: string) => {
+  return "[FILEPATH]: " + filePath + "\n" + message;
+}
+
 export const hasPackageJson = (folderPath) => {
   return fs.existsSync(path.join(folderPath, "package.json"));
 };

@@ -1,5 +1,5 @@
 import debugConfig from "#debugConfig";
-import { popSet, reversePostOrder } from "#utils";
+import { assertMessage, popSet, reversePostOrder } from "#utils";
 import { isJS3ObjectPattern } from "classes/builder/JS3Helpers/JS3Types.ts";
 import assert from "node:assert";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
@@ -67,7 +67,7 @@ export const initializeWorld = (uname: string, fg: IRIDIUM_FG) => {
     const globalNode = GLOBAL_NODE_MAP.has(binding[0])
       ? GLOBAL_NODE_MAP.get(binding[0])
       : new IRIDUM_GLOBAL(binding[0], uname);
-    assert(globalNode instanceof IRIDUM_GLOBAL, `🐖 Expected "${binding[0]}" as IRIDIUM_GLOBAL`);
+    assert(globalNode instanceof IRIDUM_GLOBAL, assertMessage(import.meta.url, `🎸 globalNode !instanceof IRIDIUM_GLOBAL`));
 
     addPTANode(initialWorldData, globalNode);
     initialWorldData.get(globalNode.id).add(PTAEdge.constructHeapEdge(globalNode.id, "*", "E", globalNode.id).getPTAEdge());
@@ -76,7 +76,7 @@ export const initializeWorld = (uname: string, fg: IRIDIUM_FG) => {
     const stackNode = GLOBAL_NODE_MAP.has(refToBinding)
       ? GLOBAL_NODE_MAP.get(refToBinding)
       : new StackNode(refToBinding, uname);
-    assert(stackNode instanceof StackNode, `🐖 Expected "${refToBinding}" as StackNode`);
+    assert(stackNode instanceof StackNode, assertMessage(import.meta.url, `🎸 "${refToBinding}" !instanceof StackNode`));
 
     addPTANode(initialWorldData, stackNode);
 
@@ -88,7 +88,7 @@ export const initializeWorld = (uname: string, fg: IRIDIUM_FG) => {
   const exportNode = GLOBAL_NODE_MAP.has(exportID)
     ? GLOBAL_NODE_MAP.get(exportID)
     : new OrdinaryObjectNode(exportID, uname);
-  assert(exportNode instanceof OrdinaryObjectNode, `🐖 Expected "${exportID}" as OrdinaryObjectNode`);
+  assert(exportNode instanceof OrdinaryObjectNode, assertMessage(import.meta.url, `🎸 "${exportID}" !instanceof OrdinaryObjectNode`));
 
   addPTANode(initialWorldData, exportNode);
 
