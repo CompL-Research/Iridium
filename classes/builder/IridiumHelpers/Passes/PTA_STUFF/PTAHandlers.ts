@@ -20,6 +20,7 @@ import {
   PTAFlowData,
   PTAFlowNode,
   RemoteNode,
+  ResolvedRemoteNode,
   SetClosureNode,
   StackNode,
   UnknownNode,
@@ -405,6 +406,16 @@ const handleFieldImportToStackNode = (
       addSelfLoop(mutableFlowData, resObj, true);
       pointees.add(resObj);
     }
+
+    const resolvedID = getHeapQualifiedName("RESOLVED", currBBIDx, stackInstOffset);
+    const resolvedRemoteNode = GLOBAL_NODE_MAP.has(resolvedID)
+      ? GLOBAL_NODE_MAP.get(resolvedID)
+      : new ResolvedRemoteNode(resolvedID, FROM, field, uname);
+    assert(resolvedRemoteNode instanceof ResolvedRemoteNode, assertMessage(import.meta.url, `💔 "${resolvedRemoteNode}" !instanceof ResolvedRemoteNode`));
+    addPTANode(mutableFlowData, resolvedRemoteNode);
+
+    pointees.forEach((p) => mutableFlowData.get(resolvedID).add(PTAEdge.constructHeapEdge(resolvedID, field, "E", p.id).getPTAEdge()));
+    
     addStackEdges(mutableFlowData, stackNode, pointees);
   } else {
     const remoteNode = GLOBAL_NODE_MAP.has(heapID)
@@ -434,6 +445,17 @@ const handleImportToStackNode = (
     getMutableWorldInstance(resolvedUname);
     const worldData = PTA_WORLD_CURRMUTABLE_DATA.get(resolvedUname)[0];
     const exportedNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(resolvedUname));
+
+    const resolvedID = getHeapQualifiedName("RESOLVED", currBBIDx, stackInstOffset);
+    const resolvedRemoteNode = GLOBAL_NODE_MAP.has(resolvedID)
+      ? GLOBAL_NODE_MAP.get(resolvedID)
+      : new ResolvedRemoteNode(resolvedID, FROM, "default", uname);
+    assert(resolvedRemoteNode instanceof ResolvedRemoteNode, assertMessage(import.meta.url, `💔 "${resolvedRemoteNode}" !instanceof ResolvedRemoteNode`));
+    addPTANode(mutableFlowData, resolvedRemoteNode);
+
+    mutableFlowData.get(resolvedID).add(PTAEdge.constructHeapEdge(resolvedID, "default", "E", exportedNode.id).getPTAEdge())
+    
+
     addPTANode(mutableFlowData, exportedNode);
     addStackEdges(mutableFlowData, stackNode, [exportedNode]);
   } else {
@@ -1077,22 +1099,22 @@ export const handleCallExpression = (
       )
       closureResults.push([flowData, world, returnNode]);
     } else {
-      if (args instanceof OrdinaryObjectNode) {
-        getFieldPointees(mutableFlowData, args, "children", true).forEach((p, _) => p.forEach(pp => res.add(pp)));
-        // res.add(args);
-      } else {
-        for (const a of args) {
-          let ID;
-          if (a instanceof IV_Identifier) {
-            ID = getStackQualifiedName(a.lookupName(), currBB);
-          } else {
-            ID = getStackQualifiedName(a.arg.lookupName(), currBB);
-          }
-          const stackNode = ensureNodeIDAndGetStackNode(mutableFlowData, ID);
-          const pointees = getPointees(mutableFlowData, stackNode);
-          pointees.forEach((n) => res.add(n));
-        }
-      }
+      // if (args instanceof OrdinaryObjectNode) {
+      //   getFieldPointees(mutableFlowData, args, "children", true).forEach((p, _) => p.forEach(pp => res.add(pp)));
+      //   // res.add(args);
+      // } else {
+      //   for (const a of args) {
+      //     let ID;
+      //     if (a instanceof IV_Identifier) {
+      //       ID = getStackQualifiedName(a.lookupName(), currBB);
+      //     } else {
+      //       ID = getStackQualifiedName(a.arg.lookupName(), currBB);
+      //     }
+      //     const stackNode = ensureNodeIDAndGetStackNode(mutableFlowData, ID);
+      //     const pointees = getPointees(mutableFlowData, stackNode);
+      //     pointees.forEach((n) => res.add(n));
+      //   }
+      // }
       res.add(c);
     }
   }

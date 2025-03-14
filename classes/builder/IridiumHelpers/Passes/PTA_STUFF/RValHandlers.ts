@@ -39,6 +39,7 @@ import {
   getPointees,
   GLOBAL_NODE_MAP,
   IRIDUM_GLOBAL,
+  JSXFileBoundary,
   JSXNode,
   LiteralNode,
   OrdinaryArrayNode,
@@ -117,7 +118,7 @@ export const handleRVals = (
 
   // IS1_DeclarationStmt
   if (rVal instanceof IV_NUBD) {
-    const ID = "NUBD";
+    const ID = "NUBD_" + uname;
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
       : new IRIDUM_GLOBAL(ID, uname);
@@ -125,7 +126,7 @@ export const handleRVals = (
     addPTANode(mutableFlowData, node);
     return [node];
   } else if (rVal instanceof IV_Identifier && rVal.name === "undefined") {
-    const ID = "undefined";
+    const ID = "undefined" + uname;
     const node = GLOBAL_NODE_MAP.has(ID)
       ? GLOBAL_NODE_MAP.get(ID)
       : new IRIDUM_GLOBAL(ID, uname);
@@ -960,10 +961,10 @@ export const handleRVals = (
     }
 
     // Component Node
-    const JSXID = getHeapQualifiedName("JSX", currBBIDx, stackInstOffset)
+    const JSXID = getHeapQualifiedName("JSX_"+rVal.tag.lookupName(), currBBIDx, stackInstOffset)
     const JSXObj = GLOBAL_NODE_MAP.has(JSXID)
       ? GLOBAL_NODE_MAP.get(JSXID)
-      : new JSXNode(JSXID, uname);
+      : new JSXNode(JSXID, uname, rVal);
     assert(JSXObj instanceof JSXNode, assertMessage(import.meta.url, `💔 "${JSXObj}" !instanceof JSXNode`));
     addPTANode(mutableFlowData, JSXObj);
 
@@ -1011,21 +1012,44 @@ export const handleRVals = (
     const propsPointees = getPointees(mutableFlowData, propsStackNode);
     const fields = getAllFieldsOfNodes(mutableFlowData, propsPointees);
 
-    // transfer fields from props objs
-    for (const ff of fields) {
-      for (const cc of propsPointees) {
-        const pointeesForField = handleFieldReference(uname, mutableFlowData, [cc], [ff], currBB, currBBIDx, stackInstOffset);
-        handleFieldAssignmentStatement(mutableFlowData, [argsNode], [ff], pointeesForField, true, currBB, currBBIDx, stackInstOffset);
-      }
-    }
+    handleFieldAssignmentStatement(mutableFlowData, [JSXObj], ["props"], propsPointees, true, currBB, currBBIDx, stackInstOffset);
+
+
+    // // transfer fields from props objs
+    // for (const ff of fields) {
+    //   for (const cc of propsPointees) {
+    //     const pointeesForField = handleFieldReference(uname, mutableFlowData, [cc], [ff], currBB, currBBIDx, stackInstOffset);
+    //     handleFieldAssignmentStatement(mutableFlowData, [argsNode], [ff], pointeesForField, true, currBB, currBBIDx, stackInstOffset);
+    //   }
+    // }
 
     // add children prop
     handleFieldAssignmentStatement(mutableFlowData, [argsNode], ["children"], childrenNodes, true, currBB, currBBIDx, stackInstOffset);
 
-    // evalRes
-    const evalRes = handleCallExpression(uname, mutableFlowData, componentPointees, argsNode, currBB, currBBIDx, stackInstOffset, undefined)
+    let i = 0;
+    for (const pointee of componentPointees) {
+      // evalRes      
+      const evalRes = handleCallExpression(uname, mutableFlowData, [pointee], argsNode, currBB, currBBIDx, stackInstOffset, undefined)
 
-    handleFieldAssignmentStatement(mutableFlowData, [JSXObj], ["^render^"], evalRes, true, currBB, currBBIDx, stackInstOffset);
+      if (pointee.world !== uname) {
+        // ArgumentsObj
+        const boundaryObj = getHeapQualifiedName("boundaryObj" + i++, currBBIDx, stackInstOffset);
+        const boundaryNode = GLOBAL_NODE_MAP.has(boundaryObj)
+          ? GLOBAL_NODE_MAP.get(boundaryObj)
+          : new JSXFileBoundary(boundaryObj, uname);
+        assert(boundaryNode instanceof JSXFileBoundary, assertMessage(import.meta.url, `💔 "${boundaryNode}" !instanceof JSXFileBoundary`));
+        addPTANode(mutableFlowData, boundaryNode);
+
+        handleFieldAssignmentStatement(mutableFlowData, [JSXObj], ["^render^"], [boundaryNode], true, currBB, currBBIDx, stackInstOffset);
+
+        handleFieldAssignmentStatement(mutableFlowData, [boundaryNode], ["^render^"], evalRes, true, currBB, currBBIDx, stackInstOffset);
+
+      } else {
+        handleFieldAssignmentStatement(mutableFlowData, [JSXObj], ["^render^"], evalRes, true, currBB, currBBIDx, stackInstOffset);
+      }
+    }
+    
+    handleFieldAssignmentStatement(mutableFlowData, [JSXObj], ["^reactFuns^"], componentPointees, true, currBB, currBBIDx, stackInstOffset);
 
 
     return [JSXObj]

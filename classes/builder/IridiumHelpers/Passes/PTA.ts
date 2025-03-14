@@ -48,7 +48,7 @@ import {
   handleSimpleAssignmentStatement
 } from "./PTA_STUFF/PTAHandlers.ts";
 import { handleRVals } from "./PTA_STUFF/RValHandlers.ts";
-import { getStackQualifiedName } from "./PTA_STUFF/util.ts";
+import { getHeapQualifiedName, getStackQualifiedName } from "./PTA_STUFF/util.ts";
 
 export const PTA_WORLD: Map<string, PTAFlowData> = new Map();
 export const PTA_WORLD_FG: Map<string, IRIDIUM_FG> = new Map();
@@ -64,9 +64,10 @@ export const initializeWorld = (uname: string, fg: IRIDIUM_FG) => {
   const globalEnv = fg.rootBB.env.parent;
 
   for (const binding of globalEnv.bindings) {
-    const globalNode = GLOBAL_NODE_MAP.has(binding[0])
-      ? GLOBAL_NODE_MAP.get(binding[0])
-      : new IRIDUM_GLOBAL(binding[0], uname);
+    const globalBindingName = getHeapQualifiedName(binding[0], "" + fg.rootBB.idx, 0)
+    const globalNode = GLOBAL_NODE_MAP.has(globalBindingName)
+      ? GLOBAL_NODE_MAP.get(globalBindingName)
+      : new IRIDUM_GLOBAL(globalBindingName, uname);
     assert(globalNode instanceof IRIDUM_GLOBAL, assertMessage(import.meta.url, `🎸 globalNode !instanceof IRIDIUM_GLOBAL`));
 
     addPTANode(initialWorldData, globalNode);

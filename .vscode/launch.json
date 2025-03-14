@@ -11,8 +11,8 @@
             "program": "/home/meetesh/wd/Iridium/iridium.ts",
             "args": [
                 "iri",
-                "./tests/misc/test.js",
-                "./temp/frontendViz/",
+                "./test.js",
+                ".",
                 "-g"
             ],
             "cwd": "${workspaceFolder}",
@@ -41,7 +41,7 @@
             "program": "/home/meetesh/wd/Iridium/iridium.ts",
             "args": [
               "iri",
-              "./temp/frontendViz/src/App.js",
+              "./temp/frontendViz/src/components/CallGraph.js",
               "./temp/frontendViz/",
               "-g"
             ],
@@ -97,8 +97,9 @@
                 "--import=tsx",
                 "/home/meetesh/wd/Iridium/iridium.ts",
                 "iri",
-                "./temp/saleor-dashboard/src/index.tsx",
-                "./temp/saleor-dashboard/",
+                "./temp/webpackLazy/src/index.js",
+                "./temp/webpackLazy/",
+                "-g"
               ],
             "outFiles": [
                 "${workspaceFolder}/classes/**/*.ts",

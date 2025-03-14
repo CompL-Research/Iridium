@@ -12,6 +12,7 @@ import { IV_ArrowFunctionExpression } from "../../ALL_RVal/IV_ArrowFunctionExpre
 import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
 import { PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "../PTA.ts";
 import { IV_ClassExpression } from "../../ALL_RVal/IV_ClassExpression.ts";
+import { IV_JSX } from "../../ALL_RVal/IV_JSX.ts";
 
 //
 // Utility methods for printing
@@ -664,6 +665,27 @@ export class RemoteNode extends PTAFlowNode {
   }
 }
 
+export class ResolvedRemoteNode extends PTAFlowNode {
+  FROM: string;
+  field: string;
+  constructor(id: string, FROM: string, field: string, world: string) {
+    super(id, world);
+    this.FROM = FROM;
+    this.field = field;
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "box3d";
+    const style = "filled";
+    const color = "coral1";
+    return `[label="",xlabel="",shape="${shape}",style="${style}",fillcolor="${color}"]`;
+  }
+}
+
 export class IRIDUM_GLOBAL extends PTAFlowNode {
   constructor(id: string, world: string) {
     super(id, world);
@@ -682,8 +704,10 @@ export class IRIDUM_GLOBAL extends PTAFlowNode {
 }
 
 export class JSXNode extends PTAFlowNode {
-  constructor(id: string, world: string) {
+  node: IV_JSX
+  constructor(id: string, world: string, node: IV_JSX) {
     super(id, world);
+    this.node = node
   }
 
   dotName() {
@@ -710,7 +734,7 @@ export class PJSXNode extends PTAFlowNode {
   dotNodeStyle() {
     const shape = "rectangle";
     const style = "filled";
-    const color = "pink";
+    const color = "slategray1";
     return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }
@@ -727,8 +751,25 @@ export class FJSXNode extends PTAFlowNode {
   dotNodeStyle() {
     const shape = "rectangle";
     const style = "filled";
-    const color = "pink";
+    const color = "slategray1";
     return `[xlabel="${this.world}",shape="${shape}",style="${style}",fillcolor="${color}"]`;
+  }
+}
+
+export class JSXFileBoundary extends PTAFlowNode {
+  constructor(id: string, world: string) {
+    super(id, world);
+  }
+
+  dotName() {
+    return `"${this.id.replace(/"/g, '\\"')}"`;
+  }
+
+  dotNodeStyle() {
+    const shape = "insulator";
+    const style = "filled";
+    const color = "tomato";
+    return `[label="",shape="${shape}",style="${style}",fillcolor="${color}"]`;
   }
 }
 

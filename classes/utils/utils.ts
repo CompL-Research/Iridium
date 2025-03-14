@@ -3,14 +3,76 @@ import { CommentBlock, CommentLine } from "@babel/types";
 import { execSync } from "child_process";
 import { I_Container } from "classes/builder/IridiumHelpers/I_GENERAL/I_Container.ts";
 import { IRIDIUM_FG } from "classes/builder/IridiumHelpers/I_GENERAL/IRIDIUM_FG.ts";
-import { ensureNodeIDAndGetPTANode, PTAEdge, PTAFlowData } from "classes/builder/IridiumHelpers/Passes/PTA_STUFF/PTAFlowData.ts";
+import { ensureNodeIDAndGetPTANode, GLOBAL_NODE_MAP, GLOBAL_RESOLUTION_MAP, PTAEdge, PTAFlowData } from "classes/builder/IridiumHelpers/Passes/PTA_STUFF/PTAFlowData.ts";
 import { Graph } from "#graphlib";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import ts from "typescript";
+import { PTA_WORLD } from "classes/builder/IridiumHelpers/Passes/PTA.ts";
 
 export class JS3GenerationError extends Error { }
+
+type NodeData = {
+  level: number;
+  data: any; // Adjust "any" to whatever data type you're working with
+};
+
+export const bfsWithPredicate = (
+  edges: Map<string, Set<string>>,
+  root: string,
+  predicate: (node: string) => boolean,
+  getData: (node: string, level: number) => any
+): Map<string, NodeData> => {
+  const queue: [string, number][] = [[root, 0]]; // [node, level]
+  const visited = new Set<string>();
+  const result = new Map<string, NodeData>();
+
+  while (queue.length > 0) {
+    const [node, level] = queue.shift()!;
+
+    if (visited.has(node)) continue;
+    visited.add(node);
+
+    if (predicate(node)) {
+      result.set(node, { level, data: getData(node, level) });
+    }
+
+    const neighbors = edges.get(node);
+    if (neighbors) {
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor)) {
+          queue.push([neighbor, level + 1]);
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+export const computeRefreshMap = (): [Set<string>, Map<string, Set<string>>] => {
+  const refreshTriggers: Set<string> = new Set();
+  const refreshMap: Map<string, Set<string>> = new Map();
+  for (const [currWorldWeAreLookingInto, currWorldData] of PTA_WORLD.entries()) {
+    for (const [nodeID, edges] of currWorldData) {
+      if (GLOBAL_RESOLUTION_MAP.has(nodeID)) {
+        refreshTriggers.add(nodeID);
+        // currWorldWeAreLookingInto needs to be refreshed, it has a resolveable node
+        const nodeWasBroughtFrom = GLOBAL_NODE_MAP.get(nodeID).world;
+        // If node was brought from myself, refresh myself
+        if (nodeWasBroughtFrom === currWorldWeAreLookingInto) {
+          if (!refreshMap.has(currWorldWeAreLookingInto)) refreshMap.set(currWorldWeAreLookingInto, new Set());
+        } else {
+          // Node was brought from a remote world, resolve that world first then resolve it
+          if (!refreshMap.has(currWorldWeAreLookingInto)) refreshMap.set(currWorldWeAreLookingInto, new Set());
+          refreshMap.get(currWorldWeAreLookingInto).add(nodeWasBroughtFrom);
+        }
+      }
+    }
+  }
+  return [refreshTriggers, refreshMap];
+}
 
 export const assertMessage = (filePath: string, message: string) => {
   return "[FILEPATH]: " + filePath + "\n" + message;
