@@ -49,6 +49,7 @@ import {
 } from "./PTA_STUFF/PTAHandlers.ts";
 import { handleRVals } from "./PTA_STUFF/RValHandlers.ts";
 import { getHeapQualifiedName, getStackQualifiedName } from "./PTA_STUFF/util.ts";
+import { IMPORT_STATEMENT_TARGETS } from "../DependencyGraph.ts";
 
 export const PTA_WORLD: Map<string, PTAFlowData> = new Map();
 export const PTA_WORLD_FG: Map<string, IRIDIUM_FG> = new Map();
@@ -180,10 +181,20 @@ export const flowFunction = (
   let stackInstOffset = 0;
   for (const i of currBB.statements) {
     // debugConfig.logger.error(`At stmt ${i.toString()}`);
+    if (i instanceof IS_AImport) {
+      // if (!IMPORT_STATEMENT_TARGETS.has(i)) 
+      //   debugConfig.logger.throwIriError("Expected Dependency graph to be built before PTA: IS_AImport");
 
-    if (i instanceof IS_BImport) {
+      // const target = IMPORT_STATEMENT_TARGETS.get(i);
+      // handleAImportNode(target);
+    } else if (i instanceof IS_BImport) {
+      if (!IMPORT_STATEMENT_TARGETS.has(i)) 
+        debugConfig.logger.throwIriError("Expected Dependency graph to be built before PTA: IS_BImport");
       handleBImportNode(uname, mutableFlowData, i, currBB, currBBIDx, stackInstOffset);
     } else if (i instanceof IS_CImport) {
+      if (!IMPORT_STATEMENT_TARGETS.has(i)) 
+        debugConfig.logger.throwIriError("Expected Dependency graph to be built before PTA: IS_CImport");
+
       handleCImportNode(uname, mutableFlowData, i, currBB, currBBIDx, stackInstOffset);
     } else if (i instanceof IS_ClassStaticPropInit) {
       debugConfig.logger.throwIriError("PTA TODO: IS_ClassStaticPropInit");
@@ -251,14 +262,21 @@ export const flowFunction = (
     } else if (i instanceof IS_BExport) {
       handleBExportNode(uname, mutableFlowData, i, currBB);
     } else if (i instanceof IS_CExport) {
+      if (!IMPORT_STATEMENT_TARGETS.has(i)) 
+        debugConfig.logger.throwIriError("Expected Dependency graph to be built before PTA: IS_CExport");
+
       handleCExportNode(uname, mutableFlowData, i, currBB, currBBIDx, stackInstOffset);
     } else if (i instanceof IS_DExport) {
+      if (!IMPORT_STATEMENT_TARGETS.has(i)) 
+        debugConfig.logger.throwIriError("Expected Dependency graph to be built before PTA: IS_DExport");
+
       debugConfig.logger.throwIriError("PTA TODO: IS_DExport");
     } else if (i instanceof IS_EExport) {
+      if (!IMPORT_STATEMENT_TARGETS.has(i)) 
+        debugConfig.logger.throwIriError("Expected Dependency graph to be built before PTA: IS_EExport");
+
       handleEExportNode(uname, mutableFlowData, i, currBB, currBBIDx, stackInstOffset);
     } else if (i instanceof IS_Noop) {
-      /* NOOP */
-    } else if (i instanceof IS_AImport) {
       /* NOOP */
     } else if (i instanceof IS_Throw) {
       /* NOOP */

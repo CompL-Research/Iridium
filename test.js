@@ -1,15 +1,16 @@
-// import { useState } from "react";
-// import M1 from "./M1";
-// import M2 from "./M2";
-// import M3 from "./M3";
+import M1 from "./M1";
+import M2 from "./M2";
+import M3 from "./M3";
 
-// // const M1 = lazy(() => import("./M1"))
-// // const M2 = lazy(() => import("./M1"))
+// const M1 = lazy(() => import("./M1"))
+// const M2 = lazy(() => import("./M1"))
 
-// export const App = () => {
-//   const [ss, setSS] = useState(false)
-//   return <M1 ss={ss}> </M1>
-// }
+export const App = () => {
+  return <M1>
+    <M2/>
+    <M3/>
+  </M1>
+}
 
 // // function deduplicateLevels(data) {
 // //   const seen = new Set();
@@ -135,15 +136,15 @@
 
 
 
-const seenFiles = new Set();
-const deduplicatedChunks = {};
+// const seenFiles = new Set();
+// const deduplicatedChunks = {};
 
-for (const [level, files] of Object.entries(chunks)) {
-  deduplicatedChunks[level] = files.filter(file => {
-    if (seenFiles.has(file)) return false;
-    seenFiles.add(file);
-    return true;
-  });
-}
+// for (const [level, files] of Object.entries(chunks)) {
+//   deduplicatedChunks[level] = files.filter(file => {
+//     if (seenFiles.has(file)) return false;
+//     seenFiles.add(file);
+//     return true;
+//   });
+// }
 
-console.log(deduplicatedChunks);
+// console.log(deduplicatedChunks);

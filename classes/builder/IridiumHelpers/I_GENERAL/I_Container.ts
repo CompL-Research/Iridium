@@ -48,7 +48,7 @@ export class I_Container {
     if(debugConfig.cli.saveFlowGraph) {
       saveFlowGraphToFile(this.js3Builder.projectFile.uname,this);
     }
-    iri_module.performPTA(topLevel);
+    // iri_module.performPTA(topLevel);
   }
 
   saveGeneratedFile() {

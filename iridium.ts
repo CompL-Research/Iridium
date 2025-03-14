@@ -3,7 +3,9 @@ import {
   ensurePathExists,
   hasPackageJson,
   initializeOutputsPath,
+  saveDependencyGraph,
   saveFlowDataToFile,
+  saveFlowGraphToFile,
 } from "#utils";
 import chalk from "chalk";
 import { I_Container } from "classes/builder/IridiumHelpers/I_GENERAL/I_Container.ts";
@@ -29,7 +31,8 @@ import {
 import { projectStats } from "./configs/projectStats.ts";
 import { PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "classes/builder/IridiumHelpers/Passes/PTA.ts";
 import { printPTAFlowData } from "classes/builder/IridiumHelpers/Passes/PTA_STUFF/PTAFlowData.ts";
-import { RESOLUTION_CACHE } from "classes/builder/IridiumHelpers/IRIDIUM.ts";
+import { buildDependencyGraph, DEPENDENCY_GRAPH, IRIDIUM_CONTAINER_MAP } from "classes/builder/IridiumHelpers/DependencyGraph.ts";
+import ora from "ora";
 
 const VERSION = "0.6a";
 const directories = ["./classes", "./configs", "./docs", "./playground/src"];
@@ -105,8 +108,28 @@ function iri(filePath) {
       sourceType,
       debugConfig.cli.projectBase,
     );
-    RESOLUTION_CACHE.set(projectFile.uname, iri_container);
-    iri_container.build(true);
+    IRIDIUM_CONTAINER_MAP.set(projectFile.uname, iri_container);
+    iri_container.build(false);
+
+    let spinner = ora('[Building Dependency Graph]').start();
+    let clock = performance.now();
+    buildDependencyGraph(iri_container, js3Builder.utils);
+    clock = performance.now() - clock;
+    spinner.stopAndPersist({ prefixText: `✅ ${clock.toPrecision(3)} ms` });
+
+
+    spinner = ora('[Saving Dependency Graph]').start();
+    clock = performance.now();
+    saveDependencyGraph(DEPENDENCY_GRAPH);
+    clock = performance.now() - clock;
+    spinner.stopAndPersist({ prefixText: `✅ ${clock.toPrecision(3)} ms` });
+    
+    
+    spinner = ora('[Computing PTA]').start();
+    clock = performance.now();
+    iri_container.module.performPTA(true);
+    clock = performance.now() - clock;
+    spinner.stopAndPersist({ prefixText: `✅ ${clock.toPrecision(3)} ms` });
 
     for(const [key, values] of PTA_WORLD_CURRMUTABLE_DATA.entries()) {
       if (values.length !== 0) debugConfig.logger.throwIriError(`Expected world stack to be 0, found: ${values.length}`);

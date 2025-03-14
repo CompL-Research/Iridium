@@ -2,7 +2,7 @@ import debugConfig from "#debugConfig";
 import { assertMessage, hashGraph, saveFlowDataToFile, saveFlowDataToGraph } from "#utils";
 import assert from "node:assert";
 import { IV_Identifier, IV_PrivateName } from "../../ALL_AMP/ALL_AMP.ts";
-import { IS_AExport, IS_BExport, IS_BImport, IS_CExport, IS_CImport, IS_EExport } from "../../ALL_IS/IS_Imports_Exports.ts";
+import { IS_AExport, IS_AImport, IS_BExport, IS_BImport, IS_CExport, IS_CImport, IS_DExport, IS_EExport } from "../../ALL_IS/IS_Imports_Exports.ts";
 import { ISP_ArgSpread, ISP_ObjectMethod } from "../../ALL_RVal/ALL_ISP.ts";
 import { IV_CTHIS } from "../../ALL_RVal/IV_NonLang.ts";
 import { BB, FunctionReturn } from "../../BB.ts";
@@ -348,7 +348,7 @@ export const handleBImportNode = (
   if (i.remote instanceof IV_Identifier) field = i.remote.name;
   else field = i.remote.value;
 
-  handleFieldImportToStackNode(uname, mutableFlowData, stackNode, field, i.FROM.value, currBB, currBBIDx, stackInstOffset);
+  handleFieldImportToStackNode(i, uname, mutableFlowData, stackNode, field, i.FROM.value, currBB, currBBIDx, stackInstOffset);
 };
 
 // IS_CImport
@@ -368,10 +368,11 @@ export const handleCImportNode = (
   assert(stackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${stackNode}" !instanceof StackNode`));
   addPTANode(mutableFlowData, stackNode);
 
-  handleImportToStackNode(uname, mutableFlowData, stackNode, i.FROM.value, currBBIDx, stackInstOffset);
+  handleImportToStackNode(i, uname, mutableFlowData, stackNode, i.FROM.value, currBBIDx, stackInstOffset);
 };
 
 const handleFieldImportToStackNode = (
+  node: IS_AImport | IS_BImport | IS_CImport | IS_CExport | IS_DExport | IS_EExport,
   uname: string,
   mutableFlowData: PTAFlowData,
   stackNode: StackNode,
@@ -420,7 +421,7 @@ const handleFieldImportToStackNode = (
   } else {
     const remoteNode = GLOBAL_NODE_MAP.has(heapID)
       ? GLOBAL_NODE_MAP.get(heapID)
-      : new RemoteNode(heapID, FROM, uname);
+      : new RemoteNode(heapID, FROM, uname, node);
 
     assert(remoteNode instanceof RemoteNode, assertMessage(import.meta.url, `💔 "${remoteNode}" !instanceof RemoteNode`));
     addPTANode(mutableFlowData, remoteNode);
@@ -430,6 +431,7 @@ const handleFieldImportToStackNode = (
 }
 
 const handleImportToStackNode = (
+  node: IS_AImport | IS_BImport | IS_CImport | IS_CExport | IS_DExport | IS_EExport,
   uname: string,
   mutableFlowData: PTAFlowData,
   stackNode: StackNode,
@@ -461,7 +463,7 @@ const handleImportToStackNode = (
   } else {
     const remoteNode = GLOBAL_NODE_MAP.has(heapID)
       ? GLOBAL_NODE_MAP.get(heapID)
-      : new RemoteNode(heapID, FROM, uname);
+      : new RemoteNode(heapID, FROM, uname, node);
 
     assert(remoteNode instanceof RemoteNode, assertMessage(import.meta.url, `💔 "${remoteNode}" !instanceof RemoteNode`));
     addPTANode(mutableFlowData, remoteNode);
@@ -526,7 +528,7 @@ export const handleCExportNode = (
 
   const field: string = i.local.name;
 
-  handleFieldImportToStackNode(uname, mutableFlowData, stackNode, field, i.FROM.value, currBB, currBBIDx, stackInstOffset);
+  handleFieldImportToStackNode(i, uname, mutableFlowData, stackNode, field, i.FROM.value, currBB, currBBIDx, stackInstOffset);
   
   // export { TEMP as boo }
   const localNode = stackNode
@@ -555,7 +557,7 @@ export const handleEExportNode = (
   assert(tempStackNode instanceof StackNode, assertMessage(import.meta.url, `💔 "${tempStackNode}" !instanceof StackNode`));
   addPTANode(mutableFlowData, tempStackNode);
 
-  handleImportToStackNode(uname, mutableFlowData, tempStackNode, i.FROM.value, currBBIDx, stackInstOffset);
+  handleImportToStackNode(i, uname, mutableFlowData, tempStackNode, i.FROM.value, currBBIDx, stackInstOffset);
 
   // FIELDS = ALLFIELDS(TEMP)
   const TEMP_POINTEES = getPointees(mutableFlowData, tempStackNode);

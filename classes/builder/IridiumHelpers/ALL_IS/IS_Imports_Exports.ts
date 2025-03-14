@@ -103,6 +103,7 @@ export class IS_CImport extends ALL_IS {
 // Exports
 //
 
+// export default ID
 export class IS_AExport extends ALL_IS {
   id: IV_Identifier;
 
@@ -129,6 +130,7 @@ export class IS_AExport extends ALL_IS {
   }
 }
 
+// export local as remote
 export class IS_BExport extends ALL_IS {
   local: IV_Identifier;
   remote: IV_Identifier | IV_StringLiteral;
@@ -158,6 +160,7 @@ export class IS_BExport extends ALL_IS {
   }
 }
 
+// export { field as boo } from FROM
 export class IS_CExport extends ALL_IS {
   local: IV_Identifier;
   remote: IV_Identifier | IV_StringLiteral;
@@ -190,6 +193,7 @@ export class IS_CExport extends ALL_IS {
   }
 }
 
+// export * as remote from FROM
 export class IS_DExport extends ALL_IS {
   remote: IV_Identifier;
   FROM: IV_StringLiteral;
@@ -213,6 +217,7 @@ export class IS_DExport extends ALL_IS {
   }
 }
 
+// export * from FROM
 export class IS_EExport extends ALL_IS {
   FROM: IV_StringLiteral;
 

@@ -97,7 +97,7 @@ export default class JS3Builder {
       this.generatedCode
       , (e) => {
         if (e) debugConfig.logger.error(`[Failed to save JS3]: ${path.basename(this.projectFile.uname, this.projectFile.extension)}`);
-        else debugConfig.logger.success(`[Saved JS3]: ${this.projectFile.uname}`);
+        // else debugConfig.logger.success(`[Saved JS3]: ${this.projectFile.uname}`);
       }
     );
   }

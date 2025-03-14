@@ -26,6 +26,7 @@
     "immutable": "^5.0.3",
     "jest-worker": "^29.7.0",
     "make-tap-output": "^2.0.1",
+    "ora": "^8.2.0",
     "p-limit": "^6.1.0",
     "shelljs": "^0.8.5",
     "socket.io": "^4.7.5",

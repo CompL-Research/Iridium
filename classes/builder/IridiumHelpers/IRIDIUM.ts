@@ -321,6 +321,7 @@ import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
 import { getEXPORTID, initializeWorld, PTA_HASH_MAP, PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "./Passes/PTA.ts";
 import { addPTANode, addStackEdges, ensureNodeIDAndGetPTANode, ensureNodeIDAndGetStackNode, getImmutableWorldInstance, getMutableWorldInstance, getPointees, getSuccessorClosureImmutable, GLOBAL_NODE_MAP, GLOBAL_RESOLUTION_MAP, GLOBAL_RESOLUTION_SKIP_MAP, JSXNode, PTAEdge, RemoteNode, ResolvedRemoteNode, StackNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
 import { handleCallExpression } from "./Passes/PTA_STUFF/PTAHandlers.ts";
+import { IMPORT_STATEMENT_TARGETS, IRIDIUM_CONTAINER_MAP } from "./DependencyGraph.ts";
 
 let generate;
 if (typeof Bun !== 'undefined') {
@@ -368,7 +369,6 @@ class Queue {
   }
 }
 
-export const RESOLUTION_CACHE: Map<string, I_Container> = new Map();
 function areMapsEqual(
   map1: Map<string, Set<string>>,
   map2: Map<string, Set<string>>
@@ -496,27 +496,21 @@ export default class IRIDIUM_MODULE {
       debugConfig.logger.throwIriError("Expected fg to be built before PTA...");
 
     if (topLevel) {
-      debugConfig.logger.log("Starting top level analysis");
-      const world = this.js3builder.projectFile.uname;
+      debugConfig.logger.log("PTA starting top level analysis");
+      const currentWorld = this.js3builder.projectFile.uname;
 
       let searchLevel = 0;
       while (true) {
         searchLevel++;
-        const start = performance.now();
 
         if (searchLevel > IRIDIUM_MODULE.SEARCH_THRESHOLD) {
-          debugConfig.logger.error(`SEARCH_THRESHOLD reached "${world}" @ "${GLOBAL_UNAME_PATH_MAP.get(world)}"`);
-          const end = performance.now();
-          debugConfig.logger.success(`Execution time: ${end - start} ms`);
+          debugConfig.logger.success(`PTA search threshold stopping PTA`);
           break;
         }
-
-        debugConfig.logger.log(`SEARCH_LEVEL: ${searchLevel}`);
-
+        debugConfig.logger.log(`PTA depth: ${searchLevel}`);
         this.performPTA(false);
-        // saveFlowDataToFile(`SEARCH_LEVEL_${searchLevel}`, PTA_WORLD.get(world));
 
-        const rootNode = this.addTreeRoot(world);
+        const rootNode = this.addTreeRoot(currentWorld);
 
         // Get successor closure
         const remoteNodes =
@@ -526,75 +520,38 @@ export default class IRIDIUM_MODULE {
         const unresolvedRemoteNodes = remoteNodes.filter((n) => !GLOBAL_RESOLUTION_MAP.has(n.id) && !GLOBAL_RESOLUTION_SKIP_MAP.has(n.id));
 
         if (unresolvedRemoteNodes.length === 0) {
-          debugConfig.logger.warn(
-            `Concluding search early: ${searchLevel}`
-          );
-          const end = performance.now();
-          debugConfig.logger.success(`Execution time: ${end - start} ms`);
-
+          debugConfig.logger.success(`PTA search complete`);
           break;
         }
 
-        // const worldsToRefresh: Set<string> = new Set();
         for (const node of unresolvedRemoteNodes) {
           const importFilePath = GLOBAL_UNAME_PATH_MAP.get(node.world);
           const toResolve = node.FROM;
+          if (!IMPORT_STATEMENT_TARGETS.has(node.node)) 
+            debugConfig.logger.throwIriError(`Expected all import nodes to be processed when building the dependency graph`);
+          const resolutionTarget = IMPORT_STATEMENT_TARGETS.get(node.node);
           try {
-            // debugConfig.logger.warn(`Starting Resolution of ${toResolve} from "${importFilePath}"`)
 
-            const filePath = resolveModuleImport(toResolve, importFilePath, debugConfig.cli.projectBase);
+            if (!resolutionTarget) throw new Error("Unresolved import");
 
-            if (!filePath) throw new Error();
+            const targetUname = resolutionTarget.projectFile.uname;
 
-            // 1. Loading The File
-            const projectFile = new ProjectFile(filePath, debugConfig.cli.projectBase);
-            projectFile.initSync(debugConfig.cli.sourceType);
-            if (projectFile.initData.parseStatus !== "parsed")
-              debugConfig.logger.throwJS3Error(
-                "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
-              );
-
-            if (PTA_WORLD.has(projectFile.uname)) {
-              GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
+            if (PTA_WORLD.has(targetUname)) {
+              GLOBAL_RESOLUTION_MAP.set(node.id, targetUname);
 
               if (!IMPORT_TREE.hasNode(node.world)) IMPORT_TREE.setNode(node.world);
-              IMPORT_TREE.setEdge(node.world, projectFile.uname, "imports", "imports");
+              IMPORT_TREE.setEdge(node.world, targetUname, "imports", "imports");
 
             } else {
-              // 2. Constructing JS3
-              const js3Builder = new JS3Builder(projectFile);
-              js3Builder.build();
-              const fileNode = js3Builder.generatedAST;
-              const programNode = fileNode.program;
-
-              // 3. Constructing Iridium
-              const directives: Array<string> = [];
-              programNode.directives.forEach((d) => directives.push(d.value.value));
-              const sourceType = programNode.sourceType;
-              const iri_container = new I_Container(
-                fileNode,
-                projectFile,
-                js3Builder,
-                this.utils,
-                directives,
-                sourceType,
-                debugConfig.cli.projectBase,
-              );
-              RESOLUTION_CACHE.set(projectFile.uname, iri_container);
-              iri_container.build();
-              GLOBAL_RESOLUTION_MAP.set(node.id, projectFile.uname);
-              // debugConfig.logger.success(`Successfully Resolved: "${toResolve}" to "${projectFile.uname}" at "${importFilePath}"`)
+              resolutionTarget.module.performPTA(false);
+              GLOBAL_RESOLUTION_MAP.set(node.id, targetUname);
 
               if (!IMPORT_TREE.hasNode(node.world)) IMPORT_TREE.setNode(node.world);
-              IMPORT_TREE.setEdge(node.world, projectFile.uname, "imports", "imports");
+              IMPORT_TREE.setEdge(node.world, targetUname, "imports", "imports");
 
-              // if (node.world !== world) {
-              //   debugConfig.logger.warn(`Adding "${node.world}" to refresh list`);
-              //   // worldsToRefresh.add(node.world);
-              // }
             }
           } catch (e) {
-            debugConfig.logger.error(`Failed to resolve: "${toResolve}" from "${importFilePath}"`)
+            debugConfig.logger.error(`Failed to resolve: "${toResolve}" from "${importFilePath}" => ${e}`)
             GLOBAL_RESOLUTION_SKIP_MAP.add(node.id);
           }
         }
@@ -603,9 +560,11 @@ export default class IRIDIUM_MODULE {
 
         while (true) {
           debugConfig.logger.warn(`Refresh Count: ${refreshCount++}`);
-          const postOrder = postOrderTraversal(IMPORT_TREE, world);
+          const postOrder = postOrderTraversal(IMPORT_TREE, currentWorld);
           for (const worldToRefresh of postOrder) {
-            const moduleToUpdate = RESOLUTION_CACHE.get(worldToRefresh);
+            if (!IRIDIUM_CONTAINER_MAP.get(worldToRefresh)) 
+              debugConfig.logger.throwIriError(`Expected iridium container to exist`)
+            const moduleToUpdate = IRIDIUM_CONTAINER_MAP.get(worldToRefresh);
             moduleToUpdate.module.performPTA(false);
           }
           const [refreshTriggers, refreshMap] = computeRefreshMap();
@@ -620,22 +579,18 @@ export default class IRIDIUM_MODULE {
           if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
           PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
         }
-
-        const end = performance.now();
-        debugConfig.logger.success(`Execution time: ${end - start} ms`);
       }
-
-      this.addTreeRoot(world);
+      this.addTreeRoot(currentWorld);
 
     } else {
       const world = this.js3builder.projectFile.uname;
       if (PTA_WORLD.has(world)) getMutableWorldInstance(world);
       initializeWorld(world, this.fg);
-      // saveFlowDataToFile(`NON_ROOT`, PTA_WORLD.get(world));
 
       for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
         if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
-        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
+        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) 
+          debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
         PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
       }
     }
@@ -755,90 +710,90 @@ export default class IRIDIUM_MODULE {
 
 
     
-    // Iterate over each world and get all JSX nodes
-    // For all JSX nodes, get all ^reactFuns^
-    //  If any fun is from a different world, find the source of import
+    // // Iterate over each world and get all JSX nodes
+    // // For all JSX nodes, get all ^reactFuns^
+    // //  If any fun is from a different world, find the source of import
 
-    const getFieldPointees = (edges: Set<string>, field: string) => {
-      const pointees: Set<string> = new Set();
-      for (const e of edges) {
-        const edge = PTAEdge.from("", e);
-        if (edge.field === field)
-          pointees.add(edge.v)
-      }
-      return pointees;
-    }
+    // const getFieldPointees = (edges: Set<string>, field: string) => {
+    //   const pointees: Set<string> = new Set();
+    //   for (const e of edges) {
+    //     const edge = PTAEdge.from("", e);
+    //     if (edge.field === field)
+    //       pointees.add(edge.v)
+    //   }
+    //   return pointees;
+    // }
 
-    const checkIfIsPointee = (edges: Set<string>, pointee: string) => {
-      for (const e of edges) {
-        if (PTAEdge.from("", e).v === pointee) return true;
-      }
-      return false;
-    }
-    for (const [world, data] of PTA_WORLD.entries()) {
-
-
-      debugConfig.logger.log(`Working on world ${world}`);
-      for (const [nodeID, edges] of data.entries()) {
-        const node = GLOBAL_NODE_MAP.get(nodeID);
-        if (node.world === world && node instanceof JSXNode) {
-          if (!JSX_RENDER_CHUNKS.has(node.id)) JSX_RENDER_CHUNKS.set(node.id, new Set())
-          const pointees = getFieldPointees(edges, "^reactFuns^");
-          for (const targetFun of pointees) {
-            const pointeeWorld = GLOBAL_NODE_MAP.get(targetFun).world;
-            console.log(`  JSX chunk world ${pointeeWorld}, ${RESOLUTION_CACHE.has(pointeeWorld)}`)
-            if (pointeeWorld !== node.world && RESOLUTION_CACHE.has(pointeeWorld)) {
-              console.log(`  JSX chunk: ${node.id} -> ${pointeeWorld}`)
-              JSX_RENDER_CHUNKS.get(node.id).add(RESOLUTION_CACHE.get(pointeeWorld).js3Builder.projectFile.absoluteFilePath);
-            }
-            // const importNodes: Set<ResolvedRemoteNode> = new Set();
-            // for (const [nid, oEdges] of data.entries()) {
-            //   const rnode = GLOBAL_NODE_MAP.get(nid);
-            //   if (rnode instanceof ResolvedRemoteNode) {
-            //     if (checkIfIsPointee(oEdges, targetFun) && (rnode.field === "default" || rnode.field === node.node.tag.lookupName())) importNodes.add(rnode)
-            //   }
-            // }
-            // if (importNodes.size > 0) {
-            //   for (const rImport of importNodes) {
-            //     debugConfig.logger.log(` -- Potential lazy candidate for ${targetFun}@${node.node.tag} from "${rImport.FROM}" -> ${rImport.field}`);
-            //   }
-            // }
-          }
-        }
-      }
-    }
+    // const checkIfIsPointee = (edges: Set<string>, pointee: string) => {
+    //   for (const e of edges) {
+    //     if (PTAEdge.from("", e).v === pointee) return true;
+    //   }
+    //   return false;
+    // }
+    // for (const [world, data] of PTA_WORLD.entries()) {
 
 
-    const world = this.js3builder.projectFile.uname;
-    const worldData = PTA_WORLD.get(world)
+    //   debugConfig.logger.log(`Working on world ${world}`);
+    //   for (const [nodeID, edges] of data.entries()) {
+    //     const node = GLOBAL_NODE_MAP.get(nodeID);
+    //     if (node.world === world && node instanceof JSXNode) {
+    //       if (!JSX_RENDER_CHUNKS.has(node.id)) JSX_RENDER_CHUNKS.set(node.id, new Set())
+    //       const pointees = getFieldPointees(edges, "^reactFuns^");
+    //       for (const targetFun of pointees) {
+    //         const pointeeWorld = GLOBAL_NODE_MAP.get(targetFun).world;
+    //         console.log(`  JSX chunk world ${pointeeWorld}, ${MODULE.has(pointeeWorld)}`)
+    //         if (pointeeWorld !== node.world && RESOLUTION_CACHE.has(pointeeWorld)) {
+    //           console.log(`  JSX chunk: ${node.id} -> ${pointeeWorld}`)
+    //           JSX_RENDER_CHUNKS.get(node.id).add(RESOLUTION_CACHE.get(pointeeWorld).js3Builder.projectFile.absoluteFilePath);
+    //         }
+    //         // const importNodes: Set<ResolvedRemoteNode> = new Set();
+    //         // for (const [nid, oEdges] of data.entries()) {
+    //         //   const rnode = GLOBAL_NODE_MAP.get(nid);
+    //         //   if (rnode instanceof ResolvedRemoteNode) {
+    //         //     if (checkIfIsPointee(oEdges, targetFun) && (rnode.field === "default" || rnode.field === node.node.tag.lookupName())) importNodes.add(rnode)
+    //         //   }
+    //         // }
+    //         // if (importNodes.size > 0) {
+    //         //   for (const rImport of importNodes) {
+    //         //     debugConfig.logger.log(` -- Potential lazy candidate for ${targetFun}@${node.node.tag} from "${rImport.FROM}" -> ${rImport.field}`);
+    //         //   }
+    //         // }
+    //       }
+    //     }
+    //   }
+    // }
 
-    // Get call closures from top level export
-    const rootNodeID = "TREEROOT";
-    const rootNode = ensureNodeIDAndGetStackNode(worldData, rootNodeID);
-    const closure = getSuccessorClosureImmutable(rootNode)
 
-    const edges: Map<string, Set<string>> = new Map();
+    // const world = this.js3builder.projectFile.uname;
+    // const worldData = PTA_WORLD.get(world)
 
-    for (const n of closure) {
-      const nodeWorld = getImmutableWorldInstance(n.world);
-      edges.set(n.id, new Set([...nodeWorld.get(n.id)].map((e) => PTAEdge.from(n.id, e).v)))
-    }
+    // // Get call closures from top level export
+    // const rootNodeID = "TREEROOT";
+    // const rootNode = ensureNodeIDAndGetStackNode(worldData, rootNodeID);
+    // const closure = getSuccessorClosureImmutable(rootNode)
 
-    const finResMap: Map<number, Set<string>> = new Map();
+    // const edges: Map<string, Set<string>> = new Map();
 
-    const predicate = (node: string) => GLOBAL_NODE_MAP.get(node) instanceof JSXNode
-    const getData = (node: string, level: number) => {
-      if (!finResMap.has(level)) finResMap.set(level, new Set());
-      for (const source of JSX_RENDER_CHUNKS.get(node)) {
-        finResMap.get(level).add(source)
-      }
-    };
+    // for (const n of closure) {
+    //   const nodeWorld = getImmutableWorldInstance(n.world);
+    //   edges.set(n.id, new Set([...nodeWorld.get(n.id)].map((e) => PTAEdge.from(n.id, e).v)))
+    // }
 
-    bfsWithPredicate(edges, "TREEROOT", predicate, getData);
+    // const finResMap: Map<number, Set<string>> = new Map();
 
-    for (const [level, data] of finResMap) {
-      console.log(`${level}: [${[...data].map((e) => `"${e}"`).join(",\n")}],\n`);
-    }
+    // const predicate = (node: string) => GLOBAL_NODE_MAP.get(node) instanceof JSXNode
+    // const getData = (node: string, level: number) => {
+    //   if (!finResMap.has(level)) finResMap.set(level, new Set());
+    //   for (const source of JSX_RENDER_CHUNKS.get(node)) {
+    //     finResMap.get(level).add(source)
+    //   }
+    // };
+
+    // bfsWithPredicate(edges, "TREEROOT", predicate, getData);
+
+    // for (const [level, data] of finResMap) {
+    //   console.log(`${level}: [${[...data].map((e) => `"${e}"`).join(",\n")}],\n`);
+    // }
     // // console.log(finResMap)
 
 

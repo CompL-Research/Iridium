@@ -13,6 +13,7 @@ import { IV_FunctionExpression } from "../../ALL_RVal/IV_FunctionExpression.ts";
 import { PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "../PTA.ts";
 import { IV_ClassExpression } from "../../ALL_RVal/IV_ClassExpression.ts";
 import { IV_JSX } from "../../ALL_RVal/IV_JSX.ts";
+import { IS_AImport, IS_BImport, IS_CImport, IS_CExport, IS_DExport, IS_EExport } from "../../ALL_IS/IS_Imports_Exports.ts";
 
 //
 // Utility methods for printing
@@ -647,10 +648,12 @@ export class ClassNode extends PTAFlowNode {
 }
 
 export class RemoteNode extends PTAFlowNode {
+  node: IS_AImport | IS_BImport | IS_CImport | IS_CExport | IS_DExport | IS_EExport
   FROM: string;
-  constructor(id: string, FROM: string, world: string) {
+  constructor(id: string, FROM: string, world: string, node: IS_AImport | IS_BImport | IS_CImport | IS_CExport | IS_DExport | IS_EExport) {
     super(id, world);
     this.FROM = FROM;
+    this.node = node;
   }
 
   dotName() {

@@ -497,15 +497,15 @@ export class LoopInit extends BlockBB {
 
   create() {
     if (
-      !isJS3ForInStatement(this.node) ||
-      !isJS3ForOfStatement(this.node) ||
-      !isJS3ForStatement(this.node)
+      isJS3ForInStatement(this.node) ||
+      isJS3ForOfStatement(this.node) ||
+      isJS3ForStatement(this.node)
     ) {
+      return new LoopInit(this.env, this.node);
+    } else {
       debugConfig.logger.throwIriError(
         "Expected node to be JS3ForStatement | JS3ForInStatement | JS3ForOfStatement",
       );
-    } else {
-      return new LoopInit(this.env, this.node);
     }
   }
 

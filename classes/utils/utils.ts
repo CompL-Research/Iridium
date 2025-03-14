@@ -10,6 +10,7 @@ import fs from "fs";
 import path from "path";
 import ts from "typescript";
 import { PTA_WORLD } from "classes/builder/IridiumHelpers/Passes/PTA.ts";
+import { IRIDIUM_CONTAINER_MAP } from "classes/builder/IridiumHelpers/DependencyGraph.ts";
 
 export class JS3GenerationError extends Error { }
 
@@ -134,7 +135,7 @@ export const saveFlowDataToGraph = (flowData: PTAFlowData) => {
 let idx = 0;
 
 export const saveRenderTreeDataToFile = (path: string, flowData: PTAFlowData) => {
-  path = "outputs/" + idx++ + "_" + path;
+  path = `${debugConfig.cli.outputsPath}/` + idx++ + "_" + path;
   try {
     fs.writeFileSync(path + ".DOT", saveFlowDataToGraph(flowData));
     execSync(`dot -Tpng ${path + ".DOT"} -o ${path + ".png"}`);
@@ -144,7 +145,7 @@ export const saveRenderTreeDataToFile = (path: string, flowData: PTAFlowData) =>
 }
 
 export const saveFlowDataToFile = (path: string, flowData: PTAFlowData) => {
-  path = "outputs/PTA/" + idx++ + "_" + path;
+  path = `${debugConfig.cli.outputsPath}/PTA/` + idx++ + "_" + path;
   try {
     fs.writeFileSync(path + ".DOT", saveFlowDataToGraph(flowData));
     execSync(`dot -Tpng ${path + ".DOT"} -o ${path + ".png"}`);
@@ -154,7 +155,7 @@ export const saveFlowDataToFile = (path: string, flowData: PTAFlowData) => {
 }
 
 export const saveFlowGraphToFile = (path: string, flowGraph: I_Container) => {
-  path = "outputs/FG_" + idx++ + "_" + path;
+  path = `${debugConfig.cli.outputsPath}/FG_` + idx++ + "_" + path;
   try {
     fs.writeFileSync(path + ".DOT", flowGraph.toDOT());
     execSync(`dot -Tpng ${path + ".DOT"} -o ${path + ".png"}`);
@@ -163,8 +164,41 @@ export const saveFlowGraphToFile = (path: string, flowGraph: I_Container) => {
   }
 }
 
+export const saveDependencyGraph = (depGraph: Graph) => {
+  const path = `${debugConfig.cli.outputsPath}/DEPENDENCY_GRAPH`;
+
+  let graphDOT = []
+  graphDOT.push("digraph DependencyGraph {");
+  graphDOT.push('  node [fontname="Noto Mono"];');
+
+  for (const n of depGraph.nodes()) {
+    const node = IRIDIUM_CONTAINER_MAP.get(n);
+    if (node === null) {
+      graphDOT.push(`  "${n}"[shape="rectangle",style="filled",fillcolor="red"];`);
+    } else {
+      graphDOT.push(`  "${n}"[shape="rectangle",style="filled",fillcolor="green"];`);
+    }
+  }
+  for (const e of depGraph.edges()) {
+    const resolvedNode = IRIDIUM_CONTAINER_MAP.get(e.v);
+    if (resolvedNode === null) {
+      graphDOT.push(`  "${e.v}" -> "${e.w}"[style="dashed"];`);
+    } else {
+      graphDOT.push(`  "${e.v}" -> "${e.w}";`);
+    }
+  }
+  graphDOT.push('}');
+
+  try {
+    fs.writeFileSync(path + ".DOT", graphDOT.join("\n"));
+    execSync(`dot -Tpng ${path + ".DOT"} -o ${path + ".png"}`);
+  } catch (err) {
+    console.error("File write failed:", err);
+  }
+}
+
 export const saveFlowGraphToFileFromIRIDIUMFG = (path: string, flowGraph: IRIDIUM_FG) => {
-  path = "outputs/FG_" + idx++ + "_" + path;
+  path = `${debugConfig.cli.outputsPath}/FG_` + idx++ + "_" + path;
   try {
     fs.writeFileSync(path + ".DOT", flowGraph.saveDot());
     execSync(`dot -Tpng ${path + ".DOT"} -o ${path + ".png"}`);
@@ -274,14 +308,14 @@ export function resolveModuleImport(
     //   "@dashboard/*": ["src/*"],
     //   "@test/*": ["testUtils/*"],
     // },
-    "paths": {
-      "@excalidraw/excalidraw": ["packages/excalidraw/index.tsx"],
-      "@excalidraw/utils": ["packages/utils/index.ts"],
-      "@excalidraw/math": ["packages/math/index.ts"],
-      "@excalidraw/excalidraw/*": ["packages/excalidraw/*"],
-      "@excalidraw/utils/*": ["packages/utils/*"],
-      "@excalidraw/math/*": ["packages/math/*"],
-    },
+    // "paths": {
+    //   "@excalidraw/excalidraw": ["packages/excalidraw/index.tsx"],
+    //   "@excalidraw/utils": ["packages/utils/index.ts"],
+    //   "@excalidraw/math": ["packages/math/index.ts"],
+    //   "@excalidraw/excalidraw/*": ["packages/excalidraw/*"],
+    //   "@excalidraw/utils/*": ["packages/utils/*"],
+    //   "@excalidraw/math/*": ["packages/math/*"],
+    // },
     moduleResolution: ts.ModuleResolutionKind.NodeJs,
     baseUrl: basePath,
   };
@@ -307,7 +341,7 @@ export function resolveModuleImport(
     }
 
     // Fallback to the .d.ts file if nothing else is found
-    return resolvedFileName;
+    return undefined;
 
   } else {
     // debugConfig.logger.error(
