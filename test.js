@@ -1,7 +1,7 @@
 import M1 from "./M1";
 import M2 from "./M2";
 import M3 from "./M3";
-
+import "./sideEffect.js";
 // const M1 = lazy(() => import("./M1"))
 // const M2 = lazy(() => import("./M1"))
 

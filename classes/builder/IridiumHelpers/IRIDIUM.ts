@@ -306,11 +306,11 @@ import {
 import { Environment, GlobalEnvironment } from "./I_GENERAL/I_Environment.ts";
 
 import { Graph } from "#graphlib";
-import { assertMessage, bfsWithPredicate, computeRefreshMap, postOrderTraversal, resolveModuleImport, saveFlowDataToFile, saveRenderTreeDataToFile } from "#utils";
-import { GLOBAL_UNAME_PATH_MAP, ProjectFile } from "classes/ProjectFile.ts";
+import { assertMessage, computeRefreshMap, postOrderTraversal, saveRenderTreeDataToFile } from "#utils";
+import { GLOBAL_UNAME_PATH_MAP } from "classes/ProjectFile.ts";
 import assert from "node:assert";
 import { IV_FJSX, IV_JSX, IV_PJSX, PRIMITIVE_TAGS } from "./ALL_RVal/IV_JSX.ts";
-import { I_Container } from "./I_GENERAL/I_Container.ts";
+import { IMPORT_STATEMENT_TARGETS, IRIDIUM_CONTAINER_MAP } from "./DependencyGraph.ts";
 import { IRIDIUM_FG } from "./I_GENERAL/IRIDIUM_FG.ts";
 import { addThisInitToFunctionBoundaries } from "./Passes/AddThisInitToFunctionBoundaries.ts";
 import { cleanupBBs } from "./Passes/BBCleanup.ts";
@@ -319,9 +319,8 @@ import { initializeEnvDefs } from "./Passes/EnvInit.ts";
 import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
 import { getEXPORTID, initializeWorld, PTA_HASH_MAP, PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "./Passes/PTA.ts";
-import { addPTANode, addStackEdges, ensureNodeIDAndGetPTANode, ensureNodeIDAndGetStackNode, getImmutableWorldInstance, getMutableWorldInstance, getPointees, getSuccessorClosureImmutable, GLOBAL_NODE_MAP, GLOBAL_RESOLUTION_MAP, GLOBAL_RESOLUTION_SKIP_MAP, JSXNode, PTAEdge, RemoteNode, ResolvedRemoteNode, StackNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
+import { addPTANode, addStackEdges, ensureNodeIDAndGetPTANode, ensureNodeIDAndGetStackNode, getImmutableWorldInstance, getMutableWorldInstance, getPointees, getSuccessorClosureImmutable, GLOBAL_NODE_MAP, GLOBAL_RESOLUTION_MAP, GLOBAL_RESOLUTION_SKIP_MAP, RemoteNode, StackNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
 import { handleCallExpression } from "./Passes/PTA_STUFF/PTAHandlers.ts";
-import { IMPORT_STATEMENT_TARGETS, IRIDIUM_CONTAINER_MAP } from "./DependencyGraph.ts";
 
 let generate;
 if (typeof Bun !== 'undefined') {

@@ -325,7 +325,35 @@ export const handleSimpleAssignmentStatement = (
 // IMPORTS
 // 
 
+// IS_AImport
+// import FROM
+export const handleAImportNode = (
+  uname: string,
+  mutableFlowData: PTAFlowData,
+  i: IS_AImport,
+  currBBIDx: string,
+  stackInstOffset: number,
+) => {
+  const heapID = getHeapQualifiedName("IMPORT", currBBIDx, stackInstOffset);
+  const FROM = i.FROM.lookupName();
 
+  if (GLOBAL_RESOLUTION_MAP.has(heapID)) {
+    const resolvedUname = GLOBAL_RESOLUTION_MAP.get(heapID);
+    getMutableWorldInstance(resolvedUname);
+    const worldData = PTA_WORLD_CURRMUTABLE_DATA.get(resolvedUname)[0];
+    const exportedNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(resolvedUname));
+
+    addPTANode(mutableFlowData, exportedNode);
+  } else {
+    const remoteNode = GLOBAL_NODE_MAP.has(heapID)
+      ? GLOBAL_NODE_MAP.get(heapID)
+      : new RemoteNode(heapID, FROM, uname, i);
+
+    assert(remoteNode instanceof RemoteNode, assertMessage(import.meta.url, `💔 "${remoteNode}" !instanceof RemoteNode`));
+    addPTANode(mutableFlowData, remoteNode);
+    addSelfLoop(mutableFlowData, remoteNode, true);
+  }
+};
 
 // IS_BImport
 // import { remote as local } from FROM

@@ -38,6 +38,7 @@ import {
 } from "./PTA_STUFF/PTAFlowData.ts";
 import {
   handleAExportNode,
+  handleAImportNode,
   handleArrayDestructuringAssignmentStatement,
   handleBExportNode,
   handleBImportNode,
@@ -182,11 +183,10 @@ export const flowFunction = (
   for (const i of currBB.statements) {
     // debugConfig.logger.error(`At stmt ${i.toString()}`);
     if (i instanceof IS_AImport) {
-      // if (!IMPORT_STATEMENT_TARGETS.has(i)) 
-      //   debugConfig.logger.throwIriError("Expected Dependency graph to be built before PTA: IS_AImport");
+      if (!IMPORT_STATEMENT_TARGETS.has(i)) 
+        debugConfig.logger.throwIriError("Expected Dependency graph to be built before PTA: IS_AImport");
 
-      // const target = IMPORT_STATEMENT_TARGETS.get(i);
-      // handleAImportNode(target);
+      handleAImportNode(uname, mutableFlowData, i, currBBIDx, stackInstOffset);
     } else if (i instanceof IS_BImport) {
       if (!IMPORT_STATEMENT_TARGETS.has(i)) 
         debugConfig.logger.throwIriError("Expected Dependency graph to be built before PTA: IS_BImport");
