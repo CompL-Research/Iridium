@@ -1,16 +1,16 @@
-import M1 from "./M1";
-import M2 from "./M2";
-import M3 from "./M3";
-import "./sideEffect.js";
-// const M1 = lazy(() => import("./M1"))
-// const M2 = lazy(() => import("./M1"))
+// import M1 from "./M1";
+// import M2 from "./M2";
+// import M3 from "./M3";
+// import "./sideEffect.js";
+// // const M1 = lazy(() => import("./M1"))
+// // const M2 = lazy(() => import("./M1"))
 
-export const App = () => {
-  return <M1>
-    <M2/>
-    <M3/>
-  </M1>
-}
+// export const App = () => {
+//   return <M1>
+//     <M2/>
+//     <M3/>
+//   </M1>
+// }
 
 // // function deduplicateLevels(data) {
 // //   const seen = new Set();
@@ -148,3 +148,28 @@ export const App = () => {
 // }
 
 // console.log(deduplicatedChunks);
+
+
+
+// label: for (let i = 0; i < 10; i++) {
+//   for (let j = 0; j < 12; j++) {
+//     break label;
+//   }
+// }
+
+// const ff = function() {
+//   this.x = 100;
+//   this.y = 111;
+//   return function foo() {
+//     console.log(this.x, this.y)
+//   }
+// }
+
+// let t = ff()
+// t()
+
+// let o = { x: 109, t: t }
+// o.t()
+
+// let t1 = o.t
+// t1()

@@ -4,16 +4,20 @@ import {
   hasPackageJson,
   initializeOutputsPath,
   saveDependencyGraph,
-  saveFlowDataToFile,
-  saveFlowGraphToFile,
 } from "#utils";
 import chalk from "chalk";
+import {
+  buildDependencyGraph,
+  DEPENDENCY_GRAPH,
+  IRIDIUM_CONTAINER_MAP,
+} from "classes/builder/IridiumHelpers/DependencyGraph.ts";
 import { I_Container } from "classes/builder/IridiumHelpers/I_GENERAL/I_Container.ts";
 import JS3Builder from "classes/builder/JS3Builder.ts";
 import { ProjectFile } from "classes/ProjectFile.ts";
 import commandLineArgs from "command-line-args";
 import commandLineUsage from "command-line-usage";
 import fs from "fs";
+import ora from "ora";
 import path from "path";
 import {
   handleLangWithSupport,
@@ -29,10 +33,6 @@ import {
   printJS3Usage,
 } from "./configs/printUsage.ts";
 import { projectStats } from "./configs/projectStats.ts";
-import { PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "classes/builder/IridiumHelpers/Passes/PTA.ts";
-import { printPTAFlowData } from "classes/builder/IridiumHelpers/Passes/PTA_STUFF/PTAFlowData.ts";
-import { buildDependencyGraph, DEPENDENCY_GRAPH, IRIDIUM_CONTAINER_MAP } from "classes/builder/IridiumHelpers/DependencyGraph.ts";
-import ora from "ora";
 
 const VERSION = "0.6a";
 const directories = ["./classes", "./configs", "./docs", "./playground/src"];
@@ -111,39 +111,37 @@ function iri(filePath) {
     IRIDIUM_CONTAINER_MAP.set(projectFile.uname, iri_container);
     iri_container.build(false);
 
-    let spinner = ora('[Building Dependency Graph]').start();
+    let spinner = ora("[Building Dependency Graph]").start();
     let clock = performance.now();
     buildDependencyGraph(iri_container, js3Builder.utils);
     clock = performance.now() - clock;
     spinner.stopAndPersist({ prefixText: `✅ ${clock.toPrecision(3)} ms` });
 
-
-    spinner = ora('[Saving Dependency Graph]').start();
+    spinner = ora("[Saving Dependency Graph]").start();
     clock = performance.now();
     saveDependencyGraph(DEPENDENCY_GRAPH);
     clock = performance.now() - clock;
     spinner.stopAndPersist({ prefixText: `✅ ${clock.toPrecision(3)} ms` });
-    
-    
-    spinner = ora('[Computing PTA]').start();
-    clock = performance.now();
-    iri_container.module.performPTA(true);
-    clock = performance.now() - clock;
-    spinner.stopAndPersist({ prefixText: `✅ ${clock.toPrecision(3)} ms` });
 
-    for(const [key, values] of PTA_WORLD_CURRMUTABLE_DATA.entries()) {
-      if (values.length !== 0) debugConfig.logger.throwIriError(`Expected world stack to be 0, found: ${values.length}`);
-    }
+    // spinner = ora('[Computing PTA]').start();
+    // clock = performance.now();
+    // iri_container.module.performPTA(true);
+    // clock = performance.now() - clock;
+    // spinner.stopAndPersist({ prefixText: `✅ ${clock.toPrecision(3)} ms` });
 
-    if (debugConfig.cli.savePTAGraph) {
-      for(const [key, value] of PTA_WORLD.entries()) {
-        saveFlowDataToFile(key, value);
-        // debugConfig.logger.warn(`PTA Flow Data for ${key}`);
-        // printPTAFlowData(value);
-      }
-    }
+    // for(const [key, values] of PTA_WORLD_CURRMUTABLE_DATA.entries()) {
+    //   if (values.length !== 0) debugConfig.logger.throwIriError(`Expected world stack to be 0, found: ${values.length}`);
+    // }
 
-    iri_container.module.saveRenderTree()
+    // if (debugConfig.cli.savePTAGraph) {
+    //   for(const [key, value] of PTA_WORLD.entries()) {
+    //     saveFlowDataToFile(key, value);
+    //     // debugConfig.logger.warn(`PTA Flow Data for ${key}`);
+    //     // printPTAFlowData(value);
+    //   }
+    // }
+
+    // iri_container.module.saveRenderTree()
   } catch (e) {
     debugConfig.logger.throwIriError(`Failed to generate Iridium: ${e}`);
     process.exit(1);
@@ -237,7 +235,6 @@ if (mainCommand === "js3") {
     if ("allow-lang-with-support" in options) handleLangWithSupport();
     if ("save-pta-graph" in options) handleSavePTAGraph();
     if ("save-flow-graph" in options) handleSaveFlowGraph();
-
   }
   iri(PATH_TO_JS);
 } else if (mainCommand === "version") {
