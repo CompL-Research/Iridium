@@ -36,7 +36,7 @@ import {
   optionalCallExpression,
   OptionalMemberExpression,
   optionalMemberExpression,
-  ThisExpression
+  ThisExpression,
 } from "@babel/types";
 
 import JS3Builder, { JS3BuilderUtils } from "../JS3Builder.ts";
@@ -306,11 +306,19 @@ import {
 import { Environment, GlobalEnvironment } from "./I_GENERAL/I_Environment.ts";
 
 import { Graph } from "#graphlib";
-import { assertMessage, computeRefreshMap, postOrderTraversal, saveRenderTreeDataToFile } from "#utils";
+import {
+  assertMessage,
+  computeRefreshMap,
+  postOrderTraversal,
+  saveRenderTreeDataToFile,
+} from "#utils";
 import { GLOBAL_UNAME_PATH_MAP } from "classes/ProjectFile.ts";
 import assert from "node:assert";
 import { IV_FJSX, IV_JSX, IV_PJSX, PRIMITIVE_TAGS } from "./ALL_RVal/IV_JSX.ts";
-import { IMPORT_STATEMENT_TARGETS, IRIDIUM_CONTAINER_MAP } from "./DependencyGraph.ts";
+import {
+  IMPORT_STATEMENT_TARGETS,
+  IRIDIUM_CONTAINER_MAP,
+} from "./DependencyGraph.ts";
 import { IRIDIUM_FG } from "./I_GENERAL/IRIDIUM_FG.ts";
 import { addThisInitToFunctionBoundaries } from "./Passes/AddThisInitToFunctionBoundaries.ts";
 import { cleanupBBs } from "./Passes/BBCleanup.ts";
@@ -318,81 +326,38 @@ import { hoistDeclarations } from "./Passes/DeclarationHoisting.ts";
 import { initializeEnvDefs } from "./Passes/EnvInit.ts";
 import { matchContinueAndBreak } from "./Passes/MatchContinueAndBreak.ts";
 import { normalizeReturns } from "./Passes/NormalizeReturns.ts";
-import { getEXPORTID, initializeWorld, PTA_HASH_MAP, PTA_WORLD, PTA_WORLD_CURRMUTABLE_DATA } from "./Passes/PTA.ts";
-import { addPTANode, addStackEdges, ensureNodeIDAndGetPTANode, ensureNodeIDAndGetStackNode, getImmutableWorldInstance, getMutableWorldInstance, getPointees, getSuccessorClosureImmutable, GLOBAL_NODE_MAP, GLOBAL_RESOLUTION_MAP, GLOBAL_RESOLUTION_SKIP_MAP, RemoteNode, StackNode } from "./Passes/PTA_STUFF/PTAFlowData.ts";
+import {
+  getEXPORTID,
+  initializeWorld,
+  PTA_HASH_MAP,
+  PTA_WORLD,
+  PTA_WORLD_CURRMUTABLE_DATA,
+} from "./Passes/PTA.ts";
+import {
+  addPTANode,
+  addStackEdges,
+  ensureNodeIDAndGetPTANode,
+  ensureNodeIDAndGetStackNode,
+  getImmutableWorldInstance,
+  getMutableWorldInstance,
+  getPointees,
+  getSuccessorClosureImmutable,
+  GLOBAL_NODE_MAP,
+  GLOBAL_RESOLUTION_MAP,
+  GLOBAL_RESOLUTION_SKIP_MAP,
+  RemoteNode,
+  StackNode,
+} from "./Passes/PTA_STUFF/PTAFlowData.ts";
 import { handleCallExpression } from "./Passes/PTA_STUFF/PTAHandlers.ts";
 
 let generate;
-if (typeof Bun !== 'undefined') {
+if (typeof Bun !== "undefined") {
   generate = _generate;
 } else {
   generate = _generate.default;
 }
 
-const IMPORT_TREE = new Graph({ multigraph: true })
-
-const JSX_RENDER_CHUNKS: Map<string, Set<string>> = new Map()
-
-class Queue {
-  items = []
-  constructor() {
-    this.items = [];
-  }
-
-  // Add an element to the end of the queue
-  enqueue(item) {
-    this.items.push(item);
-  }
-
-  // Remove and return the element at the front of the queue
-  dequeue() {
-    if (this.isEmpty()) {
-      return null;
-    }
-    return this.items.shift();
-  }
-
-  // Peek at the front element without removing it
-  front() {
-    return this.isEmpty() ? null : this.items[0];
-  }
-
-  // Check if the queue is empty
-  isEmpty() {
-    return this.items.length === 0;
-  }
-
-  // Get the size of the queue
-  size() {
-    return this.items.length;
-  }
-}
-
-function areMapsEqual(
-  map1: Map<string, Set<string>>,
-  map2: Map<string, Set<string>>
-): boolean {
-  if (map1.size !== map2.size) return false;
-
-  for (const [key, set1] of map1) {
-    const set2 = map2.get(key);
-    if (!set2 || set1.size !== set2.size) return false;
-
-    for (const value of set1) {
-      if (!set2.has(value)) return false;
-    }
-  }
-
-  return true;
-}
-
-function areSetsEqual(setA, setB) {
-  if (setA.size !== setB.size) return false;
-  for (let item of setA) {
-    if (!setB.has(item)) return false;
-  }
-  return true;
-}
+const IMPORT_TREE = new Graph({ multigraph: true });
 
 export default class IRIDIUM_MODULE {
   js3builder: JS3Builder;
@@ -401,9 +366,13 @@ export default class IRIDIUM_MODULE {
   static SEARCH_THRESHOLD: number = 10;
   fg: IRIDIUM_FG = undefined;
   projectBasePath: string;
-  utils: JS3BuilderUtils
+  utils: JS3BuilderUtils;
 
-  constructor(js3builder: JS3Builder, utils: JS3BuilderUtils, projectBasePath: string) {
+  constructor(
+    js3builder: JS3Builder,
+    utils: JS3BuilderUtils,
+    projectBasePath: string,
+  ) {
     this.node = js3builder.generatedAST.program;
     this.js3builder = js3builder;
     this.utils = utils;
@@ -459,19 +428,40 @@ export default class IRIDIUM_MODULE {
     const rootNode = GLOBAL_NODE_MAP.has(rootNodeID)
       ? GLOBAL_NODE_MAP.get(rootNodeID)
       : new StackNode(rootNodeID, world);
-    assert(rootNode instanceof StackNode, assertMessage(import.meta.url, `🌸 Expected "TREEROOT" to be a StackNode`));
+    assert(
+      rootNode instanceof StackNode,
+      assertMessage(
+        import.meta.url,
+        `🌸 Expected "TREEROOT" to be a StackNode`,
+      ),
+    );
     rootNode.color = "cyan";
     addPTANode(worldData, rootNode);
 
     // Get call closures from top level export
-    const exportsNode = ensureNodeIDAndGetPTANode(worldData, getEXPORTID(this.js3builder.projectFile.uname));
+    const exportsNode = ensureNodeIDAndGetPTANode(
+      worldData,
+      getEXPORTID(this.js3builder.projectFile.uname),
+    );
     const exportPointees = getPointees(worldData, exportsNode);
 
     const sinks = this.fg.sinks();
-    if (sinks.length !== 1) debugConfig.logger.throwIriError(`Expected atmost one sink, found ${sinks.length}`);
+    if (sinks.length !== 1)
+      debugConfig.logger.throwIriError(
+        `Expected atmost one sink, found ${sinks.length}`,
+      );
     const sinkBB = this.fg.getBBNode(sinks[0]);
 
-    const res = handleCallExpression(world, worldData, exportPointees, [], sinkBB, sinks[0], 0, undefined);
+    const res = handleCallExpression(
+      world,
+      worldData,
+      exportPointees,
+      [],
+      sinkBB,
+      sinks[0],
+      0,
+      undefined,
+    );
     addStackEdges(worldData, rootNode, res);
 
     if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length !== 1)
@@ -481,7 +471,10 @@ export default class IRIDIUM_MODULE {
 
     for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
       if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
-      if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
+      if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1)
+        debugConfig.logger.throwIriError(
+          "Expected at most 1 mutable instance to be active after analysis",
+        );
       PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
     }
 
@@ -512,11 +505,15 @@ export default class IRIDIUM_MODULE {
         const rootNode = this.addTreeRoot(currentWorld);
 
         // Get successor closure
-        const remoteNodes =
-          [...getSuccessorClosureImmutable(rootNode)]
-            .filter((n) => n instanceof RemoteNode);
+        const remoteNodes = [...getSuccessorClosureImmutable(rootNode)].filter(
+          (n) => n instanceof RemoteNode,
+        );
 
-        const unresolvedRemoteNodes = remoteNodes.filter((n) => !GLOBAL_RESOLUTION_MAP.has(n.id) && !GLOBAL_RESOLUTION_SKIP_MAP.has(n.id));
+        const unresolvedRemoteNodes = remoteNodes.filter(
+          (n) =>
+            !GLOBAL_RESOLUTION_MAP.has(n.id) &&
+            !GLOBAL_RESOLUTION_SKIP_MAP.has(n.id),
+        );
 
         if (unresolvedRemoteNodes.length === 0) {
           debugConfig.logger.success(`PTA search complete`);
@@ -526,11 +523,12 @@ export default class IRIDIUM_MODULE {
         for (const node of unresolvedRemoteNodes) {
           const importFilePath = GLOBAL_UNAME_PATH_MAP.get(node.world);
           const toResolve = node.FROM;
-          if (!IMPORT_STATEMENT_TARGETS.has(node.node)) 
-            debugConfig.logger.throwIriError(`Expected all import nodes to be processed when building the dependency graph`);
+          if (!IMPORT_STATEMENT_TARGETS.has(node.node))
+            debugConfig.logger.throwIriError(
+              `Expected all import nodes to be processed when building the dependency graph`,
+            );
           const resolutionTarget = IMPORT_STATEMENT_TARGETS.get(node.node);
           try {
-
             if (!resolutionTarget) throw new Error("Unresolved import");
 
             const targetUname = resolutionTarget.projectFile.uname;
@@ -538,19 +536,31 @@ export default class IRIDIUM_MODULE {
             if (PTA_WORLD.has(targetUname)) {
               GLOBAL_RESOLUTION_MAP.set(node.id, targetUname);
 
-              if (!IMPORT_TREE.hasNode(node.world)) IMPORT_TREE.setNode(node.world);
-              IMPORT_TREE.setEdge(node.world, targetUname, "imports", "imports");
-
+              if (!IMPORT_TREE.hasNode(node.world))
+                IMPORT_TREE.setNode(node.world);
+              IMPORT_TREE.setEdge(
+                node.world,
+                targetUname,
+                "imports",
+                "imports",
+              );
             } else {
               resolutionTarget.module.performPTA(false);
               GLOBAL_RESOLUTION_MAP.set(node.id, targetUname);
 
-              if (!IMPORT_TREE.hasNode(node.world)) IMPORT_TREE.setNode(node.world);
-              IMPORT_TREE.setEdge(node.world, targetUname, "imports", "imports");
-
+              if (!IMPORT_TREE.hasNode(node.world))
+                IMPORT_TREE.setNode(node.world);
+              IMPORT_TREE.setEdge(
+                node.world,
+                targetUname,
+                "imports",
+                "imports",
+              );
             }
           } catch (e) {
-            debugConfig.logger.error(`Failed to resolve: "${toResolve}" from "${importFilePath}" => ${e}`)
+            debugConfig.logger.error(
+              `Failed to resolve: "${toResolve}" from "${importFilePath}" => ${e}`,
+            );
             GLOBAL_RESOLUTION_SKIP_MAP.add(node.id);
           }
         }
@@ -561,12 +571,14 @@ export default class IRIDIUM_MODULE {
           debugConfig.logger.warn(`Refresh Count: ${refreshCount++}`);
           const postOrder = postOrderTraversal(IMPORT_TREE, currentWorld);
           for (const worldToRefresh of postOrder) {
-            if (!IRIDIUM_CONTAINER_MAP.get(worldToRefresh)) 
-              debugConfig.logger.throwIriError(`Expected iridium container to exist`)
+            if (!IRIDIUM_CONTAINER_MAP.get(worldToRefresh))
+              debugConfig.logger.throwIriError(
+                `Expected iridium container to exist`,
+              );
             const moduleToUpdate = IRIDIUM_CONTAINER_MAP.get(worldToRefresh);
             moduleToUpdate.module.performPTA(false);
           }
-          const [refreshTriggers, refreshMap] = computeRefreshMap();
+          const [, refreshMap] = computeRefreshMap();
 
           if (refreshMap.size === 0) {
             break;
@@ -575,12 +587,14 @@ export default class IRIDIUM_MODULE {
 
         for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
           if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
-          if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
+          if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1)
+            debugConfig.logger.throwIriError(
+              "Expected at most 1 mutable instance to be active after analysis",
+            );
           PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
         }
       }
       this.addTreeRoot(currentWorld);
-
     } else {
       const world = this.js3builder.projectFile.uname;
       if (PTA_WORLD.has(world)) getMutableWorldInstance(world);
@@ -588,8 +602,10 @@ export default class IRIDIUM_MODULE {
 
       for (const world of PTA_WORLD_CURRMUTABLE_DATA.keys()) {
         if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length === 0) continue;
-        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1) 
-          debugConfig.logger.throwIriError("Expected at most 1 mutable instance to be active after analysis");
+        if (PTA_WORLD_CURRMUTABLE_DATA.get(world).length > 1)
+          debugConfig.logger.throwIriError(
+            "Expected at most 1 mutable instance to be active after analysis",
+          );
         PTA_WORLD.set(world, PTA_WORLD_CURRMUTABLE_DATA.get(world).pop());
       }
     }
@@ -597,221 +613,21 @@ export default class IRIDIUM_MODULE {
 
   saveRenderTree() {
     const world = this.js3builder.projectFile.uname;
-    const worldData = PTA_WORLD.get(world)
+    const worldData = PTA_WORLD.get(world);
 
     // Get call closures from top level export
     const rootNodeID = "TREEROOT";
     const rootNode = ensureNodeIDAndGetStackNode(worldData, rootNodeID);
-    const closure = getSuccessorClosureImmutable(rootNode)
+    const closure = getSuccessorClosureImmutable(rootNode);
 
     const edges: Map<string, Set<string>> = new Map();
 
     for (const n of closure) {
       const nodeWorld = getImmutableWorldInstance(n.world);
-      edges.set(n.id, nodeWorld.get(n.id))
+      edges.set(n.id, nodeWorld.get(n.id));
     }
 
     saveRenderTreeDataToFile("RenderTree", edges);
-  }
-
-  findRenderBoundaries() {
-    // const worldLazy: Map<string, Set<string>> = new Map();
-    // const worldMap: Map<string, number> = new Map();
-    // for (const [world, worldData] of PTA_WORLD.entries()) {
-    //   if (!worldLazy.has(world)) worldLazy.set(world, new Set())
-    //   for (const [nodeID, edges] of worldData) {
-    //     const node = GLOBAL_NODE_MAP.get(nodeID);
-    //     if (node instanceof RemoteNode) {
-    //       const importFilePath = GLOBAL_UNAME_PATH_MAP.get(node.world);
-    //       const toResolve = node.FROM;
-    //       try {
-    //         const filePath = resolveModuleImport(toResolve, importFilePath, debugConfig.cli.projectBase);
-    //         if (!filePath) throw new Error();
-    //         worldLazy.get(world).add(filePath);
-    //       } catch (e) {
-    //         debugConfig.logger.error(`Failed to resolve: "${toResolve}" from "${importFilePath}"`)
-    //       }          
-    //     }
-    //   }
-    // }
-    
-    // const world = this.js3builder.projectFile.uname;
-    // const worldData = PTA_WORLD.get(world)
-    // const rootNodeID = "TREEROOT";
-    // const rootNode = ensureNodeIDAndGetStackNode(worldData, rootNodeID);
-    // const closure = getSuccessorClosureImmutable(rootNode)
-
-    // const edges: Map<string, Set<string>> = new Map();
-
-    // for (const n of closure) {
-    //   const nodeWorld = getImmutableWorldInstance(n.world);
-    //   edges.set(n.id, new Set([...nodeWorld.get(n.id)].map((e) => PTAEdge.from(n.id, e).v)))
-    // }
-
-    // const finResMap: Map<number, Set<string>> = new Map();
-
-    // let lastLevel = 100;
-
-    // const predicate = (node: string) => GLOBAL_NODE_MAP.get(node) instanceof JSXNode
-    // const getData = (node: string, level: number) => {
-    //   const worldWeAreAt = GLOBAL_NODE_MAP.get(node).world;
-    //   if (!worldMap.has(worldWeAreAt)) worldMap.set(worldWeAreAt, level);
-    //   else if (worldMap.get(worldWeAreAt) > level) worldMap.set(worldWeAreAt, level);
-    // };
-
-    // bfsWithPredicate(edges, "TREEROOT", predicate, getData);
-
-    // for (const [level, data] of finResMap) {
-    //   console.log(`${level}: [${[...data].map((e) => `"${e}"`).join(",\n")}],\n`);
-    // }
-
-    // let res: Map<number, Set<string>> = new Map()
-
-    // for (const [world, toLazy] of worldLazy) {
-    //   let level = 1000;
-    //   if (worldMap.has(world)) {
-    //     level = worldMap.get(world);
-    //   }
-    //   if (!res.has(level)) res.set(level, new Set());
-    //   toLazy.forEach((l) => res.get(level).add(l));
-    // }
-
-    // const finalRes = {}
-
-    // function deduplicateLevels(data) {
-    //   const seen = new Set();
-    //   const result = {};
-    
-    //   // Iterate through levels in ascending order
-    //   Object.keys(data).sort((a, b) => a - b).forEach(level => {
-    //     result[level] = data[level].filter(file => {
-    //       if (seen.has(file)) {
-    //         return false; // Remove if already seen at a lower level
-    //       } else {
-    //         seen.add(file); // Mark this file as seen
-    //         return true;
-    //       }
-    //     });
-    //   });
-    
-    //   return result;
-    // }
-
-    // for (const [level, data] of res) {
-    //   finalRes[level] = [...data]
-    //   // console.log(`${level}: [${[...data].map((e) => `"${e}"`).join(",\n")}],\n`);
-    // }
-
-    // console.log(deduplicateLevels(finalRes))
-
-    
-
-
-
-    
-    // // Iterate over each world and get all JSX nodes
-    // // For all JSX nodes, get all ^reactFuns^
-    // //  If any fun is from a different world, find the source of import
-
-    // const getFieldPointees = (edges: Set<string>, field: string) => {
-    //   const pointees: Set<string> = new Set();
-    //   for (const e of edges) {
-    //     const edge = PTAEdge.from("", e);
-    //     if (edge.field === field)
-    //       pointees.add(edge.v)
-    //   }
-    //   return pointees;
-    // }
-
-    // const checkIfIsPointee = (edges: Set<string>, pointee: string) => {
-    //   for (const e of edges) {
-    //     if (PTAEdge.from("", e).v === pointee) return true;
-    //   }
-    //   return false;
-    // }
-    // for (const [world, data] of PTA_WORLD.entries()) {
-
-
-    //   debugConfig.logger.log(`Working on world ${world}`);
-    //   for (const [nodeID, edges] of data.entries()) {
-    //     const node = GLOBAL_NODE_MAP.get(nodeID);
-    //     if (node.world === world && node instanceof JSXNode) {
-    //       if (!JSX_RENDER_CHUNKS.has(node.id)) JSX_RENDER_CHUNKS.set(node.id, new Set())
-    //       const pointees = getFieldPointees(edges, "^reactFuns^");
-    //       for (const targetFun of pointees) {
-    //         const pointeeWorld = GLOBAL_NODE_MAP.get(targetFun).world;
-    //         console.log(`  JSX chunk world ${pointeeWorld}, ${MODULE.has(pointeeWorld)}`)
-    //         if (pointeeWorld !== node.world && RESOLUTION_CACHE.has(pointeeWorld)) {
-    //           console.log(`  JSX chunk: ${node.id} -> ${pointeeWorld}`)
-    //           JSX_RENDER_CHUNKS.get(node.id).add(RESOLUTION_CACHE.get(pointeeWorld).js3Builder.projectFile.absoluteFilePath);
-    //         }
-    //         // const importNodes: Set<ResolvedRemoteNode> = new Set();
-    //         // for (const [nid, oEdges] of data.entries()) {
-    //         //   const rnode = GLOBAL_NODE_MAP.get(nid);
-    //         //   if (rnode instanceof ResolvedRemoteNode) {
-    //         //     if (checkIfIsPointee(oEdges, targetFun) && (rnode.field === "default" || rnode.field === node.node.tag.lookupName())) importNodes.add(rnode)
-    //         //   }
-    //         // }
-    //         // if (importNodes.size > 0) {
-    //         //   for (const rImport of importNodes) {
-    //         //     debugConfig.logger.log(` -- Potential lazy candidate for ${targetFun}@${node.node.tag} from "${rImport.FROM}" -> ${rImport.field}`);
-    //         //   }
-    //         // }
-    //       }
-    //     }
-    //   }
-    // }
-
-
-    // const world = this.js3builder.projectFile.uname;
-    // const worldData = PTA_WORLD.get(world)
-
-    // // Get call closures from top level export
-    // const rootNodeID = "TREEROOT";
-    // const rootNode = ensureNodeIDAndGetStackNode(worldData, rootNodeID);
-    // const closure = getSuccessorClosureImmutable(rootNode)
-
-    // const edges: Map<string, Set<string>> = new Map();
-
-    // for (const n of closure) {
-    //   const nodeWorld = getImmutableWorldInstance(n.world);
-    //   edges.set(n.id, new Set([...nodeWorld.get(n.id)].map((e) => PTAEdge.from(n.id, e).v)))
-    // }
-
-    // const finResMap: Map<number, Set<string>> = new Map();
-
-    // const predicate = (node: string) => GLOBAL_NODE_MAP.get(node) instanceof JSXNode
-    // const getData = (node: string, level: number) => {
-    //   if (!finResMap.has(level)) finResMap.set(level, new Set());
-    //   for (const source of JSX_RENDER_CHUNKS.get(node)) {
-    //     finResMap.get(level).add(source)
-    //   }
-    // };
-
-    // bfsWithPredicate(edges, "TREEROOT", predicate, getData);
-
-    // for (const [level, data] of finResMap) {
-    //   console.log(`${level}: [${[...data].map((e) => `"${e}"`).join(",\n")}],\n`);
-    // }
-    // // console.log(finResMap)
-
-
-    // // const world = this.js3builder.projectFile.uname;
-    // // const worldData = PTA_WORLD.get(world)
-
-    // // // Get call closures from top level export
-    // // const rootNodeID = "TREEROOT";
-    // // const rootNode = ensureNodeIDAndGetStackNode(worldData, rootNodeID);
-    // // const closure = getSuccessorClosureImmutable(rootNode)
-
-    // // const edges: Map<string, Set<string>> = new Map();
-
-    // // for (const n of closure) {
-    // //   const nodeWorld = getImmutableWorldInstance(n.world);
-    // //   edges.set(n.id, nodeWorld.get(n.id))
-    // // }
-
-    // // saveRenderTreeDataToFile("RenderTree", edges);
   }
 
   // // Set/Get current BB
@@ -2067,11 +1883,11 @@ export default class IRIDIUM_MODULE {
     parentNode: OptionalMemberExpression | OptionalCallExpression,
     existingState:
       | {
-        resID: IV_Identifier;
-        fallthruBlock: BB;
-        postBB: BB;
-        callExprContext: [string, string] | undefined;
-      }
+          resID: IV_Identifier;
+          fallthruBlock: BB;
+          postBB: BB;
+          callExprContext: [string, string] | undefined;
+        }
       | undefined = undefined,
   ) {
     const fgContext = this.getCurrentFGContext();
@@ -2148,10 +1964,7 @@ export default class IRIDIUM_MODULE {
       const fallthrough_assn = new IS_SimpleVarDecl(
         undefined,
         "let",
-        new IV_Identifier(
-          undefined,
-          this.utils.getNewTemporary(undefined),
-        ),
+        new IV_Identifier(undefined, this.utils.getNewTemporary(undefined)),
         new IV_SimpleAssn(
           undefined,
           resID,
@@ -2161,7 +1974,12 @@ export default class IRIDIUM_MODULE {
       fallthruBlock.statements.push(fallthrough_assn);
 
       // Initialize State
-      existingState = { resID, fallthruBlock, postBB, callExprContext: undefined };
+      existingState = {
+        resID,
+        fallthruBlock,
+        postBB,
+        callExprContext: undefined,
+      };
     } else {
       genesisTestBB = fgContext.getCurrentBB();
     }
@@ -2202,41 +2020,52 @@ export default class IRIDIUM_MODULE {
     if (existingState && existingState.callExprContext) {
       const [toReplace, replacement] = existingState.callExprContext;
       let patched = 0;
-      let visited: Set<string> = new Set();
+      const visited: Set<string> = new Set();
       const visitBBs = (curr: string) => {
         visited.add(curr);
         const bb = fgContext.getBBNode(curr);
         bb.statements.forEach((s) => {
           if (s instanceof IS_SimpleVarDecl) {
-            if (s.RVal instanceof IV_Call && s.RVal.callee.lookupName() === toReplace) {
+            if (
+              s.RVal instanceof IV_Call &&
+              s.RVal.callee.lookupName() === toReplace
+            ) {
               s.RVal.staticThis = true;
               s.RVal.context = replacement;
               patched++;
             }
           }
         });
-        let succ = fgContext.successors(curr);
+        const succ = fgContext.successors(curr);
         if (succ) {
           succ.forEach((ss) => {
             if (!visited.has(ss)) visitBBs(ss);
-          })
+          });
         }
-      }
+      };
       visitBBs("" + genesisTestBB.idx);
-      if (patched !== 1) debugConfig.logger.throwIriError(`Failed to patch context: ${patched}`);
+      if (patched !== 1)
+        debugConfig.logger.throwIriError(`Failed to patch context: ${patched}`);
     }
 
-
     const genesisTestLastSpillBB = this.getCurrentFGContext().getCurrentBB();
-    const contextStmt = genesisTestLastSpillBB.statements[genesisTestLastSpillBB.statements.length - 2];
-    const resStmt = genesisTestLastSpillBB.statements[genesisTestLastSpillBB.statements.length - 1];
+    const contextStmt =
+      genesisTestLastSpillBB.statements[
+        genesisTestLastSpillBB.statements.length - 2
+      ];
+    const resStmt =
+      genesisTestLastSpillBB.statements[
+        genesisTestLastSpillBB.statements.length - 1
+      ];
 
     if (isOptionalCallExpression(genesisNode)) {
       let resID: string;
       if (resStmt instanceof IS_SimpleVarDecl) {
         resID = resStmt.LVal.lookupName();
       } else {
-        debugConfig.logger.throwIriError("Expected IS_SimpleVarDecl as res stmt")
+        debugConfig.logger.throwIriError(
+          "Expected IS_SimpleVarDecl as res stmt",
+        );
       }
       if (contextStmt instanceof IS_SimpleVarDecl) {
         if (contextStmt.RVal instanceof IV_MemberExpressionPA) {
@@ -2249,7 +2078,9 @@ export default class IRIDIUM_MODULE {
           existingState.callExprContext = undefined;
         }
       } else {
-        debugConfig.logger.throwIriError("Expected IS_SimpleVarDecl after lowering an optionalCallExpression")
+        debugConfig.logger.throwIriError(
+          "Expected IS_SimpleVarDecl after lowering an optionalCallExpression",
+        );
       }
     } else {
       existingState.callExprContext = undefined;
@@ -2364,7 +2195,6 @@ export default class IRIDIUM_MODULE {
     const containsOptionalNode = containsOptionalNodeCheck(patchedNode);
 
     if (!containsOptionalNode) {
-
       // Chain termination, all optional = true node were eliminated...
 
       // Get rid of all optional nodes
@@ -2380,30 +2210,35 @@ export default class IRIDIUM_MODULE {
       if (existingState && existingState.callExprContext) {
         const [toReplace, replacement] = existingState.callExprContext;
         let patched = 0;
-        let visited: Set<string> = new Set();
+        const visited: Set<string> = new Set();
         const visitBBs = (curr: string) => {
           visited.add(curr);
           const bb = fgContext.getBBNode(curr);
           bb.statements.forEach((s) => {
             if (s instanceof IS_SimpleVarDecl) {
-              if (s.RVal instanceof IV_Call && s.RVal.callee.lookupName() === toReplace) {
+              if (
+                s.RVal instanceof IV_Call &&
+                s.RVal.callee.lookupName() === toReplace
+              ) {
                 s.RVal.staticThis = true;
                 s.RVal.context = replacement;
                 patched++;
               }
             }
           });
-          let succ = fgContext.successors(curr);
+          const succ = fgContext.successors(curr);
           if (succ) {
             succ.forEach((ss) => {
               if (!visited.has(ss)) visitBBs(ss);
-            })
+            });
           }
-        }
+        };
         visitBBs("" + chainBB.idx);
-        if (patched !== 1) debugConfig.logger.throwIriError(`Failed to patch context: ${patched}`);
+        if (patched !== 1)
+          debugConfig.logger.throwIriError(
+            `Failed to patch context: ${patched}`,
+          );
       }
-
 
       if (this.getCurrentFGContext() !== fgContext)
         debugConfig.logger.throwIriError("FG Context not expected to change");
@@ -2413,10 +2248,7 @@ export default class IRIDIUM_MODULE {
           new IS_SimpleVarDecl(
             undefined,
             "let",
-            new IV_Identifier(
-              undefined,
-              this.utils.getNewTemporary(undefined),
-            ),
+            new IV_Identifier(undefined, this.utils.getNewTemporary(undefined)),
             new IV_SimpleAssn(
               undefined,
               existingState.resID,
@@ -2757,7 +2589,9 @@ export default class IRIDIUM_MODULE {
       }
       res = new IV_Call(node, true, LVal, args, lookupName);
     } else if (isOptionalMemberExpression(node.callee)) {
-      debugConfig.logger.throwIriError("Handle optional member expression for call expression");
+      debugConfig.logger.throwIriError(
+        "Handle optional member expression for call expression",
+      );
     } else {
       res = new IV_Call(node, false, LVal, args);
     }
@@ -4044,4 +3878,3 @@ export default class IRIDIUM_MODULE {
     currBB.statements.push(new IS_EExport(stmt, FROM));
   }
 }
-
