@@ -80,7 +80,7 @@ export default class JS3Builder {
         filename: this.projectFile.uname,
         ast: true,
         presets,
-        sourceMaps: "inline",
+        sourceMaps: true,
         plugins: ["@babel/plugin-syntax-jsx"],
       },
     );
@@ -91,6 +91,9 @@ export default class JS3Builder {
   }
 
   saveGeneratedFile() {
+    if (debugConfig.cli.test262)
+      return;
+
     const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.projectFile.uname, this.projectFile.extension) + ".js3";
     fs.writeFile(
       filePath,

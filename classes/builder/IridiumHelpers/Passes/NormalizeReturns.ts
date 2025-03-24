@@ -12,11 +12,8 @@ import {
   traverseInstruction,
 } from "../Visitors/traverse.ts";
 import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
-import { saveFlowGraphToFileFromIRIDIUMFG } from "#utils";
-
 
 export function normalizeReturns(rootFG: IRIDIUM_FG) {
-  const x = saveFlowGraphToFileFromIRIDIUMFG;
   traverseFGLexical(rootFG, (fg: IRIDIUM_FG) => {
     const dTree = GLIB.alg.dominatorTarjan(fg, "" + fg.rootBB.idx, false);
     const recursivelyFindHead = (curr: string) => {

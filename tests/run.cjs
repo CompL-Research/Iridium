@@ -9,9 +9,17 @@ const { Worker: JestWorker } = require("jest-worker");
 
 const relative = file => path.resolve(process.cwd(), file);
 
-const D8 = "/home/meetesh/wd/v8/v8/out/x64.release/d8"
+const EXEC = "/home/meetesh/wd/mozilla-unified/obj-x86_64-pc-linux-gnu/dist/bin/js"
 
 const UNSUPPORTED_FEATURES = ["import-attributes", "decorators"]
+const EXCLUDE_ESID_PREFIXES = ["pending", "proposal", "legacy"];
+
+// Function to determine if the test belongs to an in-progress proposal
+function isNonStandardTest(test) {
+  const esid = test.attrs.esid;
+  return esid && EXCLUDE_ESID_PREFIXES.some(prefix => esid.startsWith(prefix));
+}
+
 
 
 const TESTS = path.resolve('./test262');
@@ -25,7 +33,7 @@ const worker = new JestWorker(require.resolve("./worker.cjs"), {
   numWorkers: THREADS,
   exposedMethods: ["runTest", "getBaseline"],
   // enableWorkerThreads: true,
-  setupArgs: [{ hostPath: D8, shortName: "$262", testRoot: TESTS }],
+  setupArgs: [{ hostPath: EXEC, shortName: "$262", testRoot: TESTS }],
 });
 worker.getStdout().pipe(process.stdout);
 worker.getStderr().pipe(process.stderr);
@@ -75,6 +83,8 @@ async function main() {
         toSkip = true
       }
     }
+    // Skip tests that are not yet part of the official ECMA spec
+    if (isNonStandardTest(test)) toSkip = true;
     if (toSkip) continue
 
     run++;

@@ -49,8 +49,8 @@ import {
 import {
   generateIdentifier,
   generateJS3ExportAllDeclaration,
-  generateJS3ExportDefaultDeclaration,
   generateJS3ExportNamedDeclaration,
+  generateJS3ExportNamedDeclarationfromBaseNode,
   generateJS3ExportNamespaceSpecifier,
   generateJS3ExportSpecifier,
   generateJS3ExportSpecifierfromBaseNode,
@@ -97,7 +97,7 @@ import { handleDefaultExportNames } from "./GenericConstructs.ts";
 
 let generate;
 let traverse;
-if (typeof Bun !== 'undefined') {
+if (typeof Bun !== "undefined") {
   generate = _generate;
   traverse = _traverse;
 } else {
@@ -298,10 +298,27 @@ export function handleExportDefaultDeclaration(
     // ========================================================================================
   }
 
-  // Generate a export default statement and push it into the holder
-  (otherProps.others.holder as JS3Program_body).push(
-    generateJS3ExportDefaultDeclaration(fin_declaration, node),
+  const exportSpecifier = generateJS3ExportSpecifierfromBaseNode(
+    fin_declaration,
+    generateIdentifier(node, "default"),
+    null,
+    node,
   );
+  const fin_specifiers: JS3ExportNamedDeclaration_specifiers = [];
+  fin_specifiers.push(exportSpecifier);
+  const duplicatedExportNamedDecl =
+    generateJS3ExportNamedDeclarationfromBaseNode(
+      undefined,
+      fin_specifiers,
+      null,
+      null,
+      null,
+      null,
+      node,
+    );
+
+  // Generate a export default statement and push it into the holder
+  (otherProps.others.holder as JS3Program_body).push(duplicatedExportNamedDecl);
 }
 
 export function handleExportNamedDeclaration(

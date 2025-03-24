@@ -51,7 +51,9 @@ Iridium Version: ${chalk.red(VERSION)}
 `;
 
 function js3(filePath) {
-  initializeOutputsPath();
+  if (!debugConfig.cli.test262)
+    initializeOutputsPath();
+  
   debugConfig.logger.printToConsole = false;
   const file = new ProjectFile(filePath, path.dirname(filePath));
   try {
