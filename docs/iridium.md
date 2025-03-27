@@ -4,11 +4,179 @@
 
 // TODO: Reduce JSFunctions and Calls into Abstraction and Application...
 // TODO: Should we reduce yields into CPS?
+// TODO: 3JS reduce object destructuring into even simpler form.
+
+
+
+
+## Closures:
+
+(list 
+  (λ (list STATEMENT1 STATEMENT2 STATEMENT3))
+  (list (list Pure GFable Fable LexRO LexRW))
+)
+
+Languages like JS are heavily closure oriented, so we let closures retain their first-class citizenship.
+Each closure is qualified by one of the properties described below:
+
+1. Pure: Closure arguments are transitively immutable, and the result is cacheable.
+
+2. GFable: Closure is free from lookups from any enclosing scope.
+
+3. Fable: Closure is free from lookups from any enclosing scope except the Golbal Scope.
+
+- Fable and FGable closures can be hoisted to the global scope.
+
+4. LexRO: Only reads bindings from the enclosing scope(s).
+
+5. LexRW: May read/write to bindings from the enclosing scope(s).
+
+[ Pure < Fable < GFable < LexRO < LexRW ]
+
+### Reading Arguments
+
+All closures take a single arguments object, formals are initialized inside the function body.
+
+IRIDIUM_DO_ASSIGNMENT(LVAL, (ClosArg ARG_IDX))
+
+### JS Extensions
+
+(list
+  (λ (list STATEMENT1 STATEMENT2 STATEMENT3))
+  (list (list Pure GFable Fable LexRO LexRW) (list InferredName Strict))
+)
+
+A JS Closure can have special properties, it may (possibly) have an inferred name, dynamic 'this' binding, be an async function returning promises,
+be a generator function creating first class continuations.
+
+1. InferredName: Setting a closures name, mainly needed only for debugging purposes and codegen can possibly ignore this during codegen.
+
+2. Strict: If the closure is strict or not, depending on the strictness of a closure the semantics of the 'this' pointer may be different.
+
+```
+const ff = function () {
+  this.x = 100
+  this.y = 111
+  return function foo () {
+    console.log(this.x, this.y);
+  }
+}
+ff()();
+```
+
+When evaluating the function in CJS, 'this' gets bound to the global env. So the output is 100, 111.
+However in module mode code, this will throw an error as 'this' gets bound to undefined.
+
+
+
+
+## EnvRead
+  ID
+  (list
+    (genericenvread (getEnvBinding Context ID))
+    ()
+  )
+    => (reduce)
+  (list
+    (genericenvread EnvBinding) ()
+  )
+    => (reduce)
+  (list 
+    (_ EnvBinding) 
+    ()
+  )
+
+  EnvRead = ActiveEnvRead | ClosureEnvRead | ParentEnvRead | FileEnvRead | GlobalEnvRead
+
+  ActiveEnvRead: The read operation is happening in the declaring context.
+
+  ClosureEnvRead: The read operation refers to a value declared in a scope which is bounded by a closure scope.
+
+  ParentEnvRead: The read operation crosses the enclosing closure context.
+
+  FileEnvRead: The read operation refers to a binding in the File env.
+
+  GlobalEnvRead: The read operation refers to the global environment.
+
+### JS Extensions
+
+A read from an environment, this is side effect free in JS aswell, so no special cases exist here.
+
+
+
+
+## EnvWrite
+
+  ID = val
+  (list
+    (genericenvwrite (getEnvBinding Context ID) (getEnvBinding Context val))
+    ()
+  )
+    => (reduce)
+  (list
+    (genericenvwrite EnvBinding EnvBinding)
+    ()
+  )
+    => (reduce) 
+  (list
+    (_ EnvBinding EnvBinding)
+    ()
+  )
+
+  EnvWrite = ActiveEnvWrite | ClosureEnvWrite | ParentEnvWrite | FileEnvWrite | GlobalEnvWrite
+
+  ActiveEnvWrite: The write operation is happening in the declaring context.
+
+  ClosureEnvWrite: The write operation refers to a value declared in a scope which is bounded by a closure scope.
+
+  ParentEnvWrite: The write operation crosses the enclosing closure context.
+
+  FileEnvWrite: The write operation refers to a binding in the File env.
+
+  GlobalEnvWrite: The write operation refers to the global environment.
+
+### JS Extensions
+
+1. Simple Case: ID = ID:
+
+Fallback to generic case.
+
+2. Destructure Array Case: [ID, ID, ...] = ID:
+
+(list
+  (DestArrWrite (list (getEnvBinding Context ID)...) (getEnvBinding Context val))
+  ()
+)
+
+Destructuring bytecode produces fast/slow case code, this can lead to large bytecode sequences. 
+We might be able to drastically reduce the generated code if this case can be effectively pruned.
+An iterator may be involved in slowcases, but we expect it to be rare.
+Count the numbers!!
+
+
+==================== ==================== ==================== ==================== ==================== ==================== ==================== ==================== 
+
+3. Object Destructuring: { field: ID, ... } = ID ===> 
+
+We can naively reduce this to even smaller pieces.
+
+## Computed Properties
+
+Computed properties rely on TOPROPERTYKEY abstract operation, if this can be statically eliminated we can optimize code much more.
+
+
+### 3. Object Operations
+
+
+
+
+
+
 
 Syntax:
   ((OPCODE ARG1 ARG2?) (OTHER)) 
 
-## Abstract Operations
+### Abstract Operations
 
 1. getEnvBinding: Given an Identifier returns an EnvBinding
 
@@ -17,6 +185,10 @@ Syntax:
 2. resolveImportPath: Given a string, returns the absolute path to the import being made.
 
   Literal<String> -> Literal<String>
+
+3. getClosureArg: Given the index, collect the argument at a specific index.
+
+  Number -> Arg
 
 ### Control Flow Abstractions
 
@@ -33,17 +205,24 @@ Syntax:
   [a, b, c, ...]
   ((list a b c ...) ())
 
-2. EnvBinding
+2. Map
+
+  An abstract primitive map, no side effects, not a JS Object.
+
+  [(key, value), (key, value), (key, value), ...]
+  ((list (key, value) (key, value) (key, value) ...) ())
+
+3. EnvBinding
 
   ID
   ((envbinding ID EnvID) ())
 
-3. Symbol 
+4. Symbol 
 
   ID
   ((symbol ID) ())
 
-4. Literal
+5. Literal
 
   VAL
   ((Literal<JS_LITERALS> VAL) ())
@@ -56,6 +235,9 @@ Syntax:
 7. Application
   a(a1, a2...)
   ((call a a1 a2...) ())
+
+8. ClosArg
+  (ClosArg NUMBER)
 
 #### JS Primitive RVAL
 
@@ -132,23 +314,6 @@ JS_LITERALS =
     ((reexportns (resolveImportPath "_") Literal<String>) ())
       => ((reexportns Literal<String> Literal<String>) ())
 
-#### EnvRead
-
-  ID
-  ((genericenvread (getEnvBinding Context ID)) ()) 
-    => ((genericenvread EnvBinding) ())
-    => ((_ EnvBinding) ())
-
-  EnvRead = ActiveEnvRead | ClosureEnvRead | ParentEnvRead | GlobalEnvRead
-
-#### EnvWrite
-
-  ID = val
-  ((genericenvwrite (getEnvBinding Context ID) (getEnvBinding Context val)) ())
-    => ((genericenvwrite EnvBinding EnvBinding) ())
-    => ((_ EnvBinding EnvBinding) ())
-
-  EnvWrite = ActiveEnvWrite | ClosureEnvWrite | ParentEnvWrite | GlobalEnvWrite
 
 ### PropAssn
 
