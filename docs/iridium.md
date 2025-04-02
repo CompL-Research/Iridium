@@ -7,6 +7,8 @@
 // TODO: 3JS reduce object destructuring into even simpler form.
 
 
+Syntax:
+  ((OPCODE ARG1 ARG2?) (OTHER)) 
 
 
 ## Closures:
@@ -21,11 +23,11 @@ Each closure is qualified by one of the properties described below:
 
 1. Pure: Closure arguments are transitively immutable, and the result is cacheable.
 
-2. GFable: Closure is free from lookups from any enclosing scope.
+2. Fable: Closure is free from lookups from any enclosing scope.
 
-3. Fable: Closure is free from lookups from any enclosing scope except the Golbal Scope.
+3. GFable: Closure is free from lookups from any enclosing scope except the Global Scope.
 
-- Fable and FGable closures can be hoisted to the global scope.
+- Fable and GFable closures can be hoisted to the global scope.
 
 4. LexRO: Only reads bindings from the enclosing scope(s).
 
@@ -110,17 +112,17 @@ A read from an environment, this is side effect free in JS aswell, so no special
   ID = val
   (list
     (genericenvwrite (getEnvBinding Context ID) (getEnvBinding Context val))
-    ()
+    (Declaration?)
   )
     => (reduce)
   (list
     (genericenvwrite EnvBinding EnvBinding)
-    ()
+    (Declaration?)
   )
     => (reduce) 
   (list
     (_ EnvBinding EnvBinding)
-    ()
+    (Declaration?)
   )
 
   EnvWrite = ActiveEnvWrite | ClosureEnvWrite | ParentEnvWrite | FileEnvWrite | GlobalEnvWrite
@@ -135,16 +137,38 @@ A read from an environment, this is side effect free in JS aswell, so no special
 
   GlobalEnvWrite: The write operation refers to the global environment.
 
+### Declaration
+
+A write to an environment may refer to a binding declaration, this distinction is needed for identifying TDZ in JS and hoisting all declarations to the top of the scope.
+
+(list
+  (_ _ _)
+  (list bindingDeclaration)
+)
+
 ### JS Extensions
 
-1. Simple Case: ID = ID:
+  a. ID = ID:
 
 Fallback to generic case.
+
+  (list
+    (genericenvwrite (getEnvBinding Context ID) (getEnvBinding Context val))
+    ()
+  )
+
+
+
+
 
 2. Destructure Array Case: [ID, ID, ...] = ID:
 
 (list
   (DestArrWrite (list (getEnvBinding Context ID)...) (getEnvBinding Context val))
+  ()
+) => (reduce)
+(list
+  (DestArrWrite (list EnvBinding...) EnvBinding)
   ()
 )
 
@@ -152,6 +176,13 @@ Destructuring bytecode produces fast/slow case code, this can lead to large byte
 We might be able to drastically reduce the generated code if this case can be effectively pruned.
 An iterator may be involved in slowcases, but we expect it to be rare.
 Count the numbers!!
+
+3. Destructure Object Case: { ID: ID,... } = ID
+
+(list
+  (DestObjWrite (list (getEnvBinding Context ID)...) (getEnvBinding Context val))
+  ()
+)
 
 
 ==================== ==================== ==================== ==================== ==================== ==================== ==================== ==================== 
@@ -173,8 +204,6 @@ Computed properties rely on TOPROPERTYKEY abstract operation, if this can be sta
 
 
 
-Syntax:
-  ((OPCODE ARG1 ARG2?) (OTHER)) 
 
 ### Abstract Operations
 
