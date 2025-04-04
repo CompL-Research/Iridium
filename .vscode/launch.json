@@ -73,7 +73,7 @@
                 "--import=tsx",
                 "/home/meetesh/wd/Iridium/iridium.ts",
                 "iri",
-                "/home/meetesh/wd/Iridium/test.js",
+                "/home/meetesh/wd/Iridium/test.mjs",
                 "/home/meetesh/wd/Iridium/",
                 "-g"
             ],

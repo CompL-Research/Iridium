@@ -33,6 +33,7 @@ import {
   printJS3Usage,
 } from "./configs/printUsage.ts";
 import { projectStats } from "./configs/projectStats.ts";
+import { IRIDIUMV2 } from "classes/builder/IridiumV2/IRIDIUMV2.ts";
 
 const VERSION = "0.6a";
 const directories = ["./classes", "./configs", "./docs", "./playground/src"];
@@ -97,53 +98,61 @@ function iri(filePath) {
     const fileNode = js3Builder.generatedAST;
     const programNode = fileNode.program;
 
-    // 3. Constructing Iridium
-    const directives: Array<string> = [];
-    programNode.directives.forEach((d) => directives.push(d.value.value));
-    const sourceType = programNode.sourceType;
-    const iri_container = new I_Container(
-      fileNode,
-      projectFile,
-      js3Builder,
-      js3Builder.utils,
-      directives,
-      sourceType,
-      debugConfig.cli.projectBase,
-    );
-    IRIDIUM_CONTAINER_MAP.set(projectFile.uname, iri_container);
-    iri_container.build(false);
+    const iridiumV2Builder = new IRIDIUMV2(js3Builder);
+    iridiumV2Builder.build();
 
-    let spinner = ora("[Building Dependency Graph]").start();
-    let clock = performance.now();
-    buildDependencyGraph(iri_container, js3Builder.utils);
-    clock = performance.now() - clock;
-    spinner.stopAndPersist({ prefixText: `✅ ${clock.toPrecision(3)} ms` });
+    const data = {code: iridiumV2Builder.container.serialize() };
+    const jsonString = JSON.stringify(data);
+    const encodedJson = encodeURIComponent(jsonString);
+    console.log(`https://jsoneditoronline.org/#left=json.${encodedJson}`);
 
-    spinner = ora("[Saving Dependency Graph]").start();
-    clock = performance.now();
-    saveDependencyGraph(DEPENDENCY_GRAPH);
-    clock = performance.now() - clock;
-    spinner.stopAndPersist({ prefixText: `✅ ${clock.toPrecision(3)} ms` });
+    // // 3. Constructing Iridium
+    // const directives: Array<string> = [];
+    // programNode.directives.forEach((d) => directives.push(d.value.value));
+    // const sourceType = programNode.sourceType;
+    // const iri_container = new I_Container(
+    //   fileNode,
+    //   projectFile,
+    //   js3Builder,
+    //   js3Builder.utils,
+    //   directives,
+    //   sourceType,
+    //   debugConfig.cli.projectBase,
+    // );
+    // IRIDIUM_CONTAINER_MAP.set(projectFile.uname, iri_container);
+    // iri_container.build(false);
 
-    // spinner = ora('[Computing PTA]').start();
-    // clock = performance.now();
-    // iri_container.module.performPTA(true);
+    // let spinner = ora("[Building Dependency Graph]").start();
+    // let clock = performance.now();
+    // buildDependencyGraph(iri_container, js3Builder.utils);
     // clock = performance.now() - clock;
     // spinner.stopAndPersist({ prefixText: `✅ ${clock.toPrecision(3)} ms` });
 
-    // for(const [key, values] of PTA_WORLD_CURRMUTABLE_DATA.entries()) {
-    //   if (values.length !== 0) debugConfig.logger.throwIriError(`Expected world stack to be 0, found: ${values.length}`);
-    // }
+    // spinner = ora("[Saving Dependency Graph]").start();
+    // clock = performance.now();
+    // saveDependencyGraph(DEPENDENCY_GRAPH);
+    // clock = performance.now() - clock;
+    // spinner.stopAndPersist({ prefixText: `✅ ${clock.toPrecision(3)} ms` });
 
-    // if (debugConfig.cli.savePTAGraph) {
-    //   for(const [key, value] of PTA_WORLD.entries()) {
-    //     saveFlowDataToFile(key, value);
-    //     // debugConfig.logger.warn(`PTA Flow Data for ${key}`);
-    //     // printPTAFlowData(value);
-    //   }
-    // }
+    // // spinner = ora('[Computing PTA]').start();
+    // // clock = performance.now();
+    // // iri_container.module.performPTA(true);
+    // // clock = performance.now() - clock;
+    // // spinner.stopAndPersist({ prefixText: `✅ ${clock.toPrecision(3)} ms` });
 
-    // iri_container.module.saveRenderTree()
+    // // for(const [key, values] of PTA_WORLD_CURRMUTABLE_DATA.entries()) {
+    // //   if (values.length !== 0) debugConfig.logger.throwIriError(`Expected world stack to be 0, found: ${values.length}`);
+    // // }
+
+    // // if (debugConfig.cli.savePTAGraph) {
+    // //   for(const [key, value] of PTA_WORLD.entries()) {
+    // //     saveFlowDataToFile(key, value);
+    // //     // debugConfig.logger.warn(`PTA Flow Data for ${key}`);
+    // //     // printPTAFlowData(value);
+    // //   }
+    // // }
+
+    // // iri_container.module.saveRenderTree()
   } catch (e) {
     debugConfig.logger.throwIriError(`Failed to generate Iridium: ${e}`);
     process.exit(1);

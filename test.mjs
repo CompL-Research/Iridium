@@ -58,17 +58,39 @@
 // t1();
 
 // var boo = 12;
-let test = {
-  y: function() {
-    this.boo = 13;
-  }
-}
-test.y()
-let tt = test.y;
-tt()
+// let test = {
+//   y: function() {
+//     this.boo = 13;
+//   }
+// }
+// test.y()
+// let tt = test.y;
+// tt()
 
-
-console.log(test)
-console.log(boo)
 
 // console.log(test)
+// console.log(boo)
+
+// console.log(test)
+
+// f()
+
+// function f() {
+//   console.log(12);
+// }
+
+// let a = 12;
+// const b = 13;
+// var c = 14;
+
+// let a = 1;
+// {
+//     let a = 12;
+// }
+
+if (true) {
+  let a = 12;
+} 
+// else {
+//   let b = 13;
+// }

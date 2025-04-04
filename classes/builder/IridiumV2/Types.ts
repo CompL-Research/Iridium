@@ -1,7 +1,7 @@
-export type IridiumPrimitives = number | string;
+export type IridiumPrimitives = number | boolean | string | null;
 export class IridiumSEXP {
     tag: string = "IridiumSEXP";
-    args: Array<IridiumSEXP | IridiumPrimitives> = [];
+    args: Array<IridiumSEXP> = [];
     flags: Array<[string, IridiumSEXP | IridiumPrimitives]> = [];
 
     constructor(tag: string) {
@@ -23,32 +23,33 @@ export type FileSEXPFlags = "JSScript" | "JSModule";
 export class FileSEXP extends IridiumSEXP {
     constructor(flag: FileSEXPFlags = undefined) {
         super("File");
-        if (flag) this.flags.push([flag, new ListEndRVal()]);
+        if (flag) this.flags.push([flag, null]);
     }
 };
 
 // =============== BBs ===============
-
+// (Primitive) File
+export type BBSEXPFlags = "TopLevel" | "ClosureBoundary" | "Lexical";
 export class BBSEXP extends IridiumSEXP {
-    constructor() {
+    static bbIdx: number = 0;
+    idx: number
+    constructor(scopeIdx: number, flag: BBSEXPFlags = undefined) {
         super("BB");
+        this.idx = BBSEXP.bbIdx++;
+        this.flags.push(["IDX", this.idx]);
+        this.flags.push(["Scope", scopeIdx]);
+        if (flag) this.flags.push([flag, null]);
     }
 }
 
 // =============== RVals ===============
 // Literals
-// (Primitive) ListEndRVal
-export class ListEndRVal extends IridiumSEXP {
-    constructor() {
-        super("ListEndRVal");
-    }
-}
 
 // (Primitive) NumberSEXP
 export class NumberSEXP extends IridiumSEXP {
     constructor(number: number) {
         super("NumberSEXP");
-        this.args.push(number);
+        this.flags.push(["IridiumPrimitive", number]);
     }
 }
 
@@ -56,7 +57,7 @@ export class NumberSEXP extends IridiumSEXP {
 export class StringSEXP extends IridiumSEXP {
     constructor(str: string) {
         super("StringSEXP");
-        this.args.push(str);
+        this.flags.push(["IridiumPrimitive", str]);
     }
 }
 
@@ -68,13 +69,21 @@ export class ListSEXP extends IridiumSEXP {
     }
 }
 
+// (Primitive) BooleanSEXP
+export class BooleanSEXP extends IridiumSEXP {
+  constructor(value: boolean) {
+      super("BooleanSEXP");
+      this.flags.push(["IridiumPrimitive", value]);
+  }
+}
+
 // Abstraction
 // (Primitive) Lambda
 export type LambdaSEXPFlags = "Pure" | "Fable" | "GFable" | "LexRO" | "LexRW";
 export class LambdaSEXP extends IridiumSEXP {
     constructor(flag: LambdaSEXPFlags) {
         super("Lambda");
-        this.flags.push([flag, new ListEndRVal()]);
+        this.flags.push([flag, null]);
     }
 }
 
@@ -92,7 +101,7 @@ export class JSLambdaSEXP extends LambdaSEXP {
     constructor(flag: LambdaSEXPFlags, jsFlags: Array<JSLambdaSEXPFlags>) {
         super(flag);
         this.tag = "JSLambda";
-        this.flags.push(...jsFlags.map((jsFlag): [string, IridiumSEXP] => [jsFlag, new ListEndRVal()]));
+        this.flags.push(...jsFlags.map((jsFlag): [string, IridiumSEXP] => [jsFlag, null]));
     }
 }
 
@@ -108,42 +117,85 @@ export class EnvRead extends IridiumSEXP {
 // (Primitive) EnvWrite
 export type EnvWriteFlags = "Declaration";
 export class EnvWrite extends IridiumSEXP {
-    constructor(lval: string, rval: string, declaration: boolean) {
+    constructor(lval: string, rval: IridiumSEXP, declaration: boolean) {
         super("EnvWrite");
         this.args.push(new ResolveEnvBinding(lval));
-        this.args.push(new ResolveEnvBinding(rval));
-        if (declaration) this.flags.push(["Declaration", new ListEndRVal()]);
+        this.args.push(rval);
+        if (declaration) this.flags.push(["Declaration", null]);
     }
 }
 
 // (Extension) EnvWrite
-export type JSEnvWriteFlags = "Assignment" | "Let" | "Const" | "Var";
+export type JSEnvWriteFlags = "Assignment" | "let" | "const" | "var";
 export class JSEnvWrite extends IridiumSEXP {
-    constructor(lval: string, rval: string, declaration: JSEnvWriteFlags = undefined) {
+    constructor(lval: string, rval: IridiumSEXP, declaration: JSEnvWriteFlags = undefined) {
         super("JSEnvWrite");
         this.args.push(new ResolveEnvBinding(lval));
-        this.args.push(new ResolveEnvBinding(rval));
-        if (declaration) this.flags.push([declaration, new ListEndRVal()]);
+        this.args.push(rval);
+        if (declaration) this.flags.push([declaration, null]);
     }
 }
 
 // (Extension) JSArrEnvWrite
 export class JSArrEnvWrite extends IridiumSEXP {
-    constructor(lvals: Array<string>, rval: string, declaration: JSEnvWriteFlags = undefined) {
+    constructor(lvals: Array<string>, rval: IridiumSEXP, declaration: JSEnvWriteFlags = undefined) {
         super("JSArrEnvWrite");
         this.args.push(new ListSEXP(lvals.map((e) => new ResolveEnvBinding(e))));
-        this.args.push(new ResolveEnvBinding(rval));
-        if (declaration) this.flags.push([declaration, new ListEndRVal()]);
+        this.args.push(rval);
+        if (declaration) this.flags.push([declaration, null]);
     }
 }
 
 // (Extension) JSObjEnvWrite
 export class JSObjEnvWrite extends IridiumSEXP {
-    constructor(lvals: Array<[string, string]>, rval: string, declaration: JSEnvWriteFlags = undefined) {
+    constructor(lvals: Array<[string, string]>, rval: IridiumSEXP, declaration: JSEnvWriteFlags = undefined) {
         super("JSObjEnvWrite");
         this.args.push(new ListSEXP(lvals.map(([field, binding]) => new ListSEXP([new StringSEXP(field), new ResolveEnvBinding(binding)]))));
-        this.args.push(new ResolveEnvBinding(rval));
-        if (declaration) this.flags.push([declaration, new ListEndRVal()]);
+        this.args.push(rval);
+        if (declaration) this.flags.push([declaration, null]);
+    }
+}
+
+// Control Flow
+
+// (Primitive) Goto
+export class Goto extends IridiumSEXP {
+    constructor(target: number) {
+        super("Goto");
+        if (target !== -1)
+            this.flags.push(["ResolvedTarget", target]);
+        else
+            this.flags.push(["UnresolvedTarget", null]);
+    }
+}
+
+
+// (Primitive) IfElseJump
+export class IfElseJump extends IridiumSEXP {
+    constructor(test: IridiumSEXP, trueTarget: number, falseTarget: number) {
+        super("IfElseJump");
+        this.args.push(test);
+        if (trueTarget !== -1)
+            this.flags.push(["ResolvedTarget", trueTarget]);
+        else
+            this.flags.push(["UnresolvedTarget", null]);
+        if (falseTarget !== -1)
+            this.flags.push(["ResolvedTarget", falseTarget]);
+        else
+            this.flags.push(["UnresolvedTarget", null]);
+    }
+}
+
+
+// (Primitive) IfJump
+export class IfJump extends IridiumSEXP {
+    constructor(test: IridiumSEXP, target: number) {
+        super("IfJump");
+        this.args.push(test);
+        if (target !== -1)
+            this.flags.push(["ResolvedTarget", target]);
+        else
+            this.flags.push(["UnresolvedTarget", null]);
     }
 }
 
@@ -152,7 +204,7 @@ export class JSObjEnvWrite extends IridiumSEXP {
 export class ResolveEnvBinding extends IridiumSEXP {
     constructor(id: string) {
         super("ResolveEnvBinding");
-        this.args.push(id);
+        this.flags.push(["IridiumPrimitive", id]);
     }
 }
 
