@@ -115,44 +115,44 @@ export class EnvRead extends IridiumSEXP {
 }
 
 // (Primitive) EnvWrite
-export type EnvWriteFlags = "Declaration";
+export type EnvWriteFlags = "Assignment" | "Declaration";
 export class EnvWrite extends IridiumSEXP {
-    constructor(lval: string, rval: IridiumSEXP, declaration: boolean) {
+    constructor(lval: string, rval: IridiumSEXP, flag: EnvWriteFlags = undefined) {
         super("EnvWrite");
         this.args.push(new ResolveEnvBinding(lval));
         this.args.push(rval);
-        if (declaration) this.flags.push(["Declaration", null]);
+        if (flag) this.flags.push([flag, null]);
     }
 }
 
 // (Extension) EnvWrite
-export type JSEnvWriteFlags = "Assignment" | "let" | "const" | "var";
+export type JSEnvWriteFlags = EnvWriteFlags | "let" | "const" | "var" | "rest";
 export class JSEnvWrite extends IridiumSEXP {
-    constructor(lval: string, rval: IridiumSEXP, declaration: JSEnvWriteFlags = undefined) {
+    constructor(lval: IridiumSEXP, rval: IridiumSEXP, flag: JSEnvWriteFlags = undefined) {
         super("JSEnvWrite");
-        this.args.push(new ResolveEnvBinding(lval));
+        this.args.push(lval);
         this.args.push(rval);
-        if (declaration) this.flags.push([declaration, null]);
+        if (flag) this.flags.push([flag, null]);
     }
 }
 
 // (Extension) JSArrEnvWrite
 export class JSArrEnvWrite extends IridiumSEXP {
-    constructor(lvals: Array<string>, rval: IridiumSEXP, declaration: JSEnvWriteFlags = undefined) {
+    constructor(lvals: Array<string>, rval: IridiumSEXP, flag: JSEnvWriteFlags = undefined) {
         super("JSArrEnvWrite");
         this.args.push(new ListSEXP(lvals.map((e) => new ResolveEnvBinding(e))));
         this.args.push(rval);
-        if (declaration) this.flags.push([declaration, null]);
+        if (flag) this.flags.push([flag, null]);
     }
 }
 
 // (Extension) JSObjEnvWrite
 export class JSObjEnvWrite extends IridiumSEXP {
-    constructor(lvals: Array<[string, string]>, rval: IridiumSEXP, declaration: JSEnvWriteFlags = undefined) {
+    constructor(lvals: Array<[string, string]>, rval: IridiumSEXP, flag: JSEnvWriteFlags = undefined) {
         super("JSObjEnvWrite");
         this.args.push(new ListSEXP(lvals.map(([field, binding]) => new ListSEXP([new StringSEXP(field), new ResolveEnvBinding(binding)]))));
         this.args.push(rval);
-        if (declaration) this.flags.push([declaration, null]);
+        if (flag) this.flags.push([flag, null]);
     }
 }
 

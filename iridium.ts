@@ -34,6 +34,8 @@ import {
 } from "./configs/printUsage.ts";
 import { projectStats } from "./configs/projectStats.ts";
 import { IRIDIUMV2 } from "classes/builder/IridiumV2/IRIDIUMV2.ts";
+import { FileSEXP } from "classes/builder/IridiumV2/Types.ts";
+import { dumpSEXP } from "classes/builder/IridiumV2/PP.ts";
 
 const VERSION = "0.6a";
 const directories = ["./classes", "./configs", "./docs", "./playground/src"];
@@ -104,7 +106,9 @@ function iri(filePath) {
     const data = {code: iridiumV2Builder.container.serialize() };
     const jsonString = JSON.stringify(data);
     const encodedJson = encodeURIComponent(jsonString);
-    console.log(`https://jsoneditoronline.org/#left=json.${encodedJson}`);
+    debugConfig.logger.log(`https://jsoneditoronline.org/#left=json.${encodedJson}`);
+
+    debugConfig.logger.log("" + dumpSEXP(iridiumV2Builder.container));
 
     // // 3. Constructing Iridium
     // const directives: Array<string> = [];
@@ -262,7 +266,6 @@ if (mainCommand === "js3") {
 } else {
   printDefaultUsage(header);
 }
-
 //
 // TODO...
 //

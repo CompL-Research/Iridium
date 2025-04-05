@@ -88,9 +88,15 @@
 //     let a = 12;
 // }
 
-if (true) {
-  let a = 12;
-} 
+// if (true) {
+//   let a = 12;
+// } 
 // else {
 //   let b = 13;
 // }
+
+// let o1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+let [a, b, ...c] = o1;
+
+// let o2 = { a: { d: 4, e: 5 }, b: 2, c: 3 };
+let { a: d, e } = o2;

@@ -1,9 +1,9 @@
-import { isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedProgStatement, JS3BlockStatement, JS3IfStatement, JS3ReturnStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
+import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3IfStatement, JS3ObjectPattern, JS3ReturnStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
 import { isIdentifier } from "@babel/types";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2.ts";
 import debugConfig from "#debugConfig";
 import { IS_VAR_DECL_KIND } from "../IridiumHelpers/ALL_IS/IS_VarDecl.ts";
-import { BBSEXP, EnvRead, Goto, IfElseJump, JSEnvWrite } from "./Types.ts";
+import { BBSEXP, EnvRead, Goto, IfElseJump, IridiumSEXP, JSEnvWrite, ListSEXP, StringSEXP } from "./Types.ts";
 import { IRIV2_RVAL } from "./handleRVal.ts";
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
@@ -61,7 +61,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
 const handleBlockStatement = (cx: IRIDIUMV2, stmt: JS3BlockStatement): IridiumBuildContext => {
   const oldContext = cx.getCurrentContext();
   const newContext = cx.declareAndPushLexicalContext();
-  
+
   // Add Gotos from oldContext's last BB to currentBB.
   oldContext.getCurrentBB().args.push(new Goto(newContext.BB[0].idx))
   cx.addContinuation(oldContext);
@@ -134,37 +134,66 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   // KIND ID = RVal
   if (isIdentifier(declaration.id)) {
     const rValTarget = IRIV2_RVAL(cx, declaration.init);
-    const envWrite = new JSEnvWrite(declaration.id.name, rValTarget, KIND);
+    const envWrite = new JSEnvWrite(new StringSEXP(declaration.id.name), rValTarget, KIND);
     cx.getCurrentBB().args.push(envWrite);
     return;
   }
 
-  // // case b.
-  // // KIND [ ID, ...ID ] = RVal
-  // if (isJS3ArrayPattern(declaration.id)) {
-  //   const LVal = declaration.id;
-  //   const RVal = declaration.init
-  //     ? this.handleJS3AssnInit(declaration.init)
-  //     : null;
-  //   this.getCurrentFGContext()
-  //     .getCurrentBB()
-  //     .statements.push(new IS_ArrPatVarDecl(stmt, KIND, LVal, RVal));
-  //   return;
-  // }
+  // case b.
+  // KIND [ ID, ...ID ] = RVal
+  if (isJS3ArrayPattern(declaration.id)) {
+    const rValTarget = declaration.init
+      ? IRIV2_RVAL(cx, declaration.init)
+      : null;
+    const [lvals, hasRest] = getArrayDestSEXP(declaration.id);
+    const envWrite = new JSEnvWrite(lvals, rValTarget, KIND);
+    if (hasRest) envWrite.flags.push(["rest", null]);
+    cx.getCurrentBB().args.push(envWrite);
+    return;
+  }
 
-  // // case c.
-  // // KIND { TRIV_KEY: ID, ...ID } = RVal
-  // if (isJS3ObjectPattern(declaration.id)) {
-  //   const LVal = declaration.id;
-  //   const RVal = declaration.init
-  //     ? this.handleJS3AssnInit(declaration.init)
-  //     : null;
-  //   this.getCurrentFGContext()
-  //     .getCurrentBB()
-  //     .statements.push(new IS_ObjPatVarDecl(stmt, KIND, LVal, RVal));
-  //   return;
-  // }
+  // case c.
+  // KIND { TRIV_KEY: ID, ...ID } = RVal
+  if (isJS3ObjectPattern(declaration.id)) {
+    const rValTarget = declaration.init
+      ? IRIV2_RVAL(cx, declaration.init)
+      : null;
+    const [lvals, hasRest] = getObjectDestSEXP(declaration.id);
+    const envWrite = new JSEnvWrite(lvals, rValTarget, KIND);
+    if (hasRest) envWrite.flags.push(["rest", null]);
+    cx.getCurrentBB().args.push(envWrite);
+    return;
+  }
 
   debugConfig.logger.throwIriError("IRIV2: JS3VariableDeclaration UNHANDLED");
   return;
+}
+
+const getArrayDestSEXP = (stmt: JS3ArrayPattern): [IridiumSEXP, boolean] => {
+  // Assertion: a rest element must be the last in the destructuring pattern
+  let hasRest = false;
+  let sexps = stmt.elements.map((e) => {
+    if (isIdentifier(e)) {
+      return new StringSEXP(e.name);
+    } else if (isJS3RestElement(e)) {
+      hasRest = true;
+      return new StringSEXP(e.argument.name);
+    }
+  });
+  return [new ListSEXP(sexps), hasRest];
+}
+
+const getObjectDestSEXP = (stmt: JS3ObjectPattern): [IridiumSEXP, boolean] => {
+  // Assertion: a rest element must be the last in the destructuring pattern
+  let hasRest = false;
+  let sexps = stmt.properties.map((e) => {
+    if (isJS3AssnObjectProperty(e)) {
+      if (isIdentifier(e.key))
+        return new ListSEXP([new StringSEXP(e.key.name), new StringSEXP(e.value.name)]);
+    } else if (isJS3RestElement(e)) {
+      hasRest = true;
+      return new StringSEXP(e.argument.name);
+    }
+  });
+  return [new ListSEXP(sexps), hasRest];
 }
