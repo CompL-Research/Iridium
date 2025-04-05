@@ -1,4 +1,4 @@
-import { isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedProgStatement, JS3BlockStatement, JS3IfStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
+import { isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedProgStatement, JS3BlockStatement, JS3IfStatement, JS3ReturnStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
 import { isIdentifier } from "@babel/types";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2.ts";
 import debugConfig from "#debugConfig";
@@ -18,7 +18,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   } else if (isJS3DebuggerStatement(stmt)) {
     debugConfig.logger.throwIriError("IRIV2: TODO JS3DebuggerStatement");
   } else if (isJS3ReturnStatement(stmt)) {
-    debugConfig.logger.throwIriError("IRIV2: TODO JS3ReturnStatement");
+    handleReturnStatement(cx, stmt);
   } else if (isJS3ThrowStatement(stmt)) {
     debugConfig.logger.throwIriError("IRIV2: TODO JS3ThrowStatement");
   } else if (isJS3VariableDeclaration(stmt)) {
@@ -75,6 +75,10 @@ const handleBlockStatement = (cx: IRIDIUMV2, stmt: JS3BlockStatement): IridiumBu
   cx.popContext();
 
   return newContext;
+}
+
+const handleReturnStatement = (cx: IRIDIUMV2, stmt: JS3ReturnStatement) => {
+  cx.getCurrentBB().args.push(new Goto(-1));
 }
 
 const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
