@@ -1,7 +1,7 @@
-import { isJS3MemberExpression, JS3AssnInit } from "../JS3Helpers/JS3Types.ts";
+import { isJS3ArrayExpression, isJS3MemberExpression, isJS3ObjectExpression, JS3ArrayExpression, JS3AssnInit, JS3ObjectExpression } from "../JS3Helpers/JS3Types.ts";
 import { IRIDIUMV2 } from "./IRIDIUMV2.ts";
 import debugConfig from "#debugConfig";
-import { BooleanSEXP, EnvRead, IridiumSEXP, NumberSEXP, StringSEXP } from "./Types.ts";
+import { BooleanSEXP, EnvRead, IridiumSEXP, JSArraySEXP, NumberSEXP, StringSEXP } from "./Types.ts";
 import { isIdentifier } from "@babel/types";
 
 // Handle RValues | AMP
@@ -97,10 +97,10 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit) : IridiumSEXP => {
     //   return this.handleJS3ConditionalExpression(init);
     // }
 
-    // // JS3ObjectExpression
-    // else if (isJS3ObjectExpression(init)) {
-    //   return this.handleJS3ObjectExpression(init);
-    // }
+    // JS3ObjectExpression
+    else if (isJS3ObjectExpression(init)) {
+      return handleObjectExpression(cx, init);
+    }
 
     // // JS3FunctionExpression
     // else if (isJS3FunctionExpression(init)) {
@@ -112,10 +112,10 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit) : IridiumSEXP => {
     //   return this.handleJS3ArrowFunctionExpression(init);
     // }
 
-    // // JS3ArrayExpression
-    // else if (isJS3ArrayExpression(init)) {
-    //   return this.handleJS3ArrayExpression(init);
-    // }
+    // JS3ArrayExpression
+    else if (isJS3ArrayExpression(init)) {
+      return handleArrayExpression(cx, init);
+    }
 
     // // JS3NewExpression
     // else if (isJS3NewExpression(init)) {
@@ -163,4 +163,29 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit) : IridiumSEXP => {
         `IRIDIUM: Unhandled Statement ${init.type}, ${init.js3type ? init.js3type : undefined}`,
     );
     return null;
+}
+
+const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
+  const args = init.elements.map((e) => {
+    if (isIdentifier(e)) {
+      return IRIV2_RVAL(cx, e);
+    } else {
+      debugConfig.logger.throwIriError("IRIV2 TODO: Array Expression Spread");
+    }
+  });
+  return new JSArraySEXP(args);
+}
+
+const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
+  debugConfig.logger.throwIriError("IRIV2 TODO: JS3ObjectExpression");
+
+  return null;
+  // const args = init.properties.map((e) => {
+  //   if (isJS3MemberExpression(e)) {
+  //     return IRIV2_RVAL(cx, e);
+  //   } else {
+  //     debugConfig.logger.throwIriError("IRIV2 TODO: Object Expression Spread");
+  //   }
+  // });
+  // return new JSObjectSEXP(args);
 }

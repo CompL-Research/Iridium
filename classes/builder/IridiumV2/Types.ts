@@ -77,31 +77,50 @@ export class BooleanSEXP extends IridiumSEXP {
   }
 }
 
+// (Primitive) JSArraySEXP
+export class JSArraySEXP extends IridiumSEXP {
+  constructor(vals: Array<IridiumSEXP>) {
+      super("JSArraySEXP");
+      vals.forEach(e => this.args.push(e));
+  }
+}
+
+// (Primitive) JSObjectSEXP
+export class JSObjectSEXP extends IridiumSEXP {
+  constructor(vals: Array<IridiumSEXP>) {
+      super("JSObjectSEXP");
+      vals.forEach(e => this.args.push(e));
+  }
+}
+
 // Abstraction
 // (Primitive) Lambda
 export type LambdaSEXPFlags = "Pure" | "Fable" | "GFable" | "LexRO" | "LexRW";
 export class LambdaSEXP extends IridiumSEXP {
-    constructor(flag: LambdaSEXPFlags) {
+    constructor(closureFlag: LambdaSEXPFlags, bbIdx: number) {
         super("Lambda");
-        this.flags.push([flag, null]);
+        this.flags.push([closureFlag, null]);
+        this.flags.push(["IDX", bbIdx]);
     }
 }
 
 // (Primitive) GetClosArg
+export type GetClosArgSEXPFlags = "rest";
 export class GetClosArgSEXP extends IridiumSEXP {
     constructor(argIDX: number) {
         super("GetClosArg");
-        this.args.push(new NumberSEXP(argIDX));
+        if (argIDX >= 0) this.args.push(new NumberSEXP(argIDX));
+        else this.flags.push(["rest", null]);
     }
 }
 
 // (Extension) JSLambda
-export type JSLambdaSEXPFlags = "InferredName" | "Strict";
+export type JSLambdaSEXPFlags = "InferredName" | "StaticName" | "Strict";
 export class JSLambdaSEXP extends LambdaSEXP {
-    constructor(flag: LambdaSEXPFlags, jsFlags: Array<JSLambdaSEXPFlags>) {
-        super(flag);
+    constructor(flag: LambdaSEXPFlags, bbIdx: number, jsFlags: Array<[JSLambdaSEXPFlags, IridiumSEXP | IridiumPrimitives]>) {
+        super(flag, bbIdx);
         this.tag = "JSLambda";
-        this.flags.push(...jsFlags.map((jsFlag): [string, IridiumSEXP] => [jsFlag, null]));
+        jsFlags.forEach((jsFlag) => this.flags.push(jsFlag));
     }
 }
 

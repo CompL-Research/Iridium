@@ -1,10 +1,12 @@
-import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3IfStatement, JS3ObjectPattern, JS3ReturnStatement, JS3VariableDeclaration } from "../JS3Helpers/JS3Types.ts";
-import { isIdentifier } from "@babel/types";
+import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3MemberExpression, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3FunctionDeclaration, JS3IfStatement, JS3MemberExpression, JS3ObjectPattern, JS3ReturnStatement, JS3VariableDeclaration, JS3VariableDeclarator_init } from "../JS3Helpers/JS3Types.ts";
+import { ArrayPattern, AssignmentPattern, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isObjectPattern, ObjectPattern } from "@babel/types";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2.ts";
 import debugConfig from "#debugConfig";
 import { IS_VAR_DECL_KIND } from "../IridiumHelpers/ALL_IS/IS_VarDecl.ts";
-import { BBSEXP, EnvRead, Goto, IfElseJump, IridiumSEXP, JSEnvWrite, ListSEXP, StringSEXP } from "./Types.ts";
+import { BBSEXP, EnvRead, GetClosArgSEXP, Goto, IfElseJump, IridiumSEXP, JSEnvWrite, JSLambdaSEXP, ListSEXP, StringSEXP } from "./Types.ts";
 import { IRIV2_RVAL } from "./handleRVal.ts";
+import { generateIdentifier, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
+import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   if (isJS3ImportDeclaration(stmt)) {
@@ -24,7 +26,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   } else if (isJS3VariableDeclaration(stmt)) {
     handleVariableDeclaration(cx, stmt);
   } else if (isJS3FunctionDeclaration(stmt)) {
-    debugConfig.logger.throwIriError("IRIV2: TODO JS3FunctionDeclaration");
+    handleFunctionDeclaration(cx, stmt);
   } else if (isJS3IfStatement(stmt)) {
     handleIfStatement(cx, stmt);
   } else if (isJS3TryStatement(stmt)) {
@@ -196,4 +198,115 @@ const getObjectDestSEXP = (stmt: JS3ObjectPattern): [IridiumSEXP, boolean] => {
     }
   });
   return [new ListSEXP(sexps), hasRest];
+}
+
+const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctionArgs>) => {
+  let i = 0;
+  for (const arg of params) {
+    //
+    // 1. LVal Pattern to spill
+    //
+
+    let argIdx = i++;
+
+    let toLowerLval:
+      | Identifier
+      | ArrayPattern
+      | ObjectPattern
+      | AssignmentPattern;
+    if (
+      isIdentifier(arg) ||
+      isArrayPattern(arg) ||
+      isObjectPattern(arg) ||
+      isAssignmentPattern(arg)
+    ) {
+      toLowerLval = arg;
+    } else if (
+      isIdentifier(arg.argument) ||
+      isArrayPattern(arg.argument) ||
+      isObjectPattern(arg.argument) ||
+      isAssignmentPattern(arg.argument)
+    ) {
+      argIdx = -1;
+      toLowerLval = arg.argument;
+    } else {
+      toLowerLval = generateIdentifier(arg, "$TODO_IRI_UNDEFINED$");
+      debugConfig.logger.throwIriError(
+        `IRIV2 function arg, LVAL is unsupported`,
+      );
+    }
+
+    //
+    // 2. RVal Identifier in argument list
+    //
+    const toLowerRVal = generateIdentifier(
+      arg,
+      cx.js3Builder.utils.getNewTemporary(`$$ClosArg(${argIdx})`),
+    );
+
+    //
+    // 3. Generate code in curr
+    //
+    const otherProps = cx.js3Builder.utils;
+    const js3SpillHolder: JS3BlockStatement_body = [];
+    const updatedProps = {
+      ...otherProps,
+      others: { ...otherProps.others, holder: js3SpillHolder },
+    };
+    let first = true;
+    const generator = (
+      LVal:
+        | JS3MemberExpression
+        | JS3ArrayPattern
+        | JS3ObjectPattern
+        | Identifier,
+      RVal: null | JS3VariableDeclarator_init,
+    ) => {
+      if (isJS3MemberExpression(LVal))
+        debugConfig.logger.log(
+          "LVal cannot be JS3MemberExpression in case of variable declarator...",
+        );
+      else {
+        const declarator = generateJS3VariableDeclaratorfromBaseNode(
+          LVal,
+          RVal,
+          null,
+          arg,
+        );
+        return generateJS3VariableDeclarationfromBaseNode(
+          [declarator],
+          first ? ((first = false), "var") : "let",
+          null,
+          arg,
+        );
+      }
+    };
+    handleDeclaratorRec(
+      toLowerLval,
+      toLowerRVal,
+      updatedProps,
+      generator,
+      false,
+    );
+    // this.handleJS3ProgramBody(js3SpillHolder);
+
+    for (let stmt of js3SpillHolder) {
+      IRIV2_STMT(cx, stmt)
+    }
+  }
+}
+
+const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) => {
+  // Lower Function code
+  const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
+  const funBBIdx = funcContext.getCurrentBB().idx;
+
+  lowerArgumentInit(cx, stmt.params);
+  
+  for (const s of stmt.body.body) {
+    IRIV2_STMT(cx, s);
+  }
+  cx.popContext();
+
+  return new JSLambdaSEXP("LexRW", funBBIdx, [["StaticName", new StringSEXP(stmt.id.name)], ["Strict", null]]);
 }

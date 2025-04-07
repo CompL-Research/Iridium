@@ -58,9 +58,9 @@ export class IRIDIUMV2 {
     return this.getCurrentContext().getCurrentBB();
   }
 
-  declareAndPushLexicalContext(): IridiumBuildContext {
+  declareAndPushLexicalContext(flags: BBSEXPFlags = "Lexical"): IridiumBuildContext {
     const currentContext = this.getCurrentContext();
-    const newContext = new IridiumBuildContext(currentContext.scopeIdx, undefined, "Lexical");
+    const newContext = new IridiumBuildContext(currentContext.scopeIdx, undefined, flags);
     this.pushContext(newContext);
     return newContext;
   }
