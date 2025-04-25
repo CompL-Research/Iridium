@@ -326,7 +326,6 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
             Object.setPrototypeOf(this, new EnvWriteSEXP("", null))
         }
         this.flags = this.flags.filter(e => e[0] !== "JSLET" && e[0] !== "JSCONST" && e[0] !== "JSVAR")
-        this.flags.push(["Assignment", null])
     }
 
     hasRest() {
@@ -340,17 +339,20 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
             res.push(lVal.getBindingName());
         } else if (this.isArrayDecl()) {
             for (let l of lVal.args) {
-                if (isStringSEXP(l)) {
-                    res.push(l.getVal());
+                if (isResolveEnvBindingSEXP(l)) {
+                    res.push(l.getBindingName());
                 } else debugConfig.logger.throwIriError("In Arr Decl, only expected StringSEXP");
             }
         } else if (this.isObjDecl()) {
             for (let p of lVal.args) {
-                if (isStringSEXP(p)) { // Rest case
-                    res.push(p.getVal());
+                if (isResolveEnvBindingSEXP(p)) { // Rest case
+                    res.push(p.getBindingName());
                 } else if (isListSEXP(p)) {
-                    if (isStringSEXP(p.args[1])) res.push(p.args[1].getVal());
-                    else debugConfig.logger.throwIriError("In Obj Decl, expected the created binding to be a StringSEXP");
+                    if (isResolveEnvBindingSEXP(p.args[1])) res.push(p.args[1].getBindingName());
+                    else {
+                        debugConfig.logger.throwIriError("In Obj Decl, expected the created binding to be a StringSEXP");
+                    } 
+                    
                 }
             }
         }

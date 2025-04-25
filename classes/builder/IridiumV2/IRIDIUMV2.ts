@@ -141,7 +141,7 @@ export class IRIDIUMV2 {
       if (isEnvDeclareSEXP(s) && s.getDeclaration() === binding) return s;
     }
 
-    return this.findParentClosureScope(buildContext.parent);
+    return this.findBinding(buildContext.parent, binding);
   }
 
   resolveEnvReads(currSEXP: IridiumSEXP, currBBScope: number) {
