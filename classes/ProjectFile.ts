@@ -21,6 +21,14 @@ export class InitData {
   toString() {
     return `{ "status": "${this.status}", "parseStatus": "${this.parseStatus}", "loc": ${this.loc ? this.loc : 0} }`;
   }
+
+  toJSON() {
+    return { 
+      status: this.status, 
+      parseStatus: this.parseStatus, 
+      loc: this.loc ? this.loc : 0 
+    };
+  }
 }
 
 export const GLOBAL_UNAME_PATH_MAP: Map<string, string> = new Map();
@@ -36,6 +44,14 @@ export class ProjectFile {
 
   toString() {
     return ` { "absoluteFilePath": "${this.absoluteFilePath}", "uname": "${this.uname}", "initData": ${this.initData.toString()} }`;
+  }
+
+  toJSON() {
+    return { 
+      absoluteFilePath: this.absoluteFilePath, 
+      uname: this.uname, 
+      initData: this.initData.toJSON() 
+    }
   }
 
   constructor(absoluteFilePath, projectBasePath) {
@@ -56,7 +72,7 @@ export class ProjectFile {
     const relativeFilePath = absoluteFilePath.substr(
       projectBasePath.length + 1,
     );
-    this.uname = relativeFilePath.replace(/\//g, "_");
+    this.uname = path.basename(relativeFilePath.replace(/\//g, "_"));
     this.extension = path.extname(absoluteFilePath);
     this.filename = path.basename(absoluteFilePath);
     this.filepath = path.dirname(absoluteFilePath);

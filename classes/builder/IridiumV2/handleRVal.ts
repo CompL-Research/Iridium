@@ -1,7 +1,7 @@
 import { isJS3ArrayExpression, isJS3BinaryExpression, isJS3MemberExpression, isJS3ObjectExpression, isJS3PrivateName, JS3ArrayExpression, JS3AssnInit, JS3ObjectExpression } from "../JS3Helpers/JS3Types.ts";
 import { IRIDIUMV2 } from "./IRIDIUMV2.ts";
 import debugConfig from "#debugConfig";
-import { BinopSEXP, BooleanSEXP, EnvRead, IridiumSEXP, JSArraySEXP, NumberSEXP, StringSEXP } from "./Types.ts";
+import { BinopSEXP, BooleanSEXP, EnvReadSEXP, IridiumSEXP, JSArraySEXP, NumberSEXP, StringSEXP } from "./Types.ts";
 import { isIdentifier } from "@babel/types";
 
 // Handle RValues | AMP
@@ -12,7 +12,7 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit) : IridiumSEXP => {
     // AMP
     //
     if (isIdentifier(init)) {
-      return new EnvRead(init.name);
+      return new EnvReadSEXP(init.name);
     } else if (isJS3MemberExpression(init)) {
         debugConfig.logger.throwIriError("IRIV2 TODO: MemberExpression");
     }
@@ -86,7 +86,7 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit) : IridiumSEXP => {
     else if (isJS3BinaryExpression(init)) {
       let left: IridiumSEXP;
       if (isJS3PrivateName(init.left)) {
-        left = new EnvRead("#"+init.left.id.name);
+        left = new EnvReadSEXP("#"+init.left.id.name);
       } else left = IRIV2_RVAL(cx, init.left);
 
       return new BinopSEXP(init.operator, left, IRIV2_RVAL(cx, init.right));

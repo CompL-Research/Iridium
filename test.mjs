@@ -123,8 +123,10 @@
 // }
 
 // Expression parser
-let a = 12;
-let b = a + 1;
+// let a = 12;
+// let b = a + 1;
+
+let b = 12;
 // let c = a + b;
 // c = a - b;
 // c = a * b;

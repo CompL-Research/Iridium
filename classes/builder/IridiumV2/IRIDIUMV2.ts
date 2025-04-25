@@ -1,8 +1,11 @@
-import JS3Builder from "../JS3Builder.ts";
 import debugConfig from "#debugConfig";
+import { VERSION } from "configs/projectStats.ts";
+import fs from "fs";
+import path from "path";
+import JS3Builder from "../JS3Builder.ts";
 import { JS3Program } from "../JS3Helpers/JS3Types.ts";
 import { IRIV2_STMT } from "./handleStatement.ts";
-import { BBSEXP, BBSEXPFlags, EnvDeclare, EnvWrite, FileSEXP, IridiumSEXP, isBBSEXP, isEnvDeclare, isJSEnvWrite, isResolveEnvBinding } from "./Types.ts";
+import { BBSEXP, BBSEXPFlags, EnvDeclareSEXP, FileSEXP, IridiumSEXP, isBBSEXP, isEnvDeclareSEXP, isJSEnvWrite, isResolveEnvBindingSEXP, JSEnvDeclareFlags } from "./Types.ts";
 
 export class IridiumBuildContext {
   static SID = 1;
@@ -48,6 +51,25 @@ export class IRIDIUMV2 {
     this.js3Builder = js3Builder;
     this.buildContext = [];
     this.container = null;
+  }
+
+  serialize() {
+    return {
+      version: VERSION,
+      ...this.js3Builder.projectFile.toJSON(),
+      iridium: this.container.serialize()
+    }
+  }
+
+  saveGeneratedFile() {
+    const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.js3Builder.projectFile.uname, this.js3Builder.projectFile.extension) + ".json";
+    fs.writeFile(
+      filePath,
+      JSON.stringify(this.serialize())
+      , (e) => {
+        if (e) debugConfig.logger.error(`[Failed to save Iridium]: ${path.basename(this.js3Builder.projectFile.uname, this.js3Builder.projectFile.extension)}`);
+      }
+    );
   }
 
   getCurrentContext() {
@@ -109,21 +131,21 @@ export class IRIDIUMV2 {
     else return this.findParentClosureScope(buildContext.parent);
   }
 
-  findBinding(scope: number, binding: string): EnvDeclare {
+  findBinding(scope: number, binding: string): EnvDeclareSEXP {
     if (scope === 0) return null;
     if (!IridiumBuildContext.CONTEXT_MAP.has(scope)) debugConfig.logger.throwIriError(`build context not found for scope: ${scope}`)
     
     let buildContext = IridiumBuildContext.CONTEXT_MAP.get(scope);
     let startBB = buildContext.BB[0];
     for (let s of startBB.args) {
-      if (isEnvDeclare(s) && s.getDeclaration() === binding) return s;
+      if (isEnvDeclareSEXP(s) && s.getDeclaration() === binding) return s;
     }
 
     return this.findParentClosureScope(buildContext.parent);
   }
 
   resolveEnvReads(currSEXP: IridiumSEXP, currBBScope: number) {
-    if (isResolveEnvBinding(currSEXP)) {
+    if (isResolveEnvBindingSEXP(currSEXP)) {
       const res = this.findBinding(currBBScope, currSEXP.getBindingName());
       if (res) {
         Object.setPrototypeOf(currSEXP, res);
@@ -148,23 +170,23 @@ export class IRIDIUMV2 {
 
   hoistDeclarations() {
     const fileSexp = this.container;
-    const hoistingInfo = new Map<number, Array<[Array<string>, "let" | "const" | "var"]>>();
+    const hoistingInfo = new Map<number, Array<[Array<string>, JSEnvDeclareFlags]>>();
 
     for (let bb of fileSexp.args) {
       if (isBBSEXP(bb)) {
         const localScope = bb.getScope();
         const parentClosureScope = this.findParentClosureScope(localScope);
         for (let stmt of bb.args) {
-          if (isJSEnvWrite(stmt) && stmt.isJSDecl()) {
+          if (isJSEnvWrite(stmt) && stmt.isDecl()) {
             let scopeToHoistTo: number;
-            let hoistingKind: "let" | "const" | "var";
+            let hoistingKind: JSEnvDeclareFlags;
             if (stmt.isLetDecl() || stmt.isConstDecl()) {
               scopeToHoistTo = localScope;
-              if (stmt.isLetDecl()) hoistingKind = "let";
-              else hoistingKind = "const";
+              if (stmt.isLetDecl()) hoistingKind = "JSLET";
+              else hoistingKind = "JSCONST";
             } else {
               scopeToHoistTo = parentClosureScope;
-              hoistingKind = "var";
+              hoistingKind = "JSVAR";
             }
 
             let declarations = stmt.getDeclaredBindings();
@@ -183,7 +205,9 @@ export class IRIDIUMV2 {
       let hoistingTargetBB = hoistingContext.BB[0];
       let decls = []
       for (let b of bindingsToCreate) {
-        b[0].forEach(n => decls.push(new EnvDeclare(n, b[1])));
+        const flags: [JSEnvDeclareFlags, null][] = []
+        flags.push([b[1], null])
+        b[0].forEach(n => decls.push(new EnvDeclareSEXP(n, flags)));
       }
       hoistingTargetBB.args = [...decls, ...hoistingTargetBB.args]
     }

@@ -3,7 +3,7 @@ import { ArrayPattern, AssignmentPattern, Identifier, isArrayPattern, isAssignme
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2.ts";
 import debugConfig from "#debugConfig";
 import { IS_VAR_DECL_KIND } from "../IridiumHelpers/ALL_IS/IS_VarDecl.ts";
-import { BBSEXP, EnvRead, GetClosArgSEXP, Goto, IfElseJump, IridiumSEXP, JSEnvWrite, JSLambdaSEXP, ListSEXP, ResolveEnvBinding, StringSEXP } from "./Types.ts";
+import { BBSEXP, EnvReadSEXP, GetClosArgSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, LambdaSEXP, ListSEXP, ResolveEnvBindingSEXP, StringSEXP } from "./Types.ts";
 import { IRIV2_RVAL } from "./handleRVal.ts";
 import { generateIdentifier, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
 import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
@@ -65,7 +65,7 @@ const handleBlockStatement = (cx: IRIDIUMV2, stmt: JS3BlockStatement): IridiumBu
   const newContext = cx.declareAndPushLexicalContext();
 
   // Add Gotos from oldContext's last BB to currentBB.
-  oldContext.getCurrentBB().args.push(new Goto(newContext.BB[0].idx))
+  oldContext.getCurrentBB().args.push(new GotoSEXP(newContext.BB[0].idx))
   cx.addContinuation(oldContext);
 
   for (const s of stmt.body) {
@@ -73,14 +73,14 @@ const handleBlockStatement = (cx: IRIDIUMV2, stmt: JS3BlockStatement): IridiumBu
   }
 
   // After generating the code, add a goto from the last lowered block to the oldContexts continuation
-  cx.getCurrentBB().args.push(new Goto(oldContext.getCurrentBB().idx));
+  cx.getCurrentBB().args.push(new GotoSEXP(oldContext.getCurrentBB().idx));
   cx.popContext();
 
   return newContext;
 }
 
 const handleReturnStatement = (cx: IRIDIUMV2, stmt: JS3ReturnStatement) => {
-  cx.getCurrentBB().args.push(new Goto(-1));
+  cx.getCurrentBB().args.push(new GotoSEXP(-1));
 }
 
 const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
@@ -94,7 +94,7 @@ const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
   for (const s of stmt.consequent.body) {
     IRIV2_STMT(cx, s);
   }
-  cx.getCurrentBB().args.push(new Goto(postBB.idx));
+  cx.getCurrentBB().args.push(new GotoSEXP(postBB.idx));
   cx.popContext();
 
   // Lower Else code
@@ -104,11 +104,11 @@ const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
     for (const s of stmt.alternate.body) {
       IRIV2_STMT(cx, s);
     }
-    cx.getCurrentBB().args.push(new Goto(postBB.idx));
+    cx.getCurrentBB().args.push(new GotoSEXP(postBB.idx));
     cx.popContext();
   }
   // Make branch check the last instruction of currentBB
-  const ifElseJump = new IfElseJump(new EnvRead(stmt.test.name), trueContext.BB[0].idx, falseContext ? falseContext.BB[0].idx : postBB.idx)
+  const ifElseJump = new IfElseJumpSEXP(new EnvReadSEXP(stmt.test.name), trueContext.BB[0].idx, falseContext ? falseContext.BB[0].idx : postBB.idx)
   currentBB.args.push(ifElseJump);
 }
 
@@ -130,13 +130,17 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   }
 
   const declaration = stmt.declarations[0];
-  const KIND: IS_VAR_DECL_KIND = stmt.kind;
+  let KIND: JSEnvWriteFlags;
+
+  if (stmt.kind === "let") KIND = "JSLET"
+  else if (stmt.kind === "const") KIND = "JSCONST"
+  else if (stmt.kind === "var") KIND = "JSVAR"
 
   // case a.
   // KIND ID = RVal
   if (isIdentifier(declaration.id)) {
     const rValTarget = declaration.init && IRIV2_RVAL(cx, declaration.init);
-    const envWrite = new JSEnvWrite(new ResolveEnvBinding(declaration.id.name), rValTarget, KIND);
+    const envWrite = new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(declaration.id.name), rValTarget, KIND);
     cx.getCurrentBB().args.push(envWrite);
     return;
   }
@@ -146,8 +150,9 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   if (isJS3ArrayPattern(declaration.id)) {
     const rValTarget = declaration.init && IRIV2_RVAL(cx, declaration.init)
     const [lvals, hasRest] = getArrayDestSEXP(declaration.id);
-    const envWrite = new JSEnvWrite(lvals, rValTarget, KIND);
-    if (hasRest) envWrite.flags.push(["rest", null]);
+    const envWrite = new JSEnvWriteSEXP(lvals, rValTarget, KIND);
+    if (hasRest) envWrite.flags.push(["JSREST", null]);
+    envWrite.flags.push(["JSARRDES", null])
     cx.getCurrentBB().args.push(envWrite);
     return;
   }
@@ -157,8 +162,9 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   if (isJS3ObjectPattern(declaration.id)) {
     const rValTarget = declaration.init && IRIV2_RVAL(cx, declaration.init)
     const [lvals, hasRest] = getObjectDestSEXP(declaration.id);
-    const envWrite = new JSEnvWrite(lvals, rValTarget, KIND);
-    if (hasRest) envWrite.flags.push(["rest", null]);
+    const envWrite = new JSEnvWriteSEXP(lvals, rValTarget, KIND);
+    if (hasRest) envWrite.flags.push(["JSREST", null]);
+    envWrite.flags.push(["JSOBJDES", null])
     cx.getCurrentBB().args.push(envWrite);
     return;
   }
@@ -172,10 +178,10 @@ const getArrayDestSEXP = (stmt: JS3ArrayPattern): [IridiumSEXP, boolean] => {
   let hasRest = false;
   let sexps = stmt.elements.map((e) => {
     if (isIdentifier(e)) {
-      return new ResolveEnvBinding(e.name);
+      return new ResolveEnvBindingSEXP(e.name);
     } else if (isJS3RestElement(e)) {
       hasRest = true;
-      return new ResolveEnvBinding(e.argument.name);
+      return new ResolveEnvBindingSEXP(e.argument.name);
     }
   });
   return [new ListSEXP(sexps), hasRest];
@@ -187,10 +193,10 @@ const getObjectDestSEXP = (stmt: JS3ObjectPattern): [IridiumSEXP, boolean] => {
   let sexps = stmt.properties.map((e) => {
     if (isJS3AssnObjectProperty(e)) {
       if (isIdentifier(e.key))
-        return new ListSEXP([new StringSEXP(e.key.name), new ResolveEnvBinding(e.value.name)]);
+        return new ListSEXP([new StringSEXP(e.key.name), new ResolveEnvBindingSEXP(e.value.name)]);
     } else if (isJS3RestElement(e)) {
       hasRest = true;
-      return new ResolveEnvBinding(e.argument.name);
+      return new ResolveEnvBindingSEXP(e.argument.name);
     }
   });
   return [new ListSEXP(sexps), hasRest];
@@ -304,5 +310,5 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
   }
   cx.popContext();
 
-  return new JSLambdaSEXP("LexRW", funBBIdx, [["StaticName", stmt.id.name], ["Strict", null]]);
+  return new LambdaSEXP(funBBIdx, [["StaticName", stmt.id.name], ["Strict", null], ["LexRW", null]]);
 }

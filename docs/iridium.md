@@ -1,5 +1,173 @@
 # Iridium IR-code Specification
 
+> V1.0
+
+### SExpression Format
+
+General Format:
+
+```
+IridiumPrimitives = number | string | boolean | null
+
+IridiumSEXP {
+  tag: string
+  args: [IridiumSEXP...]
+  flags: [(string, IridiumPrimitives)...]
+}
+```
+
+
+
+Derivations:
+
+1. tag = "File" (primitive)
+
+Rerefences to a specific source file, a flag indicates the semantics to use during analysis.
+
+```
+  args: [IridiumSEXP...]
+  flags: ["JSScript", null] | ["JSModule", null]
+```
+
+2. tag = "BB" (primitive)
+
+```
+  args: [IridiumSEXP...]
+  flags: (["IDX", number] & ["Scope", number]) U (["TopLevel", null] | ["ClosureBoundary", null] | ["Lexical", null])
+```
+
+
+
+
+3. tag = "Number" (primitive)
+
+```
+  args: []
+  flags: ["IridiumPrimitive", number]
+```
+
+4. tag = "String" (primitive)
+
+```
+  args: []
+  flags: ["IridiumPrimitive", string]
+```
+
+5. tag = "List" (primitive)
+
+```
+  args: [IridiumSEXP...]
+  flags: []
+```
+
+6. tag = "Boolean" (primitive)
+
+```
+  args: []
+  flags: ["IridiumPrimitive", boolean]
+```
+
+
+
+
+7. tag = "Binop" (primitive)
+
+```
+  args: [StringSEXP, IridiumSEXP, IridiumSEXP]
+  flags: ["Primitive", null] | ["JSBINOP", null]
+```
+
+
+
+
+8. tag = "JSArray" (extension)
+
+```
+  args: [IridiumSEXP...]
+  flags: []
+```
+
+9. tag = "JSObject" (extension)
+
+```
+  args: [IridiumSEXP...]
+  flags: []
+```
+
+
+
+
+10. tag = "Lambda" (primitive)
+```
+  args: [IridiumSEXP...]
+  flags:  (["Pure", null] | ["Fable", null] | ["GFable", null] | ["LexRO", null] | ["LexRW", null]) U (["StaticName", string] | ["InferredName", null]) U* (["Strict", null])
+```
+
+11. tag = "GetClosArg" (primitive)
+
+A non-negative index is used to reference values in the arguments array.
+A negative index indicates reference to a varargs.
+
+```
+  args: []
+  flags:  ["IDX", number]
+```
+
+
+
+
+12. tag = "EnvRead" (primitive)
+```
+  args: [EnvDeclareSEXP]
+  flags:  []
+```
+
+13. tag = "EnvDeclare" (primitive)
+
+```
+  args: [StringSEXP]
+  flags: ["IDX", null] U (["JSLET", null] | ["JSCONST", null] | ["JSVAR", null])
+```
+
+13. tag = "EnvWrite" (primitive)
+
+```
+  args: [EnvDeclareSEXP]
+  flags: []
+```
+
+14. tag = "JSEnvWrite" (primitive)
+
+```
+  args: [EnvDeclareSEXP, ?IridiumSEXP]
+  flags: (["JSARRDES", null] | ["JSOBJDES", null]) U (["JSLET", null] | ["JSCONST", null] | ["JSVAR", null]) U* ["JSREST", null]
+```
+
+
+
+
+* non-negative IDX implies a resolved targed, otherwise the target is not yet resolved.
+15. tag = "Goto" (primitive)
+
+```
+  args: []
+  flags: ["IDX", number]
+```
+
+16. tag = "IfElseJump" (primitive)
+```
+  args: [IridiumSEXP]
+  flags: ["TRUE", number] U ["FALSE", number]
+```
+
+17. tag = "IfJump" (primitive)
+```
+  args: [IridiumSEXP]
+  flags: ["IDX", number]
+```
+
+======================================================================================
+
 ## TODOs
 
 // TODO: Reduce JSFunctions and Calls into Abstraction and Application...

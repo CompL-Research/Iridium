@@ -32,12 +32,12 @@ import {
   printIRIUsage,
   printJS3Usage,
 } from "./configs/printUsage.ts";
-import { projectStats } from "./configs/projectStats.ts";
+import { projectStats, VERSION } from "./configs/projectStats.ts";
 import { IRIDIUMV2 } from "classes/builder/IridiumV2/IRIDIUMV2.ts";
 import { FileSEXP } from "classes/builder/IridiumV2/Types.ts";
 import { dumpSEXP } from "classes/builder/IridiumV2/PP.ts";
 
-const VERSION = "0.6a";
+
 const directories = ["./classes", "./configs", "./docs", "./playground/src"];
 
 debugConfig.versionNumber = `Iridium ${VERSION}`;
@@ -103,10 +103,11 @@ function iri(filePath) {
     const iridiumV2Builder = new IRIDIUMV2(js3Builder);
     iridiumV2Builder.build();
 
-    const data = {code: iridiumV2Builder.container.serialize() };
-    const jsonString = JSON.stringify(data);
-    const encodedJson = encodeURIComponent(jsonString);
-    debugConfig.logger.log(`https://jsoneditoronline.org/#left=json.${encodedJson}`);
+    iridiumV2Builder.saveGeneratedFile();
+
+    // const jsonString = JSON.stringify(iridiumV2Builder.serialize());
+    // const encodedJson = encodeURIComponent(jsonString);
+    // debugConfig.logger.log(`https://jsoneditoronline.org/#left=json.${encodedJson}`);
 
     debugConfig.logger.log("" + dumpSEXP(iridiumV2Builder.container));
 
