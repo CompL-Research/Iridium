@@ -107,10 +107,30 @@
 //   return d;
 // }
 
-function fun(p1, p2, ...pr) { 
-  let a = 12;
-}
+// function fun(p1, p2, ...pr) { 
+//   let a = 12;
+// }
 
-let x = fun;
+// let x = fun;
 
-// fun(1,2,3,4);
+// // fun(1,2,3,4);
+
+
+// let { a } = 1;
+
+// {
+//   var b = 12;
+// }
+
+// Expression parser
+let a = 12;
+let b = a + 1;
+// let c = a + b;
+// c = a - b;
+// c = a * b;
+// c = a / b;
+// c = a % b;
+// c = a ** b;
+// c = a & b;
+// c = a | b;
+// c = a ^ b;

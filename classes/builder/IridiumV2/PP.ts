@@ -1,4 +1,4 @@
-import { IridiumPrimitives, IridiumSEXP } from "./Types.ts";
+import { IridiumPrimitives, IridiumSEXP, isEnvDeclare } from "./Types.ts";
 
 const printSpace = (space: number) => " ".repeat(space);
 
@@ -7,6 +7,12 @@ export const dumpSEXP = (sexp: IridiumSEXP | IridiumPrimitives, space = 0, targe
   if (typeof sexp === "number") return sexp;
   if (typeof sexp === "boolean") return sexp;
   if (typeof sexp === "string") return sexp;
+
+  if (isEnvDeclare(sexp)) {
+    const toStringRes = sexp.toString()
+    target.push(`${printSpace(space)}${toStringRes}`);
+    return;
+  }
 
   target.push(`${printSpace(space)}${sexp.tag}(flags -> ${sexp.flags.map(e => `${e[0]} : ${dumpSEXP(e[1], space, target)}`).join(", ")})`);
   sexp.args.forEach(a => dumpSEXP(a, space + 2, target));

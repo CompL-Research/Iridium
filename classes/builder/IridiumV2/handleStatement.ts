@@ -3,7 +3,7 @@ import { ArrayPattern, AssignmentPattern, Identifier, isArrayPattern, isAssignme
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2.ts";
 import debugConfig from "#debugConfig";
 import { IS_VAR_DECL_KIND } from "../IridiumHelpers/ALL_IS/IS_VarDecl.ts";
-import { BBSEXP, EnvRead, GetClosArgSEXP, Goto, IfElseJump, IridiumSEXP, JSEnvWrite, JSLambdaSEXP, ListSEXP, StringSEXP } from "./Types.ts";
+import { BBSEXP, EnvRead, GetClosArgSEXP, Goto, IfElseJump, IridiumSEXP, JSEnvWrite, JSLambdaSEXP, ListSEXP, ResolveEnvBinding, StringSEXP } from "./Types.ts";
 import { IRIV2_RVAL } from "./handleRVal.ts";
 import { generateIdentifier, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
 import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
@@ -135,8 +135,8 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   // case a.
   // KIND ID = RVal
   if (isIdentifier(declaration.id)) {
-    const rValTarget = IRIV2_RVAL(cx, declaration.init);
-    const envWrite = new JSEnvWrite(new StringSEXP(declaration.id.name), rValTarget, KIND);
+    const rValTarget = declaration.init && IRIV2_RVAL(cx, declaration.init);
+    const envWrite = new JSEnvWrite(new ResolveEnvBinding(declaration.id.name), rValTarget, KIND);
     cx.getCurrentBB().args.push(envWrite);
     return;
   }
@@ -144,9 +144,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   // case b.
   // KIND [ ID, ...ID ] = RVal
   if (isJS3ArrayPattern(declaration.id)) {
-    const rValTarget = declaration.init
-      ? IRIV2_RVAL(cx, declaration.init)
-      : null;
+    const rValTarget = declaration.init && IRIV2_RVAL(cx, declaration.init)
     const [lvals, hasRest] = getArrayDestSEXP(declaration.id);
     const envWrite = new JSEnvWrite(lvals, rValTarget, KIND);
     if (hasRest) envWrite.flags.push(["rest", null]);
@@ -157,9 +155,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   // case c.
   // KIND { TRIV_KEY: ID, ...ID } = RVal
   if (isJS3ObjectPattern(declaration.id)) {
-    const rValTarget = declaration.init
-      ? IRIV2_RVAL(cx, declaration.init)
-      : null;
+    const rValTarget = declaration.init && IRIV2_RVAL(cx, declaration.init)
     const [lvals, hasRest] = getObjectDestSEXP(declaration.id);
     const envWrite = new JSEnvWrite(lvals, rValTarget, KIND);
     if (hasRest) envWrite.flags.push(["rest", null]);
@@ -176,10 +172,10 @@ const getArrayDestSEXP = (stmt: JS3ArrayPattern): [IridiumSEXP, boolean] => {
   let hasRest = false;
   let sexps = stmt.elements.map((e) => {
     if (isIdentifier(e)) {
-      return new StringSEXP(e.name);
+      return new ResolveEnvBinding(e.name);
     } else if (isJS3RestElement(e)) {
       hasRest = true;
-      return new StringSEXP(e.argument.name);
+      return new ResolveEnvBinding(e.argument.name);
     }
   });
   return [new ListSEXP(sexps), hasRest];
@@ -191,10 +187,10 @@ const getObjectDestSEXP = (stmt: JS3ObjectPattern): [IridiumSEXP, boolean] => {
   let sexps = stmt.properties.map((e) => {
     if (isJS3AssnObjectProperty(e)) {
       if (isIdentifier(e.key))
-        return new ListSEXP([new StringSEXP(e.key.name), new StringSEXP(e.value.name)]);
+        return new ListSEXP([new StringSEXP(e.key.name), new ResolveEnvBinding(e.value.name)]);
     } else if (isJS3RestElement(e)) {
       hasRest = true;
-      return new StringSEXP(e.argument.name);
+      return new ResolveEnvBinding(e.argument.name);
     }
   });
   return [new ListSEXP(sexps), hasRest];
@@ -308,5 +304,5 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
   }
   cx.popContext();
 
-  return new JSLambdaSEXP("LexRW", funBBIdx, [["StaticName", new StringSEXP(stmt.id.name)], ["Strict", null]]);
+  return new JSLambdaSEXP("LexRW", funBBIdx, [["StaticName", stmt.id.name], ["Strict", null]]);
 }

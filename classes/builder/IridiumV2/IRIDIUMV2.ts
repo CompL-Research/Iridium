@@ -2,10 +2,11 @@ import JS3Builder from "../JS3Builder.ts";
 import debugConfig from "#debugConfig";
 import { JS3Program } from "../JS3Helpers/JS3Types.ts";
 import { IRIV2_STMT } from "./handleStatement.ts";
-import { BBSEXP, BBSEXPFlags, FileSEXP } from "./Types.ts";
+import { BBSEXP, BBSEXPFlags, EnvDeclare, EnvWrite, FileSEXP, IridiumSEXP, isBBSEXP, isEnvDeclare, isJSEnvWrite, isResolveEnvBinding } from "./Types.ts";
 
 export class IridiumBuildContext {
   static SID = 1;
+  static CONTEXT_MAP = new Map<number, IridiumBuildContext>();
   parent: number;
   scopeIdx: number;
   BB: Array<BBSEXP> = [];
@@ -18,6 +19,7 @@ export class IridiumBuildContext {
       if (!flag) debugConfig.logger.throwIriError("Expected a flag to qualify all the BBs in iridium, not supplied!!!");
       this.pushBB(new BBSEXP(this.scopeIdx, flag));
     }
+    IridiumBuildContext.CONTEXT_MAP.set(this.scopeIdx, this);
   }
 
   pushBB(BB: BBSEXP) {
@@ -92,5 +94,100 @@ export class IRIDIUMV2 {
     }
     this.popContext();
     if (this.buildContext.length !== 0) debugConfig.logger.throwIriError("Expected buildContext stack to be empty after build()");
+    
+    this.hoistDeclarations();
+    this.resolveEnvReads(this.container, 0);
   }
+
+  findParentClosureScope(localScope: number) {
+    if (localScope === 0) return 0;
+    if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) debugConfig.logger.throwIriError(`build context not found for scope: ${localScope}`)
+    
+    let buildContext = IridiumBuildContext.CONTEXT_MAP.get(localScope);
+    let startBB = buildContext.BB[0];
+    if (startBB.isClosureBoundary() || startBB.isTopLevel()) return localScope;
+    else return this.findParentClosureScope(buildContext.parent);
+  }
+
+  findBinding(scope: number, binding: string): EnvDeclare {
+    if (scope === 0) return null;
+    if (!IridiumBuildContext.CONTEXT_MAP.has(scope)) debugConfig.logger.throwIriError(`build context not found for scope: ${scope}`)
+    
+    let buildContext = IridiumBuildContext.CONTEXT_MAP.get(scope);
+    let startBB = buildContext.BB[0];
+    for (let s of startBB.args) {
+      if (isEnvDeclare(s) && s.getDeclaration() === binding) return s;
+    }
+
+    return this.findParentClosureScope(buildContext.parent);
+  }
+
+  resolveEnvReads(currSEXP: IridiumSEXP, currBBScope: number) {
+    if (isResolveEnvBinding(currSEXP)) {
+      const res = this.findBinding(currBBScope, currSEXP.getBindingName());
+      if (res) {
+        Object.setPrototypeOf(currSEXP, res);
+        currSEXP.tag = res.tag;
+        currSEXP.args = res.args;
+        currSEXP.flags = res.flags;
+      } else {
+        debugConfig.logger.throwIriError("TODO: handle global env reads");
+      }
+    }
+    if (isBBSEXP(currSEXP)) {
+      currSEXP.args.forEach(e => this.resolveEnvReads(e, currSEXP.getScope()))
+    } else currSEXP.args.forEach(e => this.resolveEnvReads(e, currBBScope));
+  }
+
+  // 
+  // f: HoistDeclarations
+  //    1. Iterate over all declarations
+  //    2. case 'KIND StringSEXP = IridiumSEXP'
+  //        i. StringSEXP = IridiumSEXP
+  // 
+
+  hoistDeclarations() {
+    const fileSexp = this.container;
+    const hoistingInfo = new Map<number, Array<[Array<string>, "let" | "const" | "var"]>>();
+
+    for (let bb of fileSexp.args) {
+      if (isBBSEXP(bb)) {
+        const localScope = bb.getScope();
+        const parentClosureScope = this.findParentClosureScope(localScope);
+        for (let stmt of bb.args) {
+          if (isJSEnvWrite(stmt) && stmt.isJSDecl()) {
+            let scopeToHoistTo: number;
+            let hoistingKind: "let" | "const" | "var";
+            if (stmt.isLetDecl() || stmt.isConstDecl()) {
+              scopeToHoistTo = localScope;
+              if (stmt.isLetDecl()) hoistingKind = "let";
+              else hoistingKind = "const";
+            } else {
+              scopeToHoistTo = parentClosureScope;
+              hoistingKind = "var";
+            }
+
+            let declarations = stmt.getDeclaredBindings();
+            stmt.reduceJSDecl();
+
+            if (!hoistingInfo.has(scopeToHoistTo)) hoistingInfo.set(scopeToHoistTo, new Array());
+            hoistingInfo.get(scopeToHoistTo).push([declarations, hoistingKind]);
+          }
+        }
+      } else debugConfig.logger.throwIriError("Expected BBSEXP")
+    }
+    
+    // Hoist Declarations
+    for (let [scopeIdx, bindingsToCreate] of hoistingInfo) {
+      let hoistingContext = IridiumBuildContext.CONTEXT_MAP.get(scopeIdx);
+      let hoistingTargetBB = hoistingContext.BB[0];
+      let decls = []
+      for (let b of bindingsToCreate) {
+        b[0].forEach(n => decls.push(new EnvDeclare(n, b[1])));
+      }
+      hoistingTargetBB.args = [...decls, ...hoistingTargetBB.args]
+    }
+  }
+
 }
+
