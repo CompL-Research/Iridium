@@ -116,11 +116,11 @@
 // // fun(1,2,3,4);
 
 
-let { a: a, b: c } = 1;
+// let { a: a, b: c } = 1;
 
-{
-  var b = 12;
-}
+// {
+//   var b = 12;
+// }
 
 // Expression parser
 // let a = 12;
@@ -136,3 +136,6 @@ let { a: a, b: c } = 1;
 // c = a & b;
 // c = a | b;
 // c = a ^ b;
+
+
+test(1,2,...b,...c);

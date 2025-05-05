@@ -105,9 +105,9 @@ function iri(filePath) {
 
     iridiumV2Builder.saveGeneratedFile();
 
-    // const jsonString = JSON.stringify(iridiumV2Builder.serialize());
-    // const encodedJson = encodeURIComponent(jsonString);
-    // debugConfig.logger.log(`https://jsoneditoronline.org/#left=json.${encodedJson}`);
+    // // const jsonString = JSON.stringify(iridiumV2Builder.serialize());
+    // // const encodedJson = encodeURIComponent(jsonString);
+    // // debugConfig.logger.log(`https://jsoneditoronline.org/#left=json.${encodedJson}`);
 
     debugConfig.logger.log("" + dumpSEXP(iridiumV2Builder.container));
 

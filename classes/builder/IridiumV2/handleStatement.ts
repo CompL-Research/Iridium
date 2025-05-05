@@ -3,7 +3,7 @@ import { ArrayPattern, AssignmentPattern, Identifier, isArrayPattern, isAssignme
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2.ts";
 import debugConfig from "#debugConfig";
 import { IS_VAR_DECL_KIND } from "../IridiumHelpers/ALL_IS/IS_VarDecl.ts";
-import { BBSEXP, EnvReadSEXP, GetClosArgSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, LambdaSEXP, ListSEXP, ResolveEnvBindingSEXP, StringSEXP } from "./Types.ts";
+import { BBSEXP, EnvReadSEXP, EnvWriteSEXP, GetClosArgSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, LambdaSEXP, ListSEXP, ResolveEnvBindingSEXP, ReturnSEXP, StringSEXP } from "./Types.ts";
 import { IRIV2_RVAL } from "./handleRVal.ts";
 import { generateIdentifier, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
 import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
@@ -80,7 +80,10 @@ const handleBlockStatement = (cx: IRIDIUMV2, stmt: JS3BlockStatement): IridiumBu
 }
 
 const handleReturnStatement = (cx: IRIDIUMV2, stmt: JS3ReturnStatement) => {
-  cx.getCurrentBB().args.push(new GotoSEXP(-1));
+  let arg: IridiumSEXP;
+  if (stmt.argument) arg = IRIV2_RVAL(cx, stmt.argument);
+  else arg = new EnvReadSEXP("undefined");
+  cx.getCurrentBB().args.push(new ReturnSEXP(arg));
 }
 
 const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
@@ -139,7 +142,16 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   // case a.
   // KIND ID = RVal
   if (isIdentifier(declaration.id)) {
-    const rValTarget = declaration.init && IRIV2_RVAL(cx, declaration.init);
+    let rValTarget = declaration.init && IRIV2_RVAL(cx, declaration.init);
+
+    if (!rValTarget) {
+      if (KIND === "JSLET") {
+        rValTarget = new EnvReadSEXP("undefined");
+      } else if (KIND === "JSCONST") {
+        debugConfig.logger.throwIriError("const decl without Rval is disallowed");
+      }
+    }
+
     const envWrite = new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(declaration.id.name), rValTarget, KIND);
     cx.getCurrentBB().args.push(envWrite);
     return;
@@ -173,7 +185,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   return;
 }
 
-const getArrayDestSEXP = (stmt: JS3ArrayPattern): [IridiumSEXP, boolean] => {
+export const getArrayDestSEXP = (stmt: JS3ArrayPattern): [IridiumSEXP, boolean] => {
   // Assertion: a rest element must be the last in the destructuring pattern
   let hasRest = false;
   let sexps = stmt.elements.map((e) => {
@@ -187,7 +199,7 @@ const getArrayDestSEXP = (stmt: JS3ArrayPattern): [IridiumSEXP, boolean] => {
   return [new ListSEXP(sexps), hasRest];
 }
 
-const getObjectDestSEXP = (stmt: JS3ObjectPattern): [IridiumSEXP, boolean] => {
+export const getObjectDestSEXP = (stmt: JS3ObjectPattern): [IridiumSEXP, boolean] => {
   // Assertion: a rest element must be the last in the destructuring pattern
   let hasRest = false;
   let sexps = stmt.properties.map((e) => {
@@ -238,12 +250,16 @@ const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctionArgs>)
       );
     }
 
+    let currArg = `CLOSARG(${argIdx})`;
+
+    cx.getCurrentContext().args.push(currArg);
+
     //
     // 2. RVal Identifier in argument list
     //
     const toLowerRVal = generateIdentifier(
       arg,
-      cx.js3Builder.utils.getNewTemporary(`$$ClosArg(${argIdx})`),
+      currArg,
     );
 
     //
@@ -275,6 +291,17 @@ const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctionArgs>)
           null,
           arg,
         );
+        // NUBD bindings
+        let nubdBindings: Array<string> = []
+        if (isIdentifier(LVal)) {
+          nubdBindings.push(LVal.name);
+        } else if (isArrayPattern(LVal)) {
+          LVal.elements.forEach(e => isIdentifier(e) ? nubdBindings.push(e.name) : nubdBindings.push(e.argument.name));
+        } else {
+          LVal.properties.forEach(p => isJS3AssnObjectProperty(p) ? nubdBindings.push(p.value.name) : nubdBindings.push(p.argument.name))
+        }
+        nubdBindings.forEach(b => cx.getCurrentContext().nubds.push(b));
+
         return generateJS3VariableDeclarationfromBaseNode(
           [declarator],
           first ? ((first = false), "var") : "let",
@@ -304,11 +331,13 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
   const funBBIdx = funcContext.getCurrentBB().idx;
 
   lowerArgumentInit(cx, stmt.params);
-  
+
   for (const s of stmt.body.body) {
     IRIV2_STMT(cx, s);
   }
   cx.popContext();
 
-  return new LambdaSEXP(funBBIdx, [["StaticName", stmt.id.name], ["Strict", null], ["LexRW", null]]);
+  cx.getCurrentBB().args.push(
+    new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(stmt.id.name), new LambdaSEXP(funBBIdx, [["StaticName", stmt.id.name], ["Strict", null], ["LexRW", null]]), "JSLET")
+  );
 }

@@ -1,4 +1,4 @@
-import { IridiumPrimitives, IridiumSEXP, isEnvDeclareSEXP } from "./Types.ts";
+import { IridiumPrimitives, IridiumSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isGlobalBindingSEXP } from "./Types.ts";
 
 const printSpace = (space: number) => " ".repeat(space);
 
@@ -13,7 +13,13 @@ export const dumpSEXP = (sexp: IridiumSEXP | IridiumPrimitives, space = 0, targe
   if (typeof sexp === "boolean") return sexp;
   if (typeof sexp === "string") return sexp;
 
-  if (isEnvDeclareSEXP(sexp)) {
+  if (isEnvBindingSEXP(sexp)) {
+    const toStringRes = sexp.toString()
+    target.push(`${printSpace(space)}${toStringRes}`);
+    return;
+  }
+
+  if (isGlobalBindingSEXP(sexp)) {
     const toStringRes = sexp.toString()
     target.push(`${printSpace(space)}${toStringRes}`);
     return;

@@ -164,6 +164,16 @@ A negative index indicates reference to a varargs.
 ```
   args: [IridiumSEXP]
   flags: ["IDX", number]
+
+
+
+
+18. tag = "Call" (primitive)
+  args: []
+  flags: ?["CCall", null]
+
+
+
 ```
 
 ======================================================================================
@@ -173,7 +183,6 @@ A negative index indicates reference to a varargs.
 // TODO: Reduce JSFunctions and Calls into Abstraction and Application...
 // TODO: Should we reduce yields into CPS?
 // TODO: 3JS reduce object destructuring into even simpler form.
-
 
 Syntax:
   ((OPCODE ARG1 ARG2?) (OTHER)) 
