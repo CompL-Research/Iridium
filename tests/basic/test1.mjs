@@ -1,14 +1,17 @@
 
-let a = "Hello";
-let b = "World";
-console.log(a + " " + b);
+// let a = 1;
+// let a = "Hello";
+// let b = "World";
+// console.log(a + " " + b);
 // console.log("Hello World");
-// {
-//   let a = "Hello";
-//   function b() {z̄
-//     return a;
-//   };
-// }
+// var a;
+{
+  console.log("Hello");
+  // function b() {z̄
+  //   return a;
+  // };
+}
+
 
 // {
 //   let b = "World";
