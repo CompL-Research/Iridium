@@ -1,22 +1,47 @@
-// console.log("Test")
-// let a;
-// a = console.log(a);
 
-// 1;
-// if (false) {
-
+let a = "Hello";
+let b = "World";
+console.log(a + " " + b);
+// console.log("Hello World");
+// {
+//   let a = "Hello";
+//   function b() {z̄
+//     return a;
+//   };
 // }
-// 1.2;
-// "hello";
-// 'there';
-// false;
+
+// {
+//   let b = "World";
+// }
+
+// {
+//   let b = 23;
+// }
+
+// {
+//   let b = 22;
+// }
 
 
-let a;
-{
-    let b;
-    function xx(a) { return a + b;}
+// {
+//   let a;
+//   let b = 32;
+//   var c = 12;
+// }
 
-    xx = 12;
-}
-let c;
+// let a = 12;
+
+// function f() {
+//   var a = 13;
+//   {
+//     let b = 12;
+//   }
+// }
+
+// {
+//   let x;
+// }
+
+// let a = 12;
+
+// console.log("Hello World");

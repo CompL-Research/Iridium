@@ -32,7 +32,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   } else if (isJS3TryStatement(stmt)) {
     debugConfig.logger.throwIriError("IRIV2: TODO JS3TryStatement");
   } else if (isJS3EmptyStatement(stmt)) {
-    debugConfig.logger.throwIriError("IRIV2: TODO JS3EmptyStatement");
+    // debugConfig.logger.throwIriError("IRIV2: TODO JS3EmptyStatement");
   } else if (isJS3WhileStatement(stmt)) {
     debugConfig.logger.throwIriError("IRIV2: TODO JS3WhileStatement");
   } else if (isJS3BreakStatement(stmt)) {

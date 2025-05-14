@@ -338,9 +338,25 @@ const handleContextualCallExpression = (cx: IRIDIUMV2, node: JS3ContextualCallEx
   const tempHolder = cx.js3Builder.utils.getNewTemporary("ccallCallee");
   const callee = new ResolveEnvBindingSEXP(tempHolder);
   const stmt = new JSEnvWriteSEXP(callee, IRIV2_RVAL(cx, node.callee), "JSLET");
+  let contextObj;
+  if (isJS3MemberExpression(node.callee)) {
+    if (isIdentifier(node.callee.object)) {
+      contextObj = node.callee.object.name;
+    } else if (isThisExpression(node.callee.object)) {
+      debugConfig.logger.throwIriError("this contextual call expressions are not supported yet.");
+    } else {
+      debugConfig.logger.throwIriError("super contextual call expressions are not supported yet.");
+    }
+  } else {
+    debugConfig.logger.throwIriError("Optional callees in contextual call expressions are not supported yet.");
+  }
+
   cx.getCurrentBB().args.push(stmt);
 
   const args: Array<IridiumSEXP> = [];
+  args.push(new EnvReadSEXP(contextObj));
+  if (callee) args.push(new ResolveEnvBindingSEXP(tempHolder));
+
   for (const a of node.arguments) {
     if (isIdentifier(a)) {
       args.push(new ResolveEnvBindingSEXP(a.name));
@@ -350,7 +366,7 @@ const handleContextualCallExpression = (cx: IRIDIUMV2, node: JS3ContextualCallEx
       args.push(lowerExprToResolveEnvBindingSEXP(cx, a));
     }
   }
-  return new CallSiteSEXP(tempHolder, args, [["CCall", null]]);
+  return new CallSiteSEXP(args, [["CCall", null]]);
 }
 
 const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {

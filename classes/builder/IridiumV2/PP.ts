@@ -13,17 +13,17 @@ export const dumpSEXP = (sexp: IridiumSEXP | IridiumPrimitives, space = 0, targe
   if (typeof sexp === "boolean") return sexp;
   if (typeof sexp === "string") return sexp;
 
-  if (isEnvBindingSEXP(sexp)) {
-    const toStringRes = sexp.toString()
-    target.push(`${printSpace(space)}${toStringRes}`);
-    return;
-  }
+  // if (isEnvBindingSEXP(sexp)) {
+  //   const toStringRes = sexp.toString()
+  //   target.push(`${printSpace(space)}${toStringRes}`);
+  //   return;
+  // }
 
-  if (isGlobalBindingSEXP(sexp)) {
-    const toStringRes = sexp.toString()
-    target.push(`${printSpace(space)}${toStringRes}`);
-    return;
-  }
+  // if (isGlobalBindingSEXP(sexp)) {
+  //   const toStringRes = sexp.toString()
+  //   target.push(`${printSpace(space)}${toStringRes}`);
+  //   return;
+  // }
 
   target.push(`${printSpace(space)}${sexp.tag}${getFlagString(sexp.flags)}`);
   sexp.args.forEach(a => dumpSEXP(a, space + 2, target));
