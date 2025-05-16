@@ -1,50 +1,57 @@
+// // let a;
+// // var b;
+// // const c = 1;
+// // let d = 2;
+// // const e = 3;
 
-// let a = 1;
-// let a = "Hello";
-// let b = "World";
-// console.log(a + " " + b);
-// console.log("Hello World");
+// // {
+// //   let a;
+// // }
+
 // var a;
-{
-  console.log("Hello");
-  // function b() {z̄
-  //   return a;
-  // };
-}
-
+// var a;
 
 // {
-//   let b = "World";
+//   var a;
 // }
-
-// {
-//   let b = 23;
-// }
-
-// {
-//   let b = 22;
-// }
-
 
 // {
 //   let a;
-//   let b = 32;
-//   var c = 12;
 // }
 
-// let a = 12;
+// let a;
 
 // function f() {
-//   var a = 13;
-//   {
-//     let b = 12;
+//   let x = a;
+//   return a;
+// }
+
+// var a;
+
+// var a;
+
+// var a;
+
+// function f() {
+//   function g() {
+//     return a + a;
 //   }
 // }
 
+// var a = 12;
+// var b = a;
+// console.log(b);
+let a = 12;
+function f() {
+  console.log(a);
+  return;
+}
+
+f();
+
+// var a = 12;
 // {
-//   let x;
+//   console.log(a);
 // }
 
-// let a = 12;
-
-// console.log("Hello World");
+// let a;

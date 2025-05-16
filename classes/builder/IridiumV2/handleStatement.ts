@@ -250,7 +250,7 @@ const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctionArgs>)
       );
     }
 
-    let currArg = `CLOSARG(${argIdx})`;
+    let currArg = `ARG${argIdx}`;
 
     cx.getCurrentContext().args.push(currArg);
 

@@ -315,6 +315,16 @@ const handleAssignmentExpression = (cx: IRIDIUMV2, node: JS3AssignmentExpression
 
 const handleCallExpression = (cx: IRIDIUMV2, node: JS3CallExpression) => {
   const args: Array<IridiumSEXP> = [];
+  if (isIdentifier(node.callee)) {
+    args.push(new ResolveEnvBindingSEXP(node.callee.name));
+  } else if (isJS3Import(node.callee)) {
+    args.push(new ResolveEnvBindingSEXP("import"));
+  } else if (isSuper(node.callee)) {
+    args.push(new ResolveEnvBindingSEXP("super"));
+  } else if (isV8IntrinsicIdentifier(node.callee)) {
+    args.push(new ResolveEnvBindingSEXP(node.callee.name));
+  }
+
   for (const a of node.arguments) {
     if (isIdentifier(a)) {
       args.push(new ResolveEnvBindingSEXP(a.name));
@@ -323,13 +333,13 @@ const handleCallExpression = (cx: IRIDIUMV2, node: JS3CallExpression) => {
     }
   }
   if (isIdentifier(node.callee)) {
-    return new CallSiteSEXP(node.callee.name, args, []);
+    return new CallSiteSEXP(args, []);
   } else if (isJS3Import(node.callee)) {
-    return new CallSiteSEXP(null, args, [["Import", null]]);
+    return new CallSiteSEXP(args, [["Import", null]]);
   } else if (isSuper(node.callee)) {
-    return new CallSiteSEXP(null, args, [["Super", null]]);
+    return new CallSiteSEXP(args, [["Super", null]]);
   } else if (isV8IntrinsicIdentifier(node.callee)) {
-    return new CallSiteSEXP(null, args, [["V8Intrinsic", null]]);
+    return new CallSiteSEXP(args, [["V8Intrinsic", null]]);
   }
   debugConfig.logger.throwIriError("Call Expression Unreachable Case...");
 }

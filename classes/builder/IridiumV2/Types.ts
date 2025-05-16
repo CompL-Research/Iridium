@@ -1,4 +1,5 @@
 import debugConfig from "#debugConfig";
+import { IridiumBuildContext } from "./IRIDIUMV2.ts";
 
 export type IridiumPrimitives = number | boolean | string | null;
 export class IridiumSEXP {
@@ -105,9 +106,127 @@ export function isBBSEXP(o: any): o is BBSEXP {
   return o.tag === "BB";
 }
 
+// (Primitive) Bindings
+export class BindingsSEXP extends IridiumSEXP {
+  constructor(parentScope: number) {
+    super("Bindings");
+    this.setFlag("ParentScope", parentScope);
+    this.args[0] = new ListSEXP([])
+    this.args[0].setFlag("LocalBindings");
+    this.args[1] = new ListSEXP([])
+    this.args[1].setFlag("RemoteBindings");
+    this.args[2] = new ListSEXP([])
+    this.args[2].setFlag("Lambdas");
+
+  }
+
+  getParentScope(): number {
+    const res = this.getFlag("ParentScope");
+    if (typeof res === "number") return res;
+    debugConfig.logger.throwIriError("Parent Scope Flag not found for BindingsSEXP");
+  }
+
+  getBinding(name: string, lookupScope: number): EnvBindingSEXP | RemoteEnvBindingSEXP | null {
+    if (lookupScope === -1) return null;
+    for (let b of this.args[0].args) {
+      if (isEnvBindingSEXP(b)) {
+        if (b.getScope() === lookupScope && b.getDeclaration() === name) return b;
+      } else 
+        debugConfig.logger.throwIriError("Expected EnvBindingSEXP");
+    }
+
+    for (let b of this.args[1].args) {
+      if (isRemoteEnvBindingSEXP(b)) {
+        let binding = this.resolveRemoteBinding(b);
+        if (binding.getScope() === lookupScope && binding.getDeclaration() === name) return b;
+      } else 
+        debugConfig.logger.throwIriError("Expected EnvBindingSEXP");
+    }
+    const nextScope = IridiumBuildContext.CONTEXT_MAP.get(lookupScope).parent;
+
+    return this.getBinding(name, nextScope);
+  }
+
+  hasBindingReference(idx: number, name: string, flag: JSEnvBindingFlags, localScope: number, parentScope: number) {
+    let localBindings = this.args[0].args;
+    let remoteBindings = this.args[1].args;
+    for (let b of localBindings) {
+      if (isEnvBindingSEXP(b)) {
+        if (
+          b.getID() === idx && 
+          b.getDeclaration() === name && 
+          b.getKind() === flag && 
+          b.getScope() === localScope && 
+          b.getParentScope() === parentScope) {
+          return true;
+        } 
+      } else
+        debugConfig.logger.throwIriError("Expected EnvBindingSEXP");
+    }
+    for (let b of remoteBindings) {
+      if (isRemoteEnvBindingSEXP(b)) {
+        let resolvedB = this.resolveRemoteBinding(b);
+        if (isEnvBindingSEXP(resolvedB)) {
+          if (
+            resolvedB.getID() === idx && 
+            resolvedB.getDeclaration() === name && 
+            resolvedB.getKind() === flag && 
+            resolvedB.getScope() === localScope && 
+            resolvedB.getParentScope() === parentScope) {
+            return true;
+          }
+        } else 
+          debugConfig.logger.throwIriError("Expected EnvBindingSEXP at the end of a RemoteEnvBindingSEXP");
+
+      } else 
+        debugConfig.logger.throwIriError("Expected RemoteEnvBindingSEXP");
+    }
+    return false;
+  }
+
+  addLambdaIDX(idx: number) {
+    this.args[2].args.push(new NumberSEXP(idx));
+  }
+
+  addLocalBinding(binding: EnvBindingSEXP) {
+    let localBindings = this.args[0].args;
+    localBindings.push(binding);
+  }
+
+  resolveRemoteBinding(binding: RemoteEnvBindingSEXP): EnvBindingSEXP {
+    let containedBinding = binding.args[0];
+    if (isEnvBindingSEXP(containedBinding)) {
+      return containedBinding;
+    } else if (isRemoteEnvBindingSEXP(containedBinding)) {
+      return this.resolveRemoteBinding(containedBinding);
+    }
+    debugConfig.logger.throwIriError("RemoteEnvBindingSEXP contains invalid object");
+  }
+
+  getIfremoteBindingExists(binding: EnvBindingSEXP) : RemoteEnvBindingSEXP | null {
+    for (let b of this.args[1].args) {
+      if (isRemoteEnvBindingSEXP(b)) {
+        let resolvedBinding = this.resolveRemoteBinding(b);
+        if (resolvedBinding === binding) return b;
+      } else debugConfig.logger.throwIriError("Expect remote env binding, found something else...");
+    }
+    return null;
+  }
+
+  addRemoteBinding(binding: RemoteEnvBindingSEXP) {
+    this.args[1].args.push(binding);
+  }
+}
+
+// @ts-ignore
+export function isBindingsSEXP(o: any): o is BindingsSEXP {
+  // @ts-ignore
+  return o.tag === "Bindings";
+}
+
+
 // (Primitive) ScopeDescriptor
 export type ScopeDescriptorSEXPFlags = BBSEXPFlags | "ScopeIDX" | "ParentIDX" | "GlobalEnv";
-
 export class ScopeDescriptorSEXP extends IridiumSEXP {
   constructor(scopeIDX: number, scopeFlag: BBSEXPFlags | "GlobalEnv") {
     super("ScopeDescriptor");
@@ -261,7 +380,6 @@ export function isScopeDescriptorSEXP(o: any): o is ScopeDescriptorSEXP {
   return o.tag === "ScopeDescriptor";
 }
 
-
 export class ScopeDescriptorContainerSEXP extends IridiumSEXP {
   constructor(sds: Array<ScopeDescriptorSEXP>) {
     super("ScopeDescriptorContainer");
@@ -279,25 +397,44 @@ export function isScopeDescriptorContainerSEXP(o: any): o is ScopeDescriptorCont
   return o.tag === "ScopeDescriptorContainer";
 }
 
-export type BBContainerSEXPFlags = "ClosureVAR" | "LocalVAR";
 export class BBContainerSEXP extends IridiumSEXP {
-  constructor(bbs: Array<BBSEXP>) {
+  constructor(startBBIDx: number, scopeIDX: number, bbs: Array<BBSEXP>) {
     super("BBContainer");
-    bbs.forEach(bb => this.addBB(bb));
-    this.setFlag("ClosureVAR", 0);
-    this.setFlag("LocalVAR", 0);
+    this.setFlag("StartBBIDX", startBBIDx);
+    this.setFlag("ScopeIDX", scopeIDX);
+    this.args[0] = new StringSEXP("UNRESOLVED");
+    this.args[1] = new ListSEXP(bbs);
+    this.args[1].setFlag("BBs")
   }
 
-  setClosureVarCount(count: number) {
-    this.setFlag("ClosureVAR", count);
+  getStartBBIDX(): number {
+    let res = this.getFlag("StartBBIDX");
+    if (typeof res === "number") return res;
+    debugConfig.logger.throwIriError("Expected StartBBIDX to be a number");
   }
 
-  setLocalVarCount(count: number) {
-    this.setFlag("LocalVAR", count);
+  getScopeIDX(): number {
+    let res = this.getFlag("ScopeIDX");
+    if (typeof res === "number") return res;
+    debugConfig.logger.throwIriError("Expected ScopeIDX to be a number");
+  }
+
+  setBindings(descriptor: BindingsSEXP) {
+    this.args[0] = descriptor;
+  }
+
+  getBindings(): BindingsSEXP {
+    let res = this.args[0]
+    if (isBindingsSEXP(res)) return res;
+    else debugConfig.logger.throwIriError("Expected BindingsSEXP");
+  }
+
+  BBs() {
+    return this.args[1].args;
   }
 
   addBB(bb: BBSEXP) {
-    this.args.push(bb);
+    this.args[1].args.push(bb);
   }
 }
 
@@ -445,9 +582,22 @@ export type LambdaSEXPFlags = "Pure" | "Fable" | "GFable" | "LexRO" | "LexRW" | 
 export class LambdaSEXP extends IridiumSEXP {
   constructor(bbIdx: number, closureFlag: [LambdaSEXPFlags, IridiumPrimitives][]) {
     super("Lambda");
-    this.flags.push(["IDX", bbIdx]);
+    this.flags.push(["StartBBIDX", bbIdx]);
     closureFlag.forEach(flag => this.flags.push(flag));
   }
+
+  getStartBBIDX() {
+    let res = this.getFlag("StartBBIDX");
+    if (typeof res === "number") return res;
+    debugConfig.logger.throwIriError("Failed to get the startBBIDX for lambda");
+  }
+}
+
+
+// @ts-ignore
+export function isLambdaSEXP(o: any): o is LambdaSEXP {
+  // @ts-ignore
+  return o.tag === "Lambda";
 }
 
 // (Primitive) GetClosArg
@@ -520,17 +670,57 @@ export function isGlobalBindingSEXP(o: any): o is GlobalBindingSEXP {
   return o.tag === "GlobalBinding";
 }
 
+export type RemoteEnvBindingSEXPFlags = "REFIDX";
+export class RemoteEnvBindingSEXP extends IridiumSEXP {
+  constructor(binding: IridiumSEXP, refIDX: number) {
+    super("RemoteEnvBinding");
+    this.setFlag("REFIDX", refIDX);
+    this.args.push(binding);
+  }
+
+  setREFIDX(val: number) {
+    this.setFlag("REFIDX", val);
+  }
+}
+
+// @ts-ignore
+export function isRemoteEnvBindingSEXP(o: any): o is RemoteEnvBindingSEXP {
+  // @ts-ignore
+  return o.tag === "RemoteEnvBinding";
+}
+
 // (Primitive) EnvBinding
 export type JSEnvBindingFlags = "JSARG" | "JSLET" | "JSCONST" | "JSVAR";
-export type EnvBindingFlags = "IDX" | "REFIDX" | "ClosureVAR" | "LocalVAR" | JSEnvBindingFlags;
+export type EnvBindingFlags = "IDX" | "REFIDX" | "ClosureVAR" | "LocalVAR" | "Scope" | "ParentScope" | JSEnvBindingFlags;
 export class EnvBindingSEXP extends IridiumSEXP {
-  static DECLARATION_IDX = 0;
-  constructor(b: string, flags: [JSEnvBindingFlags, null][]) {
+  constructor(refIdx:number, idx: number, b: string, flags: [JSEnvBindingFlags, null][], scope: number, parentScope: number) {
     super("EnvBinding");
     this.args.push(new StringSEXP(b));
     flags.forEach(flag => this.flags.push(flag));
-    this.flags.push(["IDX", EnvBindingSEXP.DECLARATION_IDX++])
-    this.flags.push(["REFIDX", -1]);
+    this.setFlag("IDX", idx);
+    this.setFlag("REFIDX", refIdx);
+    this.setFlag("Scope", scope);
+    this.setFlag("ParentScope", parentScope);
+  }
+
+  setScope(idx: number) {
+    this.setFlag("Scope", idx);
+  }
+
+  getScope() {
+    let res = this.getFlag("Scope");
+    if (typeof res === "number") return res;
+    debugConfig.logger.throwIriError("Scope flag not found");
+  }
+
+  setParentScope(idx: number) {
+    this.setFlag("ParentScope", idx);
+  }
+
+  getParentScope() {
+    let res = this.getFlag("ParentScope");
+    if (typeof res === "number") return res;
+    debugConfig.logger.throwIriError("ParentScope flag not found");
   }
 
   setRefIDX(idx: number) {
@@ -612,6 +802,10 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
 
   isObjDecl() {
     return this.hasFlag("JSOBJDES")
+  }
+
+  setRVal(val: IridiumSEXP) {
+    this.args[1] = val;
   }
 
   hasRVal() {
