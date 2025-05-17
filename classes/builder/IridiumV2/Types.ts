@@ -41,6 +41,37 @@ export class IridiumSEXP {
     }
     debugConfig.logger.throwIriError(`Failed to get flag: ${flag}`)
   }
+
+  getFlagNumber(flag: string): number {
+    const currFlag = this.flags.filter(e => e[0] === flag);
+    if (this.flags.filter(e => e[0] === flag).length === 1) {
+      let res = currFlag[0][1];
+      if (typeof res === "number") return res;
+      debugConfig.logger.throwIriError("Expected scope to be a number");
+    }
+    debugConfig.logger.throwIriError(`Failed to get flag: ${flag}`)
+  }
+
+  getFlagString(flag: string): string {
+    const currFlag = this.flags.filter(e => e[0] === flag);
+    if (this.flags.filter(e => e[0] === flag).length === 1) {
+      let res = currFlag[0][1];
+      if (typeof res === "string") return res;
+      debugConfig.logger.throwIriError("Expected scope to be a number");
+    }
+    debugConfig.logger.throwIriError(`Failed to get flag: ${flag}`)
+  }
+
+  getFlagBoolean(flag: string): boolean {
+    const currFlag = this.flags.filter(e => e[0] === flag);
+    if (this.flags.filter(e => e[0] === flag).length === 1) {
+      let res = currFlag[0][1];
+      if (typeof res === "boolean") return res;
+      debugConfig.logger.throwIriError("Expected scope to be a number");
+    }
+    debugConfig.logger.throwIriError(`Failed to get flag: ${flag}`)
+  }
+  
 }
 
 // =============== TopLevel ===============
@@ -49,93 +80,83 @@ export type FileSEXPFlags = "JSScript" | "JSModule";
 export class FileSEXP extends IridiumSEXP {
   constructor(flag: FileSEXPFlags = undefined) {
     super("File");
-    if (flag) this.flags.push([flag, null]);
+    if (flag) this.setFlag(flag, null);
+  }
+
+  // Flags
+  setFlag(flag: FileSEXPFlags, val: IridiumPrimitives) {
+    super.setFlag(flag, val);
   }
 };
 
-// =============== BBs ===============
-// (Primitive) BB
-export type BBSEXPFlags = "TopLevel" | "ClosureBoundary" | "Lexical";
-export class BBSEXP extends IridiumSEXP {
-  static bbIdx: number = 0;
-  idx: number
-  constructor(scopeIdx: number, flag: BBSEXPFlags = undefined) {
-    super("BB");
-    this.idx = BBSEXP.bbIdx++;
-    this.flags.push(["IDX", this.idx]);
-    this.flags.push(["Scope", scopeIdx]);
-    if (flag) this.flags.push([flag, null]);
-  }
-
-  getScope(): number {
-    let res = this.flags.filter(e => e[0] === "Scope")[0][1];
-    if (typeof res === "number") return res;
-    debugConfig.logger.throwIriError("Expected scope to be a number");
-  }
-
-  setBBFlag(flag: BBSEXPFlags) {
-    if (this.isTopLevel()) this.removeFlag("TopLevel");
-    if (this.isClosureBoundary()) this.removeFlag("ClosureBoundary");
-    if (this.isLexical()) this.removeFlag("Lexical");
-    this.setFlag(flag);
-  }
-
-  getBBFlag(): BBSEXPFlags {
-    if (this.isTopLevel()) return "TopLevel";
-    if (this.isClosureBoundary()) return "ClosureBoundary";
-    if (this.isLexical()) return "Lexical";
-    debugConfig.logger.throwIriError("No BB Flag found...");
-  }
-
-  isTopLevel() {
-    return this.flags.filter(e => e[0] === "TopLevel").length > 0
-  }
-
-  isClosureBoundary() {
-    return this.flags.filter(e => e[0] === "ClosureBoundary").length > 0
-  }
-
-  isLexical() {
-    return this.flags.filter(e => e[0] === "Lexical").length > 0
-  }
-}
-
-// @ts-ignore
-export function isBBSEXP(o: any): o is BBSEXP {
-  // @ts-ignore
-  return o.tag === "BB";
-}
-
+// =============== Bindings ===============
 // (Primitive) Bindings
+export type BindingsSEXPFlags = "ParentScope";
 export class BindingsSEXP extends IridiumSEXP {
   constructor(parentScope: number) {
     super("Bindings");
-    this.setFlag("ParentScope", parentScope);
-    this.args[0] = new ListSEXP([])
-    this.args[0].setFlag("LocalBindings");
-    this.args[1] = new ListSEXP([])
-    this.args[1].setFlag("RemoteBindings");
-    this.args[2] = new ListSEXP([])
-    this.args[2].setFlag("Lambdas");
+    this.setParentScope(parentScope);
 
+    const localBindings = new ListSEXP([]);
+    localBindings.setFlag("LocalBindings");
+    this.setLocalBindings(localBindings);
+
+    const remoteBindings = new ListSEXP([]);
+    localBindings.setFlag("RemoteBindings");
+    this.setRemoteBindings(remoteBindings);
+
+    const lambdas = new ListSEXP([]);
+    localBindings.setFlag("Lambdas");
+    this.setLambdas(lambdas);
+  }
+
+  // Flags
+  setParentScope(parentScope: number) {
+    this.setFlag("ParentScope", parentScope);
   }
 
   getParentScope(): number {
-    const res = this.getFlag("ParentScope");
-    if (typeof res === "number") return res;
-    debugConfig.logger.throwIriError("Parent Scope Flag not found for BindingsSEXP");
+    return this.getFlagNumber("ParentScope");
   }
 
+  // Args
+  setLocalBindings(bindingsListSEXP: ListSEXP) {
+    this.args[0] = bindingsListSEXP;
+  }
+
+  getLocalBindings() {
+    return this.args[0];
+  }
+
+  setRemoteBindings(remoteBindingsListSEXP: ListSEXP) {
+    this.args[1] = remoteBindingsListSEXP;
+  }
+
+  getRemoteBindings() {
+    return this.args[1];
+  }
+
+  setLambdas(lambdasListSEXP: ListSEXP) {
+    this.args[2] = lambdasListSEXP;
+  }
+
+  getLambdas() {
+    return this.args[2];
+  }
+
+  // Utility
   getBinding(name: string, lookupScope: number): EnvBindingSEXP | RemoteEnvBindingSEXP | null {
     if (lookupScope === -1) return null;
-    for (let b of this.args[0].args) {
+    // Check if a local is declared
+    for (let b of this.getLocalBindings().args) {
       if (isEnvBindingSEXP(b)) {
         if (b.getScope() === lookupScope && b.getDeclaration() === name) return b;
       } else 
         debugConfig.logger.throwIriError("Expected EnvBindingSEXP");
     }
 
-    for (let b of this.args[1].args) {
+    // Check if we referenced this as a remote binding
+    for (let b of this.getRemoteBindings().args) {
       if (isRemoteEnvBindingSEXP(b)) {
         let binding = this.resolveRemoteBinding(b);
         if (binding.getScope() === lookupScope && binding.getDeclaration() === name) return b;
@@ -148,12 +169,12 @@ export class BindingsSEXP extends IridiumSEXP {
   }
 
   hasBindingReference(idx: number, name: string, flag: JSEnvBindingFlags, localScope: number, parentScope: number) {
-    let localBindings = this.args[0].args;
-    let remoteBindings = this.args[1].args;
+    let localBindings = this.getLocalBindings().args;
+    let remoteBindings = this.getRemoteBindings().args;
     for (let b of localBindings) {
       if (isEnvBindingSEXP(b)) {
         if (
-          b.getID() === idx && 
+          b.getIDX() === idx && 
           b.getDeclaration() === name && 
           b.getKind() === flag && 
           b.getScope() === localScope && 
@@ -168,7 +189,7 @@ export class BindingsSEXP extends IridiumSEXP {
         let resolvedB = this.resolveRemoteBinding(b);
         if (isEnvBindingSEXP(resolvedB)) {
           if (
-            resolvedB.getID() === idx && 
+            resolvedB.getIDX() === idx && 
             resolvedB.getDeclaration() === name && 
             resolvedB.getKind() === flag && 
             resolvedB.getScope() === localScope && 
@@ -185,11 +206,12 @@ export class BindingsSEXP extends IridiumSEXP {
   }
 
   addLambdaIDX(idx: number) {
-    this.args[2].args.push(new NumberSEXP(idx));
+    let localBindings = this.getLambdas().args;
+    localBindings.push(new NumberSEXP(idx));
   }
 
   addLocalBinding(binding: EnvBindingSEXP) {
-    let localBindings = this.args[0].args;
+    let localBindings = this.getLocalBindings().args;
     localBindings.push(binding);
   }
 
@@ -203,18 +225,8 @@ export class BindingsSEXP extends IridiumSEXP {
     debugConfig.logger.throwIriError("RemoteEnvBindingSEXP contains invalid object");
   }
 
-  getIfremoteBindingExists(binding: EnvBindingSEXP) : RemoteEnvBindingSEXP | null {
-    for (let b of this.args[1].args) {
-      if (isRemoteEnvBindingSEXP(b)) {
-        let resolvedBinding = this.resolveRemoteBinding(b);
-        if (resolvedBinding === binding) return b;
-      } else debugConfig.logger.throwIriError("Expect remote env binding, found something else...");
-    }
-    return null;
-  }
-
   addRemoteBinding(binding: RemoteEnvBindingSEXP) {
-    this.args[1].args.push(binding);
+    this.getRemoteBindings().args.push(binding);
   }
 }
 
@@ -224,201 +236,101 @@ export function isBindingsSEXP(o: any): o is BindingsSEXP {
   return o.tag === "Bindings";
 }
 
-
-// (Primitive) ScopeDescriptor
-export type ScopeDescriptorSEXPFlags = BBSEXPFlags | "ScopeIDX" | "ParentIDX" | "GlobalEnv";
-export class ScopeDescriptorSEXP extends IridiumSEXP {
-  constructor(scopeIDX: number, scopeFlag: BBSEXPFlags | "GlobalEnv") {
-    super("ScopeDescriptor");
+// =============== BBs ===============
+// (Primitive) BB
+export type BBSEXPFlags = "IDX" | "ScopeIDX" | "TopLevel" | "ClosureBoundary" | "Lexical";
+export class BBSEXP extends IridiumSEXP {
+  static bbIdx: number = 0;
+  idx: number
+  constructor(scopeIDX: number, flag: BBSEXPFlags = undefined) {
+    super("BB");
+    this.idx = BBSEXP.bbIdx++;
+    this.setIDX(this.idx);
     this.setScopeIDX(scopeIDX);
-    this.setFlag(scopeFlag);
-    this.args.push(new ListSEXP([]));
-    this.args.push(new ListSEXP([]));
+    if (flag) this.flags.push([flag, null]);
   }
 
-  getClosureVarCount(): number {
-    let res = 0;
-    for (let b of this.getBindings().args) {
-      if (isEnvBindingSEXP(b)) {
-        if (b.hasFlag("ClosureVAR")) res++;
-      }
-    }
-
-    for (let b of this.getClosureBindings().args) {
-      if (isEnvBindingSEXP(b)) {
-        if (b.hasFlag("ClosureVAR")) res++;
-      }
-    }
-
-    return res;
+  // Flags
+  setIDX(idx: number) {
+    super.setFlag("IDX", idx);
   }
 
-  getLocalVarCount(): number {
-    let res = 0;
-    for (let b of this.getBindings().args) {
-      if (isEnvBindingSEXP(b)) {
-        if (b.hasFlag("LocalVAR")) res++;
-      }
-    }
-    return res;
-  }
-
-  getBindings(): ListSEXP {
-    return this.args[0];
-  }
-
-  getClosureBindings(): ListSEXP {
-    return this.args[1];
-  }
-
-  isGlobalEnv() {
-    return this.flags.filter(e => e[0] === "GlobalEnv").length > 0
-  }
-
-  isTopLevel() {
-    return this.flags.filter(e => e[0] === "TopLevel").length > 0
-  }
-
-  isClosureBoundary() {
-    return this.flags.filter(e => e[0] === "ClosureBoundary").length > 0
-  }
-
-  isLexical() {
-    return this.flags.filter(e => e[0] === "Lexical").length > 0
+  getIDX(): number {
+    return this.getFlagNumber("IDX");
   }
 
   setScopeIDX(scopeIDX: number) {
-    this.setFlag("ScopeIDX", scopeIDX);
+    super.setFlag("ScopeIDX", scopeIDX);
   }
 
   getScopeIDX(): number {
-    let res = this.getFlag("ScopeIDX");
-    if (typeof res === "number") return res;
-    debugConfig.logger.throwIriError("Expected parentIDX to be a number");
+    return this.getFlagNumber("ScopeIDX");
   }
 
-  setParentIDX(scopeIDX: number) {
-    this.setFlag("ParentIDX", scopeIDX);
+  setBBFlag(flag: BBSEXPFlags) {
+    if (this.isTopLevel())        this.removeFlag("TopLevel");
+    if (this.isClosureBoundary()) this.removeFlag("ClosureBoundary");
+    if (this.isLexical())         this.removeFlag("Lexical");
+    this.setFlag(flag);
   }
 
-  getParentIDX(): number {
-    if (this.hasFlag("ParentIDX")) {
-      let res = this.getFlag("ParentIDX");
-      if (typeof res === "number") return res;
-      debugConfig.logger.throwIriError("Expected parentIDX to be a number");
-    } else if (this.isGlobalEnv()) {
-      return -1;
-    } else {
-      debugConfig.logger.throwIriError("Expected parentIDX or Global Env");
-    }
-
+  getBBFlag(): BBSEXPFlags {
+    if (this.isTopLevel())        return "TopLevel";
+    if (this.isClosureBoundary()) return "ClosureBoundary";
+    if (this.isLexical())         return "Lexical";
+    debugConfig.logger.throwIriError("No BB Flag found...");
   }
 
-  hasBin(decls: IridiumSEXP, binding: string) {
-    if (isListSEXP(decls)) {
-      for (let d of decls.args) {
-        if (isEnvBindingSEXP(d) || isGlobalBindingSEXP(d)) {
-          if (d.getDeclaration() === binding) return true;
-        } else debugConfig.logger.throwIriError("Expected declarations to be EnvBindingSEXP | GlobalBindingSEXP")
-      }
-    } else debugConfig.logger.throwIriError("Declaration expected to be inside a ListSEXP");
-    return false;
+  // Utility
+  isTopLevel() {
+    return this.hasFlag("TopLevel");
   }
 
-  getBin(decls: IridiumSEXP, binding: string): EnvBindingSEXP | GlobalBindingSEXP {
-    if (isListSEXP(decls)) {
-      for (let d of decls.args) {
-        if (isEnvBindingSEXP(d) || isGlobalBindingSEXP(d)) {
-          if (d.getDeclaration() === binding) return d;
-        } else debugConfig.logger.throwIriError("Expected declarations to be EnvBindingSEXP | GlobalBindingSEXP")
-      }
-    } else debugConfig.logger.throwIriError("Declaration expected to be inside a ListSEXP");
-    return null;
+  isClosureBoundary() {
+    return this.hasFlag("ClosureBoundary");
   }
 
-  addBin(decls: IridiumSEXP, binding: EnvBindingSEXP | GlobalBindingSEXP) {
-    if (isListSEXP(decls)) {
-      if (this.hasBin(decls, binding.getDeclaration())) {
-        let oldBinding = this.getBin(decls, binding.getDeclaration());
-        if (isEnvBindingSEXP(binding) && oldBinding !== binding)
-          debugConfig.logger.throwIriError(`Expected only bindings, found duplicate for ${binding.getDeclaration()}`);
-      } else {
-        decls.args.push(binding);
-      }
-    } else debugConfig.logger.throwIriError("Declaration expected to be inside a ListSEXP");
-  }
-
-
-  hasDeclaration(binding: string) {
-    return this.hasBin(this.args[0], binding);
-  }
-
-  getDeclaration(binding: string) {
-    return this.getBin(this.args[0], binding);
-  }
-
-  addDeclaration(binding: EnvBindingSEXP | GlobalBindingSEXP) {
-    return this.addBin(this.args[0], binding);
-  }
-
-  hasLexicalRead(binding: string) {
-    return this.hasBin(this.args[1], binding);
-  }
-
-  getLexicalRead(binding: string) {
-    return this.getBin(this.args[1], binding);
-  }
-
-  addLexicalRead(binding: EnvBindingSEXP | GlobalBindingSEXP) {
-    return this.addBin(this.args[1], binding);
+  isLexical() {
+    return this.hasFlag("Lexical");
   }
 }
 
 // @ts-ignore
-export function isScopeDescriptorSEXP(o: any): o is ScopeDescriptorSEXP {
+export function isBBSEXP(o: any): o is BBSEXP {
   // @ts-ignore
-  return o.tag === "ScopeDescriptor";
+  return o.tag === "BB";
 }
 
-export class ScopeDescriptorContainerSEXP extends IridiumSEXP {
-  constructor(sds: Array<ScopeDescriptorSEXP>) {
-    super("ScopeDescriptorContainer");
-    sds.forEach(sd => this.addScopeDescriptor(sd));
-  }
-
-  addScopeDescriptor(bb: ScopeDescriptorSEXP) {
-    this.args.push(bb);
-  }
-}
-
-// @ts-ignore
-export function isScopeDescriptorContainerSEXP(o: any): o is ScopeDescriptorContainerSEXP {
-  // @ts-ignore
-  return o.tag === "ScopeDescriptorContainer";
-}
-
+export type BBContainerSEXPFlags = "StartBBIDX" | "ScopeIDX";
 export class BBContainerSEXP extends IridiumSEXP {
   constructor(startBBIDx: number, scopeIDX: number, bbs: Array<BBSEXP>) {
     super("BBContainer");
-    this.setFlag("StartBBIDX", startBBIDx);
-    this.setFlag("ScopeIDX", scopeIDX);
-    this.args[0] = new StringSEXP("UNRESOLVED");
-    this.args[1] = new ListSEXP(bbs);
-    this.args[1].setFlag("BBs")
+    this.setStartBBIDX(startBBIDx);
+    this.setScopeIDX(scopeIDX);
+    this.setBindings(new BindingsSEXP(-1));
+    const bbsSEXP = new ListSEXP(bbs);
+    bbsSEXP.setFlag("BBs");
+    this.setBBs(bbsSEXP)
+  }
+
+  // Flags
+  setStartBBIDX(startBBIDX: number) {
+    this.setFlag("StartBBIDX", startBBIDX);
   }
 
   getStartBBIDX(): number {
-    let res = this.getFlag("StartBBIDX");
-    if (typeof res === "number") return res;
-    debugConfig.logger.throwIriError("Expected StartBBIDX to be a number");
+    return this.getFlagNumber("StartBBIDX");
+  }
+
+  setScopeIDX(startBBIDX: number) {
+    this.setFlag("ScopeIDX", startBBIDX);
   }
 
   getScopeIDX(): number {
-    let res = this.getFlag("ScopeIDX");
-    if (typeof res === "number") return res;
-    debugConfig.logger.throwIriError("Expected ScopeIDX to be a number");
+    return this.getFlagNumber("ScopeIDX");
   }
 
+  // Args
   setBindings(descriptor: BindingsSEXP) {
     this.args[0] = descriptor;
   }
@@ -429,12 +341,17 @@ export class BBContainerSEXP extends IridiumSEXP {
     else debugConfig.logger.throwIriError("Expected BindingsSEXP");
   }
 
-  BBs() {
+  setBBs(bbs: ListSEXP) {
+    this.args[1] = bbs;
+  }
+
+  getBBs() {
     return this.args[1].args;
   }
 
+  // Utility
   addBB(bb: BBSEXP) {
-    this.args[1].args.push(bb);
+    this.getBBs().push(bb);
   }
 }
 
@@ -443,7 +360,6 @@ export function isBBContainerSEXP(o: any): o is BBContainerSEXP {
   // @ts-ignore
   return o.tag === "BBContainer";
 }
-
 
 // =============== RVals ===============
 // Literals
@@ -456,9 +372,7 @@ export class NumberSEXP extends IridiumSEXP {
   }
 
   getVal(): number {
-    const res = this.flags[0][1];
-    if (typeof res === "number") return res;
-    debugConfig.logger.throwIriError("Non number found inside NumberSEXP")
+    return this.getFlagNumber("IridiumPrimitive");
   }
 }
 
@@ -476,11 +390,10 @@ export class StringSEXP extends IridiumSEXP {
   }
 
   getVal(): string {
-    const res = this.flags[0][1];
-    if (typeof res === "string") return res;
-    debugConfig.logger.throwIriError("Non string found inside StringSEXP")
+    return this.getFlagString("IridiumPrimitive");
   }
 }
+
 // @ts-ignore
 export function isStringSEXP(o: any): o is StringSEXP {
   // @ts-ignore
@@ -488,10 +401,15 @@ export function isStringSEXP(o: any): o is StringSEXP {
 }
 
 // (Primitive) List
+export type ListSEXPFlags = "LocalBindings" | "RemoteBindings" | "Lambdas" | "BBs";
 export class ListSEXP extends IridiumSEXP {
   constructor(elems: Array<IridiumSEXP>) {
     super("List");
     elems.forEach(e => this.args.push(e));
+  }
+
+  setFlag(flag: ListSEXPFlags) {
+    super.setFlag(flag);
   }
 }
 
@@ -507,6 +425,10 @@ export class BooleanSEXP extends IridiumSEXP {
     super("Boolean");
     this.flags.push(["IridiumPrimitive", value]);
   }
+
+  getVal(): boolean {
+    return this.getFlagBoolean("IridiumPrimitive");
+  }
 }
 
 // @ts-ignore
@@ -514,7 +436,6 @@ export function isBooleanSEXP(o: any): o is BooleanSEXP {
   // @ts-ignore
   return o.tag === "Boolean";
 }
-
 
 // type JSBINOPS =  "**" | ">>>" | "==" | "===" | "!=" | "!==" | "in" | "instanceof" | "|>";
 const PrimitiveArithOP = ["+", "-", "/", "%", "*"];
@@ -574,22 +495,36 @@ export class JSNUBDSEXP extends IridiumSEXP {
   }
 }
 
+// (Extension) JSModuleStart
+export class JSModuleStartSEXP extends IridiumSEXP {
+  constructor() {
+    super("JSModuleStart");
+  }
+}
+
+// (Extension) JSModuleEnd
+export class JSModuleEndSEXP extends IridiumSEXP {
+  constructor() {
+    super("JSModuleEnd");
+  }
+}
+
 // Abstraction
 // (Primitive) Lambda
 export type JSLambdaFlags = "InferredName" | "StaticName" | "Strict";
-export type LambdaSEXPFlags = "Pure" | "Fable" | "GFable" | "LexRO" | "LexRW" | JSLambdaFlags;
-
 export class LambdaSEXP extends IridiumSEXP {
-  constructor(bbIdx: number, closureFlag: [LambdaSEXPFlags, IridiumPrimitives][]) {
+  constructor(bbIdx: number) {
     super("Lambda");
-    this.flags.push(["StartBBIDX", bbIdx]);
-    closureFlag.forEach(flag => this.flags.push(flag));
+    this.setStartBBIDX(bbIdx);
+  }
+
+  // Flags
+  setStartBBIDX(startBBIDX: number) {
+    this.setFlag("StartBBIDX", startBBIDX);
   }
 
   getStartBBIDX() {
-    let res = this.getFlag("StartBBIDX");
-    if (typeof res === "number") return res;
-    debugConfig.logger.throwIriError("Failed to get the startBBIDX for lambda");
+    return this.getFlagNumber("StartBBIDX");
   }
 }
 
@@ -598,16 +533,6 @@ export class LambdaSEXP extends IridiumSEXP {
 export function isLambdaSEXP(o: any): o is LambdaSEXP {
   // @ts-ignore
   return o.tag === "Lambda";
-}
-
-// (Primitive) GetClosArg
-export type GetClosArgSEXPFlags = "JSREST";
-export class GetClosArgSEXP extends IridiumSEXP {
-  constructor(argIDX: number) {
-    super("GetClosArg");
-    // if (argIDX >= 0) this.args.push(new NumberSEXP(argIDX));
-    this.flags.push(["IDX", argIDX]);
-  }
 }
 
 // (Primitive) Call
@@ -619,6 +544,7 @@ export class CallSiteSEXP extends IridiumSEXP {
     closureFlag.forEach(flag => this.flags.push(flag));
   }
 
+  // Utility
   isImportCall() {
     return this.hasFlag("Import");
   }
@@ -653,13 +579,10 @@ export class GlobalBindingSEXP extends IridiumSEXP {
     this.args.push(new StringSEXP(id));
   }
 
+  // Utility
   getDeclaration(): string {
     if (isStringSEXP(this.args[0])) return this.args[0].getVal();
     debugConfig.logger.throwIriError("Expected Env Declaration to declare a string");
-  }
-
-  toString() {
-    return `${this.tag}((${this.getDeclaration()}))`
   }
 
 }
@@ -674,12 +597,17 @@ export type RemoteEnvBindingSEXPFlags = "REFIDX";
 export class RemoteEnvBindingSEXP extends IridiumSEXP {
   constructor(binding: IridiumSEXP, refIDX: number) {
     super("RemoteEnvBinding");
-    this.setFlag("REFIDX", refIDX);
+    this.setREFIDX(refIDX);
     this.args.push(binding);
   }
 
+  // Flags
   setREFIDX(val: number) {
     this.setFlag("REFIDX", val);
+  }
+
+  getREFIDX(): number {
+    return this.getFlagNumber("REFIDX");
   }
 }
 
@@ -691,52 +619,52 @@ export function isRemoteEnvBindingSEXP(o: any): o is RemoteEnvBindingSEXP {
 
 // (Primitive) EnvBinding
 export type JSEnvBindingFlags = "JSARG" | "JSLET" | "JSCONST" | "JSVAR";
-export type EnvBindingFlags = "IDX" | "REFIDX" | "ClosureVAR" | "LocalVAR" | "Scope" | "ParentScope" | JSEnvBindingFlags;
+export type EnvBindingFlags = "IDX" | "REFIDX" | "Scope" | "ParentScope" | JSEnvBindingFlags;
 export class EnvBindingSEXP extends IridiumSEXP {
   constructor(refIdx:number, idx: number, b: string, flags: [JSEnvBindingFlags, null][], scope: number, parentScope: number) {
     super("EnvBinding");
     this.args.push(new StringSEXP(b));
     flags.forEach(flag => this.flags.push(flag));
+    this.setIDX(idx);
+    this.setREFIDX(refIdx);
+    this.setScope(scope);
+    this.setParentScope(parentScope);
+  }
+
+  // Flags
+  setIDX(idx: number) {
     this.setFlag("IDX", idx);
-    this.setFlag("REFIDX", refIdx);
-    this.setFlag("Scope", scope);
-    this.setFlag("ParentScope", parentScope);
+  }
+
+  getIDX(): number {
+    return this.getFlagNumber("IDX");
+  }
+
+  setREFIDX(idx: number) {
+    this.setFlag("REFIDX", idx);
+  }
+
+  getREFIDX(): number {
+    return this.getFlagNumber("REFIDX");
   }
 
   setScope(idx: number) {
     this.setFlag("Scope", idx);
   }
 
-  getScope() {
-    let res = this.getFlag("Scope");
-    if (typeof res === "number") return res;
-    debugConfig.logger.throwIriError("Scope flag not found");
+  getScope(): number {
+    return this.getFlagNumber("Scope");
   }
 
   setParentScope(idx: number) {
     this.setFlag("ParentScope", idx);
   }
 
-  getParentScope() {
-    let res = this.getFlag("ParentScope");
-    if (typeof res === "number") return res;
-    debugConfig.logger.throwIriError("ParentScope flag not found");
+  getParentScope(): number {
+    return this.getFlagNumber("ParentScope");
   }
 
-  setRefIDX(idx: number) {
-    this.setFlag("REFIDX", idx);
-  }
-
-  getRefIDX(): number {
-    let res = this.getFlag("REFIDX");
-    if (typeof res === "number") return res;
-    debugConfig.logger.throwIriError("REFIDX expected to be a number");
-  }
-
-  isRefIDXResolved(): boolean {
-    return this.hasFlag("REFIDX");
-  }
-
+  // Utility
   getDeclaration(): string {
     if (isStringSEXP(this.args[0])) return this.args[0].getVal();
     debugConfig.logger.throwIriError("Expected Env Declaration to declare a string");
@@ -749,13 +677,6 @@ export class EnvBindingSEXP extends IridiumSEXP {
     if (this.hasFlag("JSARG")) return "JSARG";
     debugConfig.logger.throwIriError("EnvBindingSEXP, unknown kind");
   }
-
-  getID(): number {
-    const res = this.getFlag("IDX");
-    if (typeof res === "number") return res;
-    debugConfig.logger.throwIriError("Expected Env Declaration id to declare a number");
-  }
-
 }
 
 // @ts-ignore
@@ -763,7 +684,6 @@ export function isEnvBindingSEXP(o: any): o is EnvBindingSEXP {
   // @ts-ignore
   return o.tag === "EnvBinding";
 }
-
 
 // (Primitive) EnvWrite
 export class EnvWriteSEXP extends IridiumSEXP {
@@ -792,6 +712,7 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
     if (flag) this.flags.push([flag, null]);
   }
 
+  // Utility
   isSimpleDecl() {
     return !(this.isArrayDecl() || this.isObjDecl());
   }
@@ -867,6 +788,7 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
     return res;
   }
 }
+
 // @ts-ignore
 export function isJSEnvWrite(o: any): o is JSEnvWriteSEXP {
   // @ts-ignore
@@ -911,10 +833,20 @@ export class JSComputedFieldWriteSEXP extends IridiumSEXP {
 
 // Control Flow
 // (Primitive) Goto
+export type GotoSEXPFlags = "IDX";
 export class GotoSEXP extends IridiumSEXP {
-  constructor(target: number) {
+  constructor(idx: number) {
     super("Goto");
-    this.flags.push(["IDX", target]);
+    this.setIDX(idx);
+  }
+
+  // Flags
+  setIDX(idx: number) {
+    this.setFlag("IDX", idx)
+  }
+
+  getIDX(): number {
+    return this.getFlagNumber("IDX");
   }
 }
 
@@ -927,22 +859,49 @@ export class ReturnSEXP extends IridiumSEXP {
 }
 
 // (Primitive) IfElseJump
+export type IfElseJumpSEXPFlags = "TRUE" | "FALSE";
 export class IfElseJumpSEXP extends IridiumSEXP {
   constructor(test: IridiumSEXP, trueTarget: number, falseTarget: number) {
     super("IfElseJump");
     this.args.push(test);
-    this.flags.push(["TRUE", trueTarget]);
-    this.flags.push(["FALSE", falseTarget]);
+    this.setTRUE(trueTarget);
+    this.setFALSE(falseTarget);
+  }
+
+  // Flags
+  setTRUE(idx: number) {
+    this.setFlag("TRUE", idx)
+  }
+
+  getTRUE(): number {
+    return this.getFlagNumber("TRUE");
+  }
+
+  setFALSE(idx: number) {
+    this.setFlag("FALSE", idx)
+  }
+
+  getFALSE(): number {
+    return this.getFlagNumber("FALSE");
   }
 }
 
 // (Primitive) IfJumpSEXP
+export type IfJumpSEXPFlags = "IDX";
 export class IfJumpSEXP extends IridiumSEXP {
   constructor(test: IridiumSEXP, target: number) {
     super("IfJump");
     this.args.push(test);
-    this.flags.push(["IDX", target]);
+    this.setIDX(target);
+  }
 
+  // Flags
+  setIDX(idx: number) {
+    this.setFlag("IDX", idx)
+  }
+
+  getIDX(): number {
+    return this.getFlagNumber("IDX");
   }
 }
 

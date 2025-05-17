@@ -5,9 +5,7 @@ import path from "path";
 import JS3Builder from "../JS3Builder.ts";
 import { JS3Program } from "../JS3Helpers/JS3Types.ts";
 import { IRIV2_STMT } from "./handleStatement.ts";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, GlobalBindingSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isGlobalBindingSEXP, isJSEnvWrite, isLambdaSEXP, isRemoteEnvBindingSEXP, isResolveEnvBindingSEXP, isScopeDescriptorContainerSEXP, isScopeDescriptorSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSNUBDSEXP, ListSEXP, RemoteEnvBindingSEXP, ScopeDescriptorContainerSEXP, ScopeDescriptorSEXP } from "./Types.ts";
-import { dumpSEXP } from "./PP.ts";
-import { file } from "bun";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, GlobalBindingSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSEnvWrite, isLambdaSEXP, isRemoteEnvBindingSEXP, isResolveEnvBindingSEXP, JSEnvBindingFlags, JSModuleEndSEXP, JSModuleStartSEXP, JSNUBDSEXP, RemoteEnvBindingSEXP } from "./Types.ts";
 
 export class IridiumBuildContext {
   static SID = 0;
@@ -39,10 +37,8 @@ export class IridiumBuildContext {
   }
 
   addContinuation() {
-    const continuationBB = new BBSEXP(this.scopeIdx, "Lexical");
-    const currentScope = this.getCurrentBB().flags.filter(e => e[0] === "Scope");
-    if (currentScope.length !== 1) debugConfig.logger.throwIriError("Expected exactly 1 Scope flag in every BB");
-    continuationBB.flags.map(e => e[0] === "Scope" && currentScope);
+    const currentScope = this.getCurrentBB().getIDX();
+    const continuationBB = new BBSEXP(currentScope, "Lexical");
     this.pushBB(continuationBB);
     return continuationBB;
   }
@@ -116,31 +112,23 @@ export class IRIDIUMV2 {
     this.container = mainContainer;
     const topLevelContext = new IridiumBuildContext(-1, undefined, "TopLevel");
     this.pushContext(topLevelContext);
+    this.getCurrentBB().args.push(new JSModuleStartSEXP());
     for (let s of program.body) {
       IRIV2_STMT(this, s);
     }
+    this.getCurrentBB().args.push(new JSModuleEndSEXP());
     this.popContext();
     if (this.buildContext.length !== 0) debugConfig.logger.throwIriError("Expected buildContext stack to be empty after build()");
 
-    // debugConfig.logger.log("" + dumpSEXP(this.container));
-
-    // debugConfig.logger.log("Initial code: " + dumpSEXP(this.container));
     this.normailzeBBFlags();
-    // debugConfig.logger.log("After 1st pass: " + dumpSEXP(this.container));
-    this.addScopeDescriptors();
-    // debugConfig.logger.log("After 2nd pass: " + dumpSEXP(this.container));
-    this.resolveBindings(this.container, 0);
-    // debugConfig.logger.log("After 3rd pass: " + dumpSEXP(this.container));
-    this.populateClosureReads(this.container, 0);
-    // debugConfig.logger.log("After 4th pass: " + dumpSEXP(this.container));
+    this.generateBBContainerSEXP();
+    this.reduceResolveEnvBindingSEXP(this.container, 0);
+    this.resolveLambdaTargets(this.container, 0);
     this.addIDXForRemoteBindings();
-    // debugConfig.logger.log("After 5th pass: " + dumpSEXP(this.container));
-    // this.countContainerStackSize();
-    // debugConfig.logger.log("After 6th pass: " + dumpSEXP(this.container));
   }
 
   // 
-  // Given a scopeIDX it returns its parent closure scopeIDX.
+  // Helper Functions
   // 
   findParentClosureScope(localScope: number) {
     if (localScope === -1) return -1;
@@ -150,47 +138,6 @@ export class IRIDIUMV2 {
     let startBB = buildContext.BB[0];
     if (startBB.isClosureBoundary() || startBB.isTopLevel()) return localScope;
     else return this.findParentClosureScope(buildContext.parent);
-  }
-
-  // 
-  // 5. Assign stack IDX to RemoteEnvBindingSEXP
-  // 
-  addIDXForRemoteBindings() {
-    const fileSexp = this.container;
-    for (let bb of fileSexp.args) {
-      if (isBBContainerSEXP(bb)) {
-        const bindings = bb.getBindings();
-        let i = 0;
-        for (let remoteBinding of bindings.args[1].args) {
-          if (isRemoteEnvBindingSEXP(remoteBinding)) {
-            remoteBinding.setREFIDX(i++);
-          } else debugConfig.logger.throwIriError("Expected RemoteEnvBindingSEXP");
-        }
-      }
-    }
-  }
-
-  // 
-  // 4. PopulateClosurePool: Populate the scope descriptor with lexical reads.
-  // 
-
-  populateClosureReads(currSEXP: IridiumSEXP, currBBScope: number) {
-    if (isLambdaSEXP(currSEXP)) {
-      // We will get the closure scope
-      const targetScopeIDX = this.findParentClosureScope(currBBScope);
-      if (targetScopeIDX < 0) debugConfig.logger.throwIriError("A binding must resolve in a valid scope, none found");
-      const bbContainer = this.getBBContainerSEXPByScopeId(targetScopeIDX);
-      const bindingsSEXP = bbContainer.getBindings();
-      bindingsSEXP.addLambdaIDX(currSEXP.getStartBBIDX());
-    }
-
-    if (isBBSEXP(currSEXP)) {
-      currSEXP.args.forEach(e => this.populateClosureReads(e, currSEXP.getScope()))
-    } else if (isScopeDescriptorContainerSEXP(currSEXP)) {
-      return;
-    } else {
-      currSEXP.args.forEach(e => this.populateClosureReads(e, currBBScope));
-    }
   }
 
   getBBContainerSEXPByScopeId(idx: number): BBContainerSEXP {
@@ -204,7 +151,7 @@ export class IRIDIUMV2 {
     debugConfig.logger.throwIriError("BBContainerSEXP not found for idx " + idx)
   }
 
-  resolveScopedLookup(name: string, startScope: number, bindingsSEXP: BindingsSEXP): RemoteEnvBindingSEXP | EnvBindingSEXP {    
+  resolveScopedLookup(name: string, startScope: number, bindingsSEXP: BindingsSEXP): RemoteEnvBindingSEXP | EnvBindingSEXP {
     let res = bindingsSEXP.getBinding(name, startScope);
     if (res) return res;
     else {
@@ -229,9 +176,50 @@ export class IRIDIUMV2 {
   }
 
   // 
-  // 3. ResolveBindings: Operations on environment are resolved to their declarations. 
+  // 5. Assign stack IDX to RemoteEnvBindingSEXP
   // 
-  resolveBindings(currSEXP: IridiumSEXP, currBBScope: number ) {
+  addIDXForRemoteBindings() {
+    const fileSexp = this.container;
+    for (let bb of fileSexp.args) {
+      if (isBBContainerSEXP(bb)) {
+        const bindings = bb.getBindings();
+        const remoteBindings = bindings.getRemoteBindings().args;
+        let i = 0;
+        for (let remoteBinding of remoteBindings) {
+          if (isRemoteEnvBindingSEXP(remoteBinding)) {
+            remoteBinding.setREFIDX(i++);
+          } else debugConfig.logger.throwIriError("Expected RemoteEnvBindingSEXP");
+        }
+      }
+    }
+  }
+
+  // 
+  // 4. PopulateClosurePool: Populate the scope descriptor with lexical reads.
+  // 
+  resolveLambdaTargets(currSEXP: IridiumSEXP, currBBScope: number) {
+    if (isLambdaSEXP(currSEXP)) {
+      // We will get the closure scope
+      const targetScopeIDX = this.findParentClosureScope(currBBScope);
+      if (targetScopeIDX < 0) debugConfig.logger.throwIriError("A binding must resolve in a valid scope, none found");
+      const bbContainer = this.getBBContainerSEXPByScopeId(targetScopeIDX);
+      const bindingsSEXP = bbContainer.getBindings();
+      bindingsSEXP.addLambdaIDX(currSEXP.getStartBBIDX());
+    }
+
+    if (isBBSEXP(currSEXP)) {
+      currSEXP.args.forEach(e => this.resolveLambdaTargets(e, currSEXP.getScopeIDX()))
+    } else if (isBindingsSEXP(currSEXP)) {
+      return;
+    } else {
+      currSEXP.args.forEach(e => this.resolveLambdaTargets(e, currBBScope));
+    }
+  }
+
+  // 
+  // 3. ReduceResolveEnvBindingSEXP: All scope lookups are resolved to their respective scope bindings
+  // 
+  reduceResolveEnvBindingSEXP(currSEXP: IridiumSEXP, currBBScope: number) {
     for (let i = 0; i < currSEXP.args.length; i++) {
       let s = currSEXP.args[i];
       if (isResolveEnvBindingSEXP(s)) {
@@ -253,33 +241,31 @@ export class IRIDIUMV2 {
       }
     }
     if (isBBSEXP(currSEXP)) {
-      currSEXP.args.forEach(e => this.resolveBindings(e, currSEXP.getScope()));
+      currSEXP.args.forEach(e => this.reduceResolveEnvBindingSEXP(e, currSEXP.getScopeIDX()));
     } else if (isBindingsSEXP(currSEXP)) {
       return;
     } else {
-      currSEXP.args.forEach(e => this.resolveBindings(e, currBBScope));
+      currSEXP.args.forEach(e => this.reduceResolveEnvBindingSEXP(e, currBBScope));
     }
   }
 
   // 
-  // 2. AddScopeDescriptors: Scope descriptor for each scope describes the bindings created in that scope, 
-  //                         metadata about that scope and lexical reads (this pass does not populate the lexical reads).
+  // 2. GenerateBBContainerSEXP: Generate BBContainerSEXP to group compilation targets
   // 
-
-  addScopeDescriptors() {
+  generateBBContainerSEXP() {
     const fileSexp = this.container;
 
     // Group BBs into closure groups
     let bbGroups: Map<number, BBContainerSEXP> = new Map();
     for (let bb of fileSexp.args) {
       if (isBBSEXP(bb)) {
-        let targetScopeIDX = this.findParentClosureScope(bb.getScope());
-        
+        let targetScopeIDX = this.findParentClosureScope(bb.getScopeIDX());
+
         if (!bbGroups.has(targetScopeIDX)) {
           let startBB = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).BB[0];
           if (isBBSEXP(startBB)) {
             bbGroups.set(targetScopeIDX, new BBContainerSEXP(startBB.idx, targetScopeIDX, []));
-          }else debugConfig.logger.throwIriError("Expected BBSEXP")
+          } else debugConfig.logger.throwIriError("Expected BBSEXP")
         }
         bbGroups.get(targetScopeIDX).addBB(bb);
       }
@@ -300,9 +286,9 @@ export class IRIDIUMV2 {
         const toRemove: Map<BBSEXP, Set<IridiumSEXP>> = new Map();
 
         // Identify bindings
-        for (let bb of bbContainer.BBs()) {
+        for (let bb of bbContainer.getBBs()) {
           if (isBBSEXP(bb)) {
-            const localScope = bb.getScope();
+            const localScope = bb.getScopeIDX();
             if (!hoistingInfo.has(localScope)) hoistingInfo.set(localScope, new Array());
 
             const parentClosureScope = this.findParentClosureScope(localScope);
@@ -382,7 +368,8 @@ export class IRIDIUMV2 {
         }
 
         // Add initializers to local scopes
-        for (let binding of [...bindingsSEXP.args[0].args, ...bindingsSEXP.args[1].args]) {
+        const bindingsToInit = [...bindingsSEXP.getLocalBindings().args, ...bindingsSEXP.getRemoteBindings().args];
+        for (let binding of bindingsToInit) {
           if (isEnvBindingSEXP(binding)) {
             let startBB = IridiumBuildContext.CONTEXT_MAP.get(binding.getScope()).BB[0];
             let lValName = binding.getDeclaration();
@@ -410,7 +397,7 @@ export class IRIDIUMV2 {
               }
               startBB.args = [new EnvWriteSEXP(lValName, rVal), ...startBB.args];
             }
-          } else 
+          } else
             debugConfig.logger.throwIriError("Expected EnvBindingSEXP");
         }
 
@@ -420,7 +407,7 @@ export class IRIDIUMV2 {
   }
 
   // 
-  // 1. NormalizeBBFlags: all BBs operating on the same scope has the same scope flag 
+  // 1. NormalizeBBFlags: Ensure all BBs operating on the same scope has the same scope flag 
   // 
   normailzeBBFlags() {
     for (let [scopeIdx, buildContext] of IridiumBuildContext.CONTEXT_MAP) {

@@ -41,13 +41,15 @@
 // var a = 12;
 // var b = a;
 // console.log(b);
-let a = 12;
-function f() {
-  console.log(a);
-  return;
-}
+// let a = 112;
+// function f() {
+//   function g() {
+//     return console.log(a);
+//   }
+//   return g();
+// }
 
-f();
+// f();
 
 // var a = 12;
 // {
@@ -55,3 +57,19 @@ f();
 // }
 
 // let a;
+
+// {
+//   console.log(a);
+//   let a;
+// }
+
+// let a = 12;
+
+// if (a == 12) {
+//   console.log("If Case");
+// }
+
+// let a = true;
+// if (a) {
+//   console.log("True Branch");  
+// }
