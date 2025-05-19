@@ -1,10 +1,10 @@
-import { isJS3ArrayExpression, isJS3ArrayPattern, isJS3AssignmentExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3Import, isJS3MemberExpression, isJS3ObjectExpression, isJS3ObjectPattern, isJS3PrivateName, JS3ArrayExpression, JS3AssignmentExpression, JS3AssnInit, JS3BlockStatement_body, JS3CallExpression, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3ObjectExpression } from "../JS3Helpers/JS3Types.ts";
+import { isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, JS3ArrayExpression, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3BlockStatement_body, JS3CallExpression, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3ObjectExpression, JS3ObjectMethod } from "../JS3Helpers/JS3Types.ts";
 import { IRIDIUMV2 } from "./IRIDIUMV2.ts";
 import debugConfig from "#debugConfig";
-import { BinopSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSArraySEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSEnvWriteSEXP, JSSpreadSEXP, NumberSEXP, ResolveEnvBindingSEXP, StringSEXP } from "./Types.ts";
-import { Expression, Identifier, isArrowFunctionExpression, isClassExpression, isFunctionExpression, isIdentifier, isOptionalMemberExpression, isSpreadElement, isSuper, isThisExpression, isV8IntrinsicIdentifier } from "@babel/types";
+import { BinopSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSArraySEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSComputedObjectMethodSEXP, JSComputedObjectPropSEXP, JSEnvWriteSEXP, JSObjectMethodSEXP, JSObjectPropSEXP, JSObjectSEXP, JSSpreadSEXP, JSThisContextSEXP, LambdaSEXP, NumberSEXP, ResolveEnvBindingSEXP, StringSEXP } from "./Types.ts";
+import { BigIntLiteral, Expression, Identifier, isArrowFunctionExpression, isBigIntLiteral, isClassExpression, isFunctionExpression, isIdentifier, isNumericLiteral, isOptionalMemberExpression, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, NumericLiteral, StringLiteral } from "@babel/types";
 import { handleExpression, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpression.ts";
-import { getArrayDestSEXP, getObjectDestSEXP, IRIV2_STMT } from "./handleStatement.ts";
+import { getArrayDestSEXP, getObjectDestSEXP, IRIV2_STMT, lowerArgumentInit } from "./handleStatement.ts";
 import { handleMemberAssignment } from "../IridiumHelpers/Passes/PTA-UOW/PTA/handlers.ts";
 
 // Handle RValues | AMP
@@ -86,10 +86,10 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   //   return this.handleJS3AwaitExpression(init);
   // }
 
-  // // This Expression
-  // else if (isThisExpression(init)) {
-  //   return this.handleThisExpression(init);
-  // }
+  // This Expression
+  else if (isThisExpression(init)) {
+    return new EnvReadSEXP("this");
+  }
 
   // JS3CallExpression
   else if (isJS3CallExpression(init)) {
@@ -131,15 +131,15 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
     return handleObjectExpression(cx, init);
   }
 
-  // // JS3FunctionExpression
-  // else if (isJS3FunctionExpression(init)) {
-  //   return this.handleJS3FunctionExpression(init);
-  // }
+  // JS3FunctionExpression
+  else if (isJS3FunctionExpression(init)) {
+    return handleFunctionExpression(cx, init);
+  }
 
-  // // JS3ArrowFunctionExpression
-  // else if (isJS3ArrowFunctionExpression(init)) {
-  //   return this.handleJS3ArrowFunctionExpression(init);
-  // }
+  // JS3ArrowFunctionExpression
+  else if (isJS3ArrowFunctionExpression(init)) {
+    return handleArrowFunctionExpression(cx, init);
+  }
 
   // JS3ArrayExpression
   else if (isJS3ArrayExpression(init)) {
@@ -285,9 +285,9 @@ const handleAssignmentExpression = (cx: IRIDIUMV2, node: JS3AssignmentExpression
     }
 
     if (init.computed) {
-      return new JSComputedFieldWriteSEXP(obj, prop)
+      return new JSComputedFieldWriteSEXP(obj, prop, IRIV2_RVAL(cx, right))
     } else {
-      return new FieldWriteSEXP(obj, prop);
+      return new FieldWriteSEXP(obj, prop, IRIV2_RVAL(cx, right));
     }
   }
 
@@ -310,7 +310,40 @@ const handleAssignmentExpression = (cx: IRIDIUMV2, node: JS3AssignmentExpression
     envWrite.flags.push(["JSOBJDES", null])
     return envWrite;
   }
+}
 
+const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | JS3ObjectMethod) => {
+  // Lower Function code
+  const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
+  const funBB = funcContext.getCurrentBB();
+  const funBBIdx = funBB.idx;
+
+  lowerArgumentInit(cx, node.params);
+
+  cx.getCurrentBB().args.push(new JSThisContextSEXP());
+
+  for (const s of node.body.body) {
+    IRIV2_STMT(cx, s);
+  }
+  cx.popContext();
+
+  return new LambdaSEXP(funBBIdx);
+}
+
+const handleArrowFunctionExpression = (cx: IRIDIUMV2, node: JS3ArrowFunctionExpression) => {
+  // Lower Function code
+  const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
+  const funBB = funcContext.getCurrentBB();
+  const funBBIdx = funBB.idx;
+
+  lowerArgumentInit(cx, node.params);
+
+  for (const s of node.body.body) {
+    IRIV2_STMT(cx, s);
+  }
+  cx.popContext();
+
+  return new LambdaSEXP(funBBIdx);
 }
 
 const handleCallExpression = (cx: IRIDIUMV2, node: JS3CallExpression) => {
@@ -390,16 +423,32 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
   return new JSArraySEXP(args);
 }
 
-const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
-  debugConfig.logger.throwIriError("IRIV2 TODO: JS3ObjectExpression");
+// Identifier | StringLiteral | NumericLiteral | BigIntLiteral -> string
+const getObjKeyString = (key: Identifier | StringLiteral | NumericLiteral | BigIntLiteral) : string =>
+{
+  if (isIdentifier(key)) return key.name
+  else return '' + key.value  
+}
 
-  return null;
-  // const args = init.properties.map((e) => {
-  //   if (isJS3MemberExpression(e)) {
-  //     return IRIV2_RVAL(cx, e);
-  //   } else {
-  //     debugConfig.logger.throwIriError("IRIV2 TODO: Object Expression Spread");
-  //   }
-  // });
-  // return new JSObjectSEXP(args);
+const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
+  const args = init.properties.map((e) => {
+    // JS3ObjectMethod | JS3ObjectProperty | JS3SpreadElement
+    if (isJS3ObjectMethod(e)) {
+      if (e.computed) {
+        e.kind
+        return new JSComputedObjectMethodSEXP(IRIV2_RVAL(cx, e.key), handleFunctionExpression(cx, e), e.kind);
+      } else {
+        return new JSObjectMethodSEXP(getObjKeyString(e.key), handleFunctionExpression(cx, e), e.kind);
+      }
+    } else if (isJS3ObjectProperty(e)) {
+      if (e.computed) {
+        return new JSComputedObjectPropSEXP(IRIV2_RVAL(cx, e.key), IRIV2_RVAL(cx, e.value));
+      } else {
+        return new JSObjectPropSEXP(getObjKeyString(e.key), IRIV2_RVAL(cx, e.value));
+      }
+    } else {
+      debugConfig.logger.throwIriError("IRIV2 TODO: Object Expression Spread");
+    }
+  });
+  return new JSObjectSEXP(args);
 }

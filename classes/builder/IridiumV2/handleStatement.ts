@@ -4,7 +4,7 @@ import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
 import { generateIdentifier, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
 import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3MemberExpression, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3FunctionDeclaration, JS3IfStatement, JS3MemberExpression, JS3ObjectPattern, JS3ReturnStatement, JS3VariableDeclaration, JS3VariableDeclarator_init } from "../JS3Helpers/JS3Types.ts";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2.ts";
-import { EnvReadSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, LambdaSEXP, ListSEXP, ResolveEnvBindingSEXP, ReturnSEXP, StringSEXP } from "./Types.ts";
+import { EnvReadSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSThisContextSEXP, LambdaSEXP, ListSEXP, ResolveEnvBindingSEXP, ReturnSEXP, StringSEXP } from "./Types.ts";
 import { IRIV2_RVAL } from "./handleRVal.ts";
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
@@ -213,7 +213,7 @@ export const getObjectDestSEXP = (stmt: JS3ObjectPattern): [IridiumSEXP, boolean
   return [new ListSEXP(sexps), hasRest];
 }
 
-const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctionArgs>) => {
+export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctionArgs>) => {
   let i = 0;
   for (const arg of params) {
     //
@@ -331,12 +331,15 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
 
   lowerArgumentInit(cx, stmt.params);
 
+  cx.getCurrentBB().args.push(new JSThisContextSEXP());
+
   for (const s of stmt.body.body) {
     IRIV2_STMT(cx, s);
   }
   cx.popContext();
 
   cx.getCurrentBB().args.push(
-    new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(stmt.id.name), new LambdaSEXP(funBBIdx), "JSLET")
+    new JSFuncDeclSEXP(new ResolveEnvBindingSEXP(stmt.id.name), new LambdaSEXP(funBBIdx))
   );
+
 }

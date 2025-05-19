@@ -102,11 +102,11 @@ export class BindingsSEXP extends IridiumSEXP {
     this.setLocalBindings(localBindings);
 
     const remoteBindings = new ListSEXP([]);
-    localBindings.setFlag("RemoteBindings");
+    remoteBindings.setFlag("RemoteBindings");
     this.setRemoteBindings(remoteBindings);
 
     const lambdas = new ListSEXP([]);
-    localBindings.setFlag("Lambdas");
+    lambdas.setFlag("Lambdas");
     this.setLambdas(lambdas);
   }
 
@@ -472,12 +472,102 @@ export class JSArraySEXP extends IridiumSEXP {
   }
 }
 
+// @ts-ignore
+export function isJSArraySEXP(o: any): o is JSArraySEXP {
+  // @ts-ignore
+  return o.tag === "JSArray";
+}
+
+// (Extension) JSObjectProp
+export class JSComputedObjectPropSEXP extends IridiumSEXP {
+  constructor(key: IridiumSEXP, value: IridiumSEXP) {
+    super("JSComputedObjectProp");
+    this.args.push(key);
+    this.args.push(value);
+  }
+}
+
+// @ts-ignore
+export function isJSComputedObjectPropSEXP(o: any): o is JSComputedObjectPropSEXP {
+  // @ts-ignore
+  return o.tag === "JSComputedObjectProp";
+}
+
+// (Extension) JSObjectProp
+export class JSObjectPropSEXP extends IridiumSEXP {
+  constructor(key: string, value: IridiumSEXP) {
+    super("JSObjectProp");
+    this.args.push(new StringSEXP(key));
+    this.args.push(value);
+  }
+}
+
+// @ts-ignore
+export function isJSObjectPropSEXP(o: any): o is JSObjectPropSEXP {
+  // @ts-ignore
+  return o.tag === "JSObjectProp";
+}
+
+// (Extension) JSComputedObjectMethod
+type JSComputedObjectMethodSEXPFlags = "GET" | "SET" | "METHOD";
+export class JSComputedObjectMethodSEXP extends IridiumSEXP {
+  constructor(key: IridiumSEXP, value: IridiumSEXP, kind: string) {
+    super("JSComputedObjectMethod");
+    this.args.push(key);
+    this.args.push(value);
+    if (kind === "method") this.setFlag("METHOD");
+    else if (kind === "get") this.setFlag("GET");
+    else if (kind === "set") this.setFlag("SET");
+    else debugConfig.logger.throwIriError("Object method kind is invalid");
+  }
+}
+
+// @ts-ignore
+export function isJSComputedObjectMethodSEXP(o: any): o is JSComputedObjectMethodSEXP {
+  // @ts-ignore
+  return o.tag === "JSComputedObjectMethod";
+}
+
+// (Extension) JSObjectMethod
+type JSObjectMethodSEXPFlags = "GET" | "SET" | "METHOD";
+export class JSObjectMethodSEXP extends IridiumSEXP {
+  constructor(key: string, value: IridiumSEXP, kind: string) {
+    super("JSObjectMethod");
+    this.args.push(new StringSEXP(key));
+    this.args.push(value);
+    if (kind === "method") this.setFlag("METHOD");
+    else if (kind === "get") this.setFlag("GET");
+    else if (kind === "set") this.setFlag("SET");
+    else debugConfig.logger.throwIriError("Object method kind is invalid");
+  }
+}
+
+// @ts-ignore
+export function isJSObjectMethodSEXP(o: any): o is JSObjectMethodSEXP {
+  // @ts-ignore
+  return o.tag === "JSObjectMethod";
+}
+
 // (Extension) JSObject
 export class JSObjectSEXP extends IridiumSEXP {
   constructor(vals: Array<IridiumSEXP>) {
     super("JSObject");
     vals.forEach(e => this.args.push(e));
   }
+}
+
+// (Extension) JSTHISINIT
+export class JSTHISINITSEXP extends IridiumSEXP {
+  constructor(ref: IridiumSEXP) {
+    super("JSTHISINIT");
+    this.args.push(ref);
+  }
+}
+
+// @ts-ignore
+export function isJSObjectSEXP(o: any): o is JSObjectSEXP {
+  // @ts-ignore
+  return o.tag === "JSObject";
 }
 
 // (Extension) JSSpread
@@ -685,6 +775,19 @@ export function isEnvBindingSEXP(o: any): o is EnvBindingSEXP {
   return o.tag === "EnvBinding";
 }
 
+// (Extension) JSThisContext
+export class JSThisContextSEXP extends IridiumSEXP {
+  constructor() {
+    super("JSThisContext");
+  }
+}
+
+// @ts-ignore
+export function isJSThisContextSEXP(o: any): o is JSThisContextSEXP {
+  // @ts-ignore
+  return o.tag === "JSThisContext";
+}
+
 // (Primitive) EnvWrite
 export class EnvWriteSEXP extends IridiumSEXP {
   lval: string
@@ -789,6 +892,28 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
   }
 }
 
+// (Extension) JSEnvWrite
+export class JSFuncDeclSEXP extends IridiumSEXP {
+  constructor(lval: IridiumSEXP, rval: IridiumSEXP) {
+    super("JSFuncDecl");
+    this.args.push(lval);
+    this.args.push(rval);
+  }
+}
+
+// @ts-ignore
+export function isJSFuncDeclSEXP(o: any): o is JSFuncDeclSEXP {
+  // @ts-ignore
+  return o.tag === "JSFuncDecl";
+}
+
+// (Primitive) NOP
+export class NOPSEXP extends IridiumSEXP {
+  constructor() {
+    super("NOP");
+  }
+}
+
 // @ts-ignore
 export function isJSEnvWrite(o: any): o is JSEnvWriteSEXP {
   // @ts-ignore
@@ -809,25 +934,27 @@ export class JSComputedFieldReadSEXP extends IridiumSEXP {
   constructor(object: string, field: string) {
     super("JSComputedFieldRead");
     this.args.push(new ResolveEnvBindingSEXP(object));
-    this.args.push(new StringSEXP(field));
+    this.args.push(new EnvReadSEXP(field));
   }
 }
 
 // (Primitive) FieldWrite
 export class FieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: string) {
+  constructor(object: string, field: string, right: IridiumSEXP) {
     super("FieldWrite");
     this.args.push(new ResolveEnvBindingSEXP(object));
     this.args.push(new StringSEXP(field));
+    this.args.push(right);
   }
 }
 
 // (Extended) JSComputedFieldRead
 export class JSComputedFieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: string) {
+  constructor(object: string, field: string, right: IridiumSEXP) {
     super("JSComputedFieldWrite");
     this.args.push(new ResolveEnvBindingSEXP(object));
     this.args.push(new StringSEXP(field));
+    this.args.push(right);
   }
 }
 
