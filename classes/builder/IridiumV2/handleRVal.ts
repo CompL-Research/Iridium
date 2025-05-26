@@ -1,8 +1,8 @@
-import { isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, JS3ArrayExpression, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3BlockStatement_body, JS3CallExpression, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3ObjectExpression, JS3ObjectMethod } from "../JS3Helpers/JS3Types.ts";
+import { isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ClassExpression, isJS3ClassMethod, isJS3ClassPrivateMethod, isJS3ClassPrivateProperty, isJS3ClassProperty, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, isJS3StaticBlock, JS3ArrayExpression, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3BlockStatement_body, JS3CallExpression, JS3ClassExpression, JS3ClassMethod, JS3ClassProperty, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3NewExpression, JS3ObjectExpression, JS3ObjectMethod } from "../JS3Helpers/JS3Types.ts";
 import { IRIDIUMV2 } from "./IRIDIUMV2.ts";
 import debugConfig from "#debugConfig";
-import { BinopSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSArraySEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSComputedObjectMethodSEXP, JSComputedObjectPropSEXP, JSEnvWriteSEXP, JSObjectMethodSEXP, JSObjectPropSEXP, JSObjectSEXP, JSSpreadSEXP, JSThisContextSEXP, LambdaSEXP, NumberSEXP, ResolveEnvBindingSEXP, StringSEXP } from "./Types.ts";
-import { BigIntLiteral, Expression, Identifier, isArrowFunctionExpression, isBigIntLiteral, isClassExpression, isFunctionExpression, isIdentifier, isNumericLiteral, isOptionalMemberExpression, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, NumericLiteral, StringLiteral } from "@babel/types";
+import { BinopSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSComputedObjectMethodSEXP, JSComputedObjectPropSEXP, JSEnvWriteSEXP, JSNUBDSEXP, JSObjectMethodSEXP, JSObjectPropSEXP, JSObjectSEXP, JSSpreadSEXP, JSThisContextSEXP, JSTHISINITSEXP, LambdaSEXP, NumberSEXP, ResolveEnvBindingSEXP, ReturnSEXP, StringSEXP } from "./Types.ts";
+import { assignmentExpression, BigIntLiteral, Expression, identifier, Identifier, isArrowFunctionExpression, isBigIntLiteral, isBooleanLiteral, isClassExpression, isDecimalLiteral, isFunctionExpression, isIdentifier, isNullLiteral, isNumericLiteral, isOptionalMemberExpression, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, NumericLiteral, StringLiteral, thisExpression } from "@babel/types";
 import { handleExpression, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpression.ts";
 import { getArrayDestSEXP, getObjectDestSEXP, IRIV2_STMT, lowerArgumentInit } from "./handleStatement.ts";
 import { handleMemberAssignment } from "../IridiumHelpers/Passes/PTA-UOW/PTA/handlers.ts";
@@ -146,10 +146,10 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
     return handleArrayExpression(cx, init);
   }
 
-  // // JS3NewExpression
-  // else if (isJS3NewExpression(init)) {
-  //   return this.handleJS3NewExpression(init);
-  // }
+  // JS3NewExpression
+  else if (isJS3NewExpression(init)) {
+    return handleNewExpression(cx, init);
+  }
 
   // // JS3UnaryExpression
   // else if (isJS3UnaryExpression(init)) {
@@ -161,10 +161,10 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   //   return this.handleJS3UpdateExpression(init);
   // }
 
-  // // JS3ClassExpression
-  // else if (isJS3ClassExpression(init)) {
-  //   return this.handleJS3ClassExpression(init);
-  // }
+  // JS3ClassExpression
+  else if (isJS3ClassExpression(init)) {
+    return handleClassExpression(cx, init);
+  }
 
   // //
   // // Handlers
@@ -192,6 +192,206 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
     `IRIDIUM: Unhandled RVAL ${init.type}, ${init.js3type ? init.js3type : undefined}`,
   );
   return null;
+}
+
+const allocateComputedPropSpaces = (cx: IRIDIUMV2, node: JS3ClassExpression): Map<JS3ClassProperty | JS3ClassMethod, string> => {
+  const computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod, string> = new Map();
+  for (let classItem of node.body.body) {
+    if (isJS3ClassProperty(classItem) || isJS3ClassMethod(classItem)) {
+      if (classItem.computed) {
+        let targetID = cx.js3Builder.utils.getNewTemporary("computedProp");
+        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(targetID), null, "JSLET"));
+        computedPropMapping.set(classItem, targetID);
+      }
+    } else if (isJS3ClassPrivateProperty(classItem) || isJS3ClassPrivateMethod(classItem)) {
+      debugConfig.logger.throwIriError("Private Fields and methods not yet handled");
+    }
+  }
+  return computedPropMapping;
+}
+
+const createNameInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod, string>) => {
+  let targetID = cx.js3Builder.utils.getNewTemporary("nameInitClosure");
+  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(targetID), null, "JSLET"));
+
+  const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
+  const funBBIdx = funcContext.getCurrentBB().idx;
+
+  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("this"), new GlobalBindingSEXP("undefined"), "JSCONST"));
+  if (isIdentifier(node.id))
+    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(node.id.name), new JSNUBDSEXP(), "JSCONST"));
+
+  for (let classItem of node.body.body) {
+    if (isJS3StaticBlock(classItem)) {
+      continue;
+    } else if (isJS3ClassProperty(classItem) || isJS3ClassMethod(classItem)) {
+      if (classItem.computed) {
+        if (!computedPropMapping.has(classItem)) debugConfig.logger.throwIriError("Expected computed props to have a location already allocated...");
+        const computedPropLoc = computedPropMapping.get(classItem);
+        const keyLoweredTo = lowerExprToResolveEnvBindingSEXP(cx, classItem.key);
+        cx.getCurrentBB().args.push(new EnvWriteSEXP(computedPropLoc, new EnvReadSEXP(keyLoweredTo.getBindingName())));
+      }
+    } else if (isJS3ClassPrivateProperty(classItem) || isJS3ClassPrivateMethod(classItem)) {
+      debugConfig.logger.throwIriError("Private Fields and methods not yet handled");
+    }
+  }
+  cx.getCurrentBB().args.push(new ReturnSEXP(new GlobalBindingSEXP("undefined")));
+  cx.popContext();
+  cx.getCurrentBB().args.push(new EnvWriteSEXP(targetID, new LambdaSEXP(funBBIdx)));
+
+  return targetID;
+}
+
+const createInstanceFieldInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod, string>): string => {
+  let targetID = cx.js3Builder.utils.getNewTemporary("classInstanceFieldsInit");
+  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(targetID), null, "JSLET"));
+
+  const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
+  const funBBIdx = funcContext.getCurrentBB().idx;
+
+  cx.getCurrentBB().args.push(new JSThisContextSEXP());
+
+  for (let classItem of node.body.body) {
+    if (isJS3StaticBlock(classItem)) {
+      continue;
+    } else if (isJS3ClassProperty(classItem)) {
+      if (!classItem.static) {
+        let memberExpr;
+        if (classItem.computed) {
+          memberExpr = memberExpression(thisExpression(), identifier(computedPropMapping.get(classItem)), true);
+        } else {
+          let lookupField: string;
+          // Identifier | DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | OptionalCallExpression | OptionalMemberExpression | Expression
+          if (isIdentifier(classItem.key)) lookupField = classItem.key.name;
+          else if (isDecimalLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isBigIntLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isStringLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isNumericLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isNullLiteral(classItem.key)) lookupField = "null";
+          else if (isBooleanLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else debugConfig.logger.throwIriError("Unhandled static lookup field name");
+          memberExpr = memberExpression(thisExpression(), identifier(lookupField), false);
+        }
+
+        lowerExprToResolveEnvBindingSEXP(cx, assignmentExpression("=", memberExpr, classItem.value));
+      }
+    } else if (isJS3ClassMethod(classItem)) {
+      if (!classItem.static) {
+        if (classItem.computed) {
+          cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP("this", computedPropMapping.get(classItem), handleFunctionExpression(cx, classItem)));
+        } else {
+          let lookupField: string;
+          // Identifier | DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | OptionalCallExpression | OptionalMemberExpression | Expression
+          if (isIdentifier(classItem.key)) lookupField = classItem.key.name;
+          else if (isDecimalLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isBigIntLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isStringLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isNumericLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isNullLiteral(classItem.key)) lookupField = "null";
+          else if (isBooleanLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else debugConfig.logger.throwIriError("Unhandled static lookup field name");
+          cx.getCurrentBB().args.push(new FieldWriteSEXP("this", lookupField, handleFunctionExpression(cx, classItem)));
+        }
+      }
+    } else if (isJS3ClassPrivateProperty(classItem) || isJS3ClassPrivateMethod(classItem)) {
+      debugConfig.logger.throwIriError("Private Fields and methods not yet handled");
+    }
+  }
+
+  cx.getCurrentBB().args.push(new ReturnSEXP(new GlobalBindingSEXP("undefined")));
+  cx.popContext();
+
+  cx.getCurrentBB().args.push(new EnvWriteSEXP(targetID, new LambdaSEXP(funBBIdx)));
+
+  return targetID;
+}
+
+const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod, string>): LambdaSEXP => {
+  const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
+  funcContext.isConstructor = true;
+  const funBBIdx = funcContext.getCurrentBB().idx;
+
+  cx.getCurrentBB().args.push(new JSThisContextSEXP());
+  cx.getCurrentBB().args.push(new JSCheckConstructorSEXP());
+
+  let constructorFunc: JS3ClassMethod = undefined;
+
+  // Prop Init code
+  for (let classItem of node.body.body) {
+    if (isJS3StaticBlock(classItem)) {
+      continue;
+    } else if (isJS3ClassProperty(classItem)) {
+      if (!classItem.static) {
+        let memberExpr;
+        if (classItem.computed) {
+          memberExpr = memberExpression(thisExpression(), identifier(computedPropMapping.get(classItem)), true);
+        } else {
+          let lookupField: string;
+          // Identifier | DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | OptionalCallExpression | OptionalMemberExpression | Expression
+          if (isIdentifier(classItem.key)) lookupField = classItem.key.name;
+          else if (isDecimalLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isBigIntLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isStringLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isNumericLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isNullLiteral(classItem.key)) lookupField = "null";
+          else if (isBooleanLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else debugConfig.logger.throwIriError("Unhandled static lookup field name");
+          memberExpr = memberExpression(thisExpression(), identifier(lookupField), false);
+        }
+
+        lowerExprToResolveEnvBindingSEXP(cx, assignmentExpression("=", memberExpr, classItem.value));
+      }
+    } else if (isJS3ClassMethod(classItem)) {
+      if (classItem.kind === "constructor") { constructorFunc = classItem; continue; }
+      if (!classItem.static) {
+        if (classItem.computed) {
+          cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP("this", computedPropMapping.get(classItem), handleFunctionExpression(cx, classItem)));
+        } else {
+          let lookupField: string;
+          // Identifier | DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | OptionalCallExpression | OptionalMemberExpression | Expression
+          if (isIdentifier(classItem.key)) lookupField = classItem.key.name;
+          else if (isDecimalLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isBigIntLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isStringLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isNumericLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else if (isNullLiteral(classItem.key)) lookupField = "null";
+          else if (isBooleanLiteral(classItem.key)) lookupField = "" + classItem.key.value;
+          else debugConfig.logger.throwIriError("Unhandled static lookup field name");
+          cx.getCurrentBB().args.push(new FieldWriteSEXP("this", lookupField, handleFunctionExpression(cx, classItem)));
+        }
+      }
+    } else if (isJS3ClassPrivateProperty(classItem) || isJS3ClassPrivateMethod(classItem)) {
+      debugConfig.logger.throwIriError("Private Fields and methods not yet handled");
+    }
+  }
+  
+  // Lower constructor code
+  if (constructorFunc) {
+    for (let item of constructorFunc.body.body) {
+      IRIV2_STMT(cx, item);
+    }
+  }
+
+  cx.getCurrentBB().args.push(new ReturnSEXP(new GlobalBindingSEXP("undefined")));
+  cx.popContext();
+
+  return new LambdaSEXP(funBBIdx);
+}
+
+const handleClassExpression = (cx: IRIDIUMV2, node: JS3ClassExpression): IridiumSEXP => {
+  if (node.superClass) debugConfig.logger.throwIriError("Super class not yet supported");
+  // 1. [top level] Allocate locations to store names of computed fields
+  // 2. [closure + call] Initialize computed field name locations (this = undefined, className? = NUBD)
+  // 4. [closure] constructor = Instance Field Init + constructor code
+  // 5. Create class object
+  // 5. [closure + call] Initialize Static members
+
+  const computedPropMapping = allocateComputedPropSpaces(cx, node);
+  const nameInitClosure = createNameInitClosure(cx, node, computedPropMapping);
+  cx.getCurrentBB().args.push(new CallSiteSEXP([new EnvReadSEXP(nameInitClosure)], []));
+  const constructorLambda = createClassConstructorClosure(cx, node, computedPropMapping);
+
+  return new JSClassSEXP(node.id ? node.id.name : "", new GlobalBindingSEXP("undefined"), constructorLambda);
 }
 
 const lowerExprToResolveEnvBindingSEXP = (cx: IRIDIUMV2, from: JS3ContainedExprKey | Expression) => {
@@ -241,7 +441,7 @@ const handleConditionalExpression = (cx: IRIDIUMV2, node: JS3ConditionalExpressi
   // Lower Else code
   const falseContext = cx.declareAndPushLexicalContext();
   let falseVal = lowerExprToResolveEnvBindingSEXP(cx, node.alternate);
-  cx.getCurrentBB().args.push(new EnvWriteSEXP(resHolder, falseVal)); 
+  cx.getCurrentBB().args.push(new EnvWriteSEXP(resHolder, falseVal));
   cx.getCurrentBB().args.push(new GotoSEXP(postBB.idx));
   cx.popContext();
 
@@ -312,7 +512,7 @@ const handleAssignmentExpression = (cx: IRIDIUMV2, node: JS3AssignmentExpression
   }
 }
 
-const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | JS3ObjectMethod) => {
+const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | JS3ObjectMethod | JS3ClassMethod) => {
   // Lower Function code
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   const funBB = funcContext.getCurrentBB();
@@ -328,6 +528,32 @@ const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | J
   cx.popContext();
 
   return new LambdaSEXP(funBBIdx);
+}
+
+const handleNewExpression = (cx: IRIDIUMV2, node: JS3NewExpression) => {
+  const args: Array<IridiumSEXP> = [];
+  if (isIdentifier(node.callee)) {
+    args.push(new ResolveEnvBindingSEXP(node.callee.name));
+  } else if (isSuper(node.callee)) {
+    args.push(new ResolveEnvBindingSEXP("super"));
+  } else if (isV8IntrinsicIdentifier(node.callee)) {
+    args.push(new ResolveEnvBindingSEXP(node.callee.name));
+  }
+  for (const a of node.arguments) {
+    if (isIdentifier(a)) {
+      args.push(new ResolveEnvBindingSEXP(a.name));
+    } else {
+      args.push(new JSSpreadSEXP(new ResolveEnvBindingSEXP(a.argument.name)));
+    }
+  }
+  if (isIdentifier(node.callee)) {
+    return new CallSiteSEXP(args, [["ConstructorCall", null]]);
+  } else if (isSuper(node.callee)) {
+    return new CallSiteSEXP(args, [["Super", null], ["ConstructorCall", null]]);
+  } else if (isV8IntrinsicIdentifier(node.callee)) {
+    return new CallSiteSEXP(args, [["V8Intrinsic", null], ["ConstructorCall", null]]);
+  }
+  debugConfig.logger.throwIriError("New Call Expression Unreachable Case...");
 }
 
 const handleArrowFunctionExpression = (cx: IRIDIUMV2, node: JS3ArrowFunctionExpression) => {
@@ -424,10 +650,9 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
 }
 
 // Identifier | StringLiteral | NumericLiteral | BigIntLiteral -> string
-const getObjKeyString = (key: Identifier | StringLiteral | NumericLiteral | BigIntLiteral) : string =>
-{
+const getObjKeyString = (key: Identifier | StringLiteral | NumericLiteral | BigIntLiteral): string => {
   if (isIdentifier(key)) return key.name
-  else return '' + key.value  
+  else return '' + key.value
 }
 
 const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {

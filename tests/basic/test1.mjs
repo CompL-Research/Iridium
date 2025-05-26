@@ -116,16 +116,111 @@
 
 // a.f();
 
-let a = {
-  get f() {
-    console.log("getter to f called");
-    return;
-  }
-}
+// let a = {
+//   get f() {
+//     console.log("getter to f called");
+//     return;
+//   }
+// }
 
-a.f;
+// a.f;
 
 // console.log(a.x)
 
 // a.b();
 // a.c();
+
+// let a = {
+//   x: 12,
+//   a: function x() {
+//     let res = () => {
+//       console.log(this.x);
+//       return;
+//     }
+//     return res;
+//   }
+// }
+
+// a.a()();
+
+// let a = new Map();
+// a.set(1, "Hello World");
+// console.log(a.get(1));
+
+// class A {
+//   ["x"] = 12
+// }
+
+
+// class A {
+//   x = 11;
+//   ["x"] = 12;
+// };
+
+
+// let a = {}
+// a["x"] = 12;
+// console.log(a.x)
+
+// class A {
+//   // x = 12
+//   // constructor() {
+//   //   this.x = 11;
+//   // }
+// }
+
+// console.log(x);
+
+// let a = new A();
+// console.log(a.x);
+
+// let log = console.log;
+// log("Test");
+
+// console.log("Hello World");
+
+// class A {
+  
+// }
+
+// let x = () => {
+//   return 1;
+// };
+
+// {
+//   let a = () => {
+//     return 2;
+//   }
+//   let b = x;
+// }
+
+// let log = console.log;
+
+// let x = () => {
+//   log("From x");
+//   return;
+// };
+
+// let y = () => {
+//   log("From y");
+// };
+
+// log("Hello");
+
+// x();
+
+// log("World");
+// y();
+
+class A {
+  // x = 12
+  ["x"] = 13;
+  ["y"]() {
+    if (this)
+      console.log(this.x);
+    return;
+  }
+}
+let res = new A();
+let fun = res.y;
+console.log(fun());

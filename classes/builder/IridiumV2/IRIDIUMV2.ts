@@ -5,7 +5,8 @@ import path from "path";
 import JS3Builder from "../JS3Builder.ts";
 import { JS3Program } from "../JS3Helpers/JS3Types.ts";
 import { IRIV2_STMT } from "./handleStatement.ts";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, GlobalBindingSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSThisContextSEXP, isLambdaSEXP, isRemoteEnvBindingSEXP, isResolveEnvBindingSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNUBDSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, RemoteEnvBindingSEXP } from "./Types.ts";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, GlobalBindingSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveEnvBindingSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNUBDSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, RemoteEnvBindingSEXP } from "./Types.ts";
+import { dumpSEXP } from "./PP.ts";
 
 export class IridiumBuildContext {
   static SID = 0;
@@ -14,6 +15,7 @@ export class IridiumBuildContext {
   scopeIdx: number;
   args: Array<string> = [];
   nubds: Array<string> = [];
+  isConstructor: boolean = false;
 
   BB: Array<BBSEXP> = [];
   constructor(parent: number, BB: BBSEXP = undefined, flag: BBSEXPFlags = undefined) {
@@ -125,7 +127,7 @@ export class IRIDIUMV2 {
     this.hoistFunctionDeclarations();
     this.generateBBContainerSEXP();
     this.reduceResolveEnvBindingSEXP(this.container, 0);
-    this.resolveLambdaTargets(this.container, 0);
+    this.resolveLambdaTargets();
     this.addIDXForRemoteBindings();
 
     // Add Module Init Header, this has to done because of hoisting...
@@ -160,7 +162,7 @@ export class IRIDIUMV2 {
     let res = bindingsSEXP.getBinding(name, startScope);
     if (res) return res;
     else {
-      const parentScope = bindingsSEXP.getParentScope();
+      const parentScope = this.findParentClosureScope(bindingsSEXP.getParentScope());
       if (parentScope === -1) debugConfig.logger.throwIriError("Failed to resolve lookup");
       const bbContainer = this.getBBContainerSEXPByScopeId(parentScope);
       const parentBindingsSEXP = bbContainer.getBindings();
@@ -202,22 +204,43 @@ export class IRIDIUMV2 {
   // 
   // 5. PopulateClosurePool: Populate the scope descriptor with lexical reads.
   // 
-  resolveLambdaTargets(currSEXP: IridiumSEXP, currBBScope: number) {
-    if (isLambdaSEXP(currSEXP)) {
-      // We will get the closure scope
-      const targetScopeIDX = this.findParentClosureScope(currBBScope);
-      if (targetScopeIDX < 0) debugConfig.logger.throwIriError("A binding must resolve in a valid scope, none found");
-      const bbContainer = this.getBBContainerSEXPByScopeId(targetScopeIDX);
-      const bindingsSEXP = bbContainer.getBindings();
-      bindingsSEXP.addLambdaIDX(currSEXP.getStartBBIDX());
-    }
-
-    if (isBBSEXP(currSEXP)) {
-      currSEXP.args.forEach(e => this.resolveLambdaTargets(e, currSEXP.getScopeIDX()))
-    } else if (isBindingsSEXP(currSEXP)) {
+  reduceLambdaTargets(currSEXP: IridiumSEXP, currBBScope: number) {
+    if (isBindingsSEXP(currSEXP) || isPoolBindingSEXP(currSEXP)) {
       return;
+    }
+    for (let i = 0; i < currSEXP.args.length; i++) {
+      let s = currSEXP.args[i];
+      if (isLambdaSEXP(s)) {
+        const targetScopeIDX = this.findParentClosureScope(currBBScope);
+        if (targetScopeIDX < 0) debugConfig.logger.throwIriError("A binding must resolve in a valid scope, none found");
+        const bbContainer = this.getBBContainerSEXPByScopeId(targetScopeIDX);
+        const bindingsSEXP = bbContainer.getBindings();
+        const poolLookupBinding = new PoolBindingSEXP(s.getStartBBIDX(), -1, s);
+        bindingsSEXP.addLambdaPoolBinding(poolLookupBinding);
+        currSEXP.args[i] = poolLookupBinding;
+      }
+    }
+    if (isBBSEXP(currSEXP)) {
+      currSEXP.args.forEach(e => this.reduceLambdaTargets(e, currSEXP.getScopeIDX()))
     } else {
-      currSEXP.args.forEach(e => this.resolveLambdaTargets(e, currBBScope));
+      currSEXP.args.forEach(e => this.reduceLambdaTargets(e, currBBScope));
+    }
+  }
+
+  resolveLambdaTargets() {
+    const startSEXP = this.container;
+    const startScope = 0;
+    this.reduceLambdaTargets(startSEXP, startScope);
+    // Assign reference IDX for pool lookups, during execution they will be resolved to contant pool + REFIDX, the REFIDX is assigned here
+    for(let bbContainerSEXP of startSEXP.args) {
+      let i = 0;
+      if (isBBContainerSEXP(bbContainerSEXP)) {
+        for (let poolBinding of bbContainerSEXP.getBindings().getLambdaPoolBindings().args) {
+          if (isPoolBindingSEXP(poolBinding)) {
+            poolBinding.setREFIDX(i++);
+          } else debugConfig.logger.throwIriError("Expected only pool bindings in the lambda pool");
+        }
+      } else debugConfig.logger.throwIriError("Expected a bbContainerSEXP");
     }
   }
 
@@ -225,6 +248,9 @@ export class IRIDIUMV2 {
   // 4. ReduceResolveEnvBindingSEXP: All scope lookups are resolved to their respective scope bindings
   // 
   reduceResolveEnvBindingSEXP(currSEXP: IridiumSEXP, currBBScope: number) {
+    if (isBindingsSEXP(currSEXP)) {
+      return;
+    }
     for (let i = 0; i < currSEXP.args.length; i++) {
       let s = currSEXP.args[i];
       if (isResolveEnvBindingSEXP(s)) {
@@ -247,8 +273,6 @@ export class IRIDIUMV2 {
     }
     if (isBBSEXP(currSEXP)) {
       currSEXP.args.forEach(e => this.reduceResolveEnvBindingSEXP(e, currSEXP.getScopeIDX()));
-    } else if (isBindingsSEXP(currSEXP)) {
-      return;
     } else {
       currSEXP.args.forEach(e => this.reduceResolveEnvBindingSEXP(e, currBBScope));
     }
@@ -269,7 +293,9 @@ export class IRIDIUMV2 {
         if (!bbGroups.has(targetScopeIDX)) {
           let startBB = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).BB[0];
           if (isBBSEXP(startBB)) {
-            bbGroups.set(targetScopeIDX, new BBContainerSEXP(startBB.idx, targetScopeIDX, []));
+            let bbContainer = new BBContainerSEXP(startBB.idx, targetScopeIDX, []);
+            if (IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).isConstructor) bbContainer.setConstructor();
+            bbGroups.set(targetScopeIDX, bbContainer);
           } else debugConfig.logger.throwIriError("Expected BBSEXP")
         }
         bbGroups.get(targetScopeIDX).addBB(bb);
