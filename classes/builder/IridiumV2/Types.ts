@@ -301,7 +301,7 @@ export function isBBSEXP(o: any): o is BBSEXP {
   return o.tag === "BB";
 }
 
-export type BBContainerSEXPFlags = "StartBBIDX" | "ScopeIDX";
+export type BBContainerSEXPFlags = "StartBBIDX" | "ScopeIDX" | "Constructor" | "SConstructor";
 export class BBContainerSEXP extends IridiumSEXP {
   constructor(startBBIDx: number, scopeIDX: number, bbs: Array<BBSEXP>) {
     super("BBContainer");
@@ -314,6 +314,14 @@ export class BBContainerSEXP extends IridiumSEXP {
   }
 
   // Flags
+  setSConstructor() {
+    this.setFlag("SConstructor");
+  }
+
+  unsetSConstructor() {
+    this.removeFlag("SConstructor");
+  }
+  
   setConstructor() {
     this.setFlag("Constructor");
   }
@@ -575,6 +583,30 @@ export class JSTHISINITSEXP extends IridiumSEXP {
   }
 }
 
+// (Extension) JSSUPERCTRINIT
+export class JSSUPERCTRINITSEXP extends IridiumSEXP {
+  constructor(ref: IridiumSEXP) {
+    super("JSSUPERCTRINIT");
+    this.args.push(ref);
+  }
+}
+
+// (Extension) JSNEWTARGETINIT
+export class JSNEWTARGETINITSEXP extends IridiumSEXP {
+  constructor(ref: IridiumSEXP) {
+    super("JSNEWTARGETINIT");
+    this.args.push(ref);
+  }
+}
+
+// (Extension) JSSUPEROBJINIT
+export class JSSUPEROBJINITSEXP extends IridiumSEXP {
+  constructor(ref: IridiumSEXP) {
+    super("JSSUPEROBJINIT");
+    this.args.push(ref);
+  }
+}
+
 // @ts-ignore
 export function isJSObjectSEXP(o: any): o is JSObjectSEXP {
   // @ts-ignore
@@ -598,8 +630,9 @@ export class JSNUBDSEXP extends IridiumSEXP {
 
 // (Extension) JSClass
 export class JSClassSEXP extends IridiumSEXP {
-  constructor(name: string, parent: IridiumSEXP, propInitLambda: LambdaSEXP) {
+  constructor(hasSuper: boolean, name: string, parent: IridiumSEXP, propInitLambda: LambdaSEXP) {
     super("JSClass");
+    if (hasSuper) this.setFlag("Derived");
     this.args.push(new StringSEXP(name));
     this.args.push(parent);
     this.args.push(propInitLambda);
@@ -852,14 +885,60 @@ export function isJSThisContextSEXP(o: any): o is JSThisContextSEXP {
   return o.tag === "JSThisContext";
 }
 
+// (Extension) JSThisContext
+export class JSThisContextAltSEXP extends IridiumSEXP {
+  constructor() {
+    super("JSThisContextAlt");
+  }
+}
+
+// @ts-ignore
+export function isJSThisContextAltSEXP(o: any): o is JSThisContextAltSEXP {
+  // @ts-ignore
+  return o.tag === "JSThisContextAlt";
+}
+
+// (Extension) JSSuperContext
+export class JSSuperContextSEXP extends IridiumSEXP {
+  constructor() {
+    super("JSSuperContext");
+  }
+}
+
+// @ts-ignore
+export function isJSSuperContextSEXP(o: any): o is JSSuperContextSEXP {
+  // @ts-ignore
+  return o.tag === "JSSuperContext";
+}
+
 // (Primitive) EnvWrite
+export type EnvWriteFlags = "SAFE" | "THISINIT";
 export class EnvWriteSEXP extends IridiumSEXP {
   lval: string
-  constructor(lval: string, rval: IridiumSEXP) {
+  constructor(lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean) {
     super("EnvWrite");
     this.lval = lval
     this.args.push(new ResolveEnvBindingSEXP(lval));
     this.args.push(rval);
+    this.setSafe(safe);
+    this.setThisInit(thisInit);
+  }
+
+  // Flags
+  setThisInit(val: boolean) {
+    this.setFlag("THISINIT", val);
+  }
+
+  isThisInit(): boolean {
+    return this.getFlagBoolean("THISINIT")
+  }
+
+  setSafe(val: boolean) {
+    this.setFlag("SAFE", val);
+  }
+
+  isSafe(): boolean {
+    return this.getFlagBoolean("SAFE")
   }
 }
 
@@ -870,16 +949,34 @@ export function isEnvWriteSEXP(o: any): o is EnvWriteSEXP {
 }
 
 // (Extension) JSEnvWrite
-export type JSEnvWriteFlags = "JSLET" | "JSCONST" | "JSVAR" | "JSREST" | "JSARRDES" | "JSOBJDES";
+export type JSEnvWriteFlags = "SAFE" | "THISINIT" | "JSLET" | "JSCONST" | "JSVAR" | "JSREST" | "JSARRDES" | "JSOBJDES";
 export class JSEnvWriteSEXP extends IridiumSEXP {
-  constructor(lval: IridiumSEXP, rval: IridiumSEXP, flag: JSEnvWriteFlags = undefined) {
+  constructor(lval: IridiumSEXP, rval: IridiumSEXP, flag: JSEnvWriteFlags = undefined, thisInit: boolean) {
     super("JSEnvWrite");
     this.args.push(lval);
     if (rval) this.args.push(rval);
     if (flag) this.flags.push([flag, null]);
+    this.setSafe(flag ? true : false);
+    this.setThisInit(thisInit);
   }
 
   // Utility
+  setThisInit(val: boolean) {
+    this.setFlag("THISINIT", val);
+  }
+
+  isThisInit(): boolean {
+    return this.getFlagBoolean("THISINIT")
+  }
+
+  setSafe(val: boolean) {
+    this.setFlag("SAFE", val);
+  }
+
+  isSafe() {
+    return this.getFlagBoolean("SAFE");
+  }
+
   isSimpleDecl() {
     return !(this.isArrayDecl() || this.isObjDecl());
   }
@@ -919,7 +1016,7 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
   reduceJSDecl() {
     if (this.isSimpleDecl()) {
       this.tag = "EnvWrite";
-      Object.setPrototypeOf(this, new EnvWriteSEXP("", null))
+      Object.setPrototypeOf(this, new EnvWriteSEXP("", null, this.isSafe(), this.isThisInit()));
     }
     this.flags = this.flags.filter(e => e[0] !== "JSLET" && e[0] !== "JSCONST" && e[0] !== "JSVAR")
   }

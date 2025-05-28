@@ -151,11 +151,30 @@
 //   ["x"] = 12
 // }
 
+// function f() {
+//   return;
+// }
 
 // class A {
 //   x = 11;
 //   ["x"] = 12;
 // };
+
+// let x = new A();
+// console.log(x.x);
+
+// let x = 12, y = 13;
+// {
+//   function f() {
+//     function g() {
+//       console.log(x + y);
+//       return;
+//     }
+//     g();
+//     return;
+//   }
+//   f();
+// }
 
 
 // let a = {}
@@ -212,15 +231,37 @@
 // log("World");
 // y();
 
-class A {
-  // x = 12
-  ["x"] = 13;
-  ["y"]() {
-    if (this)
-      console.log(this.x);
-    return;
+// class A {
+//   x = 12
+//   // constructor() {
+//   //   this.x = 12;
+//   // }
+// }
+// let res = new A();
+// let fun = res.y;
+// console.log(fun());
+
+// let log = console.log;
+
+// class B {
+//   x = 13;
+// }
+
+class A extends Map {
+  x = 12
+  constructor() {
+    super();
+    // super();
+    // this.x = 11;
   }
 }
-let res = new A();
-let fun = res.y;
-console.log(fun());
+
+console.log(new A().x)
+
+// console.log(new A().x);
+
+// {
+//   a = 1112;
+//   let a = 12;
+//   console.log(a);
+// }

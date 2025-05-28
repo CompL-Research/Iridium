@@ -151,7 +151,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
       }
     }
 
-    const envWrite = new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(declaration.id.name), rValTarget, KIND);
+    const envWrite = new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(declaration.id.name), rValTarget, KIND, false);
     cx.getCurrentBB().args.push(envWrite);
     return;
   }
@@ -161,7 +161,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   if (isJS3ArrayPattern(declaration.id)) {
     const rValTarget = declaration.init && IRIV2_RVAL(cx, declaration.init)
     const [lvals, hasRest] = getArrayDestSEXP(declaration.id);
-    const envWrite = new JSEnvWriteSEXP(lvals, rValTarget, KIND);
+    const envWrite = new JSEnvWriteSEXP(lvals, rValTarget, KIND, false);
     if (hasRest) envWrite.flags.push(["JSREST", null]);
     envWrite.flags.push(["JSARRDES", null])
     cx.getCurrentBB().args.push(envWrite);
@@ -173,7 +173,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   if (isJS3ObjectPattern(declaration.id)) {
     const rValTarget = declaration.init && IRIV2_RVAL(cx, declaration.init)
     const [lvals, hasRest] = getObjectDestSEXP(declaration.id);
-    const envWrite = new JSEnvWriteSEXP(lvals, rValTarget, KIND);
+    const envWrite = new JSEnvWriteSEXP(lvals, rValTarget, KIND, false);
     if (hasRest) envWrite.flags.push(["JSREST", null]);
     envWrite.flags.push(["JSOBJDES", null])
     cx.getCurrentBB().args.push(envWrite);

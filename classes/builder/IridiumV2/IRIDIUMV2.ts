@@ -5,7 +5,7 @@ import path from "path";
 import JS3Builder from "../JS3Builder.ts";
 import { JS3Program } from "../JS3Helpers/JS3Types.ts";
 import { IRIV2_STMT } from "./handleStatement.ts";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, GlobalBindingSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveEnvBindingSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNUBDSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, RemoteEnvBindingSEXP } from "./Types.ts";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, GlobalBindingSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSSuperContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveEnvBindingSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, RemoteEnvBindingSEXP, ResolveEnvBindingSEXP } from "./Types.ts";
 import { dumpSEXP } from "./PP.ts";
 
 export class IridiumBuildContext {
@@ -15,7 +15,7 @@ export class IridiumBuildContext {
   scopeIdx: number;
   args: Array<string> = [];
   nubds: Array<string> = [];
-  isConstructor: boolean = false;
+  isConstructor: number = 0;
 
   BB: Array<BBSEXP> = [];
   constructor(parent: number, BB: BBSEXP = undefined, flag: BBSEXPFlags = undefined) {
@@ -294,7 +294,8 @@ export class IRIDIUMV2 {
           let startBB = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).BB[0];
           if (isBBSEXP(startBB)) {
             let bbContainer = new BBContainerSEXP(startBB.idx, targetScopeIDX, []);
-            if (IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).isConstructor) bbContainer.setConstructor();
+            if (IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).isConstructor === 1) bbContainer.setConstructor();
+            else if (IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).isConstructor === 2) bbContainer.setSConstructor();
             bbGroups.set(targetScopeIDX, bbContainer);
           } else debugConfig.logger.throwIriError("Expected BBSEXP")
         }
@@ -315,7 +316,7 @@ export class IRIDIUMV2 {
 
         const hoistingInfo = new Map<number, Array<[Array<string>, JSEnvBindingFlags]>>();
         const toRemove: Map<BBSEXP, Set<IridiumSEXP>> = new Map();
-        const addThisContext: Set<number> = new Set();
+        const contextualInit: Array<[string, IridiumSEXP]> = [];
 
         // Identify bindings
         for (let bb of bbContainer.getBBs()) {
@@ -327,13 +328,29 @@ export class IRIDIUMV2 {
             if (!hoistingInfo.has(parentClosureScope)) hoistingInfo.set(parentClosureScope, new Array());
 
             for (let stmt of bb.args) {
-              // Declaration Statements
-              if (isJSThisContextSEXP(stmt)) {
-                addThisContext.add(parentClosureScope);
+              
+              if (isJSThisContextAltSEXP(stmt)) {
+                contextualInit.push(["this", new EnvWriteSEXP("this", new JSNUBDSEXP(), true, false)]);
                 if (!toRemove.has(bb)) toRemove.set(bb, new Set());
                 toRemove.get(bb).add(stmt);
               }
 
+              if (isJSThisContextSEXP(stmt)) {
+                contextualInit.push(["this", new JSTHISINITSEXP(new ResolveEnvBindingSEXP("this"))]);
+                if (!toRemove.has(bb)) toRemove.set(bb, new Set());
+                toRemove.get(bb).add(stmt);
+              }
+
+              // Super context: add "<super_ctr>", "<new_target>" and "<super_obj>"
+              if (isJSSuperContextSEXP(stmt)) {
+                contextualInit.push(["<super_ctr>", new JSSUPERCTRINITSEXP(new ResolveEnvBindingSEXP("<super_ctr>"))]);
+                contextualInit.push(["<new_target>", new JSNEWTARGETINITSEXP(new ResolveEnvBindingSEXP("<new_target>"))]);
+                contextualInit.push(["<super_obj>", new JSSUPEROBJINITSEXP(new ResolveEnvBindingSEXP("<super_obj>"))]);
+                if (!toRemove.has(bb)) toRemove.set(bb, new Set());
+                toRemove.get(bb).add(stmt);
+              }
+
+              // Declaration Statements
               if (isJSEnvWrite(stmt) && stmt.isDecl()) {
                 let scopeToHoistTo: number;
                 let hoistingKind: JSEnvBindingFlags;
@@ -378,25 +395,15 @@ export class IRIDIUMV2 {
         // Remote uninitialized declarations
         for (let [bb, toRemoveStmts] of toRemove) bb.args = bb.args.filter(e => !toRemoveStmts.has(e));
 
-        
-
         // Create Scope Descriptor
         let i = 0, j = 0;
         const bindingsSEXP = new BindingsSEXP(bbContainerParentScopeIDX);
 
         const toSkipInit: Set<IridiumSEXP> = new Set();
-        let thisBinding: EnvBindingSEXP;
 
-        // Add this context
-        if (addThisContext.size > 0) {
-          if (addThisContext.size !== 1) debugConfig.logger.throwIriError("Expected extacly one this declaration per scope");
-          let values = [...addThisContext];
-          if (values[0] !== bbContainerScopeIDX) 
-            debugConfig.logger.throwIriError("Invalid this initialization");
-          const localScope = bbContainerScopeIDX;
-          const parentScope = IridiumBuildContext.CONTEXT_MAP.get(localScope).parent;
-          const binding = new EnvBindingSEXP(i++, bbContainerScopeIDX, "this", [["JSVAR", null]], localScope, parentScope);
-          thisBinding = binding;
+        for (let [name, ] of contextualInit) {
+          const parentScope = IridiumBuildContext.CONTEXT_MAP.get(bbContainerScopeIDX).parent;
+          const binding = new EnvBindingSEXP(i++, bbContainerScopeIDX, name, [["JSCONST", null]], bbContainerScopeIDX, parentScope);
           bindingsSEXP.addLocalBinding(binding);
           toSkipInit.add(binding);
         }
@@ -443,7 +450,7 @@ export class IRIDIUMV2 {
             } else {
               continue;
             }
-            startBB.args = [new EnvWriteSEXP(lValName, rVal), ...startBB.args];
+            startBB.args = [new EnvWriteSEXP(lValName, rVal, true, false), ...startBB.args];
           } else if (isRemoteEnvBindingSEXP(binding)) {
             if (isTopLevelContainer) {
               let resolvedBinding = bindingsSEXP.resolveRemoteBinding(binding);
@@ -457,17 +464,16 @@ export class IRIDIUMV2 {
               } else {
                 continue;
               }
-              startBB.args = [new EnvWriteSEXP(lValName, rVal), ...startBB.args];
+              startBB.args = [new EnvWriteSEXP(lValName, rVal, true, false), ...startBB.args];
             }
           } else
             debugConfig.logger.throwIriError("Expected EnvBindingSEXP");
         }
 
-
-        // Add this context
-        if (addThisContext.size > 0) {
+        // Prefix contextual init statements
+        for (let [, stmt] of contextualInit) {
           let startBB = IridiumBuildContext.CONTEXT_MAP.get(bbContainerScopeIDX).BB[0];
-          startBB.args = [new JSTHISINITSEXP(thisBinding),...startBB.args]
+          startBB.args = [stmt,...startBB.args]
         }
 
         bbContainer.setBindings(bindingsSEXP);
@@ -497,7 +503,7 @@ export class IRIDIUMV2 {
 
     for (let [scope, funDeclarations] of toHoist) {
       const targetBB = IridiumBuildContext.CONTEXT_MAP.get(scope).BB[0];
-      const decls = [...funDeclarations].map(e => new JSEnvWriteSEXP(e.args[0], e.args[1], "JSLET"));
+      const decls = [...funDeclarations].map(e => new JSEnvWriteSEXP(e.args[0], e.args[1], "JSLET", false));
       targetBB.args = [...decls, ...targetBB.args];
     }
   }
