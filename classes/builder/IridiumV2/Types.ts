@@ -301,7 +301,7 @@ export function isBBSEXP(o: any): o is BBSEXP {
   return o.tag === "BB";
 }
 
-export type BBContainerSEXPFlags = "StartBBIDX" | "ScopeIDX" | "Constructor" | "SConstructor";
+export type BBContainerSEXPFlags = "StartBBIDX" | "ScopeIDX" | "Constructor" | "SConstructor" | "SAllowed";
 export class BBContainerSEXP extends IridiumSEXP {
   constructor(startBBIDx: number, scopeIDX: number, bbs: Array<BBSEXP>) {
     super("BBContainer");
@@ -314,6 +314,14 @@ export class BBContainerSEXP extends IridiumSEXP {
   }
 
   // Flags
+  setSAllowed() {
+    this.setFlag("SAllowed");
+  }
+
+  unsetSAllowed() {
+    this.removeFlag("SAllowed");
+  }
+
   setSConstructor() {
     this.setFlag("SConstructor");
   }
@@ -417,6 +425,24 @@ export class StringSEXP extends IridiumSEXP {
 export function isStringSEXP(o: any): o is StringSEXP {
   // @ts-ignore
   return o.tag === "String";
+}
+
+// (Extension) Private
+export class PrivateSEXP extends IridiumSEXP {
+  constructor(str: string) {
+    super("Private");
+    this.flags.push(["IridiumPrimitive", str]);
+  }
+
+  getVal(): string {
+    return this.getFlagString("IridiumPrimitive");
+  }
+}
+
+// @ts-ignore
+export function isPrivateSEXP(o: any): o is PrivateSEXP {
+  // @ts-ignore
+  return o.tag === "Private";
 }
 
 // (Primitive) List
@@ -630,12 +656,13 @@ export class JSNUBDSEXP extends IridiumSEXP {
 
 // (Extension) JSClass
 export class JSClassSEXP extends IridiumSEXP {
-  constructor(hasSuper: boolean, name: string, parent: IridiumSEXP, propInitLambda: LambdaSEXP) {
+  constructor(hasSuper: boolean, name: string, parent: IridiumSEXP, propInitLambda: LambdaSEXP, methodList: IridiumSEXP) {
     super("JSClass");
     if (hasSuper) this.setFlag("Derived");
     this.args.push(new StringSEXP(name));
     this.args.push(parent);
     this.args.push(propInitLambda);
+    this.args.push(methodList);
   }
 }
 
@@ -717,6 +744,12 @@ export class EnvReadSEXP extends IridiumSEXP {
     super("EnvRead");
     this.args.push(new ResolveEnvBindingSEXP(id));
   }
+}
+
+// @ts-ignore
+export function isEnvReadSEXP(o: any): o is EnvReadSEXP {
+  // @ts-ignore
+  return o.tag === "EnvRead";
 }
 
 // (Primitive) GlobalBinding
@@ -911,6 +944,19 @@ export function isJSSuperContextSEXP(o: any): o is JSSuperContextSEXP {
   return o.tag === "JSSuperContext";
 }
 
+// (Extension) JSSuperObjContext
+export class JSSuperObjContextSEXP extends IridiumSEXP {
+  constructor() {
+    super("JSSuperObjContext");
+  }
+}
+
+// @ts-ignore
+export function isJSSuperObjContextSEXP(o: any): o is JSSuperObjContextSEXP {
+  // @ts-ignore
+  return o.tag === "JSSuperObjContext";
+}
+
 // (Primitive) EnvWrite
 export type EnvWriteFlags = "SAFE" | "THISINIT";
 export class EnvWriteSEXP extends IridiumSEXP {
@@ -1090,15 +1136,6 @@ export class FieldReadSEXP extends IridiumSEXP {
   }
 }
 
-// (Extended) JSComputedFieldRead
-export class JSComputedFieldReadSEXP extends IridiumSEXP {
-  constructor(object: string, field: string) {
-    super("JSComputedFieldRead");
-    this.args.push(new ResolveEnvBindingSEXP(object));
-    this.args.push(new EnvReadSEXP(field));
-  }
-}
-
 // (Primitive) FieldWrite
 export class FieldWriteSEXP extends IridiumSEXP {
   constructor(object: string, field: string, right: IridiumSEXP) {
@@ -1109,7 +1146,26 @@ export class FieldWriteSEXP extends IridiumSEXP {
   }
 }
 
+// (Primitive) JSClassMethodDefine
+export class JSClassMethodDefineSEXP extends IridiumSEXP {
+  constructor(object: string, field: string, right: IridiumSEXP) {
+    super("JSClassMethodDefine");
+    this.args.push(new ResolveEnvBindingSEXP(object));
+    this.args.push(new StringSEXP(field));
+    this.args.push(right);
+  }
+}
+
 // (Extended) JSComputedFieldRead
+export class JSComputedFieldReadSEXP extends IridiumSEXP {
+  constructor(object: string, field: string) {
+    super("JSComputedFieldRead");
+    this.args.push(new ResolveEnvBindingSEXP(object));
+    this.args.push(new EnvReadSEXP(field));
+  }
+}
+
+// (Extended) JSComputedFieldWrite
 export class JSComputedFieldWriteSEXP extends IridiumSEXP {
   constructor(object: string, field: string, right: IridiumSEXP) {
     super("JSComputedFieldWrite");
@@ -1118,6 +1174,48 @@ export class JSComputedFieldWriteSEXP extends IridiumSEXP {
     this.args.push(right);
   }
 }
+
+// (Extended) JSPrivateFieldRead
+export class JSPrivateFieldReadSEXP extends IridiumSEXP {
+  constructor(object: string, field: string) {
+    super("JSPrivateFieldRead");
+    this.args.push(new ResolveEnvBindingSEXP(object));
+    this.args.push(new ResolvePrivateEnvBindingSEXP(field));
+  }
+}
+
+// (Extended) JSPrivateFieldWrite
+export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
+  constructor(object: string, field: EnvReadSEXP | string, right: IridiumSEXP) {
+    super("JSPrivateFieldWrite");
+    this.args.push(new ResolveEnvBindingSEXP(object));
+    if (isEnvReadSEXP(field)) this.args.push(field);
+    else this.args.push(new ResolvePrivateEnvBindingSEXP(field));
+    this.args.push(right);
+  }
+}
+
+// (Extended) JSSuperFieldRead
+export class JSSuperFieldReadSEXP extends IridiumSEXP {
+  constructor(field: string) {
+    super("JSSuperFieldRead");
+    this.args.push(new EnvReadSEXP("this"));
+    this.args.push(new EnvReadSEXP("<super_obj>"));
+    this.args.push(new StringSEXP(field));
+  }
+}
+
+// (Extended) JSSuperFieldWrite
+export class JSSuperFieldWriteSEXP extends IridiumSEXP {
+  constructor(field: string, value: IridiumSEXP) {
+    super("JSSuperFieldWrite");
+    this.args.push(new EnvReadSEXP("this"));
+    this.args.push(new EnvReadSEXP("<super_obj>"));
+    this.args.push(new StringSEXP(field));
+    this.args.push(value);
+  }
+}
+
 
 // Control Flow
 // (Primitive) Goto
@@ -1197,7 +1295,7 @@ export class IfJumpSEXP extends IridiumSEXP {
 // (Primitive) ResolveEnvBindingSEXP
 export class ResolveEnvBindingSEXP extends IridiumSEXP {
   constructor(id: string) {
-    super("ResolveEnvBindingSEXP");
+    super("ResolveEnvBinding");
     this.args.push(new StringSEXP(id));
   }
 
@@ -1211,5 +1309,26 @@ export class ResolveEnvBindingSEXP extends IridiumSEXP {
 // @ts-ignore
 export function isResolveEnvBindingSEXP(o: any): o is ResolveEnvBindingSEXP {
   // @ts-ignore
-  return o.tag === "ResolveEnvBindingSEXP";
+  return o.tag === "ResolveEnvBinding";
+}
+
+
+// (Extension) ResolvePrivateEnvBindingSEXP
+export class ResolvePrivateEnvBindingSEXP extends IridiumSEXP {
+  constructor(id: string) {
+    super("ResolvePrivateEnvBinding");
+    this.args.push(new StringSEXP(id));
+  }
+
+  getBindingName(): string {
+    let res = this.args[0]
+    if (isStringSEXP(res)) return res.getVal()
+    debugConfig.logger.throwIriError("Cant get binding for ResolvePrivateEnvBindingSEXP")
+  }
+}
+
+// @ts-ignore
+export function isResolvePrivateEnvBindingSEXP(o: any): o is ResolvePrivateEnvBindingSEXP {
+  // @ts-ignore
+  return o.tag === "ResolvePrivateEnvBinding";
 }

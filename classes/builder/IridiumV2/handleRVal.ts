@@ -1,11 +1,10 @@
-import { isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ClassExpression, isJS3ClassMethod, isJS3ClassPrivateMethod, isJS3ClassPrivateProperty, isJS3ClassProperty, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, isJS3StaticBlock, isJS3VariableDeclaration, JS3ArrayExpression, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3BlockStatement_body, JS3CallExpression, JS3ClassExpression, JS3ClassMethod, JS3ClassProperty, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3NewExpression, JS3ObjectExpression, JS3ObjectMethod } from "../JS3Helpers/JS3Types.ts";
-import { IRIDIUMV2 } from "./IRIDIUMV2.ts";
 import debugConfig from "#debugConfig";
-import { BinopSEXP, BooleanSEXP, CallSiteSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSComputedObjectMethodSEXP, JSComputedObjectPropSEXP, JSEnvWriteSEXP, JSNUBDSEXP, JSObjectMethodSEXP, JSObjectPropSEXP, JSObjectSEXP, JSSpreadSEXP, JSSuperContextSEXP, JSThisContextAltSEXP, JSThisContextSEXP, JSTHISINITSEXP, LambdaSEXP, NumberSEXP, ResolveEnvBindingSEXP, ReturnSEXP, StringSEXP } from "./Types.ts";
-import { assignmentExpression, BigIntLiteral, Expression, identifier, Identifier, isArrowFunctionExpression, isBigIntLiteral, isBooleanLiteral, isClassExpression, isDecimalLiteral, isFunctionExpression, isIdentifier, isNullLiteral, isNumericLiteral, isOptionalMemberExpression, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, NumericLiteral, StringLiteral, thisExpression } from "@babel/types";
+import { assignmentExpression, BigIntLiteral, Expression, identifier, Identifier, isArrowFunctionExpression, isBigIntLiteral, isBooleanLiteral, isClassExpression, isDecimalLiteral, isFunctionExpression, isIdentifier, isNullLiteral, isNumericLiteral, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, NumericLiteral, StringLiteral, thisExpression } from "@babel/types";
 import { handleExpression, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpression.ts";
+import { isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ClassExpression, isJS3ClassMethod, isJS3ClassPrivateMethod, isJS3ClassPrivateProperty, isJS3ClassProperty, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, isJS3VariableDeclaration, JS3ArrayExpression, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3BlockStatement_body, JS3CallExpression, JS3ClassExpression, JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3NewExpression, JS3ObjectExpression, JS3ObjectMethod } from "../JS3Helpers/JS3Types.ts";
 import { getArrayDestSEXP, getObjectDestSEXP, IRIV2_STMT, lowerArgumentInit } from "./handleStatement.ts";
-import { handleMemberAssignment } from "../IridiumHelpers/Passes/PTA-UOW/PTA/handlers.ts";
+import { IRIDIUMV2 } from "./IRIDIUMV2.ts";
+import { BinopSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassMethodDefineSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSComputedObjectMethodSEXP, JSComputedObjectPropSEXP, JSEnvWriteSEXP, JSNUBDSEXP, JSObjectMethodSEXP, JSObjectPropSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperContextSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSSuperObjContextSEXP, JSThisContextAltSEXP, JSThisContextSEXP, LambdaSEXP, ListSEXP, NumberSEXP, PrivateSEXP, ResolveEnvBindingSEXP, ReturnSEXP, StringSEXP } from "./Types.ts";
 
 // Handle RValues | AMP
 export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
@@ -18,26 +17,32 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
     return new EnvReadSEXP(init.name);
   } else if (isJS3MemberExpression(init)) {
     let obj: string;
-    let prop: string;
+    let isSuper: boolean = false;
 
     if (isIdentifier(init.object)) {
       obj = init.object.name;
     } else if (isThisExpression(init.object)) {
       obj = "this";
     } else {
-      obj = "super";
+      isSuper = true;
+    }
+
+    if (isSuper) {
+      if (isIdentifier(init.property)) {
+        return new JSSuperFieldReadSEXP(init.property.name);
+      } else debugConfig.logger.throwIriError("Expected super lookup to be identifiers, private are not allowed!!");
     }
 
     if (isIdentifier(init.property)) {
-      prop = init.property.name;
+      let prop: string = init.property.name;
+      if (init.computed) {
+        return new JSComputedFieldReadSEXP(obj, prop)
+      } else {
+        return new FieldReadSEXP(obj, prop);
+      }
     } else {
-      prop = "#" + init.property.id.name;
-    }
-
-    if (init.computed) {
-      return new JSComputedFieldReadSEXP(obj, prop)
-    } else {
-      return new FieldReadSEXP(obj, prop);
+      let prop: string = init.property.id.name;
+      return new JSPrivateFieldReadSEXP(obj, prop)
     }
   }
 
@@ -194,105 +199,124 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   return null;
 }
 
-const allocateComputedPropSpaces = (cx: IRIDIUMV2, node: JS3ClassExpression): Map<JS3ClassProperty | JS3ClassMethod, string> => {
-  const computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod, string> = new Map();
-  for (let classItem of node.body.body) {
-    if (isJS3ClassProperty(classItem) || isJS3ClassMethod(classItem)) {
-      if (classItem.computed) {
-        let targetID = cx.js3Builder.utils.getNewTemporary("computedProp");
-        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(targetID), null, "JSLET", false));
-        computedPropMapping.set(classItem, targetID);
-      }
-    } else if (isJS3ClassPrivateProperty(classItem) || isJS3ClassPrivateMethod(classItem)) {
-      debugConfig.logger.throwIriError("Private Fields and methods not yet handled");
-    }
-  }
-  return computedPropMapping;
-}
+const handleComputedProps = (cx: IRIDIUMV2, node: JS3ClassExpression): Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string> => {
+  // Allocate locations to store computed prop results
+  const computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string> = new Map();
+  const computedProps = node.body.body.filter(classItem => isJS3ClassProperty(classItem) || isJS3ClassMethod(classItem)).filter(classItem => classItem.computed);
 
-const createNameInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod, string>) => {
-  let targetID = cx.js3Builder.utils.getNewTemporary("nameInitClosure");
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(targetID), null, "JSLET", false));
+  computedProps.forEach(classItem => {
+    let targetID = cx.js3Builder.utils.getNewTemporary(undefined);
+    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(targetID), null, "JSLET", false));
+    computedPropMapping.set(classItem, targetID);
+  });
 
-  const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
-  const funBBIdx = funcContext.getCurrentBB().idx;
+  const privateProps = node.body.body.filter(classItem => isJS3ClassPrivateProperty(classItem) || isJS3ClassPrivateMethod(classItem));
+  privateProps.forEach(classItem => {
+    let targetID = cx.js3Builder.utils.getNewTemporary(undefined);
+    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(targetID), new PrivateSEXP(classItem.key.id.name), "JSLET", false));
+    computedPropMapping.set(classItem, targetID);
+  });
 
+  // Lower keys and assign to selected locations in a new lexical scope
+  cx.declareAndPushLexicalContext("Lexical");
   cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("this"), new GlobalBindingSEXP("undefined"), "JSCONST", false));
   if (isIdentifier(node.id))
     cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(node.id.name), new JSNUBDSEXP(), "JSCONST", false));
 
-  for (let classItem of node.body.body) {
-    if (isJS3StaticBlock(classItem)) {
-      continue;
-    } else if (isJS3ClassProperty(classItem) || isJS3ClassMethod(classItem)) {
-      if (classItem.computed) {
-        if (!computedPropMapping.has(classItem)) debugConfig.logger.throwIriError("Expected computed props to have a location already allocated...");
-        const computedPropLoc = computedPropMapping.get(classItem);
-        const keyLoweredTo = lowerExprToResolveEnvBindingSEXP(cx, classItem.key);
-        cx.getCurrentBB().args.push(new EnvWriteSEXP(computedPropLoc, new EnvReadSEXP(keyLoweredTo.getBindingName()), false, false));
-      }
-    } else if (isJS3ClassPrivateProperty(classItem) || isJS3ClassPrivateMethod(classItem)) {
-      debugConfig.logger.throwIriError("Private Fields and methods not yet handled");
-    }
-  }
-  cx.getCurrentBB().args.push(new ReturnSEXP(new GlobalBindingSEXP("undefined")));
+  computedProps.forEach(classItem => {
+    if (!computedPropMapping.has(classItem)) debugConfig.logger.throwIriError("Expected computed props to have a location already allocated...");
+    const computedPropLoc = computedPropMapping.get(classItem);
+    const keyLoweredTo = lowerExprToResolveEnvBindingSEXP(cx, classItem.key);
+    cx.getCurrentBB().args.push(new EnvWriteSEXP(computedPropLoc, new EnvReadSEXP(keyLoweredTo.getBindingName()), false, false));
+  })
   cx.popContext();
-  cx.getCurrentBB().args.push(new EnvWriteSEXP(targetID, new LambdaSEXP(funBBIdx), false, false));
 
-  return targetID;
+  return computedPropMapping;
 }
 
-const lowerPropInitCode = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod, string>) => {
-  for (let classItem of node.body.body) {
-    if (isJS3StaticBlock(classItem)) {
-      continue;
-    } else if (isJS3ClassProperty(classItem)) {
-      if (!classItem.static) {
-        let memberExpr;
-        if (classItem.computed) {
-          memberExpr = memberExpression(thisExpression(), identifier(computedPropMapping.get(classItem)), true);
-        } else {
-          let lookupField: string;
-          // Identifier | DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | OptionalCallExpression | OptionalMemberExpression | Expression
-          if (isIdentifier(classItem.key)) lookupField = classItem.key.name;
-          else if (isDecimalLiteral(classItem.key)) lookupField = "" + classItem.key.value;
-          else if (isBigIntLiteral(classItem.key)) lookupField = "" + classItem.key.value;
-          else if (isStringLiteral(classItem.key)) lookupField = "" + classItem.key.value;
-          else if (isNumericLiteral(classItem.key)) lookupField = "" + classItem.key.value;
-          else if (isNullLiteral(classItem.key)) lookupField = "null";
-          else if (isBooleanLiteral(classItem.key)) lookupField = "" + classItem.key.value;
-          else debugConfig.logger.throwIriError("Unhandled static lookup field name");
-          memberExpr = memberExpression(thisExpression(), identifier(lookupField), false);
-        }
+const getPrivateMapping = (computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>): Map<string, string> => {
+  const privateMapping: Map<string, string> = new Map();
+  for (let [item, target] of computedPropMapping) {
+    if (isJS3ClassPrivateProperty(item)) {
+      privateMapping.set(item.key.id.name, target);
+    } else if (isJS3ClassPrivateMethod(item)) {
+      privateMapping.set(item.key.id.name, target);
+    }
+  }
+  return privateMapping;
+}
 
-        lowerExprToResolveEnvBindingSEXP(cx, assignmentExpression("=", memberExpr, classItem.value));
+const getFieldKeyString = (key: JS3ContainedExprKey): string => {
+  let lookupField: string;
+  if (isIdentifier(key)) lookupField = key.name;
+  else if (isDecimalLiteral(key)) lookupField = "" + key.value;
+  else if (isBigIntLiteral(key)) lookupField = "" + key.value;
+  else if (isStringLiteral(key)) lookupField = "" + key.value;
+  else if (isNumericLiteral(key)) lookupField = "" + key.value;
+  else if (isNullLiteral(key)) lookupField = "null";
+  else if (isBooleanLiteral(key)) lookupField = "" + key.value;
+  else debugConfig.logger.throwIriError("Unhandled static lookup field name");
+  return lookupField;
+}
+
+const lowerNonStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>) => {
+  const nonStaticClassMethods = node.body.body.filter(classItem => isJS3ClassMethod(classItem) || isJS3ClassPrivateMethod(classItem)).filter(classItem => !classItem.static);
+  const lambdas: Array<IridiumSEXP> = [];
+  const privateMapping = getPrivateMapping(computedPropMapping);
+  const hasSuper = node.superClass ? true : false;
+
+  nonStaticClassMethods.filter(n => isJS3ClassMethod(n)).forEach(methodNode => {
+    const lambda: Array<IridiumSEXP> = [];
+    if (methodNode.computed) {
+      if (!computedPropMapping.has(methodNode)) debugConfig.logger.throwIriError("Expected computed name to have been mapped already...");
+      lambda.push(new EnvReadSEXP(computedPropMapping.get(methodNode)));
+    } else {
+      lambda.push(new StringSEXP(getFieldKeyString(methodNode.key)));
+    }
+    lambda.push(handleFunctionExpression(cx, methodNode, privateMapping, hasSuper))
+    const lambdaNode = new ListSEXP(lambda);
+    lambdas.push(lambdaNode);
+  });
+
+  nonStaticClassMethods.filter(n => isJS3ClassPrivateMethod(n)).forEach(methodNode => {
+    debugConfig.logger.throwIriError("TODO: handle private class methods");
+    // const lambda: Array<IridiumSEXP> = [];
+    // lambda.push(new EnvReadSEXP(computedPropMapping.get(methodNode)));
+    // lambda.push(handleFunctionExpression(cx, methodNode, privateMapping, hasSuper))
+    // const lambdaNode = new ListSEXP(lambda);
+    // lambdas.push(lambdaNode);
+  });
+
+  const lambdaList = new ListSEXP(lambdas);
+  return lambdaList;
+}
+
+// This method lowers code for initialization of non-static fields
+const lowerNonStaticClassFieldInitialization = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>) => {
+  for (let classItem of node.body.body) {
+    if (isJS3ClassProperty(classItem) && !classItem.static) {
+      let memberExpr;
+      if (classItem.computed) {
+        if (!computedPropMapping.has(classItem)) debugConfig.logger.throwIriError("Expected computed prop mapping to be resolved for all fields");
+        // this[computedFieldLoc] = RVal
+        memberExpr = memberExpression(thisExpression(), identifier(computedPropMapping.get(classItem)), true);
+      } else {
+        // this.field = RVal
+        let lookupField: string = getFieldKeyString(classItem.key);
+        memberExpr = memberExpression(thisExpression(), identifier(lookupField), false);
       }
-    } else if (isJS3ClassMethod(classItem)) {
-      if (classItem.kind === "constructor") continue;
-      if (!classItem.static) {
-        if (classItem.computed) {
-          cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP("this", computedPropMapping.get(classItem), handleFunctionExpression(cx, classItem)));
-        } else {
-          let lookupField: string;
-          // Identifier | DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | OptionalCallExpression | OptionalMemberExpression | Expression
-          if (isIdentifier(classItem.key)) lookupField = classItem.key.name;
-          else if (isDecimalLiteral(classItem.key)) lookupField = "" + classItem.key.value;
-          else if (isBigIntLiteral(classItem.key)) lookupField = "" + classItem.key.value;
-          else if (isStringLiteral(classItem.key)) lookupField = "" + classItem.key.value;
-          else if (isNumericLiteral(classItem.key)) lookupField = "" + classItem.key.value;
-          else if (isNullLiteral(classItem.key)) lookupField = "null";
-          else if (isBooleanLiteral(classItem.key)) lookupField = "" + classItem.key.value;
-          else debugConfig.logger.throwIriError("Unhandled static lookup field name");
-          cx.getCurrentBB().args.push(new FieldWriteSEXP("this", lookupField, handleFunctionExpression(cx, classItem)));
-        }
-      }
-    } else if (isJS3ClassPrivateProperty(classItem) || isJS3ClassPrivateMethod(classItem)) {
-      debugConfig.logger.throwIriError("Private Fields and methods not yet handled");
+      lowerExprToResolveEnvBindingSEXP(cx, assignmentExpression("=", memberExpr, classItem.value));
+    } else if (isJS3ClassPrivateProperty(classItem) && !classItem.static) {
+      // this.#field = RVal
+      if (!computedPropMapping.has(classItem)) debugConfig.logger.throwIriError("Expected computed prop mapping to be resolved for all fields");
+      let lookupPrivateKeyHolder = new EnvReadSEXP(computedPropMapping.get(classItem));
+      let loweredValue: IridiumSEXP = new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getBindingName());
+      cx.getCurrentBB().args.push(new JSPrivateFieldWriteSEXP("this", lookupPrivateKeyHolder, loweredValue));
     }
   }
 }
 
-const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod, string>, superClass: EnvReadSEXP | undefined): LambdaSEXP => {
+const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>, superClass: EnvReadSEXP | undefined): LambdaSEXP => {
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
 
   const funBBIdx = funcContext.getCurrentBB().idx;
@@ -314,7 +338,7 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
     cx.getCurrentBB().args.push(new JSCheckConstructorSEXP());
 
     // Do default prop init
-    lowerPropInitCode(cx, node, computedPropMapping);
+    lowerNonStaticClassFieldInitialization(cx, node, computedPropMapping);
 
     // Lower constructor code if it exists
     if (constructor) {
@@ -352,7 +376,7 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
       cx.getCurrentBB().args.push(thisInit);
 
       // Do default prop init
-      lowerPropInitCode(cx, node, computedPropMapping);
+      lowerNonStaticClassFieldInitialization(cx, node, computedPropMapping);
     } else {
 
       if (isJS3ClassMethod(constructor)) {
@@ -362,9 +386,9 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
           // All super calls are followed by prop initialization/reinitialization
           if (isJS3VariableDeclaration(item) && isJS3CallExpression(item.declarations[0].init) && isSuper(item.declarations[0].init.callee)) {
             if (isIdentifier(item.declarations[0].id)) {
-              const thisInit = new EnvWriteSEXP("this", new EnvReadSEXP(item.declarations[0].id.name), false, true);
+              const thisInit = new EnvWriteSEXP("this", new EnvReadSEXP(item.declarations[0].id.name), false, true); // <- This is about the only place where we set THISINIT flag to true
               cx.getCurrentBB().args.push(thisInit);
-              lowerPropInitCode(cx, node, computedPropMapping);
+              lowerNonStaticClassFieldInitialization(cx, node, computedPropMapping);
             } else debugConfig.logger.throwIriError("Expected Super call result to be stored inside an identifier");
           }
         }
@@ -384,18 +408,20 @@ const handleClassExpression = (cx: IRIDIUMV2, node: JS3ClassExpression): Iridium
   if (node.superClass) {
     superClass = new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, node.superClass).getBindingName());
   }
+  const hasSuper = node.superClass ? true : false;
+  const name = node.id ? node.id.name : "";
+  const heritage = node.superClass ? superClass : new GlobalBindingSEXP("undefined");
   // 1. [top level] Allocate locations to store names of computed fields
   // 2. [closure + call] Initialize computed field name locations (this = undefined, className? = NUBD)
   // 4. [closure] constructor = Instance Field Init + constructor code
   // 5. Create class object
   // 5. [closure + call] Initialize Static members
 
-  const computedPropMapping = allocateComputedPropSpaces(cx, node);
-  const nameInitClosure = createNameInitClosure(cx, node, computedPropMapping);
-  cx.getCurrentBB().args.push(new CallSiteSEXP([new EnvReadSEXP(nameInitClosure)], []));
+  const computedPropMapping = handleComputedProps(cx, node);
   const constructorLambda = createClassConstructorClosure(cx, node, computedPropMapping, superClass);
+  const methodList = lowerNonStaticClassMethods(cx, node, computedPropMapping);
 
-  return new JSClassSEXP(node.superClass ? true : false, node.id ? node.id.name : "", superClass ? superClass : new GlobalBindingSEXP("undefined"), constructorLambda);
+  return new JSClassSEXP(hasSuper, name, heritage, constructorLambda, methodList);
 }
 
 const lowerExprToResolveEnvBindingSEXP = (cx: IRIDIUMV2, from: JS3ContainedExprKey | Expression) => {
@@ -473,25 +499,32 @@ const handleAssignmentExpression = (cx: IRIDIUMV2, node: JS3AssignmentExpression
 
     let obj: string;
     let prop: string;
+    let isSuper: boolean = false;
 
     if (isIdentifier(init.object)) {
       obj = init.object.name;
     } else if (isThisExpression(init.object)) {
       obj = "this";
     } else {
-      obj = "super";
+      isSuper = true;
+    }
+
+    if (isSuper) {
+      if (isIdentifier(init.property)) {
+        return new JSSuperFieldWriteSEXP(init.property.name, IRIV2_RVAL(cx, right));
+      } else debugConfig.logger.throwIriError("Expected super write to be an identifier, private are not allowed!!");
     }
 
     if (isIdentifier(init.property)) {
-      prop = init.property.name;
+      let prop: string = init.property.name;
+      if (init.computed) {
+        return new JSComputedFieldWriteSEXP(obj, prop, IRIV2_RVAL(cx, right))
+      } else {
+        return new FieldWriteSEXP(obj, prop, IRIV2_RVAL(cx, right));
+      }
     } else {
-      prop = "#" + init.property.id.name;
-    }
-
-    if (init.computed) {
-      return new JSComputedFieldWriteSEXP(obj, prop, IRIV2_RVAL(cx, right))
-    } else {
-      return new FieldWriteSEXP(obj, prop, IRIV2_RVAL(cx, right));
+      let prop: string = init.property.id.name;
+      return new JSPrivateFieldWriteSEXP(obj, prop, IRIV2_RVAL(cx, right));
     }
   }
 
@@ -516,15 +549,20 @@ const handleAssignmentExpression = (cx: IRIDIUMV2, node: JS3AssignmentExpression
   }
 }
 
-const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | JS3ObjectMethod | JS3ClassMethod) => {
+const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | JS3ObjectMethod | JS3ClassMethod | JS3ClassPrivateMethod, privateMapping: Map<string, string> = null, hasSuper: boolean = false) => {
   // Lower Function code
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
+  funcContext.privateMapping = privateMapping;
   const funBB = funcContext.getCurrentBB();
   const funBBIdx = funBB.idx;
 
   lowerArgumentInit(cx, node.params);
 
   cx.getCurrentBB().args.push(new JSThisContextSEXP());
+  if (hasSuper) {
+    cx.getCurrentBB().args.push(new JSSuperObjContextSEXP());
+    funcContext.sAllowed = true;
+  }
 
   for (const s of node.body.body) {
     IRIV2_STMT(cx, s);
@@ -617,9 +655,9 @@ const handleContextualCallExpression = (cx: IRIDIUMV2, node: JS3ContextualCallEx
     if (isIdentifier(node.callee.object)) {
       contextObj = node.callee.object.name;
     } else if (isThisExpression(node.callee.object)) {
-      debugConfig.logger.throwIriError("this contextual call expressions are not supported yet.");
+      contextObj = "this";
     } else {
-      debugConfig.logger.throwIriError("super contextual call expressions are not supported yet.");
+      contextObj = "this";
     }
   } else {
     debugConfig.logger.throwIriError("Optional callees in contextual call expressions are not supported yet.");

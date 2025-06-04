@@ -5,7 +5,7 @@ import path from "path";
 import JS3Builder from "../JS3Builder.ts";
 import { JS3Program } from "../JS3Helpers/JS3Types.ts";
 import { IRIV2_STMT } from "./handleStatement.ts";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, GlobalBindingSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSSuperContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveEnvBindingSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, RemoteEnvBindingSEXP, ResolveEnvBindingSEXP } from "./Types.ts";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, GlobalBindingSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, RemoteEnvBindingSEXP, ResolveEnvBindingSEXP } from "./Types.ts";
 import { dumpSEXP } from "./PP.ts";
 
 export class IridiumBuildContext {
@@ -16,6 +16,9 @@ export class IridiumBuildContext {
   args: Array<string> = [];
   nubds: Array<string> = [];
   isConstructor: number = 0;
+  sAllowed: boolean = false;
+
+  privateMapping: Map<string, string> = null;
 
   BB: Array<BBSEXP> = [];
   constructor(parent: number, BB: BBSEXP = undefined, flag: BBSEXPFlags = undefined) {
@@ -126,6 +129,7 @@ export class IRIDIUMV2 {
     this.normailzeBBFlags();
     this.hoistFunctionDeclarations();
     this.generateBBContainerSEXP();
+    this.reduceResolvePrivateEnvBindingSEXP(this.container, 0);
     this.reduceResolveEnvBindingSEXP(this.container, 0);
     this.resolveLambdaTargets();
     this.addIDXForRemoteBindings();
@@ -245,7 +249,7 @@ export class IRIDIUMV2 {
   }
 
   // 
-  // 4. ReduceResolveEnvBindingSEXP: All scope lookups are resolved to their respective scope bindings
+  // 5. ReduceResolveEnvBindingSEXP: All scope lookups are resolved to their respective scope bindings
   // 
   reduceResolveEnvBindingSEXP(currSEXP: IridiumSEXP, currBBScope: number) {
     if (isBindingsSEXP(currSEXP)) {
@@ -279,6 +283,38 @@ export class IRIDIUMV2 {
   }
 
   // 
+  // 4. ReduceResolvePrivateEnvBindingSEXP: All private lookups are resolved to their respective symbol holders
+  // 
+  reduceResolvePrivateEnvBindingSEXP(currSEXP: IridiumSEXP, currBBScope: number) {
+    if (isBindingsSEXP(currSEXP)) {
+      return;
+    }
+    for (let i = 0; i < currSEXP.args.length; i++) {
+      let s = currSEXP.args[i];
+      if (isResolvePrivateEnvBindingSEXP(s)) {
+        // We will get the closure scope
+        let targetScopeIDX = this.findParentClosureScope(currBBScope);
+        while (targetScopeIDX >= 0) {
+          const privateMapping = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).privateMapping;
+          if (IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).privateMapping) {
+            if (privateMapping.has(s.getBindingName())) {
+              currSEXP.args[i] = new EnvReadSEXP(privateMapping.get(s.getBindingName()));
+              break;
+            }
+          }
+          targetScopeIDX = this.findParentClosureScope(IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).parent);
+          if (targetScopeIDX < 0) debugConfig.logger.throwIriError("Failed to resolve private binding!!!");
+        }
+      }
+    }
+    if (isBBSEXP(currSEXP)) {
+      currSEXP.args.forEach(e => this.reduceResolvePrivateEnvBindingSEXP(e, currSEXP.getScopeIDX()));
+    } else {
+      currSEXP.args.forEach(e => this.reduceResolvePrivateEnvBindingSEXP(e, currBBScope));
+    }
+  }
+
+  // 
   // 3. GenerateBBContainerSEXP: Generate BBContainerSEXP to group compilation targets
   // 
   generateBBContainerSEXP() {
@@ -296,6 +332,7 @@ export class IRIDIUMV2 {
             let bbContainer = new BBContainerSEXP(startBB.idx, targetScopeIDX, []);
             if (IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).isConstructor === 1) bbContainer.setConstructor();
             else if (IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).isConstructor === 2) bbContainer.setSConstructor();
+            else if (IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).sAllowed) bbContainer.setSAllowed();
             bbGroups.set(targetScopeIDX, bbContainer);
           } else debugConfig.logger.throwIriError("Expected BBSEXP")
         }
@@ -345,6 +382,13 @@ export class IRIDIUMV2 {
               if (isJSSuperContextSEXP(stmt)) {
                 contextualInit.push(["<super_ctr>", new JSSUPERCTRINITSEXP(new ResolveEnvBindingSEXP("<super_ctr>"))]);
                 contextualInit.push(["<new_target>", new JSNEWTARGETINITSEXP(new ResolveEnvBindingSEXP("<new_target>"))]);
+                contextualInit.push(["<super_obj>", new JSSUPEROBJINITSEXP(new ResolveEnvBindingSEXP("<super_obj>"))]);
+                if (!toRemove.has(bb)) toRemove.set(bb, new Set());
+                toRemove.get(bb).add(stmt);
+              }
+
+              // Super context: add "<super_obj>"
+              if (isJSSuperObjContextSEXP(stmt)) {
                 contextualInit.push(["<super_obj>", new JSSUPEROBJINITSEXP(new ResolveEnvBindingSEXP("<super_obj>"))]);
                 if (!toRemove.has(bb)) toRemove.set(bb, new Set());
                 toRemove.get(bb).add(stmt);

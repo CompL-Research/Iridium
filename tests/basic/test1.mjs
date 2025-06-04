@@ -247,16 +247,16 @@
 //   x = 13;
 // }
 
-class A extends Map {
-  x = 12
-  constructor() {
-    super();
-    // super();
-    // this.x = 11;
-  }
-}
+// class A extends Map {
+//   x = 12
+//   constructor() {
+//     super();
+//     // super();
+//     // this.x = 11;
+//   }
+// }
 
-console.log(new A().x)
+// console.log(new A().x)
 
 // console.log(new A().x);
 
@@ -265,3 +265,85 @@ console.log(new A().x)
 //   let a = 12;
 //   console.log(a);
 // }
+
+// class Test {
+//   #pvt = 12
+//   printPrivate() {
+//     function f(o) {
+//       console.log(o.#pvt);
+//       return;
+//     }
+//     f({});
+//     return;
+//   }
+// }
+
+// new Test().printPrivate();
+
+// class A {
+// }
+
+// a = NUBD;
+
+// a = 12;
+
+// let a;
+// // a = undefined;
+
+// a = 13;
+
+// {
+//   var a = 12;
+// }
+
+// {
+//   console.log(a);
+// }
+
+
+// class B extends A {
+//   t = 12
+//   fun() {
+
+//   }
+//   constructor() {
+//     super();
+//     super();
+//   }
+// }
+
+// new B()
+
+// let a = {
+//   a: 12,
+//   b: function b() { console.log(this); },
+//   c() { console.log(this); }
+// }
+// a.b();
+// a.c();
+
+
+
+// new B().test();
+
+// f();
+
+// function f() {
+//   //...
+//   console.log(this);
+// }
+
+// f = 12;
+
+class A {
+  x() { console.log("From x"); return; }
+}
+
+class B extends A {
+  test() {
+    super.x()
+    return;
+  }
+}
+
+new B().test();
