@@ -335,15 +335,123 @@
 
 // f = 12;
 
-class A {
-  x() { console.log("From x"); return; }
-}
+// class A {
+//   x() { console.log("From x"); return; }
+// }
 
-class B extends A {
-  test() {
-    super.x()
+// class B extends A {
+//   test() {
+//     super.x()
+//     return;
+//   }
+// }
+
+// new B().test();
+
+// class B {
+//   boo() { console.log("Calling boo"); return; }
+// }
+
+// class A extends B {
+//   foo = super.boo
+// }
+
+// console.log(new A().foo());
+
+// class B {
+//   // bar() {
+//   //   console.log("Foo")
+//   // }
+// }
+
+// class A {
+//   bar() { 
+//     console.log("Bar from a");
+//     return;
+//   }
+// }
+
+// class A {
+//   // #foo() {
+//   //   console.log("Private foo from A");
+//   //   return;
+//   // }
+
+//   foo() {
+//     // this.#foo();
+//     console.log("foo from A");
+//     return;
+//   }
+// }
+
+// class B extends A {
+//   foo() {
+//     super.foo();
+//     return;
+//   }
+// }
+
+
+// new B().foo()
+
+// class A {
+//   #foo = 12;
+//   bar() {
+//     console.log(this.#foo);
+//     return;
+//   }
+// }
+
+// new A().bar()
+
+
+
+
+// class A {
+//   #foo() {
+//   }
+
+//   boo() {
+//     this.#foo();
+//   }
+// }
+
+// #TEMP = #foo() {
+// }
+
+// boo() {
+//   [this, #TEMP]();
+// }
+
+// class A [
+//   A,
+//   undefined,
+//   ctr,
+//   classInit,
+//   boo()
+// ]
+
+// class A {
+//   #bart() { console.log("Calling bart"); }
+//   foo = class {
+//     bar() {
+//       this.#bart();
+//     }
+//   }
+// }
+
+class A {
+  #foo() {
+    console.log("Hello World");
+    return;
+  }
+
+  // #foo = 12;
+
+  foo() {
+    (this, this).#foo();
     return;
   }
 }
 
-new B().test();
+new A().foo();

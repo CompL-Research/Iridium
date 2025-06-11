@@ -109,7 +109,8 @@ function iri(filePath) {
     // // const encodedJson = encodeURIComponent(jsonString);
     // // debugConfig.logger.log(`https://jsoneditoronline.org/#left=json.${encodedJson}`);
 
-    debugConfig.logger.log("" + dumpSEXP(iridiumV2Builder.container));
+    // debugConfig.logger.log("" + dumpSEXP(iridiumV2Builder.container));
+    debugConfig.logger.log(iridiumV2Builder.container.toString());
 
     // // 3. Constructing Iridium
     // const directives: Array<string> = [];
