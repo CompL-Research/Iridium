@@ -5,7 +5,7 @@ import path from "path";
 import JS3Builder from "../JS3Builder.ts";
 import { JS3Program } from "../JS3Helpers/JS3Types.ts";
 import { IRIV2_STMT } from "./handleStatement.ts";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, GlobalBindingSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, RemoteEnvBindingSEXP, ResolveEnvBindingSEXP } from "./Types.ts";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, RemoteEnvBindingSEXP, ResolveEnvBindingSEXP } from "./Types.ts";
 import { dumpSEXP } from "./PP.ts";
 
 export class IridiumBuildContext {
@@ -15,8 +15,8 @@ export class IridiumBuildContext {
   scopeIdx: number;
   args: Array<string> = [];
   nubds: Array<string> = [];
-  isConstructor: number = 0;
-  sAllowed: boolean = false;
+
+  kind: number = 0
 
   privateMapping: Map<string, string> = null;
 
@@ -116,6 +116,7 @@ export class IRIDIUMV2 {
     const mainContainer = new FileSEXP("JSModule");
     this.container = mainContainer;
     const topLevelContext = new IridiumBuildContext(-1, undefined, "TopLevel");
+    topLevelContext.kind = getRegularClosureFlag();
     this.pushContext(topLevelContext);
     this.getCurrentBB().args.push(new JSThisContextSEXP());
     const startBB = this.getCurrentBB();
@@ -330,9 +331,7 @@ export class IRIDIUMV2 {
           let startBB = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).BB[0];
           if (isBBSEXP(startBB)) {
             let bbContainer = new BBContainerSEXP(startBB.idx, targetScopeIDX, []);
-            if (IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).isConstructor === 1) bbContainer.setConstructor();
-            else if (IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).isConstructor === 2) bbContainer.setSConstructor();
-            else if (IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).sAllowed) bbContainer.setSAllowed();
+            bbContainer.setClosureFlags(IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).kind);
             bbGroups.set(targetScopeIDX, bbContainer);
           } else debugConfig.logger.throwIriError("Expected BBSEXP")
         }

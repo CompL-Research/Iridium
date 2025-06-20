@@ -322,7 +322,57 @@ export function isBBSEXP(o: any): o is BBSEXP {
   return o.tag === "BB";
 }
 
-export type BBContainerSEXPFlags = "StartBBIDX" | "ScopeIDX" | "Constructor" | "SConstructor" | "SAllowed";
+
+// 
+// JS Code Container Flags
+// 
+
+// PROTO   -> Has Prototype
+// NEW     -> New Target Allowed
+// SCALL   -> Super Call Allowed
+// SOBJ    -> Super Object Allowed
+// HOME    -> Needs Home Object
+// DERIVED -> Is Derived Class Constructor
+
+// 
+// 1. Regular Closure = { }
+// 
+// 2. Constructor = { PROTO, NEW }
+// 
+// 3. Derived Constructor = { PROTO, NEW, SCALL, SOBJ, HOME, DERIVED }
+// 
+// 4. Derived Method = { SOBJ, HOME }
+// 
+// 5. Private Method = { HOME }
+// 
+// 6. Prop Init + no_private = {  }
+// 
+// 7. Prop Init Derived + no_private = { SOBJ, HOME }
+// 
+// 8. Prop Init + private = { HOME }
+// 
+// 9. Prop Init Derived + private = { SOBJ, HOME }
+// 
+// 10. Private Derived Method = { SOBJ, HOME }
+// 
+// 11. Static Prop Init = {  }
+// 
+// 12. Static Prop Init Derived = { SOBJ, HOME }
+// 
+export const getRegularClosureFlag = () => 1;
+export const getConstructorClosureFlag = () => 2;
+export const getDerivedConstructorClosureFlag = () => 3;
+export const getDerivedMethodClosureFlag = () => 4;
+export const getPrivateMethodClosureFlag = () => 5;
+export const getPropInitNoPrivateClosureFlag = () => 6;
+export const getPropInitDerivedNoPrivateClosureFlag = () => 7;
+export const getPropInitPrivateClosureFlag = () => 8;
+export const getPropInitDerivedPrivateClosureFlag = () => 9;
+export const getPrivateDerivedMethodClosureFlag = () => 10;
+export const getStaticPropInitClosureFlag = () => 11;
+export const getStaticPropInitDerivedClosureFlag = () => 12;
+
+export type BBContainerSEXPFlags = "StartBBIDX" | "ScopeIDX" | "PROTO" | "NEW" | "SCALL" | "SOBJ" | "HOME" | "DERIVED";
 export class BBContainerSEXP extends IridiumSEXP {
   constructor(startBBIDx: number, scopeIDX: number, bbs: Array<BBSEXP>) {
     super("BBContainer");
@@ -335,32 +385,26 @@ export class BBContainerSEXP extends IridiumSEXP {
   }
 
   // Flags
-  setSAllowed() {
-    this.setFlag("SAllowed");
-  }
-
-  unsetSAllowed() {
-    this.removeFlag("SAllowed");
-  }
-
-  setSConstructor() {
-    this.setFlag("SConstructor");
-  }
-
-  unsetSConstructor() {
-    this.removeFlag("SConstructor");
-  }
-  
-  setConstructor() {
-    this.setFlag("Constructor");
-  }
-
-  unsetConstructor() {
-    this.removeFlag("Constructor");
-  }
-
-  isConstructor(): boolean {
-    return this.hasFlag("Constructor");
+  setClosureFlags(flag: number) {
+    const flags: Array<BBContainerSEXPFlags> = [];
+    this.setFlag("ContainerFlagID", flag);
+    switch (flag) {
+      case 0: debugConfig.logger.throwIriError("Invalid closure flag");
+      case 1: break;
+      case 2: flags.push("PROTO", "NEW"); break;
+      case 3: flags.push("PROTO", "NEW", "SCALL", "SOBJ", "HOME", "DERIVED"); break;
+      case 4: flags.push("SOBJ", "HOME"); break;
+      case 5: flags.push("HOME"); break;
+      case 6: flags.push(); break;
+      case 7: flags.push("SOBJ", "HOME"); break;
+      case 8: flags.push("HOME"); break;
+      case 9: flags.push("SOBJ", "HOME"); break;
+      case 10: flags.push("SOBJ", "HOME"); break;
+      case 11: flags.push(); break;
+      case 12: flags.push("SOBJ", "HOME"); break;
+      default: debugConfig.logger.throwIriError("expected a valid closure flag");
+    }
+    flags.forEach(f => this.setFlag(f));
   }
 
   setStartBBIDX(startBBIDX: number) {
@@ -728,15 +772,18 @@ export class JSADDBRANDSEXP extends IridiumSEXP {
 
 // (Extension) JSClass
 export class JSClassSEXP extends IridiumSEXP {
-  constructor(hasSuper: boolean, name: string, parent: IridiumSEXP, constructorLambda: LambdaSEXP, propInitLambda: IridiumSEXP, methodList: IridiumSEXP, brandPrototype: boolean) {
+  constructor(hasSuper: boolean, name: string, parent: IridiumSEXP, constructorLambda: LambdaSEXP, propInitLambda: IridiumSEXP, methodList: IridiumSEXP, staticMethodList: IridiumSEXP, brandPrototype: boolean, brandConstructor: boolean, staticPropInitLambda: IridiumSEXP) {
     super("JSClass");
     if (hasSuper) this.setFlag("Derived");
     if (brandPrototype) this.setFlag("BrandPrototype");
+    if (brandConstructor) this.setFlag("BrandConstructor");
     this.args.push(new StringSEXP(name));
     this.args.push(parent);
     this.args.push(constructorLambda);
     this.args.push(propInitLambda);
     this.args.push(methodList);
+    this.args.push(staticMethodList);
+    this.args.push(staticPropInitLambda);
   }
 
   toString(space?: number): string {
