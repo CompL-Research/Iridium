@@ -5,7 +5,7 @@ import path from "path";
 import JS3Builder from "../JS3Builder.ts";
 import { JS3Program } from "../JS3Helpers/JS3Types.ts";
 import { IRIV2_STMT } from "./handleStatement.ts";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, RemoteEnvBindingSEXP, ResolveEnvBindingSEXP } from "./Types.ts";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP } from "./Types.ts";
 import { dumpSEXP } from "./PP.ts";
 
 export class IridiumBuildContext {
@@ -16,7 +16,15 @@ export class IridiumBuildContext {
   args: Array<string> = [];
   nubds: Array<string> = [];
 
-  kind: number = 0
+  loopConfig: {
+    loopHeadIDX: number,
+    loopBodyIDX: number,
+    label: string | null,
+    breakTarget: number,
+    continueTarget: number
+  } = null;
+
+  kind: number = 0;
 
   privateMapping: Map<string, string> = null;
 
@@ -134,6 +142,7 @@ export class IRIDIUMV2 {
     this.reduceResolveEnvBindingSEXP(this.container, 0);
     this.resolveLambdaTargets();
     this.addIDXForRemoteBindings();
+    this.resolveBreakAndContinueTargets(this.container);
 
     // Add Module Init Header, this has to done because of hoisting...
     startBB.args = [new JSModuleStartSEXP(),...startBB.args];
@@ -142,6 +151,19 @@ export class IRIDIUMV2 {
   // 
   // Helper Functions
   // 
+
+  findLoopControlTarget(localScope: number, node: ResolveContinueTargetSEXP | ResolveBreakTargetSEXP): number {
+    if (localScope === -1) debugConfig.logger.throwIriError("Failed to find loop control target!!!");
+    if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) debugConfig.logger.throwIriError(`build context not found for scope: ${localScope}`);
+    let buildContext = IridiumBuildContext.CONTEXT_MAP.get(localScope);
+    if (!buildContext.loopConfig) return this.findLoopControlTarget(buildContext.parent, node);
+
+    const loopConfig = buildContext.loopConfig;
+    if (node.hasLabel() && loopConfig.label !== node.getLabel()) return this.findLoopControlTarget(buildContext.parent, node);
+    
+    return isResolveBreakTargetSEXP(node) ? loopConfig.breakTarget : loopConfig.continueTarget;
+  }
+
   findParentClosureScope(localScope: number) {
     if (localScope === -1) return -1;
     if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) debugConfig.logger.throwIriError(`build context not found for scope: ${localScope}`)
@@ -185,6 +207,25 @@ export class IRIDIUMV2 {
     const bbContainer = this.getBBContainerSEXPByScopeId(this.findParentClosureScope(parentScope));
     const parentBindingsSEXP = bbContainer.getBindings();
     return this.isGlobalBinding(name, startScope, parentBindingsSEXP);
+  }
+
+  // 
+  // 5. PopulateClosurePool: Populate the scope descriptor with lexical reads.
+  // 
+  resolveBreakAndContinueTargets(currSEXP: IridiumSEXP) {
+    if (isBindingsSEXP(currSEXP)) {
+      return;
+    }
+    if (isBBSEXP(currSEXP)) { // Break and Continue are statements, old tricks wont work here!!
+      for (let i = 0; i < currSEXP.args.length; i++) {
+        let s = currSEXP.args[i];
+        if (isResolveBreakTargetSEXP(s) || isResolveContinueTargetSEXP(s)) {        
+          let target = this.findLoopControlTarget(currSEXP.getScopeIDX(), s);
+          currSEXP.args[i] = new GotoSEXP(target);
+        }
+      }
+    }
+    currSEXP.args.forEach(e => this.resolveBreakAndContinueTargets(e));
   }
 
   // 

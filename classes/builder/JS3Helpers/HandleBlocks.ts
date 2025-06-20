@@ -1439,7 +1439,7 @@ export function handleForStatement(node: ForStatement, otherProps: OtherProps) {
   const orig_init = node.init; // Handling prop init
   let fin_init: JS3ForStatement_init = null; // Handling prop init
   if (isVariableDeclaration(orig_init)) {
-    fin_init = handleLoopDeclaration(orig_init, otherProps);
+    fin_init = orig_init;
   } else if (isExpression(orig_init)) {
     fin_init = lowerComputedKey(orig_init, otherProps);
   }

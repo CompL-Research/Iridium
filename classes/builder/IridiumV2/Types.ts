@@ -1460,6 +1460,15 @@ export class IfElseJumpSEXP extends IridiumSEXP {
     this.setFALSE(falseTarget);
   }
 
+  // Args
+  setTest(test: IridiumSEXP) {
+    this.args[0] = test;
+  }
+
+  getTest() {
+    return this.args[0];
+  }
+
   // Flags
   setTRUE(idx: number) {
     this.setFlag("TRUE", idx)
@@ -1475,6 +1484,10 @@ export class IfElseJumpSEXP extends IridiumSEXP {
 
   getFALSE(): number {
     return this.getFlagNumber("FALSE");
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}GOTO (${this.getTest().toString(0)}) ? ${this.getTRUE()} : ${this.getFALSE()}`;
   }
 }
 
@@ -1537,4 +1550,58 @@ export class ResolvePrivateEnvBindingSEXP extends IridiumSEXP {
 export function isResolvePrivateEnvBindingSEXP(o: any): o is ResolvePrivateEnvBindingSEXP {
   // @ts-ignore
   return o.tag === "ResolvePrivateEnvBinding";
+}
+
+// (Extension) ResolveBreakTarget
+export class ResolveBreakTargetSEXP extends IridiumSEXP {
+  constructor(label: string = null) {
+    super("ResolveBreakTarget");
+    if (label) this.setLabel(label);
+  }
+
+  // Args
+  hasLabel() : boolean {
+    return this.hasFlag("Label");
+  }
+
+  setLabel(label: string) {
+    this.setFlag("Label", label);
+  }
+
+  getLabel() : string {
+    return this.getFlagString("Label");
+  }
+}
+
+// @ts-ignore
+export function isResolveBreakTargetSEXP(o: any): o is ResolveBreakTargetSEXP {
+  // @ts-ignore
+  return o.tag === "ResolveBreakTarget";
+}
+
+// (Extension) ContinueTargetSEXP
+export class ResolveContinueTargetSEXP extends IridiumSEXP {
+  constructor(label: string = null) {
+    super("ResolveContinueTarget");
+    if (label) this.setLabel(label);
+  }
+
+  // Args
+  hasLabel() : boolean {
+    return this.hasFlag("Label");
+  }
+
+  setLabel(label: string) {
+    this.setFlag("Label", label);
+  }
+
+  getLabel() : string {
+    return this.getFlagString("Label");
+  }
+}
+
+// @ts-ignore
+export function isResolveContinueTargetSEXP(o: any): o is ResolveContinueTargetSEXP {
+  // @ts-ignore
+  return o.tag === "ResolveContinueTarget";
 }

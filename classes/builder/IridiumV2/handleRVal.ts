@@ -584,7 +584,7 @@ const handleClassExpression = (cx: IRIDIUMV2, node: JS3ClassExpression): Iridium
   return new JSClassSEXP(hasSuper, name, heritage, constructorLambda, new EnvReadSEXP(classPropInitClosure), methodList, staticMethodList, addBrand, addStaticBrand, new EnvReadSEXP(classStaticPropInitClosure));
 }
 
-const lowerExprToResolveEnvBindingSEXP = (cx: IRIDIUMV2, from: JS3ContainedExprKey | Expression) => {
+export const lowerExprToResolveEnvBindingSEXP = (cx: IRIDIUMV2, from: JS3ContainedExprKey | Expression) => {
   // Generate 3JS code
   const otherProps = cx.js3Builder.utils;
   const js3SpillHolder: JS3BlockStatement_body = [];

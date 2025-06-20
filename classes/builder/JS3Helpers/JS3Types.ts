@@ -1,4 +1,4 @@
-// Generated on 13/2/2025, 11:19:43 am, extended 64 interfaces 
+// Generated on 20/6/2025, 2:53:36 pm, extended 64 interfaces 
 
 import { ConditionalExpression, AssignmentPattern, ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, Expression, OptionalCallExpression, OptionalMemberExpression, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DebuggerStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -248,7 +248,7 @@ export type JS3File_program = JS3Program;
 export type JS3ForInStatement_left = JS3LoopDeclaration | JS3MemberExpression | ArrayPattern | ObjectPattern | Identifier;
 export type JS3ForInStatement_right = Identifier;
 export type JS3ForInStatement_body = JS3BlockStatement;
-export type JS3ForStatement_init = JS3LoopDeclaration | JS3ContainedExprKey | null;
+export type JS3ForStatement_init = VariableDeclaration | JS3ContainedExprKey | null;
 export type JS3ForStatement_test = JS3ContainedExprKey | null;
 export type JS3ForStatement_update = JS3ContainedExprKey | null;
 export type JS3ForStatement_body = JS3BlockStatement;

@@ -1,11 +1,13 @@
 import debugConfig from "#debugConfig";
-import { ArrayPattern, AssignmentPattern, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isObjectPattern, ObjectPattern } from "@babel/types";
+import { ArrayPattern, AssignmentPattern, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isObjectPattern, isVariableDeclaration, ObjectPattern, VariableDeclaration } from "@babel/types";
 import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
 import { generateIdentifier, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
-import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3MemberExpression, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3FunctionDeclaration, JS3IfStatement, JS3MemberExpression, JS3ObjectPattern, JS3ReturnStatement, JS3StaticBlock, JS3VariableDeclaration, JS3VariableDeclarator_init } from "../JS3Helpers/JS3Types.ts";
+import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3LoopDeclaration, isJS3MemberExpression, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3LoopDeclaration, JS3LoopDeclarator, JS3MemberExpression, JS3ObjectPattern, JS3ReturnStatement, JS3StaticBlock, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3WhileStatement } from "../JS3Helpers/JS3Types.ts";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2.ts";
-import { EnvReadSEXP, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSThisContextSEXP, LambdaSEXP, ListSEXP, ResolveEnvBindingSEXP, ReturnSEXP, StringSEXP } from "./Types.ts";
-import { IRIV2_RVAL } from "./handleRVal.ts";
+import { EnvReadSEXP, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, isBBSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSThisContextSEXP, LambdaSEXP, ListSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnSEXP, StringSEXP } from "./Types.ts";
+import { IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP } from "./handleRVal.ts";
+
+import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks.ts";
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   if (isJS3ImportDeclaration(stmt)) {
@@ -33,19 +35,25 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   } else if (isJS3EmptyStatement(stmt)) {
     // debugConfig.logger.throwIriError("IRIV2: TODO JS3EmptyStatement");
   } else if (isJS3WhileStatement(stmt)) {
-    debugConfig.logger.throwIriError("IRIV2: TODO JS3WhileStatement");
+    handleWhileStatement(cx, stmt);
   } else if (isJS3BreakStatement(stmt)) {
-    debugConfig.logger.throwIriError("IRIV2: TODO JS3BreakStatement");
+    const label = stmt.label ? stmt.label.name : null;
+    cx.getCurrentBB().args.push(new ResolveBreakTargetSEXP(label));
   } else if (isJS3ContinueStatement(stmt)) {
-    debugConfig.logger.throwIriError("IRIV2: TODO JS3ContinueStatement");
+    const label = stmt.label ? stmt.label.name : null;
+    cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP(label));
   } else if (isJS3BlockStatement(stmt)) {
     handleBlockStatement(cx, stmt);
   } else if (isJS3ForInStatement(stmt)) {
     debugConfig.logger.throwIriError("IRIV2: TODO JS3ForInStatement");
   } else if (isJS3LabeledStatement(stmt)) {
-    debugConfig.logger.throwIriError("IRIV2: TODO JS3LabeledStatement");
+    if (isJS3WhileStatement(stmt.body)) {
+      handleWhileStatement(cx, stmt.body, stmt.label.name);
+    } else {
+      debugConfig.logger.throwIriError("IRIV2: TODO JS3LabeledStatement");  
+    }
   } else if (isJS3ForStatement(stmt)) {
-    debugConfig.logger.throwIriError("IRIV2: TODO JS3ForStatement");
+    handleForStatement(cx, stmt);
   } else if (isJS3DoWhileStatement(stmt)) {
     debugConfig.logger.throwIriError("IRIV2: TODO JS3DoWhileStatement");
   } else if (isJS3SwitchStatement(stmt)) {
@@ -83,6 +91,114 @@ const handleReturnStatement = (cx: IRIDIUMV2, stmt: JS3ReturnStatement) => {
   if (stmt.argument) arg = IRIV2_RVAL(cx, stmt.argument);
   else arg = new EnvReadSEXP("undefined");
   cx.getCurrentBB().args.push(new ReturnSEXP(arg));
+}
+
+const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement) => {
+  const currentContext = cx.getCurrentContext();
+  const currentBB = currentContext.getCurrentBB();
+  cx.addContinuation(currentContext);
+  const postBB = currentContext.getCurrentBB();
+
+  const gotoStartToInit = new GotoSEXP(-1);
+  const gotoInitToTest = new GotoSEXP(-1);
+  const gotoTestToPostLoop = new IfElseJumpSEXP(null, -1, -1);
+  const gotoPostLoopToTest = new GotoSEXP(-1);
+
+  // CurrBBToTest
+  currentBB.args.push(gotoStartToInit);
+
+  // Lower Init Code
+  cx.declareAndPushLexicalContext();
+  gotoStartToInit.setIDX(cx.getCurrentBB().getIDX());
+  if (isVariableDeclaration(stmt.init)) {
+    handleLoopInitBlock(cx, stmt.init);
+  } else {
+    lowerExprToResolveEnvBindingSEXP(cx, stmt.init);
+  }
+  cx.getCurrentBB().args.push(gotoInitToTest);
+  
+
+  // Lower Test code
+  cx.declareAndPushLexicalContext();
+  gotoInitToTest.setIDX(cx.getCurrentBB().getIDX());
+  gotoPostLoopToTest.setIDX(cx.getCurrentBB().getIDX())
+
+  const testResult = lowerExprToResolveEnvBindingSEXP(cx, stmt.test);
+  gotoTestToPostLoop.setTest(new EnvReadSEXP(testResult.getBindingName()));
+  gotoTestToPostLoop.setFALSE(postBB.getIDX());
+
+  cx.getCurrentBB().args.push(gotoTestToPostLoop);
+  cx.popContext();
+
+  // Loop Body
+  cx.declareAndPushLexicalContext();
+  gotoTestToPostLoop.setTRUE(cx.getCurrentBB().getIDX());
+  handleBlockStatement(cx, stmt.body);
+
+  cx.getCurrentBB().args.push(gotoPostLoopToTest);
+  cx.popContext();
+
+  cx.popContext();
+}
+
+const handleWhileStatement = (cx: IRIDIUMV2, stmt: JS3WhileStatement, label: string = null) => {
+  const currentContext = cx.getCurrentContext();
+  const currentBB = currentContext.getCurrentBB();
+  cx.addContinuation(currentContext);
+  const postBB = currentContext.getCurrentBB();
+
+  let loopHeadContext: IridiumBuildContext = null;
+
+  // const loop head config
+  const loopConfig: {
+    loopHeadIDX: number,
+    loopBodyIDX: number,
+    label: string | null,
+    breakTarget: number,
+    continueTarget: number
+  } = {
+    loopHeadIDX: -1,
+    loopBodyIDX: -1,
+    label: label ? label : null,
+    breakTarget: -1,
+    continueTarget: -1
+  }
+
+  loopConfig.breakTarget = postBB.getIDX();
+
+  // Control Flow Nodes
+  const currentBBToLoopHeadNode = new GotoSEXP(-1);
+  const testBBElseIfNode = new IfElseJumpSEXP(null, -1, -1);
+
+  // 1. Current BB to LoopHead
+  currentBB.args.push(currentBBToLoopHeadNode);
+
+  // 2. While Loop Test
+  cx.declareAndPushLexicalContext();
+  loopHeadContext = cx.getCurrentContext();
+  loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX(); // In a while loop continue returns to test block
+  const testResult = lowerExprToResolveEnvBindingSEXP(cx, stmt.test);
+  testBBElseIfNode.setTest(new EnvReadSEXP(testResult.getBindingName()));
+  cx.getCurrentBB().args.push(testBBElseIfNode);
+  
+  // 3. While Body
+  cx.declareAndPushLexicalContext();
+  loopConfig.loopBodyIDX = cx.getCurrentBB().getIDX();
+  handleBlockStatement(cx, stmt.body);
+  cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP(label));
+  
+  cx.popContext(); // While Body
+  cx.popContext(); // While Loop Test
+  
+  // Initialize Nodes
+  if (loopHeadContext) {
+    loopHeadContext.loopConfig = loopConfig;
+    currentBBToLoopHeadNode.setIDX(loopConfig.loopHeadIDX);
+    testBBElseIfNode.setTRUE(loopConfig.loopBodyIDX);
+    testBBElseIfNode.setFALSE(loopConfig.breakTarget);
+  } else {
+    debugConfig.logger.throwIriError("[WhileStatement] Loop head context is null...");
+  }
 }
 
 const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
@@ -182,6 +298,19 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
 
   debugConfig.logger.throwIriError("IRIV2: JS3VariableDeclaration UNHANDLED");
   return;
+}
+
+const handleLoopInitBlock = (cx: IRIDIUMV2, stmt: VariableDeclaration) => {
+  const otherProps = cx.js3Builder.utils;
+  const js3SpillHolder: JS3BlockStatement_body = [];
+  const updatedProps = {
+    ...otherProps,
+    others: { ...otherProps.others, holder: js3SpillHolder },
+  };
+  const res = js3handleVariableDeclaration(stmt, updatedProps);
+  for (let stmt of res) {
+    IRIV2_STMT(cx, stmt)
+  }
 }
 
 export const getArrayDestSEXP = (stmt: JS3ArrayPattern): [IridiumSEXP, boolean] => {
