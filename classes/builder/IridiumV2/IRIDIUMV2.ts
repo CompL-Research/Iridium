@@ -19,6 +19,7 @@ export class IridiumBuildContext {
   loopConfig: {
     loopHeadIDX: number,
     loopBodyIDX: number,
+    loopInitIDX: number,
     label: string | null,
     breakTarget: number,
     continueTarget: number

@@ -593,6 +593,10 @@ export class JSArraySEXP extends IridiumSEXP {
     super("JSArray");
     vals.forEach(e => this.args.push(e));
   }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}JSArray [${this.args.map(e => e.toString(0)).join(", ")}]`
+  }
 }
 
 // @ts-ignore
@@ -740,6 +744,28 @@ export class JSSUPEROBJINITSEXP extends IridiumSEXP {
   }
 }
 
+// (Extension) JSToForInIterator
+export class JSToForInIteratorSEXP extends IridiumSEXP {
+  constructor(object: IridiumSEXP) {
+    super("JSToForInIterator");
+    this.args.push(object);
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}JSToForInIterator[${this.args[0].toString(0)}]`
+  }
+}
+
+// (Extension) JSForInNext
+export class JSForInNextSEXP extends IridiumSEXP {
+  constructor(iterator: string, doneTarget: string, nextTarget: string) {
+    super("JSForInNext");
+    this.args.push(new EnvReadSEXP(iterator));
+    this.args.push(new ResolveEnvBindingSEXP(doneTarget));
+    this.args.push(new ResolveEnvBindingSEXP(nextTarget));
+  }
+}
+
 // @ts-ignore
 export function isJSObjectSEXP(o: any): o is JSObjectSEXP {
   // @ts-ignore
@@ -883,7 +909,7 @@ export class EnvReadSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}${this.args[0].toString(0)}`
+    return `${printSpace(space)}EnvRead [${this.args[0].toString(0)}]`
   }
 }
 

@@ -1544,62 +1544,62 @@ export function handleForInStatement(
 ) {
   // 1 fallthrough props, 3 restricted props
   const orig_left = node.left; // Handling prop left
-  let fin_left: JS3ForInStatement_left; // Handling prop left
-  if (isVariableDeclaration(orig_left)) {
-    // assert that this is of the form and only has one entry
-    //
-    // KIND ID <--- We dont want to allow any other syntax forms here.
-    //
+  let fin_left: JS3ForInStatement_left = orig_left; // Handling prop left
+  // if (isVariableDeclaration(orig_left)) {
+  //   // assert that this is of the form and only has one entry
+  //   //
+  //   // KIND ID <--- We dont want to allow any other syntax forms here.
+  //   //
 
-    if (orig_left.declarations.length > 1)
-      debugConfig.logger.throwJS3Error(
-        "ForInStatement, unexpected form for lval of the loop header, has more than one declaration",
-      );
-    if (orig_left.declarations[0].init)
-      debugConfig.logger.throwJS3Error(
-        "ForInStatement, declaration is not expected to have an initializer",
-      );
+  //   if (orig_left.declarations.length > 1)
+  //     debugConfig.logger.throwJS3Error(
+  //       "ForInStatement, unexpected form for lval of the loop header, has more than one declaration",
+  //     );
+  //   if (orig_left.declarations[0].init)
+  //     debugConfig.logger.throwJS3Error(
+  //       "ForInStatement, declaration is not expected to have an initializer",
+  //     );
 
-    fin_left = handleLoopDeclaration(orig_left, otherProps);
+  //   fin_left = handleLoopDeclaration(orig_left, otherProps);
 
-    fin_left = handleLoopDeclaration(orig_left, otherProps);
-  } else if (isIdentifier(orig_left)) {
-    fin_left = orig_left;
-  } else if (isMemberExpression(orig_left)) {
-    fin_left = handleMemberExpression(orig_left, otherProps);
-  } else if (isRestElement(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->RestElement",
-    );
-  } else if (isAssignmentPattern(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->AssignmentPattern",
-    );
-  } else if (isArrayPattern(orig_left)) {
-    fin_left = orig_left;
-  } else if (isObjectPattern(orig_left)) {
-    fin_left = orig_left;
-  } else if (isTSParameterProperty(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->TSParameterProperty",
-    );
-  } else if (isTSAsExpression(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->TSAsExpression",
-    );
-  } else if (isTSSatisfiesExpression(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->TSSatisfiesExpression",
-    );
-  } else if (isTSTypeAssertion(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->TSTypeAssertion",
-    );
-  } else if (isTSNonNullExpression(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->TSNonNullExpression",
-    );
-  }
+  //   fin_left = handleLoopDeclaration(orig_left, otherProps);
+  // } else if (isIdentifier(orig_left)) {
+  //   fin_left = orig_left;
+  // } else if (isMemberExpression(orig_left)) {
+  //   fin_left = handleMemberExpression(orig_left, otherProps);
+  // } else if (isRestElement(orig_left)) {
+  //   debugConfig.logger.throwJS3Error(
+  //     "TODO // unhandled ForOfStatement->left->RestElement",
+  //   );
+  // } else if (isAssignmentPattern(orig_left)) {
+  //   debugConfig.logger.throwJS3Error(
+  //     "TODO // unhandled ForOfStatement->left->AssignmentPattern",
+  //   );
+  // } else if (isArrayPattern(orig_left)) {
+  //   fin_left = orig_left;
+  // } else if (isObjectPattern(orig_left)) {
+  //   fin_left = orig_left;
+  // } else if (isTSParameterProperty(orig_left)) {
+  //   debugConfig.logger.throwJS3Error(
+  //     "TODO // unhandled ForOfStatement->left->TSParameterProperty",
+  //   );
+  // } else if (isTSAsExpression(orig_left)) {
+  //   debugConfig.logger.throwJS3Error(
+  //     "TODO // unhandled ForOfStatement->left->TSAsExpression",
+  //   );
+  // } else if (isTSSatisfiesExpression(orig_left)) {
+  //   debugConfig.logger.throwJS3Error(
+  //     "TODO // unhandled ForOfStatement->left->TSSatisfiesExpression",
+  //   );
+  // } else if (isTSTypeAssertion(orig_left)) {
+  //   debugConfig.logger.throwJS3Error(
+  //     "TODO // unhandled ForOfStatement->left->TSTypeAssertion",
+  //   );
+  // } else if (isTSNonNullExpression(orig_left)) {
+  //   debugConfig.logger.throwJS3Error(
+  //     "TODO // unhandled ForOfStatement->left->TSNonNullExpression",
+  //   );
+  // }
 
   const orig_right = node.right; // Handling prop right
   let fin_right: JS3ForInStatement_right; // Handling prop right
