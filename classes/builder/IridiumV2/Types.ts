@@ -1,10 +1,26 @@
 import debugConfig from "#debugConfig";
 import { IridiumBuildContext } from "./IRIDIUMV2.ts";
 
-const printSpace = (times: number) => " ".repeat(times);
+let skipMid: boolean = false;
+const printSpace = (times: number) => {
+  let res = [];
+  for (let i = 0; i < times; i++) {
+    if (skipMid) {
+      res.push(" ");
+    } else {
+      if (i % 2 == 0) {
+        res.push("░");
+      } else {
+        res.push(" ");
+      }
+    }
+  }
+  return res.join('');
+  
+};
 const printFlagString = (flags: Array<[string, IridiumPrimitives]>) => {
   if (flags.length === 0) return "";
-  return `(${flags.map(e => e[1] !== null ? `${e[0]} => ${e[1]}` : `${e[0]}`).join(", ")})`
+  return `[${flags.map(e => e[1] !== null ? `${e[0]} : ${e[1]}` : `${e[0]}`).join(", ")}]`
 }
 
 export type IridiumPrimitives = number | boolean | string | null;
@@ -314,6 +330,16 @@ export class BBSEXP extends IridiumSEXP {
   isLexical() {
     return this.hasFlag("Lexical");
   }
+
+  toString(space?: number): string {
+    const res = [];
+    res.push(`${printSpace(space)}██▒${printFlagString(this.flags)}`);
+    for (let s of this.args) {
+      res.push(`${printSpace(space)}█▒ ${s.toString(0)}`);
+    }
+    res.push(`${printSpace(space)}██▒`)
+    return res.join("\n");
+  }
 }
 
 // @ts-ignore
@@ -446,6 +472,14 @@ export class BBContainerSEXP extends IridiumSEXP {
   addBB(bb: BBSEXP) {
     this.getBBs().push(bb);
   }
+
+  toString(space?: number): string {
+    let res = [];
+    res.push(`${printSpace(space)}📦${printFlagString(this.flags)}`)
+    const args = this.args.map(e => e.toString(space + 2));
+    res = [...res, ...args];
+    return res.join("\n");
+  }
 }
 
 // @ts-ignore
@@ -530,6 +564,22 @@ export class ListSEXP extends IridiumSEXP {
   setFlag(flag: ListSEXPFlags) {
     super.setFlag(flag);
   }
+
+  toString(space?: number): string {
+    let res;
+    if (this.hasFlag("BBs")) {
+      res = `${printSpace(space)}BBs${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
+    } else if (this.hasFlag("LambdaPool")) {
+      res = `${printSpace(space)}LambdaPool${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
+    } else if (this.hasFlag("RemoteBindings")) {
+      res = `${printSpace(space)}RemoteBindings${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
+    } else if (this.hasFlag("LocalBindings")) {
+      res = `${printSpace(space)}LocalBindings${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
+    } else {
+      return super.toString(space)
+    }
+    return res;
+  }
 }
 
 // @ts-ignore
@@ -605,7 +655,7 @@ export function isJSArraySEXP(o: any): o is JSArraySEXP {
   return o.tag === "JSArray";
 }
 
-// (Extension) JSObjectProp
+// (Extension) JSComputedObjectProp
 export class JSComputedObjectPropSEXP extends IridiumSEXP {
   constructor(key: IridiumSEXP, value: IridiumSEXP) {
     super("JSComputedObjectProp");
@@ -626,6 +676,10 @@ export class JSObjectPropSEXP extends IridiumSEXP {
     super("JSObjectProp");
     this.args.push(new StringSEXP(key));
     this.args.push(value);
+  }
+
+  toString(space?: number): string {
+    return `░ ░ ░ ███▒▒ ${this.tag} => {${this.args[0].toString(0)} : ${this.args[1].toString(0)}}`;
   }
 }
 
@@ -680,6 +734,10 @@ export class JSObjectSEXP extends IridiumSEXP {
   constructor(vals: Array<IridiumSEXP>) {
     super("JSObject");
     vals.forEach(e => this.args.push(e));
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}${this.tag}\n${this.args.map(e => e.toString(8)).join("\n")}`;
   }
 }
 
@@ -808,6 +866,10 @@ export class JSNUBDSEXP extends IridiumSEXP {
   constructor() {
     super("JSNUBD");
   }
+
+  toString(space?: number): string {
+    return "❌";
+  }
 }
 
 // (Extension) JSADDBRAND
@@ -849,12 +911,18 @@ export class JSModuleStartSEXP extends IridiumSEXP {
   constructor() {
     super("JSModuleStart");
   }
+  toString(space?: number): string {
+    return `${printSpace(space)}🟢`;
+  }
 }
 
 // (Extension) JSModuleEnd
 export class JSModuleEndSEXP extends IridiumSEXP {
   constructor() {
     super("JSModuleEnd");
+  }
+  toString(space?: number): string {
+    return `${printSpace(space)}🔴`;
   }
 }
 
@@ -984,8 +1052,34 @@ export class RemoteEnvBindingSEXP extends IridiumSEXP {
     return this.getFlagNumber("REFIDX");
   }
 
+  resolveRemoteBinding(binding: RemoteEnvBindingSEXP): EnvBindingSEXP {
+    let containedBinding = binding.args[0];
+    if (isEnvBindingSEXP(containedBinding)) {
+      return containedBinding;
+    } else if (isRemoteEnvBindingSEXP(containedBinding)) {
+      return this.resolveRemoteBinding(containedBinding);
+    }
+    debugConfig.logger.throwIriError("RemoteEnvBindingSEXP contains invalid object");
+  }
+
+  getLookupTrace(binding: RemoteEnvBindingSEXP, res = []) {
+    res.push(binding.getREFIDX());
+    let containedBinding = binding.args[0];
+    if (isEnvBindingSEXP(containedBinding)) {
+      res.push(containedBinding.getREFIDX());
+      return res;
+    } else if (isRemoteEnvBindingSEXP(containedBinding)) {
+      res.push(containedBinding.getREFIDX());
+      return this.getLookupTrace(containedBinding);
+    }
+    debugConfig.logger.throwIriError("RemoteEnvBindingSEXP, failed to get lookup trace");
+  }
+
   toString(space?: number): string {
-    return `${printSpace(space)}[${this.getREFIDX()}] -> ${this.args[0].toString(0)}`
+    if (isEnvBindingSEXP(this.args[0])) { // Top Level Binding
+      return `${printSpace(space)}🟧(${this.getLookupTrace(this).join("-")})${this.resolveRemoteBinding(this).toString()}`;
+    }
+    return `${printSpace(space)}🟥(${this.getLookupTrace(this).join("-")})${this.resolveRemoteBinding(this).toString()}`;
   }
 }
 
@@ -1022,7 +1116,7 @@ export class PoolBindingSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}POOL[${this.getREFIDX()} -(λ)-> ${this.getStartBBIDX()}]`
+    return `${printSpace(space)}POOL[λ@${this.getStartBBIDX()}]`
   }
 }
 
