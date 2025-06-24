@@ -756,6 +756,17 @@ export class JSToForInIteratorSEXP extends IridiumSEXP {
   }
 }
 
+// (Extension) JSForOfStart
+export class JSForOfStartSEXP extends IridiumSEXP {
+  constructor(obj: string, iteratorObjHolder: string, iteratorMethodHolder: string, catchOffsetHolder: string) {
+    super("JSForOfStart");
+    this.args.push(new EnvReadSEXP(obj));
+    this.args.push(new ResolveEnvBindingSEXP(iteratorObjHolder));
+    this.args.push(new ResolveEnvBindingSEXP(iteratorMethodHolder));
+    this.args.push(new ResolveEnvBindingSEXP(catchOffsetHolder));
+  }
+}
+
 // (Extension) JSForInNext
 export class JSForInNextSEXP extends IridiumSEXP {
   constructor(iterator: string, doneTarget: string, nextTarget: string) {
@@ -763,6 +774,18 @@ export class JSForInNextSEXP extends IridiumSEXP {
     this.args.push(new EnvReadSEXP(iterator));
     this.args.push(new ResolveEnvBindingSEXP(doneTarget));
     this.args.push(new ResolveEnvBindingSEXP(nextTarget));
+  }
+}
+
+// (Extension) JSForOfNext
+export class JSForOfNextSEXP extends IridiumSEXP {
+  constructor(iteratorObjHolder: string, iteratorMethodHolder: string, catchOffsetHolder: string, resultHolder: string, doneHolder: string) {
+    super("JSForOfNext");
+    this.args.push(new EnvReadSEXP(iteratorObjHolder));
+    this.args.push(new EnvReadSEXP(iteratorMethodHolder));
+    this.args.push(new EnvReadSEXP(catchOffsetHolder));
+    this.args.push(new ResolveEnvBindingSEXP(resultHolder));
+    this.args.push(new ResolveEnvBindingSEXP(doneHolder));
   }
 }
 

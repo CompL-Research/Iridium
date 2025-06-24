@@ -20,10 +20,37 @@
 //   }
 // }
 
-loop1: while(true) {
-  for (let i in [1,2,3,4]) {
-    console.log(i);
-    if (i === 3) break loop1;
-  }
-}
+// let temp = [1,2,3,4]
 
+// for (let i in OP(temp)) {
+//   console.log(i);
+// }
+
+// {
+//   temp1, x, y = OP(temp)
+//   {
+//     temp2;
+//     temp3;
+
+//     OP(temp1, temp2, temp3);
+
+//     if(temp3) {
+//       // Body
+//       let i = temp2
+
+//     } else {
+//       exit;
+//     }
+//   }
+// }
+
+// loc1: {
+//   console.log("Hello");
+//   break loc1;
+//   console.log("Heaven");
+// }
+// console.log("World");
+
+for (let i of [1,2,3]) {
+  console.log(i);
+}
