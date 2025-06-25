@@ -57,11 +57,11 @@
 
 
 // let [a, b, ...{ 0: { e: { f = 1 } } }] 
-// let x = [1,2, { e: { f: 66, g: 31 } }];
-
+let x = [1,2, { e: { f: 66 } }];
+let [y] = x;
 // console.log(a, b, f);
 
-let f = () => {
-  f = 12;
-  return f;
-}
+// let f = () => {
+//   f = 12;
+//   return f;
+// }
