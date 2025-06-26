@@ -803,15 +803,33 @@ export class JSSUPEROBJINITSEXP extends IridiumSEXP {
   }
 }
 
-// (Extension) JSToForInIterator
-export class JSToForInIteratorSEXP extends IridiumSEXP {
-  constructor(object: IridiumSEXP) {
-    super("JSToForInIterator");
-    this.args.push(object);
+// // (Extension) JSToForInIterator
+// export class JSToForInIteratorSEXP extends IridiumSEXP {
+//   constructor(object: IridiumSEXP) {
+//     super("JSToForInIterator");
+//     this.args.push(object);
+//   }
+
+//   toString(space?: number): string {
+//     return `${printSpace(space)}JSToForInIterator[${this.args[0].toString(0)}]`
+//   }
+// }
+
+// (Extension) JSForInStart
+export class JSForInStartSEXP extends IridiumSEXP {
+  constructor(obj: string, target: string) {
+    super("JSForInStart");
+    this.args.push(new EnvReadSEXP(obj));
+    this.args.push(new ResolveEnvBindingSEXP(target));
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}JSToForInIterator[${this.args[0].toString(0)}]`
+    const res = [];
+    res.push(`${printSpace(space)}${this.tag}`);
+    for (let s of this.args) {
+      res.push(`${printSpace(10)}${s.toString(0)}`);
+    }
+    return res.join("\n");
   }
 }
 
@@ -820,7 +838,7 @@ export class JSForOfStartSEXP extends IridiumSEXP {
   constructor(obj: string | IridiumSEXP, iteratorObjHolder: string, iteratorMethodHolder: string, catchOffsetHolder: string) {
     super("JSForOfStart");
     if (typeof(obj) === "string") {
-      this.args.push(new EnvReadSEXP(obj));  
+      this.args.push(new EnvReadSEXP(obj));
     } else {
       this.args.push(obj);
     }

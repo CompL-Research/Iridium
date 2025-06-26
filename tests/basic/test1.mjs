@@ -74,8 +74,13 @@
 // a[0] = 1;
 
 // console.log(a);
-{
-  let [a,...c] = [1,2,3];
+// {
+//   let [a,...c] = [1,2,3];
 
-  console.log(a,c);
+//   console.log(a,c);
+// }
+
+let x;
+for (x in [1,2,3]) {
+  console.log(x);
 }

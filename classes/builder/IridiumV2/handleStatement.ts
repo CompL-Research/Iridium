@@ -1,10 +1,10 @@
 import debugConfig from "#debugConfig";
-import { ArrayPattern, AssignmentExpression, AssignmentPattern, identifier, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isObjectPattern, isVariableDeclaration, ObjectPattern, variableDeclaration, VariableDeclaration, variableDeclarator } from "@babel/types";
+import { ArrayPattern, assignmentExpression, AssignmentExpression, AssignmentPattern, identifier, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isObjectPattern, isVariableDeclaration, ObjectPattern, variableDeclaration, VariableDeclaration, variableDeclarator } from "@babel/types";
 import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
 import { generateIdentifier, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
 import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3MemberExpression, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3MemberExpression, JS3ObjectPattern, JS3ReturnStatement, JS3StaticBlock, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3WhileStatement } from "../JS3Helpers/JS3Types.ts";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2.ts";
-import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, FieldWriteSEXP, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSArraySEXP, JSComputedFieldWriteSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSThisContextSEXP, JSToForInIteratorSEXP, LambdaSEXP, ListSEXP, NumberSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnSEXP, StringSEXP } from "./Types.ts";
+import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, FieldWriteSEXP, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSArraySEXP, JSComputedFieldWriteSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSThisContextSEXP, LambdaSEXP, ListSEXP, NumberSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnSEXP, StringSEXP } from "./Types.ts";
 import { IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP } from "./handleRVal.ts";
 
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks.ts";
@@ -140,7 +140,7 @@ const handleReturnStatement = (cx: IRIDIUMV2, stmt: JS3ReturnStatement) => {
   cx.getCurrentBB().args.push(new ReturnSEXP(arg));
 }
 
-const handleForOfStatement = (cx: IRIDIUMV2, stmt: JS3ForOfStatement, label: string = null) => {
+const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInStatement, label: string = null) => {
   const currentContext = cx.getCurrentContext();
   const currentBB = currentContext.getCurrentBB();
   cx.addContinuation(currentContext);
@@ -175,66 +175,72 @@ const handleForOfStatement = (cx: IRIDIUMV2, stmt: JS3ForOfStatement, label: str
   // 1. Current BB to LoopHead
   currentBB.args.push(currentBBToLoopInitNode);
 
-  // 2. For-In Loop Init
+  // 2. Loop Init
   cx.declareAndPushLexicalContext();
   loopConfig.loopInitIDX = cx.getCurrentBB().getIDX();
 
-  // <for-of-loop-iterator> = NUBD
-  // <for-of-loop-method> = NUBD
-  // <for-of-loop-catchoffset> = NUBD
-  // JSForOfStartSEXP(<for-of-loop-iterator>, <for-of-loop-method>, <for-of-loop-catchoffset>)
-
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-of-loop-iterator>"), null, "JSLET", false));
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-of-loop-method>"), null, "JSLET", false));
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-of-loop-catchoffset>"), null, "JSLET", false));
-  cx.getCurrentBB().args.push(new JSForOfStartSEXP(stmt.right.name, "<for-of-loop-catchoffset>", "<for-of-loop-method>", "<for-of-loop-iterator>"));
+  if (isJS3ForOfStatement(stmt)) {
+    // JSForOfStartSEXP(RVal, | -> | <loop-iterator>, <loop-method>, <loop-catchoffset>)
+    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<loop-iterator>"), null, "JSLET", false));
+    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<loop-method>"), null, "JSLET", false));
+    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<loop-catchoffset>"), null, "JSLET", false));
+    cx.getCurrentBB().args.push(new JSForOfStartSEXP(stmt.right.name, "<loop-catchoffset>", "<loop-method>", "<loop-iterator>"));
+  } else {
+    // JSForInStartSEXP(RVal, | -> | <loop-iterator>)
+    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<loop-iterator>"), null, "JSLET", false));
+    cx.getCurrentBB().args.push(new JSForInStartSEXP(stmt.right.name, "<loop-iterator>"));
+  }
   cx.getCurrentBB().args.push(loopInitToLoopTestNode);
 
-  // 3. For-Of Loop Test
+  // 3. Loop Test
   cx.declareAndPushLexicalContext();
   loopHeadContext = cx.getCurrentContext();
   loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX();
 
-  // let <for-of-loop-next> = NUBD
-  // let <for-of-loop-done> = NUBD
-  // JSForInNext(<for-of-loop-iterator>, <for-of-loop-method>, <for-of-loop-catchoffset>, <for-of-loop-next>, <for-of-loop-done>)
+  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<loop-next>"), null, "JSLET", false));
+  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<loop-done>"), null, "JSLET", false));
+  if (isJS3ForOfStatement(stmt)) {
+    // JSForOfNext(<loop-iterator>, <loop-method>, <loop-catchoffset>, | -> | <loop-next>, <loop-done>)
+    cx.getCurrentBB().args.push(new JSForOfNextSEXP("<loop-iterator>", "<loop-method>", "<loop-catchoffset>", "<loop-done>", "<loop-next>"));
+  } else {
+    // JSForInNext(<loop-iterator>, | -> | <loop-next>, <loop-done>)
+    cx.getCurrentBB().args.push(new JSForInNextSEXP("<loop-iterator>", "<loop-done>", "<loop-next>"));
+  }
 
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-of-loop-next>"), null, "JSLET", false));
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-of-loop-done>"), null, "JSLET", false));
-  cx.getCurrentBB().args.push(new JSForOfNextSEXP("<for-of-loop-iterator>", "<for-of-loop-method>", "<for-of-loop-catchoffset>", "<for-of-loop-done>", "<for-of-loop-next>"));
-
-  testBBElseIfNode.setTest(new EnvReadSEXP("<for-of-loop-done>"));
+  testBBElseIfNode.setTest(new EnvReadSEXP("<loop-done>"));
+  
   cx.getCurrentBB().args.push(testBBElseIfNode);
 
   // 4. For-Of Loop Body
   cx.declareAndPushLexicalContext();
   loopConfig.loopBodyIDX = cx.getCurrentBB().getIDX(); // Continue can resume here, iteration variable is set at the top of the loop body...
 
+  const initializer = identifier("<loop-next>");
+
   if (isVariableDeclaration(stmt.left)) {
     // Ensure only one declarator
-    if (stmt.left.declarations.length !== 1) debugConfig.logger.throwIriError("Expected only one declarator on the left side of For-Of Loop");
-
+    if (stmt.left.declarations.length !== 1) debugConfig.logger.throwIriError("Expected only one declarator on the left side");
     // Ensure no initializer, this is illegal syntax anyway
-    if (stmt.left.declarations[0].init) debugConfig.logger.throwIriError("No initializer expected for left side of For-Of Loop");
+    if (stmt.left.declarations[0].init) debugConfig.logger.throwIriError("No initializer expected for left side");
 
     const leftDeclarator = stmt.left.declarations[0];
-    const initializer = identifier("<for-of-loop-next>")
 
-    // Update Declarator ===> KIND left[Complex] = <for-of-loop-next>
+    // Update Declarator ===> KIND left[Complex] = <loop-next>
     const newDeclarator = variableDeclarator(leftDeclarator.id, initializer);
     const newDeclaration = variableDeclaration(stmt.left.kind, [newDeclarator]);
     handleLoopInitBlock(cx, newDeclaration);
   } else {
-    debugConfig.logger.throwIriError("For-Of Loop body assignment not handled yet");
+    const newAssn = assignmentExpression("=", stmt.left, initializer);
+    handleLoopAssnInitBlock(cx, newAssn);
   }
 
   handleBlockStatement(cx, stmt.body);
   cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP(label));
-  cx.popContext(); // For-Of Loop Body
+  cx.popContext(); // Loop Body
 
-  cx.popContext(); // For-Of Loop Test
+  cx.popContext(); // Loop Test
 
-  cx.popContext(); // For-Of Loop Init
+  cx.popContext(); // Loop Init
 
   // Initialize Nodes
   if (loopHeadContext) {
@@ -244,112 +250,223 @@ const handleForOfStatement = (cx: IRIDIUMV2, stmt: JS3ForOfStatement, label: str
     testBBElseIfNode.setTRUE(loopConfig.breakTarget); // If Done, exit
     testBBElseIfNode.setFALSE(loopConfig.loopBodyIDX); // Goto body
   } else {
-    debugConfig.logger.throwIriError("[ForOfStatement] Loop head context is null...");
+    debugConfig.logger.throwIriError("[Iterated Loop] Loop head context is null...");
   }
+
+}
+
+const handleForOfStatement = (cx: IRIDIUMV2, stmt: JS3ForOfStatement, label: string = null) => {
+  handleIteratedLoops(cx, stmt, label);
+  // const currentContext = cx.getCurrentContext();
+  // const currentBB = currentContext.getCurrentBB();
+  // cx.addContinuation(currentContext);
+  // const postBB = currentContext.getCurrentBB();
+
+  // let loopHeadContext: IridiumBuildContext = null;
+
+  // // const loop head config
+  // const loopConfig: {
+  //   loopHeadIDX: number,
+  //   loopBodyIDX: number,
+  //   loopInitIDX: number,
+  //   label: string | null,
+  //   breakTarget: number,
+  //   continueTarget: number
+  // } = {
+  //   loopHeadIDX: -1,
+  //   loopBodyIDX: -1,
+  //   loopInitIDX: -1,
+  //   label: label ? label : null,
+  //   breakTarget: -1,
+  //   continueTarget: -1
+  // }
+
+  // loopConfig.breakTarget = postBB.getIDX();
+
+  // // Control Flow Nodes
+  // const currentBBToLoopInitNode = new GotoSEXP(-1);
+  // const loopInitToLoopTestNode = new GotoSEXP(-1);
+  // const testBBElseIfNode = new IfElseJumpSEXP(null, -1, -1);
+
+  // // 1. Current BB to LoopHead
+  // currentBB.args.push(currentBBToLoopInitNode);
+
+  // // 2. For-In Loop Init
+  // cx.declareAndPushLexicalContext();
+  // loopConfig.loopInitIDX = cx.getCurrentBB().getIDX();
+
+  // // <for-of-loop-iterator> = NUBD
+  // // <for-of-loop-method> = NUBD
+  // // <for-of-loop-catchoffset> = NUBD
+  // // JSForOfStartSEXP(<for-of-loop-iterator>, <for-of-loop-method>, <for-of-loop-catchoffset>)
+
+  // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-of-loop-iterator>"), null, "JSLET", false));
+  // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-of-loop-method>"), null, "JSLET", false));
+  // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-of-loop-catchoffset>"), null, "JSLET", false));
+  // cx.getCurrentBB().args.push(new JSForOfStartSEXP(stmt.right.name, "<for-of-loop-catchoffset>", "<for-of-loop-method>", "<for-of-loop-iterator>"));
+  // cx.getCurrentBB().args.push(loopInitToLoopTestNode);
+
+  // // 3. For-Of Loop Test
+  // cx.declareAndPushLexicalContext();
+  // loopHeadContext = cx.getCurrentContext();
+  // loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX();
+
+  // // let <for-of-loop-next> = NUBD
+  // // let <for-of-loop-done> = NUBD
+  // // JSForInNext(<for-of-loop-iterator>, <for-of-loop-method>, <for-of-loop-catchoffset>, <for-of-loop-next>, <for-of-loop-done>)
+
+  // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-of-loop-next>"), null, "JSLET", false));
+  // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-of-loop-done>"), null, "JSLET", false));
+  // cx.getCurrentBB().args.push(new JSForOfNextSEXP("<for-of-loop-iterator>", "<for-of-loop-method>", "<for-of-loop-catchoffset>", "<for-of-loop-done>", "<for-of-loop-next>"));
+
+  // testBBElseIfNode.setTest(new EnvReadSEXP("<for-of-loop-done>"));
+  // cx.getCurrentBB().args.push(testBBElseIfNode);
+
+  // // 4. For-Of Loop Body
+  // cx.declareAndPushLexicalContext();
+  // loopConfig.loopBodyIDX = cx.getCurrentBB().getIDX(); // Continue can resume here, iteration variable is set at the top of the loop body...
+
+  // if (isVariableDeclaration(stmt.left)) {
+  //   // Ensure only one declarator
+  //   if (stmt.left.declarations.length !== 1) debugConfig.logger.throwIriError("Expected only one declarator on the left side of For-Of Loop");
+
+  //   // Ensure no initializer, this is illegal syntax anyway
+  //   if (stmt.left.declarations[0].init) debugConfig.logger.throwIriError("No initializer expected for left side of For-Of Loop");
+
+  //   const leftDeclarator = stmt.left.declarations[0];
+  //   const initializer = identifier("<for-of-loop-next>")
+
+  //   // Update Declarator ===> KIND left[Complex] = <for-of-loop-next>
+  //   const newDeclarator = variableDeclarator(leftDeclarator.id, initializer);
+  //   const newDeclaration = variableDeclaration(stmt.left.kind, [newDeclarator]);
+  //   handleLoopInitBlock(cx, newDeclaration);
+  // } else {
+  //   debugConfig.logger.throwIriError("For-Of Loop body assignment not handled yet");
+  // }
+
+  // handleBlockStatement(cx, stmt.body);
+  // cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP(label));
+  // cx.popContext(); // For-Of Loop Body
+
+  // cx.popContext(); // For-Of Loop Test
+
+  // cx.popContext(); // For-Of Loop Init
+
+  // // Initialize Nodes
+  // if (loopHeadContext) {
+  //   loopHeadContext.loopConfig = loopConfig;
+  //   currentBBToLoopInitNode.setIDX(loopConfig.loopInitIDX);
+  //   loopInitToLoopTestNode.setIDX(loopConfig.loopHeadIDX);
+  //   testBBElseIfNode.setTRUE(loopConfig.breakTarget); // If Done, exit
+  //   testBBElseIfNode.setFALSE(loopConfig.loopBodyIDX); // Goto body
+  // } else {
+  //   debugConfig.logger.throwIriError("[ForOfStatement] Loop head context is null...");
+  // }
 }
 
 const handleForInStatement = (cx: IRIDIUMV2, stmt: JS3ForInStatement, label: string = null) => {
-  const currentContext = cx.getCurrentContext();
-  const currentBB = currentContext.getCurrentBB();
-  cx.addContinuation(currentContext);
-  const postBB = currentContext.getCurrentBB();
+  handleIteratedLoops(cx, stmt, label);
+  // const currentContext = cx.getCurrentContext();
+  // const currentBB = currentContext.getCurrentBB();
+  // cx.addContinuation(currentContext);
+  // const postBB = currentContext.getCurrentBB();
 
-  let loopHeadContext: IridiumBuildContext = null;
+  // let loopHeadContext: IridiumBuildContext = null;
 
-  // const loop head config
-  const loopConfig: {
-    loopHeadIDX: number,
-    loopBodyIDX: number,
-    loopInitIDX: number,
-    label: string | null,
-    breakTarget: number,
-    continueTarget: number
-  } = {
-    loopHeadIDX: -1,
-    loopBodyIDX: -1,
-    loopInitIDX: -1,
-    label: label ? label : null,
-    breakTarget: -1,
-    continueTarget: -1
-  }
+  // // const loop head config
+  // const loopConfig: {
+  //   loopHeadIDX: number,
+  //   loopBodyIDX: number,
+  //   loopInitIDX: number,
+  //   label: string | null,
+  //   breakTarget: number,
+  //   continueTarget: number
+  // } = {
+  //   loopHeadIDX: -1,
+  //   loopBodyIDX: -1,
+  //   loopInitIDX: -1,
+  //   label: label ? label : null,
+  //   breakTarget: -1,
+  //   continueTarget: -1
+  // }
 
-  loopConfig.breakTarget = postBB.getIDX();
+  // loopConfig.breakTarget = postBB.getIDX();
 
-  // Control Flow Nodes
-  const currentBBToLoopInitNode = new GotoSEXP(-1);
-  const loopInitToLoopTestNode = new GotoSEXP(-1);
-  const testBBElseIfNode = new IfElseJumpSEXP(null, -1, -1);
+  // // Control Flow Nodes
+  // const currentBBToLoopInitNode = new GotoSEXP(-1);
+  // const loopInitToLoopTestNode = new GotoSEXP(-1);
+  // const testBBElseIfNode = new IfElseJumpSEXP(null, -1, -1);
 
-  // 1. Current BB to LoopHead
-  currentBB.args.push(currentBBToLoopInitNode);
+  // // 1. Current BB to LoopHead
+  // currentBB.args.push(currentBBToLoopInitNode);
 
-  // 2. For-In Loop Init
-  cx.declareAndPushLexicalContext();
-  loopConfig.loopInitIDX = cx.getCurrentBB().getIDX();
+  // // 2. For-In Loop Init
+  // cx.declareAndPushLexicalContext();
+  // loopConfig.loopInitIDX = cx.getCurrentBB().getIDX();
 
-  // let iterator$holder = JSToForInIterator(rval)
-  const iterator$holder = cx.js3Builder.utils.getNewTemporary("iterator");
-  const iteratorDeclaration = new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(iterator$holder), new JSToForInIteratorSEXP(new EnvReadSEXP(stmt.right.name)), "JSLET", false);
-  cx.getCurrentBB().args.push(iteratorDeclaration);
+  // // let iterator$holder = JSToForInIterator(rval)
+  // const iterator$holder = cx.js3Builder.utils.getNewTemporary("iterator");
+  // const iteratorDeclaration = new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(iterator$holder), new JSToForInIteratorSEXP(new EnvReadSEXP(stmt.right.name)), "JSLET", false);
+  // cx.getCurrentBB().args.push(iteratorDeclaration);
 
-  cx.getCurrentBB().args.push(loopInitToLoopTestNode);
+  // cx.getCurrentBB().args.push(loopInitToLoopTestNode);
 
-  // 3. For-In Loop Test
-  cx.declareAndPushLexicalContext();
-  loopHeadContext = cx.getCurrentContext();
-  loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX();
+  // // 3. For-In Loop Test
+  // cx.declareAndPushLexicalContext();
+  // loopHeadContext = cx.getCurrentContext();
+  // loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX();
 
-  // let <for-in-loop-next> = NUBD
-  // let <for-in-loop-done> = NUBD
-  // JSForInNext(iterator$holder, <for-in-loop-next>, <for-in-loop-done>)
+  // // let <for-in-loop-next> = NUBD
+  // // let <for-in-loop-done> = NUBD
+  // // JSForInNext(iterator$holder, <for-in-loop-next>, <for-in-loop-done>)
 
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-in-loop-next>"), null, "JSLET", false));
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-in-loop-done>"), null, "JSLET", false));
-  cx.getCurrentBB().args.push(new JSForInNextSEXP(iterator$holder, "<for-in-loop-done>", "<for-in-loop-next>"));
+  // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-in-loop-next>"), null, "JSLET", false));
+  // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<for-in-loop-done>"), null, "JSLET", false));
+  // cx.getCurrentBB().args.push(new JSForInNextSEXP(iterator$holder, "<for-in-loop-done>", "<for-in-loop-next>"));
 
-  testBBElseIfNode.setTest(new EnvReadSEXP("<for-in-loop-done>"));
-  cx.getCurrentBB().args.push(testBBElseIfNode);
+  // testBBElseIfNode.setTest(new EnvReadSEXP("<for-in-loop-done>"));
+  // cx.getCurrentBB().args.push(testBBElseIfNode);
 
-  // 4. For-In Loop Body
-  cx.declareAndPushLexicalContext();
-  loopConfig.loopBodyIDX = cx.getCurrentBB().getIDX(); // Continue can resume here, iteration variable is set at the top of the loop body...
+  // // 4. For-In Loop Body
+  // cx.declareAndPushLexicalContext();
+  // loopConfig.loopBodyIDX = cx.getCurrentBB().getIDX(); // Continue can resume here, iteration variable is set at the top of the loop body...
 
-  if (isVariableDeclaration(stmt.left)) {
-    // Ensure only one declarator
-    if (stmt.left.declarations.length !== 1) debugConfig.logger.throwIriError("Expected only one declarator on the left side of For-In Loop");
+  // if (isVariableDeclaration(stmt.left)) {
+  //   // Ensure only one declarator
+  //   if (stmt.left.declarations.length !== 1) debugConfig.logger.throwIriError("Expected only one declarator on the left side of For-In Loop");
 
-    // Ensure no initializer, this is illegal syntax anyway
-    if (stmt.left.declarations[0].init) debugConfig.logger.throwIriError("No initializer expected for left side of For-In Loop");
+  //   // Ensure no initializer, this is illegal syntax anyway
+  //   if (stmt.left.declarations[0].init) debugConfig.logger.throwIriError("No initializer expected for left side of For-In Loop");
 
-    const leftDeclarator = stmt.left.declarations[0];
-    const initializer = identifier("<for-in-loop-next>")
+  //   const leftDeclarator = stmt.left.declarations[0];
+  //   const initializer = identifier("<for-in-loop-next>")
 
-    // Update Declarator ===> KIND left[Complex] = <for-in-loop-next>
-    const newDeclarator = variableDeclarator(leftDeclarator.id, initializer);
-    const newDeclaration = variableDeclaration(stmt.left.kind, [newDeclarator]);
-    handleLoopInitBlock(cx, newDeclaration);
-  } else {
-    debugConfig.logger.throwIriError("For-In Loop body assignment not handled yet");
-  }
+  //   // Update Declarator ===> KIND left[Complex] = <for-in-loop-next>
+  //   const newDeclarator = variableDeclarator(leftDeclarator.id, initializer);
+  //   const newDeclaration = variableDeclaration(stmt.left.kind, [newDeclarator]);
+  //   handleLoopInitBlock(cx, newDeclaration);
+  // } else {
+  //   debugConfig.logger.throwIriError("For-In Loop body assignment not handled yet");
+  // }
 
-  handleBlockStatement(cx, stmt.body);
-  cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP(label));
-  cx.popContext(); // For-In Loop Body
+  // handleBlockStatement(cx, stmt.body);
+  // cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP(label));
+  // cx.popContext(); // For-In Loop Body
 
-  cx.popContext(); // For-In Loop Test
+  // cx.popContext(); // For-In Loop Test
 
-  cx.popContext(); // For-In Loop Init
+  // cx.popContext(); // For-In Loop Init
 
-  // Initialize Nodes
-  if (loopHeadContext) {
-    loopHeadContext.loopConfig = loopConfig;
-    currentBBToLoopInitNode.setIDX(loopConfig.loopInitIDX);
-    loopInitToLoopTestNode.setIDX(loopConfig.loopHeadIDX);
-    testBBElseIfNode.setTRUE(loopConfig.breakTarget); // If Done, exit
-    testBBElseIfNode.setFALSE(loopConfig.loopBodyIDX); // Goto body
-  } else {
-    debugConfig.logger.throwIriError("[ForInStatement] Loop head context is null...");
-  }
+  // // Initialize Nodes
+  // if (loopHeadContext) {
+  //   loopHeadContext.loopConfig = loopConfig;
+  //   currentBBToLoopInitNode.setIDX(loopConfig.loopInitIDX);
+  //   loopInitToLoopTestNode.setIDX(loopConfig.loopHeadIDX);
+  //   testBBElseIfNode.setTRUE(loopConfig.breakTarget); // If Done, exit
+  //   testBBElseIfNode.setFALSE(loopConfig.loopBodyIDX); // Goto body
+  // } else {
+  //   debugConfig.logger.throwIriError("[ForInStatement] Loop head context is null...");
+  // }
 }
 
 const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement, label: string = null) => {
