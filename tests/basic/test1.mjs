@@ -57,11 +57,25 @@
 
 
 // let [a, b, ...{ 0: { e: { f = 1 } } }] 
-let x = [1,2, { e: { f: 66 } }];
-let [y] = x;
+// let x = [1,2, { e: { f: 66 } }];
+
+// {
+//   let [o1, ,...o3] = [1,2,3,4];
+// }
+
 // console.log(a, b, f);
 
 // let f = () => {
 //   f = 12;
 //   return f;
 // }
+
+// let a = []
+// a[0] = 1;
+
+// console.log(a);
+{
+  let [a,...c] = [1,2,3];
+
+  console.log(a,c);
+}

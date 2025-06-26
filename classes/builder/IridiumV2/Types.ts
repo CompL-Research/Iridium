@@ -333,6 +333,7 @@ export class BBSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     const res = [];
+    res.push("\n");
     res.push(`${printSpace(space)}██▒${printFlagString(this.flags)}`);
     for (let s of this.args) {
       res.push(`${printSpace(space)}█▒ ${s.toString(0)}`);
@@ -816,12 +817,25 @@ export class JSToForInIteratorSEXP extends IridiumSEXP {
 
 // (Extension) JSForOfStart
 export class JSForOfStartSEXP extends IridiumSEXP {
-  constructor(obj: string, iteratorObjHolder: string, iteratorMethodHolder: string, catchOffsetHolder: string) {
+  constructor(obj: string | IridiumSEXP, iteratorObjHolder: string, iteratorMethodHolder: string, catchOffsetHolder: string) {
     super("JSForOfStart");
-    this.args.push(new EnvReadSEXP(obj));
+    if (typeof(obj) === "string") {
+      this.args.push(new EnvReadSEXP(obj));  
+    } else {
+      this.args.push(obj);
+    }
     this.args.push(new ResolveEnvBindingSEXP(iteratorObjHolder));
     this.args.push(new ResolveEnvBindingSEXP(iteratorMethodHolder));
     this.args.push(new ResolveEnvBindingSEXP(catchOffsetHolder));
+  }
+
+  toString(space?: number): string {
+    const res = [];
+    res.push(`${printSpace(space)}${this.tag}`);
+    for (let s of this.args) {
+      res.push(`${printSpace(10)}${s.toString(0)}`);
+    }
+    return res.join("\n");
   }
 }
 
@@ -845,6 +859,16 @@ export class JSForOfNextSEXP extends IridiumSEXP {
     this.args.push(new ResolveEnvBindingSEXP(resultHolder));
     this.args.push(new ResolveEnvBindingSEXP(doneHolder));
   }
+
+  toString(space?: number): string {
+    const res = [];
+    res.push(`${printSpace(space)}${this.tag}`);
+    for (let s of this.args) {
+      res.push(`${printSpace(10)}${s.toString(0)}`);
+    }
+    return res.join("\n");
+  }
+  
 }
 
 // @ts-ignore
@@ -1418,6 +1442,10 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
     }
     return res;
   }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}${this.tag}${printFlagString(this.flags)}${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(10)).join("\n") : ""}`;
+  }
 }
 
 // (Extension) JSEnvWrite
@@ -1643,6 +1671,15 @@ export class IfJumpSEXP extends IridiumSEXP {
     this.setIDX(target);
   }
 
+  // Args
+  setTest(test: IridiumSEXP) {
+    this.args[0] = test;
+  }
+
+  getTest() {
+    return this.args[0];
+  }
+
   // Flags
   setIDX(idx: number) {
     this.setFlag("IDX", idx)
@@ -1650,6 +1687,10 @@ export class IfJumpSEXP extends IridiumSEXP {
 
   getIDX(): number {
     return this.getFlagNumber("IDX");
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}GOTO (${this.getTest().toString(0)}) ? GOTO ${this.getIDX()} : 👇`;
   }
 }
 
