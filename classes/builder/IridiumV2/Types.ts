@@ -491,6 +491,19 @@ export function isBBContainerSEXP(o: any): o is BBContainerSEXP {
 
 // =============== RVals ===============
 // Literals
+// (Primitive) Null
+export class NullSEXP extends IridiumSEXP {
+  constructor() {
+    super("Null");
+    this.flags.push(["IridiumPrimitive", null]);
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}🤮`
+  }
+  
+}
+
 // (Primitive) Number
 export class NumberSEXP extends IridiumSEXP {
   constructor(number: number) {
@@ -814,6 +827,44 @@ export class JSSUPEROBJINITSEXP extends IridiumSEXP {
 //     return `${printSpace(space)}JSToForInIterator[${this.args[0].toString(0)}]`
 //   }
 // }
+
+// (Extension) JSToObject
+export class JSToObjectSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP, target: string) {
+    super("JSToObject");
+    this.args.push(obj);
+    this.args.push(new ResolveEnvBindingSEXP(target));
+  }
+
+  toString(space?: number): string {
+    const res = [];
+    res.push(`${printSpace(space)}${this.tag}`);
+    for (let s of this.args) {
+      res.push(`${printSpace(10)}${s.toString(0)}`);
+    }
+    return res.join("\n");
+  }
+}
+
+// (Extension) JSCopyDataProperties
+export class JSCopyDataPropertiesSEXP extends IridiumSEXP {
+  constructor(exc_obj: string, source: string, target: string, store: string) {
+    super("JSCopyDataProperties");
+    this.args.push(new EnvReadSEXP(exc_obj));
+    this.args.push(new EnvReadSEXP(source));
+    this.args.push(new EnvReadSEXP(target));
+    this.args.push(new ResolveEnvBindingSEXP(store));
+  }
+
+  toString(space?: number): string {
+    const res = [];
+    res.push(`${printSpace(space)}${this.tag}`);
+    for (let s of this.args) {
+      res.push(`${printSpace(10)}${s.toString(0)}`);
+    }
+    return res.join("\n");
+  }
+}
 
 // (Extension) JSForInStart
 export class JSForInStartSEXP extends IridiumSEXP {
@@ -1533,19 +1584,25 @@ export class JSClassMethodDefineSEXP extends IridiumSEXP {
 
 // (Extended) JSComputedFieldRead
 export class JSComputedFieldReadSEXP extends IridiumSEXP {
-  constructor(object: string, field: string) {
+  constructor(object: string, field: string | IridiumSEXP) {
     super("JSComputedFieldRead");
     this.args.push(new ResolveEnvBindingSEXP(object));
-    this.args.push(new EnvReadSEXP(field));
+    if (typeof field === "string")
+      this.args.push(new EnvReadSEXP(field));
+    else 
+      this.args.push(field);
   }
 }
 
 // (Extended) JSComputedFieldWrite
 export class JSComputedFieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: string, right: IridiumSEXP) {
+  constructor(object: string, field: string | IridiumSEXP, right: IridiumSEXP) {
     super("JSComputedFieldWrite");
     this.args.push(new ResolveEnvBindingSEXP(object));
-    this.args.push(new EnvReadSEXP(field));
+    if (typeof field === "string")
+      this.args.push(new EnvReadSEXP(field));
+    else 
+      this.args.push(field);
     this.args.push(right);
   }
 

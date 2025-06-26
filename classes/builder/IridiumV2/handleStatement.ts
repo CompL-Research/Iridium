@@ -2,9 +2,9 @@ import debugConfig from "#debugConfig";
 import { ArrayPattern, assignmentExpression, AssignmentExpression, AssignmentPattern, identifier, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isObjectPattern, isVariableDeclaration, ObjectPattern, variableDeclaration, VariableDeclaration, variableDeclarator } from "@babel/types";
 import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
 import { generateIdentifier, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
-import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3MemberExpression, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3MemberExpression, JS3ObjectPattern, JS3ReturnStatement, JS3StaticBlock, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3WhileStatement } from "../JS3Helpers/JS3Types.ts";
+import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3MemberExpression, isJS3ObjectPattern, isJS3PrivateName, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3MemberExpression, JS3ObjectPattern, JS3RestElement, JS3ReturnStatement, JS3StaticBlock, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3WhileStatement } from "../JS3Helpers/JS3Types.ts";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2.ts";
-import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, FieldWriteSEXP, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSArraySEXP, JSComputedFieldWriteSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSThisContextSEXP, LambdaSEXP, ListSEXP, NumberSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnSEXP, StringSEXP } from "./Types.ts";
+import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSArraySEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSObjectSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnSEXP, StringSEXP } from "./Types.ts";
 import { IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP } from "./handleRVal.ts";
 
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks.ts";
@@ -801,16 +801,98 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   // case c.
   // KIND { TRIV_KEY: ID, ...ID } = RVal
   if (isJS3ObjectPattern(declaration.id)) {
-    const rValTarget = declaration.init && IRIV2_RVAL(cx, declaration.init)
-    const [lvals, hasRest] = getObjectDestSEXP(declaration.id);
-    const envWrite = new JSEnvWriteSEXP(lvals, rValTarget, KIND, false);
-    if (hasRest) envWrite.flags.push(["JSREST", null]);
-    envWrite.flags.push(["JSOBJDES", null])
-    cx.getCurrentBB().args.push(envWrite);
-    return;
+    let hasRest = false;
+    let restElement: JS3RestElement;
+    declaration.id.properties.forEach((e) => {
+      if (isJS3RestElement(e)) {
+        hasRest = true;
+        restElement = e;
+      }
+    });
+    
+    const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined");
+    let toObjRes = cx.js3Builder.utils.getNewTemporary("toObjRes");
+    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(toObjRes), null, "JSLET", false));
+    
+    // 1. JSToObjectSEXP(rValTarget, toObjRes)
+    cx.getCurrentBB().args.push(new JSToObjectSEXP(rValTarget, toObjRes));
+
+
+    let exc_obj;
+    // 2. [*] exc_obj = {}
+    //    for (f of fields) 
+    //      exc_obj[f] = null;
+    if (hasRest) {
+      exc_obj = cx.js3Builder.utils.getNewTemporary("exc_obj");
+      cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(exc_obj), new JSObjectSEXP([]), "JSLET", false));
+    }
+
+    // 3. f1 = orig_rval.f1
+    for (let d of declaration.id.properties) {
+      if (isJS3AssnObjectProperty(d)) {
+        const bindingName = d.value.name;
+
+        let rVal: IridiumSEXP;
+        
+        if (d.computed) {
+          if (isIdentifier(d.key)) {
+            rVal = new JSComputedFieldReadSEXP(toObjRes, d.key.name);
+            if (hasRest) {
+              cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP(exc_obj, d.key.name, new NullSEXP()));
+            }
+          } else if (isJS3PrivateName(d.key)) {
+            debugConfig.logger.throwIriError("JS3 Private Name unhandled in destructuring");
+          } else {
+            let fieldSEXP = IRIV2_RVAL(cx, d.key)
+            rVal = new JSComputedFieldReadSEXP(toObjRes, fieldSEXP);
+            if (hasRest) {
+              cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP(exc_obj, fieldSEXP, new NullSEXP()));
+            }
+          }
+        } else {
+          if (isIdentifier(d.key)) {
+            rVal = new FieldReadSEXP(toObjRes, d.key.name);
+            if (hasRest) {
+              cx.getCurrentBB().args.push(new FieldWriteSEXP(exc_obj, d.key.name, new NullSEXP()));
+            }
+          } else if (isJS3PrivateName(d.key)) {
+            debugConfig.logger.throwIriError("JS3 Private Name unhandled in destructuring");
+          } else {
+            rVal = new FieldReadSEXP(toObjRes, '' + d.key.value);
+            if (hasRest) {
+              cx.getCurrentBB().args.push(new FieldWriteSEXP(exc_obj, '' + d.key.value, new NullSEXP()));
+            }
+          }
+        }
+
+        let KIND : "JSLET" | "JSCONST" | "JSVAR";
+        if (stmt.kind === "let") {
+          KIND = "JSLET";
+        } else if (stmt.kind === "const") {
+          KIND = "JSCONST";
+        } else {
+          KIND = "JSVAR";
+        }
+        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(bindingName), rVal, KIND, false));
+      }
+    }
+
+    
+
+    if (hasRest) {
+      // Declare env binding for the rest element holder
+      cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(restElement.argument.name), null, KIND, false));
+
+      // 4. [*] fin_obj = {}
+      let fin_obj = cx.js3Builder.utils.getNewTemporary("fin_obj");
+      cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(fin_obj), new JSObjectSEXP([]), "JSLET", false));
+      
+      // 5. [*] JSCopyDataProperties(exc_obj, orig_rval, fin_obj, | -> | e)
+      cx.getCurrentBB().args.push(new JSCopyDataPropertiesSEXP(exc_obj, toObjRes, fin_obj, restElement.argument.name));
+    }
+
   }
 
-  debugConfig.logger.throwIriError("IRIV2: JS3VariableDeclaration UNHANDLED");
   return;
 }
 

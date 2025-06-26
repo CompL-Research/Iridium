@@ -80,7 +80,26 @@
 //   console.log(a,c);
 // }
 
-let x;
-for (x in [1,2,3]) {
-  console.log(x);
-}
+// let x;
+// for (x in [1,2,3]) {
+//   console.log(x);
+// }
+
+// let field = "x";
+
+// let { [field]: x } = { x: 112 };
+
+// console.log(x);
+
+// class A {
+//   #x = 12;
+//   foo(a) {
+//     { b: #x } = a;
+//   }
+// }
+
+// let a = null;
+
+let { ["b"]: a, ...b } = { a: 12, b: 112, c: 113 }
+
+console.log(b.b);
