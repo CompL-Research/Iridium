@@ -100,6 +100,23 @@
 
 // let a = null;
 
-let { ["b"]: a, ...b } = { a: 12, b: 112, c: 113 }
+// let { ["b"]: a, ...b } = { a: 12, b: 112, c: 113 }
 
-console.log(b.b);
+// console.log(b.b);
+
+// function* foo(params = console.log("param call")) {
+//   yield 1;
+//   yield 2;
+//   yield 3;
+// }
+
+function* a() {
+  console.log("After initial yield");
+  yield 1;
+  yield 2;
+  return;
+}
+
+let x = a();
+console.log(x.next().value);
+console.log(x.next().value);

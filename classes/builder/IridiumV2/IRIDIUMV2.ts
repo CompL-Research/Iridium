@@ -26,6 +26,8 @@ export class IridiumBuildContext {
   } = null;
 
   kind: number = 0;
+  isAsync: boolean = false;
+  isGenerator: boolean = false;
 
   privateMapping: Map<string, string> = null;
 
@@ -373,7 +375,10 @@ export class IRIDIUMV2 {
           let startBB = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).BB[0];
           if (isBBSEXP(startBB)) {
             let bbContainer = new BBContainerSEXP(startBB.idx, targetScopeIDX, []);
-            bbContainer.setClosureFlags(IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).kind);
+            const currContext = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX)
+            if (currContext.isAsync) bbContainer.setAsync();
+            if (currContext.isGenerator) bbContainer.setGenerator();
+            bbContainer.setClosureFlags(currContext.kind);
             bbGroups.set(targetScopeIDX, bbContainer);
           } else debugConfig.logger.throwIriError("Expected BBSEXP")
         }

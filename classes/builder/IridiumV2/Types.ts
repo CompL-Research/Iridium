@@ -399,7 +399,7 @@ export const getPrivateDerivedMethodClosureFlag = () => 10;
 export const getStaticPropInitClosureFlag = () => 11;
 export const getStaticPropInitDerivedClosureFlag = () => 12;
 
-export type BBContainerSEXPFlags = "StartBBIDX" | "ScopeIDX" | "PROTO" | "NEW" | "SCALL" | "SOBJ" | "HOME" | "DERIVED";
+export type BBContainerSEXPFlags = "StartBBIDX" | "ScopeIDX" | "ASYNC" | "GENERATOR" | "PROTO" | "NEW" | "SCALL" | "SOBJ" | "HOME" | "DERIVED";
 export class BBContainerSEXP extends IridiumSEXP {
   constructor(startBBIDx: number, scopeIDX: number, bbs: Array<BBSEXP>) {
     super("BBContainer");
@@ -412,6 +412,22 @@ export class BBContainerSEXP extends IridiumSEXP {
   }
 
   // Flags
+  setGenerator() {
+    this.setFlag("GENERATOR");
+  }
+
+  unsetGenerator() {
+    this.removeFlag("GENERATOR");
+  }
+
+  setAsync() {
+    this.setFlag("ASYNC");
+  }
+
+  unsetAsync() {
+    this.removeFlag("ASYNC");
+  }
+
   setClosureFlags(flag: number) {
     const flags: Array<BBContainerSEXPFlags> = [];
     this.setFlag("ContainerFlagID", flag);
@@ -525,6 +541,18 @@ export class NumberSEXP extends IridiumSEXP {
 export function isNumberSEXP(o: any): o is NumberSEXP {
   // @ts-ignore
   return o.tag === "Number";
+}
+
+// (Extension) Yield
+export class YieldSEXP extends IridiumSEXP {
+  constructor(arg: string) {
+    super("Yield");
+    this.args.push(new EnvReadSEXP(arg));
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}YIELD ${this.args[0].toString(0)}`;
+  }
 }
 
 // (Primitive) String
@@ -845,6 +873,14 @@ export class JSToObjectSEXP extends IridiumSEXP {
     return res.join("\n");
   }
 }
+
+// (Extension) JSInitialYield
+export class JSInitialYieldSEXP extends IridiumSEXP {
+  constructor() {
+    super("JSInitialYield");
+  }
+}
+
 
 // (Extension) JSCopyDataProperties
 export class JSCopyDataPropertiesSEXP extends IridiumSEXP {
