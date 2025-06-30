@@ -333,7 +333,7 @@ export class BBSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     const res = [];
-    res.push("\n");
+    // res.push("\n");
     res.push(`${printSpace(space)}██▒${printFlagString(this.flags)}`);
     for (let s of this.args) {
       res.push(`${printSpace(space)}█▒ ${s.toString(0)}`);
@@ -494,7 +494,7 @@ export class BBContainerSEXP extends IridiumSEXP {
     let res = [];
     res.push(`${printSpace(space)}📦${printFlagString(this.flags)}`)
     const args = this.args.map(e => e.toString(space + 2));
-    res = [...res, ...args];
+    res = [...res, ...args, "\n"];
     return res.join("\n");
   }
 }

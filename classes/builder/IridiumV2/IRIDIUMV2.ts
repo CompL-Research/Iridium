@@ -79,6 +79,9 @@ export class IRIDIUMV2 {
   }
 
   saveGeneratedFile() {
+    if (debugConfig.cli.test262)
+      return;
+
     const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.js3Builder.projectFile.uname, this.js3Builder.projectFile.extension) + ".json";
     fs.writeFile(
       filePath,
@@ -138,6 +141,7 @@ export class IRIDIUMV2 {
     this.popContext();
     if (this.buildContext.length !== 0) debugConfig.logger.throwIriError("Expected buildContext stack to be empty after build()");
 
+    // debugConfig.logger.log(this.container.toString());
     this.normailzeBBFlags();
     this.hoistFunctionDeclarations();
     this.generateBBContainerSEXP();
@@ -149,6 +153,8 @@ export class IRIDIUMV2 {
 
     // Add Module Init Header, this has to done because of hoisting...
     startBB.args = [new JSModuleStartSEXP(),...startBB.args];
+
+    this.saveGeneratedFile();
   }
 
   // 

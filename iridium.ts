@@ -103,7 +103,6 @@ function iri(filePath) {
     const iridiumV2Builder = new IRIDIUMV2(js3Builder);
     iridiumV2Builder.build();
 
-    iridiumV2Builder.saveGeneratedFile();
 
     // // const jsonString = JSON.stringify(iridiumV2Builder.serialize());
     // // const encodedJson = encodeURIComponent(jsonString);
