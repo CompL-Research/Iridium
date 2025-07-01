@@ -679,6 +679,19 @@ export function isBinopSEXP(o: any): o is BinopSEXP {
   return o.tag === "Binop";
 }
 
+// (Primitive) Unop
+export class UnopSEXP extends IridiumSEXP {
+  constructor(op: string, val: IridiumSEXP) {
+    super("Unop");
+    this.args.push(new StringSEXP(op));
+    this.args.push(val);
+  }
+  
+  toString(space?: number): string {
+    return `${printSpace(space)}UNOP[${this.args[0].toString(0)}] ${this.args[1].toString(0)}`
+  }
+}
+
 // (Extension) JSArray
 export class JSArraySEXP extends IridiumSEXP {
   constructor(vals: Array<IridiumSEXP>) {
@@ -780,6 +793,18 @@ export class JSObjectSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     return `${printSpace(space)}${this.tag}\n${this.args.map(e => e.toString(8)).join("\n")}`;
+  }
+}
+
+// (Extension) JSCATCHINITSEXP
+export class JSCATCHINITSEXP extends IridiumSEXP {
+  constructor(ref: IridiumSEXP) {
+    super("JSCATCHINIT");
+    this.args.push(ref);
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}CATCH INIT[${this.args[0].toString(0)}]`
   }
 }
 
@@ -908,6 +933,25 @@ export class JSForInStartSEXP extends IridiumSEXP {
     super("JSForInStart");
     this.args.push(new EnvReadSEXP(obj));
     this.args.push(new ResolveEnvBindingSEXP(target));
+  }
+
+  toString(space?: number): string {
+    const res = [];
+    res.push(`${printSpace(space)}${this.tag}`);
+    for (let s of this.args) {
+      res.push(`${printSpace(10)}${s.toString(0)}`);
+    }
+    return res.join("\n");
+  }
+}
+
+// (Extension) JSIteratorClose
+export class JSIteratorCloseSEXP extends IridiumSEXP {
+  constructor(iteratorObjHolder: string, iteratorMethodHolder: string, catchOffsetHolder: string) {
+    super("JSIteratorClose");
+    this.args.push(new EnvReadSEXP(iteratorObjHolder));
+    this.args.push(new EnvReadSEXP(iteratorMethodHolder));
+    this.args.push(new EnvReadSEXP(catchOffsetHolder));
   }
 
   toString(space?: number): string {
@@ -1351,6 +1395,28 @@ export function isJSThisContextSEXP(o: any): o is JSThisContextSEXP {
   return o.tag === "JSThisContext";
 }
 
+
+// (Extension) JSCatchContext
+export class JSCatchContextSEXP extends IridiumSEXP {
+  constructor(val: string) {
+    super("JSCatchContext");
+    this.args.push(new ResolveEnvBindingSEXP(val));
+  }
+
+  getBindingName(): string {
+    if (isResolveEnvBindingSEXP(this.args[0])) {
+      return this.args[0].getBindingName();
+    } else debugConfig.logger.throwIriError("Expected binding in JSCatchContext Node");
+  }
+}
+
+// @ts-ignore
+export function isJSCatchContextSEXP(o: any): o is JSCatchContextSEXP {
+  // @ts-ignore
+  return o.tag === "JSCatchContext";
+}
+
+
 // (Extension) JSThisContext
 export class JSThisContextAltSEXP extends IridiumSEXP {
   constructor() {
@@ -1720,6 +1786,76 @@ export class GotoSEXP extends IridiumSEXP {
   }
 }
 
+// (Extended) PushCatchContext
+export type PushCatchContextFlags = "IDX";
+export class PushCatchContextSEXP extends IridiumSEXP {
+  constructor(idx: number) {
+    super("PushCatchContext");
+    this.setIDX(idx);
+  }
+
+  // Flags
+  setIDX(idx: number) {
+    this.setFlag("IDX", idx)
+  }
+
+  getIDX(): number {
+    return this.getFlagNumber("IDX");
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}CATCH[${this.getIDX()}]`
+  }
+}
+
+// (Extended) ThrowSEXP
+export class ThrowSEXP extends IridiumSEXP {
+  constructor(val: IridiumSEXP) {
+    super("Throw");
+    this.args.push(val);
+  }
+
+  // Flags
+  toString(space?: number): string {
+    return `${printSpace(space)}Throw ${this.args[0].toString(0)}`
+  }
+}
+
+// (Extended) PopCatchContext
+export type PopCatchContextFlags = "IDX";
+export class PopCatchContextSEXP extends IridiumSEXP {
+  constructor() {
+    super("PopCatchContext");
+  }
+
+  // Flags
+  toString(space?: number): string {
+    return `${printSpace(space)}POP CATCH`
+  }
+}
+
+// (Extended) InvokeFinalizer
+export type InvokeFinalizerFlags = "IDX";
+export class InvokeFinalizerSEXP extends IridiumSEXP {
+  constructor(idx: number) {
+    super("InvokeFinalizer");
+    this.setIDX(idx);
+  }
+
+  // Flags
+  setIDX(idx: number) {
+    this.setFlag("IDX", idx)
+  }
+
+  getIDX(): number {
+    return this.getFlagNumber("IDX");
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}FINALIZER[${this.getIDX()}]`
+  }
+}
+
 // (Primitive) Return
 export class ReturnSEXP extends IridiumSEXP {
   constructor(val: IridiumSEXP) {
@@ -1729,6 +1865,13 @@ export class ReturnSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     return `${printSpace(space)}return ${this.args[0].toString(0)}`
+  }
+}
+
+// (Primitive) Ret
+export class RetSEXP extends IridiumSEXP {
+  constructor() {
+    super("Ret");
   }
 }
 

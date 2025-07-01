@@ -110,13 +110,98 @@
 //   yield 3;
 // }
 
-function* a() {
-  console.log("After initial yield");
-  yield 1;
-  yield 2;
-  return;
-}
+// function* a() {
+//   console.log("After initial yield");
+//   yield 1;
+//   yield 2;
+//   return;
+// }
 
-let x = a();
-console.log(x.next().value);
-console.log(x.next().value);
+// let x = a();
+// console.log(x.next().value);
+// console.log(x.next().value);
+
+// var a = 12;
+// try {
+//   x = 12;
+// } catch(e) {
+// }
+
+// function f() {
+//   try {
+//     return 1;
+//   } finally {
+//     console.log("cleanup");
+//   }
+// }
+
+// f();
+
+// for (let a of [1,2,3]) {
+//   console.log(a);
+// }
+
+// try {
+//   try {
+//     try {
+//       throw "Error";
+//     } finally {
+//       console.log("Quixote");
+//     }
+//   } finally {
+//     console.log("Don");
+//   }
+// } catch (e) {
+//   console.log("Sire");
+// }    
+
+// let a;
+// let b;
+// let x = () => {
+//   try {
+//     a = () => {
+//       throw 1;
+//     }
+//     b = function() {
+//       throw 2;
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+//   a();
+// }
+// x();
+
+// for (let x of [1,2,3]) {
+//   console.log(x);
+// }
+
+// try {
+//   throw { x: 12 };
+// } catch({ y: {z} }) {
+//   console.log("This catch");
+// }
+
+// for (let i = 0; i < 10; ++i) {
+//   try {
+//     break;
+//   } finally {
+//     console.log("Boo");
+//   }
+// }
+
+// let a;
+// a = 12;
+// try {
+//   a = 12;
+// } catch(e) {
+//   a = 13;
+// }
+let res;
+try {
+  throw 12;
+} catch(e) {
+  res = e;
+} finally {
+  console.log(res);
+}
