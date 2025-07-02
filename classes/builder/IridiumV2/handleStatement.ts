@@ -4,7 +4,7 @@ import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
 import { generateIdentifier, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
 import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3MemberExpression, isJS3ObjectPattern, isJS3PrivateName, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3MemberExpression, JS3ObjectPattern, JS3RestElement, JS3ReturnStatement, JS3StaticBlock, JS3TryStatement, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3WhileStatement } from "../JS3Helpers/JS3Types.ts";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2.ts";
-import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSArraySEXP, JSCatchContextSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSObjectSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StringSEXP, ThrowSEXP, UnopSEXP } from "./Types.ts";
+import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSArraySEXP, JSCatchContextSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSObjectSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PopCatchContextSEXP, PushCatchContextSEXP, PushForOfCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StringSEXP, ThrowSEXP, UnopSEXP } from "./Types.ts";
 import { IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP } from "./handleRVal.ts";
 
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks.ts";
@@ -183,10 +183,7 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
 
   if (isJS3ForOfStatement(stmt)) {
     // JSForOfStartSEXP(RVal, | -> | <loop-iterator>, <loop-method>, <loop-catchoffset>)
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<loop-iterator>"), null, "JSLET", false));
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<loop-method>"), null, "JSLET", false));
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<loop-catchoffset>"), null, "JSLET", false));
-    cx.getCurrentBB().args.push(new JSForOfStartSEXP(stmt.right.name, "<loop-catchoffset>", "<loop-method>", "<loop-iterator>"));
+    cx.getCurrentBB().args.push(new JSForOfStartSEXP(stmt.right.name));
   } else {
     // JSForInStartSEXP(RVal, | -> | <loop-iterator>)
     cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<loop-iterator>"), null, "JSLET", false));
@@ -202,8 +199,8 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
   cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<loop-next>"), null, "JSLET", false));
   cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("<loop-done>"), null, "JSLET", false));
   if (isJS3ForOfStatement(stmt)) {
-    // JSForOfNext(<loop-iterator>, <loop-method>, <loop-catchoffset>, | -> | <loop-next>, <loop-done>)
-    cx.getCurrentBB().args.push(new JSForOfNextSEXP("<loop-iterator>", "<loop-method>", "<loop-catchoffset>", "<loop-done>", "<loop-next>"));
+    // JSForOfNext(...implicit... | -> | <loop-next>, <loop-done>)
+    cx.getCurrentBB().args.push(new JSForOfNextSEXP("<loop-done>", "<loop-next>"));
   } else {
     // JSForInNext(<loop-iterator>, | -> | <loop-next>, <loop-done>)
     cx.getCurrentBB().args.push(new JSForInNextSEXP("<loop-iterator>", "<loop-done>", "<loop-next>"));
@@ -214,7 +211,9 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
   testBBLoopContinueNode.setTest(new EnvReadSEXP("<loop-done>"));
   
   cx.getCurrentBB().args.push(testBBLoopContinueNode);
-  cx.getCurrentBB().args.push(new JSIteratorCloseSEXP("<loop-iterator>", "<loop-method>", "<loop-catchoffset>"));
+  if (isJS3ForOfStatement(stmt)) {
+    cx.getCurrentBB().args.push(new JSIteratorCloseSEXP());
+  }
   cx.getCurrentBB().args.push(testBBLoopExitNode);
 
   // 4. For-Of Loop Body
@@ -640,6 +639,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
 
   // const loop head config
   let tryContextObj: IridiumBuildContext;
+  let finalizerContextObj: IridiumBuildContext;
   const tryContext: {
     tryContextIDX: number,
     tryIDX: number,
@@ -669,6 +669,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   
   // TryContextBB
   cx.declareAndPushLexicalContext();
+  cx.getCurrentBB().setFlag("TryContextBB");
   tryContextObj = cx.getCurrentContext();
   tryContext.tryContextIDX = cx.getCurrentBB().getIDX();
 
@@ -676,6 +677,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
 
   // TryBB
   cx.declareAndPushLexicalContext();
+  cx.getCurrentBB().setFlag("TryBB");
   tryContext.tryIDX = cx.getCurrentBB().getIDX();
   cx.getCurrentBB().args.push(tryCatchContext);
   for (let s of stmt.block.body) {
@@ -691,6 +693,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   if (stmt.handler) {
     // udCatchBB
     cx.declareAndPushLexicalContext();
+    cx.getCurrentBB().setFlag("udCatchBB");
     tryContext.udCatchIDX = cx.getCurrentBB().getIDX();
     if (stmt.handler.param) {
       cx.getCurrentBB().args.push(new JSCatchContextSEXP(stmt.handler.param.name));
@@ -709,6 +712,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
 
   // imCatchBB
   cx.declareAndPushLexicalContext();
+  cx.getCurrentBB().setFlag("imCatchBB");
   tryContext.imCatchIDX = cx.getCurrentBB().getIDX();
   const imArg = cx.js3Builder.utils.getNewTemporary("imCatchArg")
   cx.getCurrentBB().args.push(new JSCatchContextSEXP(imArg));
@@ -721,6 +725,8 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   if (stmt.finalizer) {
     // finalizerBB
     cx.declareAndPushLexicalContext();
+    cx.getCurrentBB().setFlag("finalizerBB");
+    finalizerContextObj = cx.getCurrentContext();
     tryContext.finalizerIDX = cx.getCurrentBB().getIDX();
     for (let s of stmt.finalizer.body) {
       IRIV2_STMT(cx, s)
@@ -730,6 +736,19 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   }
 
   cx.popContext(); // TryContextBB
+
+  // Add context and initialize nodes
+  tryContextObj.tryContext = tryContext;
+  
+  if (finalizerContextObj) { // Prevent infinite loops when decorating break/continue/return targets inside the finalizer block
+    finalizerContextObj.tryContext = {
+      tryContextIDX: -1,
+      tryIDX: -1,
+      udCatchIDX: -1,
+      imCatchIDX: -1,
+      finalizerIDX: -1
+    }
+  }
 
   if (stmt.handler) {
     tryCatchContext.setIDX(tryContext.udCatchIDX);
@@ -749,6 +768,8 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   gotoTryContextBBToTryBB.setIDX(tryContext.tryIDX);
   gotoPostBB.setIDX(postBB.getIDX());
   gotoInvokeFinalizer.setIDX(tryContext.finalizerIDX);
+
+  
 }
 
 const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
@@ -825,101 +846,103 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   // case b.
   // KIND [ ID, ...ID ] = RVal
   if (isJS3ArrayPattern(declaration.id)) {
-    const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined");
 
-    let for$of$loop$iterator = cx.js3Builder.utils.getNewTemporary("iterator");
-    let for$of$loop$method = cx.js3Builder.utils.getNewTemporary("method");
-    let for$of$loop$catch = cx.js3Builder.utils.getNewTemporary("catch");
-    let for$of$loop$next = cx.js3Builder.utils.getNewTemporary("next");
-    let for$of$loop$done = cx.js3Builder.utils.getNewTemporary("done");
+    debugConfig.logger.throwIriError("TODO: rework array destructuring pattern");
+    // const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined");
 
-    // Alloca
-    for (let e of declaration.id.elements) {
-      if (isIdentifier(e)) {
-        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(e.name), null, KIND, false));
-      } else if (isJS3RestElement(e)) {
-        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(e.argument.name), null, KIND, false));
-      }
-    }
+    // let for$of$loop$iterator = cx.js3Builder.utils.getNewTemporary("iterator");
+    // let for$of$loop$method = cx.js3Builder.utils.getNewTemporary("method");
+    // let for$of$loop$catch = cx.js3Builder.utils.getNewTemporary("catch");
+    // let for$of$loop$next = cx.js3Builder.utils.getNewTemporary("next");
+    // let for$of$loop$done = cx.js3Builder.utils.getNewTemporary("done");
 
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$iterator), null, "JSLET", false));
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$method), null, "JSLET", false));
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$catch), null, "JSLET", false));
-    cx.getCurrentBB().args.push(new JSForOfStartSEXP(rValTarget, for$of$loop$catch, for$of$loop$method, for$of$loop$iterator));
+    // // Alloca
+    // for (let e of declaration.id.elements) {
+    //   if (isIdentifier(e)) {
+    //     cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(e.name), null, KIND, false));
+    //   } else if (isJS3RestElement(e)) {
+    //     cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(e.argument.name), null, KIND, false));
+    //   }
+    // }
 
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$next), null, "JSLET", false));
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$done), null, "JSLET", false));
+    // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$iterator), null, "JSLET", false));
+    // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$method), null, "JSLET", false));
+    // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$catch), null, "JSLET", false));
+    // cx.getCurrentBB().args.push(new JSForOfStartSEXP(rValTarget, for$of$loop$catch, for$of$loop$method, for$of$loop$iterator));
+
+    // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$next), null, "JSLET", false));
+    // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$done), null, "JSLET", false));
 
 
-    for (let e of declaration.id.elements) {
-      if (isIdentifier(e)) {
-        cx.getCurrentBB().args.push(new JSForOfNextSEXP(for$of$loop$iterator, for$of$loop$method, for$of$loop$catch, for$of$loop$done, for$of$loop$next));
-        cx.getCurrentBB().args.push(new EnvWriteSEXP(e.name, new EnvReadSEXP(for$of$loop$next), false, false));
-      } else if (isJS3RestElement(e)) {
-        // tempres = []
-        // i = 0
-        // cx: {
-        //  next, done...
-        //  if (done) break;
-        //  tempres[i] = next;
-        //  i = i + 1;
-        //  continue
-        // }
-        let tempres = cx.js3Builder.utils.getNewTemporary("tempres");
-        let tempit = cx.js3Builder.utils.getNewTemporary("it");
-        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(tempres), new JSArraySEXP([]), "JSLET", false));
-        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(tempit), new NumberSEXP(0), "JSLET", false));
+    // for (let e of declaration.id.elements) {
+    //   if (isIdentifier(e)) {
+    //     cx.getCurrentBB().args.push(new JSForOfNextSEXP(for$of$loop$iterator, for$of$loop$method, for$of$loop$catch, for$of$loop$done, for$of$loop$next));
+    //     cx.getCurrentBB().args.push(new EnvWriteSEXP(e.name, new EnvReadSEXP(for$of$loop$next), false, false));
+    //   } else if (isJS3RestElement(e)) {
+    //     // tempres = []
+    //     // i = 0
+    //     // cx: {
+    //     //  next, done...
+    //     //  if (done) break;
+    //     //  tempres[i] = next;
+    //     //  i = i + 1;
+    //     //  continue
+    //     // }
+    //     let tempres = cx.js3Builder.utils.getNewTemporary("tempres");
+    //     let tempit = cx.js3Builder.utils.getNewTemporary("it");
+    //     cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(tempres), new JSArraySEXP([]), "JSLET", false));
+    //     cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(tempit), new NumberSEXP(0), "JSLET", false));
 
-        const currentContext = cx.getCurrentContext();
-        const currentBB = currentContext.getCurrentBB();
-        cx.addContinuation(currentContext);
-        const postBB = currentContext.getCurrentBB();
+    //     const currentContext = cx.getCurrentContext();
+    //     const currentBB = currentContext.getCurrentBB();
+    //     cx.addContinuation(currentContext);
+    //     const postBB = currentContext.getCurrentBB();
 
-        let loopHeadContext: IridiumBuildContext = cx.getCurrentContext();
+    //     let loopHeadContext: IridiumBuildContext = cx.getCurrentContext();
 
-        const loopConfig: {
-          loopHeadIDX: number,
-          loopBodyIDX: number,
-          loopInitIDX: number,
-          label: string | null,
-          breakTarget: number,
-          continueTarget: number
-        } = {
-          loopHeadIDX: -1,
-          loopBodyIDX: -1,
-          loopInitIDX: -1,
-          label: null,
-          breakTarget: -1,
-          continueTarget: -1
-        };
+    //     const loopConfig: {
+    //       loopHeadIDX: number,
+    //       loopBodyIDX: number,
+    //       loopInitIDX: number,
+    //       label: string | null,
+    //       breakTarget: number,
+    //       continueTarget: number
+    //     } = {
+    //       loopHeadIDX: -1,
+    //       loopBodyIDX: -1,
+    //       loopInitIDX: -1,
+    //       label: null,
+    //       breakTarget: -1,
+    //       continueTarget: -1
+    //     };
 
-        loopConfig.breakTarget = postBB.getIDX();
+    //     loopConfig.breakTarget = postBB.getIDX();
 
-        const currToLoop = new GotoSEXP(-1);
-        const loopToPost = new IfJumpSEXP(new EnvReadSEXP(for$of$loop$done), -1);
+    //     const currToLoop = new GotoSEXP(-1);
+    //     const loopToPost = new IfJumpSEXP(new EnvReadSEXP(for$of$loop$done), -1);
 
-        // 1. CurrBB to LoopBB
-        currentBB.args.push(currToLoop);
+    //     // 1. CurrBB to LoopBB
+    //     currentBB.args.push(currToLoop);
 
-        // 2. Loop
-        cx.declareAndPushLexicalContext(); // Loop Context
-        loopHeadContext = cx.getCurrentContext();
-        loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX();
-        cx.getCurrentBB().args.push(new JSForOfNextSEXP(for$of$loop$iterator, for$of$loop$method, for$of$loop$catch, for$of$loop$done, for$of$loop$next));
-        cx.getCurrentBB().args.push(loopToPost);
-        cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP(tempres, tempit, new EnvReadSEXP(for$of$loop$next)));
-        cx.getCurrentBB().args.push(new EnvWriteSEXP(tempit, new BinopSEXP("+", new EnvReadSEXP(tempit), new NumberSEXP(1)), false, false));
-        cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP());
-        cx.popContext(); // Loop Context
+    //     // 2. Loop
+    //     cx.declareAndPushLexicalContext(); // Loop Context
+    //     loopHeadContext = cx.getCurrentContext();
+    //     loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX();
+    //     cx.getCurrentBB().args.push(new JSForOfNextSEXP(for$of$loop$iterator, for$of$loop$method, for$of$loop$catch, for$of$loop$done, for$of$loop$next));
+    //     cx.getCurrentBB().args.push(loopToPost);
+    //     cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP(tempres, tempit, new EnvReadSEXP(for$of$loop$next)));
+    //     cx.getCurrentBB().args.push(new EnvWriteSEXP(tempit, new BinopSEXP("+", new EnvReadSEXP(tempit), new NumberSEXP(1)), false, false));
+    //     cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP());
+    //     cx.popContext(); // Loop Context
 
-        loopHeadContext.loopConfig = loopConfig;
+    //     loopHeadContext.loopConfig = loopConfig;
         
-        currToLoop.setIDX(loopConfig.loopHeadIDX);
-        loopToPost.setIDX(loopConfig.breakTarget);
+    //     currToLoop.setIDX(loopConfig.loopHeadIDX);
+    //     loopToPost.setIDX(loopConfig.breakTarget);
 
-        cx.getCurrentBB().args.push(new EnvWriteSEXP(e.argument.name, new EnvReadSEXP(tempres), false, false));
-      }
-    }
+    //     cx.getCurrentBB().args.push(new EnvWriteSEXP(e.argument.name, new EnvReadSEXP(tempres), false, false));
+    //   }
+    // }
     return;
   }
 

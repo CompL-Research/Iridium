@@ -947,35 +947,24 @@ export class JSForInStartSEXP extends IridiumSEXP {
 
 // (Extension) JSIteratorClose
 export class JSIteratorCloseSEXP extends IridiumSEXP {
-  constructor(iteratorObjHolder: string, iteratorMethodHolder: string, catchOffsetHolder: string) {
+  constructor() {
     super("JSIteratorClose");
-    this.args.push(new EnvReadSEXP(iteratorObjHolder));
-    this.args.push(new EnvReadSEXP(iteratorMethodHolder));
-    this.args.push(new EnvReadSEXP(catchOffsetHolder));
   }
 
   toString(space?: number): string {
-    const res = [];
-    res.push(`${printSpace(space)}${this.tag}`);
-    for (let s of this.args) {
-      res.push(`${printSpace(10)}${s.toString(0)}`);
-    }
-    return res.join("\n");
+    return `${printSpace(space)}${this.tag}`;
   }
 }
 
 // (Extension) JSForOfStart
 export class JSForOfStartSEXP extends IridiumSEXP {
-  constructor(obj: string | IridiumSEXP, iteratorObjHolder: string, iteratorMethodHolder: string, catchOffsetHolder: string) {
+  constructor(obj: string | IridiumSEXP) {
     super("JSForOfStart");
     if (typeof(obj) === "string") {
       this.args.push(new EnvReadSEXP(obj));
     } else {
       this.args.push(obj);
     }
-    this.args.push(new ResolveEnvBindingSEXP(iteratorObjHolder));
-    this.args.push(new ResolveEnvBindingSEXP(iteratorMethodHolder));
-    this.args.push(new ResolveEnvBindingSEXP(catchOffsetHolder));
   }
 
   toString(space?: number): string {
@@ -990,23 +979,20 @@ export class JSForOfStartSEXP extends IridiumSEXP {
 
 // (Extension) JSForInNext
 export class JSForInNextSEXP extends IridiumSEXP {
-  constructor(iterator: string, doneTarget: string, nextTarget: string) {
+  constructor(iterator: string, stackTop: string, stackTopNext: string) {
     super("JSForInNext");
     this.args.push(new EnvReadSEXP(iterator));
-    this.args.push(new ResolveEnvBindingSEXP(doneTarget));
-    this.args.push(new ResolveEnvBindingSEXP(nextTarget));
+    this.args.push(new ResolveEnvBindingSEXP(stackTop));
+    this.args.push(new ResolveEnvBindingSEXP(stackTopNext));
   }
 }
 
 // (Extension) JSForOfNext
 export class JSForOfNextSEXP extends IridiumSEXP {
-  constructor(iteratorObjHolder: string, iteratorMethodHolder: string, catchOffsetHolder: string, resultHolder: string, doneHolder: string) {
+  constructor(stackTop: string, stackTopNext: string) {
     super("JSForOfNext");
-    this.args.push(new EnvReadSEXP(iteratorObjHolder));
-    this.args.push(new EnvReadSEXP(iteratorMethodHolder));
-    this.args.push(new EnvReadSEXP(catchOffsetHolder));
-    this.args.push(new ResolveEnvBindingSEXP(resultHolder));
-    this.args.push(new ResolveEnvBindingSEXP(doneHolder));
+    this.args.push(new ResolveEnvBindingSEXP(stackTop));
+    this.args.push(new ResolveEnvBindingSEXP(stackTopNext));
   }
 
   toString(space?: number): string {
@@ -1805,6 +1791,19 @@ export class PushCatchContextSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     return `${printSpace(space)}CATCH[${this.getIDX()}]`
+  }
+}
+
+// (Extended) PushForOfCatchContext
+export type PushForOfCatchContextFlags = "IDX";
+export class PushForOfCatchContextSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP) {
+    super("PushForOfCatchContext");
+    this.args.push(obj);
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}FOR-OF-CATCH[${this.args[0].toString(0)}]`
   }
 }
 

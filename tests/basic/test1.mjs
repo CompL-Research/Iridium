@@ -197,11 +197,69 @@
 // } catch(e) {
 //   a = 13;
 // }
-let res;
-try {
-  throw 12;
-} catch(e) {
-  res = e;
-} finally {
-  console.log(res);
+// let res;
+// try {
+//   throw 12;
+// } catch(e) {
+//   res = e;
+// } finally {
+//   console.log(res);
+// }
+
+// let i = 0;
+// while (i < 10) {
+//   i = i + 1;
+//   try {
+//     break;
+//   } finally {
+//     console.log("While loop");
+//   }
+// }
+
+// xoxo: {
+//   console.log("xoxo");
+//   for (let i of [1,2,3]) {
+//     console.log("Loop");
+//     try {
+//       console.log(i);
+//     } finally {
+//       console.log("Hae");
+//       // break;
+//     }
+//   }
+// }
+// console.log("end");
+
+const iterable = {
+  
+};
+
+iterable[Symbol.iterator] = function() {
+    return {
+      next() {
+        console.log("next called");
+        return { value: 1, done: false };
+      },
+      return() {
+        console.log("return called (cleanup)");
+        return { done: true };
+      }
+    };
+  }
+
+function test() {
+  for (const x of iterable) {
+    console.log("inside loop:", x);
+    throw new Error("abrupt exit"); // abrupt exit triggers iterator.return()
+  }
 }
+
+try {
+  test();
+} catch (e) {
+  console.log("caught:", e.message);
+}
+
+// for (let i of [1,2,3]) {
+//   console.log(i);
+// }
