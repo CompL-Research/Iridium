@@ -640,102 +640,97 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   // KIND [ ID, ...ID ] = RVal
   if (isJS3ArrayPattern(declaration.id)) {
 
-    debugConfig.logger.throwIriError("TODO: rework array destructuring pattern");
-    // const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined");
+    const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined");
 
-    // let for$of$loop$iterator = cx.js3Builder.utils.getNewTemporary("iterator");
-    // let for$of$loop$method = cx.js3Builder.utils.getNewTemporary("method");
-    // let for$of$loop$catch = cx.js3Builder.utils.getNewTemporary("catch");
-    // let for$of$loop$next = cx.js3Builder.utils.getNewTemporary("next");
-    // let for$of$loop$done = cx.js3Builder.utils.getNewTemporary("done");
+    let for$of$loop$next = cx.js3Builder.utils.getNewTemporary("next");
+    let for$of$loop$done = cx.js3Builder.utils.getNewTemporary("done");
 
-    // // Alloca
-    // for (let e of declaration.id.elements) {
-    //   if (isIdentifier(e)) {
-    //     cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(e.name), null, KIND, false));
-    //   } else if (isJS3RestElement(e)) {
-    //     cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(e.argument.name), null, KIND, false));
-    //   }
-    // }
+    // Alloca
+    for (let e of declaration.id.elements) {
+      if (isIdentifier(e)) {
+        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(e.name), null, KIND, false));
+      } else if (isJS3RestElement(e)) {
+        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(e.argument.name), null, KIND, false));
+      }
+    }
 
-    // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$iterator), null, "JSLET", false));
-    // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$method), null, "JSLET", false));
-    // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$catch), null, "JSLET", false));
-    // cx.getCurrentBB().args.push(new JSForOfStartSEXP(rValTarget, for$of$loop$catch, for$of$loop$method, for$of$loop$iterator));
+    cx.getCurrentBB().args.push(new JSForOfStartSEXP(rValTarget));
 
-    // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$next), null, "JSLET", false));
-    // cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$done), null, "JSLET", false));
+    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$next), null, "JSLET", false));
+    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$done), null, "JSLET", false));
 
 
-    // for (let e of declaration.id.elements) {
-    //   if (isIdentifier(e)) {
-    //     cx.getCurrentBB().args.push(new JSForOfNextSEXP(for$of$loop$iterator, for$of$loop$method, for$of$loop$catch, for$of$loop$done, for$of$loop$next));
-    //     cx.getCurrentBB().args.push(new EnvWriteSEXP(e.name, new EnvReadSEXP(for$of$loop$next), false, false));
-    //   } else if (isJS3RestElement(e)) {
-    //     // tempres = []
-    //     // i = 0
-    //     // cx: {
-    //     //  next, done...
-    //     //  if (done) break;
-    //     //  tempres[i] = next;
-    //     //  i = i + 1;
-    //     //  continue
-    //     // }
-    //     let tempres = cx.js3Builder.utils.getNewTemporary("tempres");
-    //     let tempit = cx.js3Builder.utils.getNewTemporary("it");
-    //     cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(tempres), new JSArraySEXP([]), "JSLET", false));
-    //     cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(tempit), new NumberSEXP(0), "JSLET", false));
+    for (let e of declaration.id.elements) {
+      if (isIdentifier(e)) {
+        cx.getCurrentBB().args.push(new JSForOfNextSEXP(for$of$loop$done, for$of$loop$next));
+        cx.getCurrentBB().args.push(new EnvWriteSEXP(e.name, new EnvReadSEXP(for$of$loop$next), false, false));
+      } else if (isJS3RestElement(e)) {
+        // tempres = []
+        // i = 0
+        // cx: {
+        //  next, done...
+        //  if (done) break;
+        //  tempres[i] = next;
+        //  i = i + 1;
+        //  continue
+        // }
+        let tempres = cx.js3Builder.utils.getNewTemporary("tempres");
+        let tempit = cx.js3Builder.utils.getNewTemporary("it");
+        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(tempres), new JSArraySEXP([]), "JSLET", false));
+        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(tempit), new NumberSEXP(0), "JSLET", false));
 
-    //     const currentContext = cx.getCurrentContext();
-    //     const currentBB = currentContext.getCurrentBB();
-    //     cx.addContinuation(currentContext);
-    //     const postBB = currentContext.getCurrentBB();
+        const currentContext = cx.getCurrentContext();
+        const currentBB = currentContext.getCurrentBB();
+        cx.addContinuation(currentContext);
+        const postBB = currentContext.getCurrentBB();
 
-    //     let loopHeadContext: IridiumBuildContext = cx.getCurrentContext();
+        let loopHeadContext: IridiumBuildContext = cx.getCurrentContext();
 
-    //     const loopConfig: {
-    //       loopHeadIDX: number,
-    //       loopBodyIDX: number,
-    //       loopInitIDX: number,
-    //       label: string | null,
-    //       breakTarget: number,
-    //       continueTarget: number
-    //     } = {
-    //       loopHeadIDX: -1,
-    //       loopBodyIDX: -1,
-    //       loopInitIDX: -1,
-    //       label: null,
-    //       breakTarget: -1,
-    //       continueTarget: -1
-    //     };
+        const loopConfig: {
+          loopHeadIDX: number,
+          loopBodyIDX: number,
+          loopInitIDX: number,
+          label: string | null,
+          breakTarget: number,
+          continueTarget: number
+        } = {
+          loopHeadIDX: -1,
+          loopBodyIDX: -1,
+          loopInitIDX: -1,
+          label: null,
+          breakTarget: -1,
+          continueTarget: -1
+        };
 
-    //     loopConfig.breakTarget = postBB.getIDX();
+        loopConfig.breakTarget = postBB.getIDX();
 
-    //     const currToLoop = new GotoSEXP(-1);
-    //     const loopToPost = new IfJumpSEXP(new EnvReadSEXP(for$of$loop$done), -1);
+        const currToLoop = new GotoSEXP(-1);
+        const loopToPost = new IfJumpSEXP(new EnvReadSEXP(for$of$loop$done), -1);
 
-    //     // 1. CurrBB to LoopBB
-    //     currentBB.args.push(currToLoop);
+        // 1. CurrBB to LoopBB
+        currentBB.args.push(currToLoop);
 
-    //     // 2. Loop
-    //     cx.declareAndPushLexicalContext(); // Loop Context
-    //     loopHeadContext = cx.getCurrentContext();
-    //     loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX();
-    //     cx.getCurrentBB().args.push(new JSForOfNextSEXP(for$of$loop$iterator, for$of$loop$method, for$of$loop$catch, for$of$loop$done, for$of$loop$next));
-    //     cx.getCurrentBB().args.push(loopToPost);
-    //     cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP(tempres, tempit, new EnvReadSEXP(for$of$loop$next)));
-    //     cx.getCurrentBB().args.push(new EnvWriteSEXP(tempit, new BinopSEXP("+", new EnvReadSEXP(tempit), new NumberSEXP(1)), false, false));
-    //     cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP());
-    //     cx.popContext(); // Loop Context
+        // 2. Loop
+        cx.declareAndPushLexicalContext(); // Loop Context
+        loopHeadContext = cx.getCurrentContext();
+        loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX();
+        cx.getCurrentBB().args.push(new JSForOfNextSEXP(for$of$loop$done, for$of$loop$next));
+        cx.getCurrentBB().args.push(loopToPost);
+        cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP(tempres, tempit, new EnvReadSEXP(for$of$loop$next)));
+        cx.getCurrentBB().args.push(new EnvWriteSEXP(tempit, new BinopSEXP("+", new EnvReadSEXP(tempit), new NumberSEXP(1)), false, false));
+        cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP());
+        cx.popContext(); // Loop Context
 
-    //     loopHeadContext.loopConfig = loopConfig;
+        loopHeadContext.loopConfig = loopConfig;
         
-    //     currToLoop.setIDX(loopConfig.loopHeadIDX);
-    //     loopToPost.setIDX(loopConfig.breakTarget);
+        currToLoop.setIDX(loopConfig.loopHeadIDX);
+        loopToPost.setIDX(loopConfig.breakTarget);
 
-    //     cx.getCurrentBB().args.push(new EnvWriteSEXP(e.argument.name, new EnvReadSEXP(tempres), false, false));
-    //   }
-    // }
+        cx.getCurrentBB().args.push(new EnvWriteSEXP(e.argument.name, new EnvReadSEXP(tempres), false, false));
+      }
+    }
+
+    cx.getCurrentBB().args.push(new JSIteratorCloseSEXP());
     return;
   }
 

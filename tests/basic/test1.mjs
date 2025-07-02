@@ -230,36 +230,41 @@
 // }
 // console.log("end");
 
-const iterable = {
+// const iterable = {
   
-};
+// };
 
-iterable[Symbol.iterator] = function() {
-    return {
-      next() {
-        console.log("next called");
-        return { value: 1, done: false };
-      },
-      return() {
-        console.log("return called (cleanup)");
-        return { done: true };
-      }
-    };
-  }
+// iterable[Symbol.iterator] = function() {
+//     return {
+//       next() {
+//         console.log("next called");
+//         return { value: 1, done: false };
+//       },
+//       return() {
+//         console.log("return called (cleanup)");
+//         return { done: true };
+//       }
+//     };
+//   }
 
-function test() {
-  for (const x of iterable) {
-    console.log("inside loop:", x);
-    throw new Error("abrupt exit"); // abrupt exit triggers iterator.return()
-  }
-}
+// function test() {
+//   for (const x of iterable) {
+//     console.log("inside loop:", x);
+//     throw new Error("abrupt exit"); // abrupt exit triggers iterator.return()
+//   }
+// }
 
-try {
-  test();
-} catch (e) {
-  console.log("caught:", e.message);
-}
+// try {
+//   test();
+// } catch (e) {
+//   console.log("caught:", e.message);
+// }
 
 // for (let i of [1,2,3]) {
 //   console.log(i);
 // }
+
+let a = [1,2,3];
+let [b, ...c] = a;
+
+console.log(a, b, c)
