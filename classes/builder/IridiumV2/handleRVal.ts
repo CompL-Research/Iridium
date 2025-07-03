@@ -125,10 +125,13 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   else if (isJS3BinaryExpression(init)) {
     let left: IridiumSEXP;
     if (isJS3PrivateName(init.left)) {
-      debugConfig.logger.throwIriError("Handle binop with private names");
-    } else left = IRIV2_RVAL(cx, init.left);
-
-    return new BinopSEXP(init.operator, left, IRIV2_RVAL(cx, init.right));
+      left = new ResolvePrivateEnvBindingSEXP(init.left.id.name);
+      // debugConfig.logger.throwIriError("Handle binop with private names");
+      return new BinopSEXP("pin", IRIV2_RVAL(cx, init.right), left);
+    } else {
+      left = IRIV2_RVAL(cx, init.left);
+      return new BinopSEXP(init.operator, left, IRIV2_RVAL(cx, init.right));
+    }
   }
 
   // JS3AssignmentExpression
@@ -417,11 +420,13 @@ const createClassNonStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpres
         let lookupField: string = getFieldKeyString(classItem.key);
         memberExpr = memberExpression(thisExpression(), identifier(lookupField), false);
       }
+      if (!classItem.value) debugConfig.logger.throwIriError("TODO: Class props with no defualt value");
       lowerExprToResolveEnvBindingSEXP(cx, assignmentExpression("=", memberExpr, classItem.value));
     } else if (isJS3ClassPrivateProperty(classItem) && !classItem.static) {
       // this.#field = RVal
       if (!computedPropMapping.has(classItem)) debugConfig.logger.throwIriError("Expected computed prop mapping to be resolved for all fields");
       let lookupPrivateKeyHolder = new EnvReadSEXP(computedPropMapping.get(classItem));
+      if (!classItem.value) debugConfig.logger.throwIriError("TODO: Class props with no defualt value");
       let loweredValue: IridiumSEXP = new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getBindingName());
       cx.getCurrentBB().args.push(new JSPrivateFieldWriteSEXP("this", lookupPrivateKeyHolder, loweredValue));
     }
@@ -482,11 +487,13 @@ const createClassStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpressio
         let lookupField: string = getFieldKeyString(classItem.key);
         memberExpr = memberExpression(thisExpression(), identifier(lookupField), false);
       }
+      if (!classItem.value) debugConfig.logger.throwIriError("TODO: Class props with no defualt value");
       lowerExprToResolveEnvBindingSEXP(cx, assignmentExpression("=", memberExpr, classItem.value));
     } else if (isJS3ClassPrivateProperty(classItem) && classItem.static) {
       // this.#field = RVal
       if (!computedPropMapping.has(classItem)) debugConfig.logger.throwIriError("Expected computed prop mapping to be resolved for all fields");
       let lookupPrivateKeyHolder = new EnvReadSEXP(computedPropMapping.get(classItem));
+      if (!classItem.value) debugConfig.logger.throwIriError("TODO: Class props with no defualt value");
       let loweredValue: IridiumSEXP = new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getBindingName());
       cx.getCurrentBB().args.push(new JSPrivateFieldWriteSEXP("this", lookupPrivateKeyHolder, loweredValue));
     } else if (isJS3StaticBlock(classItem)) {

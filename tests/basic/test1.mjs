@@ -414,16 +414,18 @@ class A {
   #foo = 12;
   foo() {
     console.log(#foo in this);
+    return;
   }
-  // bar() {
-  //   class B {
-  //     #foo;
-  //   }
-  //   let o1 = new B();
-  //   console.log(#foo in o1);
-  // }
+  bar() {
+    class B {
+      #foo = 1;
+    };
+    let o1 = new B();
+    console.log(#foo in o1);
+    return;
+  }
 }
 
 new A().foo();
 
-// new A().bar();
+new A().bar();
