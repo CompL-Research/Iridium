@@ -1,10 +1,10 @@
 import debugConfig from "#debugConfig";
 import { assignmentExpression, BigIntLiteral, Expression, identifier, Identifier, isArrowFunctionExpression, isBigIntLiteral, isBooleanLiteral, isClassExpression, isDecimalLiteral, isFunctionExpression, isIdentifier, isNullLiteral, isNumericLiteral, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, NumericLiteral, StringLiteral, thisExpression } from "@babel/types";
 import { handleExpression, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpression.ts";
-import { isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ClassExpression, isJS3ClassMethod, isJS3ClassPrivateMethod, isJS3ClassPrivateProperty, isJS3ClassProperty, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, isJS3RegExpLiteral, isJS3StaticBlock, isJS3VariableDeclaration, isJS3YieldExpression, JS3ArrayExpression, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3BlockStatement_body, JS3CallExpression, JS3ClassExpression, JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3NewExpression, JS3ObjectExpression, JS3ObjectMethod, JS3YieldExpression } from "../JS3Helpers/JS3Types.ts";
+import { isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ClassExpression, isJS3ClassMethod, isJS3ClassPrivateMethod, isJS3ClassPrivateProperty, isJS3ClassProperty, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, isJS3RegExpLiteral, isJS3StaticBlock, isJS3TemplateLiteral, isJS3UnaryExpression, isJS3UpdateExpression, isJS3VariableDeclaration, isJS3YieldExpression, JS3ArrayExpression, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BlockStatement_body, JS3CallExpression, JS3ClassExpression, JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3NewExpression, JS3ObjectExpression, JS3ObjectMethod, JS3UnaryExpression, JS3YieldExpression } from "../JS3Helpers/JS3Types.ts";
 import { getArrayDestSEXP, getObjectDestSEXP, handleBlockStatement, IRIV2_STMT, lowerArgumentInit } from "./handleStatement.ts";
 import { IRIDIUMV2 } from "./IRIDIUMV2.ts";
-import { BinopSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassMethodDefineSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSComputedObjectMethodSEXP, JSComputedObjectPropSEXP, JSEnvWriteSEXP, JSHomeObjContextSEXP, JSInitialYieldSEXP, JSNUBDSEXP, JSObjectMethodSEXP, JSObjectPropSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperContextSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSSuperObjContextSEXP, JSThisContextAltSEXP, JSThisContextSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnSEXP, StringSEXP, YieldSEXP } from "./Types.ts";
+import { AwaitSEXP, BinopSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassMethodDefineSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSComputedObjectMethodSEXP, JSComputedObjectPropSEXP, JSEnvWriteSEXP, JSHomeObjContextSEXP, JSInitialYieldSEXP, JSNUBDSEXP, JSObjectMethodSEXP, JSObjectPropSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperContextSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSSuperObjContextSEXP, JSTemplateSEXP, JSThisContextAltSEXP, JSThisContextSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnSEXP, StringSEXP, UnopSEXP, YieldSEXP } from "./Types.ts";
 
 // Handle RValues | AMP
 export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
@@ -69,10 +69,18 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
     return new RegExpSEXP(init.pattern, init.flags);
   }
 
-  // // JS3Template Literal
-  // else if (isJS3TemplateLiteral(init)) {
-  //   return this.handleJS3TemplateLiteral(init);
-  // }
+  // JS3Template Literal
+  else if (isJS3TemplateLiteral(init)) {
+    let templateElements: Array<IridiumSEXP> = [];
+    let exprs = [...init.expressions];
+    exprs.reverse();
+    for (let q of init.quasis) {
+      let str = q.value.cooked ? q.value.cooked : q.value.raw;
+      templateElements.push(new StringSEXP(str));
+      if (exprs.length > 0) templateElements.push(IRIV2_RVAL(cx, exprs.pop()));
+    }
+    return new JSTemplateSEXP(templateElements);
+  }
 
   // // JS3TaggedTemplateExpression
   // else if (isJS3TaggedTemplateExpression(init)) {
@@ -89,9 +97,9 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
     return handleYieldExpression(cx, init);
   } 
   // JS3AwaitExpression
-  // else if (isJS3AwaitExpression(init)) {
-  //   return this.handleJS3AwaitExpression(init);
-  // }
+  else if (isJS3AwaitExpression(init)) {
+    return handleAwaitExpression(cx, init);
+  }
 
   // This Expression
   else if (isThisExpression(init)) {
@@ -117,7 +125,7 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   else if (isJS3BinaryExpression(init)) {
     let left: IridiumSEXP;
     if (isJS3PrivateName(init.left)) {
-      left = new EnvReadSEXP("#" + init.left.id.name);
+      debugConfig.logger.throwIriError("Handle binop with private names");
     } else left = IRIV2_RVAL(cx, init.left);
 
     return new BinopSEXP(init.operator, left, IRIV2_RVAL(cx, init.right));
@@ -158,10 +166,10 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
     return handleNewExpression(cx, init);
   }
 
-  // // JS3UnaryExpression
-  // else if (isJS3UnaryExpression(init)) {
-  //   return this.handleJS3UnaryExpression(init);
-  // }
+  // JS3UnaryExpression
+  else if (isJS3UnaryExpression(init)) {
+    return handleUnaryExpression(cx, init);
+  }
 
   // // JS3UpdateExpression
   // else if (isJS3UpdateExpression(init)) {
@@ -201,8 +209,27 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   return null;
 }
 
+const handleUnaryExpression = (cx: IRIDIUMV2, node: JS3UnaryExpression): IridiumSEXP => {
+  if (node.operator === "delete") {
+    debugConfig.logger.throwJS3Error("TODO: unary delete operator")
+  } else {
+    if (isIdentifier(node.argument)) {
+      if (node.operator === "void") return new EnvReadSEXP("undefined");
+      const argument = IRIV2_RVAL(cx, node.argument);
+      return new UnopSEXP(node.operator, argument);      
+    } else debugConfig.logger.throwIriError(
+        "JS3UnaryExpression: Expected Identifier for non delete operators",
+      );
+    
+  }
+};
+
 const handleYieldExpression = (cx: IRIDIUMV2, node: JS3YieldExpression): IridiumSEXP => {
   return new YieldSEXP(node.argument ? node.argument.name : "undefined");
+};
+
+const handleAwaitExpression = (cx: IRIDIUMV2, node: JS3AwaitExpression): IridiumSEXP => {
+  return new AwaitSEXP(node.argument.name);
 };
 
 const handleComputedProps = (cx: IRIDIUMV2, node: JS3ClassExpression): Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string> => {

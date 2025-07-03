@@ -520,6 +520,18 @@ export class NullSEXP extends IridiumSEXP {
   
 }
 
+// (Primitive) JSTemplateSEXP
+export class JSTemplateSEXP extends IridiumSEXP {
+  constructor(elements: Array<IridiumSEXP>) {
+    super("JSTemplate");
+    elements.forEach(e => this.args.push(e));
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}JSTempalte(${this.args.map(e => e.toString(0)).join(", ")})`;
+  }
+}
+
 // (Primitive) RegExpSEXP
 export class RegExpSEXP extends IridiumSEXP {
   constructor(exp: string, flags: string) {
@@ -565,6 +577,18 @@ export class YieldSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     return `${printSpace(space)}YIELD ${this.args[0].toString(0)}`;
+  }
+}
+
+// (Extension) Await
+export class AwaitSEXP extends IridiumSEXP {
+  constructor(arg: string) {
+    super("Await");
+    this.args.push(new EnvReadSEXP(arg));
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}AWAIT ${this.args[0].toString(0)}`;
   }
 }
 
@@ -1865,6 +1889,18 @@ export class InvokeFinalizerSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     return `${printSpace(space)}FINALIZER[${this.getIDX()}]`
+  }
+}
+
+// (Extension) ReturnAsync
+export class ReturnAsyncSEXP extends IridiumSEXP {
+  constructor(val: IridiumSEXP) {
+    super("ReturnAsync");
+    this.args.push(val);
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}return[async] ${this.args[0].toString(0)}`
   }
 }
 

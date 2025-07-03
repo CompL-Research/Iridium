@@ -314,7 +314,116 @@
 
 // f();
 
-const re = /\w+\s/g;
-const str = "fee fi fo fum";
-const myArray = str.match(re);
-console.log(myArray);
+// const re = /\w+\s/g;
+// const str = "fee fi fo fum";
+// const myArray = str.match(re);
+// console.log(myArray);
+
+// let x = {
+//   toString() { return "Pikachu"; }
+// };
+// let y = 2;
+// let z = 3;
+// let m = `${x}: one\n${y}: two\n${z}: three`
+
+// console.log(m);
+
+
+// let a = true;
+// let b = -1;
+// let log = console.log;
+
+// log(!a);
+// log(-b);
+// log(+b);
+// log(~0);
+// log(void console.log("Hello"));
+// log(typeof b);
+
+
+// let a = 12;
+// let b = 13;
+// let log = console.log;
+// log(a + b)
+// log(a - b)
+// log(a / b)
+// log(a % b)
+// log(a * b)
+// log(a ** b)
+
+
+// let a = 1
+// let b = 2;
+// let c = 3;
+// let d = 4;
+// let log = console.log;
+// log(a & b);
+// log(a & c);
+// log(a | b);
+// log(d >> a);
+// log(d >>> a);
+// log(a << b);
+// log(b ^ c);
+// log("0" == 0)
+// log("0" === 0)
+
+// log("0" != 0)
+// log("0" !== 0)
+
+// let a = {
+//   foo: 12
+// }
+
+// let log = console.log;
+// log("foo" in a)
+// log("bar" in a)
+// log(a instanceof Object)
+// let s = "123";
+// log(s instanceof String)
+
+// let a = 1
+// let b = 2;
+// let log = console.log;
+// log(b > a);
+// log(a < b);
+// log(a > a);
+// log(b < b);
+// log(a >= b);
+// log(a <= b);
+
+// let a = async () => {
+//   return 10;
+// }
+
+// console.log(a());
+// a().then(function f(res) { console.log(res); return; } );
+
+
+// let a = async () => {
+//   return 10 + await b();
+// }
+
+// let b = async () => {
+//   return 20;
+// }
+
+// console.log(a());
+// a().then(function f(res) { console.log(res); return; } );
+
+class A {
+  #foo = 12;
+  foo() {
+    console.log(#foo in this);
+  }
+  // bar() {
+  //   class B {
+  //     #foo;
+  //   }
+  //   let o1 = new B();
+  //   console.log(#foo in o1);
+  // }
+}
+
+new A().foo();
+
+// new A().bar();
