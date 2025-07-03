@@ -1867,6 +1867,12 @@ export class ReturnSEXP extends IridiumSEXP {
   }
 }
 
+// @ts-ignore
+export function isReturnSEXP(o: any): o is ReturnSEXP {
+  // @ts-ignore
+  return o.tag === "Return";
+}
+
 // (Primitive) Ret
 export class RetSEXP extends IridiumSEXP {
   constructor() {

@@ -230,22 +230,22 @@
 // }
 // console.log("end");
 
-// const iterable = {
+const iterable = {
   
-// };
+};
 
-// iterable[Symbol.iterator] = function() {
-//     return {
-//       next() {
-//         console.log("next called");
-//         return { value: 1, done: false };
-//       },
-//       return() {
-//         console.log("return called (cleanup)");
-//         return { done: true };
-//       }
-//     };
-//   }
+iterable[Symbol.iterator] = function() {
+  return {
+    next() {
+      console.log("next called");
+      return { value: 1, done: false };
+    },
+    return() {
+      console.log("return called (cleanup)");
+      return { done: true };
+    }
+  };
+}
 
 // function test() {
 //   for (const x of iterable) {
@@ -264,7 +264,52 @@
 //   console.log(i);
 // }
 
-let a = [1,2,3];
-let [b, ...c] = a;
+// let a = [1,2,3];
+// let [b, ...c] = a;
 
-console.log(a, b, c)
+// console.log(a, b, c)
+
+// let f = () => {
+//   for (let i of [1,2,3]) {
+//     try {
+//       try {
+//         break;
+//       } finally {
+//         console.log("Inner finally");
+//       }
+//     } finally {
+//       console.log("Outer finally");
+//     }
+//   }
+//   return;
+// }
+
+// f();
+
+// for (let i of [1,2,3]) {
+  
+// }
+
+// for (let i of iterable) {  
+//   try {
+//     try {
+//       break;
+//     } finally {
+//       console.log("Inner finalizer");
+//     }
+//   } finally {
+//     console.log("Outer finalizer");
+//   }
+// }
+
+function f() {
+  try {
+    for (let i of iterable) {
+      return;
+    }
+  } finally {
+    console.log("Finalizer");
+  }
+}
+
+f();

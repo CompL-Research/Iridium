@@ -65,6 +65,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
       let loopHeadContext: IridiumBuildContext = null;
 
       const loopConfig: {
+        kind: "for-of" | "standard",
         loopHeadIDX: number,
         loopBodyIDX: number,
         loopInitIDX: number,
@@ -72,6 +73,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
         breakTarget: number,
         continueTarget: number
       } = {
+        kind: "standard",
         loopHeadIDX: -1,
         loopBodyIDX: -1,
         loopInitIDX: -1,
@@ -150,6 +152,7 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
 
   // const loop head config
   const loopConfig: {
+    kind: "for-of" | "standard",
     loopHeadIDX: number,
     loopBodyIDX: number,
     loopInitIDX: number,
@@ -157,6 +160,7 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
     breakTarget: number,
     continueTarget: number
   } = {
+    kind: isJS3ForOfStatement(stmt) ? "for-of" : "standard",
     loopHeadIDX: -1,
     loopBodyIDX: -1,
     loopInitIDX: -1,
@@ -277,6 +281,7 @@ const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement, label: string 
 
   // const loop head config
   const loopConfig: {
+    kind: "for-of" | "standard",
     loopHeadIDX: number,
     loopBodyIDX: number,
     loopInitIDX: number,
@@ -284,6 +289,7 @@ const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement, label: string 
     breakTarget: number,
     continueTarget: number
   } = {
+    kind: "standard",
     loopHeadIDX: -1,
     loopBodyIDX: -1,
     loopInitIDX: -1,
@@ -372,6 +378,7 @@ const handleWhileStatement = (cx: IRIDIUMV2, stmt: JS3WhileStatement, label: str
 
   // const loop head config
   const loopConfig: {
+    kind: "for-of" | "standard",
     loopHeadIDX: number,
     loopBodyIDX: number,
     loopInitIDX: number,
@@ -379,6 +386,7 @@ const handleWhileStatement = (cx: IRIDIUMV2, stmt: JS3WhileStatement, label: str
     breakTarget: number,
     continueTarget: number
   } = {
+    kind: "standard",
     loopHeadIDX: -1,
     loopBodyIDX: -1,
     loopInitIDX: -1,
@@ -687,6 +695,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
         let loopHeadContext: IridiumBuildContext = cx.getCurrentContext();
 
         const loopConfig: {
+          kind: "for-of" | "standard",
           loopHeadIDX: number,
           loopBodyIDX: number,
           loopInitIDX: number,
@@ -694,6 +703,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
           breakTarget: number,
           continueTarget: number
         } = {
+          kind: "for-of",
           loopHeadIDX: -1,
           loopBodyIDX: -1,
           loopInitIDX: -1,

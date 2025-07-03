@@ -5,8 +5,53 @@ import path from "path";
 import JS3Builder from "../JS3Builder.ts";
 import { JS3Program } from "../JS3Helpers/JS3Types.ts";
 import { IRIV2_STMT } from "./handleStatement.ts";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSCatchContextSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, JSCatchContextSEXP, JSCATCHINITSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP } from "./Types.ts";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSCatchContextSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, JSCatchContextSEXP, JSCATCHINITSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnSEXP } from "./Types.ts";
 import { dumpSEXP } from "./PP.ts";
+
+type LoopConfig = {
+  kind: "for-of" | "standard",
+  loopHeadIDX: number,
+  loopBodyIDX: number,
+  loopInitIDX: number,
+  label: string | null,
+  breakTarget: number,
+  continueTarget: number
+}
+
+type TryContext = {
+  tryContextIDX: number,
+  tryIDX: number,
+  udCatchIDX: number,
+  imCatchIDX: number,
+  finalizerIDX: number
+}
+
+function isLoopConfig(obj: any): obj is LoopConfig {
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    (obj.kind === "for-of" || obj.kind === "standard") &&
+    typeof obj.loopHeadIDX === "number" &&
+    typeof obj.loopBodyIDX === "number" &&
+    typeof obj.loopInitIDX === "number" &&
+    (typeof obj.label === "string" || obj.label === null) &&
+    typeof obj.breakTarget === "number" &&
+    typeof obj.continueTarget === "number"
+  );
+}
+
+// Type guard for TryContext
+function isTryContext(obj: any): obj is TryContext {
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    typeof obj.tryContextIDX === "number" &&
+    typeof obj.tryIDX === "number" &&
+    typeof obj.udCatchIDX === "number" &&
+    typeof obj.imCatchIDX === "number" &&
+    typeof obj.finalizerIDX === "number"
+  );
+}
 
 export class IridiumBuildContext {
   static SID = 0;
@@ -16,22 +61,9 @@ export class IridiumBuildContext {
   args: Array<string> = [];
   nubds: Array<string> = [];
 
-  loopConfig: {
-    loopHeadIDX: number,
-    loopBodyIDX: number,
-    loopInitIDX: number,
-    label: string | null,
-    breakTarget: number,
-    continueTarget: number
-  } = null;
+  loopConfig: LoopConfig = null;
 
-  tryContext: {
-    tryContextIDX: number,
-    tryIDX: number,
-    udCatchIDX: number,
-    imCatchIDX: number,
-    finalizerIDX: number
-  } = null;
+  tryContext: TryContext = null;
 
   kind: number = 0;
   isAsync: boolean = false;
@@ -170,22 +202,62 @@ export class IRIDIUMV2 {
   // Helper Functions
   // 
 
-  findLoopControlTarget(localScope: number, node: ResolveContinueTargetSEXP | ResolveBreakTargetSEXP, finalizerTarget: number = -2): [number, number] {
+  findLoopControlTarget(localScope: number, node: ResolveContinueTargetSEXP | ResolveBreakTargetSEXP, intermediateContexts: Array<TryContext | LoopConfig> = []): [LoopConfig, Array<TryContext | LoopConfig>] {
     if (localScope === -1) debugConfig.logger.throwIriError("Failed to find loop control target!!!");
     if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) debugConfig.logger.throwIriError(`build context not found for scope: ${localScope}`);
     let buildContext = IridiumBuildContext.CONTEXT_MAP.get(localScope);
 
-    if (buildContext.tryContext && finalizerTarget === -2) {
-      finalizerTarget = buildContext.tryContext.finalizerIDX;
+    if (buildContext.tryContext) {
+      intermediateContexts.push(buildContext.tryContext);
     }
 
-    if (!buildContext.loopConfig) return this.findLoopControlTarget(buildContext.parent, node, finalizerTarget);
+    // No loop context
+    if (!buildContext.loopConfig) return this.findLoopControlTarget(buildContext.parent, node, intermediateContexts);
 
     const loopConfig = buildContext.loopConfig;
-    if (node.hasLabel() && loopConfig.label !== node.getLabel()) return this.findLoopControlTarget(buildContext.parent, node, finalizerTarget);
-    
-    return isResolveBreakTargetSEXP(node) ? [loopConfig.breakTarget, finalizerTarget] : [loopConfig.continueTarget, finalizerTarget];
+    // Intermediate loop context, but not the one we are trying to flow to
+    if (node.hasLabel() && loopConfig.label !== node.getLabel()) {
+      intermediateContexts.push(loopConfig);
+      return this.findLoopControlTarget(buildContext.parent, node, intermediateContexts);
+    }    
+    return isResolveBreakTargetSEXP(node) ? [loopConfig, intermediateContexts] : [loopConfig, intermediateContexts];
   }
+
+  findReturnTarget(localScope: number, intermediateContexts: Array<TryContext | LoopConfig> = []): [IridiumBuildContext, Array<TryContext | LoopConfig>] {
+    if (localScope === -1) debugConfig.logger.throwIriError("Failed to find return target!!!");
+    if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) debugConfig.logger.throwIriError(`build context not found for scope: ${localScope}`);
+    let buildContext = IridiumBuildContext.CONTEXT_MAP.get(localScope);
+
+    if (buildContext.tryContext) {
+      intermediateContexts.push(buildContext.tryContext);
+    }
+
+    if (buildContext.loopConfig) {
+      intermediateContexts.push(buildContext.loopConfig);
+    }
+
+    let startBB = buildContext.BB[0];
+    if (startBB.isTopLevel()) debugConfig.logger.throwIriError("Matched return with top level block, something's broken sire!");;
+    if (startBB.isClosureBoundary()) return [buildContext, intermediateContexts];
+
+    return this.findReturnTarget(buildContext.parent, intermediateContexts)
+  }
+
+  // findIfReturnNeedsDecoration(localScope: number, finalizerTarget: number = -2): number {
+  //   if (localScope === -1) return -1;
+  //   if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) debugConfig.logger.throwIriError(`build context not found for scope: ${localScope}`)
+
+  //   let buildContext = IridiumBuildContext.CONTEXT_MAP.get(localScope);
+
+  //   if (buildContext.tryContext && finalizerTarget === -2) {
+  //     finalizerTarget = buildContext.tryContext.finalizerIDX;
+  //   }
+
+  //   let startBB = buildContext.BB[0];
+  //   if (startBB.isTopLevel()) debugConfig.logger.throwIriError("Matched return with top level block, something's broken sire!");
+  //   if (startBB.isClosureBoundary()) return finalizerTarget;
+  //   else return this.findIfReturnNeedsDecoration(buildContext.parent, finalizerTarget);
+  // }
 
   findParentClosureScope(localScope: number) {
     if (localScope === -1) return -1;
@@ -232,17 +304,6 @@ export class IRIDIUMV2 {
     return this.isGlobalBinding(name, startScope, parentBindingsSEXP);
   }
 
-  // 
-  // DecorateReturnTargets
-  // 
-  decorateReturnTargets(currSEXP: IridiumSEXP) {
-
-  }
-
-  // 
-  // ResolveBreakAndContinueTargets: Resolves break and continue targets, also decorates them if they are inside a try block.
-  // 
-
   insertBefore(arr, target, newElement) {
     const index = arr.indexOf(target);
     if (index === -1) {
@@ -252,26 +313,89 @@ export class IRIDIUMV2 {
     return arr;
   }
 
+  // 
+  // DecorateReturnTargets
+  // 
+  decorateReturnTargets(currSEXP: IridiumSEXP) {
+    if (isBindingsSEXP(currSEXP)) {
+      return;
+    }
+    if (isBBSEXP(currSEXP)) { // Break and Continue are statements, old tricks wont work here!!
+      let decoratorMap: Map<IridiumSEXP, Array<LoopConfig | TryContext>> = new Map();
+      for (let i = 0; i < currSEXP.args.length; i++) {
+        let s = currSEXP.args[i];
+        if (isReturnSEXP(s)) {
+          let [target, intermediateContexts] = this.findReturnTarget(currSEXP.getScopeIDX());
+          s.setFlag(`Depth[${intermediateContexts.length}]`);
+          decoratorMap.set(currSEXP.args[i], intermediateContexts);
+        }
+      }
+      for (let [element, intermediateContexts] of decoratorMap) {
+        for (let intermediateContext of intermediateContexts) {
+          if (isLoopConfig(intermediateContext)) {
+            if (intermediateContext.kind === "for-of") {
+              // Call Iterator close
+              this.insertBefore(currSEXP.args, element, new JSIteratorCloseSEXP());
+            }
+          } else {
+            this.insertBefore(currSEXP.args, element, new PopCatchContextSEXP());
+            if (intermediateContext.finalizerIDX > -1) {
+              this.insertBefore(currSEXP.args, element, new InvokeFinalizerSEXP(intermediateContext.finalizerIDX));
+            }
+          }
+        }
+      }
+    }
+    currSEXP.args.forEach(e => this.decorateReturnTargets(e));
+  }
+
+  // 
+  // ResolveBreakAndContinueTargets: Resolves break and continue targets, also decorates them if they are inside a try block.
+  // 
+
   resolveBreakAndContinueTargets(currSEXP: IridiumSEXP) {
     if (isBindingsSEXP(currSEXP)) {
       return;
     }
     if (isBBSEXP(currSEXP)) { // Break and Continue are statements, old tricks wont work here!!
-      let decoratorMap: Map<IridiumSEXP, number> = new Map();
+      let decoratorMap: Map<IridiumSEXP, Array<LoopConfig | TryContext>> = new Map();
+      let isBreakTarget: Map<IridiumSEXP, LoopConfig> = new Map();
       for (let i = 0; i < currSEXP.args.length; i++) {
         let s = currSEXP.args[i];
         if (isResolveBreakTargetSEXP(s) || isResolveContinueTargetSEXP(s)) {        
-          let [target, finalizerTarget] = this.findLoopControlTarget(currSEXP.getScopeIDX(), s);
-          currSEXP.args[i] = new GotoSEXP(target);
-          if (finalizerTarget > -1) {
-            decoratorMap.set(currSEXP.args[i], finalizerTarget);
+          let [target, intermediateContexts] = this.findLoopControlTarget(currSEXP.getScopeIDX(), s);
+          const goto = new GotoSEXP(isResolveBreakTargetSEXP(s) ? target.breakTarget : target.continueTarget);
+          goto.setFlag(isResolveBreakTargetSEXP(s) ? `Break[${target.kind}]` : `Continue[${target.kind}]`);
+          currSEXP.args[i] = goto;
+          decoratorMap.set(currSEXP.args[i], intermediateContexts);
+          if (isResolveBreakTargetSEXP(s)) {
+            isBreakTarget.set(currSEXP.args[i], target);
           }
         }
       }
+      for (let [element, intermediateContexts] of decoratorMap) {
+        for (let intermediateContext of intermediateContexts) {
+          if (isLoopConfig(intermediateContext)) {
+            if (intermediateContext.kind === "for-of") {
+              // Call Iterator close
+              this.insertBefore(currSEXP.args, element, new JSIteratorCloseSEXP());
+            }
+          } else {
+            this.insertBefore(currSEXP.args, element, new PopCatchContextSEXP());
+            if (intermediateContext.finalizerIDX > -1) {
+              this.insertBefore(currSEXP.args, element, new InvokeFinalizerSEXP(intermediateContext.finalizerIDX));
+            }
+          }
+        }
 
-      for (let [element, finalizerTarget] of decoratorMap) {
-        this.insertBefore(currSEXP.args, element, new PopCatchContextSEXP());
-        this.insertBefore(currSEXP.args, element, new InvokeFinalizerSEXP(finalizerTarget));
+        // Handle final target, if the element is a break context, emit the corresponding cleanup code if required, otherwise ignore
+        if (isBreakTarget.has(element)) {
+          let finalLoopConfig = isBreakTarget.get(element);
+          if (finalLoopConfig.kind === "for-of") {
+            // Call Iterator close
+            this.insertBefore(currSEXP.args, element, new JSIteratorCloseSEXP());
+          }
+        }
       }
     }
     currSEXP.args.forEach(e => this.resolveBreakAndContinueTargets(e));

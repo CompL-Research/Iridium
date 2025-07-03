@@ -66,7 +66,7 @@
         },
         
         {
-            "name": "Launch iri test.js",
+            "name": "Launch iri tests/basic/test1.mjs",
             "request": "launch",
             "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
             "args": [
