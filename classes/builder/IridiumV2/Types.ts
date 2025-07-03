@@ -520,6 +520,19 @@ export class NullSEXP extends IridiumSEXP {
   
 }
 
+// (Primitive) RegExpSEXP
+export class RegExpSEXP extends IridiumSEXP {
+  constructor(exp: string, flags: string) {
+    super("RegExp");
+    this.flags.push(["EXP", exp]);
+    this.flags.push(["FLAGS", flags]);
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}REGEXP(${this.getFlagString("EXP")},${this.getFlagString("FLAGS")})`
+  }
+}
+
 // (Primitive) Number
 export class NumberSEXP extends IridiumSEXP {
   constructor(number: number) {

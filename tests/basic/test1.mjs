@@ -230,22 +230,22 @@
 // }
 // console.log("end");
 
-const iterable = {
+// const iterable = {
   
-};
+// };
 
-iterable[Symbol.iterator] = function() {
-  return {
-    next() {
-      console.log("next called");
-      return { value: 1, done: false };
-    },
-    return() {
-      console.log("return called (cleanup)");
-      return { done: true };
-    }
-  };
-}
+// iterable[Symbol.iterator] = function() {
+//   return {
+//     next() {
+//       console.log("next called");
+//       return { value: 1, done: false };
+//     },
+//     return() {
+//       console.log("return called (cleanup)");
+//       return { done: true };
+//     }
+//   };
+// }
 
 // function test() {
 //   for (const x of iterable) {
@@ -302,14 +302,19 @@ iterable[Symbol.iterator] = function() {
 //   }
 // }
 
-function f() {
-  try {
-    for (let i of iterable) {
-      return;
-    }
-  } finally {
-    console.log("Finalizer");
-  }
-}
+// function f() {
+//   try {
+//     for (let i of iterable) {
+//       return;
+//     }
+//   } finally {
+//     console.log("Finalizer");
+//   }
+// }
 
-f();
+// f();
+
+const re = /\w+\s/g;
+const str = "fee fi fo fum";
+const myArray = str.match(re);
+console.log(myArray);
