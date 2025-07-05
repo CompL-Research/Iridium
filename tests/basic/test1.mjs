@@ -410,22 +410,45 @@
 // console.log(a());
 // a().then(function f(res) { console.log(res); return; } );
 
-class A {
-  #foo = 12;
-  foo() {
-    console.log(#foo in this);
-    return;
-  }
-  bar() {
-    class B {
-      #foo = 1;
-    };
-    let o1 = new B();
-    console.log(#foo in o1);
-    return;
-  }
-}
+// class A {
+//   #foo = 12;
+//   foo() {
+//     console.log(#foo in this);
+//     return;
+//   }
+//   bar() {
+//     class B {
+//       #foo = 1;
+//     };
+//     let o1 = new B();
+//     console.log(#foo in o1);
+//     return;
+//   }
+// }
 
-new A().foo();
+// new A().foo();
 
-new A().bar();
+// new A().bar();
+
+// do {
+//   console.log("Hello World");
+// } while(false);
+
+// let a = 11;
+// switch(a) {
+//   case 1: console.log("a");
+//   case 11: console.log("b");
+//   case 12: console.log("c");
+//   default: console.log("Default");
+// }
+
+// for (let i of [1,2,3]) {
+//   s : {
+//     console.log(i);
+//     continue;
+//   }
+// }
+
+import { hello } from  "./lib.mjs";
+
+console.log("Hello: ", hello);

@@ -1,10 +1,10 @@
 import debugConfig from "#debugConfig";
-import { ArrayPattern, assignmentExpression, AssignmentExpression, AssignmentPattern, identifier, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isObjectPattern, isVariableDeclaration, ObjectPattern, variableDeclaration, VariableDeclaration, variableDeclarator } from "@babel/types";
+import { ArrayPattern, assignmentExpression, AssignmentExpression, AssignmentPattern, identifier, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isImportSpecifier, isObjectPattern, isVariableDeclaration, ObjectPattern, variableDeclaration, VariableDeclaration, variableDeclarator } from "@babel/types";
 import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks.ts";
 import { generateIdentifier, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors.ts";
-import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3MemberExpression, isJS3ObjectPattern, isJS3PrivateName, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3MemberExpression, JS3ObjectPattern, JS3RestElement, JS3ReturnStatement, JS3StaticBlock, JS3TryStatement, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3WhileStatement } from "../JS3Helpers/JS3Types.ts";
+import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3MemberExpression, isJS3ObjectPattern, isJS3PrivateName, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3DoWhileStatement, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3MemberExpression, JS3ObjectPattern, JS3RestElement, JS3ReturnStatement, JS3StaticBlock, JS3SwitchCase_test, JS3SwitchStatement, JS3TryStatement, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3WhileStatement } from "../JS3Helpers/JS3Types.ts";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2.ts";
-import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSArraySEXP, JSCatchContextSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSObjectSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PopCatchContextSEXP, PushCatchContextSEXP, PushForOfCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StringSEXP, ThrowSEXP, UnopSEXP } from "./Types.ts";
+import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSArraySEXP, JSCatchContextSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSObjectSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, ModuleRequestSEXP, NullSEXP, NumberSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StaticImportSEXP, StringSEXP, ThrowSEXP, UnopSEXP } from "./Types.ts";
 import { IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP } from "./handleRVal.ts";
 
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks.ts";
@@ -12,7 +12,36 @@ import { handleAssignmentExpression as js3handleAssignmentExpression } from "../
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   if (isJS3ImportDeclaration(stmt)) {
-    debugConfig.logger.throwIriError("IRIV2: TODO JS3ImportDeclaration");
+    const currentContext = cx.getCurrentContext();
+    
+    // Create/Reuse a Module Request
+    const moduleRequestMap = currentContext.moduleRequestMap;
+    if (!currentContext.BB[0].isTopLevel()) debugConfig.logger.throwIriError("Expected imports to exist only at the top level");
+    if (!moduleRequestMap) debugConfig.logger.throwIriError("Module Request Map not found");
+
+    const source = stmt.source.value;
+    let currentModuleRequest: ModuleRequestSEXP;
+    if (moduleRequestMap.has(source)) {
+      currentModuleRequest = moduleRequestMap.get(source);
+    } else {
+      // Create a new module request
+      currentModuleRequest = new ModuleRequestSEXP(source, moduleRequestMap.size);
+      moduleRequestMap.set(source, currentModuleRequest);
+    }
+
+    // Create an import request
+    // 3JS enforces a single specifier per Import Declaration
+    const specifiers = stmt.specifiers;
+    if (specifiers.length !== 1) debugConfig.logger.throwIriError("Expected only one specifier to exist after 3js conversion");
+    const specifier = specifiers[0];
+
+    if (isImportSpecifier(specifier)) {
+      const field = isIdentifier(specifier.imported) ? specifier.imported.name : specifier.imported.value;
+      const staticImportSEXP = new StaticImportSEXP(specifier.local.name, field, currentModuleRequest.getReqIDX());
+      cx.getCurrentBB().args.push(staticImportSEXP);
+    } else {
+      debugConfig.logger.throwIriError("TODO");
+    }
   } else if (isJS3ExportDefaultDeclaration(stmt)) {
     debugConfig.logger.throwIriError("IRIV2: TODO JS3ExportDefaultDeclaration");
   } else if (isJS3ExportNamedDeclaration(stmt)) {
@@ -104,9 +133,9 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   } else if (isJS3ForStatement(stmt)) {
     handleForStatement(cx, stmt);
   } else if (isJS3DoWhileStatement(stmt)) {
-    debugConfig.logger.throwIriError("IRIV2: TODO JS3DoWhileStatement");
+    handleWhileStatement(cx, stmt);
   } else if (isJS3SwitchStatement(stmt)) {
-    debugConfig.logger.throwIriError("IRIV2: TODO JS3SwitchStatement");
+    handleSwitchStatement(cx, stmt);
   } else if (isJS3ForOfStatement(stmt)) {
     handleForOfStatement(cx, stmt);
   } else {
@@ -140,6 +169,93 @@ const handleReturnStatement = (cx: IRIDIUMV2, stmt: JS3ReturnStatement) => {
   if (stmt.argument) arg = IRIV2_RVAL(cx, stmt.argument);
   else arg = new EnvReadSEXP("undefined");
   cx.getCurrentBB().args.push(new ReturnSEXP(arg));
+}
+
+const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
+  const currentContext = cx.getCurrentContext();
+  const currentBB = currentContext.getCurrentBB();
+  cx.addContinuation(currentContext);
+  const postBB = currentContext.getCurrentBB();
+
+  let loopHeadContext: IridiumBuildContext = null;
+
+  // const loop head config
+  const loopConfig: {
+    kind: "for-of" | "standard",
+    loopHeadIDX: number,
+    loopBodyIDX: number,
+    loopInitIDX: number,
+    label: string | null,
+    breakTarget: number,
+    continueTarget: number
+  } = {
+    kind: "standard",
+    loopHeadIDX: -1,
+    loopBodyIDX: -1,
+    loopInitIDX: -1,
+    label: null,
+    breakTarget: -1,
+    continueTarget: -1
+  }
+
+  loopConfig.breakTarget = postBB.getIDX();
+
+  const caseToBBIdxMap: Map<JS3SwitchCase_test, number> = new Map();
+
+  // Control Flow Nodes
+  const currentBBToSwitchControlBB = new GotoSEXP(-1);
+
+  // 1. Current BB to Switch Control Block
+  currentBB.args.push(currentBBToSwitchControlBB);
+
+  // 2. Switch Control Context (Just adding to have a clear scope hierarchy, as such it is redundant)
+  cx.declareAndPushLexicalContext();
+  loopHeadContext = cx.getCurrentContext();
+  loopConfig.loopHeadIDX = cx.getCurrentBB().getIDX();
+
+  // 2. Switch FlowBB
+  cx.declareAndPushLexicalContext();
+  for (let c of stmt.cases) {
+    const currentContext = cx.getCurrentContext();
+    const currentBB = currentContext.getCurrentBB();
+    cx.addContinuation(currentContext);
+    const postBB = currentContext.getCurrentBB();
+
+    const currentCaseBBIdx = postBB.getIDX();
+
+    // 1. CurrentBB to CaseBB (same scope, this is just a continuation)
+    currentBB.args.push(new GotoSEXP(currentCaseBBIdx));
+
+    // 2. Lower code for the case
+    for (let s of c.consequent) {
+      IRIV2_STMT(cx, s);
+    }
+
+    caseToBBIdxMap.set(c.test, currentCaseBBIdx);
+  }
+  cx.getCurrentBB().args.push(new ResolveBreakTargetSEXP()); // If there is no break anywhere, a break will match to the loop context and find the break context during resolution of break and continue.
+  cx.popContext();
+
+  // 2. Add code to the control context
+  const intermediateResHolder = cx.js3Builder.utils.getNewTemporary("switchResHolder");
+  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(intermediateResHolder), null, "JSLET", false));
+  for (let c of stmt.cases) {
+    const testTarget = caseToBBIdxMap.get(c.test);
+    if (c.test === null) { // default case
+      cx.getCurrentBB().args.push(new GotoSEXP(testTarget));
+    } else {
+      const testResHolder = lowerExprToResolveEnvBindingSEXP(cx, c.test);
+      const eqCheck = new BinopSEXP("===", new EnvReadSEXP(stmt.discriminant.name), new EnvReadSEXP(testResHolder.getBindingName()));
+      cx.getCurrentBB().args.push(new EnvWriteSEXP(intermediateResHolder, eqCheck, false, false));
+      cx.getCurrentBB().args.push(new IfJumpSEXP(new EnvReadSEXP(intermediateResHolder), testTarget));
+    }
+  }
+  cx.getCurrentBB().args.push(new ResolveBreakTargetSEXP());
+  cx.popContext(); // Switch Parent Context
+
+  // Initialize Nodes
+  loopHeadContext.loopConfig = loopConfig;
+  currentBBToSwitchControlBB.setIDX(loopConfig.loopHeadIDX);
 }
 
 const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInStatement, label: string = null) => {
@@ -212,7 +328,7 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
   cx.getCurrentBB().args.push(new EnvWriteSEXP("<loop-done>", new UnopSEXP("!", new EnvReadSEXP("<loop-done>")), false, false)); // Negate <loop-done>
 
   testBBLoopContinueNode.setTest(new EnvReadSEXP("<loop-done>"));
-  
+
   cx.getCurrentBB().args.push(testBBLoopContinueNode);
   if (isJS3ForOfStatement(stmt)) {
     cx.getCurrentBB().args.push(new JSIteratorCloseSEXP());
@@ -368,7 +484,7 @@ const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement, label: string 
   }
 }
 
-const handleWhileStatement = (cx: IRIDIUMV2, stmt: JS3WhileStatement, label: string = null) => {
+const handleWhileStatement = (cx: IRIDIUMV2, stmt: JS3WhileStatement | JS3DoWhileStatement, label: string = null) => {
   const currentContext = cx.getCurrentContext();
   const currentBB = currentContext.getCurrentBB();
   cx.addContinuation(currentContext);
@@ -424,7 +540,12 @@ const handleWhileStatement = (cx: IRIDIUMV2, stmt: JS3WhileStatement, label: str
   // Initialize Nodes
   if (loopHeadContext) {
     loopHeadContext.loopConfig = loopConfig;
-    currentBBToLoopHeadNode.setIDX(loopConfig.loopHeadIDX);
+    if (isJS3WhileStatement(stmt)) {
+      currentBBToLoopHeadNode.setIDX(loopConfig.loopHeadIDX);
+    } else {
+      currentBBToLoopHeadNode.setIDX(loopConfig.loopBodyIDX);
+    }
+
     testBBElseIfNode.setTRUE(loopConfig.loopBodyIDX);
     testBBElseIfNode.setFALSE(loopConfig.breakTarget);
   } else {
@@ -467,7 +588,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
 
   // Current BB to TryContextBB
   currentBB.args.push(gotoCurrentBBToTryContextBB);
-  
+
   // TryContextBB
   cx.declareAndPushLexicalContext();
   cx.getCurrentBB().setFlag("TryContextBB");
@@ -540,7 +661,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
 
   // Add context and initialize nodes
   tryContextObj.tryContext = tryContext;
-  
+
   if (finalizerContextObj) { // Prevent infinite loops when decorating break/continue/return targets inside the finalizer block
     finalizerContextObj.tryContext = {
       tryContextIDX: -1,
@@ -570,7 +691,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   gotoPostBB.setIDX(postBB.getIDX());
   gotoInvokeFinalizer.setIDX(tryContext.finalizerIDX);
 
-  
+
 }
 
 const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
@@ -732,7 +853,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
         cx.popContext(); // Loop Context
 
         loopHeadContext.loopConfig = loopConfig;
-        
+
         currToLoop.setIDX(loopConfig.loopHeadIDX);
         loopToPost.setIDX(loopConfig.breakTarget);
 
@@ -755,11 +876,11 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
         restElement = e;
       }
     });
-    
+
     const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined");
     let toObjRes = cx.js3Builder.utils.getNewTemporary("toObjRes");
     cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(toObjRes), null, "JSLET", false));
-    
+
     // 1. JSToObjectSEXP(rValTarget, toObjRes)
     cx.getCurrentBB().args.push(new JSToObjectSEXP(rValTarget, toObjRes));
 
@@ -779,7 +900,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
         const bindingName = d.value.name;
 
         let rVal: IridiumSEXP;
-        
+
         if (d.computed) {
           if (isIdentifier(d.key)) {
             rVal = new JSComputedFieldReadSEXP(toObjRes, d.key.name);
@@ -811,7 +932,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
           }
         }
 
-        let KIND : "JSLET" | "JSCONST" | "JSVAR";
+        let KIND: "JSLET" | "JSCONST" | "JSVAR";
         if (stmt.kind === "let") {
           KIND = "JSLET";
         } else if (stmt.kind === "const") {
@@ -823,7 +944,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
       }
     }
 
-    
+
 
     if (hasRest) {
       // Declare env binding for the rest element holder
@@ -832,7 +953,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
       // 4. [*] fin_obj = {}
       let fin_obj = cx.js3Builder.utils.getNewTemporary("fin_obj");
       cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(fin_obj), new JSObjectSEXP([]), "JSLET", false));
-      
+
       // 5. [*] JSCopyDataProperties(exc_obj, orig_rval, fin_obj, | -> | e)
       cx.getCurrentBB().args.push(new JSCopyDataPropertiesSEXP(exc_obj, toObjRes, fin_obj, restElement.argument.name));
     }
@@ -1012,12 +1133,12 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
   // Lower Function code
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   const funBBIdx = funcContext.getCurrentBB().idx;
-  
+
   funcContext.isAsync = stmt.async ? stmt.async : false;
   funcContext.isGenerator = stmt.generator ? stmt.generator : false;
 
   funcContext.kind = getRegularClosureFlag();
-  
+
   lowerArgumentInit(cx, stmt.params);
 
   if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());

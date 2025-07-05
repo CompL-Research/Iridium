@@ -16,7 +16,7 @@ const printSpace = (times: number) => {
     }
   }
   return res.join('');
-  
+
 };
 const printFlagString = (flags: Array<[string, IridiumPrimitives]>) => {
   if (flags.length === 0) return "";
@@ -116,7 +116,46 @@ export class FileSEXP extends IridiumSEXP {
   setFlag(flag: FileSEXPFlags, val: IridiumPrimitives) {
     super.setFlag(flag, val);
   }
+
+  initializeModuleRequests(moduleRequests: ListSEXP, staticImports: ListSEXP, staticExports: ListSEXP, staticStarExports: ListSEXP) {
+    this.args = [moduleRequests, staticImports, staticExports, staticStarExports, ...this.args];
+  }
 };
+
+// (Extension) ModuleRequest
+export class ModuleRequestSEXP extends IridiumSEXP {
+  constructor(lookupSource: string, idx: number) {
+    super("ModuleRequest");
+    this.setFlag("SOURCE", lookupSource);
+    this.setReqIDX(idx);
+  }
+
+  // Flags
+  setReqIDX(reqIDX: number) {
+    this.setFlag("REQIDX", reqIDX);
+  }
+
+  getReqIDX(): number {
+    return this.getFlagNumber("REQIDX");
+  }
+}
+
+// (Extension) StaticImportSEXP
+export class StaticImportSEXP extends IridiumSEXP {
+  constructor(storageLocation: string, fieldToImport: string, reqIdx: number) {
+    super("StaticImport");
+    this.args.push(new ResolveEnvBindingSEXP(storageLocation));
+    this.args.push(new StringSEXP(fieldToImport));
+    this.setFlag("REQIDX", reqIdx);
+  }
+}
+
+
+// @ts-ignore
+export function isStaticImportSEXP(o: any): o is StaticImportSEXP {
+  // @ts-ignore
+  return o.tag === "StaticImport";
+}
 
 // =============== Bindings ===============
 // (Primitive) Bindings
@@ -467,6 +506,14 @@ export class BBContainerSEXP extends IridiumSEXP {
   }
 
   // Args
+  setBBs(bbs: ListSEXP) {
+    this.args[1] = bbs;
+  }
+
+  getBBs() {
+    return this.args[1].args;
+  }
+
   setBindings(descriptor: BindingsSEXP) {
     this.args[0] = descriptor;
   }
@@ -475,14 +522,6 @@ export class BBContainerSEXP extends IridiumSEXP {
     let res = this.args[0]
     if (isBindingsSEXP(res)) return res;
     else debugConfig.logger.throwIriError("Expected BindingsSEXP");
-  }
-
-  setBBs(bbs: ListSEXP) {
-    this.args[1] = bbs;
-  }
-
-  getBBs() {
-    return this.args[1].args;
   }
 
   // Utility
@@ -517,7 +556,7 @@ export class NullSEXP extends IridiumSEXP {
   toString(space?: number): string {
     return `${printSpace(space)}🤮`
   }
-  
+
 }
 
 // (Primitive) JSTemplateSEXP
@@ -559,7 +598,7 @@ export class NumberSEXP extends IridiumSEXP {
   toString(space?: number): string {
     return `${printSpace(space)}${this.getVal()}`
   }
-  
+
 }
 
 // @ts-ignore
@@ -633,7 +672,7 @@ export function isPrivateSEXP(o: any): o is PrivateSEXP {
 }
 
 // (Primitive) List
-export type ListSEXPFlags = "LocalBindings" | "RemoteBindings" | "LambdaPool" | "BBs";
+export type ListSEXPFlags = "ModuleRequests" | "ImportedBinding" | "LocalBindings" | "RemoteBindings" | "LambdaPool" | "BBs";
 export class ListSEXP extends IridiumSEXP {
   constructor(elems: Array<IridiumSEXP>) {
     super("List");
@@ -705,7 +744,7 @@ export class BinopSEXP extends IridiumSEXP {
     if (isPrimitiveBinop(op)) this.flags.push(["Primitive", null]);
     else this.flags.push(["JSBINOP", null]);
   }
-  
+
   toString(space?: number): string {
     return `${printSpace(space)}${this.args[1].toString(0)} OP[${this.args[0].toString(0)}] ${this.args[2].toString(0)}`
   }
@@ -723,7 +762,7 @@ export class UnopSEXP extends IridiumSEXP {
     this.args.push(new StringSEXP(op));
     this.args.push(val);
   }
-  
+
   toString(space?: number): string {
     return `${printSpace(space)}UNOP[${this.args[0].toString(0)}] ${this.args[1].toString(0)}`
   }
@@ -851,7 +890,7 @@ export class JSTHISINITSEXP extends IridiumSEXP {
     super("JSTHISINIT");
     this.args.push(ref);
   }
-  
+
   toString(space?: number): string {
     return `${printSpace(space)}INIT[this -- ${this.args[0].toString(0)}]`
   }
@@ -867,7 +906,7 @@ export class JSHOMEOBJSEXP extends IridiumSEXP {
   toString(space?: number): string {
     return `${printSpace(space)}INIT[<home_obj> -- ${this.args[0].toString(0)}]]`
   }
-  
+
 }
 
 // (Extension) JSSUPERCTRINIT
@@ -997,7 +1036,7 @@ export class JSIteratorCloseSEXP extends IridiumSEXP {
 export class JSForOfStartSEXP extends IridiumSEXP {
   constructor(obj: string | IridiumSEXP) {
     super("JSForOfStart");
-    if (typeof(obj) === "string") {
+    if (typeof (obj) === "string") {
       this.args.push(new EnvReadSEXP(obj));
     } else {
       this.args.push(obj);
@@ -1040,7 +1079,7 @@ export class JSForOfNextSEXP extends IridiumSEXP {
     }
     return res.join("\n");
   }
-  
+
 }
 
 // @ts-ignore
@@ -1714,7 +1753,7 @@ export class JSComputedFieldReadSEXP extends IridiumSEXP {
     this.args.push(new ResolveEnvBindingSEXP(object));
     if (typeof field === "string")
       this.args.push(new EnvReadSEXP(field));
-    else 
+    else
       this.args.push(field);
   }
 }
@@ -1726,7 +1765,7 @@ export class JSComputedFieldWriteSEXP extends IridiumSEXP {
     this.args.push(new ResolveEnvBindingSEXP(object));
     if (typeof field === "string")
       this.args.push(new EnvReadSEXP(field));
-    else 
+    else
       this.args.push(field);
     this.args.push(right);
   }
@@ -2052,7 +2091,7 @@ export class ResolveBreakTargetSEXP extends IridiumSEXP {
   }
 
   // Args
-  hasLabel() : boolean {
+  hasLabel(): boolean {
     return this.hasFlag("Label");
   }
 
@@ -2060,7 +2099,7 @@ export class ResolveBreakTargetSEXP extends IridiumSEXP {
     this.setFlag("Label", label);
   }
 
-  getLabel() : string {
+  getLabel(): string {
     return this.getFlagString("Label");
   }
 }
@@ -2079,7 +2118,7 @@ export class ResolveContinueTargetSEXP extends IridiumSEXP {
   }
 
   // Args
-  hasLabel() : boolean {
+  hasLabel(): boolean {
     return this.hasFlag("Label");
   }
 
@@ -2087,7 +2126,7 @@ export class ResolveContinueTargetSEXP extends IridiumSEXP {
     this.setFlag("Label", label);
   }
 
-  getLabel() : string {
+  getLabel(): string {
     return this.getFlagString("Label");
   }
 }

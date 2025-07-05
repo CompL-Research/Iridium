@@ -5,7 +5,7 @@ import path from "path";
 import JS3Builder from "../JS3Builder.ts";
 import { JS3Program } from "../JS3Helpers/JS3Types.ts";
 import { IRIV2_STMT } from "./handleStatement.ts";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSCatchContextSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, JSCatchContextSEXP, JSCATCHINITSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP } from "./Types.ts";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSCatchContextSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isListSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStaticImportSEXP, JSCatchContextSEXP, JSCATCHINITSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP } from "./Types.ts";
 import { dumpSEXP } from "./PP.ts";
 
 type LoopConfig = {
@@ -70,6 +70,8 @@ export class IridiumBuildContext {
   isGenerator: boolean = false;
 
   privateMapping: Map<string, string> = null;
+
+  moduleRequestMap: Map<string, ModuleRequestSEXP> = null;
 
   BB: Array<BBSEXP> = [];
   constructor(parent: number, BB: BBSEXP = undefined, flag: BBSEXPFlags = undefined) {
@@ -170,6 +172,7 @@ export class IRIDIUMV2 {
     const mainContainer = new FileSEXP("JSModule");
     this.container = mainContainer;
     const topLevelContext = new IridiumBuildContext(-1, undefined, "TopLevel");
+    topLevelContext.moduleRequestMap = new Map();
     topLevelContext.kind = getRegularClosureFlag();
     this.pushContext(topLevelContext);
     this.getCurrentBB().args.push(new JSThisContextSEXP());
@@ -220,7 +223,14 @@ export class IRIDIUMV2 {
     if (node.hasLabel() && loopConfig.label !== node.getLabel()) {
       intermediateContexts.push(loopConfig);
       return this.findLoopControlTarget(buildContext.parent, node, intermediateContexts);
-    }    
+    }
+
+    // If we are looking for a continue target, but the resolved target does not have a continue target, keep looking...
+    if (isResolveContinueTargetSEXP(node) && loopConfig.continueTarget === -1) {
+      intermediateContexts.push(loopConfig);
+      return this.findLoopControlTarget(buildContext.parent, node, intermediateContexts);
+    }
+
     return isResolveBreakTargetSEXP(node) ? [loopConfig, intermediateContexts] : [loopConfig, intermediateContexts];
   }
 
@@ -274,6 +284,7 @@ export class IRIDIUMV2 {
     const fileSexp = this.container;
 
     for (let bbContainer of fileSexp.args) {
+      if (isListSEXP(bbContainer)) continue;
       if (isBBContainerSEXP(bbContainer)) {
         if (bbContainer.getScopeIDX() === idx) return bbContainer;
       } else debugConfig.logger.throwIriError("Expected BBContainerSEXP to exist")
@@ -475,6 +486,7 @@ export class IRIDIUMV2 {
     // Assign reference IDX for pool lookups, during execution they will be resolved to contant pool + REFIDX, the REFIDX is assigned here
     for(let bbContainerSEXP of startSEXP.args) {
       let i = 0;
+      if (isListSEXP(bbContainerSEXP)) continue;
       if (isBBContainerSEXP(bbContainerSEXP)) {
         for (let poolBinding of bbContainerSEXP.getBindings().getLambdaPoolBindings().args) {
           if (isPoolBindingSEXP(poolBinding)) {
@@ -580,6 +592,11 @@ export class IRIDIUMV2 {
 
     fileSexp.args = [...bbGroups.values()];
 
+    const moduleRequests = new ListSEXP([]);
+    const staticImports = new ListSEXP([]);
+    const staticExports = new ListSEXP([]);
+    const staticStarExports = new ListSEXP([]);
+
     for (let bbContainer of fileSexp.args) {
       if (isBBContainerSEXP(bbContainer)) {
         const bbContainerScopeIDX = bbContainer.getScopeIDX();
@@ -592,6 +609,7 @@ export class IRIDIUMV2 {
         const hoistingInfo = new Map<number, Array<[Array<string>, JSEnvBindingFlags]>>();
         const toRemove: Map<BBSEXP, Set<IridiumSEXP>> = new Map();
         const contextualInit: Array<[string, IridiumSEXP]> = [];
+        const staticModuleImports: Array<StaticImportSEXP> = [];
 
         // Identify bindings
         for (let bb of bbContainer.getBBs()) {
@@ -603,6 +621,15 @@ export class IRIDIUMV2 {
             if (!hoistingInfo.has(parentClosureScope)) hoistingInfo.set(parentClosureScope, new Array());
 
             for (let stmt of bb.args) {
+
+              if (isStaticImportSEXP(stmt)) {
+                const localBinding = stmt.args[0];
+                if (isResolveEnvBindingSEXP(localBinding)) {
+                  staticModuleImports.push(stmt);
+                } else debugConfig.logger.throwIriError("Expected static imported binding to be ResolveEnvBindingSEXP");
+                if (!toRemove.has(bb)) toRemove.set(bb, new Set());
+                toRemove.get(bb).add(stmt);
+              }
               
               if (isJSCatchContextSEXP(stmt)) {
                 hoistingInfo.get(localScope).push([[stmt.getBindingName()], "JSLET"]);
@@ -700,6 +727,37 @@ export class IRIDIUMV2 {
           bindingsSEXP.addLocalBinding(binding);
           toSkipInit.add(binding);
         }
+
+        if (staticModuleImports.length > 0) {
+          // Initialize Module Imports 
+          if (bbContainerScopeIDX !== 0) debugConfig.logger.throwIriError("Expected module imports only to be resolved for the top level container with scopeIDX 0");
+          for (let b of staticModuleImports) {
+            // Get the name of the binding we want...
+            const bb = b.args[0];
+            let bindingName: string;
+            if (isResolveEnvBindingSEXP(bb)) bindingName = bb.getBindingName();
+            else debugConfig.logger.throwIriError("Expected the binding name to be resolveEnvBindingSEXP");
+
+            // Declare the binding in the bindings object
+            const localScope = bbContainerScopeIDX;
+            const parentScope = IridiumBuildContext.CONTEXT_MAP.get(bbContainerScopeIDX).parent;
+            let binding = new EnvBindingSEXP(j++, bbContainerScopeIDX, bindingName, [["JSLET", null]], localScope, parentScope);
+            let remoteBinding = new RemoteEnvBindingSEXP(binding, -1);
+            bindingsSEXP.addRemoteBinding(remoteBinding);
+            toSkipInit.add(remoteBinding);
+
+            // Add static Import
+            // b.args[0] = remoteBinding; // resolve it too??
+            staticImports.args.push(b);
+          }
+
+          const currentContext = IridiumBuildContext.CONTEXT_MAP.get(bbContainerScopeIDX);
+
+          if (!currentContext.moduleRequestMap || currentContext.moduleRequestMap.size === 0) debugConfig.logger.throwIriError("Expected atleast one module requests as static imports were found");
+          for (let [,v] of currentContext.moduleRequestMap) {
+            moduleRequests.args.push(v);  
+          }
+        }
         
         for (let [localScope, bindings] of hoistingInfo) {
           let parentScope = IridiumBuildContext.CONTEXT_MAP.get(localScope).parent;
@@ -772,6 +830,8 @@ export class IRIDIUMV2 {
         bbContainer.setBindings(bindingsSEXP);
       } else debugConfig.logger.throwIriError("Expected BBContainerSEXP");
     }
+
+    fileSexp.initializeModuleRequests(moduleRequests, staticImports, staticExports, staticStarExports);
   }
 
   // 
