@@ -453,8 +453,13 @@
 
 // console.log("Hello: ", hello);
 
-export default "Hello World";
+// export default "Hello World";
 
-import pikachu from  "./test1.mjs";
+// import pikachu from  "./test1.mjs";
 
-console.log(pikachu);
+// console.log(pikachu);
+
+
+import * as boo from "./lib.mjs";
+
+console.log(boo);

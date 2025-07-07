@@ -1302,6 +1302,18 @@ export class RemoteEnvBindingSEXP extends IridiumSEXP {
     return this.getFlagNumber("REFIDX");
   }
 
+  setNSImport() {
+    this.setFlag("NSIMPORT");
+  }
+
+  unsetNSImport() {
+    this.removeFlag("NSIMPORT");
+  }
+
+  isNSImport(): boolean {
+    return this.hasFlag("NSIMPORT");
+  }
+
   resolveRemoteBinding(binding: RemoteEnvBindingSEXP): EnvBindingSEXP {
     let containedBinding = binding.args[0];
     if (isEnvBindingSEXP(containedBinding)) {
@@ -1327,9 +1339,9 @@ export class RemoteEnvBindingSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     if (isEnvBindingSEXP(this.args[0])) { // Top Level Binding
-      return `${printSpace(space)}🟧(${this.getLookupTrace(this).join("-")})${this.resolveRemoteBinding(this).toString()}`;
+      return `${printSpace(space)}🟧${this.isNSImport() ? "[NS]" : ""}(${this.getLookupTrace(this).join("-")})${this.resolveRemoteBinding(this).toString()}`;
     }
-    return `${printSpace(space)}🟥(${this.getLookupTrace(this).join("-")})${this.resolveRemoteBinding(this).toString()}`;
+    return `${printSpace(space)}🟥${this.isNSImport() ? "[NS]" : ""}(${this.getLookupTrace(this).join("-")})${this.resolveRemoteBinding(this).toString()}`;
   }
 }
 

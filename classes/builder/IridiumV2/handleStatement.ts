@@ -40,12 +40,12 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
       const staticImportSEXP = new StaticImportSEXP(specifier.local.name, field, currentModuleRequest.getReqIDX());
       cx.getCurrentBB().args.push(staticImportSEXP);
     } else {
-      debugConfig.logger.throwIriError("TODO");
+      const staticImportSEXP = new StaticImportSEXP(specifier.local.name, "*", currentModuleRequest.getReqIDX());
+      cx.getCurrentBB().args.push(staticImportSEXP);
     }
   } else if (isJS3ExportDefaultDeclaration(stmt)) {
+    // I dont think I allowed this statement to exist in the codegen...
     debugConfig.logger.throwIriError("IRIV2: TODO JS3ExportDefaultDeclaration");
-    // const exportDeclNode = new LocalStaticExportSEXP(stmt.declaration.name, "default");
-    // cx.getCurrentBB().args.push(exportDeclNode);
   } else if (isJS3ExportNamedDeclaration(stmt)) {
     if (stmt.declaration) {
       debugConfig.logger.throwIriError("Expected js3 to remove all declaration from the export nodes");
