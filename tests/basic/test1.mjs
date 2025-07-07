@@ -449,6 +449,12 @@
 //   }
 // }
 
-import { hello } from  "./lib.mjs";
+// import { hello } from  "./lib.mjs";
 
-console.log("Hello: ", hello);
+// console.log("Hello: ", hello);
+
+export default "Hello World";
+
+import pikachu from  "./test1.mjs";
+
+console.log(pikachu);

@@ -150,11 +150,26 @@ export class StaticImportSEXP extends IridiumSEXP {
   }
 }
 
-
 // @ts-ignore
 export function isStaticImportSEXP(o: any): o is StaticImportSEXP {
   // @ts-ignore
   return o.tag === "StaticImport";
+}
+
+// (Extension) LocalStaticExportSEXP
+export class LocalStaticExportSEXP extends IridiumSEXP {
+  constructor(localName: string, exportName: string) {
+    super("LocalStaticExport");
+    this.args.push(new ResolveEnvBindingSEXP(localName));
+    this.setFlag("LOCALNAME", localName);
+    this.setFlag("EXPORTNAME", exportName);
+  }
+}
+
+// @ts-ignore
+export function isLocalStaticExportSEXP(o: any): o is LocalStaticExportSEXP {
+  // @ts-ignore
+  return o.tag === "LocalStaticExport";
 }
 
 // =============== Bindings ===============
