@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import debugConfig from "#debugConfig";
 
-export const VERSION = "0.6a";
+export const VERSION = "0.7a";
 
 function getAllFiles(dirPath, arrayOfFiles) {
   const files = fs.readdirSync(dirPath);
