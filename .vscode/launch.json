@@ -5,26 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "bun",
+            "name": "Launch pika tests/basic/test1.mjs",
             "request": "launch",
-            "name": "Bun: Launch iri test.js",
-            "program": "/home/meetesh/wd/Iridium/iridium.ts",
+            "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
             "args": [
-                "iri",
-                "./test.js",
+                "--import=tsx",
+                "/home/meetesh/wd/Iridium/iridium.ts",
+                "pika",
+                "-g",
                 ".",
-                "-g"
-            ],
-            "cwd": "${workspaceFolder}",
-            "env": {},
-            "strictEnv": false,
-            "watchMode": false,
-            "stopOnEntry": false,
-            "noDebug": false,
-            "runtime": "/home/meetesh/.bun/bin/bun",
-            "runtimeArgs": [],
-            "outFiles": [
-                "${workspaceFolder}/classes/**/*.ts"
+                "/home/meetesh/wd/Iridium/tests/basic/test1.mjs",
+                "/home/meetesh/wd/Iridium/tests/basic/lib.mjs",
             ],
             "skipFiles": [
                 "<node_internals>/**",
@@ -33,38 +24,8 @@
                 "**/tests/**",
                 "**/node_modules/**"
             ],
+            "type": "node"
         },
-        {
-            "type": "bun",
-            "request": "launch",
-            "name": "Bun: Launch iri index.js",
-            "program": "/home/meetesh/wd/Iridium/iridium.ts",
-            "args": [
-              "iri",
-              "./temp/frontendViz/src/components/CallGraph.js",
-              "./temp/frontendViz/",
-              "-g"
-            ],
-            "cwd": "${workspaceFolder}",
-            "env": {},
-            "strictEnv": false,
-            "watchMode": false,
-            "stopOnEntry": false,
-            "noDebug": false,
-            "runtime": "/home/meetesh/.bun/bin/bun",
-            "runtimeArgs": [],
-            "outFiles": [
-                "${workspaceFolder}/classes/**/*.ts"
-            ],
-            "skipFiles": [
-                "<node_internals>/**",
-                "**/playground/**",
-                "**/temp/**",
-                "**/tests/**",
-                "**/node_modules/**"
-            ],
-        },
-        
         {
             "name": "Launch iri tests/basic/test1.mjs",
             "request": "launch",
@@ -78,7 +39,8 @@
                 "-g"
             ],
             "outFiles": [
-                "${workspaceFolder}/classes/**/*.ts"
+              "${workspaceFolder}/iridium*.ts",
+              "${workspaceFolder}/classes/**/*.ts"
             ],
             "skipFiles": [
                 "<node_internals>/**",
@@ -89,100 +51,5 @@
             ],
             "type": "node"
         },
-        {
-            "name": "Launch iri index.js",
-            "request": "launch",
-            "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
-            "args": [
-                "--import=tsx",
-                "/home/meetesh/wd/Iridium/iridium.ts",
-                "iri",
-                "./temp/excalidraw/excalidraw-app/App.tsx",
-                "./temp/excalidraw/",
-              ],
-            "outFiles": [
-                "${workspaceFolder}/classes/**/*.ts",
-                "${workspaceFolder}/*.ts"
-            ],
-            "skipFiles": [
-                "<node_internals>/**",
-                "**/playground/**",
-                "**/temp/**",
-                "**/tests/**",
-                "**/node_modules/**"
-            ],
-            "type": "node"
-        },
-        {
-            "name": "Launch js3 test.js",
-            "request": "launch",
-            "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
-            "args": [
-                "--import=tsx",
-                "/home/meetesh/wd/Iridium/iridium.ts",
-                "js3",
-                "/home/meetesh/wd/Iridium/test.js"
-            ],
-            "outFiles": [
-                "${workspaceFolder}/classes/**/*.ts"
-            ],
-            "skipFiles": [
-                "<node_internals>/**",
-                "**/playground/**",
-                "**/temp/**",
-                "**/tests/**",
-                "**/node_modules/**"
-            ],
-            "type": "node"
-        },
-        {
-            "type": "bun",
-            "request": "attach",
-            "name": "Attach to Bun",
-            // The URL of the WebSocket inspector to attach to.
-            // This value can be retrieved by using `bun --inspect`.
-            "url": "ws://localhost:6499/",
-        },
-        {
-            "name": "Launch YYAPM",
-            "request": "launch",
-            "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
-            "args": [
-                "--import=tsx",
-                "/home/meetesh/wd/Iridium/iridium.ts",
-                "iri",
-                "/home/meetesh/wd/Iridium/temp/YYAPM/app/page.tsx"
-            ],
-            "outFiles": [
-                "${workspaceFolder}/classes/**/*.ts"
-            ],
-            "skipFiles": [
-                "<node_internals>/**",
-                "**/playground/**",
-                "**/temp/**",
-                "**/tests/**",
-                "**/node_modules/**"
-            ],
-            "type": "node"
-        },
-        {
-            "name": "Node test.js",
-            "request": "launch",
-            "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
-            "args": [
-                "/home/meetesh/wd/Iridium/test.js"
-            ],
-            "outFiles": [
-                "test.js"
-            ],
-            "skipFiles": [
-                "<node_internals>/**",
-                "**/playground/**",
-                "**/temp/**",
-                "**/tests/**",
-                "**/node_modules/**"
-            ],
-            "type": "node"
-        }
     ]
 }
