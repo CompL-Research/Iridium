@@ -22,18 +22,21 @@ import path from "path";
 import {
   handleLangWithSupport,
   handleOutputsPath,
+  handleSaveDepGraph,
   handleSaveFlowGraph,
   handleSavePTAGraph,
   handleSourceType,
   handleTest262,
   iriUsageInfo,
   js3UsageInfo,
+  pikaUsageInfo,
   printDefaultUsage,
   printIRIUsage,
   printJS3Usage,
+  printPikaUsage,
 } from "./configs/printUsage.ts";
 import { projectStats, VERSION } from "./configs/projectStats.ts";
-import { IRIDIUMV2 } from "classes/builder/IridiumV2/IRIDIUMV2.ts";
+import { IridiumBuildContext, IRIDIUMV2 } from "classes/builder/IridiumV2/IRIDIUMV2.ts";
 import { FileSEXP } from "classes/builder/IridiumV2/Types.ts";
 import { dumpSEXP } from "classes/builder/IridiumV2/PP.ts";
 
@@ -43,13 +46,13 @@ const directories = ["./classes", "./configs", "./docs", "./playground/src"];
 debugConfig.versionNumber = `Iridium ${VERSION}`;
 
 const header = `
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-░        ░░       ░░░        ░░       ░░░        ░░  ░░░░  ░░  ░░░░  ░
-▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒   ▒▒   ▒
-▓▓▓▓  ▓▓▓▓▓       ▓▓▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓        ▓
-████  █████  ███  ██████  █████  ████  █████  █████  ████  ██  █  █  █
-█        ██  ████  ██        ██       ███        ███      ███  ████  █
-██████████████████████████████████████████████████████████████████████
+██╗██████╗ ██╗██████╗ ██╗██╗   ██╗███╗   ███╗
+██║██╔══██╗██║██╔══██╗██║██║   ██║████╗ ████║
+██║██████╔╝██║██║  ██║██║██║   ██║██╔████╔██║
+██║██╔══██╗██║██║  ██║██║██║   ██║██║╚██╔╝██║
+██║██║  ██║██║██████╔╝██║╚██████╔╝██║ ╚═╝ ██║
+╚═╝╚═╝  ╚═╝╚═╝╚═════╝ ╚═╝ ╚═════╝ ╚═╝     ╚═╝
+                                             
 Iridium Version: ${chalk.red(VERSION)}
 `;
 
@@ -103,13 +106,14 @@ function iri(filePath) {
     const iridiumV2Builder = new IRIDIUMV2(js3Builder);
     iridiumV2Builder.build();
 
-
     // // const jsonString = JSON.stringify(iridiumV2Builder.serialize());
     // // const encodedJson = encodeURIComponent(jsonString);
     // // debugConfig.logger.log(`https://jsoneditoronline.org/#left=json.${encodedJson}`);
 
     // debugConfig.logger.log("" + dumpSEXP(iridiumV2Builder.container));
     debugConfig.logger.log(iridiumV2Builder.container.toString());
+
+    return iridiumV2Builder.serialize();
 
     // // 3. Constructing Iridium
     // const directives: Array<string> = [];
@@ -164,6 +168,23 @@ function iri(filePath) {
   }
 }
 
+function pika(files: Array<string>) {
+  const finalRes = [];
+  for (let i = 0; i < files.length; i++) {
+    finalRes.push(iri(files[i]));
+    IridiumBuildContext.resetBuildContext();
+  }
+
+  const filePath = debugConfig.cli.outputsPath + "/" + "bundle.pika";
+  fs.writeFile(
+    filePath,
+    JSON.stringify({ pika: finalRes })
+    , (e) => {
+      if (e) debugConfig.logger.error(`[Failed to save Pika bundle]: ${e.message}`);
+    }
+  );
+}
+
 const getFirstCommand = [{ name: "command", defaultOption: true }];
 const mainOptions = commandLineArgs(getFirstCommand, {
   stopAtFirstUnknown: true,
@@ -203,6 +224,48 @@ if (mainCommand === "js3") {
     if ("allow-lang-with-support" in options) handleLangWithSupport();
   }
   js3(PATH_TO_JS);
+} else if (mainCommand === "pika") {
+  debugConfig.operationMode = "pika";
+  let argv = mainOptions._unknown || [];
+  if (argv.length === 0) {
+    printPikaUsage(header);
+    process.exit(0);
+  }
+
+  if (argv.length > 0) {
+    const options = commandLineArgs(pikaUsageInfo[1].optionList, { argv, stopAtFirstUnknown: true });
+    if ("outputs-path" in options) handleOutputsPath(options);
+    if ("test-262" in options) handleTest262();
+    if ("source-type" in options) handleSourceType(options);
+    if ("allow-lang-with-support" in options) handleLangWithSupport();
+    if ("save-dep-graph" in options) handleSaveDepGraph();
+
+    argv = options._unknown || [];
+  }
+
+  const basePath = commandLineArgs(getFirstCommand, {
+    argv,
+    stopAtFirstUnknown: true,
+  });
+  const PATH_TO_PROJECT = path.resolve(basePath.command);
+  debugConfig.cli.projectBase = PATH_TO_PROJECT;
+
+  argv = basePath._unknown || [];
+
+  if (argv.length === 0) debugConfig.logger.throwIriError("Expected atleast one file to be provided!!");
+
+  const PROJECT_FILES = [];
+
+  while (argv.length !== 0) {
+    const file = commandLineArgs(getFirstCommand, {
+      argv,
+      stopAtFirstUnknown: true,
+    });
+    PROJECT_FILES.push(path.resolve(file.command));
+    argv = file._unknown || [];
+  }
+
+  pika(PROJECT_FILES);
 } else if (mainCommand === "iri") {
   debugConfig.operationMode = "iri";
   let argv = mainOptions._unknown || [];

@@ -461,5 +461,7 @@
 
 
 import * as boo from "./lib.mjs";
+import {bye} from "/home/meetesh/wd/Iridium/tests/basic/lib.mjs";
 
-console.log(boo);
+console.log(boo.hello);
+console.log(bye);
