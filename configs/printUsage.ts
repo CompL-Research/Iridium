@@ -22,6 +22,7 @@ const defaultUsageInfo: UsageSectionsArray = [
       "This project provides infrastructure to allow static analysis of {italic react} based applications.",
       "$ ./iridium <command> [OPTIONS]",
       "$ ./iridium js3 help",
+      "$ ./iridium pika help",
       "$ ./iridium iri help",
       "$ ./iridium help",
     ],
@@ -32,6 +33,10 @@ const defaultUsageInfo: UsageSectionsArray = [
       { name: "help", summary: "Display this information." },
       // { name: 'analyze', summary: 'Run static analysis over a project.' },
       { name: "js3", summary: "Generate JS3 file and print to stdout" },
+      {
+        name: "pika",
+        summary: "Generate Iridium Pika-ge (package), compile resolvable dependencies statically.",
+      },
       {
         name: "iri",
         summary: "Generate Iridium file (.iri) and print to stdout",
@@ -149,6 +154,59 @@ export const iriUsageInfo: UsageSectionsArray = [
 ];
 
 //
+// === IRIDIUM Related ===
+//
+
+const PIKA_OPTIONS = [
+  {
+    name: "outputs-path",
+    description:
+      "Path to outputs directory (For JS3 this must be an file path).",
+    alias: "o",
+    type: String,
+    typeLabel: "{underline path} ...",
+  },
+  {
+    name: "test-262",
+    description:
+      "Preserves comments when translating to JS3 (needed for test262 tests to run).",
+    alias: "t",
+    type: Boolean,
+  },
+  {
+    name: "source-type",
+    description: 'Source Type ("module" | "script" | "unambigious" (default)).',
+    alias: "s",
+    type: String,
+  },
+  {
+    name: "allow-lang-with-support",
+    description: "Allow js3 syntax support for `with`",
+    alias: "w",
+    type: Boolean,
+  },
+  {
+    name: "save-dep-graph",
+    description: "Save generated dependency graph",
+    alias: "g",
+    type: Boolean,
+  },
+];
+
+export const pikaUsageInfo: UsageSectionsArray = [
+  {
+    header: "=== Pika ===",
+    content: [
+      `$ ./iridium pika [OPTIONS] {bold <project-base-path>} {bold <main-file>} {bold <other-file>...}`,
+    ],
+  },
+  {
+    header: "Pika Options",
+    optionList: [...PIKA_OPTIONS],
+  },
+];
+
+//
 // General Exports
 //
 export const handleOutputsPath = (options: any) => {
@@ -176,6 +234,7 @@ export const handleLangWithSupport = () =>
   (debugConfig.cli.allowLangWithSupport = true);
 export const handleSavePTAGraph = () => (debugConfig.cli.savePTAGraph = true);
 export const handleSaveFlowGraph = () => (debugConfig.cli.saveFlowGraph = true);
+export const handleSaveDepGraph = () => (debugConfig.cli.saveDepGraph = true);
 
 export const handleSourceType = (options: any) => {
   if (options["source-type"] === null) {
@@ -264,6 +323,21 @@ export function printJS3Usage(header: string) {
   const usage = commandLineUsage(sections);
   console.log(usage);
 }
+
+export function printPikaUsage(header: string) {
+  const sections: UsageSectionsArray = [
+    // Sometimes the type system is just annoying
+    {
+      content: chalk.red(header),
+      raw: true,
+    },
+
+    ...pikaUsageInfo,
+  ];
+  const usage = commandLineUsage(sections);
+  console.log(usage);
+}
+
 
 export function printIRIUsage(header: string) {
   const sections: UsageSectionsArray = [
