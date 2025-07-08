@@ -2,7 +2,7 @@ import { IRIDIUM_FG } from "classes/builder/IridiumHelpers/I_GENERAL/IRIDIUM_FG.
 import Logger from "../classes/debugger/Logger.ts";
 
 const config: {
-  operationMode: "analyze" | "js3" | "iri";
+  operationMode: "analyze" | "js3" | "iri" | "pika";
   cli: {
     allowLangWithSupport: boolean;
     outputsPath: string;
@@ -11,6 +11,7 @@ const config: {
     printModuleGraphPng: boolean;
     savePTAGraph: boolean;
     saveFlowGraph: boolean;
+    saveDepGraph: boolean;
     enablePlayground: boolean;
     playgroundPort: number;
     projectBase: string;
@@ -30,6 +31,7 @@ const config: {
     printModuleGraphPng: false,
     savePTAGraph: false,
     saveFlowGraph: false,
+    saveDepGraph: false,
     enablePlayground: false,
     playgroundPort: 4000,
     projectBase: undefined,
