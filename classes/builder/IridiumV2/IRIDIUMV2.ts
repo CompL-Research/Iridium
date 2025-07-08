@@ -73,6 +73,11 @@ export class IridiumBuildContext {
 
   moduleRequestMap: Map<string, ModuleRequestSEXP> = null;
 
+  static resetBuildContext() {
+    this.SID = 0;
+    this.CONTEXT_MAP = new Map<number, IridiumBuildContext>();
+  }
+
   BB: Array<BBSEXP> = [];
   constructor(parent: number, BB: BBSEXP = undefined, flag: BBSEXPFlags = undefined) {
     this.scopeIdx = IridiumBuildContext.SID++;
