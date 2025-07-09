@@ -466,8 +466,7 @@
 // console.log(boo.hello);
 // console.log(bye);
 
-import * as lib from "./lib.mjs";
+import {boo} from "./lib.mjs";
 import {bye} from "./lib1.mjs";
-
-console.log(lib.hello);
+console.log(boo.hello);
 console.log(bye);

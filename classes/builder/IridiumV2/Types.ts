@@ -172,6 +172,21 @@ export function isLocalStaticExportSEXP(o: any): o is LocalStaticExportSEXP {
   return o.tag === "LocalStaticExport";
 }
 
+// (Extension) NamedReexportSEXP
+export class NamedReexportSEXP extends IridiumSEXP {
+  constructor(reqIdx: number, exportName: string) {
+    super("NamedReexport");
+    this.setFlag("REQIDX", reqIdx);
+    this.setFlag("EXPORTNAME", exportName);
+  }
+}
+
+// @ts-ignore
+export function isNamedReexportSEXP(o: any): o is NamedReexportSEXP {
+  // @ts-ignore
+  return o.tag === "NamedReexport";
+}
+
 // (Extension) StarExportSEXP
 export class StarExportSEXP extends IridiumSEXP {
   constructor(reqIdx: number) {

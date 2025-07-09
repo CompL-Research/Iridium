@@ -1,2 +1,2 @@
 
-export * from "./lib1.mjs";
+export * as boo from "./lib1.mjs";
