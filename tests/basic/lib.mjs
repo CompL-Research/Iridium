@@ -1,4 +1,2 @@
 
-export const hello = 12;
-
-export const bye = 13;
+export * from "./lib1.mjs";

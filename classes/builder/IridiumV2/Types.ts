@@ -172,6 +172,20 @@ export function isLocalStaticExportSEXP(o: any): o is LocalStaticExportSEXP {
   return o.tag === "LocalStaticExport";
 }
 
+// (Extension) StarExportSEXP
+export class StarExportSEXP extends IridiumSEXP {
+  constructor(reqIdx: number) {
+    super("StarExport");
+    this.setFlag("REQIDX", reqIdx);
+  }
+}
+
+// @ts-ignore
+export function isStarExportSEXP(o: any): o is StarExportSEXP {
+  // @ts-ignore
+  return o.tag === "StarExport";
+}
+
 // =============== Bindings ===============
 // (Primitive) Bindings
 export type BindingsSEXPFlags = "ParentScope";

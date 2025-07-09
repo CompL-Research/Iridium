@@ -460,8 +460,14 @@
 // console.log(pikachu);
 
 
-import * as boo from "./lib.mjs";
-import {bye} from "/home/meetesh/wd/Iridium/tests/basic/lib.mjs";
+// import * as boo from "./lib.mjs";
+// import {bye} from "./lib.mjs";
 
-console.log(boo.hello);
+// console.log(boo.hello);
+// console.log(bye);
+
+import * as lib from "./lib.mjs";
+import {bye} from "./lib1.mjs";
+
+console.log(lib.hello);
 console.log(bye);
