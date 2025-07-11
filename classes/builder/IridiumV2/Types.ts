@@ -1594,6 +1594,21 @@ export function isJSSuperContextSEXP(o: any): o is JSSuperContextSEXP {
   return o.tag === "JSSuperContext";
 }
 
+// (Extension) JSSloppyDeclarationCheck
+export class JSSloppyDeclarationCheckSEXP extends IridiumSEXP {
+  constructor(decl: string, kind: string) {
+    super("JSSloppyDeclarationCheck");
+    this.setFlag("NAME", decl);
+    this.setFlag(kind);
+  }
+}
+
+// @ts-ignore
+export function isJSSloppyDeclarationCheckSEXP(o: any): o is JSSloppyDeclarationCheckSEXP {
+  // @ts-ignore
+  return o.tag === "JSSloppyDeclarationCheck";
+}
+
 // (Extension) JSSuperObjContext
 export class JSSuperObjContextSEXP extends IridiumSEXP {
   constructor() {
@@ -1621,7 +1636,7 @@ export function isJSHomeObjContextSEXP(o: any): o is JSHomeObjContextSEXP {
 }
 
 // (Primitive) EnvWrite
-export type EnvWriteFlags = "SAFE" | "THISINIT";
+export type EnvWriteFlags = "SAFE" | "THISINIT" | "SLOPPY";
 export class EnvWriteSEXP extends IridiumSEXP {
   lval: string
   constructor(lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean) {
@@ -1634,6 +1649,22 @@ export class EnvWriteSEXP extends IridiumSEXP {
   }
 
   // Flags
+  // markSloppyDecl() {
+  //   this.setFlag("SLOPPYDECL");
+  // }
+
+  // isSloppyDecl() {
+  //   return this.hasFlag("SLOPPYDECL");
+  // }
+
+  markSloppy() {
+    this.setFlag("SLOPPY");
+  }
+
+  isSloppy() {
+    return this.hasFlag("SLOPPY");
+  }
+
   setThisInit(val: boolean) {
     this.setFlag("THISINIT", val);
   }
@@ -1651,7 +1682,7 @@ export class EnvWriteSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}${this.args[0].toString(0)} ${this.isSafe() ? "=" : "=."} ${this.args[1].toString(0)}`
+    return `${printSpace(space)}${this.isSloppy() ? "[SLOP]" : ""}${this.args[0].toString(0)} ${this.isSafe() ? "=" : "=."} ${this.args[1].toString(0)}`
   }
 }
 
@@ -1662,7 +1693,7 @@ export function isEnvWriteSEXP(o: any): o is EnvWriteSEXP {
 }
 
 // (Extension) JSEnvWrite
-export type JSEnvWriteFlags = "SAFE" | "THISINIT" | "JSLET" | "JSCONST" | "JSVAR" | "JSREST" | "JSARRDES" | "JSOBJDES";
+export type JSEnvWriteFlags = "SLOPPY" | "SAFE" | "THISINIT" | "JSLET" | "JSCONST" | "JSVAR" | "JSREST" | "JSARRDES" | "JSOBJDES";
 export class JSEnvWriteSEXP extends IridiumSEXP {
   constructor(lval: IridiumSEXP, rval: IridiumSEXP, flag: JSEnvWriteFlags = undefined, thisInit: boolean) {
     super("JSEnvWrite");
@@ -1674,6 +1705,19 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
   }
 
   // Utility
+
+  // markSloppyDecl() {
+  //   this.setFlag("SLOPPYDECL");
+  // }
+
+  // isSloppyDecl() {
+  //   return this.hasFlag("SLOPPYDECL");
+  // }
+
+  markSloppy() {
+    this.setFlag("SLOPPY");
+  }
+
   setThisInit(val: boolean) {
     this.setFlag("THISINIT", val);
   }
@@ -1793,7 +1837,7 @@ export class NOPSEXP extends IridiumSEXP {
 }
 
 // @ts-ignore
-export function isJSEnvWrite(o: any): o is JSEnvWriteSEXP {
+export function isJSEnvWriteSEXP(o: any): o is JSEnvWriteSEXP {
   // @ts-ignore
   return o.tag === "JSEnvWrite";
 }

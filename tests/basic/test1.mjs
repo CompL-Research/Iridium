@@ -475,3 +475,7 @@
 
 // x = 212;
 
+let a; 
+a = 12;
+
+// console.log(a);

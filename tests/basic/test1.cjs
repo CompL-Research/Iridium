@@ -478,6 +478,49 @@
 
 // let f = () => {
 //   "use strict";
+//   console.log(a);
 // }
 
 // console.log("Hello World");
+
+// let a;
+
+// a = 12;
+
+// console.log(a);
+
+// let a = 1;
+// console.log(a);
+
+// "use strict";
+// a = 12;
+
+// console.log(a);
+
+// console["log"](12);
+// console.pika = 12;
+// console.log(console.pika);
+
+globalThis.a = 12;
+
+var a;
+
+console.log(a);
+
+// let f = () => {
+//   a = 13;
+//   return;
+// }
+
+// let g = () => {
+//   "use strict";
+//   a = 14;
+//   return;
+// }
+
+// // f();
+// // console.log(a)
+
+// g();
+// console.log(a);
+// let a;

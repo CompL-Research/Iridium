@@ -5,7 +5,7 @@ import path from "path";
 import JS3Builder from "../JS3Builder.ts";
 import { JS3Program } from "../JS3Helpers/JS3Types.ts";
 import { IRIV2_STMT } from "./handleStatement.ts";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isJSCatchContextSEXP, isJSEnvWrite, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSScriptReturnSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, isStringSEXP, JSCatchContextSEXP, JSCATCHINITSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSScriptReturnSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NopeSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP } from "./Types.ts";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isGlobalBindingSEXP, isJSCatchContextSEXP, isJSEnvWriteSEXP, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSScriptReturnSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, isStringSEXP, JSCatchContextSEXP, JSCATCHINITSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSScriptReturnSEXP, JSSloppyDeclarationCheckSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NopeSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP } from "./Types.ts";
 import { dumpSEXP } from "./PP.ts";
 
 type LoopConfig = {
@@ -218,6 +218,7 @@ export class IRIDIUMV2 {
     this.decorateReturnTargets(this.container);
     this.promoteAsyncReturns(this.container);
     this.markNamespaceImports(this.container);
+    this.markSloppyWrites(this.container);
 
     if (sourceType === "JSModule") {
       // Add Module Init Header, this has to done because of hoisting...
@@ -353,6 +354,25 @@ export class IRIDIUMV2 {
     }
     arr.splice(index, 0, newElement);
     return arr;
+  }
+
+  markSloppyWrites(currSEXP: IridiumSEXP, currBBScope: number = -1) {
+    if (isBindingsSEXP(currSEXP) || isPoolBindingSEXP(currSEXP)) {
+      return;
+    }
+    let buildContext = IridiumBuildContext.CONTEXT_MAP.get(currBBScope);
+
+    if (isEnvWriteSEXP(currSEXP) || isJSEnvWriteSEXP(currSEXP)) {
+      if (!buildContext.isStrict && isGlobalBindingSEXP(currSEXP.args[0])) {
+        currSEXP.markSloppy();
+      }
+    }
+
+    if (isBBSEXP(currSEXP)) {
+      currSEXP.args.forEach(e => this.markSloppyWrites(e, currSEXP.getScopeIDX()))
+    } else {
+      currSEXP.args.forEach(e => this.markSloppyWrites(e, currBBScope));
+    }
   }
 
   markNamespaceImports(currSEXP: IridiumSEXP) {
@@ -646,6 +666,8 @@ export class IRIDIUMV2 {
 
     fileSexp.args = [...bbGroups.values()];
 
+    // const isSloppy = !IridiumBuildContext.CONTEXT_MAP.get(0).isStrict;
+    const isModule = IridiumBuildContext.CONTEXT_MAP.get(0).isModule;
     const moduleRequests = new ListSEXP([]);
     const staticImports = new ListSEXP([]);
     const staticExports = new ListSEXP([]);
@@ -660,6 +682,7 @@ export class IRIDIUMV2 {
           bbContainer.setFlag("TopLevel");
         }
 
+        const sloppyDeclarations: Array<[string, JSEnvBindingFlags]> = [];
         const hoistingInfo = new Map<number, Array<[Array<string>, JSEnvBindingFlags]>>();
         const toRemove: Map<BBSEXP, Set<IridiumSEXP>> = new Map();
         const contextualInit: Array<[string, IridiumSEXP, JSEnvBindingFlags]> = [];
@@ -752,7 +775,7 @@ export class IRIDIUMV2 {
               }
 
               // Declaration Statements
-              if (isJSEnvWrite(stmt) && stmt.isDecl()) {
+              if (isJSEnvWriteSEXP(stmt) && stmt.isDecl()) {
                 let scopeToHoistTo: number;
                 let hoistingKind: JSEnvBindingFlags;
 
@@ -785,8 +808,13 @@ export class IRIDIUMV2 {
                 // This statement is no longer a declaration 
                 stmt.reduceJSDecl();
 
-                // Scope where these bindings must be initialized
-                hoistingInfo.get(scopeToHoistTo).push([declarations, hoistingKind]);
+                if (scopeToHoistTo === 0 && !isModule) { // Top Level Global Declaration for script mode
+                  declarations.forEach(d => sloppyDeclarations.push([d, hoistingKind]));
+                  // stmt.markSloppyDecl();
+                } else {
+                  // Scope where these bindings must be initialized
+                  hoistingInfo.get(scopeToHoistTo).push([declarations, hoistingKind]);
+                }
               }
             }
             
@@ -896,6 +924,25 @@ export class IRIDIUMV2 {
             }
           } else
             debugConfig.logger.throwIriError("Expected EnvBindingSEXP");
+        }
+
+        for (let [name, kind] of sloppyDeclarations) {
+          let startBB = IridiumBuildContext.CONTEXT_MAP.get(0).BB[0];
+          let lValName = name;
+          let rVal;
+          if (kind === "JSVAR") {
+            rVal = new EnvReadSEXP("undefined");
+          } else {
+            rVal = new JSNUBDSEXP();
+          }
+          const val = new EnvWriteSEXP(lValName, rVal, true, false);
+          // val.markSloppyDecl();
+          startBB.args = [val, ...startBB.args];
+        }
+
+        for (let [name, kind] of sloppyDeclarations) {
+          let startBB = IridiumBuildContext.CONTEXT_MAP.get(0).BB[0];
+          startBB.args = [new JSSloppyDeclarationCheckSEXP(name, kind), ...startBB.args];
         }
 
         // Prefix contextual init statements
