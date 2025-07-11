@@ -598,6 +598,18 @@ export function isBBContainerSEXP(o: any): o is BBContainerSEXP {
 
 // =============== RVals ===============
 // Literals
+// (Primitive) Nope
+export class NopeSEXP extends IridiumSEXP {
+  constructor() {
+    super("Nope");
+  }
+
+  toString(space?: number): string {
+    return `${printSpace(space)}🙂‍↔️`
+  }
+}
+
+
 // (Primitive) Null
 export class NullSEXP extends IridiumSEXP {
   constructor() {
@@ -1519,6 +1531,19 @@ export class JSThisContextSEXP extends IridiumSEXP {
 export function isJSThisContextSEXP(o: any): o is JSThisContextSEXP {
   // @ts-ignore
   return o.tag === "JSThisContext";
+}
+
+// (Extension) JSThisContext
+export class JSScriptReturnSEXP extends IridiumSEXP {
+  constructor() {
+    super("JSScriptReturn");
+  }
+}
+
+// @ts-ignore
+export function isJSScriptReturnSEXP(o: any): o is JSScriptReturnSEXP {
+  // @ts-ignore
+  return o.tag === "JSScriptReturn";
 }
 
 
