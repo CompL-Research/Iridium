@@ -473,4 +473,9 @@
 
 // console.log("Hello");
 
+
 x = 212;
+
+let f = () => {
+  "use strict";
+}

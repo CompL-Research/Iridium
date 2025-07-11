@@ -68,6 +68,7 @@ export class IridiumBuildContext {
   kind: number = 0;
   isAsync: boolean = false;
   isGenerator: boolean = false;
+  isStrict: boolean = false;
 
   privateMapping: Map<string, string> = null;
 
@@ -152,6 +153,7 @@ export class IRIDIUMV2 {
   declareAndPushLexicalContext(flags: BBSEXPFlags = "Lexical"): IridiumBuildContext {
     const currentContext = this.getCurrentContext();
     const newContext = new IridiumBuildContext(currentContext.scopeIdx, undefined, flags);
+    newContext.isStrict = currentContext.isStrict;
     this.pushContext(newContext);
     return newContext;
   }
@@ -172,11 +174,14 @@ export class IRIDIUMV2 {
 
   build() {
     const program: JS3Program = this.js3Builder.generatedAST.program;
-    if (program.sourceType !== "module") debugConfig.logger.throwIriError("only module mode code is currently supported!!");
-
-    const mainContainer = new FileSEXP("JSModule");
+    const sourceType: "JSModule" | "JSScript" = program.sourceType === "module" ? "JSModule" : "JSScript";
+    
+    const mainContainer = new FileSEXP(sourceType);
     this.container = mainContainer;
     const topLevelContext = new IridiumBuildContext(-1, undefined, "TopLevel");
+
+    topLevelContext.isStrict = sourceType === "JSModule" || program.directives.some((val) => val.value.value === "use strict");
+
     topLevelContext.moduleRequestMap = new Map();
     topLevelContext.kind = getRegularClosureFlag();
     this.pushContext(topLevelContext);
@@ -609,6 +614,7 @@ export class IRIDIUMV2 {
             const currContext = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX)
             if (currContext.isAsync) bbContainer.setAsync();
             if (currContext.isGenerator) bbContainer.setGenerator();
+            if (currContext.isStrict) bbContainer.setStrict();
             bbContainer.setClosureFlags(currContext.kind);
             bbGroups.set(targetScopeIDX, bbContainer);
           } else debugConfig.logger.throwIriError("Expected BBSEXP")

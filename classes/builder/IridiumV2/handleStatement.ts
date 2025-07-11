@@ -1184,7 +1184,7 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
   // Lower Function code
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   const funBBIdx = funcContext.getCurrentBB().idx;
-
+  funcContext.isStrict = funcContext.isStrict || stmt.body.directives.some((val) => val.value.value === "use strict");
   funcContext.isAsync = stmt.async ? stmt.async : false;
   funcContext.isGenerator = stmt.generator ? stmt.generator : false;
 

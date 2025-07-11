@@ -511,6 +511,14 @@ export class BBContainerSEXP extends IridiumSEXP {
     this.removeFlag("ASYNC");
   }
 
+  setStrict() {
+    this.setFlag("STRICT");
+  }
+
+  unsetStrict() {
+    this.removeFlag("STRICT");
+  }
+
   setClosureFlags(flag: number) {
     const flags: Array<BBContainerSEXPFlags> = [];
     this.setFlag("ContainerFlagID", flag);

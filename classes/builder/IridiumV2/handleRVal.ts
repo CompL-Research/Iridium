@@ -774,6 +774,7 @@ const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | J
   const funBB = funcContext.getCurrentBB();
   const funBBIdx = funBB.idx;
 
+  funcContext.isStrict = funcContext.isStrict || node.body.directives.some((val) => val.value.value === "use strict");
   funcContext.isAsync = node.async ? node.async : false;
   funcContext.isGenerator = node.generator ? node.generator : false;
 
@@ -838,6 +839,7 @@ const handleArrowFunctionExpression = (cx: IRIDIUMV2, node: JS3ArrowFunctionExpr
   const funBB = funcContext.getCurrentBB();
   const funBBIdx = funBB.idx;
 
+  funcContext.isStrict = funcContext.isStrict || node.body.directives.some((val) => val.value.value === "use strict");
   funcContext.isAsync = node.async ? node.async : false;
   funcContext.isGenerator = node.generator ? node.generator : false;
 
