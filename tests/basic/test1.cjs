@@ -474,8 +474,10 @@
 // console.log("Hello");
 
 
-x = 212;
+// x = 212;
 
-let f = () => {
-  "use strict";
-}
+// let f = () => {
+//   "use strict";
+// }
+
+// console.log("Hello World");
