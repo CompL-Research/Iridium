@@ -1,19 +1,18 @@
 import debugConfig from "#debugConfig";
 // import babel from "@babel/core";
 import babelGen from "@babel/generator";
-import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
-import { ProjectFile } from "../ProjectFile.ts";
-import { handleProgram } from "./JS3Helpers/HandleProgram.ts";
-import { generateJS3File } from "./JS3Helpers/JS3Constructors.ts";
+import { ProjectFile } from "../ProjectFile";
+import { handleProgram } from "./JS3Helpers/HandleProgram";
+import { generateJS3File } from "./JS3Helpers/JS3Constructors";
 import {
   JS3AllowedBlockStatement,
   JS3File,
   JS3Program_body,
-} from "./JS3Helpers/JS3Types.ts";
-import { assertMessage } from "#utils";
+} from "./JS3Helpers/JS3Types";
 
+// @ts-ignore
 const generate = babelGen.default;
 
 export type JS3BuilderUtils = {
@@ -31,7 +30,7 @@ export default class JS3Builder {
   static varIdx: number = 0;
   projectFile: ProjectFile;
   generatedAST: JS3File | null;
-  generatedCode: string = null;
+  generatedCode: string | null = null;
 
   utils: JS3BuilderUtils = {
     getNewTemporary: (prefix: string | undefined) =>
@@ -41,28 +40,28 @@ export default class JS3Builder {
 
   constructor(file: ProjectFile) {
     if (file.initData.parseStatus !== "parsed") {
-      debugConfig.logger.throwJS3Error(
+      throw new Error(
         "JS3 Builder requires a parsed file as input, found unparsed file",
       );
     }
-    assert(file.initData.parseStatus === "parsed", assertMessage(import.meta.url, `😂 Expected parseStatus to be "parsed"`));
     this.projectFile = file;
     this.generatedAST = null;
   }
 
   build() {
     const file = this.projectFile.initData.parseResult;
-    const program = this.projectFile.initData.parseResult.program;
-    assert(program, assertMessage(import.meta.url, `😂 JS3 builder, program node is undefined`));
+    if (!file) throw new Error("File is undefined");
+    const program = file.program;
     const js3Program = handleProgram(program, this.utils);
     this.generatedAST = generateJS3File(js3Program, file);
     this.saveGeneratedFile();
   }
 
-  getCodeString() {
+  getCodeString(): string {
     if (this.generatedCode) return this.generatedCode;
 
     this.generatedCode = generate(this.generatedAST, { comments: debugConfig.cli.comments }).code;
+    if (!this.generatedCode) throw new Error("Generated code is not a string");
     return this.generatedCode;
   }
 

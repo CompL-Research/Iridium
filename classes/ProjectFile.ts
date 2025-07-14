@@ -1,14 +1,11 @@
 import babel from "@babel/core";
 
-import { ParseResult } from "@babel/parser";
 import t from "@babel/types";
 import fs from "fs";
-import assert from "node:assert/strict";
 import path from "path";
 
 import debugConfig from "#debugConfig";
-import { assertMessage } from "#utils";
-import babelStripComments from "./babelStripComments.ts";
+import babelStripComments from "./babelStripComments";
 
 
 export class InitData {
@@ -17,18 +14,18 @@ export class InitData {
   loc: number | null = null;
 
   parseStatus: "parsed" | "failed" = "failed";
-  parseResult: ParseResult<t.File> | null = null;
-  sourceMap: object | null = null;
+  parseResult: t.File | undefined | null = null;
+  sourceMap: object | undefined | null = null;
 
   toString() {
     return `{ "status": "${this.status}", "parseStatus": "${this.parseStatus}", "loc": ${this.loc ? this.loc : 0} }`;
   }
 
   toJSON() {
-    return { 
-      status: this.status, 
-      parseStatus: this.parseStatus, 
-      loc: this.loc ? this.loc : 0 
+    return {
+      status: this.status,
+      parseStatus: this.parseStatus,
+      loc: this.loc ? this.loc : 0
     };
   }
 }
@@ -49,25 +46,20 @@ export class ProjectFile {
   }
 
   toJSON() {
-    return { 
-      absoluteFilePath: this.absoluteFilePath, 
-      uname: this.uname, 
-      initData: this.initData.toJSON() 
+    return {
+      absoluteFilePath: this.absoluteFilePath,
+      uname: this.uname,
+      initData: this.initData.toJSON()
     }
   }
 
-  constructor(absoluteFilePath, projectBasePath) {
-    assert(absoluteFilePath !== null, assertMessage(import.meta.url, "🐖 absoluteFilePath is null"));
-    assert(projectBasePath !== null, assertMessage(import.meta.url, "🐖 projectBasePath is null"));
+  constructor(absoluteFilePath: string, projectBasePath: string) {
     const validPaths = absoluteFilePath.startsWith(projectBasePath)
     if (!validPaths) {
-      debugConfig.logger.error(`File path: ${absoluteFilePath}`);
-      debugConfig.logger.error(`Base path: ${projectBasePath}`);
-      debugConfig.logger.throwJS3Error(
+      throw new Error(
         "File path does not start with project base path",
       );
     }
-    assert(validPaths, assertMessage(import.meta.url, "🐖 File path does not start with project base path"));
 
     this.absoluteFilePath = absoluteFilePath;
     this.projectBasePath = projectBasePath;
@@ -83,7 +75,7 @@ export class ProjectFile {
     GLOBAL_UNAME_PATH_MAP.set(this.uname, this.absoluteFilePath);
   }
 
-  initSync(sourceType = "unambiguous", plugins = []) {
+  initSync(sourceType: "unambiguous" | "script" | "module" = "unambiguous", plugins: Array<any> = []) {
     const sourceCode = fs.readFileSync(this.absoluteFilePath, "utf-8");
     // 1. Load Source Code
     this.initData.status = "loaded";
@@ -122,6 +114,7 @@ export class ProjectFile {
     };
 
     const result = babel.transformSync(sourceCode, options);
+    if (!result) throw new Error("babel.transformSync failed");
     this.initData.parseStatus = "parsed";
     this.initData.parseResult = result.ast;
     this.initData.sourceMap = result.map;
