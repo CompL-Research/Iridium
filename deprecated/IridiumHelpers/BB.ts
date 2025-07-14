@@ -29,7 +29,7 @@ import {
   JS3SwitchStatement,
   JS3TryStatement,
   JS3WhileStatement,
-} from "../JS3Helpers/JS3Types.ts";
+} from "../../classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier } from "./ALL_AMP/ALL_AMP.ts";
 import { ALL_IS } from "./ALL_IS/ALL_IS.ts";
 import { Environment } from "./I_GENERAL/I_Environment.ts";

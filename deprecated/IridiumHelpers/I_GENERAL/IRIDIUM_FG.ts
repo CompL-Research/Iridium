@@ -4,8 +4,8 @@ import { printScopedSpace, printSpace } from "#utils";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { IV_NUBD } from "../ALL_RVal/IV_NonLang.ts";
 import { BB } from "../BB.ts";
-import { Environment } from "../I_GENERAL/I_Environment.ts";
-import { I_Function_params } from "../I_GENERAL/I_Function.ts";
+import { Environment } from "./I_Environment.ts";
+import { I_Function_params } from "./I_Function.ts";
 
 // List of free variables to ignore
 const filterList = [IV_NUBD.lookupName(), "undefined"];

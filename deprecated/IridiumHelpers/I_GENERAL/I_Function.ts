@@ -8,7 +8,7 @@ import {
 } from "classes/builder/JS3Helpers/JS3Types.ts";
 import { IV_Identifier } from "../ALL_AMP/ALL_AMP.ts";
 import { ISP_RestElement } from "../ALL_RVal/ALL_ISP.ts";
-import { IRIDIUM_FG } from "../I_GENERAL/IRIDIUM_FG.ts";
+import { IRIDIUM_FG } from "./IRIDIUM_FG.ts";
 
 export type I_Function_node =
   | JS3FunctionDeclaration

@@ -350,12 +350,7 @@ import {
 } from "./Passes/PTA_STUFF/PTAFlowData.ts";
 import { handleCallExpression } from "./Passes/PTA_STUFF/PTAHandlers.ts";
 
-let generate;
-if (typeof Bun !== "undefined") {
-  generate = _generate;
-} else {
-  generate = _generate.default;
-}
+let generate = _generate.default
 
 const IMPORT_TREE = new Graph({ multigraph: true });
 
