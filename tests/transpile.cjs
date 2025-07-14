@@ -16,7 +16,7 @@ exports.transpileJS3 = async function transpileJS3(code, { features, isModule, i
   fs.writeFileSync(fPath, code)
 
   const sourceType = isModule ? "module" : "script"
-  const cmd = `${IRIDIUM_BIN} js3 ${fPath} --allow-lang-with-support -s ${sourceType} -t`;
+  const cmd = `${IRIDIUM_BIN} js3 ${fPath} -s ${sourceType} -t`;
 
   const ret = await childProcess.execSync(cmd, { encoding: "utf-8" });
 

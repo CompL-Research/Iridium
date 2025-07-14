@@ -501,11 +501,11 @@
 // console.pika = 12;
 // console.log(console.pika);
 
-globalThis.a = 12;
+// globalThis.a = 12;
 
-var a;
+// var a;
 
-console.log(a);
+// console.log(a);
 
 // let f = () => {
 //   a = 13;
@@ -524,3 +524,64 @@ console.log(a);
 // g();
 // console.log(a);
 // let a;
+
+// "use strict";
+
+// myUndeclaredVar = 'Sloppy Global';
+// console.log(myUndeclaredVar);
+
+// const obj = {};
+// Object.defineProperty(obj, 'prop', {value: 42, writable: false});
+// obj.prop = 99;
+// console.log(obj.prop);
+
+// const obj = {};
+// Object.preventExtensions(obj);
+// obj.newProp = 'fail';
+// console.log(obj.newProp);
+
+// var x = 1;
+// delete x;
+// console.log(typeof x);
+// var x = 1;
+// delete x;
+
+// function sum(a, b, a) {
+//   return a + b;
+// }
+// console.log(sum(10, 20, 30));
+
+
+// function sum(a, b, a) {
+//   return a + b;
+// }
+
+// function showThis() {
+//   console.log(this === window);
+// }
+// showThis();
+
+// const obj = {a: 1};
+// with(obj) {
+//   console.log(a);
+// }
+
+
+// var x = 1;
+// eval('var x = 2;');
+// console.log(x);
+
+// console.log(010 + 2);
+
+
+// function sloppy() {
+//  console.log(arguments.callee.name);
+// }
+// sloppy();
+
+// const obj = { prop: 1, prop: 2 };
+// console.log(obj.prop);
+// const obj = { prop: 1, prop: 2 };
+// 
+var let = 'hello';
+console.log(let);

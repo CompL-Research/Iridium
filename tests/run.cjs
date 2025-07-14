@@ -4,41 +4,49 @@
 // 
 const path = require("path");
 const Test262Stream = require("test262-stream");
-const tap = require("make-tap-output")({ count: true });
-const { Worker: JestWorker } = require("jest-worker");
+const IRIAgent = require("./iri-agent.cjs");
 
-const relative = file => path.resolve(process.cwd(), file);
+// const tap = require("make-tap-output")({ count: true });
+// const { Worker: JestWorker } = require("jest-worker");
 
-const EXEC = "/home/meetesh/wd/mozilla-unified/obj-x86_64-pc-linux-gnu/dist/bin/js"
+// const relative = file => path.resolve(process.cwd(), file);
 
-const UNSUPPORTED_FEATURES = ["import-attributes", "decorators"]
-const EXCLUDE_ESID_PREFIXES = ["pending", "proposal", "legacy"];
-
-// Function to determine if the test belongs to an in-progress proposal
-function isNonStandardTest(test) {
-  const esid = test.attrs.esid;
-  return esid && EXCLUDE_ESID_PREFIXES.some(prefix => esid.startsWith(prefix));
-}
-
-
-
+const EXEC = "/home/meetesh/wd/quickjs/build/qjs"
 const TESTS = path.resolve('./test262');
-const THREADS = 64
+
+const { transpile, transpileJS3 } = require("./transpile.cjs");
+
+
+// const UNSUPPORTED_FEATURES = ["import-attributes", "decorators"]
+// const EXCLUDE_ESID_PREFIXES = ["pending", "proposal", "legacy"];
+
+// // Function to determine if the test belongs to an in-progress proposal
+// function isNonStandardTest(test) {
+//   const esid = test.attrs.esid;
+//   return esid && EXCLUDE_ESID_PREFIXES.some(prefix => esid.startsWith(prefix));
+// }
+
+
+
+
+// const THREADS = 64
 // const THREADS = Number(process.env.THREADS) || require("os").cpus().length / 2;
-const { CHUNK, CHUNKS_FILE } = process.env;
+// const { CHUNK, CHUNKS_FILE } = process.env;
 
-const chunk = CHUNKS_FILE ? new Set(require(relative(CHUNKS_FILE))[CHUNK]) : undefined;
+// const chunk = CHUNKS_FILE ? new Set(require(relative(CHUNKS_FILE))[CHUNK]) : undefined;
 
-const worker = new JestWorker(require.resolve("./worker.cjs"), {
-  numWorkers: THREADS,
-  exposedMethods: ["runTest", "getBaseline"],
-  // enableWorkerThreads: true,
-  setupArgs: [{ hostPath: EXEC, shortName: "$262", testRoot: TESTS }],
-});
-worker.getStdout().pipe(process.stdout);
-worker.getStderr().pipe(process.stderr);
+// const worker = new JestWorker(require.resolve("./worker.cjs"), {
+//   numWorkers: THREADS,
+//   exposedMethods: ["runTest", "getBaseline"],
+//   // enableWorkerThreads: true,
+//   setupArgs: [{ hostPath: EXEC, shortName: "$262", testRoot: TESTS }],
+// });
+// worker.getStdout().pipe(process.stdout);
+// worker.getStderr().pipe(process.stderr);
 
-tap.pipe(process.stdout);
+// tap.pipe(process.stdout);
+
+const agent = new IRIAgent({ hostPath: EXEC, shortName: "$262", testRoot: TESTS });
 
 async function main() {
   const filter = process.argv[2];
@@ -54,7 +62,7 @@ async function main() {
     process.exitCode = 1;
   });
 
-  tap.diag(`Using ${THREADS} threads.`);
+  // tap.diag(`Using ${THREADS} threads.`);
 
   let passed = 0;
   let run = 0;
@@ -67,60 +75,64 @@ async function main() {
     const file = `${test.file} ${test.scenario}`;
 
     if (filter !== "I_AM_SURE" && !test.file.includes(filter)) continue;
-    if (chunk && !chunk.has(test.file)) continue;
-    const baseExpectedRes = getExpected(test)
-    if (baseExpectedRes !== "success") continue;
+
+    console.log(test);
+    break;
+
+    // if (chunk && !chunk.has(test.file)) continue;
+    // const baseExpectedRes = getExpected(test)
+    // if (baseExpectedRes !== "success") continue;
     
-    // To run an individual test file (will usually be run in two modes, default and strict)
-    // if (!test.file.includes("test/language/expressions/await/await-monkey-patched-promise.js")) continue;
+    // // To run an individual test file (will usually be run in two modes, default and strict)
+    // // if (!test.file.includes("test/language/expressions/await/await-monkey-patched-promise.js")) continue;
     
-    // If there are attributes that we do not plan to support right now, we will skip those tests as-well
-    let toSkip = false
-    let features = test.attrs.features ?? []
-    for (const tf of features) {
-      if (UNSUPPORTED_FEATURES.includes(tf)) {
-        // console.log("Skipping test with feature")
-        toSkip = true
-      }
-    }
-    // Skip tests that are not yet part of the official ECMA spec
-    if (isNonStandardTest(test)) toSkip = true;
-    if (toSkip) continue
+    // // If there are attributes that we do not plan to support right now, we will skip those tests as-well
+    // let toSkip = false
+    // let features = test.attrs.features ?? []
+    // for (const tf of features) {
+    //   if (UNSUPPORTED_FEATURES.includes(tf)) {
+    //     // console.log("Skipping test with feature")
+    //     toSkip = true
+    //   }
+    // }
+    // // Skip tests that are not yet part of the official ECMA spec
+    // if (isNonStandardTest(test)) toSkip = true;
+    // if (toSkip) continue
 
-    run++;
-    tasks.push(
-      (async test => {
+    // run++;
+    // tasks.push(
+    //   (async test => {
 
-        // If expected result is negative
-        const baselineRes = await worker.getBaseline(test);
-        const expected = baselineRes.result
-        const actual = await worker.runTest(test);
+    //     // If expected result is negative
+    //     const baselineRes = await worker.getBaseline(test);
+    //     const expected = baselineRes.result
+    //     const actual = await worker.runTest(test);
 
-        if (actual.result === expected) {
-          passed++;
-          tap.pass(file, `(${expected})`);
-        } else {
-          tap.fail(
-            file,
-            `(expected ${expected}, got ${actual.result})`,
-            actual.error
-              ? new RethrownError(actual.error)
-              : new Error("[no error]")
-          );
-        }
-      })(test)
-    );
+    //     if (actual.result === expected) {
+    //       passed++;
+    //       tap.pass(file, `(${expected})`);
+    //     } else {
+    //       tap.fail(
+    //         file,
+    //         `(expected ${expected}, got ${actual.result})`,
+    //         actual.error
+    //           ? new RethrownError(actual.error)
+    //           : new Error("[no error]")
+    //       );
+    //     }
+    //   })(test)
+    // );
   }
 
   await Promise.all(tasks);
 
-  tap.diag("\n\n");
-  tap.diag(`Run ${run} out of ${total} tests.`);
-  tap.diag(`Passed ${passed} out of ${run} tests.`);
-  // Creating promises based timeouts per test prevents node from exiting
-  // causing an unparseable failure in CircleCI. Here we're forcing an exit
-  // with an exit code 0. tap-mocha-reporter will parse the tap output
-  // and output the correct exit code.
+  // tap.diag("\n\n");
+  // tap.diag(`Run ${run} out of ${total} tests.`);
+  // tap.diag(`Passed ${passed} out of ${run} tests.`);
+  // // Creating promises based timeouts per test prevents node from exiting
+  // // causing an unparseable failure in CircleCI. Here we're forcing an exit
+  // // with an exit code 0. tap-mocha-reporter will parse the tap output
+  // // and output the correct exit code.
   process.exit(0);
 }
 main().catch(error => {
@@ -128,51 +140,51 @@ main().catch(error => {
   throw error;
 });
 
-function getExpected({ attrs }) {
-  if (attrs.negative) {
-    const { phase } = attrs.negative;
-    if (phase === "early" || phase === "parse") {
-      return "parser error";
-    } else {
-      return "runtime error";
-    }
-  } else {
-    return "success";
-  }
-}
+// function getExpected({ attrs }) {
+//   if (attrs.negative) {
+//     const { phase } = attrs.negative;
+//     if (phase === "early" || phase === "parse") {
+//       return "parser error";
+//     } else {
+//       return "runtime error";
+//     }
+//   } else {
+//     return "success";
+//   }
+// }
 
-class ExtendedError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = this.constructor.name;
-    this.message = message;
-    if (typeof Error.captureStackTrace === "function") {
-      Error.captureStackTrace(this, this.constructor);
-    } else {
-      this.stack = new Error(message).stack;
-    }
-  }
-}
+// class ExtendedError extends Error {
+//   constructor(message) {
+//     super(message);
+//     this.name = this.constructor.name;
+//     this.message = message;
+//     if (typeof Error.captureStackTrace === "function") {
+//       Error.captureStackTrace(this, this.constructor);
+//     } else {
+//       this.stack = new Error(message).stack;
+//     }
+//   }
+// }
 
-class RethrownError extends ExtendedError {
-  constructor(error) {
-    if (!error) {
-      throw new Error("RethrownError requires an error with a message");
-    }
-    super(error.message || "[no message]");
+// class RethrownError extends ExtendedError {
+//   constructor(error) {
+//     if (!error) {
+//       throw new Error("RethrownError requires an error with a message");
+//     }
+//     super(error.message || "[no message]");
 
-    this.name = error.name;
-    this.original = error;
-    this.new_stack = this.stack;
-    const errorStackString =
-      error.stack &&
-      (typeof error.stack === "string"
-        ? error.stack
-        : error.stack.map(location => location.source).join("\n"));
-    let message_lines = (this.message.match(/\n/g) || []).length + 1;
-    this.stack = `${this.name}: ${this.message}\n${this.stack
-      .split("\n")
-      .slice(0, message_lines + 1)
-      .join("\n")}\n${errorStackString}`;
-  }
-}
+//     this.name = error.name;
+//     this.original = error;
+//     this.new_stack = this.stack;
+//     const errorStackString =
+//       error.stack &&
+//       (typeof error.stack === "string"
+//         ? error.stack
+//         : error.stack.map(location => location.source).join("\n"));
+//     let message_lines = (this.message.match(/\n/g) || []).length + 1;
+//     this.stack = `${this.name}: ${this.message}\n${this.stack
+//       .split("\n")
+//       .slice(0, message_lines + 1)
+//       .join("\n")}\n${errorStackString}`;
+//   }
+// }
