@@ -3,14 +3,14 @@ import { hasPackageJson } from "#utils";
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
-import { getNextCommand, handleOptionsFromArgv, iriUsageInfo, js3UsageInfo, pikaUsageInfo, printIRIUsage, printJS3Usage, printPikaUsage } from "./printUsage.ts";
+import { getNextCommand, handleOptionsFromArgv, iriUsageInfo, js3UsageInfo, pikaUsageInfo, printIRIUsage, printJS3Usage, printPikaUsage } from "./printUsage";
 
 
 // Args -> FilePath
 export const initJS3 = (header: string, origArgv: Array<string>): string => {
   let [command, argv] = ["", origArgv];
   debugConfig.operationMode = "js3";
-  
+
   if (argv.length === 0) {
     printJS3Usage(header);
     process.exit(0);
@@ -24,13 +24,13 @@ export const initJS3 = (header: string, origArgv: Array<string>): string => {
   }
 
   [command, argv] = getNextCommand(argv);
-  
+
   const PATH_TO_JS = path.resolve(command);
   if (!fs.existsSync(PATH_TO_JS)) {
     console.error(chalk.red(`[3JS Init] File does not exist: ${PATH_TO_JS}`));
     process.exit(1);
   }
-  
+
   return PATH_TO_JS;
 }
 
@@ -43,7 +43,7 @@ export const initIRI = (header: string, origArgv: Array<string>): string => {
     printIRIUsage(header);
     process.exit(0);
   }
-  
+
   argv = handleOptionsFromArgv(argv, iriUsageInfo[1].optionList);
 
   if (argv.length === 0) {
@@ -69,7 +69,7 @@ export const initIRI = (header: string, origArgv: Array<string>): string => {
     );
     process.exit(1);
   }
-  
+
   [command, argv] = getNextCommand(argv);
   const PATH_TO_JS = path.resolve(command);
 

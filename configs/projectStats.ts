@@ -4,7 +4,7 @@ import packageInfo from "../package.json";
 
 export const VERSION = packageInfo.version;
 
-function getAllFiles(dirPath, arrayOfFiles) {
+function getAllFiles(dirPath: string, arrayOfFiles: Array<string>) {
   const files = fs.readdirSync(dirPath);
 
   arrayOfFiles = arrayOfFiles || [];
@@ -20,12 +20,12 @@ function getAllFiles(dirPath, arrayOfFiles) {
   return arrayOfFiles;
 }
 
-function countLinesInFile(filePath) {
+function countLinesInFile(filePath: string) {
   const fileContent = fs.readFileSync(filePath, "utf-8");
   return fileContent.split("\n").length;
 }
 
-function isImageFile(extension) {
+function isImageFile(extension: string) {
   const imageExtensions = [
     ".jpg",
     ".jpeg",
@@ -38,17 +38,17 @@ function isImageFile(extension) {
   return imageExtensions.includes(extension);
 }
 
-function getFileExtension(fileName) {
+function getFileExtension(fileName: string) {
   return path.extname(fileName).toLowerCase();
 }
 
-export function projectStats(filePaths) {
+export function projectStats(filePaths: Array<string>) {
   let totalFiles = 0;
   const extensions = new Set();
   let totalLinesOfCode = 0;
 
   filePaths.forEach((filePath) => {
-    const files = getAllFiles(filePath, undefined);
+    const files = getAllFiles(filePath, []);
     totalFiles += files.length;
     files.forEach((file) => {
       const ext = getFileExtension(file);
