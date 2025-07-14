@@ -1,4 +1,4 @@
-// Generated on 14/7/2025, 3:15:45 pm, extended 64 interfaces 
+// Generated on 14/7/2025, 5:09:37 pm, extended 64 interfaces 
 
 import { LVal, ConditionalExpression, AssignmentPattern, ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, Expression, OptionalCallExpression, OptionalMemberExpression, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DebuggerStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -325,7 +325,7 @@ export type JS3ExportNamedDeclaration_declaration = null;
 export type JS3ExportNamedDeclaration_specifiers = Array<JS3ExportSpecifier | JS3ExportNamespaceSpecifier>;
 export type JS3ExportNamedDeclaration_assertions = null;
 export type JS3ExportNamedDeclaration_attributes = null;
-export type JS3ForOfStatement_left = JS3LoopDeclaration | JS3MemberExpression | ArrayPattern | ObjectPattern | Identifier;
+export type JS3ForOfStatement_left = VariableDeclaration | LVal;
 export type JS3ForOfStatement_right = Identifier;
 export type JS3ForOfStatement_body = JS3BlockStatement;
 export type JS3ImportDeclaration_specifiers = Array<ImportSpecifier | ImportNamespaceSpecifier>;
