@@ -1,8 +1,8 @@
-import debugConfig from "#debugConfig";
-import { IridiumBuildContext } from "./IRIDIUMV2.ts";
+import { IridiumBuildContext } from "./IRIDIUMV2";
 
 let skipMid: boolean = false;
-const printSpace = (times: number) => {
+const printIriSpace = (times: number | undefined = 0) => {
+  if (!times) times = 0;
   let res = [];
   for (let i = 0; i < times; i++) {
     if (skipMid) {
@@ -16,8 +16,8 @@ const printSpace = (times: number) => {
     }
   }
   return res.join('');
-
 };
+
 const printFlagString = (flags: Array<[string, IridiumPrimitives]>) => {
   if (flags.length === 0) return "";
   return `[${flags.map(e => e[1] !== null ? `${e[0]} : ${e[1]}` : `${e[0]}`).join(", ")}]`
@@ -33,7 +33,7 @@ export class IridiumSEXP {
     this.tag = tag;
   }
 
-  serialize() {
+  serialize(): Array<any> {
     return [
       this.tag,
       this.args.map((e) => e.serialize()),
@@ -61,7 +61,7 @@ export class IridiumSEXP {
     if (this.flags.filter(e => e[0] === flag).length === 1) {
       return currFlag[0][1];
     }
-    debugConfig.logger.throwIriError(`Failed to get flag: ${flag}`)
+    throw new Error(`Failed to get flag: ${flag}`)
   }
 
   getFlagNumber(flag: string): number {
@@ -69,9 +69,9 @@ export class IridiumSEXP {
     if (this.flags.filter(e => e[0] === flag).length === 1) {
       let res = currFlag[0][1];
       if (typeof res === "number") return res;
-      debugConfig.logger.throwIriError("Expected scope to be a number");
+      throw new Error("Expected scope to be a number");
     }
-    debugConfig.logger.throwIriError(`Failed to get flag: ${flag}`)
+    throw new Error(`Failed to get flag: ${flag}`)
   }
 
   getFlagString(flag: string): string {
@@ -79,9 +79,9 @@ export class IridiumSEXP {
     if (this.flags.filter(e => e[0] === flag).length === 1) {
       let res = currFlag[0][1];
       if (typeof res === "string") return res;
-      debugConfig.logger.throwIriError("Expected scope to be a number");
+      throw new Error("Expected scope to be a number");
     }
-    debugConfig.logger.throwIriError(`Failed to get flag: ${flag}`)
+    throw new Error(`Failed to get flag: ${flag}`)
   }
 
   getFlagBoolean(flag: string): boolean {
@@ -89,14 +89,14 @@ export class IridiumSEXP {
     if (this.flags.filter(e => e[0] === flag).length === 1) {
       let res = currFlag[0][1];
       if (typeof res === "boolean") return res;
-      debugConfig.logger.throwIriError("Expected scope to be a number");
+      throw new Error("Expected scope to be a number");
     }
-    debugConfig.logger.throwIriError(`Failed to get flag: ${flag}`)
+    throw new Error(`Failed to get flag: ${flag}`)
   }
 
   toString(space = 0): string {
     let res = []
-    res.push(`${printSpace(space)}${this.tag}${printFlagString(this.flags)}`);
+    res.push(`${printIriSpace(space)}${this.tag}${printFlagString(this.flags)}`);
     res = [...res, ...this.args.map(e => e.toString(space + 2))];
     return res.join("\n");
   }
@@ -107,7 +107,7 @@ export class IridiumSEXP {
 // (Primitive) File
 export type FileSEXPFlags = "JSScript" | "JSModule";
 export class FileSEXP extends IridiumSEXP {
-  constructor(flag: FileSEXPFlags = undefined) {
+  constructor(flag: FileSEXPFlags | undefined = undefined) {
     super("File");
     if (flag) this.setFlag(flag, null);
   }
@@ -264,7 +264,7 @@ export class BindingsSEXP extends IridiumSEXP {
       if (isEnvBindingSEXP(b)) {
         if (b.getScope() === lookupScope && b.getDeclaration() === name) return b;
       } else
-        debugConfig.logger.throwIriError("Expected EnvBindingSEXP");
+        throw new Error("Expected EnvBindingSEXP");
     }
 
     // Check if we referenced this as a remote binding
@@ -273,9 +273,11 @@ export class BindingsSEXP extends IridiumSEXP {
         let binding = this.resolveRemoteBinding(b);
         if (binding.getScope() === lookupScope && binding.getDeclaration() === name) return b;
       } else
-        debugConfig.logger.throwIriError("Expected EnvBindingSEXP");
+        throw new Error("Expected EnvBindingSEXP");
     }
-    const nextScope = IridiumBuildContext.CONTEXT_MAP.get(lookupScope).parent;
+    const buildContext = IridiumBuildContext.CONTEXT_MAP.get(lookupScope);
+    if (!buildContext) throw new Error("buildContext is undefined");
+    const nextScope = buildContext.parent;
 
     return this.getBinding(name, nextScope);
   }
@@ -294,7 +296,7 @@ export class BindingsSEXP extends IridiumSEXP {
           return true;
         }
       } else
-        debugConfig.logger.throwIriError("Expected EnvBindingSEXP");
+        throw new Error("Expected EnvBindingSEXP");
     }
     for (let b of remoteBindings) {
       if (isRemoteEnvBindingSEXP(b)) {
@@ -309,10 +311,10 @@ export class BindingsSEXP extends IridiumSEXP {
             return true;
           }
         } else
-          debugConfig.logger.throwIriError("Expected EnvBindingSEXP at the end of a RemoteEnvBindingSEXP");
+          throw new Error("Expected EnvBindingSEXP at the end of a RemoteEnvBindingSEXP");
 
       } else
-        debugConfig.logger.throwIriError("Expected RemoteEnvBindingSEXP");
+        throw new Error("Expected RemoteEnvBindingSEXP");
     }
     return false;
   }
@@ -334,7 +336,7 @@ export class BindingsSEXP extends IridiumSEXP {
     } else if (isRemoteEnvBindingSEXP(containedBinding)) {
       return this.resolveRemoteBinding(containedBinding);
     }
-    debugConfig.logger.throwIriError("RemoteEnvBindingSEXP contains invalid object");
+    throw new Error("RemoteEnvBindingSEXP contains invalid object");
   }
 
   addRemoteBinding(binding: RemoteEnvBindingSEXP) {
@@ -342,8 +344,9 @@ export class BindingsSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
+    if (!space) space = 0;
     let res = [];
-    res.push(`${printSpace(space)}Bindings`);
+    res.push(`${printIriSpace(space)}Bindings`);
     const args = this.args.map(e => e.toString(space + 2));
     res = [...res, ...args];
     return res.join("\n");
@@ -362,7 +365,7 @@ export type BBSEXPFlags = "IDX" | "ScopeIDX" | "TopLevel" | "ClosureBoundary" | 
 export class BBSEXP extends IridiumSEXP {
   static bbIdx: number = 0;
   idx: number
-  constructor(scopeIDX: number, flag: BBSEXPFlags = undefined) {
+  constructor(scopeIDX: number, flag: BBSEXPFlags | undefined = undefined) {
     super("BB");
     this.idx = BBSEXP.bbIdx++;
     this.setIDX(this.idx);
@@ -398,7 +401,7 @@ export class BBSEXP extends IridiumSEXP {
     if (this.isTopLevel()) return "TopLevel";
     if (this.isClosureBoundary()) return "ClosureBoundary";
     if (this.isLexical()) return "Lexical";
-    debugConfig.logger.throwIriError("No BB Flag found...");
+    throw new Error("No BB Flag found...");
   }
 
   // Utility
@@ -417,11 +420,11 @@ export class BBSEXP extends IridiumSEXP {
   toString(space?: number): string {
     const res = [];
     // res.push("\n");
-    res.push(`${printSpace(space)}██▒${printFlagString(this.flags)}`);
+    res.push(`${printIriSpace(space)}██▒${printFlagString(this.flags)}`);
     for (let s of this.args) {
-      res.push(`${printSpace(space)}█▒ ${s.toString(0)}`);
+      res.push(`${printIriSpace(space)}█▒ ${s.toString(0)}`);
     }
-    res.push(`${printSpace(space)}██▒`)
+    res.push(`${printIriSpace(space)}██▒`)
     return res.join("\n");
   }
 }
@@ -523,7 +526,7 @@ export class BBContainerSEXP extends IridiumSEXP {
     const flags: Array<BBContainerSEXPFlags> = [];
     this.setFlag("ContainerFlagID", flag);
     switch (flag) {
-      case 0: debugConfig.logger.throwIriError("Invalid closure flag");
+      case 0: throw new Error("Invalid closure flag");
       case 1: break;
       case 2: flags.push("PROTO", "NEW"); break;
       case 3: flags.push("PROTO", "NEW", "SCALL", "SOBJ", "HOME", "DERIVED"); break;
@@ -536,7 +539,7 @@ export class BBContainerSEXP extends IridiumSEXP {
       case 10: flags.push("SOBJ", "HOME"); break;
       case 11: flags.push(); break;
       case 12: flags.push("SOBJ", "HOME"); break;
-      default: debugConfig.logger.throwIriError("expected a valid closure flag");
+      default: throw new Error("expected a valid closure flag");
     }
     flags.forEach(f => this.setFlag(f));
   }
@@ -573,7 +576,7 @@ export class BBContainerSEXP extends IridiumSEXP {
   getBindings(): BindingsSEXP {
     let res = this.args[0]
     if (isBindingsSEXP(res)) return res;
-    else debugConfig.logger.throwIriError("Expected BindingsSEXP");
+    else throw new Error("Expected BindingsSEXP");
   }
 
   // Utility
@@ -582,8 +585,9 @@ export class BBContainerSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
+    if (!space) space = 0;
     let res = [];
-    res.push(`${printSpace(space)}📦${printFlagString(this.flags)}`)
+    res.push(`${printIriSpace(space)}📦${printFlagString(this.flags)}`)
     const args = this.args.map(e => e.toString(space + 2));
     res = [...res, ...args, "\n"];
     return res.join("\n");
@@ -605,7 +609,7 @@ export class NopeSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}🙂‍↔️`
+    return `${printIriSpace(space)}🙂‍↔️`
   }
 }
 
@@ -618,7 +622,7 @@ export class NullSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}🤮`
+    return `${printIriSpace(space)}🤮`
   }
 
 }
@@ -631,7 +635,7 @@ export class JSTemplateSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}JSTempalte(${this.args.map(e => e.toString(0)).join(", ")})`;
+    return `${printIriSpace(space)}JSTempalte(${this.args.map(e => e.toString(0)).join(", ")})`;
   }
 }
 
@@ -644,7 +648,7 @@ export class RegExpSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}REGEXP(${this.getFlagString("EXP")},${this.getFlagString("FLAGS")})`
+    return `${printIriSpace(space)}REGEXP(${this.getFlagString("EXP")},${this.getFlagString("FLAGS")})`
   }
 }
 
@@ -660,7 +664,7 @@ export class NumberSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}${this.getVal()}`
+    return `${printIriSpace(space)}${this.getVal()}`
   }
 
 }
@@ -679,7 +683,7 @@ export class YieldSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}YIELD ${this.args[0].toString(0)}`;
+    return `${printIriSpace(space)}YIELD ${this.args[0].toString(0)}`;
   }
 }
 
@@ -691,7 +695,7 @@ export class AwaitSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}AWAIT ${this.args[0].toString(0)}`;
+    return `${printIriSpace(space)}AWAIT ${this.args[0].toString(0)}`;
   }
 }
 
@@ -707,7 +711,7 @@ export class StringSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}"${this.getVal()}"`
+    return `${printIriSpace(space)}"${this.getVal()}"`
   }
 }
 
@@ -748,15 +752,16 @@ export class ListSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
+    if (!space) space = 0;
     let res;
     if (this.hasFlag("BBs")) {
-      res = `${printSpace(space)}BBs${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
+      res = `${printIriSpace(space)}BBs${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
     } else if (this.hasFlag("LambdaPool")) {
-      res = `${printSpace(space)}LambdaPool${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
+      res = `${printIriSpace(space)}LambdaPool${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
     } else if (this.hasFlag("RemoteBindings")) {
-      res = `${printSpace(space)}RemoteBindings${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
+      res = `${printIriSpace(space)}RemoteBindings${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
     } else if (this.hasFlag("LocalBindings")) {
-      res = `${printSpace(space)}LocalBindings${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
+      res = `${printIriSpace(space)}LocalBindings${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
     } else {
       return super.toString(space)
     }
@@ -810,7 +815,7 @@ export class BinopSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}${this.args[1].toString(0)} OP[${this.args[0].toString(0)}] ${this.args[2].toString(0)}`
+    return `${printIriSpace(space)}${this.args[1].toString(0)} OP[${this.args[0].toString(0)}] ${this.args[2].toString(0)}`
   }
 }
 // @ts-ignore
@@ -828,7 +833,7 @@ export class UnopSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}UNOP[${this.args[0].toString(0)}] ${this.args[1].toString(0)}`
+    return `${printIriSpace(space)}UNOP[${this.args[0].toString(0)}] ${this.args[1].toString(0)}`
   }
 }
 
@@ -840,7 +845,7 @@ export class JSArraySEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}JSArray [${this.args.map(e => e.toString(0)).join(", ")}]`
+    return `${printIriSpace(space)}JSArray [${this.args.map(e => e.toString(0)).join(", ")}]`
   }
 }
 
@@ -894,7 +899,7 @@ export class JSComputedObjectMethodSEXP extends IridiumSEXP {
     if (kind === "method") this.setFlag("METHOD");
     else if (kind === "get") this.setFlag("GET");
     else if (kind === "set") this.setFlag("SET");
-    else debugConfig.logger.throwIriError("Object method kind is invalid");
+    else throw new Error("Object method kind is invalid");
   }
 }
 
@@ -914,7 +919,7 @@ export class JSObjectMethodSEXP extends IridiumSEXP {
     if (kind === "method") this.setFlag("METHOD");
     else if (kind === "get") this.setFlag("GET");
     else if (kind === "set") this.setFlag("SET");
-    else debugConfig.logger.throwIriError("Object method kind is invalid");
+    else throw new Error("Object method kind is invalid");
   }
 }
 
@@ -932,7 +937,7 @@ export class JSObjectSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}${this.tag}\n${this.args.map(e => e.toString(8)).join("\n")}`;
+    return `${printIriSpace(space)}${this.tag}\n${this.args.map(e => e.toString(8)).join("\n")}`;
   }
 }
 
@@ -944,7 +949,7 @@ export class JSCATCHINITSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}CATCH INIT[${this.args[0].toString(0)}]`
+    return `${printIriSpace(space)}CATCH INIT[${this.args[0].toString(0)}]`
   }
 }
 
@@ -956,7 +961,7 @@ export class JSTHISINITSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}INIT[this -- ${this.args[0].toString(0)}]`
+    return `${printIriSpace(space)}INIT[this -- ${this.args[0].toString(0)}]`
   }
 }
 
@@ -968,7 +973,7 @@ export class JSHOMEOBJSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}INIT[<home_obj> -- ${this.args[0].toString(0)}]]`
+    return `${printIriSpace(space)}INIT[<home_obj> -- ${this.args[0].toString(0)}]]`
   }
 
 }
@@ -981,7 +986,7 @@ export class JSSUPERCTRINITSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}INIT[<super_ctr> -- ${this.args[0].toString(0)}]`
+    return `${printIriSpace(space)}INIT[<super_ctr> -- ${this.args[0].toString(0)}]`
   }
 }
 
@@ -993,7 +998,7 @@ export class JSNEWTARGETINITSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}INIT[<new_target> -- ${this.args[0].toString(0)}]`
+    return `${printIriSpace(space)}INIT[<new_target> -- ${this.args[0].toString(0)}]`
   }
 }
 
@@ -1005,7 +1010,7 @@ export class JSSUPEROBJINITSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}INIT[<super_obj> -- ${this.args[0].toString(0)}]`
+    return `${printIriSpace(space)}INIT[<super_obj> -- ${this.args[0].toString(0)}]`
   }
 }
 
@@ -1017,7 +1022,7 @@ export class JSSUPEROBJINITSEXP extends IridiumSEXP {
 //   }
 
 //   toString(space?: number): string {
-//     return `${printSpace(space)}JSToForInIterator[${this.args[0].toString(0)}]`
+//     return `${printIriSpace(space)}JSToForInIterator[${this.args[0].toString(0)}]`
 //   }
 // }
 
@@ -1031,9 +1036,9 @@ export class JSToObjectSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     const res = [];
-    res.push(`${printSpace(space)}${this.tag}`);
+    res.push(`${printIriSpace(space)}${this.tag}`);
     for (let s of this.args) {
-      res.push(`${printSpace(10)}${s.toString(0)}`);
+      res.push(`${printIriSpace(10)}${s.toString(0)}`);
     }
     return res.join("\n");
   }
@@ -1059,9 +1064,9 @@ export class JSCopyDataPropertiesSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     const res = [];
-    res.push(`${printSpace(space)}${this.tag}`);
+    res.push(`${printIriSpace(space)}${this.tag}`);
     for (let s of this.args) {
-      res.push(`${printSpace(10)}${s.toString(0)}`);
+      res.push(`${printIriSpace(10)}${s.toString(0)}`);
     }
     return res.join("\n");
   }
@@ -1077,9 +1082,9 @@ export class JSForInStartSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     const res = [];
-    res.push(`${printSpace(space)}${this.tag}`);
+    res.push(`${printIriSpace(space)}${this.tag}`);
     for (let s of this.args) {
-      res.push(`${printSpace(10)}${s.toString(0)}`);
+      res.push(`${printIriSpace(10)}${s.toString(0)}`);
     }
     return res.join("\n");
   }
@@ -1092,7 +1097,7 @@ export class JSIteratorCloseSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}${this.tag}`;
+    return `${printIriSpace(space)}${this.tag}`;
   }
 }
 
@@ -1109,9 +1114,9 @@ export class JSForOfStartSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     const res = [];
-    res.push(`${printSpace(space)}${this.tag}`);
+    res.push(`${printIriSpace(space)}${this.tag}`);
     for (let s of this.args) {
-      res.push(`${printSpace(10)}${s.toString(0)}`);
+      res.push(`${printIriSpace(10)}${s.toString(0)}`);
     }
     return res.join("\n");
   }
@@ -1137,9 +1142,9 @@ export class JSForOfNextSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     const res = [];
-    res.push(`${printSpace(space)}${this.tag}`);
+    res.push(`${printIriSpace(space)}${this.tag}`);
     for (let s of this.args) {
-      res.push(`${printSpace(10)}${s.toString(0)}`);
+      res.push(`${printIriSpace(10)}${s.toString(0)}`);
     }
     return res.join("\n");
   }
@@ -1198,7 +1203,7 @@ export class JSClassSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     let res = [];
-    res.push(`${printSpace(space)}JSClass`)
+    res.push(`${printIriSpace(space)}JSClass`)
     const args = this.args.map(e => e.toString(10));
     res = [...res, ...args];
     return res.join("\n");
@@ -1211,7 +1216,7 @@ export class JSModuleStartSEXP extends IridiumSEXP {
     super("JSModuleStart");
   }
   toString(space?: number): string {
-    return `${printSpace(space)}🟢`;
+    return `${printIriSpace(space)}🟢`;
   }
 }
 
@@ -1221,7 +1226,7 @@ export class JSModuleEndSEXP extends IridiumSEXP {
     super("JSModuleEnd");
   }
   toString(space?: number): string {
-    return `${printSpace(space)}🔴`;
+    return `${printIriSpace(space)}🔴`;
   }
 }
 
@@ -1244,7 +1249,7 @@ export class LambdaSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}λ[${this.getStartBBIDX()}]`
+    return `${printIriSpace(space)}λ[${this.getStartBBIDX()}]`
   }
 }
 
@@ -1285,7 +1290,7 @@ export class CallSiteSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}CallSite[${printFlagString(this.flags)}](${this.args.map(e => e.toString(0)).join(", ")})`
+    return `${printIriSpace(space)}CallSite[${printFlagString(this.flags)}](${this.args.map(e => e.toString(0)).join(", ")})`
   }
 }
 
@@ -1299,7 +1304,7 @@ export class EnvReadSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}EnvRead [${this.args[0].toString(0)}]`
+    return `${printIriSpace(space)}EnvRead [${this.args[0].toString(0)}]`
   }
 }
 
@@ -1319,11 +1324,11 @@ export class GlobalBindingSEXP extends IridiumSEXP {
   // Utility
   getDeclaration(): string {
     if (isStringSEXP(this.args[0])) return this.args[0].getVal();
-    debugConfig.logger.throwIriError("Expected Env Declaration to declare a string");
+    throw new Error("Expected Env Declaration to declare a string");
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}GLOBAL[${this.args[0].toString(0)}]`
+    return `${printIriSpace(space)}GLOBAL[${this.args[0].toString(0)}]`
   }
 
 }
@@ -1370,10 +1375,10 @@ export class RemoteEnvBindingSEXP extends IridiumSEXP {
     } else if (isRemoteEnvBindingSEXP(containedBinding)) {
       return this.resolveRemoteBinding(containedBinding);
     }
-    debugConfig.logger.throwIriError("RemoteEnvBindingSEXP contains invalid object");
+    throw new Error("RemoteEnvBindingSEXP contains invalid object");
   }
 
-  getLookupTrace(binding: RemoteEnvBindingSEXP, res = []) {
+  getLookupTrace(binding: RemoteEnvBindingSEXP, res: Array<any> = []): Array<any> {
     res.push(binding.getREFIDX());
     let containedBinding = binding.args[0];
     if (isEnvBindingSEXP(containedBinding)) {
@@ -1383,14 +1388,14 @@ export class RemoteEnvBindingSEXP extends IridiumSEXP {
       res.push(containedBinding.getREFIDX());
       return this.getLookupTrace(containedBinding);
     }
-    debugConfig.logger.throwIriError("RemoteEnvBindingSEXP, failed to get lookup trace");
+    throw new Error("RemoteEnvBindingSEXP, failed to get lookup trace");
   }
 
   toString(space?: number): string {
     if (isEnvBindingSEXP(this.args[0])) { // Top Level Binding
-      return `${printSpace(space)}🟧${this.isNSImport() ? "[NS]" : ""}(${this.getLookupTrace(this).join("-")})${this.resolveRemoteBinding(this).toString()}`;
+      return `${printIriSpace(space)}🟧${this.isNSImport() ? "[NS]" : ""}(${this.getLookupTrace(this).join("-")})${this.resolveRemoteBinding(this).toString()}`;
     }
-    return `${printSpace(space)}🟥${this.isNSImport() ? "[NS]" : ""}(${this.getLookupTrace(this).join("-")})${this.resolveRemoteBinding(this).toString()}`;
+    return `${printIriSpace(space)}🟥${this.isNSImport() ? "[NS]" : ""}(${this.getLookupTrace(this).join("-")})${this.resolveRemoteBinding(this).toString()}`;
   }
 }
 
@@ -1427,7 +1432,7 @@ export class PoolBindingSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}POOL[λ@${this.getStartBBIDX()}]`
+    return `${printIriSpace(space)}POOL[λ@${this.getStartBBIDX()}]`
   }
 }
 
@@ -1487,7 +1492,7 @@ export class EnvBindingSEXP extends IridiumSEXP {
   // Utility
   getDeclaration(): string {
     if (isStringSEXP(this.args[0])) return this.args[0].getVal();
-    debugConfig.logger.throwIriError("Expected Env Declaration to declare a string");
+    throw new Error("Expected Env Declaration to declare a string");
   }
 
   getKind(): string {
@@ -1495,11 +1500,11 @@ export class EnvBindingSEXP extends IridiumSEXP {
     if (this.hasFlag("JSCONST")) return "JSCONST";
     if (this.hasFlag("JSVAR")) return "JSVAR";
     if (this.hasFlag("JSARG")) return "JSARG";
-    debugConfig.logger.throwIriError("EnvBindingSEXP, unknown kind");
+    throw new Error("EnvBindingSEXP, unknown kind");
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}[${this.getREFIDX()}] ${this.getKind()} ${this.getDeclaration()}`
+    return `${printIriSpace(space)}[${this.getREFIDX()}] ${this.getKind()} ${this.getDeclaration()}`
   }
 }
 
@@ -1516,7 +1521,7 @@ export class JSCheckConstructorSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}CHECK[CONSTRUCTOR_CALL]`
+    return `${printIriSpace(space)}CHECK[CONSTRUCTOR_CALL]`
   }
 }
 
@@ -1557,7 +1562,7 @@ export class JSCatchContextSEXP extends IridiumSEXP {
   getBindingName(): string {
     if (isResolveEnvBindingSEXP(this.args[0])) {
       return this.args[0].getBindingName();
-    } else debugConfig.logger.throwIriError("Expected binding in JSCatchContext Node");
+    } else throw new Error("Expected binding in JSCatchContext Node");
   }
 }
 
@@ -1682,7 +1687,7 @@ export class EnvWriteSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}${this.isSloppy() ? "[SLOP]" : ""}${this.args[0].toString(0)} ${this.isSafe() ? "=" : "=."} ${this.args[1].toString(0)}`
+    return `${printIriSpace(space)}${this.isSloppy() ? "[SLOP]" : ""}${this.args[0].toString(0)} ${this.isSafe() ? "=" : "=."} ${this.args[1].toString(0)}`
   }
 }
 
@@ -1695,7 +1700,7 @@ export function isEnvWriteSEXP(o: any): o is EnvWriteSEXP {
 // (Extension) JSEnvWrite
 export type JSEnvWriteFlags = "SLOPPY" | "SAFE" | "THISINIT" | "JSLET" | "JSCONST" | "JSVAR" | "JSREST" | "JSARRDES" | "JSOBJDES";
 export class JSEnvWriteSEXP extends IridiumSEXP {
-  constructor(lval: IridiumSEXP, rval: IridiumSEXP, flag: JSEnvWriteFlags = undefined, thisInit: boolean) {
+  constructor(lval: IridiumSEXP, rval: IridiumSEXP, flag: JSEnvWriteFlags | undefined = undefined, thisInit: boolean) {
     super("JSEnvWrite");
     this.args.push(lval);
     if (rval) this.args.push(rval);
@@ -1773,7 +1778,7 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
   reduceJSDecl() {
     if (this.isSimpleDecl()) {
       this.tag = "EnvWrite";
-      Object.setPrototypeOf(this, new EnvWriteSEXP("", null, this.isSafe(), this.isThisInit()));
+      Object.setPrototypeOf(this, new EnvWriteSEXP("", new NullSEXP(), this.isSafe(), this.isThisInit()));
     }
     this.flags = this.flags.filter(e => e[0] !== "JSLET" && e[0] !== "JSCONST" && e[0] !== "JSVAR")
   }
@@ -1791,7 +1796,7 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
       for (let l of lVal.args) {
         if (isResolveEnvBindingSEXP(l)) {
           res.push(l.getBindingName());
-        } else debugConfig.logger.throwIriError("In Arr Decl, only expected StringSEXP");
+        } else throw new Error("In Arr Decl, only expected StringSEXP");
       }
     } else if (this.isObjDecl()) {
       for (let p of lVal.args) {
@@ -1800,7 +1805,7 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
         } else if (isListSEXP(p)) {
           if (isResolveEnvBindingSEXP(p.args[1])) res.push(p.args[1].getBindingName());
           else {
-            debugConfig.logger.throwIriError("In Obj Decl, expected the created binding to be a StringSEXP");
+            throw new Error("In Obj Decl, expected the created binding to be a StringSEXP");
           }
 
         }
@@ -1810,7 +1815,7 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}${this.tag}${printFlagString(this.flags)}${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(10)).join("\n") : ""}`;
+    return `${printIriSpace(space)}${this.tag}${printFlagString(this.flags)}${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(10)).join("\n") : ""}`;
   }
 }
 
@@ -1851,7 +1856,7 @@ export class FieldReadSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}${this.args[0].toString(0)}.${this.args[1].toString(0)}`
+    return `${printIriSpace(space)}${this.args[0].toString(0)}.${this.args[1].toString(0)}`
   }
 }
 
@@ -1865,7 +1870,7 @@ export class FieldWriteSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}${this.args[0].toString(0)}.${this.args[1].toString(0)} = ${this.args[2].toString(0)}`
+    return `${printIriSpace(space)}${this.args[0].toString(0)}.${this.args[1].toString(0)} = ${this.args[2].toString(0)}`
   }
 }
 
@@ -1904,7 +1909,7 @@ export class JSComputedFieldWriteSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}${this.args[0].toString(0)}.${this.args[1].toString(0)} = ${this.args[2].toString(0)}`
+    return `${printIriSpace(space)}${this.args[0].toString(0)}.${this.args[1].toString(0)} = ${this.args[2].toString(0)}`
   }
 }
 
@@ -1938,7 +1943,7 @@ export class JSSuperFieldReadSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}[${this.args[0].toString(0)}, ${this.args[1].toString(0)}].${this.args[2].toString(0)}`
+    return `${printIriSpace(space)}[${this.args[0].toString(0)}, ${this.args[1].toString(0)}].${this.args[2].toString(0)}`
   }
 }
 
@@ -1953,7 +1958,7 @@ export class JSSuperFieldWriteSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}super.${this.args[2].toString(0)} = ${this.args[3].toString(0)}`
+    return `${printIriSpace(space)}super.${this.args[2].toString(0)} = ${this.args[3].toString(0)}`
   }
 }
 
@@ -1977,7 +1982,7 @@ export class GotoSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}GOTO[${this.getIDX()}]`
+    return `${printIriSpace(space)}GOTO[${this.getIDX()}]`
   }
 }
 
@@ -1999,7 +2004,7 @@ export class PushCatchContextSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}CATCH[${this.getIDX()}]`
+    return `${printIriSpace(space)}CATCH[${this.getIDX()}]`
   }
 }
 
@@ -2012,7 +2017,7 @@ export class PushForOfCatchContextSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}FOR-OF-CATCH[${this.args[0].toString(0)}]`
+    return `${printIriSpace(space)}FOR-OF-CATCH[${this.args[0].toString(0)}]`
   }
 }
 
@@ -2025,7 +2030,7 @@ export class ThrowSEXP extends IridiumSEXP {
 
   // Flags
   toString(space?: number): string {
-    return `${printSpace(space)}Throw ${this.args[0].toString(0)}`
+    return `${printIriSpace(space)}Throw ${this.args[0].toString(0)}`
   }
 }
 
@@ -2038,7 +2043,7 @@ export class PopCatchContextSEXP extends IridiumSEXP {
 
   // Flags
   toString(space?: number): string {
-    return `${printSpace(space)}POP CATCH`
+    return `${printIriSpace(space)}POP CATCH`
   }
 }
 
@@ -2060,7 +2065,7 @@ export class InvokeFinalizerSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}FINALIZER[${this.getIDX()}]`
+    return `${printIriSpace(space)}FINALIZER[${this.getIDX()}]`
   }
 }
 
@@ -2072,7 +2077,7 @@ export class ReturnAsyncSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}return[async] ${this.args[0].toString(0)}`
+    return `${printIriSpace(space)}return[async] ${this.args[0].toString(0)}`
   }
 }
 
@@ -2084,7 +2089,7 @@ export class ReturnSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}return ${this.args[0].toString(0)}`
+    return `${printIriSpace(space)}return ${this.args[0].toString(0)}`
   }
 }
 
@@ -2138,7 +2143,7 @@ export class IfElseJumpSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}GOTO (${this.getTest().toString(0)}) ? ${this.getTRUE()} : ${this.getFALSE()}`;
+    return `${printIriSpace(space)}GOTO (${this.getTest().toString(0)}) ? ${this.getTRUE()} : ${this.getFALSE()}`;
   }
 }
 
@@ -2170,7 +2175,7 @@ export class IfJumpSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printSpace(space)}GOTO (${this.getTest().toString(0)}) ? GOTO ${this.getIDX()} : 👇`;
+    return `${printIriSpace(space)}GOTO (${this.getTest().toString(0)}) ? GOTO ${this.getIDX()} : 👇`;
   }
 }
 
@@ -2185,7 +2190,7 @@ export class ResolveEnvBindingSEXP extends IridiumSEXP {
   getBindingName(): string {
     let res = this.args[0]
     if (isStringSEXP(res)) return res.getVal()
-    debugConfig.logger.throwIriError("Cant get binding for ResolveEnvBindingSEXP")
+    throw new Error("Cant get binding for ResolveEnvBindingSEXP")
   }
 }
 
@@ -2206,7 +2211,7 @@ export class ResolvePrivateEnvBindingSEXP extends IridiumSEXP {
   getBindingName(): string {
     let res = this.args[0]
     if (isStringSEXP(res)) return res.getVal()
-    debugConfig.logger.throwIriError("Cant get binding for ResolvePrivateEnvBindingSEXP")
+    throw new Error("Cant get binding for ResolvePrivateEnvBindingSEXP")
   }
 }
 
@@ -2218,7 +2223,7 @@ export function isResolvePrivateEnvBindingSEXP(o: any): o is ResolvePrivateEnvBi
 
 // (Extension) ResolveBreakTarget
 export class ResolveBreakTargetSEXP extends IridiumSEXP {
-  constructor(label: string = null) {
+  constructor(label: string | null = null) {
     super("ResolveBreakTarget");
     if (label) this.setLabel(label);
   }
@@ -2245,7 +2250,7 @@ export function isResolveBreakTargetSEXP(o: any): o is ResolveBreakTargetSEXP {
 
 // (Extension) ContinueTargetSEXP
 export class ResolveContinueTargetSEXP extends IridiumSEXP {
-  constructor(label: string = null) {
+  constructor(label: string | null = null) {
     super("ResolveContinueTarget");
     if (label) this.setLabel(label);
   }
