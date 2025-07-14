@@ -1,6 +1,6 @@
 import { assignmentExpression, BigIntLiteral, Expression, identifier, Identifier, isArrowFunctionExpression, isBigIntLiteral, isBooleanLiteral, isClassExpression, isDecimalLiteral, isFunctionExpression, isIdentifier, isNullLiteral, isNumericLiteral, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, NumericLiteral, StringLiteral, thisExpression } from "@babel/types";
 import { handleExpression, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpression";
-import { isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ClassExpression, isJS3ClassMethod, isJS3ClassPrivateMethod, isJS3ClassPrivateProperty, isJS3ClassProperty, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, isJS3RegExpLiteral, isJS3StaticBlock, isJS3TemplateLiteral, isJS3UnaryExpression, isJS3UpdateExpression, isJS3VariableDeclaration, isJS3YieldExpression, JS3ArrayExpression, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BlockStatement_body, JS3CallExpression, JS3ClassExpression, JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3NewExpression, JS3ObjectExpression, JS3ObjectMethod, JS3UnaryExpression, JS3YieldExpression } from "../JS3Helpers/JS3Types";
+import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ClassExpression, isJS3ClassMethod, isJS3ClassPrivateMethod, isJS3ClassPrivateProperty, isJS3ClassProperty, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, isJS3RegExpLiteral, isJS3StaticBlock, isJS3TemplateLiteral, isJS3UnaryExpression, isJS3UpdateExpression, isJS3VariableDeclaration, isJS3YieldExpression, JS3ArrayExpression, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BlockStatement_body, JS3CallExpression, JS3ClassExpression, JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3NewExpression, JS3ObjectExpression, JS3ObjectMethod, JS3UnaryExpression, JS3YieldExpression } from "../JS3Helpers/JS3Types";
 import { handleBlockStatement, IRIV2_STMT, lowerArgumentInit } from "./handleStatement";
 import { IRIDIUMV2 } from "./IRIDIUMV2";
 import { AwaitSEXP, BinopSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassMethodDefineSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSComputedObjectMethodSEXP, JSComputedObjectPropSEXP, JSEnvWriteSEXP, JSHomeObjContextSEXP, JSInitialYieldSEXP, JSNUBDSEXP, JSObjectMethodSEXP, JSObjectPropSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperContextSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSSuperObjContextSEXP, JSTemplateSEXP, JSThisContextAltSEXP, JSThisContextSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnSEXP, StringSEXP, UnopSEXP, YieldSEXP } from "./Types";
@@ -195,10 +195,11 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   //   return this.handleOptionalChainExpression(init);
   // }
 
-  // // JS3AnonMemberExpression
-  // else if (isJS3AnonMemberExpression(init)) {
-  //   return this.handleJS3AnonMemberExpression(init);
-  // }
+  // JS3AnonMemberExpression
+  else if (isJS3AnonMemberExpression(init)) {
+    if (init.object.elements.length !== 1) throw new Error("Expected JS3AnonMemberExpression length to be 1");
+    return IRIV2_RVAL(cx, init.object.elements[0]);
+  }
 
   // // JS3DefaultExportMemberExpression
   // else if (isJS3DefaultExportMemberExpression(init)) {
@@ -427,16 +428,16 @@ const createClassNonStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpres
         let lookupField: string = getFieldKeyString(classItem.key);
         memberExpr = memberExpression(thisExpression(), identifier(lookupField), false);
       }
-      if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
-      lowerExprToResolveEnvBindingSEXP(cx, assignmentExpression("=", memberExpr, classItem.value));
+      // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
+      lowerExprToResolveEnvBindingSEXP(cx, assignmentExpression("=", memberExpr, classItem.value ? classItem.value : identifier("undefined")));
     } else if (isJS3ClassPrivateProperty(classItem) && !classItem.static) {
       // this.#field = RVal
       if (!computedPropMapping.has(classItem)) throw new Error("Expected computed prop mapping to be resolved for all fields");
       let compProp = computedPropMapping.get(classItem);
       if (!compProp) throw new Error("compProp is undefined");
       let lookupPrivateKeyHolder = new EnvReadSEXP(compProp);
-      if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
-      let loweredValue: IridiumSEXP = new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getBindingName());
+      // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
+      let loweredValue: IridiumSEXP = new EnvReadSEXP(classItem.value ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getBindingName() : "undefined");
       cx.getCurrentBB().args.push(new JSPrivateFieldWriteSEXP("this", lookupPrivateKeyHolder, loweredValue));
     }
   }
@@ -498,16 +499,16 @@ const createClassStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpressio
         let lookupField: string = getFieldKeyString(classItem.key);
         memberExpr = memberExpression(thisExpression(), identifier(lookupField), false);
       }
-      if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
-      lowerExprToResolveEnvBindingSEXP(cx, assignmentExpression("=", memberExpr, classItem.value));
+      // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
+      lowerExprToResolveEnvBindingSEXP(cx, assignmentExpression("=", memberExpr, classItem.value ? classItem.value : identifier("undefined")));
     } else if (isJS3ClassPrivateProperty(classItem) && classItem.static) {
       // this.#field = RVal
       if (!computedPropMapping.has(classItem)) throw new Error("Expected computed prop mapping to be resolved for all fields");
       let compProp = computedPropMapping.get(classItem);
         if (!compProp) throw new Error("compProp is undefined");
       let lookupPrivateKeyHolder = new EnvReadSEXP(compProp);
-      if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
-      let loweredValue: IridiumSEXP = new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getBindingName());
+      // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
+      let loweredValue: IridiumSEXP = new EnvReadSEXP(classItem.value ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getBindingName() : "undefined");
       cx.getCurrentBB().args.push(new JSPrivateFieldWriteSEXP("this", lookupPrivateKeyHolder, loweredValue));
     } else if (isJS3StaticBlock(classItem)) {
       // { /** code **/ }

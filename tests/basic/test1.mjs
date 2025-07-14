@@ -480,12 +480,32 @@
 
 // console.log(a);
 
+// class A {
+//   #foo = 12;
+//   hello() {
+//     console.log(this.#foo);
+//     return;
+//   }
+// }
+
+// new A().hello()
+
+// let foo = (c) => {
+//   c();
+//   console.log("foo");
+//   return;
+// }
+
+// foo(() => { console.log("Inner"); return; })
+
 class A {
-  #foo = 12;
-  hello() {
-    console.log(this.#foo);
+  static foo
+  static #foo
+  static bart() {
+    console.log("N-PVT:", this.foo);
+    console.log("PVT:", this.#foo);
     return;
   }
 }
 
-new A().hello()
+A.bart()
