@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "resolveJsonModule": true,
     "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "node",
@@ -10,10 +11,9 @@
     "skipLibCheck": true,
     "paths": {
       "#debugConfig": ["./configs/debug.ts"],
-      "#utils": ["./classes/utils/utils.ts"],
+      "#utils": ["./classes/utils.ts"],
       "#graphlib": ["./externalDeps/graphlib-with-dominator-algo/index.js"]
     }
-    
   },
   "include": ["iridium.ts", "configs/*.ts", "clases/**/*.ts"],
   "exclude": ["playground"]
