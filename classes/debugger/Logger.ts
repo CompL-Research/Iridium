@@ -14,7 +14,7 @@ export default class Logger {
 
   constructor() {}
 
-  getTimestampSinceEpoch(now) {
+  getTimestampSinceEpoch(now: number) {
     // https://stackoverflow.com/questions/13903897/javascript-return-number-of-days-hours-minutes-seconds-between-two-dates
     const diffTime = Math.abs(now - this.logEpoch);
     let days = diffTime / (24 * 60 * 60 * 1000);
