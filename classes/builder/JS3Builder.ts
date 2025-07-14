@@ -1,5 +1,6 @@
 import debugConfig from "#debugConfig";
-import babel from "@babel/core";
+// import babel from "@babel/core";
+import babelGen from "@babel/generator";
 import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
@@ -13,6 +14,8 @@ import {
 } from "./JS3Helpers/JS3Types.ts";
 import { assertMessage } from "#utils";
 
+const generate = babelGen.default;
+
 export type JS3BuilderUtils = {
   getNewTemporary: (prefix: string | undefined) => string;
   debugTrace: Array<string>;
@@ -25,12 +28,10 @@ export type JS3BuilderUtils = {
 };
 
 export default class JS3Builder {
+  static varIdx: number = 0;
   projectFile: ProjectFile;
   generatedAST: JS3File | null;
-  static varIdx: number = 0;
-  generatedCode: string = "";
-  sourceMap: string = "";
-  uri: string = "";
+  generatedCode: string = null;
 
   utils: JS3BuilderUtils = {
     getNewTemporary: (prefix: string | undefined) =>
@@ -47,7 +48,6 @@ export default class JS3Builder {
     assert(file.initData.parseStatus === "parsed", assertMessage(import.meta.url, `😂 Expected parseStatus to be "parsed"`));
     this.projectFile = file;
     this.generatedAST = null;
-    this.generatedCode = "// NOPE";
   }
 
   build() {
@@ -56,52 +56,24 @@ export default class JS3Builder {
     assert(program, assertMessage(import.meta.url, `😂 JS3 builder, program node is undefined`));
     const js3Program = handleProgram(program, this.utils);
     this.generatedAST = generateJS3File(js3Program, file);
-    this.generateCode();
     this.saveGeneratedFile();
   }
 
-  generateCode() {
-    // More finetuned
-    const presets: Array<Array<string | object>> = [
-      [
-        "@babel/preset-env",
-        { targets: "last 2 Chrome versions", modules: false },
-      ],
-      ["@babel/preset-typescript"]
-    ];
+  getCodeString() {
+    if (this.generatedCode) return this.generatedCode;
 
-    if (debugConfig.cli.test262)
-      this.generatedAST.trailingComments = this.generatedAST.comments;
-
-    const { code, map, ast } = babel.transformFromAstSync(
-      this.generatedAST,
-      this.projectFile.initData.sourceCode,
-      {
-        filename: this.projectFile.uname,
-        ast: true,
-        presets,
-        sourceMaps: true,
-        plugins: ["@babel/plugin-syntax-jsx"],
-      },
-    );
-
-    this.generatedCode = code;
-    this.sourceMap = JSON.stringify(map);
-    this.generatedAST = ast;
+    this.generatedCode = generate(this.generatedAST, { comments: debugConfig.cli.comments }).code;
+    return this.generatedCode;
   }
 
   saveGeneratedFile() {
-    if (debugConfig.cli.test262)
+    if (debugConfig.cli.tout)
       return;
 
     const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.projectFile.uname, this.projectFile.extension) + ".js3";
-    fs.writeFile(
+    fs.writeFileSync(
       filePath,
-      this.generatedCode
-      , (e) => {
-        if (e) debugConfig.logger.error(`[Failed to save JS3]: ${path.basename(this.projectFile.uname, this.projectFile.extension)}`);
-        // else debugConfig.logger.success(`[Saved JS3]: ${this.projectFile.uname}`);
-      }
+      this.getCodeString()
     );
   }
 }

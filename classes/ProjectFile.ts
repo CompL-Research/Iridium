@@ -8,6 +8,8 @@ import path from "path";
 
 import debugConfig from "#debugConfig";
 import { assertMessage } from "#utils";
+import babelStripComments from "./babelStripComments.ts";
+
 
 export class InitData {
   status: "loaded" | "failed" | "uninitialized" = "uninitialized";
@@ -105,12 +107,18 @@ export class ProjectFile {
       ["@babel/preset-typescript"]
     ];
 
+    plugins = ["@babel/plugin-syntax-jsx", ...plugins];
+
+    if (!debugConfig.cli.comments) {
+      plugins = [babelStripComments, ...plugins];
+    }
     const options = {
       filename: this.filename,
       sourceType,
       ast: true,
+      comments: debugConfig.cli.comments,
       presets,
-      plugins: ["@babel/plugin-syntax-jsx", ...plugins],
+      plugins,
     };
 
     const result = babel.transformSync(sourceCode, options);

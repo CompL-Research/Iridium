@@ -441,7 +441,18 @@ export function handleExpressionStatement(
   otherProps: OtherProps,
 ) {
   const orig_expression = node.expression; // Handling prop expression
+  const leadingCommentEmptyNode = generateJS3EmptyStatementfromBaseNode(node);
+  const trailingCommentEmptyNode = generateJS3EmptyStatementfromBaseNode(node);
+  leadingCommentEmptyNode.trailingComments = null;
+  trailingCommentEmptyNode.leadingComments = null;
+  
+  if (debugConfig.cli.comments) {  
+    otherProps.others.holder.push(leadingCommentEmptyNode);
+  }
   handleExpression(orig_expression, otherProps);
+  if (debugConfig.cli.comments) {  
+    otherProps.others.holder.push(trailingCommentEmptyNode);
+  }
 
   return generateJS3EmptyStatementfromBaseNode(node);
 }

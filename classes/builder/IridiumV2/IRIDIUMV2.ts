@@ -1,5 +1,5 @@
 import debugConfig from "#debugConfig";
-import { VERSION } from "configs/projectStats.ts";
+import { VERSION } from "../../../configs/projectStats.ts";
 import fs from "fs";
 import path from "path";
 import JS3Builder from "../JS3Builder.ts";
