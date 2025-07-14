@@ -3,18 +3,18 @@ import {
   initializeOutputsPath
 } from "#utils";
 import chalk from "chalk";
-import { IridiumBuildContext, IRIDIUMV2 } from "./classes/builder/IridiumV2/IRIDIUMV2.ts";
-import JS3Builder from "./classes/builder/JS3Builder.ts";
-import { ProjectFile } from "./classes/ProjectFile.ts";
-import { initIRI, initJS3, initPIKA } from "./configs/argparse.ts";
+import { IridiumBuildContext, IRIDIUMV2 } from "./classes/builder/IridiumV2/IRIDIUMV2";
+import JS3Builder from "./classes/builder/JS3Builder";
+import { ProjectFile } from "./classes/ProjectFile";
+import { initIRI, initJS3, initPIKA } from "./configs/argparse";
 import fs from "fs";
 import path from "path";
 import {
   getNextCommand,
   printDefaultUsage,
   printProjectStats
-} from "./configs/printUsage.ts";
-import { VERSION } from "./configs/projectStats.ts";
+} from "./configs/printUsage";
+import { VERSION } from "./configs/projectStats";
 
 debugConfig.versionNumber = `Iridium ${VERSION}`;
 
@@ -30,7 +30,7 @@ Iridium Version: ${chalk.red(VERSION)}
 `;
 
 // FilePath -> JS3Builder
-function js3(filePath, printToConsole = false): JS3Builder {
+function js3(filePath: string, printToConsole = false): JS3Builder {
   debugConfig.logger.printToConsole = false;
   const file = new ProjectFile(filePath, path.dirname(filePath));
   try {
@@ -53,16 +53,15 @@ function js3(filePath, printToConsole = false): JS3Builder {
   }
 }
 
-function iri(filePath, printToConsole = false): IRIDIUMV2 {
+function iri(filePath: string, printToConsole = false): IRIDIUMV2 {
   try {
-    const js3Builder = js3(filePath);
+    const js3Builder = js3(filePath, false);
     const iridiumV2Builder = new IRIDIUMV2(js3Builder);
     iridiumV2Builder.build();
 
     if (printToConsole)
-      console.log(iridiumV2Builder.container.toString());
+      console.log(JSON.stringify(iridiumV2Builder.container.serialize()));
 
-    debugConfig.logger.log(iridiumV2Builder.container.toString());
     return iridiumV2Builder;
   } catch (e) {
     debugConfig.logger.throwIriError(`Failed to generate Iridium: ${e}`);
@@ -70,17 +69,22 @@ function iri(filePath, printToConsole = false): IRIDIUMV2 {
   }
 }
 
-function pika(files: Array<string>) {
+function pika(files: Array<string>, printToConsole = false) {
   const finalRes = [];
   for (let i = 0; i < files.length; i++) {
-    finalRes.push(iri(files[i]).serialize());
+    finalRes.push(iri(files[i], false).serialize());
     IridiumBuildContext.resetBuildContext();
   }
+
+  const finalStr = JSON.stringify({ pika: finalRes });
+
+  if (printToConsole)
+    console.log(finalStr);
 
   const filePath = debugConfig.cli.outputsPath + "/" + "bundle.pika";
   fs.writeFile(
     filePath,
-    JSON.stringify({ pika: finalRes })
+    finalStr
     , (e) => {
       if (e) debugConfig.logger.error(`[Failed to save Pika bundle]: ${e.message}`);
     }
@@ -96,19 +100,19 @@ function main() {
     case "iri": {
       const IRIPATH = initIRI(header, argv);
       initializeOutputsPath();
-      iri(IRIPATH);
+      iri(IRIPATH, debugConfig.cli.tout);
       break;
     }
     case "js3": {
       const JS3PATH = initJS3(header, argv);
       initializeOutputsPath();
-      js3(JS3PATH);
+      js3(JS3PATH, debugConfig.cli.tout);
       break;
     }
     case "pika": {
       const paths = initPIKA(header, argv);
       initializeOutputsPath();
-      pika(paths);
+      pika(paths, debugConfig.cli.tout);
       break;
     }
 

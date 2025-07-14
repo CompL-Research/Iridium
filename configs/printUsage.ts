@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import chalk from "chalk";
 import debugConfig from "#debugConfig";
+import chalk from "chalk";
 import path from "path";
-import fs from "fs";
+// @ts-ignore
 import commandLineArgs from "command-line-args";
+// @ts-ignore
 import commandLineUsage from "command-line-usage";
-import { projectStats } from "./projectStats.ts";
+import { projectStats } from "./projectStats";
 
 const directories = ["./classes", "./configs", "./docs", "./playground/src"];
 
@@ -14,7 +15,7 @@ const directories = ["./classes", "./configs", "./docs", "./playground/src"];
 // 
 export const getFirstCommand = [{ name: "command", defaultOption: true }];
 
-export const getNextCommand = (argv = undefined) : [string, Array<string>] => {
+export const getNextCommand = (argv: Array<string> | undefined = undefined) : [string, Array<string>] => {
   const mainOptions = commandLineArgs(getFirstCommand, {
     argv: argv ? argv : undefined,
     stopAtFirstUnknown: true,
@@ -23,7 +24,7 @@ export const getNextCommand = (argv = undefined) : [string, Array<string>] => {
   return [mainOptions.command, mainOptions._unknown || []];
 }
 
-export const handleOptionsFromArgv = (argv, optionList) : Array<string> => {
+export const handleOptionsFromArgv = (argv: Array<string>, optionList: any) : Array<string> => {
   const options = commandLineArgs(optionList, { argv, stopAtFirstUnknown: true });
   handleOptions(options);
   return options._unknown || [];
@@ -256,7 +257,7 @@ export const handleSourceType = (options: any) => {
 // export const handleSaveFlowGraph = () => (debugConfig.cli.saveFlowGraph = true);
 // export const handleSaveDepGraph = () => (debugConfig.cli.saveDepGraph = true);
 
-export const handleOptions = (options) => {
+export const handleOptions = (options: any) => {
   if ("outputs-path" in options) handleOutputsPath(options);
   if ("comments" in options) handleComments();
   if ("tout" in options) handleTout();

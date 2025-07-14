@@ -1,14 +1,13 @@
-import { getNextCommand, handleOptions, handleOptionsFromArgv, iriUsageInfo, js3UsageInfo, pikaUsageInfo, printIRIUsage, printJS3Usage, printPikaUsage } from "./printUsage.ts";
 import debugConfig from "#debugConfig";
+import { hasPackageJson } from "#utils";
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
-import commandLineArgs from "command-line-args";
-import { hasPackageJson } from "#utils";
+import { getNextCommand, handleOptionsFromArgv, iriUsageInfo, js3UsageInfo, pikaUsageInfo, printIRIUsage, printJS3Usage, printPikaUsage } from "./printUsage.ts";
 
 
 // Args -> FilePath
-export const initJS3 = (header, origArgv): string => {
+export const initJS3 = (header: string, origArgv: Array<string>): string => {
   let [command, argv] = ["", origArgv];
   debugConfig.operationMode = "js3";
   
@@ -36,7 +35,7 @@ export const initJS3 = (header, origArgv): string => {
 }
 
 // Args -> FilePath
-export const initIRI = (header, origArgv): string => {
+export const initIRI = (header: string, origArgv: Array<string>): string => {
   let [command, argv] = ["", origArgv];
   debugConfig.operationMode = "iri";
 
@@ -86,7 +85,7 @@ export const initIRI = (header, origArgv): string => {
 }
 
 // Args -> [FilePath]
-export const initPIKA = (header, origArgv): Array<string> => {
+export const initPIKA = (header: string, origArgv: Array<string>): Array<string> => {
   let [command, argv] = ["", origArgv];
   debugConfig.operationMode = "pika";
 
@@ -117,7 +116,7 @@ export const initPIKA = (header, origArgv): Array<string> => {
 
   const PROJECT_FILES: Array<string> = [];
 
-  while (argv.length >= 0) {
+  while (argv.length > 0) {
     [command, argv] = getNextCommand(argv);
     PROJECT_FILES.push(path.resolve(command));
   }

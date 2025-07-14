@@ -1,19 +1,17 @@
-import { IRIDIUM_FG } from "classes/builder/IridiumHelpers/I_GENERAL/IRIDIUM_FG.ts";
-import Logger from "../classes/debugger/Logger.ts";
+import Logger from "../classes/debugger/Logger";
 
 const config: {
   operationMode: "js3" | "iri" | "pika";
   cli: {
     allowLangWithSupport: boolean;
-    outputsPath: string;
+    outputsPath: string | undefined;
     comments: boolean;
     tout: boolean;
     sourceType: string;
-    projectBase: string;
+    projectBase: string | undefined;
   };
   logger: Logger;
   versionNumber: string;
-  DOTContext: Set<IRIDIUM_FG> | undefined;
 } = {
   operationMode: "js3",
   cli: {
@@ -25,8 +23,7 @@ const config: {
     projectBase: undefined,
   },
   logger: new Logger(),
-  versionNumber: "",
-  DOTContext: undefined,
+  versionNumber: ""
 };
 
 export default config;

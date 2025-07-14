@@ -1,12 +1,11 @@
 import debugConfig from "#debugConfig";
-import { VERSION } from "../../../configs/projectStats.ts";
+import { VERSION } from "../../../configs/projectStats";
 import fs from "fs";
 import path from "path";
-import JS3Builder from "../JS3Builder.ts";
-import { JS3Program } from "../JS3Helpers/JS3Types.ts";
-import { IRIV2_STMT } from "./handleStatement.ts";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isGlobalBindingSEXP, isJSCatchContextSEXP, isJSEnvWriteSEXP, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSScriptReturnSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, isStringSEXP, JSCatchContextSEXP, JSCATCHINITSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSScriptReturnSEXP, JSSloppyDeclarationCheckSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NopeSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP } from "./Types.ts";
-import { dumpSEXP } from "./PP.ts";
+import JS3Builder from "../JS3Builder";
+import { JS3Program } from "../JS3Helpers/JS3Types";
+import { IRIV2_STMT } from "./handleStatement";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isGlobalBindingSEXP, isJSCatchContextSEXP, isJSEnvWriteSEXP, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSScriptReturnSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, isStringSEXP, JSCatchContextSEXP, JSCATCHINITSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSScriptReturnSEXP, JSSloppyDeclarationCheckSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NopeSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP } from "./Types";
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -61,9 +60,9 @@ export class IridiumBuildContext {
   args: Array<string> = [];
   nubds: Array<string> = [];
 
-  loopConfig: LoopConfig = null;
+  loopConfig: LoopConfig | null = null;
 
-  tryContext: TryContext = null;
+  tryContext: TryContext | null = null;
 
   kind: number = 0;
   isAsync: boolean = false;
@@ -71,9 +70,9 @@ export class IridiumBuildContext {
   isStrict: boolean = false;
   isModule: boolean = false;
 
-  privateMapping: Map<string, string> = null;
+  privateMapping: Map<string, string> | null = null;
 
-  moduleRequestMap: Map<string, ModuleRequestSEXP> = null;
+  moduleRequestMap: Map<string, ModuleRequestSEXP> | null = null;
 
   static resetBuildContext() {
     this.SID = 0;
@@ -81,7 +80,7 @@ export class IridiumBuildContext {
   }
 
   BB: Array<BBSEXP> = [];
-  constructor(parent: number, BB: BBSEXP = undefined, flag: BBSEXPFlags = undefined) {
+  constructor(parent: number, BB: BBSEXP | undefined = undefined, flag: BBSEXPFlags | undefined = undefined) {
     this.scopeIdx = IridiumBuildContext.SID++;
     this.parent = parent;
     if (BB) {
@@ -112,7 +111,7 @@ export class IridiumBuildContext {
 export class IRIDIUMV2 {
   js3Builder: JS3Builder;
   buildContext: Array<IridiumBuildContext>;
-  container: FileSEXP;
+  container: FileSEXP | null;
   constructor(js3Builder: JS3Builder) {
     this.js3Builder = js3Builder;
     this.buildContext = [];
@@ -123,12 +122,12 @@ export class IRIDIUMV2 {
     return {
       version: VERSION,
       ...this.js3Builder.projectFile.toJSON(),
-      iridium: this.container.serialize()
+      iridium: this.container?.serialize()
     }
   }
 
   saveGeneratedFile() {
-    if (debugConfig.cli.test262)
+    if (debugConfig.cli.tout)
       return;
 
     const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.js3Builder.projectFile.uname, this.js3Builder.projectFile.extension) + ".json";
@@ -161,7 +160,7 @@ export class IRIDIUMV2 {
 
   pushContext(cx: IridiumBuildContext) {
     this.buildContext.push(cx);
-    this.container.args.push(cx.getCurrentBB());
+    this.container?.args.push(cx.getCurrentBB());
   }
 
   popContext() {
@@ -170,7 +169,7 @@ export class IRIDIUMV2 {
 
   addContinuation(currContext: IridiumBuildContext) {
     const continuationBB = currContext.addContinuation();
-    this.container.args.push(continuationBB);
+    this.container?.args.push(continuationBB);
   }
 
   build() {
