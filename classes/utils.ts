@@ -34,30 +34,6 @@ export function generateCommentBlock(comment: string): CommentBlock {
   } as CommentBlock;
 }
 
-// Function to visit nodes in post-order (inward from leaves)
-export const postOrderTraversal = (graph: Graph, startNode: string): string[] => {
-  const visited = new Set<string>();
-  const result: string[] = [];
-
-  function dfs(node: string) {
-    if (visited.has(node)) return;
-    visited.add(node);
-
-    for (const neighbor of graph.successors(node) || []) {
-      dfs(neighbor);
-    }
-
-    result.push(node); // Post-order: add after visiting all children
-  }
-
-  dfs(startNode);
-  return result;
-}
-
-export const reversePostOrder = (graph: Graph, startNode: string): string[] => {
-  return postOrderTraversal(graph, startNode).reverse(); // reverse post-order
-}
-
 
 export function resolveModuleImport(
   importPath: string,
