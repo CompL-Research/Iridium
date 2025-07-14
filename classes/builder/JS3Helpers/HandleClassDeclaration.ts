@@ -7,7 +7,6 @@ import {
   ClassProperty,
   isArrowFunctionExpression,
   isBigIntLiteral,
-  isBlockStatement,
   isBooleanLiteral,
   isClassAccessorProperty,
   isClassExpression,
@@ -35,9 +34,10 @@ import {
   isTypeAnnotation,
   isTypeParameterDeclaration,
   isVariance,
+  isVoidPattern,
   StaticBlock,
   variableDeclaration,
-  variableDeclarator,
+  variableDeclarator
 } from "@babel/types";
 import {
   generateJS3ClassBody,
@@ -47,7 +47,7 @@ import {
   generateJS3ClassProperty,
   generateJS3PrivateName,
   generateJS3StaticBlock,
-} from "./JS3Constructors.ts";
+} from "./JS3Constructors";
 import {
   JS3AllowedBlockStatement,
   JS3ClassBody,
@@ -78,22 +78,21 @@ import {
   JS3ClassProperty_variance,
   JS3StaticBlock,
   JS3StaticBlock_body,
-} from "./JS3Types.ts";
+} from "./JS3Types";
 
-import debugConfig from "#debugConfig";
-import { JS3BuilderUtils } from "../JS3Builder.ts";
+import { JS3BuilderUtils } from "../JS3Builder";
 
-import { lowerComputedKey } from "./GenericConstructs.ts";
+import { lowerComputedKey } from "./GenericConstructs";
 import {
   handleBlockStatement,
   handleStatement,
   handleVariableDeclaration,
-} from "./HandleBlocks.ts";
+} from "./HandleBlocks";
 import {
   handleArrowFunctionExpression,
   handleClassExpression,
   handleFunctionExpression,
-} from "./HandleExpression.ts";
+} from "./HandleExpression";
 
 type OtherProps = JS3BuilderUtils;
 
@@ -152,15 +151,15 @@ export function handleClassBody(
         fin_body.push(handleClassPrivateProperty(_arrProp, otherProps));
         // ========================================================================================
       } else if (isClassAccessorProperty(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ClassBody->[body]->ClassAccessorProperty",
         );
       } else if (isTSDeclareMethod(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ClassBody->[body]->TSDeclareMethod",
         );
       } else if (isTSIndexSignature(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ClassBody->[body]->TSIndexSignature",
         );
       } else if (isStaticBlock(_arrProp)) {
@@ -178,6 +177,7 @@ export function handleClassProperty(
   node: ClassProperty,
   otherProps: OtherProps,
 ): JS3ClassProperty {
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
   const oldPrefix = otherProps.others.prefix;
 
   // 10 fallthrough props, 5 restricted props
@@ -216,15 +216,15 @@ export function handleClassProperty(
   const orig_typeAnnotation = node.typeAnnotation; // Handling prop typeAnnotation
   const fin_typeAnnotation: JS3ClassProperty_typeAnnotation = null; // Handling prop typeAnnotation
   if (isTypeAnnotation(orig_typeAnnotation)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassProperty->typeAnnotation->TypeAnnotation",
     );
   } else if (isTSTypeAnnotation(orig_typeAnnotation)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassProperty->typeAnnotation->TSTypeAnnotation",
     );
   } else if (isNoop(orig_typeAnnotation)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassProperty->typeAnnotation->Noop",
     );
   }
@@ -234,7 +234,7 @@ export function handleClassProperty(
   if (Array.isArray(orig_decorators)) {
     for (const _arrProp of orig_decorators) {
       if (isDecorator(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ClassProperty->[decorators]->Decorator",
         );
       }
@@ -244,7 +244,7 @@ export function handleClassProperty(
   const orig_variance = node.variance; // Handling prop variance
   const fin_variance: JS3ClassProperty_variance = null; // Handling prop variance
   if (isVariance(orig_variance)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassProperty->variance->Variance",
     );
   }
@@ -257,6 +257,7 @@ export function handleClassProperty(
     fin_variance,
     node,
   );
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
   otherProps.others.prefix = oldPrefix;
   return result;
 }
@@ -298,7 +299,7 @@ export function handleClassPrivateProperty(
   if (Array.isArray(orig_decorators)) {
     for (const _arrProp of orig_decorators) {
       if (isDecorator(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ClassPrivateProperty->[decorators]->Decorator",
         );
       }
@@ -308,15 +309,15 @@ export function handleClassPrivateProperty(
   const orig_typeAnnotation = node.typeAnnotation; // Handling prop typeAnnotation
   const fin_typeAnnotation: JS3ClassPrivateProperty_typeAnnotation = null; // Handling prop typeAnnotation
   if (isTypeAnnotation(orig_typeAnnotation)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassPrivateProperty->typeAnnotation->TypeAnnotation",
     );
   } else if (isTSTypeAnnotation(orig_typeAnnotation)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassPrivateProperty->typeAnnotation->TSTypeAnnotation",
     );
   } else if (isNoop(orig_typeAnnotation)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassPrivateProperty->typeAnnotation->Noop",
     );
   }
@@ -324,7 +325,7 @@ export function handleClassPrivateProperty(
   const orig_variance = node.variance; // Handling prop variance
   const fin_variance: JS3ClassPrivateProperty_variance = null; // Handling prop variance
   if (isVariance(orig_variance)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassPrivateProperty->variance->Variance",
     );
   }
@@ -344,6 +345,7 @@ export function handleClassMethod(
   node: ClassMethod,
   otherProps: OtherProps,
 ): JS3ClassMethod {
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
   const oldPrefix = otherProps.others.prefix;
   // 11 fallthrough props, 6 restricted props
   const orig_key = node.key; // Handling prop key
@@ -356,11 +358,12 @@ export function handleClassMethod(
       if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp);
       } else if (isPattern(_arrProp)) {
+        if (isVoidPattern(_arrProp)) throw new Error("TODO // unhandled Void Pattern Node");
         fin_params.push(_arrProp);
       } else if (isRestElement(_arrProp)) {
         fin_params.push(_arrProp);
       } else if (isTSParameterProperty(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ClassMethod->[params]->TSParameterProperty",
         );
       }
@@ -369,16 +372,14 @@ export function handleClassMethod(
 
   const orig_body = node.body; // Handling prop body
   let fin_body: JS3ClassMethod_body; // Handling prop body
-  if (isBlockStatement(orig_body)) {
-    fin_body = handleBlockStatement(orig_body, otherProps);
-  }
+  fin_body = handleBlockStatement(orig_body, otherProps);
 
   const orig_decorators = node.decorators; // Handling prop decorators
   const fin_decorators: JS3ClassMethod_decorators = null; // Handling prop decorators
   if (Array.isArray(orig_decorators)) {
     for (const _arrProp of orig_decorators) {
       if (isDecorator(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ClassMethod->[decorators]->Decorator",
         );
       }
@@ -388,15 +389,15 @@ export function handleClassMethod(
   const orig_returnType = node.returnType; // Handling prop returnType
   const fin_returnType: JS3ClassMethod_returnType = null; // Handling prop returnType
   if (isTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassMethod->returnType->TypeAnnotation",
     );
   } else if (isTSTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassMethod->returnType->TSTypeAnnotation",
     );
   } else if (isNoop(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassMethod->returnType->Noop",
     );
   }
@@ -404,15 +405,15 @@ export function handleClassMethod(
   const orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   const fin_typeParameters: JS3ClassMethod_typeParameters = null; // Handling prop typeParameters
   if (isTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassMethod->typeParameters->TypeParameterDeclaration",
     );
   } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassMethod->typeParameters->TSTypeParameterDeclaration",
     );
   } else if (isNoop(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassMethod->typeParameters->Noop",
     );
   }
@@ -425,6 +426,7 @@ export function handleClassMethod(
     fin_typeParameters,
     node,
   );
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
   otherProps.others.prefix = oldPrefix;
   return result;
 }
@@ -441,11 +443,12 @@ export function handleClassPrivateMethod(
       if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp);
       } else if (isPattern(_arrProp)) {
+        if (isVoidPattern(_arrProp)) throw new Error("TODO // unhandled Void Pattern Node");
         fin_params.push(_arrProp);
       } else if (isRestElement(_arrProp)) {
         fin_params.push(_arrProp);
       } else if (isTSParameterProperty(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ClassPrivateMethod->[params]->TSParameterProperty",
         );
       }
@@ -454,16 +457,14 @@ export function handleClassPrivateMethod(
 
   const orig_body = node.body; // Handling prop body
   let fin_body: JS3ClassPrivateMethod_body; // Handling prop body
-  if (isBlockStatement(orig_body)) {
-    fin_body = handleBlockStatement(orig_body, otherProps);
-  }
+  fin_body = handleBlockStatement(orig_body, otherProps);
 
   const orig_decorators = node.decorators; // Handling prop decorators
   const fin_decorators: JS3ClassPrivateMethod_decorators = null; // Handling prop decorators
   if (Array.isArray(orig_decorators)) {
     for (const _arrProp of orig_decorators) {
       if (isDecorator(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ClassPrivateMethod->[decorators]->Decorator",
         );
       }
@@ -473,15 +474,15 @@ export function handleClassPrivateMethod(
   const orig_returnType = node.returnType; // Handling prop returnType
   const fin_returnType: JS3ClassPrivateMethod_returnType = null; // Handling prop returnType
   if (isTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassPrivateMethod->returnType->TypeAnnotation",
     );
   } else if (isTSTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassPrivateMethod->returnType->TSTypeAnnotation",
     );
   } else if (isNoop(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassPrivateMethod->returnType->Noop",
     );
   }
@@ -489,15 +490,15 @@ export function handleClassPrivateMethod(
   const orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   const fin_typeParameters: JS3ClassPrivateMethod_typeParameters = null; // Handling prop typeParameters
   if (isTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassPrivateMethod->typeParameters->TypeParameterDeclaration",
     );
   } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassPrivateMethod->typeParameters->TSTypeParameterDeclaration",
     );
   } else if (isNoop(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassPrivateMethod->typeParameters->Noop",
     );
   }

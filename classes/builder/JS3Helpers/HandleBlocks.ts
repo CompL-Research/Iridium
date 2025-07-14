@@ -93,6 +93,7 @@ import {
   isTypeAnnotation,
   isTypeParameterDeclaration,
   isVariableDeclaration,
+  isVoidPattern,
   isWhileStatement,
   isWithStatement,
   LabeledStatement,
@@ -109,7 +110,7 @@ import {
   WhileStatement,
   WithStatement,
 } from "@babel/types";
-import { JS3BuilderUtils } from "../JS3Builder.ts";
+import { JS3BuilderUtils } from "../JS3Builder";
 import {
   isJS3AssnObjectProperty,
   isJS3MemberExpression,
@@ -172,7 +173,7 @@ import {
   JS3WithStatement,
   JS3WithStatement_body,
   JS3WithStatement_object,
-} from "./JS3Types.ts";
+} from "./JS3Types";
 
 import debugConfig from "#debugConfig";
 import {
@@ -182,7 +183,7 @@ import {
   handleFunctionExpression,
   handleMemberExpression,
   lowerToAnonArrayExpr,
-} from "./HandleExpression.ts";
+} from "./HandleExpression";
 import {
   generateBaseNodeFrom,
   generateDummyJS3VariableDeclaration,
@@ -222,15 +223,13 @@ import {
   generateJS3WhileStatement,
   generateJS3WithStatement,
   generateTempIdentifier,
-} from "./JS3Constructors.ts";
+} from "./JS3Constructors";
 
-import { assertMessage, generateCommentLine } from "#utils";
-import assert from "node:assert";
+import { generateCommentLine } from "#utils";
 import {
-  handleLoopDeclaration,
   lowerComputedKey,
-} from "./GenericConstructs.ts";
-import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
+} from "./GenericConstructs";
+import { handleClassDeclaration } from "./HandleClassDeclaration";
 
 type OtherProps = JS3BuilderUtils;
 
@@ -303,109 +302,109 @@ export function handleStatement(
     if (debugConfig.cli.allowLangWithSupport)
       return handleWithStatement(node, otherProps);
     else
-      debugConfig.logger.throwJS3Error(
+      throw new Error(
         "TODO // unhandled Statement->WithStatement [REMOVED SUPPORT]",
       );
   } else if (isClassDeclaration(node))
     return handleClassDeclaration(node, otherProps);
   else if (isExportAllDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->ExportAllDeclaration [should only be reachable in program scope]",
     );
   } else if (isExportDefaultDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->ExportDefaultDeclaration",
     );
   } else if (isExportNamedDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->ExportNamedDeclaration",
     );
   } else if (isImportDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->ImportDeclaration",
     );
   } else if (isDeclareClass(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->DeclareClass",
     );
   } else if (isDeclareFunction(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->DeclareFunction",
     );
   } else if (isDeclareInterface(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->DeclareInterface",
     );
   } else if (isDeclareModule(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->DeclareModule",
     );
   } else if (isDeclareModuleExports(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->DeclareModuleExports",
     );
   } else if (isDeclareTypeAlias(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->DeclareTypeAlias",
     );
   } else if (isDeclareOpaqueType(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->DeclareOpaqueType",
     );
   } else if (isDeclareVariable(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->DeclareVariable",
     );
   } else if (isDeclareExportDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->DeclareExportDeclaration",
     );
   } else if (isDeclareExportAllDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->DeclareExportAllDeclaration",
     );
   } else if (isInterfaceDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->InterfaceDeclaration",
     );
   } else if (isOpaqueType(node)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->OpaqueType");
+    throw new Error("TODO // unhandled Statement->OpaqueType");
   } else if (isTypeAlias(node)) {
-    debugConfig.logger.throwJS3Error("TODO // unhandled Statement->TypeAlias");
+    throw new Error("TODO // unhandled Statement->TypeAlias");
   } else if (isEnumDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->EnumDeclaration",
     );
   } else if (isTSDeclareFunction(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->TSDeclareFunction",
     );
   } else if (isTSInterfaceDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->TSInterfaceDeclaration",
     );
   } else if (isTSTypeAliasDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->TSTypeAliasDeclaration",
     );
   } else if (isTSEnumDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->TSEnumDeclaration",
     );
   } else if (isTSModuleDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->TSModuleDeclaration",
     );
   } else if (isTSImportEqualsDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->TSImportEqualsDeclaration",
     );
   } else if (isTSExportAssignment(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->TSExportAssignment",
     );
   } else if (isTSNamespaceExportDeclaration(node)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled Statement->TSNamespaceExportDeclaration",
     );
   }
@@ -414,7 +413,7 @@ export function handleStatement(
   unhandledStmt.type = "EmptyStatement";
   unhandledStmt.trailingComments = [];
   unhandledStmt.trailingComments.push(
-    generateCommentLine(` Unhandled stmt: '${node.type}'`),
+    generateCommentLine(` Unhandled stmt: '${JSON.stringify(node)}'`),
   );
 
   return generateJS3EmptyStatement(unhandledStmt);
@@ -445,12 +444,16 @@ export function handleExpressionStatement(
   const trailingCommentEmptyNode = generateJS3EmptyStatementfromBaseNode(node);
   leadingCommentEmptyNode.trailingComments = null;
   trailingCommentEmptyNode.leadingComments = null;
-  
-  if (debugConfig.cli.comments) {  
+
+  if (debugConfig.cli.comments) {
+    if (!otherProps.others) throw new Error("otherProps.others undefined");
+    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
     otherProps.others.holder.push(leadingCommentEmptyNode);
   }
   handleExpression(orig_expression, otherProps);
-  if (debugConfig.cli.comments) {  
+  if (debugConfig.cli.comments) {
+    if (!otherProps.others) throw new Error("otherProps.others undefined");
+    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
     otherProps.others.holder.push(trailingCommentEmptyNode);
   }
 
@@ -464,10 +467,8 @@ export function handleExpressionStatement(
 // Result: If (Identifier) [JS3BlockStatement] [? Else] [JS3BlockStatement]
 //
 export function handleIfStatement(node: IfStatement, otherProps: OtherProps) {
-  assert(
-    Array.isArray(otherProps.others.holder),
-    assertMessage(import.meta.url, `😂 handleIfStatement expects an holder to spill intermediate values`)
-  );
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
+  if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
 
   const oldPrefix = otherProps.others.prefix;
   otherProps.others.prefix = "ifTest";
@@ -481,40 +482,38 @@ export function handleIfStatement(node: IfStatement, otherProps: OtherProps) {
     isClassExpression(orig_test)
   ) {
     fin_test = lowerToAnonArrayExpr(orig_test, otherProps);
-  } else if (isExpression(orig_test)) {
+  } else {
     fin_test = handleExpression(orig_test, otherProps);
   }
 
   otherProps.others.prefix = "ifTrue";
   const orig_consequent = node.consequent; // Handling prop consequent
   let fin_consequent: JS3IfStatement_consequent; // Handling prop consequent
-  if (isStatement(orig_consequent)) {
-    if (isBlockStatement(orig_consequent)) {
-      fin_consequent = handleBlockStatement(orig_consequent, otherProps);
-    } else {
-      const dummyBlockHolder: JS3BlockStatement_body = [];
-      const dummyBlockStatement = generateJS3BlockStatementfromBaseNode(
-        dummyBlockHolder,
-        [],
-        orig_consequent,
-      );
-      const updatedProps = {
-        ...otherProps,
-        others: { ...otherProps.others, holder: dummyBlockHolder },
-      };
+  if (isBlockStatement(orig_consequent)) {
+    fin_consequent = handleBlockStatement(orig_consequent, otherProps);
+  } else {
+    const dummyBlockHolder: JS3BlockStatement_body = [];
+    const dummyBlockStatement = generateJS3BlockStatementfromBaseNode(
+      dummyBlockHolder,
+      [],
+      orig_consequent,
+    );
+    const updatedProps = {
+      ...otherProps,
+      others: { ...otherProps.others, holder: dummyBlockHolder },
+    };
 
-      const blockStmt:
-        | JS3AllowedBlockStatement
-        | Array<JS3AllowedBlockStatement> = handleStatement(
+    const blockStmt:
+      | JS3AllowedBlockStatement
+      | Array<JS3AllowedBlockStatement> = handleStatement(
         orig_consequent,
         updatedProps,
       );
-      if (Array.isArray(blockStmt))
-        blockStmt.forEach((s) => dummyBlockHolder.push(s));
-      else dummyBlockHolder.push(blockStmt);
+    if (Array.isArray(blockStmt))
+      blockStmt.forEach((s) => dummyBlockHolder.push(s));
+    else dummyBlockHolder.push(blockStmt);
 
-      fin_consequent = dummyBlockStatement;
-    }
+    fin_consequent = dummyBlockStatement;
   }
 
   otherProps.others.prefix = "ifFalse";
@@ -538,9 +537,9 @@ export function handleIfStatement(node: IfStatement, otherProps: OtherProps) {
       const blockStmt:
         | JS3AllowedBlockStatement
         | Array<JS3AllowedBlockStatement> = handleStatement(
-        orig_alternate,
-        updatedProps,
-      );
+          orig_alternate,
+          updatedProps,
+        );
       if (Array.isArray(blockStmt))
         blockStmt.forEach((s) => dummyBlockHolder.push(s));
       else dummyBlockHolder.push(blockStmt);
@@ -568,10 +567,8 @@ export function handleReturnStatement(
   node: ReturnStatement,
   otherProps: OtherProps,
 ) {
-  assert(
-    Array.isArray(otherProps.others.holder),
-    assertMessage(import.meta.url, `😂 handleReturnStatement expects an holder to spill intermediate values`)
-  );
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
+  if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
 
   const oldPrefix = otherProps.others.prefix;
   otherProps.others.prefix = "returnStmt";
@@ -604,10 +601,8 @@ export function handleVariableDeclaration(
   node: VariableDeclaration,
   otherProps: OtherProps,
 ): Array<JS3AllowedBlockStatement> {
-  assert(
-    Array.isArray(otherProps.others.holder),
-    assertMessage(import.meta.url, `😂 handleVariableDeclaration expects an holder to spill intermediate values`)
-  );
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
+  if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
 
   const holder: JS3BlockStatement_body = [];
   const updatedProps = {
@@ -625,14 +620,14 @@ export function handleVariableDeclaration(
       RVal: null | JS3VariableDeclarator_init,
     ) => {
       if (isJS3MemberExpression(LVal))
-        debugConfig.logger.log(
-          "LVal cannot be JS3MemberExpression in case of variable declarator...",
-        );
+        throw new Error("LVal cannot be JS3MemberExpression in case of variable declarator...");
       else {
         const declarator = generateJS3VariableDeclarator(LVal, RVal, _arrProp);
         return generateJS3VariableDeclaration([declarator], node);
       }
     };
+    if (isVoidPattern(_arrProp.id)) throw new Error("TODO // unhandled Void Pattern Node");
+    if (!_arrProp.init) throw new Error("Expected _arrProp.init to be an Expression");
     handleDeclaratorRec(_arrProp.id, _arrProp.init, updatedProps, generator);
   }
 
@@ -653,6 +648,8 @@ export function handleDeclaratorRec(
   ) => JS3AllowedBlockStatement,
   generateIntermediateBindings = false,
 ) {
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
+  if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
   // Spill RVal
   let fin_init: JS3VariableDeclarator_init = null;
   if (
@@ -804,9 +801,8 @@ export function handleDeclaratorRec(
               generator,
             );
           } else {
-            debugConfig.logger.throwJS3Error(
-              "IMPOSSIBLE destructure pattern reduction case... expected rest element with Identifier",
-              [temporaryHolder],
+            throw new Error(
+              "IMPOSSIBLE destructure pattern reduction case... expected rest element with Identifier"
             );
           }
         }
@@ -817,11 +813,12 @@ export function handleDeclaratorRec(
         // (let...) f(COMPLEX_PATT) = TEMP
         //
         if (isIdentifier(temporaryHolder)) {
+          if (!e) throw new Error("Expected e to not be null");
+          if (isVoidPattern(e)) throw new Error("TODO // unhandled Void Pattern Node");
           handleDeclaratorRec(e, temporaryHolder, otherProps, generator);
         } else {
-          debugConfig.logger.throwJS3Error(
-            "IMPOSSIBLE destructure pattern reduction case... expected Identifier",
-            [temporaryHolder],
+          throw new Error(
+            "IMPOSSIBLE destructure pattern reduction case... expected Identifier"
           );
         }
       }
@@ -941,7 +938,7 @@ export function handleDeclaratorRec(
     const reassigned = [];
     for (const p of properties) {
       // isTrivialKey = true if key is Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | PrivateName
-      const isTrivialKey = (k) =>
+      const isTrivialKey = (k: any) =>
         isIdentifier(k) ||
         isStringLiteral(k) ||
         isNumericLiteral(k) ||
@@ -1111,15 +1108,13 @@ export function handleDeclaratorRec(
             // Recurse: (LVal: COMPLEX, RVal: TEMP)
             handleDeclaratorRec(p.value, tempVar, otherProps, generator);
           } else {
-            debugConfig.logger.throwJS3Error(
-              `IMPOSSIBLE destructure objpattern reduction case... LVAL is ${p.value.type}`,
-              [currTemp],
+            throw new Error(
+              `IMPOSSIBLE destructure objpattern reduction case... LVAL is ${p.value.type}`
             );
           }
         } else {
-          debugConfig.logger.throwJS3Error(
-            `IMPOSSIBLE destructure objpattern reduction case... expected Identifier`,
-            [currTemp],
+          throw new Error(
+            `IMPOSSIBLE destructure objpattern reduction case... expected Identifier`
           );
         }
       } else {
@@ -1144,15 +1139,13 @@ export function handleDeclaratorRec(
             // Recurse: (LVal: COMPLEX, RVal: TEMP)
             handleDeclaratorRec(p.argument, tempVar, otherProps, generator);
           } else {
-            debugConfig.logger.throwJS3Error(
-              `IMPOSSIBLE destructure objpattern reduction case-1... LVAL is ${p.argument.type}`,
-              [currTemp],
+            throw new Error(
+              `IMPOSSIBLE destructure objpattern reduction case-1... LVAL is ${p.argument.type}`
             );
           }
         } else {
-          debugConfig.logger.throwJS3Error(
-            `IMPOSSIBLE destructure objpattern reduction case-1... expected Identifier`,
-            [currTemp],
+          throw new Error(
+            `IMPOSSIBLE destructure objpattern reduction case-1... expected Identifier`
           );
         }
       }
@@ -1184,21 +1177,21 @@ export function handleDeclaratorRec(
 //   } else if (isObjectPattern(orig_id)) {
 //     fin_id = orig_id
 //   } else if (isMemberExpression(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->MemberExpression");
+//     throw new Error("TODO // unhandled VariableDeclarator->id->MemberExpression");
 //   } else if (isRestElement(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->RestElement");
+//     throw new Error("TODO // unhandled VariableDeclarator->id->RestElement");
 //   } else if (isAssignmentPattern(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->AssignmentPattern");
+//     throw new Error("TODO // unhandled VariableDeclarator->id->AssignmentPattern");
 //   } else if (isTSParameterProperty(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSParameterProperty");
+//     throw new Error("TODO // unhandled VariableDeclarator->id->TSParameterProperty");
 //   } else if (isTSAsExpression(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSAsExpression");
+//     throw new Error("TODO // unhandled VariableDeclarator->id->TSAsExpression");
 //   } else if (isTSSatisfiesExpression(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSSatisfiesExpression");
+//     throw new Error("TODO // unhandled VariableDeclarator->id->TSSatisfiesExpression");
 //   } else if (isTSTypeAssertion(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSTypeAssertion");
+//     throw new Error("TODO // unhandled VariableDeclarator->id->TSTypeAssertion");
 //   } else if (isTSNonNullExpression(orig_id)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled VariableDeclarator->id->TSNonNullExpression");
+//     throw new Error("TODO // unhandled VariableDeclarator->id->TSNonNullExpression");
 //   }
 
 //   let orig_init = node.init; // Handling prop init
@@ -1231,9 +1224,7 @@ export function handleTryStatement(node: TryStatement, otherProps: OtherProps) {
   // 1 fallthrough props, 3 restricted props
   const orig_block = node.block; // Handling prop block
   let fin_block: JS3TryStatement_block; // Handling prop block
-  if (isBlockStatement(orig_block)) {
-    fin_block = handleBlockStatement(orig_block, otherProps);
-  }
+  fin_block = handleBlockStatement(orig_block, otherProps);
   const orig_handler = node.handler; // Handling prop handler
   let fin_handler: JS3TryStatement_handler = null; // Handling prop handler
   if (isCatchClause(orig_handler)) {
@@ -1279,13 +1270,11 @@ export function handleCatchClause(node: CatchClause, otherProps: OtherProps) {
 
   const orig_body = node.body; // Handling prop body
   let fin_body: JS3CatchClause_body; // Handling prop body
-  if (isBlockStatement(orig_body)) {
-    fin_body = handleBlockStatement(orig_body, otherProps);
+  fin_body = handleBlockStatement(orig_body, otherProps);
 
-    if (paramSpill) {
-      const argSpill = handleVariableDeclaration(paramSpill, otherProps);
-      fin_body.body = [...argSpill, ...fin_body.body];
-    }
+  if (paramSpill) {
+    const argSpill = handleVariableDeclaration(paramSpill, otherProps);
+    fin_body.body = [...argSpill, ...fin_body.body];
   }
 
   return generateJS3CatchClause(fin_param, fin_body, node);
@@ -1308,7 +1297,7 @@ export function handleThrowStatement(
     isClassExpression(orig_argument)
   ) {
     fin_argument = lowerToAnonArrayExpr(orig_argument, otherProps);
-  } else if (isExpression(orig_argument)) {
+  } else {
     fin_argument = handleExpression(orig_argument, otherProps);
   }
   const result = generateJS3ThrowStatement(fin_argument, node);
@@ -1330,7 +1319,7 @@ export function handleFunctionDeclaration(
   if (isIdentifier(orig_id)) {
     fin_id = orig_id;
   } else {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // nameless FunctionDeclaration do not exist in JS3",
     );
   }
@@ -1342,6 +1331,7 @@ export function handleFunctionDeclaration(
       if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp);
       } else if (isPattern(_arrProp)) {
+        if (isVoidPattern(_arrProp)) throw new Error("TODO // unhandled Void Pattern Node");
         fin_params.push(_arrProp);
       } else if (isRestElement(_arrProp)) {
         fin_params.push(_arrProp);
@@ -1351,18 +1341,16 @@ export function handleFunctionDeclaration(
 
   const orig_body = node.body; // Handling prop body
   let fin_body: JS3FunctionDeclaration_body; // Handling prop body
-  if (isBlockStatement(orig_body)) {
-    fin_body = handleBlockStatement(orig_body, otherProps);
-  }
+  fin_body = handleBlockStatement(orig_body, otherProps);
 
   const orig_predicate = node.predicate; // Handling prop predicate
   const fin_predicate: JS3FunctionDeclaration_predicate = null; // Handling prop predicate
   if (isDeclaredPredicate(orig_predicate)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionDeclaration->predicate->DeclaredPredicate",
     );
   } else if (isInferredPredicate(orig_predicate)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionDeclaration->predicate->InferredPredicate",
     );
   }
@@ -1370,15 +1358,15 @@ export function handleFunctionDeclaration(
   const orig_returnType = node.returnType; // Handling prop returnType
   const fin_returnType: JS3FunctionDeclaration_returnType = null; // Handling prop returnType
   if (isTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionDeclaration->returnType->TypeAnnotation",
     );
   } else if (isTSTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionDeclaration->returnType->TSTypeAnnotation",
     );
   } else if (isNoop(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionDeclaration->returnType->Noop",
     );
   }
@@ -1386,15 +1374,15 @@ export function handleFunctionDeclaration(
   const orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   const fin_typeParameters: JS3FunctionDeclaration_typeParameters = null; // Handling prop typeParameters
   if (isTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionDeclaration->typeParameters->TypeParameterDeclaration",
     );
   } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionDeclaration->typeParameters->TSTypeParameterDeclaration",
     );
   } else if (isNoop(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionDeclaration->typeParameters->Noop",
     );
   }
@@ -1480,9 +1468,9 @@ export function handleForStatement(node: ForStatement, otherProps: OtherProps) {
     const blockStmt:
       | JS3AllowedBlockStatement
       | Array<JS3AllowedBlockStatement> = handleStatement(
-      orig_body,
-      updatedProps,
-    );
+        orig_body,
+        updatedProps,
+      );
     if (Array.isArray(blockStmt))
       blockStmt.forEach((s) => loopBodyHolder.push(s));
     else loopBodyHolder.push(blockStmt);
@@ -1512,9 +1500,7 @@ export function handleDoWhileStatement(
   // 1 fallthrough props, 2 restricted props
   const orig_test = node.test; // Handling prop test
   let fin_test: JS3DoWhileStatement_test; // Handling prop test
-  if (isExpression(orig_test)) {
-    fin_test = lowerComputedKey(orig_test, otherProps);
-  }
+  fin_test = lowerComputedKey(orig_test, otherProps);
 
   const orig_body = node.body; // Handling prop body
   // Body that holds the loop
@@ -1533,9 +1519,9 @@ export function handleDoWhileStatement(
     const blockStmt:
       | JS3AllowedBlockStatement
       | Array<JS3AllowedBlockStatement> = handleStatement(
-      orig_body,
-      updatedProps,
-    );
+        orig_body,
+        updatedProps,
+      );
     if (Array.isArray(blockStmt))
       blockStmt.forEach((s) => loopBodyHolder.push(s));
     else loopBodyHolder.push(blockStmt);
@@ -1563,11 +1549,11 @@ export function handleForInStatement(
   //   //
 
   //   if (orig_left.declarations.length > 1)
-  //     debugConfig.logger.throwJS3Error(
+  //     throw new Error(
   //       "ForInStatement, unexpected form for lval of the loop header, has more than one declaration",
   //     );
   //   if (orig_left.declarations[0].init)
-  //     debugConfig.logger.throwJS3Error(
+  //     throw new Error(
   //       "ForInStatement, declaration is not expected to have an initializer",
   //     );
 
@@ -1579,11 +1565,11 @@ export function handleForInStatement(
   // } else if (isMemberExpression(orig_left)) {
   //   fin_left = handleMemberExpression(orig_left, otherProps);
   // } else if (isRestElement(orig_left)) {
-  //   debugConfig.logger.throwJS3Error(
+  //   throw new Error(
   //     "TODO // unhandled ForOfStatement->left->RestElement",
   //   );
   // } else if (isAssignmentPattern(orig_left)) {
-  //   debugConfig.logger.throwJS3Error(
+  //   throw new Error(
   //     "TODO // unhandled ForOfStatement->left->AssignmentPattern",
   //   );
   // } else if (isArrayPattern(orig_left)) {
@@ -1591,23 +1577,23 @@ export function handleForInStatement(
   // } else if (isObjectPattern(orig_left)) {
   //   fin_left = orig_left;
   // } else if (isTSParameterProperty(orig_left)) {
-  //   debugConfig.logger.throwJS3Error(
+  //   throw new Error(
   //     "TODO // unhandled ForOfStatement->left->TSParameterProperty",
   //   );
   // } else if (isTSAsExpression(orig_left)) {
-  //   debugConfig.logger.throwJS3Error(
+  //   throw new Error(
   //     "TODO // unhandled ForOfStatement->left->TSAsExpression",
   //   );
   // } else if (isTSSatisfiesExpression(orig_left)) {
-  //   debugConfig.logger.throwJS3Error(
+  //   throw new Error(
   //     "TODO // unhandled ForOfStatement->left->TSSatisfiesExpression",
   //   );
   // } else if (isTSTypeAssertion(orig_left)) {
-  //   debugConfig.logger.throwJS3Error(
+  //   throw new Error(
   //     "TODO // unhandled ForOfStatement->left->TSTypeAssertion",
   //   );
   // } else if (isTSNonNullExpression(orig_left)) {
-  //   debugConfig.logger.throwJS3Error(
+  //   throw new Error(
   //     "TODO // unhandled ForOfStatement->left->TSNonNullExpression",
   //   );
   // }
@@ -1620,7 +1606,7 @@ export function handleForInStatement(
     isClassExpression(orig_right)
   ) {
     fin_right = lowerToAnonArrayExpr(orig_right, otherProps);
-  } else if (isExpression(orig_right)) {
+  } else {
     fin_right = handleExpression(orig_right, otherProps);
   }
 
@@ -1628,7 +1614,7 @@ export function handleForInStatement(
   let fin_body: JS3ForInStatement_body; // Handling prop body
   if (isBlockStatement(orig_body)) {
     fin_body = handleBlockStatement(orig_body, otherProps);
-  } else if (isStatement(orig_body)) {
+  } else {
     const blockBody: JS3BlockStatement_body = [];
     const updatedProps = {
       ...otherProps,
@@ -1638,9 +1624,9 @@ export function handleForInStatement(
     const blockStmt:
       | JS3AllowedBlockStatement
       | Array<JS3AllowedBlockStatement> = handleStatement(
-      orig_body,
-      updatedProps,
-    );
+        orig_body,
+        updatedProps,
+      );
     if (Array.isArray(blockStmt)) blockStmt.forEach((s) => blockBody.push(s));
     else blockBody.push(blockStmt);
 
@@ -1662,68 +1648,72 @@ export function handleForOfStatement(
 ) {
   // 2 fallthrough props, 3 restricted props
   const orig_left = node.left; // Handling prop left
-  let fin_left: JS3ForOfStatement_left; // Handling prop left
-  if (isVariableDeclaration(orig_left)) {
-    // assert that this is of the form and only has one entry
-    //
-    // KIND ID <--- We dont want to allow any other syntax forms here.
-    //
+  let fin_left: JS3ForOfStatement_left = orig_left; // Handling prop left
+  // if (isVariableDeclaration(orig_left)) {
+  //   // assert that this is of the form and only has one entry
+  //   //
+  //   // KIND ID <--- We dont want to allow any other syntax forms here.
+  //   //
 
-    if (orig_left.declarations.length > 1)
-      debugConfig.logger.throwJS3Error(
-        "ForOfStatement, unexpected form for lval of the loop header, has more than one declaration",
-      );
-    if (orig_left.declarations[0].init)
-      debugConfig.logger.throwJS3Error(
-        "ForOfStatement, declaration is not expected to have an initializer",
-      );
+  //   if (orig_left.declarations.length > 1)
+  //     throw new Error(
+  //       "ForOfStatement, unexpected form for lval of the loop header, has more than one declaration",
+  //     );
+  //   if (orig_left.declarations[0].init)
+  //     throw new Error(
+  //       "ForOfStatement, declaration is not expected to have an initializer",
+  //     );
 
-    fin_left = handleLoopDeclaration(orig_left, otherProps);
-    // let lval = orig_left.declarations[0].id
-    // if (isIdentifier(lval) || isObjectPattern(lval) || isArrayPattern(lval)) {
-    //   let declarator = generateJS3LoopDeclaratorfromBaseNode(lval, null, null, orig_left)
-    //   let declaration = generateJS3LoopDeclarationfromBaseNode([declarator], orig_left.kind, orig_left.declare, orig_left)
-    //   fin_left = declaration
-    // } else {
-    //   debugConfig.logger.throwJS3Error("ForOfStatement, unsupported lval type")
-    // }
-  } else if (isIdentifier(orig_left)) {
-    fin_left = orig_left;
-  } else if (isMemberExpression(orig_left)) {
-    fin_left = handleMemberExpression(orig_left, otherProps);
-  } else if (isRestElement(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->RestElement",
-    );
-  } else if (isAssignmentPattern(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->AssignmentPattern",
-    );
-  } else if (isArrayPattern(orig_left)) {
-    fin_left = orig_left;
-  } else if (isObjectPattern(orig_left)) {
-    fin_left = orig_left;
-  } else if (isTSParameterProperty(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->TSParameterProperty",
-    );
-  } else if (isTSAsExpression(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->TSAsExpression",
-    );
-  } else if (isTSSatisfiesExpression(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->TSSatisfiesExpression",
-    );
-  } else if (isTSTypeAssertion(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->TSTypeAssertion",
-    );
-  } else if (isTSNonNullExpression(orig_left)) {
-    debugConfig.logger.throwJS3Error(
-      "TODO // unhandled ForOfStatement->left->TSNonNullExpression",
-    );
-  }
+  //   fin_left = handleLoopDeclaration(orig_left, otherProps);
+  //   // let lval = orig_left.declarations[0].id
+  //   // if (isIdentifier(lval) || isObjectPattern(lval) || isArrayPattern(lval)) {
+  //   //   let declarator = generateJS3LoopDeclaratorfromBaseNode(lval, null, null, orig_left)
+  //   //   let declaration = generateJS3LoopDeclarationfromBaseNode([declarator], orig_left.kind, orig_left.declare, orig_left)
+  //   //   fin_left = declaration
+  //   // } else {
+  //   //   throw new Error("ForOfStatement, unsupported lval type")
+  //   // }
+  // } else if (isIdentifier(orig_left)) {
+  //   fin_left = orig_left;
+  // } else if (isMemberExpression(orig_left)) {
+  //   fin_left = handleMemberExpression(orig_left, otherProps);
+  // } else if (isRestElement(orig_left)) {
+  //   throw new Error(
+  //     "TODO // unhandled ForOfStatement->left->RestElement",
+  //   );
+  // } else if (isAssignmentPattern(orig_left)) {
+  //   throw new Error(
+  //     "TODO // unhandled ForOfStatement->left->AssignmentPattern",
+  //   );
+  // } else if (isArrayPattern(orig_left)) {
+  //   fin_left = orig_left;
+  // } else if (isObjectPattern(orig_left)) {
+  //   fin_left = orig_left;
+  // } else if (isTSParameterProperty(orig_left)) {
+  //   throw new Error(
+  //     "TODO // unhandled ForOfStatement->left->TSParameterProperty",
+  //   );
+  // } else if (isTSAsExpression(orig_left)) {
+  //   throw new Error(
+  //     "TODO // unhandled ForOfStatement->left->TSAsExpression",
+  //   );
+  // } else if (isTSSatisfiesExpression(orig_left)) {
+  //   throw new Error(
+  //     "TODO // unhandled ForOfStatement->left->TSSatisfiesExpression",
+  //   );
+  // } else if (isTSTypeAssertion(orig_left)) {
+  //   throw new Error(
+  //     "TODO // unhandled ForOfStatement->left->TSTypeAssertion",
+  //   );
+  // } else if (isTSNonNullExpression(orig_left)) {
+  //   throw new Error(
+  //     "TODO // unhandled ForOfStatement->left->TSNonNullExpression",
+  //   );
+  // } else {
+  //   throw new Error(
+  //     "TODO // unhandled ForOfStatement->left->UNHANDLED",
+  //   );
+  // }
 
   const orig_right = node.right; // Handling prop right
   let fin_right: JS3ForOfStatement_right; // Handling prop right
@@ -1733,7 +1723,7 @@ export function handleForOfStatement(
     isClassExpression(orig_right)
   ) {
     fin_right = lowerToAnonArrayExpr(orig_right, otherProps);
-  } else if (isExpression(orig_right)) {
+  } else {
     fin_right = handleExpression(orig_right, otherProps);
   }
 
@@ -1741,7 +1731,7 @@ export function handleForOfStatement(
   let fin_body: JS3ForInStatement_body; // Handling prop body
   if (isBlockStatement(orig_body)) {
     fin_body = handleBlockStatement(orig_body, otherProps);
-  } else if (isStatement(orig_body)) {
+  } else {
     const blockBody: JS3BlockStatement_body = [];
     const updatedProps = {
       ...otherProps,
@@ -1751,9 +1741,9 @@ export function handleForOfStatement(
     const blockStmt:
       | JS3AllowedBlockStatement
       | Array<JS3AllowedBlockStatement> = handleStatement(
-      orig_body,
-      updatedProps,
-    );
+        orig_body,
+        updatedProps,
+      );
     if (Array.isArray(blockStmt)) blockStmt.forEach((s) => blockBody.push(s));
     else blockBody.push(blockStmt);
 
@@ -1776,24 +1766,22 @@ export function handleLabeledStatement(
   // 2 fallthrough props, 1 restricted props
   const orig_body = node.body; // Handling prop body
   let fin_body: JS3LabeledStatement_body; // Handling prop body
-  if (isStatement(orig_body)) {
-    const blockStmt:
-      | JS3AllowedBlockStatement
-      | Array<JS3AllowedBlockStatement> = handleStatement(
+  const blockStmt:
+    | JS3AllowedBlockStatement
+    | Array<JS3AllowedBlockStatement> = handleStatement(
       orig_body,
       otherProps,
     );
 
-    if (Array.isArray(blockStmt)) {
-      const blockBody: JS3BlockStatement_body = [];
-      fin_body = generateJS3BlockStatementfromBaseNode(
-        blockBody,
-        [],
-        orig_body,
-      );
-      blockStmt.forEach((s) => blockBody.push(s));
-    } else fin_body = blockStmt;
-  }
+  if (Array.isArray(blockStmt)) {
+    const blockBody: JS3BlockStatement_body = [];
+    fin_body = generateJS3BlockStatementfromBaseNode(
+      blockBody,
+      [],
+      orig_body,
+    );
+    blockStmt.forEach((s) => blockBody.push(s));
+  } else fin_body = blockStmt;
   const result: JS3LabeledStatement = generateJS3LabeledStatement(
     fin_body,
     node,
@@ -1808,7 +1796,7 @@ export function handleBreakStatement(
 ) {
   // 1 fallthrough props, 1 restricted props
   const orig_label = node.label; // Handling prop label
-  const fin_label: JS3BreakStatement_label = orig_label; // Handling prop label
+  const fin_label: JS3BreakStatement_label = orig_label ? orig_label : null; // Handling prop label
   const result: JS3BreakStatement = generateJS3BreakStatement(fin_label, node);
   return result;
 }
@@ -1820,7 +1808,7 @@ export function handleContinueStatement(
 ) {
   // 1 fallthrough props, 1 restricted props
   const orig_label = node.label; // Handling prop label
-  const fin_label: JS3ContinueStatement_label = orig_label; // Handling prop label
+  const fin_label: JS3ContinueStatement_label = orig_label ? orig_label : null; // Handling prop label
   const result: JS3ContinueStatement = generateJS3ContinueStatement(
     fin_label,
     node,
@@ -1850,9 +1838,9 @@ export function handleSwitchCase(node: SwitchCase, otherProps: OtherProps) {
       const blockStmt:
         | JS3AllowedBlockStatement
         | Array<JS3AllowedBlockStatement> = handleStatement(
-        _arrProp,
-        updatedProps,
-      );
+          _arrProp,
+          updatedProps,
+        );
       if (Array.isArray(blockStmt))
         blockStmt.forEach((s) => fin_consequent.push(s));
       else fin_consequent.push(blockStmt);
@@ -1873,9 +1861,7 @@ export function handleSwitchStatement(
   // 1 fallthrough props, 2 restricted props
   const orig_discriminant = node.discriminant; // Handling prop discriminant
   let fin_discriminant: JS3SwitchStatement_discriminant; // Handling prop discriminant
-  if (isExpression(orig_discriminant)) {
-    fin_discriminant = handleExpression(orig_discriminant, otherProps);
-  }
+  fin_discriminant = handleExpression(orig_discriminant, otherProps);
 
   const orig_cases = node.cases; // Handling prop cases
   const fin_cases: JS3SwitchStatement_cases = []; // Handling prop cases
@@ -1905,38 +1891,36 @@ export function handleWithStatement(
     isClassExpression(orig_object)
   ) {
     fin_object = lowerToAnonArrayExpr(orig_object, otherProps);
-  } else if (isExpression(orig_object)) {
+  } else {
     fin_object = handleExpression(orig_object, otherProps);
   }
   const orig_body = node.body; // Handling prop body
   let fin_body: JS3WithStatement_body; // Handling prop body
-  if (isStatement(orig_body)) {
-    if (isBlockStatement(orig_body)) {
-      fin_body = handleBlockStatement(orig_body, otherProps);
-    } else {
-      const blockBody: JS3BlockStatement_body = [];
-      fin_body = generateJS3BlockStatementfromBaseNode(
-        blockBody,
-        [],
-        orig_body,
-      );
+  if (isBlockStatement(orig_body)) {
+    fin_body = handleBlockStatement(orig_body, otherProps);
+  } else {
+    const blockBody: JS3BlockStatement_body = [];
+    fin_body = generateJS3BlockStatementfromBaseNode(
+      blockBody,
+      [],
+      orig_body,
+    );
 
-      // Block Scope
-      const updatedProps = {
-        ...otherProps,
-        others: { ...otherProps.others, holder: blockBody },
-      };
+    // Block Scope
+    const updatedProps = {
+      ...otherProps,
+      others: { ...otherProps.others, holder: blockBody },
+    };
 
-      // Push the lowered statement to the end of the block, previous statements are spilled stuff
-      const blockStmt:
-        | JS3AllowedBlockStatement
-        | Array<JS3AllowedBlockStatement> = handleStatement(
+    // Push the lowered statement to the end of the block, previous statements are spilled stuff
+    const blockStmt:
+      | JS3AllowedBlockStatement
+      | Array<JS3AllowedBlockStatement> = handleStatement(
         orig_body,
         updatedProps,
       );
-      if (Array.isArray(blockStmt)) blockStmt.forEach((s) => blockBody.push(s));
-      else blockBody.push(blockStmt);
-    }
+    if (Array.isArray(blockStmt)) blockStmt.forEach((s) => blockBody.push(s));
+    else blockBody.push(blockStmt);
   }
   const result: JS3WithStatement = generateJS3WithStatement(
     fin_object,
@@ -1953,39 +1937,35 @@ export function handleWhileStatement(
   // 1 fallthrough props, 2 restricted props
   const orig_test = node.test; // Handling prop test
   let fin_test: JS3WhileStatement_test; // Handling prop test
-  if (isExpression(orig_test)) {
-    fin_test = lowerComputedKey(orig_test, otherProps);
-  }
+  fin_test = lowerComputedKey(orig_test, otherProps);
 
   const orig_body = node.body; // Handling prop body
   let fin_body: JS3WhileStatement_body; // Handling prop body
-  if (isStatement(orig_body)) {
-    if (isBlockStatement(orig_body)) {
-      fin_body = handleBlockStatement(orig_body, otherProps);
-    } else {
-      const blockBody: JS3BlockStatement_body = [];
-      fin_body = generateJS3BlockStatementfromBaseNode(
-        blockBody,
-        [],
-        orig_body,
-      );
+  if (isBlockStatement(orig_body)) {
+    fin_body = handleBlockStatement(orig_body, otherProps);
+  } else {
+    const blockBody: JS3BlockStatement_body = [];
+    fin_body = generateJS3BlockStatementfromBaseNode(
+      blockBody,
+      [],
+      orig_body,
+    );
 
-      // Block Scope
-      const updatedProps = {
-        ...otherProps,
-        others: { ...otherProps.others, holder: blockBody },
-      };
+    // Block Scope
+    const updatedProps = {
+      ...otherProps,
+      others: { ...otherProps.others, holder: blockBody },
+    };
 
-      // Push the lowered statement to the end of the block, previous statements are spilled stuff
-      const blockStmt:
-        | JS3AllowedBlockStatement
-        | Array<JS3AllowedBlockStatement> = handleStatement(
+    // Push the lowered statement to the end of the block, previous statements are spilled stuff
+    const blockStmt:
+      | JS3AllowedBlockStatement
+      | Array<JS3AllowedBlockStatement> = handleStatement(
         orig_body,
         updatedProps,
       );
-      if (Array.isArray(blockStmt)) blockStmt.forEach((s) => blockBody.push(s));
-      else blockBody.push(blockStmt);
-    }
+    if (Array.isArray(blockStmt)) blockStmt.forEach((s) => blockBody.push(s));
+    else blockBody.push(blockStmt);
   }
   const result: JS3WhileStatement = generateJS3WhileStatement(
     fin_test,
