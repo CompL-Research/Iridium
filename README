@@ -1,29 +1,29 @@
 
 
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-░        ░░       ░░░        ░░       ░░░        ░░  ░░░░  ░░  ░░░░  ░
-▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒   ▒▒   ▒
-▓▓▓▓  ▓▓▓▓▓       ▓▓▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓        ▓
-████  █████  ███  ██████  █████  ████  █████  █████  ████  ██  █  █  █
-█        ██  ████  ██        ██       ███        ███      ███  ████  █
-██████████████████████████████████████████████████████████████████████
-Iridium Version: 0.6a
+██╗██████╗ ██╗██████╗ ██╗██╗   ██╗███╗   ███╗
+██║██╔══██╗██║██╔══██╗██║██║   ██║████╗ ████║
+██║██████╔╝██║██║  ██║██║██║   ██║██╔████╔██║
+██║██╔══██╗██║██║  ██║██║██║   ██║██║╚██╔╝██║
+██║██║  ██║██║██████╔╝██║╚██████╔╝██║ ╚═╝ ██║
+╚═╝╚═╝  ╚═╝╚═╝╚═════╝ ╚═╝ ╚═════╝ ╚═╝     ╚═╝
+                                             
+Iridium Version: 0.9a
 
 
 === Iridium ===
 
-  This project provides infrastructure to allow static analysis of react based  
-  applications.                                                                 
-  $ ./iridium <command> [OPTIONS]                                               
-  $ ./iridium js3 help                                                          
-  $ ./iridium iri help                                                          
-  $ ./iridium help                                                              
+  Iridium is a static analysis framework for JavaScript Programs 📈. 
+  $ ./iridium <command>                                              
+  $ ./iridium js3                                                    
+  $ ./iridium pika                                                   
+  $ ./iridium iri                                                    
+  $ ./iridium stats                                                  
+  $ ./iridium help                                                   
 
 Command List
 
-  help      Display this information.                        
-  js3       Generate JS3 file and print to stdout            
-  iri       Generate Iridium file (.iri) and print to stdout 
-  stats     Codespace stats.                                 
-  version   Print the version.                               
+  help   Display this information.             
+  js3    Generate JS3 file and print to stdout 
+  pika   Generate Iridium Pika-ge (package).   
+  iri    Generate Iridium file (.iri)          
 
