@@ -1,39 +1,30 @@
 {
-  "packageManager": "bun@1.2.3",
-  "name": "analysis",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "iridium",
+  "version": "0.9a",
+  "main": "iridium.ts",
   "type": "module",
   "scripts": {
-    "test-iri": "./iridium iri test.js"
+    "build": "rollup -c",
+    "start": "node ./dist/iridium.js"
   },
   "keywords": [],
   "author": "mee",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@babel/plugin-syntax-jsx": "^7.24.7",
     "@babel/preset-env": "^7.25.3",
     "@babel/preset-react": "^7.24.7",
-    "@babel/preset-typescript": "^7.26.0",
-    "babel-plugin-jsx": "^1.2.0",
-    "caniuse-lite": "^1.0.30001716",
+    "@babel/preset-typescript": "^7.27.1",
     "chalk": "^5.3.0",
-    "cli-progress": "^3.12.0",
     "command-line-args": "^6.0.0",
     "command-line-usage": "^7.0.3",
     "eshost": "^9.0.0",
-    "glob": "^11.0.0",
-    "immutable": "^5.0.3",
     "jest-worker": "^29.7.0",
     "make-tap-output": "^2.0.1",
-    "ora": "^8.2.0",
     "p-limit": "^6.1.0",
-    "shelljs": "^0.8.5",
     "socket.io": "^4.7.5",
     "test262-stream": "^1.4.0",
-    "tsx": "^4.16.5",
-    "typescript": "^5.7.3"
+    "tsx": "^4.16.5"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8",
@@ -45,15 +36,19 @@
     "#graphlib": "./externalDeps/graphlib-with-dominator-algo/index.js"
   },
   "devDependencies": {
-    "@babel/cli": "^7.25.9",
     "@babel/core": "^7.26.0",
     "@eslint/js": "^9.20.0",
-    "@types/bun": "^1.2.5",
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.4",
     "eslint": "^9.20.1",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
     "globals": "^15.15.0",
-    "ts-node": "^10.9.2",
+    "rollup": "^4.45.0",
+    "rollup-plugin-dts": "^6.2.1",
+    "typescript": "^5.7.3",
     "typescript-eslint": "^8.24.1"
   }
 }
