@@ -98,7 +98,7 @@ export default class Logger {
       objects,
     };
     this.#generateLog(data);
-    if (debugConfig.throwJS3Errors) throw new Error(message);
+    throw new Error(message);
   }
 
   throwIriError(message: string, objects: Array<object> = []) {
@@ -110,6 +110,6 @@ export default class Logger {
       objects,
     };
     this.#generateLog(data);
-    if (debugConfig.throwIRIErrors) throw new Error(message);
+    throw new Error(message);
   }
 }

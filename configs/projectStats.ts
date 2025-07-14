@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
-import debugConfig from "#debugConfig";
+import packageInfo from "../package.json";
 
-export const VERSION = "0.7a";
+export const VERSION = packageInfo.version;
 
 function getAllFiles(dirPath, arrayOfFiles) {
   const files = fs.readdirSync(dirPath);
@@ -52,14 +52,17 @@ export function projectStats(filePaths) {
     totalFiles += files.length;
     files.forEach((file) => {
       const ext = getFileExtension(file);
-      extensions.add(ext);
       if (!isImageFile(ext)) {
+        extensions.add(ext);
         totalLinesOfCode += countLinesInFile(file);
       }
     });
   });
 
-  debugConfig.logger.log(`Total Files  : ${totalFiles}`);
-  debugConfig.logger.log(`LOC          : ${totalLinesOfCode}`);
-  debugConfig.logger.log(`Extensions   : ${Array.from(extensions).join(", ")}`);
+  const res = [];
+  res.push(`Total Files  : ${totalFiles}`);
+  res.push(`LOC          : ${totalLinesOfCode}`);
+  res.push(`Extensions   : ${Array.from(extensions).join(", ")}`);
+
+  return res;
 }
