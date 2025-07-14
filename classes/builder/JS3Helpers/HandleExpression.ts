@@ -1,4 +1,3 @@
-import debugConfig from "#debugConfig";
 import {
   ArrayExpression,
   ArrowFunctionExpression,
@@ -91,6 +90,7 @@ import {
   isTypeParameterDeclaration,
   isUnaryExpression,
   isUpdateExpression,
+  isVoidPattern,
   isYieldExpression,
   logicalExpression,
   LogicalExpression,
@@ -112,8 +112,7 @@ import {
   UpdateExpression,
   YieldExpression,
 } from "@babel/types";
-import assert from "node:assert";
-import { JS3BuilderUtils } from "../JS3Builder.ts";
+import { JS3BuilderUtils } from "../JS3Builder";
 import {
   generateDummyJS3VariableDeclaration,
   generateIdentifier,
@@ -149,7 +148,7 @@ import {
   generateJS3UnaryExpression,
   generateJS3UpdateExpression,
   generateJS3YieldExpression,
-} from "./JS3Constructors.ts";
+} from "./JS3Constructors";
 import {
   JS3ArrayExpression,
   JS3ArrayExpression_elements,
@@ -237,7 +236,7 @@ import {
   JS3VariableDeclarator_init,
   JS3YieldExpression,
   JS3YieldExpression_argument,
-} from "./JS3Types.ts";
+} from "./JS3Types";
 
 import {
   isArgumentPlaceholder,
@@ -246,19 +245,18 @@ import {
   isTypeParameterInstantiation,
   isV8IntrinsicIdentifier,
 } from "@babel/types";
-import { lowerComputedKey } from "./GenericConstructs.ts";
-import { handleBlockStatement, handleDeclaratorRec } from "./HandleBlocks.ts";
-import { handleClassBody } from "./HandleClassDeclaration.ts";
+import { lowerComputedKey } from "./GenericConstructs";
+import { handleBlockStatement, handleDeclaratorRec } from "./HandleBlocks";
+import { handleClassBody } from "./HandleClassDeclaration";
 import {
   JS3CallExpression_arguments,
   JS3CallExpression_typeArguments,
   JS3CallExpression_typeParameters,
-} from "./JS3Types.ts";
-import { assertMessage } from "#utils";
+} from "./JS3Types";
 
 type OtherProps = JS3BuilderUtils;
 
-const isnull = (a) => a === null;
+const isnull = (a: any) => a === null;
 
 //
 // Reduces expressions to an Identifier
@@ -267,10 +265,8 @@ export function handleExpression(
   node: Expression,
   otherProps: OtherProps,
 ): Identifier {
-  assert(
-    Array.isArray(otherProps.others.holder),
-    assertMessage(import.meta.url, `😂 handleExpression expects an holder to spill intermediate values`)
-  );
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
+  if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
 
   let resultIdentifier = generateIdentifier(node, "$TODO");
 
@@ -526,10 +522,8 @@ export function handleExpression(
     resultIdentifier = handleSequenceExpression(node, otherProps);
     // ========================================================================================
   } else if (isParenthesizedExpression(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->ParenthesizedExpression`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->ParenthesizedExpression`);
   } else if (isThisExpression(node)) {
     // ========================================================================================
     // $resultIdentifier = this
@@ -637,10 +631,8 @@ export function handleExpression(
     // ========================================================================================
   } else if (isSuper(node)) {
     // ========================================================================================
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->Super [UNSUPPORTED BY DESIGN, will cause a syntax error, adjust case in callee]`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->Super [UNSUPPORTED BY DESIGN, will cause a syntax error, adjust case in callee]`);
     // ========================================================================================
   } else if (isTaggedTemplateExpression(node)) {
     // ========================================================================================
@@ -705,10 +697,8 @@ export function handleExpression(
     otherProps.others.holder.push(varDecl);
     // ========================================================================================
   } else if (isImport(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->Import`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->Import`);
   } else if (isBigIntLiteral(node)) {
     // ========================================================================================
     // $resultIdentifier = 123n
@@ -760,95 +750,59 @@ export function handleExpression(
     otherProps.others.holder.push(varDecl);
     // ========================================================================================
   } else if (isTypeCastExpression(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->TypeCastExpression`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->TypeCastExpression`);
   } else if (isJSXElement(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->JSXElement`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->JSXElement`);
   } else if (isJSXFragment(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->JSXFragment`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->JSXFragment`);
   } else if (isBindExpression(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->BindExpression`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->BindExpression`);
   } else if (isDoExpression(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->DoExpression`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->DoExpression`);
   } else if (isRecordExpression(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->RecordExpression`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->RecordExpression`);
   } else if (isTupleExpression(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->TupleExpression`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->TupleExpression`);
   } else if (isDecimalLiteral(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->DecimalLiteral`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->DecimalLiteral`);
   } else if (isModuleExpression(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->ModuleExpression`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->ModuleExpression`);
   } else if (isTopicReference(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->TopicReference`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->TopicReference`);
   } else if (isPipelineTopicExpression(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->PipelineTopicExpression`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->PipelineTopicExpression`);
   } else if (isPipelineBareFunction(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->PipelineBareFunction`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->PipelineBareFunction`);
   } else if (isPipelinePrimaryTopicReference(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->PipelinePrimaryTopicReference`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->PipelinePrimaryTopicReference`);
   } else if (isTSInstantiationExpression(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->TSInstantiationExpression`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->TSInstantiationExpression`);
   } else if (isTSAsExpression(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->TSAsExpression`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->TSAsExpression`);
   } else if (isTSSatisfiesExpression(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->TSSatisfiesExpression`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->TSSatisfiesExpression`);
   } else if (isTSTypeAssertion(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->TSTypeAssertion`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->TSTypeAssertion`);
   } else if (isTSNonNullExpression(node)) {
-    debugConfig.logger.throwJS3Error(
-      `TODO // unhandled ${node.type}->TSNonNullExpression`,
-      [],
-    );
+    throw new Error(
+      `TODO // unhandled ${node.type}->TSNonNullExpression`);
   }
   return resultIdentifier;
 }
@@ -908,6 +862,8 @@ export function lowerToAnonArrayExpr(
     node,
     otherProps.getNewTemporary("noname"),
   );
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
+  if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
   otherProps.others.holder.push(
     generateDummyJS3VariableDeclaration(
       node,
@@ -926,15 +882,13 @@ export function handleCallExpression(
   node: CallExpression,
   otherProps: OtherProps,
 ) {
-  assert(
-    Array.isArray(otherProps.others.holder),
-    assertMessage(import.meta.url, `😂 handleCallExpression expects an holder to spill intermediate values`)
-  );
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
+  if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
 
   const orig_typeArguments = node.typeArguments; // Handling prop typeArguments
   const fin_typeArguments: JS3CallExpression_typeArguments = null; // Handling prop typeArguments
   if (isTypeParameterInstantiation(orig_typeArguments)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       `TODO // unhandled ${node.type}typeArguments->TypeParameterInstantiation`,
     );
   }
@@ -942,7 +896,7 @@ export function handleCallExpression(
   const orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   const fin_typeParameters: JS3CallExpression_typeParameters = null; // Handling prop typeParameters
   if (isTSTypeParameterInstantiation(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       `TODO // unhandled ${node.type}typeParameters->TSTypeParameterInstantiation`,
     );
   }
@@ -965,11 +919,11 @@ export function handleCallExpression(
       }
 
       if (isArgumentPlaceholder(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           `TODO JS3JSX // unhandled ${node.type}[arguments]->ArgumentPlaceholder`,
         );
       } else if (isSpreadElement(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           `TODO JS3JSX // unhandled ${node.type}[arguments]->ArgumentPlaceholder`,
         );
       } else if (
@@ -999,45 +953,45 @@ export function handleCallExpression(
 
   // JSX Frag...
   if (isIdentifier(orig_callee) && orig_callee.name === "###JSXFRAG###") {
-    debugConfig.logger.throwJS3Error(`TODO JS3JSX // debug JSXFRAG callee`);
+    throw new Error(`TODO JS3JSX // debug JSXFRAG callee`);
 
-    const fin_callee: JS3JSXCallExpression_callee = orig_callee; // Handling prop callee
+    // const fin_callee: JS3JSXCallExpression_callee = orig_callee; // Handling prop callee
 
-    const orig_arguments = node.arguments; // Handling prop arguments
-    const fin_arguments: Array<Identifier> = []; // Handling prop arguments
+    // const orig_arguments = node.arguments; // Handling prop arguments
+    // const fin_arguments: Array<Identifier> = []; // Handling prop arguments
 
-    for (let i = 0; i < orig_arguments.length; i++) {
-      const _arrProp = orig_arguments[i];
-      // First Argument, let it be a string literal (helps distinguish primitive and non-primitive)
-      if (isArgumentPlaceholder(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
-          `TODO JS3JSX // unhandled ${node.type}[arguments]->ArgumentPlaceholder`,
-        );
-      } else if (isSpreadElement(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
-          `TODO JS3JSX // unhandled ${node.type}[arguments]->ArgumentPlaceholder`,
-        );
-      } else if (
-        isFunctionExpression(_arrProp) ||
-        isArrowFunctionExpression(_arrProp) ||
-        isClassExpression(_arrProp)
-      ) {
-        fin_arguments.push(lowerToAnonArrayExpr(_arrProp, otherProps));
-      } else {
-        fin_arguments.push(handleExpression(_arrProp, otherProps));
-      }
-    }
+    // for (let i = 0; i < orig_arguments.length; i++) {
+    //   const _arrProp = orig_arguments[i];
+    //   // First Argument, let it be a string literal (helps distinguish primitive and non-primitive)
+    //   if (isArgumentPlaceholder(_arrProp)) {
+    //     throw new Error(
+    //       `TODO JS3JSX // unhandled ${node.type}[arguments]->ArgumentPlaceholder`,
+    //     );
+    //   } else if (isSpreadElement(_arrProp)) {
+    //     throw new Error(
+    //       `TODO JS3JSX // unhandled ${node.type}[arguments]->ArgumentPlaceholder`,
+    //     );
+    //   } else if (
+    //     isFunctionExpression(_arrProp) ||
+    //     isArrowFunctionExpression(_arrProp) ||
+    //     isClassExpression(_arrProp)
+    //   ) {
+    //     fin_arguments.push(lowerToAnonArrayExpr(_arrProp, otherProps));
+    //   } else {
+    //     fin_arguments.push(handleExpression(_arrProp, otherProps));
+    //   }
+    // }
 
-    const result: JS3JSXCallExpression =
-      generateJS3JSXCallExpressionfromBaseNode(
-        fin_callee,
-        fin_arguments,
-        fin_typeArguments,
-        fin_typeParameters,
-        false,
-        node,
-      );
-    return result;
+    // const result: JS3JSXCallExpression =
+    //   generateJS3JSXCallExpressionfromBaseNode(
+    //     fin_callee,
+    //     fin_arguments,
+    //     fin_typeArguments,
+    //     fin_typeParameters,
+    //     false,
+    //     node,
+    //   );
+    // return result;
   }
 
   if (
@@ -1058,7 +1012,7 @@ export function handleCallExpression(
         if (isSpreadElement(_arrProp)) {
           fin_arguments.push(_arrProp);
         } else if (isArgumentPlaceholder(_arrProp)) {
-          debugConfig.logger.throwJS3Error(
+          throw new Error(
             `TODO // unhandled ${node.type}[arguments]->ArgumentPlaceholder`,
           );
         } else {
@@ -1073,7 +1027,7 @@ export function handleCallExpression(
         fin_arguments,
         fin_typeArguments,
         fin_typeParameters,
-        node.optional,
+        node.optional === undefined ? null : node.optional,
         node,
       );
     return result;
@@ -1103,7 +1057,7 @@ export function handleCallExpression(
     if (Array.isArray(orig_arguments)) {
       for (const _arrProp of orig_arguments) {
         if (isArgumentPlaceholder(_arrProp)) {
-          debugConfig.logger.throwJS3Error(
+          throw new Error(
             `TODO // unhandled ${node.type}[arguments]->ArgumentPlaceholder`,
           );
         } else if (isSpreadElement(_arrProp)) {
@@ -1150,7 +1104,7 @@ export function handleMemberExpression(
     isClassExpression(orig_object)
   ) {
     fin_object = lowerToAnonArrayExpr(orig_object, otherProps);
-  } else if (isExpression(orig_object)) {
+  } else {
     fin_object = handleExpression(orig_object, otherProps);
   }
 
@@ -1166,7 +1120,7 @@ export function handleMemberExpression(
     fin_property = lowerToAnonArrayExpr(orig_property, otherProps);
   } else if (isExpression(orig_property)) {
     fin_property = handleExpression(orig_property, otherProps);
-  } else if (isPrivateName(orig_property)) {
+  } else {
     fin_property = handlePrivateName(orig_property, otherProps);
   }
 
@@ -1256,7 +1210,7 @@ export function handleMemberExpression(
 //       temp = node.object
 //       nodes.push(temp);
 //     } else {
-//       debugConfig.logger.throwJS3Error("OptionalMemberExpression: chain is expected to only contain 'OptionalMemberExpression' and 'OptionalCallExpression'")
+//       throw new Error("OptionalMemberExpression: chain is expected to only contain 'OptionalMemberExpression' and 'OptionalCallExpression'")
 //     }
 //   }
 
@@ -1307,7 +1261,7 @@ export function handleMemberExpression(
 //   //       nodes.push(_node)
 
 //   //     } else {
-//   //       debugConfig.logger.throwJS3Error(`Object of an optional member expression expected to be OptionalMemberExpression | OptionalCallExpression, found ${_node.type}`)
+//   //       throw new Error(`Object of an optional member expression expected to be OptionalMemberExpression | OptionalCallExpression, found ${_node.type}`)
 //   //     }
 
 //   //   }
@@ -1397,7 +1351,7 @@ export function handleMemberExpression(
 //   //   if (isIdentifier(node.property) || isPrivateName(node.property)) {
 //   //     blockHolder.push(generateJS3AssignmentExpressionfromBaseNode(fin$res, generateJS3MemberExpressionfromBaseNode(obj$res, node.property, false, null, node.property), "=", node.property))
 //   //   } else {
-//   //     debugConfig.logger.throwJS3Error(`TODO // unhandled ${node.type}!computed->Not an identifier!`);
+//   //     throw new Error(`TODO // unhandled ${node.type}!computed->Not an identifier!`);
 //   //   }
 //   // }
 
@@ -1450,7 +1404,7 @@ export function handleMemberExpression(
 //   //     } else if (isExpression(_arrProp)) {
 //   //       fin_arguments.push(lowerComputedKey(_arrProp, otherProps))
 //   //     } else if (isArgumentPlaceholder(_arrProp)) {
-//   //       debugConfig.logger.throwJS3Error(`TODO // unhandled ${node.type}[arguments]->ArgumentPlaceholder`);
+//   //       throw new Error(`TODO // unhandled ${node.type}[arguments]->ArgumentPlaceholder`);
 //   //     }
 //   //   }
 //   // }
@@ -1462,9 +1416,9 @@ export function handleMemberExpression(
 //   // let IS_SUPER_CONTEXT = false
 
 //   // if (isSuper(orig_callee)) {
-//   //   debugConfig.logger.throwJS3Error(`TODO // unhandled ${node.type}!callee->SUPER not handled`);
+//   //   throw new Error(`TODO // unhandled ${node.type}!callee->SUPER not handled`);
 //   // } else if (isV8IntrinsicIdentifier(orig_callee)) {
-//   //   debugConfig.logger.throwJS3Error(`TODO // unhandled ${node.type}!callee->V8 Intrinsic not handled`);
+//   //   throw new Error(`TODO // unhandled ${node.type}!callee->V8 Intrinsic not handled`);
 //   // } else if (isIdentifier(orig_callee)) {
 //   //   callee$res = orig_callee
 //   // } else if (isOptionalMemberExpression(orig_callee)) {
@@ -1508,11 +1462,11 @@ export function handleMemberExpression(
 //   //   } else if (isSuper(mExpr.object)) {
 //   //     IS_SUPER_CONTEXT = true
 //   //   } else {
-//   //     debugConfig.logger.throwJS3Error(`TODO // unhandled ${node.type}!callee object is not an Identifier`);
+//   //     throw new Error(`TODO // unhandled ${node.type}!callee object is not an Identifier`);
 //   //   }
 
 //   // } else if (isImport(orig_callee)) {
-//   //   debugConfig.logger.throwJS3Error(`TODO // unhandled ${node.type}!callee->import not handled`);
+//   //   throw new Error(`TODO // unhandled ${node.type}!callee->import not handled`);
 //   // } else if (isFunctionExpression(orig_callee) || isArrowFunctionExpression(orig_callee) || isClassExpression(orig_callee)) {
 //   //   callee$res = lowerToAnonArrayExpr(orig_callee, otherProps)
 //   // } else if (isExpression(orig_callee)) {
@@ -1559,13 +1513,13 @@ export function handleMemberExpression(
 //   //   let orig_typeArguments = node.typeArguments; // Handling prop typeArguments
 //   //   let fin_typeArguments = null; // Handling prop typeArguments
 //   //   if (isTypeParameterInstantiation(orig_typeArguments)) {
-//   //     debugConfig.logger.throwJS3Error("TODO // unhandled OptionalCallExpression->typeArguments->TypeParameterInstantiation");
+//   //     throw new Error("TODO // unhandled OptionalCallExpression->typeArguments->TypeParameterInstantiation");
 //   //   }
 
 //   //   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
 //   //   let fin_typeParameters = null; // Handling prop typeParameters
 //   //   if (isTSTypeParameterInstantiation(orig_typeParameters)) {
-//   //     debugConfig.logger.throwJS3Error("TODO // unhandled OptionalCallExpression->typeParameters->TSTypeParameterInstantiation");
+//   //     throw new Error("TODO // unhandled OptionalCallExpression->typeParameters->TSTypeParameterInstantiation");
 //   //   }
 
 //   //   let result: JS3CallExpression = generateJS3CallExpressionfromBaseNode(fin_callee, fin_arguments_new, fin_typeArguments, fin_typeArguments, null, node);
@@ -1578,13 +1532,13 @@ export function handleMemberExpression(
 //   //   let orig_typeArguments = node.typeArguments; // Handling prop typeArguments
 //   //   let fin_typeArguments = null; // Handling prop typeArguments
 //   //   if (isTypeParameterInstantiation(orig_typeArguments)) {
-//   //     debugConfig.logger.throwJS3Error("TODO // unhandled OptionalCallExpression->typeArguments->TypeParameterInstantiation");
+//   //     throw new Error("TODO // unhandled OptionalCallExpression->typeArguments->TypeParameterInstantiation");
 //   //   }
 
 //   //   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
 //   //   let fin_typeParameters = null; // Handling prop typeParameters
 //   //   if (isTSTypeParameterInstantiation(orig_typeParameters)) {
-//   //     debugConfig.logger.throwJS3Error("TODO // unhandled OptionalCallExpression->typeParameters->TSTypeParameterInstantiation");
+//   //     throw new Error("TODO // unhandled OptionalCallExpression->typeParameters->TSTypeParameterInstantiation");
 //   //   }
 
 //   //   let result: JS3CallExpression = generateJS3CallExpressionfromBaseNode(fin_callee, fin_arguments_new, fin_typeArguments, fin_typeArguments, null, node);
@@ -1662,6 +1616,7 @@ export function handleObjectMethod(node: ObjectMethod, otherProps: OtherProps) {
       if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp);
       } else if (isPattern(_arrProp)) {
+        if (isVoidPattern(_arrProp)) throw new Error("TODO // unhandled Void Pattern Node");
         fin_params.push(_arrProp);
       } else if (isRestElement(_arrProp)) {
         fin_params.push(_arrProp);
@@ -1671,16 +1626,14 @@ export function handleObjectMethod(node: ObjectMethod, otherProps: OtherProps) {
 
   const orig_body = node.body; // Handling prop body
   let fin_body: JS3ObjectMethod_body; // Handling prop body
-  if (isBlockStatement(orig_body)) {
-    fin_body = handleBlockStatement(orig_body, otherProps);
-  }
+  fin_body = handleBlockStatement(orig_body, otherProps);
 
   const orig_decorators = node.decorators; // Handling prop decorators
   const fin_decorators: JS3ObjectMethod_decorators = null; // Handling prop decorators
   if (Array.isArray(orig_decorators)) {
     for (const _arrProp of orig_decorators) {
       if (isDecorator(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ObjectMethod->[decorators]->Decorator",
         );
       }
@@ -1690,15 +1643,15 @@ export function handleObjectMethod(node: ObjectMethod, otherProps: OtherProps) {
   const orig_returnType = node.returnType; // Handling prop returnType
   const fin_returnType: JS3ObjectMethod_returnType = null; // Handling prop returnType
   if (isTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectMethod->returnType->TypeAnnotation",
     );
   } else if (isTSTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectMethod->returnType->TSTypeAnnotation",
     );
   } else if (isNoop(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectMethod->returnType->Noop",
     );
   }
@@ -1706,15 +1659,15 @@ export function handleObjectMethod(node: ObjectMethod, otherProps: OtherProps) {
   const orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   const fin_typeParameters: JS3ObjectMethod_typeParameters = null; // Handling prop typeParameters
   if (isTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectMethod->typeParameters->TypeParameterDeclaration",
     );
   } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectMethod->typeParameters->TSTypeParameterDeclaration",
     );
   } else if (isNoop(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectMethod->typeParameters->Noop",
     );
   }
@@ -1746,7 +1699,7 @@ export function handleObjectProperty(
     ) {
       fin_key = lowerToAnonArrayExpr(orig_key, otherProps);
     } else if (isPrivateName(orig_key)) {
-      debugConfig.logger.throwJS3Error(
+      throw new Error(
         "TODO // unhandled ObjectProperty->key->PrivateName",
       );
     } else {
@@ -1761,27 +1714,27 @@ export function handleObjectProperty(
       fin_key = orig_key;
     } else if (isBigIntLiteral(orig_key)) {
       fin_key = orig_key;
-    // } else if (isDecimalLiteral(orig_key)) {
-    //   debugConfig.logger.throwJS3Error(
-    //     "TODO // unhandled ObjectProperty->key->DecimalLiteral",
-    //   );
-    // } else if (isPrivateName(orig_key)) {
-    //   debugConfig.logger.throwJS3Error(
-    //     "TODO // unhandled ObjectProperty->key->PrivateName",
-    //   );
-    // } else if (
-    //   isFunctionExpression(orig_key) ||
-    //   isArrowFunctionExpression(orig_key) ||
-    //   isClassExpression(orig_key)
-    // ) {
-    //   fin_key = lowerToAnonArrayExpr(orig_key, otherProps);
+      // } else if (isDecimalLiteral(orig_key)) {
+      //   throw new Error(
+      //     "TODO // unhandled ObjectProperty->key->DecimalLiteral",
+      //   );
+      // } else if (isPrivateName(orig_key)) {
+      //   throw new Error(
+      //     "TODO // unhandled ObjectProperty->key->PrivateName",
+      //   );
+      // } else if (
+      //   isFunctionExpression(orig_key) ||
+      //   isArrowFunctionExpression(orig_key) ||
+      //   isClassExpression(orig_key)
+      // ) {
+      //   fin_key = lowerToAnonArrayExpr(orig_key, otherProps);
     } else {
-      debugConfig.logger.throwJS3Error(
+      throw new Error(
         "TODO // found expression for computed key",
       );
     }
   }
-  
+
 
   const orig_value = node.value; // Handling prop value
   let fin_value: JS3ObjectProperty_value; // Handling prop value
@@ -1796,37 +1749,39 @@ export function handleObjectProperty(
   } else if (isExpression(orig_value)) {
     fin_value = handleExpression(orig_value, otherProps);
   } else if (isRestElement(orig_value)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectProperty->value->RestElement",
     );
   } else if (isAssignmentPattern(orig_value)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectProperty->value->AssignmentPattern",
     );
   } else if (isArrayPattern(orig_value)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectProperty->value->ArrayPattern",
     );
   } else if (isObjectPattern(orig_value)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectProperty->value->ObjectPattern",
     );
   } else if (isTSAsExpression(orig_value)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectProperty->value->TSAsExpression",
     );
   } else if (isTSSatisfiesExpression(orig_value)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectProperty->value->TSSatisfiesExpression",
     );
   } else if (isTSTypeAssertion(orig_value)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectProperty->value->TSTypeAssertion",
     );
   } else if (isTSNonNullExpression(orig_value)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ObjectProperty->value->TSNonNullExpression",
     );
+  } else {
+    throw new Error("TODO // unhandled ObjectProperty->value ... UKN",);
   }
 
   const orig_decorators = node.decorators; // Handling prop decorators
@@ -1834,7 +1789,7 @@ export function handleObjectProperty(
   if (Array.isArray(orig_decorators)) {
     for (const _arrProp of orig_decorators) {
       if (isDecorator(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ObjectProperty->[decorators]->Decorator",
         );
       }
@@ -1868,7 +1823,7 @@ export function handleObjectProperty(
 //           key = _arrProp.key;
 //         } else if (isPrivateName(_arrProp.key)) {
 //           key = generateIdentifier(_arrProp.key, "$TODO")
-//           debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectMethod [key is private name]");
+//           throw new Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectMethod [key is private name]");
 //         } else {
 //           key = handleExpression(_arrProp.key, otherProps);
 //           computed = true
@@ -1899,7 +1854,7 @@ export function handleObjectProperty(
 //           key = _arrProp.key;
 //         } else if (isPrivateName(_arrProp.key)) {
 //           key = generateIdentifier(_arrProp.key, "$TODO")
-//           debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectProperty [key is private name]");
+//           throw new Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectProperty [key is private name]");
 //         } else {
 //           key = handleExpression(_arrProp.key, otherProps);
 //           computed = true
@@ -1910,7 +1865,7 @@ export function handleObjectProperty(
 //           value = handleExpression(_arrProp.value, otherProps)
 //         } else if (isPatternLike(_arrProp.value)) {
 //           value = generateIdentifier(_arrProp.value, "$TODO")
-//           debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectProperty [value is pattern like]");
+//           throw new Error("TODO // unhandled spill ObjectExpression->[properties]->ObjectProperty [value is pattern like]");
 //         }
 
 //         const dummyNode = generateBaseNodeFrom(_arrProp)
@@ -1921,7 +1876,7 @@ export function handleObjectProperty(
 //         const exprStmt = generateJS3ExpressionStatementfromBaseNode(assignmentExpression, dummyNode)
 //         otherProps.others.holder.push(exprStmt)
 //       } else if (isSpreadElement(_arrProp)) {
-//         debugConfig.logger.throwJS3Error("TODO // unhandled spill ObjectExpression->[properties]->SpreadElement", [_arrProp]);
+//         throw new Error("TODO // unhandled spill ObjectExpression->[properties]->SpreadElement", [_arrProp]);
 //       }
 //     }
 //   }
@@ -1950,13 +1905,13 @@ export function handleObjectProperty(
 //       if(isIdentifier (_arrProp)) {
 //         fin_params.push(_arrProp)
 //       } else if(isAssignmentPattern (_arrProp)) {
-//         debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[params]->AssignmentPattern");
+//         throw new Error("TODO // unhandled ObjectMethod->[params]->AssignmentPattern");
 //       } else if(isArrayPattern (_arrProp)) {
-//         debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[params]->ArrayPattern");
+//         throw new Error("TODO // unhandled ObjectMethod->[params]->ArrayPattern");
 //       } else if(isObjectPattern (_arrProp)) {
-//         debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[params]->ObjectPattern");
+//         throw new Error("TODO // unhandled ObjectMethod->[params]->ObjectPattern");
 //       } else if(isRestElement (_arrProp)) {
-//         debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[params]->RestElement");
+//         throw new Error("TODO // unhandled ObjectMethod->[params]->RestElement");
 //       }
 //     }
 //   }
@@ -1972,7 +1927,7 @@ export function handleObjectProperty(
 //   if (Array.isArray ( orig_decorators )) {
 //     for (const _arrProp of orig_decorators) {
 //       if(isDecorator (_arrProp)) {
-//         debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->[decorators]->Decorator");
+//         throw new Error("TODO // unhandled ObjectMethod->[decorators]->Decorator");
 //       }
 //     }
 //   }
@@ -1980,21 +1935,21 @@ export function handleObjectProperty(
 //   let orig_returnType = node.returnType; // Handling prop returnType
 //   let fin_returnType : JS3ObjectMethod_returnType = null; // Handling prop returnType
 //   if(isTypeAnnotation (orig_returnType)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->returnType->TypeAnnotation");
+//     throw new Error("TODO // unhandled ObjectMethod->returnType->TypeAnnotation");
 //   } else if(isTSTypeAnnotation (orig_returnType)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->returnType->TSTypeAnnotation");
+//     throw new Error("TODO // unhandled ObjectMethod->returnType->TSTypeAnnotation");
 //   } else if(isNoop (orig_returnType)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->returnType->Noop");
+//     throw new Error("TODO // unhandled ObjectMethod->returnType->Noop");
 //   }
 
 //   let orig_typeParameters = node.typeParameters; // Handling prop typeParameters
 //   let fin_typeParameters : JS3ObjectMethod_typeParameters = null; // Handling prop typeParameters
 //   if(isTypeParameterDeclaration (orig_typeParameters)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->typeParameters->TypeParameterDeclaration");
+//     throw new Error("TODO // unhandled ObjectMethod->typeParameters->TypeParameterDeclaration");
 //   } else if(isTSTypeParameterDeclaration (orig_typeParameters)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->typeParameters->TSTypeParameterDeclaration");
+//     throw new Error("TODO // unhandled ObjectMethod->typeParameters->TSTypeParameterDeclaration");
 //   } else if(isNoop (orig_typeParameters)) {
-//     debugConfig.logger.throwJS3Error("TODO // unhandled ObjectMethod->typeParameters->Noop");
+//     throw new Error("TODO // unhandled ObjectMethod->typeParameters->Noop");
 //   }
 
 //   let result: JS3ObjectMethod = generateJS3ObjectMethod(fin_key, fin_params, fin_body, fin_decorators, fin_returnType, fin_typeParameters, node);
@@ -2019,6 +1974,7 @@ export function handleFunctionExpression(
       if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp);
       } else if (isPattern(_arrProp)) {
+        if (isVoidPattern(_arrProp)) throw new Error("TODO // unhandled Void Pattern Node");
         fin_params.push(_arrProp);
       } else if (isRestElement(_arrProp)) {
         fin_params.push(_arrProp);
@@ -2029,60 +1985,58 @@ export function handleFunctionExpression(
   const orig_body = node.body; // Handling prop body
 
   let fin_body: JS3FunctionExpression_body; // Handling prop body
+  fin_body = handleBlockStatement(orig_body, otherProps);
 
-  if (isBlockStatement(orig_body)) {
-    fin_body = handleBlockStatement(orig_body, otherProps);
-  }
   const orig_predicate = node.predicate; // Handling prop predicate
   let fin_predicate: JS3FunctionExpression_predicate; // Handling prop predicate
   if (isDeclaredPredicate(orig_predicate)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionExpression->predicate->DeclaredPredicate",
     );
   } else if (isInferredPredicate(orig_predicate)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionExpression->predicate->InferredPredicate",
     );
   } else if (isnull(orig_predicate)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionExpression->predicate->null",
     );
   }
   const orig_returnType = node.returnType; // Handling prop returnType
   let fin_returnType: JS3FunctionExpression_returnType; // Handling prop returnType
   if (isTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionExpression->returnType->TypeAnnotation",
     );
   } else if (isTSTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionExpression->returnType->TSTypeAnnotation",
     );
   } else if (isNoop(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionExpression->returnType->Noop",
     );
   } else if (isnull(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionExpression->returnType->null",
     );
   }
   const orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   let fin_typeParameters: JS3FunctionExpression_typeParameters; // Handling prop typeParameters
   if (isTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionExpression->typeParameters->TypeParameterDeclaration",
     );
   } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionExpression->typeParameters->TSTypeParameterDeclaration",
     );
   } else if (isNoop(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionExpression->typeParameters->Noop",
     );
   } else if (isnull(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled FunctionExpression->typeParameters->null",
     );
   }
@@ -2135,7 +2089,7 @@ export function handleNewExpression(
       } else if (isSpreadElement(_arrProp)) {
         fin_arguments.push(handleSpreadElement(_arrProp, otherProps));
       } else if (isArgumentPlaceholder(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled NewExpression->[arguments]->ArgumentPlaceholder",
         );
       }
@@ -2145,7 +2099,7 @@ export function handleNewExpression(
   const orig_typeArguments = node.typeArguments; // Handling prop typeArguments
   const fin_typeArguments: JS3NewExpression_typeArguments = null; // Handling prop typeArguments
   if (isTypeParameterInstantiation(orig_typeArguments)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled NewExpression->typeArguments->TypeParameterInstantiation",
     );
   }
@@ -2153,7 +2107,7 @@ export function handleNewExpression(
   const orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   const fin_typeParameters: JS3NewExpression_typeParameters = null; // Handling prop typeParameters
   if (isTSTypeParameterInstantiation(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled NewExpression->typeParameters->TSTypeParameterInstantiation",
     );
   }
@@ -2189,6 +2143,8 @@ export function handleBinaryExpression(
     // This is how it works:
     //  test262/test/language/expressions/in/private-field-presence-method-shadowed.js
     fin_left = handlePrivateName(orig_left, otherProps);
+  } else {
+    throw new Error("Impossible");
   }
   const orig_right = node.right; // Handling prop right
   let fin_right: JS3BinaryExpression_right; // Handling prop right
@@ -2200,7 +2156,7 @@ export function handleBinaryExpression(
   ) {
     // Probably redundant but keep it for consistency
     fin_right = lowerToAnonArrayExpr(orig_right, otherProps);
-  } else if (isExpression(orig_right)) {
+  } else {
     fin_right = handleExpression(orig_right, otherProps);
   }
   const result: JS3BinaryExpression = generateJS3BinaryExpression(
@@ -2225,9 +2181,12 @@ export function handleLogicalExpression(
   ) {
     // Probably redundant but keep it for consistency
     fin_left = lowerToAnonArrayExpr(orig_left, otherProps);
-  } else if (isExpression(orig_left)) {
+  } else {
     fin_left = handleExpression(orig_left, otherProps);
   }
+
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
+  if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
 
   const rValFinalResHolder = generateIdentifier(
     node,
@@ -2251,6 +2210,8 @@ export function handleLogicalExpression(
       rValFinalResHolder,
       cond,
     );
+    if (!otherProps.others) throw new Error("otherProps.others undefined");
+    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
     otherProps.others.holder.push(varDecl);
   } else if (node.operator === "||") {
     //
@@ -2306,6 +2267,8 @@ export function handleLogicalExpression(
       rValFinalResHolder,
       cond,
     );
+    if (!otherProps.others) throw new Error("otherProps.others undefined");
+    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
     otherProps.others.holder.push(varDecl);
   }
 
@@ -2351,7 +2314,7 @@ export function handleAssignmentExpression(
       RVal: null | JS3VariableDeclarator_init,
     ) => {
       if (RVal === null || RVal === undefined)
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "In assignment expression RVal is not expected to be a null | undefined node...",
         );
 
@@ -2379,7 +2342,7 @@ export function handleAssignmentExpression(
 
     // 3. Optional chaining here is disallowed, it is part of experimental syntax
     if (isOptionalMemberExpression(node.left)) {
-      debugConfig.logger.throwJS3Error(
+      throw new Error(
         "LVal of assignment is not allowed to be an optional member expression (this is experimental syntax)",
       );
     } else {
@@ -2387,7 +2350,7 @@ export function handleAssignmentExpression(
     }
 
     if (!init$res)
-      debugConfig.logger.throwJS3Error(
+      throw new Error(
         "Assignment Expression, the resultant value is undefined, expected Identifier",
       );
 
@@ -2425,21 +2388,22 @@ export function handleAssignmentExpression(
       | "<"
       | ">="
       | "<="
-      | "|>" = (op) => {
-      if (op === "+=") return "+";
-      else if (op === "-=") return "-";
-      else if (op === "*=") return "*";
-      else if (op === "/=") return "/";
-      else if (op === "%=") return "%";
-      else if (op === "**=") return "**";
-      else if (op === "<<=") return "<<";
-      else if (op === ">>=") return ">>";
-      else if (op === ">>>=") return ">>>";
-      else if (op === "&=") return "&";
-      else if (op === "^=") return "^";
-      else if (op === "|=") return "|";
-      else return null; // Return null for logical and nullish operators
-    };
+      | "|>"
+      | null = (op) => {
+        if (op === "+=") return "+";
+        else if (op === "-=") return "-";
+        else if (op === "*=") return "*";
+        else if (op === "/=") return "/";
+        else if (op === "%=") return "%";
+        else if (op === "**=") return "**";
+        else if (op === "<<=") return "<<";
+        else if (op === ">>=") return ">>";
+        else if (op === ">>>=") return ">>>";
+        else if (op === "&=") return "&";
+        else if (op === "^=") return "^";
+        else if (op === "|=") return "|";
+        else return null; // Return null for logical and nullish operators
+      };
 
     const OP = getOperator(node.operator);
 
@@ -2488,6 +2452,8 @@ export function handleAssignmentExpression(
         node,
         otherProps.getNewTemporary("AssnTarget"),
       );
+      if (!otherProps.others) throw new Error("otherProps.others undefined");
+      if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
       otherProps.others.holder.push(
         generateDummyJS3VariableDeclaration(node, lvalResHolder, LVAL_EVAL_RES),
       );
@@ -2507,7 +2473,8 @@ export function handleAssignmentExpression(
           ),
           otherProps,
         );
-
+        if (!otherProps.others) throw new Error("otherProps.others undefined");
+        if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
         // fin$res = [1]
         otherProps.others.holder.push(
           generateDummyJS3VariableDeclaration(node, fin$res, condExprCheck),
@@ -2525,6 +2492,8 @@ export function handleAssignmentExpression(
           otherProps,
         );
 
+        if (!otherProps.others) throw new Error("otherProps.others undefined");
+        if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
         // fin$res = [1]
         otherProps.others.holder.push(
           generateDummyJS3VariableDeclaration(node, fin$res, condExprCheck),
@@ -2558,6 +2527,9 @@ export function handleAssignmentExpression(
           otherProps,
         );
 
+        if (!otherProps.others) throw new Error("otherProps.others undefined");
+        if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+
         // fin$res = [1]
         otherProps.others.holder.push(
           generateDummyJS3VariableDeclaration(node, fin$res, condExprCheck),
@@ -2566,12 +2538,12 @@ export function handleAssignmentExpression(
         return fin$res;
       }
 
-      debugConfig.logger.throwJS3Error(
+      throw new Error(
         "TODO // Unhandled Assignment Expression operators, expected one of &&=, ||=, ??=...",
       );
     }
   } else {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // Assignment Expression: Unknown case...",
     );
   }
@@ -2587,25 +2559,25 @@ export function handleAssignmentExpression(
   //   isMemberExpressionContext = true
   //   fin_left = handleMemberExpression(orig_left, otherProps)
   // } else if (isRestElement(orig_left)) {
-  //   debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->RestElement");
+  //   throw new Error("TODO // unhandled AssignmentExpression->left->RestElement");
   // } else if (isAssignmentPattern(orig_left)) {
-  //   debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->AssignmentPattern");
+  //   throw new Error("TODO // unhandled AssignmentExpression->left->AssignmentPattern");
   // } else if (isArrayPattern(orig_left)) {
   //   fin_left = orig_left
   // } else if (isObjectPattern(orig_left)) {
   //   fin_left = orig_left
   // } else if (isTSParameterProperty(orig_left)) {
-  //   debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->TSParameterProperty");
+  //   throw new Error("TODO // unhandled AssignmentExpression->left->TSParameterProperty");
   // } else if (isTSAsExpression(orig_left)) {
-  //   debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->TSAsExpression");
+  //   throw new Error("TODO // unhandled AssignmentExpression->left->TSAsExpression");
   // } else if (isTSSatisfiesExpression(orig_left)) {
-  //   debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->TSSatisfiesExpression");
+  //   throw new Error("TODO // unhandled AssignmentExpression->left->TSSatisfiesExpression");
   // } else if (isTSTypeAssertion(orig_left)) {
-  //   debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->TSTypeAssertion");
+  //   throw new Error("TODO // unhandled AssignmentExpression->left->TSTypeAssertion");
   // } else if (isTSNonNullExpression(orig_left)) {
-  //   debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->TSNonNullExpression");
+  //   throw new Error("TODO // unhandled AssignmentExpression->left->TSNonNullExpression");
   // } else if (isOptionalMemberExpression(orig_left)) {
-  //   debugConfig.logger.throwJS3Error("TODO // unhandled AssignmentExpression->left->OptionalMemberExpression");
+  //   throw new Error("TODO // unhandled AssignmentExpression->left->OptionalMemberExpression");
   // }
 
   //
@@ -2705,7 +2677,7 @@ export function handleAssignmentExpression(
   //   // @ts-ignore
   //   if (isArrayPattern(lValRes) || isObjectPattern(lValRes) || isAssignmentPattern(lValRes) || isRestElement(lValRes)) {
   //     varDecl = generateIdentifier(node, "$TODO$UNSUPPORTED_LVAL_TYPE")
-  //     debugConfig.logger.throwJS3Error("TODO // unhandled UNSUPPORTED_LVAL_TYPE");
+  //     throw new Error("TODO // unhandled UNSUPPORTED_LVAL_TYPE");
   //   } else {
   //     varDecl = generateDummyJS3VariableDeclaration(node, rValFinalResHolder, lValRes);
   //   }
@@ -2738,7 +2710,7 @@ export function handleAssignmentExpression(
   //   // @ts-ignore
   //   if (isArrayPattern(lValRes) || isObjectPattern(lValRes) || isAssignmentPattern(lValRes) || isRestElement(lValRes)) {
   //     bCondTrue = generateIdentifier(node, "$TODO$UNSUPPORTED_LVAL_RES")
-  //     debugConfig.logger.throwJS3Error("TODO // unhandled UNSUPPORTED_LVAL_TYPE");
+  //     throw new Error("TODO // unhandled UNSUPPORTED_LVAL_TYPE");
   //   } else {
   //     // @ts-ignore
   //     bCondTrue = handleExpression(lValRes, otherProps)
@@ -2791,36 +2763,34 @@ export function handleUnaryExpression(
   // 3 fallthrough props, 1 restricted props
   const orig_argument = node.argument; // Handling prop argument
   let fin_argument: JS3UnaryExpression_argument; // Handling prop argument
-  if (isExpression(orig_argument)) {
-    // For some unary operators like delete, we expect a member expression as argument
-    //
-    // Correct: delete a.foo
-    //
-    // Incorrect: t1 = a.foo
-    //            delete t1
-    //
+  // For some unary operators like delete, we expect a member expression as argument
+  //
+  // Correct: delete a.foo
+  //
+  // Incorrect: t1 = a.foo
+  //            delete t1
+  //
 
-    if (node.operator === "delete") {
-      if (isMemberExpression(orig_argument)) {
-        fin_argument = handleMemberExpression(orig_argument, otherProps);
-      } else if (isIdentifier(orig_argument)) {
-        fin_argument = orig_argument;
-      } else {
-        fin_argument = lowerComputedKey(orig_argument, otherProps);
-      }
+  if (node.operator === "delete") {
+    if (isMemberExpression(orig_argument)) {
+      fin_argument = handleMemberExpression(orig_argument, otherProps);
+    } else if (isIdentifier(orig_argument)) {
+      fin_argument = orig_argument;
     } else {
-      if (isIdentifier(orig_argument)) {
-        fin_argument = orig_argument;
-      } else if (
-        isFunctionExpression(orig_argument) ||
-        isArrowFunctionExpression(orig_argument) ||
-        isClassExpression(orig_argument)
-      ) {
-        // Probably redundant but keep it for consistency
-        fin_argument = lowerToAnonArrayExpr(orig_argument, otherProps);
-      } else {
-        fin_argument = handleExpression(orig_argument, otherProps);
-      }
+      fin_argument = lowerComputedKey(orig_argument, otherProps);
+    }
+  } else {
+    if (isIdentifier(orig_argument)) {
+      fin_argument = orig_argument;
+    } else if (
+      isFunctionExpression(orig_argument) ||
+      isArrowFunctionExpression(orig_argument) ||
+      isClassExpression(orig_argument)
+    ) {
+      // Probably redundant but keep it for consistency
+      fin_argument = lowerToAnonArrayExpr(orig_argument, otherProps);
+    } else {
+      fin_argument = handleExpression(orig_argument, otherProps);
     }
   }
   const result: JS3UnaryExpression = generateJS3UnaryExpression(
@@ -2842,6 +2812,7 @@ export function handleArrowFunctionExpression(
       if (isIdentifier(_arrProp)) {
         fin_params.push(_arrProp);
       } else if (isPattern(_arrProp)) {
+        if (isVoidPattern(_arrProp)) throw new Error("TODO // unhandled Void Pattern Node");
         fin_params.push(_arrProp);
       } else if (isRestElement(_arrProp)) {
         fin_params.push(_arrProp);
@@ -2853,7 +2824,7 @@ export function handleArrowFunctionExpression(
   let fin_body: JS3ArrowFunctionExpression_body; // Handling prop body
   if (isBlockStatement(orig_body)) {
     fin_body = handleBlockStatement(orig_body, otherProps);
-  } else if (isExpression(orig_body)) {
+  } else {
     const body: JS3BlockStatement_body = [];
     fin_body = generateJS3BlockStatementfromBaseNode(body, [], orig_body);
     const updatedProps = {
@@ -2878,11 +2849,11 @@ export function handleArrowFunctionExpression(
   const orig_predicate = node.predicate; // Handling prop predicate
   const fin_predicate: JS3ArrowFunctionExpression_predicate = null; // Handling prop predicate
   if (isDeclaredPredicate(orig_predicate)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ArrowFunctionExpression->predicate->DeclaredPredicate",
     );
   } else if (isInferredPredicate(orig_predicate)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ArrowFunctionExpression->predicate->InferredPredicate",
     );
   }
@@ -2890,15 +2861,15 @@ export function handleArrowFunctionExpression(
   const orig_returnType = node.returnType; // Handling prop returnType
   const fin_returnType: JS3ArrowFunctionExpression_returnType = null; // Handling prop returnType
   if (isTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ArrowFunctionExpression->returnType->TypeAnnotation",
     );
   } else if (isTSTypeAnnotation(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ArrowFunctionExpression->returnType->TSTypeAnnotation",
     );
   } else if (isNoop(orig_returnType)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ArrowFunctionExpression->returnType->Noop",
     );
   }
@@ -2906,15 +2877,15 @@ export function handleArrowFunctionExpression(
   const orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   const fin_typeParameters: JS3ArrowFunctionExpression_typeParameters = null; // Handling prop typeParameters
   if (isTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ArrowFunctionExpression->typeParameters->TypeParameterDeclaration",
     );
   } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ArrowFunctionExpression->typeParameters->TSTypeParameterDeclaration",
     );
   } else if (isNoop(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ArrowFunctionExpression->typeParameters->Noop",
     );
   }
@@ -2952,15 +2923,13 @@ export function handleClassExpression(
 
   const orig_body = node.body; // Handling prop body
   let fin_body: JS3ClassExpression_body; // Handling prop body
-  if (isClassBody(orig_body)) {
-    fin_body = handleClassBody(orig_body, otherProps);
-  }
+  fin_body = handleClassBody(orig_body, otherProps);
   const orig_decorators = node.decorators; // Handling prop decorators
   const fin_decorators: JS3ClassExpression_decorators = null; // Handling prop decorators
   if (Array.isArray(orig_decorators)) {
     for (const _arrProp of orig_decorators) {
       if (isDecorator(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ClassExpression->[decorators]->Decorator",
         );
       }
@@ -2972,11 +2941,11 @@ export function handleClassExpression(
   if (Array.isArray(orig_implements)) {
     for (const _arrProp of orig_implements) {
       if (isTSExpressionWithTypeArguments(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ClassExpression->[implements]->TSExpressionWithTypeArguments",
         );
       } else if (isClassImplements(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ClassExpression->[implements]->ClassImplements",
         );
       }
@@ -2986,7 +2955,7 @@ export function handleClassExpression(
   const orig_mixins = node.mixins; // Handling prop mixins
   const fin_mixins: JS3ClassExpression_mixins = null; // Handling prop mixins
   if (isInterfaceExtends(orig_mixins)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassExpression->mixins->InterfaceExtends",
     );
   }
@@ -2994,11 +2963,11 @@ export function handleClassExpression(
   const orig_superTypeParameters = node.superTypeParameters; // Handling prop superTypeParameters
   const fin_superTypeParameters: JS3ClassExpression_superTypeParameters = null; // Handling prop superTypeParameters
   if (isTypeParameterInstantiation(orig_superTypeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassExpression->superTypeParameters->TypeParameterInstantiation",
     );
   } else if (isTSTypeParameterInstantiation(orig_superTypeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassExpression->superTypeParameters->TSTypeParameterInstantiation",
     );
   }
@@ -3006,15 +2975,15 @@ export function handleClassExpression(
   const orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   const fin_typeParameters: JS3ClassExpression_typeParameters = null; // Handling prop typeParameters
   if (isTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassExpression->typeParameters->TypeParameterDeclaration",
     );
   } else if (isTSTypeParameterDeclaration(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassExpression->typeParameters->TSTypeParameterDeclaration",
     );
   } else if (isNoop(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ClassExpression->typeParameters->Noop",
     );
   }
@@ -3077,7 +3046,7 @@ export function handleSpreadElement(
     isClassExpression(orig_argument)
   ) {
     fin_argument = lowerToAnonArrayExpr(orig_argument, otherProps);
-  } else if (isExpression(orig_argument)) {
+  } else {
     fin_argument = handleExpression(orig_argument, otherProps);
   }
   const result: JS3SpreadElement = generateJS3SpreadElement(fin_argument, node);
@@ -3101,7 +3070,7 @@ export function handleUpdateExpression(
     isClassExpression(orig_argument)
   ) {
     fin_argument = lowerToAnonArrayExpr(orig_argument, otherProps);
-  } else if (isExpression(orig_argument)) {
+  } else {
     fin_argument = handleExpression(orig_argument, otherProps);
   }
 
@@ -3118,20 +3087,19 @@ export function handleSequenceExpression(
 ): Identifier {
   // 1 fallthrough props, 1 restricted props
   const orig_expressions = node.expressions; // Handling prop expressions
-  let result;
-  if (Array.isArray(orig_expressions)) {
-    for (const _arrProp of orig_expressions) {
-      if (
-        isFunctionExpression(_arrProp) ||
-        isArrowFunctionExpression(_arrProp) ||
-        isClassExpression(_arrProp)
-      ) {
-        result = lowerToAnonArrayExpr(_arrProp, otherProps);
-      } else if (isExpression(_arrProp)) {
-        result = handleExpression(_arrProp, otherProps);
-      }
+  let result: Identifier | null = null;
+  for (const _arrProp of orig_expressions) {
+    if (
+      isFunctionExpression(_arrProp) ||
+      isArrowFunctionExpression(_arrProp) ||
+      isClassExpression(_arrProp)
+    ) {
+      result = lowerToAnonArrayExpr(_arrProp, otherProps);
+    } else if (isExpression(_arrProp)) {
+      result = handleExpression(_arrProp, otherProps);
     }
   }
+  if (!isIdentifier(result)) throw new Error("Expected result of sequence operation to be stored in an Identifier");
   return result;
 }
 
@@ -3145,7 +3113,7 @@ export function handleTemplateLiteral(
   // if (Array.isArray ( orig_quasis )) {
   //   for (const _arrProp of orig_quasis) {
   //     if(isTemplateElement (_arrProp)) {
-  //       debugConfig.logger.throwJS3Error("TODO // unhandled TemplateLiteral->[quasis]->TemplateElement");
+  //       throw new Error("TODO // unhandled TemplateLiteral->[quasis]->TemplateElement");
   //     }
   //   }
   // }
@@ -3163,7 +3131,7 @@ export function handleTemplateLiteral(
       } else if (isExpression(_arrProp)) {
         fin_expressions.push(handleExpression(_arrProp, otherProps));
       } else if (isTSType(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled TemplateLiteral->[expressions]->TSType",
         );
       }
@@ -3218,20 +3186,16 @@ export function handleConditionalExpression(
     isClassExpression(orig_test)
   ) {
     fin_test = lowerToAnonArrayExpr(orig_test, otherProps);
-  } else if (isExpression(orig_test)) {
+  } else {
     fin_test = handleExpression(orig_test, otherProps);
   }
 
   const orig_consequent = node.consequent; // Handling prop consequent
   let fin_consequent: JS3ConditionalExpression_consequent; // Handling prop consequent
-  if (isExpression(orig_consequent)) {
-    fin_consequent = lowerComputedKey(orig_consequent, otherProps);
-  }
+  fin_consequent = lowerComputedKey(orig_consequent, otherProps);
   const orig_alternate = node.alternate; // Handling prop alternate
   let fin_alternate: JS3ConditionalExpression_alternate; // Handling prop alternate
-  if (isExpression(orig_alternate)) {
-    fin_alternate = lowerComputedKey(orig_alternate, otherProps);
-  }
+  fin_alternate = lowerComputedKey(orig_alternate, otherProps);
   const result: JS3ConditionalExpression = generateJS3ConditionalExpression(
     fin_test,
     fin_consequent,
@@ -3305,9 +3269,7 @@ export function handleAwaitExpression(
   // 1 fallthrough props, 1 restricted props
   const orig_argument = node.argument; // Handling prop argument
   let fin_argument: JS3AwaitExpression_argument; // Handling prop argument
-  if (isExpression(orig_argument)) {
-    fin_argument = handleExpression(orig_argument, otherProps);
-  }
+  fin_argument = handleExpression(orig_argument, otherProps);
   const result: JS3AwaitExpression = generateJS3AwaitExpression(
     fin_argument,
     node,
@@ -3341,24 +3303,22 @@ export function handleTaggedTemplateExpression(
     isClassExpression(orig_tag)
   ) {
     fin_tag = lowerToAnonArrayExpr(orig_tag, otherProps);
-  } else if (isExpression(orig_tag)) {
+  } else {
     fin_tag = handleExpression(orig_tag, otherProps);
   }
 
   const orig_quasi = node.quasi; // Handling prop quasi
   let fin_quasi: JS3TaggedTemplateExpression_quasi; // Handling prop quasi
-  if (isTemplateLiteral(orig_quasi)) {
-    fin_quasi = handleTemplateLiteral(orig_quasi, otherProps);
-  }
+  fin_quasi = handleTemplateLiteral(orig_quasi, otherProps);
 
   const orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   const fin_typeParameters: JS3TaggedTemplateExpression_typeParameters = null; // Handling prop typeParameters
   if (isTypeParameterInstantiation(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled TaggedTemplateExpression->typeParameters->TypeParameterInstantiation",
     );
   } else if (isTSTypeParameterInstantiation(orig_typeParameters)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled TaggedTemplateExpression->typeParameters->TSTypeParameterInstantiation",
     );
   }
@@ -3386,7 +3346,7 @@ export function handleImportExpression(
     isClassExpression(orig_source)
   ) {
     fin_source = lowerToAnonArrayExpr(orig_source, otherProps);
-  } else if (isExpression(orig_source)) {
+  } else {
     fin_source = handleExpression(orig_source, otherProps);
   }
 

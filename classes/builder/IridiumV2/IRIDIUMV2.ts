@@ -86,7 +86,7 @@ export class IridiumBuildContext {
     if (BB) {
       this.pushBB(BB);
     } else {
-      if (!flag) debugConfig.logger.throwIriError("Expected a flag to qualify all the BBs in iridium, not supplied!!!");
+      if (!flag) throw new Error("Expected a flag to qualify all the BBs in iridium, not supplied!!!");
       this.pushBB(new BBSEXP(this.scopeIdx, flag));
     }
     IridiumBuildContext.CONTEXT_MAP.set(this.scopeIdx, this);
@@ -119,10 +119,11 @@ export class IRIDIUMV2 {
   }
 
   serialize() {
+    if (!this.container) throw new Error("this.container is null");
     return {
       version: VERSION,
       ...this.js3Builder.projectFile.toJSON(),
-      iridium: this.container?.serialize()
+      iridium: this.container.serialize()
     }
   }
 
@@ -141,7 +142,7 @@ export class IRIDIUMV2 {
   }
 
   getCurrentContext() {
-    if (this.buildContext.length === 0) debugConfig.logger.throwIriError("Expected atleast one BB to exist in the build context stack!!");
+    if (this.buildContext.length === 0) throw new Error("Expected atleast one BB to exist in the build context stack!!");
     const contexts = this.buildContext;
     return contexts[contexts.length - 1];
   }
@@ -160,7 +161,8 @@ export class IRIDIUMV2 {
 
   pushContext(cx: IridiumBuildContext) {
     this.buildContext.push(cx);
-    this.container?.args.push(cx.getCurrentBB());
+    if (!this.container) throw new Error("this.container is null");
+    this.container.args.push(cx.getCurrentBB());
   }
 
   popContext() {
@@ -169,10 +171,13 @@ export class IRIDIUMV2 {
 
   addContinuation(currContext: IridiumBuildContext) {
     const continuationBB = currContext.addContinuation();
-    this.container?.args.push(continuationBB);
+    if (!this.container) throw new Error("this.container is null");
+    this.container.args.push(continuationBB);
   }
 
   build() {
+    if (!this.js3Builder) throw new Error("this.js3Builder is null");
+    if (!this.js3Builder.generatedAST) throw new Error("this.js3Builder.generatedAST is null");
     const program: JS3Program = this.js3Builder.generatedAST.program;
     const sourceType: "JSModule" | "JSScript" = program.sourceType === "module" ? "JSModule" : "JSScript";
     
@@ -203,7 +208,7 @@ export class IRIDIUMV2 {
       this.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
     }
     this.popContext();
-    if (this.buildContext.length !== 0) debugConfig.logger.throwIriError("Expected buildContext stack to be empty after build()");
+    if (this.buildContext.length !== 0) throw new Error("Expected buildContext stack to be empty after build()");
 
     // debugConfig.logger.log(this.container.toString());
     this.normailzeBBFlags();
@@ -232,9 +237,10 @@ export class IRIDIUMV2 {
   // 
 
   findLoopControlTarget(localScope: number, node: ResolveContinueTargetSEXP | ResolveBreakTargetSEXP, intermediateContexts: Array<TryContext | LoopConfig> = []): [LoopConfig, Array<TryContext | LoopConfig>] {
-    if (localScope === -1) debugConfig.logger.throwIriError("Failed to find loop control target!!!");
-    if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) debugConfig.logger.throwIriError(`build context not found for scope: ${localScope}`);
+    if (localScope === -1) throw new Error("Failed to find loop control target!!!");
+    if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) throw new Error(`build context not found for scope: ${localScope}`);
     let buildContext = IridiumBuildContext.CONTEXT_MAP.get(localScope);
+    if (!buildContext) throw new Error("buildContext is undefined");
 
     if (buildContext.tryContext) {
       intermediateContexts.push(buildContext.tryContext);
@@ -260,10 +266,11 @@ export class IRIDIUMV2 {
   }
 
   findReturnTarget(localScope: number, intermediateContexts: Array<TryContext | LoopConfig> = []): [IridiumBuildContext, Array<TryContext | LoopConfig>] {
-    if (localScope === -1) debugConfig.logger.throwIriError("Failed to find return target!!!");
-    if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) debugConfig.logger.throwIriError(`build context not found for scope: ${localScope}`);
+    if (localScope === -1) throw new Error("Failed to find return target!!!");
+    if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) throw new Error(`build context not found for scope: ${localScope}`);
     let buildContext = IridiumBuildContext.CONTEXT_MAP.get(localScope);
 
+    if (!buildContext) throw new Error("buildContext is undefined");
     if (buildContext.tryContext) {
       intermediateContexts.push(buildContext.tryContext);
     }
@@ -275,9 +282,9 @@ export class IRIDIUMV2 {
     let startBB = buildContext.BB[0];
     if (startBB.isTopLevel()) {
       // Ensure no intermediate contexts
-      if (intermediateContexts.length > 0) debugConfig.logger.throwIriError("Top level return not expected to be wrapped inside intermediate contexts");
+      if (intermediateContexts.length > 0) throw new Error("Top level return not expected to be wrapped inside intermediate contexts");
       // Ensure script mode code
-      if (buildContext.isModule === true) debugConfig.logger.throwIriError("Expected async returns in module top level code...");
+      if (buildContext.isModule === true) throw new Error("Expected async returns in module top level code...");
     }
     if (startBB.isClosureBoundary()) return [buildContext, intermediateContexts];
 
@@ -286,7 +293,7 @@ export class IRIDIUMV2 {
 
   // findIfReturnNeedsDecoration(localScope: number, finalizerTarget: number = -2): number {
   //   if (localScope === -1) return -1;
-  //   if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) debugConfig.logger.throwIriError(`build context not found for scope: ${localScope}`)
+  //   if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) throw new Error(`build context not found for scope: ${localScope}`)
 
   //   let buildContext = IridiumBuildContext.CONTEXT_MAP.get(localScope);
 
@@ -295,16 +302,17 @@ export class IRIDIUMV2 {
   //   }
 
   //   let startBB = buildContext.BB[0];
-  //   if (startBB.isTopLevel()) debugConfig.logger.throwIriError("Matched return with top level block, something's broken sire!");
+  //   if (startBB.isTopLevel()) throw new Error("Matched return with top level block, something's broken sire!");
   //   if (startBB.isClosureBoundary()) return finalizerTarget;
   //   else return this.findIfReturnNeedsDecoration(buildContext.parent, finalizerTarget);
   // }
 
-  findParentClosureScope(localScope: number) {
+  findParentClosureScope(localScope: number): number {
     if (localScope === -1) return -1;
-    if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) debugConfig.logger.throwIriError(`build context not found for scope: ${localScope}`)
+    if (!IridiumBuildContext.CONTEXT_MAP.has(localScope)) throw new Error(`build context not found for scope: ${localScope}`)
 
     let buildContext = IridiumBuildContext.CONTEXT_MAP.get(localScope);
+    if (!buildContext) throw new Error("buildContext is undefined");
     let startBB = buildContext.BB[0];
     if (startBB.isClosureBoundary() || startBB.isTopLevel()) return localScope;
     else return this.findParentClosureScope(buildContext.parent);
@@ -313,13 +321,15 @@ export class IRIDIUMV2 {
   getBBContainerSEXPByScopeId(idx: number): BBContainerSEXP {
     const fileSexp = this.container;
 
+    if (!fileSexp) throw new Error("fileSexp is undefined");
+
     for (let bbContainer of fileSexp.args) {
       if (isListSEXP(bbContainer)) continue;
       if (isBBContainerSEXP(bbContainer)) {
         if (bbContainer.getScopeIDX() === idx) return bbContainer;
-      } else debugConfig.logger.throwIriError("Expected BBContainerSEXP to exist")
+      } else throw new Error("Expected BBContainerSEXP to exist")
     }
-    debugConfig.logger.throwIriError("BBContainerSEXP not found for idx " + idx)
+    throw new Error("BBContainerSEXP not found for idx " + idx)
   }
 
   resolveScopedLookup(name: string, startScope: number, bindingsSEXP: BindingsSEXP): RemoteEnvBindingSEXP | EnvBindingSEXP {
@@ -327,7 +337,7 @@ export class IRIDIUMV2 {
     if (res) return res;
     else {
       const parentScope = this.findParentClosureScope(bindingsSEXP.getParentScope());
-      if (parentScope === -1) debugConfig.logger.throwIriError("Failed to resolve lookup");
+      if (parentScope === -1) throw new Error("Failed to resolve lookup");
       const bbContainer = this.getBBContainerSEXPByScopeId(parentScope);
       const parentBindingsSEXP = bbContainer.getBindings();
       const res = new RemoteEnvBindingSEXP(this.resolveScopedLookup(name, startScope, parentBindingsSEXP), -1);
@@ -346,10 +356,10 @@ export class IRIDIUMV2 {
     return this.isGlobalBinding(name, startScope, parentBindingsSEXP);
   }
 
-  insertBefore(arr, target, newElement) {
+  insertBefore(arr: Array<any>, target: any, newElement: any) {
     const index = arr.indexOf(target);
     if (index === -1) {
-      debugConfig.logger.throwIriError(`Element "${target}" not found in array`);
+      throw new Error(`Element "${target}" not found in array`);
     }
     arr.splice(index, 0, newElement);
     return arr;
@@ -362,6 +372,7 @@ export class IRIDIUMV2 {
     let buildContext = IridiumBuildContext.CONTEXT_MAP.get(currBBScope);
 
     if (isEnvWriteSEXP(currSEXP) || isJSEnvWriteSEXP(currSEXP)) {
+      if (!buildContext) throw new Error("buildContext is undefined");
       if (!buildContext.isStrict && isGlobalBindingSEXP(currSEXP.args[0])) {
         currSEXP.markSloppy();
       }
@@ -385,9 +396,9 @@ export class IRIDIUMV2 {
             if (literal === "*") {
               if (isRemoteEnvBindingSEXP(binding)) {
                 binding.setNSImport();
-              } else debugConfig.logger.throwIriError("Expected a remote env binding SEXP here...."); 
+              } else throw new Error("Expected a remote env binding SEXP here...."); 
             }
-          } else debugConfig.logger.throwIriError("Expected a string literal here...");
+          } else throw new Error("Expected a string literal here...");
         }
       }
       
@@ -496,6 +507,7 @@ export class IRIDIUMV2 {
         // Handle final target, if the element is a break context, emit the corresponding cleanup code if required, otherwise ignore
         if (isBreakTarget.has(element)) {
           let finalLoopConfig = isBreakTarget.get(element);
+          if (!finalLoopConfig) throw new Error("finalLoopConfig is undefined");
           if (finalLoopConfig.kind === "for-of") {
             // Call Iterator close
             this.insertBefore(currSEXP.args, element, new JSIteratorCloseSEXP());
@@ -511,6 +523,7 @@ export class IRIDIUMV2 {
   // 
   addIDXForRemoteBindings() {
     const fileSexp = this.container;
+    if (!fileSexp) throw new Error("fileSexp is undefined");
     for (let bb of fileSexp.args) {
       if (isBBContainerSEXP(bb)) {
         const bindings = bb.getBindings();
@@ -519,7 +532,7 @@ export class IRIDIUMV2 {
         for (let remoteBinding of remoteBindings) {
           if (isRemoteEnvBindingSEXP(remoteBinding)) {
             remoteBinding.setREFIDX(i++);
-          } else debugConfig.logger.throwIriError("Expected RemoteEnvBindingSEXP");
+          } else throw new Error("Expected RemoteEnvBindingSEXP");
         }
       }
     }
@@ -536,7 +549,7 @@ export class IRIDIUMV2 {
       let s = currSEXP.args[i];
       if (isLambdaSEXP(s)) {
         const targetScopeIDX = this.findParentClosureScope(currBBScope);
-        if (targetScopeIDX < 0) debugConfig.logger.throwIriError("A binding must resolve in a valid scope, none found");
+        if (targetScopeIDX < 0) throw new Error("A binding must resolve in a valid scope, none found");
         const bbContainer = this.getBBContainerSEXPByScopeId(targetScopeIDX);
         const bindingsSEXP = bbContainer.getBindings();
         const poolLookupBinding = new PoolBindingSEXP(s.getStartBBIDX(), -1, s);
@@ -554,6 +567,7 @@ export class IRIDIUMV2 {
   resolveLambdaTargets() {
     const startSEXP = this.container;
     const startScope = 0;
+    if (!startSEXP) throw new Error("startSEXP is null");
     this.reduceLambdaTargets(startSEXP, startScope);
     // Assign reference IDX for pool lookups, during execution they will be resolved to contant pool + REFIDX, the REFIDX is assigned here
     for(let bbContainerSEXP of startSEXP.args) {
@@ -563,9 +577,9 @@ export class IRIDIUMV2 {
         for (let poolBinding of bbContainerSEXP.getBindings().getLambdaPoolBindings().args) {
           if (isPoolBindingSEXP(poolBinding)) {
             poolBinding.setREFIDX(i++);
-          } else debugConfig.logger.throwIriError("Expected only pool bindings in the lambda pool");
+          } else throw new Error("Expected only pool bindings in the lambda pool");
         }
-      } else debugConfig.logger.throwIriError("Expected a bbContainerSEXP");
+      } else throw new Error("Expected a bbContainerSEXP");
     }
   }
 
@@ -581,7 +595,7 @@ export class IRIDIUMV2 {
       if (isResolveEnvBindingSEXP(s)) {
         // We will get the closure scope
         const targetScopeIDX = this.findParentClosureScope(currBBScope);
-        if (targetScopeIDX < 0) debugConfig.logger.throwIriError("A binding must resolve in a valid scope, none found");
+        if (targetScopeIDX < 0) throw new Error("A binding must resolve in a valid scope, none found");
         const bbContainer = this.getBBContainerSEXPByScopeId(targetScopeIDX);
         const bindingsSEXP = bbContainer.getBindings();
 
@@ -593,7 +607,7 @@ export class IRIDIUMV2 {
             const resolvedBinding = this.resolveScopedLookup(s.getBindingName(), currBBScope, bindingsSEXP);
             currSEXP.args[i] = resolvedBinding;
           }
-        } else debugConfig.logger.throwIriError("Bindings not found, it is needed to resolve bindings");
+        } else throw new Error("Bindings not found, it is needed to resolve bindings");
       }
     }
     if (isBBSEXP(currSEXP)) {
@@ -616,15 +630,19 @@ export class IRIDIUMV2 {
         // We will get the closure scope
         let targetScopeIDX = this.findParentClosureScope(currBBScope);
         while (targetScopeIDX >= 0) {
-          const privateMapping = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).privateMapping;
-          if (IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).privateMapping) {
+          const buildContext = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX);
+          if (!buildContext) throw new Error("buildContext is undefined");
+          const privateMapping = buildContext.privateMapping;
+          if (privateMapping) {
             if (privateMapping.has(s.getBindingName())) {
-              currSEXP.args[i] = new EnvReadSEXP(privateMapping.get(s.getBindingName()));
+              const bb = privateMapping.get(s.getBindingName());
+              if (!bb) throw new Error("private binding is undefined");
+              currSEXP.args[i] = new EnvReadSEXP(bb);
               break;
             }
           }
-          targetScopeIDX = this.findParentClosureScope(IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).parent);
-          if (targetScopeIDX < 0) debugConfig.logger.throwIriError("Failed to resolve private binding!!!");
+          targetScopeIDX = this.findParentClosureScope(buildContext.parent);
+          if (targetScopeIDX < 0) throw new Error("Failed to resolve private binding!!!");
         }
       }
     }
@@ -643,30 +661,38 @@ export class IRIDIUMV2 {
 
     // Group BBs into closure groups
     let bbGroups: Map<number, BBContainerSEXP> = new Map();
+    if (!fileSexp) throw new Error("fileSexp is undefined");
     for (let bb of fileSexp.args) {
       if (isBBSEXP(bb)) {
         let targetScopeIDX = this.findParentClosureScope(bb.getScopeIDX());
 
         if (!bbGroups.has(targetScopeIDX)) {
-          let startBB = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX).BB[0];
+          const buildContext = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX);
+          if (!buildContext) throw new Error("buildContext is undefined");
+          let startBB = buildContext.BB[0];
           if (isBBSEXP(startBB)) {
             let bbContainer = new BBContainerSEXP(startBB.idx, targetScopeIDX, []);
-            const currContext = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX)
+            const currContext = IridiumBuildContext.CONTEXT_MAP.get(targetScopeIDX);
+            if (!currContext) throw new Error("currContext is undefined");
             if (currContext.isAsync) bbContainer.setAsync();
             if (currContext.isGenerator) bbContainer.setGenerator();
             if (currContext.isStrict) bbContainer.setStrict();
             bbContainer.setClosureFlags(currContext.kind);
             bbGroups.set(targetScopeIDX, bbContainer);
-          } else debugConfig.logger.throwIriError("Expected BBSEXP")
+          } else throw new Error("Expected BBSEXP")
         }
-        bbGroups.get(targetScopeIDX).addBB(bb);
+        const bbGroup = bbGroups.get(targetScopeIDX);
+        if (!bbGroup) throw new Error("bbGroup is undefined");
+        bbGroup.addBB(bb);
       }
     }
 
     fileSexp.args = [...bbGroups.values()];
 
     // const isSloppy = !IridiumBuildContext.CONTEXT_MAP.get(0).isStrict;
-    const isModule = IridiumBuildContext.CONTEXT_MAP.get(0).isModule;
+    const buildContext = IridiumBuildContext.CONTEXT_MAP.get(0);
+    if (!buildContext) throw new Error("buildContext is undefined");
+    const isModule = buildContext.isModule;
     const moduleRequests = new ListSEXP([]);
     const staticImports = new ListSEXP([]);
     const staticExports = new ListSEXP([]);
@@ -675,7 +701,9 @@ export class IRIDIUMV2 {
     for (let bbContainer of fileSexp.args) {
       if (isBBContainerSEXP(bbContainer)) {
         const bbContainerScopeIDX = bbContainer.getScopeIDX();
-        const bbContainerParentScopeIDX = IridiumBuildContext.CONTEXT_MAP.get(bbContainerScopeIDX).parent;
+        const buildContext = IridiumBuildContext.CONTEXT_MAP.get(bbContainerScopeIDX);
+        if (!buildContext) throw new Error("buildContext is undefined");
+        const bbContainerParentScopeIDX = buildContext.parent;
         let isTopLevelContainer = bbContainerParentScopeIDX === -1;
         if (isTopLevelContainer) {
           bbContainer.setFlag("TopLevel");
@@ -701,53 +729,69 @@ export class IRIDIUMV2 {
               if (isStarExportSEXP(stmt)) {
                 staticStarExports.args.push(stmt);
                 if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                toRemove.get(bb).add(stmt);
+                const toRemoveList = toRemove.get(bb);
+                if (!toRemoveList) throw new Error("toRemoveList is undefined");
+                toRemoveList.add(stmt);
               }
 
               if (isStaticImportSEXP(stmt)) {
                 const localBinding = stmt.args[0];
                 if (isResolveEnvBindingSEXP(localBinding)) {
                   staticModuleImports.push(stmt);
-                } else debugConfig.logger.throwIriError("Expected static imported binding to be ResolveEnvBindingSEXP");
+                } else throw new Error("Expected static imported binding to be ResolveEnvBindingSEXP");
                 if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                toRemove.get(bb).add(stmt);
+                const toRemoveList = toRemove.get(bb);
+                if (!toRemoveList) throw new Error("toRemoveList is undefined");
+                toRemoveList.add(stmt);
               }
 
               if (isLocalStaticExportSEXP(stmt)) {
                 const localBinding = stmt.args[0];
                 if (isResolveEnvBindingSEXP(localBinding)) {
                   staticExports.args.push(stmt);
-                } else debugConfig.logger.throwIriError("Expected static imported binding to be ResolveEnvBindingSEXP");
+                } else throw new Error("Expected static imported binding to be ResolveEnvBindingSEXP");
                 if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                toRemove.get(bb).add(stmt);
+                const toRemoveList = toRemove.get(bb);
+                if (!toRemoveList) throw new Error("toRemoveList is undefined");
+                toRemoveList.add(stmt);
               }
 
               if (isNamedReexportSEXP(stmt)) {
                 staticExports.args.push(stmt);
                 if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                toRemove.get(bb).add(stmt);
+                const toRemoveList = toRemove.get(bb);
+                if (!toRemoveList) throw new Error("toRemoveList is undefined");
+                toRemoveList.add(stmt);
               }
               
               if (isJSCatchContextSEXP(stmt)) {
-                hoistingInfo.get(localScope).push([[stmt.getBindingName()], "JSLET"]);
+                const hoistingInfoList = hoistingInfo.get(localScope);
+                if (!hoistingInfoList) throw new Error("hoistingInfoList is undefined");
+                hoistingInfoList.push([[stmt.getBindingName()], "JSLET"]);
               }
 
               if (isJSThisContextAltSEXP(stmt)) {
                 contextualInit.push(["this", new EnvWriteSEXP("this", new JSNUBDSEXP(), true, false), "JSCONST"]);
                 if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                toRemove.get(bb).add(stmt);
+                const toRemoveList = toRemove.get(bb);
+                if (!toRemoveList) throw new Error("toRemoveList is undefined");
+                toRemoveList.add(stmt);
               }
 
               if (isJSThisContextSEXP(stmt)) {
                 contextualInit.push(["this", new JSTHISINITSEXP(new ResolveEnvBindingSEXP("this")),"JSCONST"]);
                 if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                toRemove.get(bb).add(stmt);
+                const toRemoveList = toRemove.get(bb);
+                if (!toRemoveList) throw new Error("toRemoveList is undefined");
+                toRemoveList.add(stmt);
               }
 
               if (isJSScriptReturnSEXP(stmt)) {
                 contextualInit.push(["<ret>", new EnvWriteSEXP("<ret>", new EnvReadSEXP("undefined"), true, false),"JSVAR"]);
                 if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                toRemove.get(bb).add(stmt);
+                const toRemoveList = toRemove.get(bb);
+                if (!toRemoveList) throw new Error("toRemoveList is undefined");
+                toRemoveList.add(stmt);
               }
 
               // Super context: add "<super_ctr>", "<new_target>" and "<super_obj>"
@@ -756,21 +800,27 @@ export class IRIDIUMV2 {
                 contextualInit.push(["<new_target>", new JSNEWTARGETINITSEXP(new ResolveEnvBindingSEXP("<new_target>")),"JSCONST"]);
                 contextualInit.push(["<super_obj>", new JSSUPEROBJINITSEXP(new ResolveEnvBindingSEXP("<super_obj>")),"JSCONST"]);
                 if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                toRemove.get(bb).add(stmt);
+                const toRemoveList = toRemove.get(bb);
+                if (!toRemoveList) throw new Error("toRemoveList is undefined");
+                toRemoveList.add(stmt);
               }
 
               // Super context: add "<super_obj>"
               if (isJSSuperObjContextSEXP(stmt)) {
                 contextualInit.push(["<super_obj>", new JSSUPEROBJINITSEXP(new ResolveEnvBindingSEXP("<super_obj>")),"JSCONST"]);
                 if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                toRemove.get(bb).add(stmt);
+                const toRemoveList = toRemove.get(bb);
+                if (!toRemoveList) throw new Error("toRemoveList is undefined");
+                toRemoveList.add(stmt);
               }
 
               // Super context: add "<home_obj>"
               if (isJSHomeObjContextSEXP(stmt)) {
                 contextualInit.push(["<home_obj>", new JSHOMEOBJSEXP(new ResolveEnvBindingSEXP("<home_obj>")),"JSCONST"]);
                 if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                toRemove.get(bb).add(stmt);
+                const toRemoveList = toRemove.get(bb);
+                if (!toRemoveList) throw new Error("toRemoveList is undefined");
+                toRemoveList.add(stmt);
               }
 
               // Declaration Statements
@@ -796,11 +846,13 @@ export class IRIDIUMV2 {
                   if (stmt.isVarDecl()) {
                     // This statement must be removed
                     if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                    toRemove.get(bb).add(stmt);
+                    const toRemoveList = toRemove.get(bb);
+                    if (!toRemoveList) throw new Error("toRemoveList is undefined");
+                    toRemoveList.add(stmt);
                   } else if (stmt.isLetDecl()) {
                     stmt.setRVal(new GlobalBindingSEXP("undefined"));
                   } else {
-                    debugConfig.logger.throwIriError("Const declaration without RVal");
+                    throw new Error("Const declaration without RVal");
                   }
                 }
 
@@ -812,12 +864,14 @@ export class IRIDIUMV2 {
                   // stmt.markSloppyDecl();
                 } else {
                   // Scope where these bindings must be initialized
-                  hoistingInfo.get(scopeToHoistTo).push([declarations, hoistingKind]);
+                  const hoistingInfoList = hoistingInfo.get(scopeToHoistTo);
+                  if (!hoistingInfoList) throw new Error("hoistingInfoList is undefined");
+                  hoistingInfoList.push([declarations, hoistingKind]);
                 }
               }
             }
             
-          } else debugConfig.logger.throwIriError("Expected BBSEXP");
+          } else throw new Error("Expected BBSEXP");
         }
 
         // Remote uninitialized declarations
@@ -830,45 +884,43 @@ export class IRIDIUMV2 {
         const toSkipInit: Set<IridiumSEXP> = new Set();
 
         for (let [name, ,kind] of contextualInit) {
-          const parentScope = IridiumBuildContext.CONTEXT_MAP.get(bbContainerScopeIDX).parent;
-          const binding = new EnvBindingSEXP(i++, bbContainerScopeIDX, name, [[kind, null]], bbContainerScopeIDX, parentScope);
+          const binding = new EnvBindingSEXP(i++, bbContainerScopeIDX, name, [[kind, null]], bbContainerScopeIDX, bbContainerParentScopeIDX);
           bindingsSEXP.addLocalBinding(binding);
           toSkipInit.add(binding);
         }
-
-        const currentContext = IridiumBuildContext.CONTEXT_MAP.get(bbContainerScopeIDX);
-
-        if (currentContext.moduleRequestMap) {
+        if (buildContext.moduleRequestMap) {
           // Initialize Module Imports 
-          if (bbContainerScopeIDX !== 0) debugConfig.logger.throwIriError("Expected module imports only to be resolved for the top level container with scopeIDX 0");
+          if (bbContainerScopeIDX !== 0) throw new Error("Expected module imports only to be resolved for the top level container with scopeIDX 0");
           for (let b of staticModuleImports) {
             // Get the name of the binding we want...
             const bb = b.args[0];
             let bindingName: string;
             if (isResolveEnvBindingSEXP(bb)) bindingName = bb.getBindingName();
-            else debugConfig.logger.throwIriError("Expected the binding name to be resolveEnvBindingSEXP");
+            else throw new Error("Expected the binding name to be resolveEnvBindingSEXP");
 
             // Declare the binding in the bindings object
-            const localScope = bbContainerScopeIDX;
-            const parentScope = IridiumBuildContext.CONTEXT_MAP.get(bbContainerScopeIDX).parent;
-            let binding = new EnvBindingSEXP(j++, bbContainerScopeIDX, bindingName, [["JSLET", null]], localScope, parentScope);
+            let binding = new EnvBindingSEXP(j++, bbContainerScopeIDX, bindingName, [["JSLET", null]], bbContainerScopeIDX, bbContainerParentScopeIDX);
             let remoteBinding = new RemoteEnvBindingSEXP(binding, -1);
             bindingsSEXP.addRemoteBinding(remoteBinding);
             toSkipInit.add(remoteBinding);
             staticImports.args.push(b);
           }
 
-          for (let [,v] of currentContext.moduleRequestMap) {
+          for (let [,v] of buildContext.moduleRequestMap) {
             moduleRequests.args.push(v);  
           }
         }
         
         for (let [localScope, bindings] of hoistingInfo) {
-          let parentScope = IridiumBuildContext.CONTEXT_MAP.get(localScope).parent;
+          const currentContext = IridiumBuildContext.CONTEXT_MAP.get(localScope);
+          if (!currentContext) throw new Error("currentContext is undefined");
+
+          let parentScope = currentContext.parent;
+          const itIopLevel = currentContext.BB[0].isTopLevel();
           for (let [bbs, flag] of bindings) {
             for (let b of bbs) {
               if (!bindingsSEXP.hasBindingReference(bbContainerScopeIDX, b, flag, localScope, parentScope)) {
-                if (IridiumBuildContext.CONTEXT_MAP.get(localScope).BB[0].isTopLevel()) {
+                if (itIopLevel) {
                   let binding = new EnvBindingSEXP(j++, bbContainerScopeIDX, b, [[flag, null]], localScope, parentScope);
                   let remoteBinding = new RemoteEnvBindingSEXP(binding, -1);
                   bindingsSEXP.addRemoteBinding(remoteBinding);
@@ -883,7 +935,8 @@ export class IRIDIUMV2 {
 
         // If this is a function, add arguments to the scope descriptor
         let k = 0;
-        for (let b of IridiumBuildContext.CONTEXT_MAP.get(bbContainerScopeIDX).args) {
+        
+        for (let b of buildContext.args) {
           const flags: [JSEnvBindingFlags, null][] = [];
           flags.push(["JSARG", null]);
           let binding = new EnvBindingSEXP(k++, bbContainerScopeIDX, b, [["JSARG", null]], bbContainerScopeIDX, bbContainerParentScopeIDX);
@@ -895,7 +948,9 @@ export class IRIDIUMV2 {
         
         for (let binding of bindingsToInit) {
           if (isEnvBindingSEXP(binding)) {
-            let startBB = IridiumBuildContext.CONTEXT_MAP.get(binding.getScope()).BB[0];
+            const bindingContext = IridiumBuildContext.CONTEXT_MAP.get(binding.getScope());
+            if (!bindingContext) throw new Error("bindingContext is undefined");
+            let startBB = bindingContext.BB[0];
             let lValName = binding.getDeclaration();
             let rVal;
             if (binding.getKind() === "JSVAR") {
@@ -909,7 +964,9 @@ export class IRIDIUMV2 {
           } else if (isRemoteEnvBindingSEXP(binding)) {
             if (isTopLevelContainer) {
               let resolvedBinding = bindingsSEXP.resolveRemoteBinding(binding);
-              let startBB = IridiumBuildContext.CONTEXT_MAP.get(resolvedBinding.getScope()).BB[0];
+              const resolvedBindingContext = IridiumBuildContext.CONTEXT_MAP.get(resolvedBinding.getScope());
+              if (!resolvedBindingContext) throw new Error("resolvedBindingContext is undefined");
+              let startBB = resolvedBindingContext.BB[0];
               let lValName = resolvedBinding.getDeclaration();
               let rVal;
               if (resolvedBinding.getKind() === "JSVAR") {
@@ -922,11 +979,14 @@ export class IRIDIUMV2 {
               startBB.args = [new EnvWriteSEXP(lValName, rVal, true, false), ...startBB.args];
             }
           } else
-            debugConfig.logger.throwIriError("Expected EnvBindingSEXP");
+            throw new Error("Expected EnvBindingSEXP");
         }
 
+        const topLevelContext = IridiumBuildContext.CONTEXT_MAP.get(0);
+        if (!topLevelContext) throw new Error("topLevelContext is undefined");
+
         for (let [name, kind] of sloppyDeclarations) {
-          let startBB = IridiumBuildContext.CONTEXT_MAP.get(0).BB[0];
+          let startBB = topLevelContext.BB[0];
           let lValName = name;
           let rVal;
           if (kind === "JSVAR") {
@@ -940,18 +1000,18 @@ export class IRIDIUMV2 {
         }
 
         for (let [name, kind] of sloppyDeclarations) {
-          let startBB = IridiumBuildContext.CONTEXT_MAP.get(0).BB[0];
+          let startBB = topLevelContext.BB[0];
           startBB.args = [new JSSloppyDeclarationCheckSEXP(name, kind), ...startBB.args];
         }
 
         // Prefix contextual init statements
         for (let [, stmt] of contextualInit) {
-          let startBB = IridiumBuildContext.CONTEXT_MAP.get(bbContainerScopeIDX).BB[0];
+          let startBB = buildContext.BB[0];
           startBB.args = [stmt,...startBB.args]
         }
 
         bbContainer.setBindings(bindingsSEXP);
-      } else debugConfig.logger.throwIriError("Expected BBContainerSEXP");
+      } else throw new Error("Expected BBContainerSEXP");
     }
 
     fileSexp.initializeModuleRequests(moduleRequests, staticImports, staticExports, staticStarExports);
@@ -966,7 +1026,9 @@ export class IRIDIUMV2 {
       let s = currSEXP.args[i];
       if (isJSFuncDeclSEXP(s)) {
         if (!res.has(currScope)) res.set(currScope, new Set());
-        res.get(currScope).add(s);
+        const funDeclList = res.get(currScope);
+        if (!funDeclList) throw new Error("funDeclList is undefined");
+        funDeclList.add(s);
         currSEXP.args[i] = new NOPSEXP();
       }
     }
@@ -975,10 +1037,13 @@ export class IRIDIUMV2 {
   
   hoistFunctionDeclarations() {
     let toHoist: Map<number, Set<JSFuncDeclSEXP>> = new Map();
+    if (!this.container) throw new Error("this.container is null");
     this.funcDeclHandler(this.container, -1, toHoist);
 
     for (let [scope, funDeclarations] of toHoist) {
-      const targetBB = IridiumBuildContext.CONTEXT_MAP.get(scope).BB[0];
+      const buildContext = IridiumBuildContext.CONTEXT_MAP.get(scope);
+      if (!buildContext) throw new Error("buildContext is undefined");
+      const targetBB = buildContext.BB[0];
       const decls = [...funDeclarations].map(e => new JSEnvWriteSEXP(e.args[0], e.args[1], "JSLET", false));
       targetBB.args = [...decls, ...targetBB.args];
     }

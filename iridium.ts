@@ -34,11 +34,14 @@ function js3(filePath: string, printToConsole = false): JS3Builder {
   debugConfig.logger.printToConsole = false;
   const file = new ProjectFile(filePath, path.dirname(filePath));
   try {
-    file.initSync(debugConfig.cli.sourceType);
+    if (debugConfig.cli.sourceType === "unambiguous" || debugConfig.cli.sourceType === "script" || debugConfig.cli.sourceType === "module") {
+      file.initSync(debugConfig.cli.sourceType);
+    } else {
+      throw new Error("JS3: supplied source type is invalid");
+    }
+
     if (file.initData.parseStatus !== "parsed")
-      debugConfig.logger.throwJS3Error(
-        "JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)",
-      );
+      throw new Error("JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)");
 
     const builder = new JS3Builder(file);
     builder.build();
@@ -48,8 +51,7 @@ function js3(filePath: string, printToConsole = false): JS3Builder {
 
     return builder;
   } catch (e) {
-    console.error("Failed to generate JS3: ", e);
-    process.exit(1);
+    throw new Error(`Failed to generate JS3: ${e}`);
   }
 }
 
@@ -59,13 +61,20 @@ function iri(filePath: string, printToConsole = false): IRIDIUMV2 {
     const iridiumV2Builder = new IRIDIUMV2(js3Builder);
     iridiumV2Builder.build();
 
-    if (printToConsole)
+    if (!iridiumV2Builder.container) throw new Error("Iridium container is undefined");
+
+    if (debugConfig.cli.iridiumPP) {
+      console.log(iridiumV2Builder.container.toString());
+    }
+
+    if (printToConsole) {
       console.log(JSON.stringify(iridiumV2Builder.container.serialize()));
+    }
+      
 
     return iridiumV2Builder;
   } catch (e) {
-    debugConfig.logger.throwIriError(`Failed to generate Iridium: ${e}`);
-    process.exit(1);
+    throw new Error(`Failed to generate Iridium: ${e}`);
   }
 }
 
@@ -80,15 +89,12 @@ function pika(files: Array<string>, printToConsole = false) {
 
   if (printToConsole)
     console.log(finalStr);
-
-  const filePath = debugConfig.cli.outputsPath + "/" + "bundle.pika";
-  fs.writeFile(
-    filePath,
-    finalStr
-    , (e) => {
-      if (e) debugConfig.logger.error(`[Failed to save Pika bundle]: ${e.message}`);
-    }
-  );
+  else {
+    const filePath = debugConfig.cli.outputsPath + "/" + "bundle.pika";
+    fs.writeFileSync(
+      filePath,
+      finalStr);
+  }
 }
 
 function main() {

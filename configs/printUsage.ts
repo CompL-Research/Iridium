@@ -149,6 +149,12 @@ const IRI_OPTIONS = [
     type: Boolean,
   },
   {
+    name: "pp",
+    description:
+      "Pretty Print.",
+    type: Boolean,
+  },
+  {
     name: "tout",
     description:
       "Print the output directly to the terminal.",
@@ -243,6 +249,10 @@ export const handleTout = () => {
   debugConfig.cli.tout = true;
 }
 
+export const handleIridiumPP = () => {
+  debugConfig.cli.iridiumPP = true;
+}
+
 export const handleSourceType = (options: any) => {
   if (options["source-type"] === null) {
     console.log(chalk.red("JS3 mode is not provided"));
@@ -261,6 +271,7 @@ export const handleOptions = (options: any) => {
   if ("outputs-path" in options) handleOutputsPath(options);
   if ("comments" in options) handleComments();
   if ("tout" in options) handleTout();
+  if ("pp" in options) handleIridiumPP();
   if ("source-type" in options) handleSourceType(options);
 }
 

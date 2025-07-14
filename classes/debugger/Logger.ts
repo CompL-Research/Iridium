@@ -5,8 +5,6 @@ type LogItem = {
   objects: Array<object>;
 };
 
-import debugConfig from "#debugConfig";
-
 export default class Logger {
   logData: Array<LogItem> = [];
   printToConsole: boolean = true;

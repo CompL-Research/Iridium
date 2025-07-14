@@ -58,7 +58,7 @@ import {
   generateJS3Program,
   generateJS3VariableDeclarationfromBaseNode,
   generateJS3VariableDeclaratorfromBaseNode,
-} from "./JS3Constructors.ts";
+} from "./JS3Constructors";
 import {
   isJS3VariableDeclaration,
   JS3AllowedBlockStatement,
@@ -76,9 +76,9 @@ import {
   JS3ImportDeclaration_specifiers,
   JS3Program,
   JS3Program_body,
-} from "./JS3Types.ts";
+} from "./JS3Types";
 
-import { JS3BuilderUtils } from "../JS3Builder.ts";
+import { JS3BuilderUtils } from "../JS3Builder";
 
 import debugConfig from "#debugConfig";
 
@@ -86,26 +86,19 @@ import {
   handleFunctionDeclaration,
   handleStatement,
   handleVariableDeclaration,
-} from "./HandleBlocks.ts";
-import { handleClassDeclaration } from "./HandleClassDeclaration.ts";
-import { handleExpression } from "./HandleExpression.ts";
+} from "./HandleBlocks";
+import { handleClassDeclaration } from "./HandleClassDeclaration";
+import { handleExpression } from "./HandleExpression";
 
 import babel from "@babel/core";
 import _generate from "@babel/generator";
 import _traverse from "@babel/traverse";
-import { handleDefaultExportNames } from "./GenericConstructs.ts";
+import { handleDefaultExportNames } from "./GenericConstructs";
 
-let generate;
-let traverse;
-if (typeof Bun !== "undefined") {
-  generate = _generate;
-  traverse = _traverse;
-} else {
-  generate = _generate.default;
-  traverse = _traverse.default;
-}
-
-// const trasverse = _traverse.default;
+// @ts-ignore
+let generate = _generate.default;
+// @ts-ignore
+let traverse = _traverse.default;
 
 type OtherProps = JS3BuilderUtils;
 
@@ -172,7 +165,7 @@ export function handleImportDeclaration(
   if (Array.isArray(orig_assertions)) {
     for (const _arrProp of orig_assertions) {
       if (isImportAttribute(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ImportDeclaration->[assertions]->ImportAttribute",
         );
       }
@@ -184,7 +177,7 @@ export function handleImportDeclaration(
   if (Array.isArray(orig_attributes)) {
     for (const _arrProp of orig_attributes) {
       if (isImportAttribute(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ImportDeclaration->[attributes]->ImportAttribute",
         );
       }
@@ -229,12 +222,18 @@ export function handleImportDeclaration(
         duplicatedNode.specifiers.push(_arrProp);
       }
 
+      if (!otherProps.others) throw new Error("otherProps.others undefined");
+      if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+
       // Add duplicated node to the resultArray
       (otherProps.others.holder as JS3Program_body).push(duplicatedNode);
     }
   }
 
   if (orig_specifiers.length === 0) {
+    if (!otherProps.others) throw new Error("otherProps.others undefined");
+    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+
     (otherProps.others.holder as JS3Program_body).push(
       generateJS3ImportDeclaration([], fin_assertions, fin_attributes, node),
     );
@@ -250,7 +249,7 @@ export function handleExportDefaultDeclaration(
   const orig_declaration = node.declaration; // Handling prop declaration
   let fin_declaration: JS3ExportDefaultDeclaration_declaration; // Handling prop declaration
   if (isTSDeclareFunction(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportDefaultDeclaration->declaration->TSDeclareFunction",
     );
   } else if (isFunctionDeclaration(orig_declaration)) {
@@ -258,6 +257,8 @@ export function handleExportDefaultDeclaration(
     // Case 1: It has a name
     if (isIdentifier(orig_declaration.id)) {
       const js3FnDecl = handleFunctionDeclaration(orig_declaration, otherProps);
+      if (!otherProps.others) throw new Error("otherProps.others undefined");
+      if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
       otherProps.others.holder.push(js3FnDecl);
       fin_declaration = orig_declaration.id;
     }
@@ -271,7 +272,12 @@ export function handleExportDefaultDeclaration(
     // Case 1: It has a name
     if (isIdentifier(orig_declaration.id)) {
       const js3ClassDecl = handleClassDeclaration(orig_declaration, otherProps);
-      js3ClassDecl.forEach((s) => otherProps.others.holder.push(s));
+      
+      js3ClassDecl.forEach((s) => {
+        if (!otherProps.others) throw new Error("otherProps.others undefined");
+        if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+        otherProps.others.holder.push(s);
+      });
 
       fin_declaration = orig_declaration.id;
     }
@@ -291,8 +297,10 @@ export function handleExportDefaultDeclaration(
     //
     fin_declaration = handleDefaultExportNames(orig_declaration, otherProps);
     // ========================================================================================
-  } else if (isExpression(orig_declaration)) {
+  } else {
     // ========================================================================================
+    if (!otherProps.others) throw new Error("otherProps.others undefined");
+    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
     otherProps.others.prefix = "exportDefExpr";
     fin_declaration = handleExpression(orig_declaration, otherProps);
     // ========================================================================================
@@ -308,7 +316,7 @@ export function handleExportDefaultDeclaration(
   fin_specifiers.push(exportSpecifier);
   const duplicatedExportNamedDecl =
     generateJS3ExportNamedDeclarationfromBaseNode(
-      undefined,
+      null,
       fin_specifiers,
       null,
       null,
@@ -317,6 +325,8 @@ export function handleExportDefaultDeclaration(
       node,
     );
 
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
+  if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
   // Generate a export default statement and push it into the holder
   (otherProps.others.holder as JS3Program_body).push(duplicatedExportNamedDecl);
 }
@@ -332,7 +342,7 @@ export function handleExportNamedDeclaration(
   if (Array.isArray(orig_assertions)) {
     for (const _arrProp of orig_assertions) {
       if (isImportAttribute(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ExportNamedDeclaration->[assertions]->ImportAttribute",
         );
       }
@@ -344,7 +354,7 @@ export function handleExportNamedDeclaration(
   if (Array.isArray(orig_attributes)) {
     for (const _arrProp of orig_attributes) {
       if (isImportAttribute(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ExportNamedDeclaration->[attributes]->ImportAttribute",
         );
       }
@@ -356,6 +366,8 @@ export function handleExportNamedDeclaration(
   if (isFunctionDeclaration(orig_declaration)) {
     // ========================================================================================
     const js3FnDecl = handleFunctionDeclaration(orig_declaration, otherProps);
+    if (!otherProps.others) throw new Error("otherProps.others undefined");
+    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
     otherProps.others.holder.push(js3FnDecl);
     const specifierArray = [];
     const specifier = generateJS3ExportSpecifierfromBaseNode(
@@ -372,6 +384,8 @@ export function handleExportNamedDeclaration(
       fin_attributes,
       node,
     );
+    if (!otherProps.others) throw new Error("otherProps.others undefined");
+    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
     (otherProps.others.holder as JS3Program_body).push(
       duplicatedExportNamedDecl,
     );
@@ -400,9 +414,13 @@ export function handleExportNamedDeclaration(
       otherProps,
     );
     // Spill all declarations
-    fin_declarations.forEach((s) => otherProps.others.holder.push(s));
+    fin_declarations.forEach((s) => {
+      if (!otherProps.others) throw new Error("otherProps.others undefined");
+      if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+      otherProps.others.holder.push(s);
+    });
 
-    // debugConfig.logger.throwJS3Error("WIP: export named var decl...")
+    // throw new Error("WIP: export named var decl...")
     //
     // TODO: Much to improve here...
     //
@@ -410,7 +428,7 @@ export function handleExportNamedDeclaration(
     fin_declarations
       .filter((s) => isJS3VariableDeclaration(s))
       .forEach((s) => {
-        const declaredBindings = [];
+        const declaredBindings: Array<string> = [];
 
         if (!isIdentifier(s.declarations[0].id)) {
           // Find the identifiers created by this assignment pattern.
@@ -427,7 +445,7 @@ export function handleExportNamedDeclaration(
             const tempVarDecl = generateJS3VariableDeclarationfromBaseNode(
               [tempVarDeclarator],
               orig_declaration.kind,
-              orig_declaration.declare,
+              orig_declaration.declare === undefined ? null : orig_declaration.declare,
               orig_declaration,
             );
 
@@ -441,8 +459,9 @@ export function handleExportNamedDeclaration(
             const result = babel.transformSync(output.code, options);
 
             // Populate generated bindings
+            if (!result) throw new Error("Expected result to be non-null, handleExportNamedDeclaration");
             traverse(result.ast, {
-              Program(path) {
+              Program(path: any) {
                 for (const key in path.scope.bindings) {
                   const b = path.scope.bindings[key];
                   declaredBindings.push(b.identifier.name);
@@ -450,9 +469,8 @@ export function handleExportNamedDeclaration(
               },
             });
           } catch (e) {
-            debugConfig.logger.throwJS3Error(
-              `Failed lowering export declaration pattern: ${e}`,
-              [e, s, declaredBindings],
+            throw new Error(
+              `Failed lowering export declaration pattern: ${e}`
             );
           }
         } else {
@@ -477,6 +495,8 @@ export function handleExportNamedDeclaration(
             fin_attributes,
             node,
           );
+          if (!otherProps.others) throw new Error("otherProps.others undefined");
+          if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
           (otherProps.others.holder as JS3Program_body).push(
             duplicatedExportNamedDecl,
           );
@@ -487,9 +507,14 @@ export function handleExportNamedDeclaration(
     // This will always be named, we are not expecting unnamed declaration nodes to come up here.
     //
     const js3ClassDecl = handleClassDeclaration(orig_declaration, otherProps);
-    js3ClassDecl.forEach((s) => otherProps.others.holder.push(s));
+    js3ClassDecl.forEach((s) => {
+      if (!otherProps.others) throw new Error("otherProps.others undefined");
+      if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+      otherProps.others.holder.push(s);
+    });
     // otherProps.others.holder.push(js3ClassDecl)
     const specifierArray = [];
+    if (!orig_declaration.id) throw new Error("Expected declaration id to be non null");
     const specifier = generateJS3ExportSpecifierfromBaseNode(
       orig_declaration.id,
       orig_declaration.id,
@@ -504,99 +529,101 @@ export function handleExportNamedDeclaration(
       fin_attributes,
       node,
     );
+    if (!otherProps.others) throw new Error("otherProps.others undefined");
+    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
     (otherProps.others.holder as JS3Program_body).push(
       duplicatedExportNamedDecl,
     );
   } else if (isExportAllDeclaration(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->ExportAllDeclaration",
     );
   } else if (isExportDefaultDeclaration(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->ExportDefaultDeclaration",
     );
   } else if (isExportNamedDeclaration(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->ExportNamedDeclaration",
     );
   } else if (isImportDeclaration(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->ImportDeclaration",
     );
   } else if (isDeclareClass(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->DeclareClass",
     );
   } else if (isDeclareFunction(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->DeclareFunction",
     );
   } else if (isDeclareInterface(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->DeclareInterface",
     );
   } else if (isDeclareModule(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->DeclareModule",
     );
   } else if (isDeclareModuleExports(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->DeclareModuleExports",
     );
   } else if (isDeclareTypeAlias(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->DeclareTypeAlias",
     );
   } else if (isDeclareOpaqueType(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->DeclareOpaqueType",
     );
   } else if (isDeclareVariable(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->DeclareVariable",
     );
   } else if (isDeclareExportDeclaration(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->DeclareExportDeclaration",
     );
   } else if (isDeclareExportAllDeclaration(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->DeclareExportAllDeclaration",
     );
   } else if (isInterfaceDeclaration(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->InterfaceDeclaration",
     );
   } else if (isOpaqueType(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->OpaqueType",
     );
   } else if (isTypeAlias(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->TypeAlias",
     );
   } else if (isEnumDeclaration(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->EnumDeclaration",
     );
   } else if (isTSDeclareFunction(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->TSDeclareFunction",
     );
   } else if (isTSInterfaceDeclaration(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->TSInterfaceDeclaration",
     );
   } else if (isTSTypeAliasDeclaration(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->TSTypeAliasDeclaration",
     );
   } else if (isTSEnumDeclaration(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->TSEnumDeclaration",
     );
   } else if (isTSModuleDeclaration(orig_declaration)) {
-    debugConfig.logger.throwJS3Error(
+    throw new Error(
       "TODO // unhandled ExportNamedDeclaration->declaration->TSModuleDeclaration",
     );
   }
@@ -610,17 +637,19 @@ export function handleExportNamedDeclaration(
         const fin_specifiers: JS3ExportNamedDeclaration_specifiers = [];
         fin_specifiers.push(eSpec);
         const duplicatedExportNamedDecl = generateJS3ExportNamedDeclaration(
-          undefined,
+          null,
           fin_specifiers,
           fin_assertions,
           fin_attributes,
           node,
         );
+        if (!otherProps.others) throw new Error("otherProps.others undefined");
+        if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
         (otherProps.others.holder as JS3Program_body).push(
           duplicatedExportNamedDecl,
         );
       } else if (isExportDefaultSpecifier(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ExportNamedDeclaration->[specifiers]->ExportDefaultSpecifier",
         );
       } else if (isExportNamespaceSpecifier(_arrProp)) {
@@ -628,12 +657,14 @@ export function handleExportNamedDeclaration(
         const fin_specifiers: JS3ExportNamedDeclaration_specifiers = [];
         fin_specifiers.push(eSpec);
         const duplicatedExportNamedDecl = generateJS3ExportNamedDeclaration(
-          undefined,
+          null,
           fin_specifiers,
           fin_assertions,
           fin_attributes,
           node,
         );
+        if (!otherProps.others) throw new Error("otherProps.others undefined");
+        if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
         (otherProps.others.holder as JS3Program_body).push(
           duplicatedExportNamedDecl,
         );
@@ -674,7 +705,7 @@ export function handleExportAllDeclaration(
   if (Array.isArray(orig_assertions)) {
     for (const _arrProp of orig_assertions) {
       if (isImportAttribute(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ExportAllDeclaration->[assertions]->ImportAttribute",
         );
       }
@@ -686,7 +717,7 @@ export function handleExportAllDeclaration(
   if (Array.isArray(orig_attributes)) {
     for (const _arrProp of orig_attributes) {
       if (isImportAttribute(_arrProp)) {
-        debugConfig.logger.throwJS3Error(
+        throw new Error(
           "TODO // unhandled ExportAllDeclaration->[attributes]->ImportAttribute",
         );
       }
@@ -698,6 +729,8 @@ export function handleExportAllDeclaration(
     fin_attributes,
     node,
   );
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
+  if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
   // Generate a export default statement and push it into the holder
   (otherProps.others.holder as JS3Program_body).push(result);
 }

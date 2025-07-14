@@ -7,6 +7,7 @@ const config: {
     outputsPath: string | undefined;
     comments: boolean;
     tout: boolean;
+    iridiumPP: boolean;
     sourceType: string;
     projectBase: string | undefined;
   };
@@ -19,6 +20,7 @@ const config: {
     outputsPath: undefined,
     comments: false,
     tout: false,
+    iridiumPP: false,
     sourceType: "unambiguous",
     projectBase: undefined,
   },

@@ -475,7 +475,17 @@
 
 // x = 212;
 
-let a; 
-a = 12;
+// let a; 
+// a = 12;
 
 // console.log(a);
+
+class A {
+  #foo = 12;
+  hello() {
+    console.log(this.#foo);
+    return;
+  }
+}
+
+new A().hello()

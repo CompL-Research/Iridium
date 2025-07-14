@@ -627,7 +627,6 @@ export function handleVariableDeclaration(
       }
     };
     if (isVoidPattern(_arrProp.id)) throw new Error("TODO // unhandled Void Pattern Node");
-    if (!_arrProp.init) throw new Error("Expected _arrProp.init to be an Expression");
     handleDeclaratorRec(_arrProp.id, _arrProp.init, updatedProps, generator);
   }
 
@@ -640,7 +639,7 @@ export function handleVariableDeclaration(
 
 export function handleDeclaratorRec(
   LVal: LVal,
-  RVal: Expression,
+  RVal: Expression | undefined | null,
   otherProps: OtherProps,
   generator: (
     LVal: JS3MemberExpression | JS3ArrayPattern | JS3ObjectPattern | Identifier,

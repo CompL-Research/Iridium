@@ -1700,7 +1700,7 @@ export function isEnvWriteSEXP(o: any): o is EnvWriteSEXP {
 // (Extension) JSEnvWrite
 export type JSEnvWriteFlags = "SLOPPY" | "SAFE" | "THISINIT" | "JSLET" | "JSCONST" | "JSVAR" | "JSREST" | "JSARRDES" | "JSOBJDES";
 export class JSEnvWriteSEXP extends IridiumSEXP {
-  constructor(lval: IridiumSEXP, rval: IridiumSEXP, flag: JSEnvWriteFlags | undefined = undefined, thisInit: boolean) {
+  constructor(lval: IridiumSEXP, rval: IridiumSEXP | null, flag: JSEnvWriteFlags | undefined = undefined, thisInit: boolean) {
     super("JSEnvWrite");
     this.args.push(lval);
     if (rval) this.args.push(rval);
@@ -2109,9 +2109,10 @@ export class RetSEXP extends IridiumSEXP {
 // (Primitive) IfElseJump
 export type IfElseJumpSEXPFlags = "TRUE" | "FALSE";
 export class IfElseJumpSEXP extends IridiumSEXP {
-  constructor(test: IridiumSEXP, trueTarget: number, falseTarget: number) {
+  constructor(test: IridiumSEXP | null, trueTarget: number, falseTarget: number) {
     super("IfElseJump");
-    this.args.push(test);
+    if (test) this.setTest(test);
+    else this.setTest(new NullSEXP());
     this.setTRUE(trueTarget);
     this.setFALSE(falseTarget);
   }
@@ -2150,9 +2151,10 @@ export class IfElseJumpSEXP extends IridiumSEXP {
 // (Primitive) IfJumpSEXP
 export type IfJumpSEXPFlags = "IDX";
 export class IfJumpSEXP extends IridiumSEXP {
-  constructor(test: IridiumSEXP, target: number) {
+  constructor(test: IridiumSEXP | null, target: number) {
     super("IfJump");
-    this.args.push(test);
+    if (test) this.setTest(test);
+    else this.setTest(new NullSEXP());
     this.setIDX(target);
   }
 
