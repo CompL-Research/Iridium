@@ -823,6 +823,29 @@ export class IRIDIUMV2 {
                 toRemoveList.add(stmt);
               }
 
+              // Function Declaration
+              if (isJSFuncDeclSEXP(stmt)) {
+
+                const lval = stmt.args[0];
+                if (!isResolveEnvBindingSEXP(lval)) throw new Error("Expected unresolved name for function declarations");
+                const bindingName = lval.getBindingName();
+
+                // Case 1: non-module code
+                //    a. outer scope, treat binding as a global
+                //    b. inner scope, declare local binding -> put_loc
+                // Case 2: module code
+                //    a. outer scope, treat a closure var -> put_var
+                //    b. inner scope, declare local binding -> put_loc
+                if (!isModule && localScope === 0) {
+                  // NADA
+                } else {
+                  const hoistingInfoList = hoistingInfo.get(localScope);
+                  if (!hoistingInfoList) throw new Error("hoistingInfoList is undefined");
+                  hoistingInfoList.push([[bindingName], "JSVAR"]);
+                }
+                
+              }
+
               // Declaration Statements
               if (isJSEnvWriteSEXP(stmt) && stmt.isDecl()) {
                 let scopeToHoistTo: number;
@@ -916,11 +939,11 @@ export class IRIDIUMV2 {
           if (!currentContext) throw new Error("currentContext is undefined");
 
           let parentScope = currentContext.parent;
-          const itIopLevel = currentContext.BB[0].isTopLevel();
+          const isTopLevel = currentContext.BB[0].isTopLevel();
           for (let [bbs, flag] of bindings) {
             for (let b of bbs) {
               if (!bindingsSEXP.hasBindingReference(bbContainerScopeIDX, b, flag, localScope, parentScope)) {
-                if (itIopLevel) {
+                if (isTopLevel) {
                   let binding = new EnvBindingSEXP(j++, bbContainerScopeIDX, b, [[flag, null]], localScope, parentScope);
                   let remoteBinding = new RemoteEnvBindingSEXP(binding, -1);
                   bindingsSEXP.addRemoteBinding(remoteBinding);
@@ -1044,8 +1067,7 @@ export class IRIDIUMV2 {
       const buildContext = IridiumBuildContext.CONTEXT_MAP.get(scope);
       if (!buildContext) throw new Error("buildContext is undefined");
       const targetBB = buildContext.BB[0];
-      const decls = [...funDeclarations].map(e => new JSEnvWriteSEXP(e.args[0], e.args[1], "JSLET", false));
-      targetBB.args = [...decls, ...targetBB.args];
+      targetBB.args = [...funDeclarations, ...targetBB.args];
     }
   }
 

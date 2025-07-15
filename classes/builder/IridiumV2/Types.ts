@@ -699,6 +699,29 @@ export class AwaitSEXP extends IridiumSEXP {
   }
 }
 
+// (Extension) BitInt
+export class BitIntSEXP extends IridiumSEXP {
+  constructor(str: string) {
+    super("BitInt");
+    this.flags.push(["IridiumPrimitive", str]);
+  }
+
+  getVal(): string {
+    return this.getFlagString("IridiumPrimitive");
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}${this.getVal()}n`
+  }
+}
+
+// @ts-ignore
+export function isBitIntSEXP(o: any): o is BitIntSEXP {
+  // @ts-ignore
+  return o.tag === "BitInt";
+}
+
+
 // (Primitive) String
 export class StringSEXP extends IridiumSEXP {
   constructor(str: string) {
