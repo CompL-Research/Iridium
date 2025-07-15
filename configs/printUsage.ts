@@ -203,6 +203,12 @@ const PIKA_OPTIONS = [
     type: Boolean,
   },
   {
+    name: "pp",
+    description:
+      "Pretty Print.",
+    type: Boolean,
+  },
+  {
     name: "tout",
     description:
       "Print the output directly to the terminal.",
