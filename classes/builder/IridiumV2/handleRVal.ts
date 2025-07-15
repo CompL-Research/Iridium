@@ -816,6 +816,9 @@ const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | J
   for (const s of node.body.body) {
     IRIV2_STMT(cx, s);
   }
+
+  cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
+
   cx.popContext();
 
   return new LambdaSEXP(funBBIdx);
@@ -865,6 +868,9 @@ const handleArrowFunctionExpression = (cx: IRIDIUMV2, node: JS3ArrowFunctionExpr
   for (const s of node.body.body) {
     IRIV2_STMT(cx, s);
   }
+
+  cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
+
   cx.popContext();
 
   return new LambdaSEXP(funBBIdx);

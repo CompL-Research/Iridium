@@ -48,6 +48,16 @@ const { transpile, transpileJS3 } = require("./transpile.cjs");
 
 const agent = new IRIAgent({ hostPath: EXEC, shortName: "$262", testRoot: TESTS });
 
+const TEST_TIMEOUT = 60 * 1000; // 1 minute
+function timeout(file, waitMs = TEST_TIMEOUT) {
+  return new Promise((_resolve, reject) =>
+    setTimeout(
+      () => reject(new Error(`test ${file} timed out after ${waitMs} ms`)),
+      waitMs
+    )
+  );
+}
+
 async function main() {
   const filter = process.argv[2];
   if (!filter) {
@@ -69,14 +79,28 @@ async function main() {
   let total = 0;
 
   const tasks = [];
+  const testRoot = TESTS;
 
   for await (const test of tests) {
     total++;
-    const file = `${test.file} ${test.scenario}`;
+    // const file = `${test.file} ${test.scenario}`;
 
     if (filter !== "I_AM_SURE" && !test.file.includes(filter)) continue;
+    
+    let { attrs, contents, file } = test;
+    console.log(contents)
+    // const isModule = attrs.flags.module;
 
-    console.log(test);
+    // let result = await Promise.race([
+    //   agent.evalScript({
+    //     attrs,
+    //     contents,
+    //     file: path.join(testRoot, file),
+    //   }, { module: isModule ? isModule : undefined }),
+    //   timeout(file),
+    // ]);
+
+    // console.log(result);
     break;
 
     // if (chunk && !chunk.has(test.file)) continue;

@@ -1,10 +1,10 @@
-// // Copyright (C) 2017 Ecma International.  All rights reserved.
-// // This code is governed by the BSD license found in the LICENSE file.
-// /*---
-// description: |
-//     Collection of assertion functions used throughout test262
-// defines: [assert]
-// ---*/
+// Copyright (C) 2017 Ecma International.  All rights reserved.
+// This code is governed by the BSD license found in the LICENSE file.
+/*---
+description: |
+    Collection of assertion functions used throughout test262
+defines: [assert]
+---*/
 
 
 // function assert(mustBeTrue, message) {
@@ -16,6 +16,7 @@
 //     message = 'Expected true but got ' + assert._toString(mustBeTrue);
 //   }
 //   throw new Test262Error(message);
+//   return;
 // }
 
 // assert._isSameValue = function (a, b) {
@@ -47,6 +48,7 @@
 //   message += 'Expected SameValue(«' + assert._toString(actual) + '», «' + assert._toString(expected) + '») to be true';
 
 //   throw new Test262Error(message);
+//   return;
 // };
 
 // assert.notSameValue = function (actual, unexpected, message) {
@@ -63,6 +65,7 @@
 //   message += 'Expected SameValue(«' + assert._toString(actual) + '», «' + assert._toString(unexpected) + '») to be false';
 
 //   throw new Test262Error(message);
+//   return;
 // };
 
 // assert.throws = function (expectedErrorConstructor, func, message) {
@@ -99,6 +102,7 @@
 
 //   message += 'Expected a ' + expectedErrorConstructor.name + ' to be thrown but no exception was thrown at all';
 //   throw new Test262Error(message);
+//   return;
 // };
 
 // assert._toString = function (value) {
@@ -115,6 +119,7 @@
 
 //     throw err;
 //   }
+//   return;
 // };
 
 // // Copyright (c) 2012 Ecma International.  All rights reserved.
@@ -129,39 +134,48 @@
 // ---*/
 
 
-// function Test262Error(message) {
-//   this.message = message || "";
-// }
+function Test262Error(message) {
+  this.message = message || "";
+  return;
+}
 
-// Test262Error.prototype.toString = function () {
-//   return "Test262Error: " + this.message;
-// };
+Test262Error.prototype.toString = function () {
+  return "Test262Error: " + this.message;
+};
 
 // Test262Error.thrower = function (message) {
 //   throw new Test262Error(message);
+//   return;
 // };
 
 // function $DONOTEVALUATE() {
 //   throw "Test262: This statement should not be evaluated.";
+//   return;
 // }
 
-// // Copyright (C) 2018 Igalia, S.L. All rights reserved.
-// // This code is governed by the BSD license found in the LICENSE file.
-// /*---
-// esid: sec-addition-operator-plus-runtime-semantics-evaluation
-// description: Mixing BigInt and Number produces a TypeError for addition operator
-// features: [BigInt]
-// info: |
-//   Let lprim be ? ToPrimitive(lval).
-//   Let rprim be ? ToPrimitive(rval).
-//   ...
-//   Let lnum be ? ToNumeric(lprim)
-//   Let rnum be ? ToNumeric(rprim)
-//   If Type(lnum) does not equal Type(rnum), throw a TypeError exception.
-// ---*/
+// Copyright (C) 2018 Igalia, S.L. All rights reserved.
+// This code is governed by the BSD license found in the LICENSE file.
+/*---
+esid: sec-addition-operator-plus-runtime-semantics-evaluation
+description: Mixing BigInt and Number produces a TypeError for addition operator
+features: [BigInt]
+info: |
+  Let lprim be ? ToPrimitive(lval).
+  Let rprim be ? ToPrimitive(rval).
+  ...
+  Let lnum be ? ToNumeric(lprim)
+  Let rnum be ? ToNumeric(rprim)
+  If Type(lnum) does not equal Type(rnum), throw a TypeError exception.
+---*/
 // assert.throws(TypeError, function() {
 //   1n + 1;
+//   return;
 // }, '1n + 1 throws TypeError');
+
+// (function() {
+//   1n + 1;
+//   return;
+// }())
 
 // assert.throws(TypeError, function() {
 //   1 + 1n;
@@ -230,14 +244,3 @@
 // assert.throws(TypeError, function() {
 //   undefined + 1n;
 // }, 'undefined + 1n throws TypeError');
-
-// let f = () => {
-//   console.log("Hello World");
-// }
-
-// f();
-function f() {
-  console.log("f");
-}
-
-f();

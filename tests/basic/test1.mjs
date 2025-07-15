@@ -498,14 +498,29 @@
 
 // foo(() => { console.log("Inner"); return; })
 
-class A {
-  static foo
-  static #foo
-  static bart() {
-    console.log("N-PVT:", this.foo);
-    console.log("PVT:", this.#foo);
-    return;
-  }
+// class A {
+//   static foo
+//   static #foo
+//   static bart() {
+//     console.log("N-PVT:", this.foo);
+//     console.log("PVT:", this.#foo);
+//     return;
+//   }
+// }
+
+// A.bart()
+
+// let a = 10;
+
+// console.log(a);
+// {
+//   function f() {
+
+//   }
+// }
+
+function f() {
+  console.log("foo");
 }
 
-A.bart()
+f();

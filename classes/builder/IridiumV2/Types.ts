@@ -1849,6 +1849,15 @@ export class JSFuncDeclSEXP extends IridiumSEXP {
     this.args.push(lval);
     this.args.push(rval);
   }
+
+  toString(space?: number): string {
+    if (!space) space = 0;
+    let res = [];
+    res.push(`${printIriSpace(space)}${this.tag}`);
+    const args = this.args.map(e => e.toString(10));
+    res = [...res, ...args];
+    return res.join("\n");
+  }
 }
 
 // @ts-ignore

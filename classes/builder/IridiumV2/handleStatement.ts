@@ -4,7 +4,7 @@ import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks";
 import { generateIdentifier, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors";
 import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportSpecifier, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3MemberExpression, isJS3ObjectPattern, isJS3PrivateName, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3DoWhileStatement, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3MemberExpression, JS3ObjectPattern, JS3RestElement, JS3ReturnStatement, JS3StaticBlock, JS3SwitchCase_test, JS3SwitchStatement, JS3TryStatement, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3WhileStatement } from "../JS3Helpers/JS3Types";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
-import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSArraySEXP, JSCatchContextSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSObjectSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, NullSEXP, NumberSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StarExportSEXP, StaticImportSEXP, StringSEXP, ThrowSEXP, UnopSEXP } from "./Types";
+import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSArraySEXP, JSCatchContextSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSObjectSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, NullSEXP, NumberSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StarExportSEXP, StaticImportSEXP, StringSEXP, ThrowSEXP, UnopSEXP } from "./Types";
 import { IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP } from "./handleRVal";
 
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks";
@@ -1202,7 +1202,7 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
   funcContext.isAsync = stmt.async ? stmt.async : false;
   funcContext.isGenerator = stmt.generator ? stmt.generator : false;
 
-  funcContext.kind = getRegularClosureFlag();
+  funcContext.kind = getConstructorClosureFlag();
 
   lowerArgumentInit(cx, stmt.params);
 
@@ -1213,6 +1213,9 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
   for (const s of stmt.body.body) {
     IRIV2_STMT(cx, s);
   }
+
+  cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
+  
   cx.popContext();
 
   cx.getCurrentBB().args.push(
