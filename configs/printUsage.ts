@@ -8,8 +8,7 @@ import commandLineArgs from "command-line-args";
 import commandLineUsage from "command-line-usage";
 import { projectStats } from "./projectStats";
 
-const directories = ["./classes", "./configs", "./docs", "./playground/src"];
-
+let directories = ["./classes", "./configs", "./docs", "./playground/src"];
 // 
 // Utility
 // 

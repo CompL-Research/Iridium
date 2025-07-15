@@ -68,7 +68,7 @@ function iri(filePath: string, printToConsole = false): IRIDIUMV2 {
     }
 
     if (printToConsole) {
-      console.log(JSON.stringify(iridiumV2Builder.container.serialize()));
+      console.log(JSON.stringify(iridiumV2Builder.serialize()));
     }
       
 

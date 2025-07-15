@@ -236,8 +236,19 @@
 // }
 
 // f();
-function f() {
-  console.log("f");
-}
+// function f() {
+//   console.log("f");
+// }
 
-f();
+// f();
+
+
+console.log(1e+308);
+console.log(1e+308 + 1e+308 !== Number.POSITIVE_INFINITY);
+
+let a = 1e+308;
+let b = 1e+308;
+let c = a + b;
+let d = Number.POSITIVE_INFINITY;
+let e = c !== d;
+console.log(e);

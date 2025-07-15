@@ -3,8 +3,10 @@
 // Inspired by babel-262 runner: https://github.com/babel/babel-test262-runner
 // 
 const path = require("path");
+const fs = require("fs");
 const Test262Stream = require("test262-stream");
 const IRIAgent = require("./iri-agent.cjs");
+const { execSync } = require('child_process');
 
 // const tap = require("make-tap-output")({ count: true });
 // const { Worker: JestWorker } = require("jest-worker");
@@ -12,6 +14,7 @@ const IRIAgent = require("./iri-agent.cjs");
 // const relative = file => path.resolve(process.cwd(), file);
 
 const EXEC = "/home/meetesh/wd/quickjs/build/qjs"
+const EXECIRI = "./iridium iri -t /home/meetesh/wd/Iridium/tests/test262"
 const TESTS = path.resolve('./test262');
 
 const { transpile, transpileJS3 } = require("./transpile.cjs");
@@ -47,7 +50,7 @@ const { transpile, transpileJS3 } = require("./transpile.cjs");
 // tap.pipe(process.stdout);
 
 const agent = new IRIAgent({ hostPath: EXEC, shortName: "$262", testRoot: TESTS });
-
+const testRoot = TESTS;
 const TEST_TIMEOUT = 60 * 1000; // 1 minute
 function timeout(file, waitMs = TEST_TIMEOUT) {
   return new Promise((_resolve, reject) =>
@@ -56,6 +59,49 @@ function timeout(file, waitMs = TEST_TIMEOUT) {
       waitMs
     )
   );
+}
+
+let storeBaselineTest = (test) => {
+  let { attrs, contents, file, scenario } = test;
+  const baseName = file.replace(/\//g, '_');
+  const isModule = attrs.flags.module;
+  const isStrict = scenario === "strict mode";
+  const UID = Math.random().toString(36).substring(2, 15);
+  const fPath = `./tmp/${baseName}_baseline_${UID}.js`;
+
+  try {
+    if (isStrict && !isModule && !/^\s*['"]use strict['"]/.test(contents)) {
+      contents = `"use strict";\nundefined;\n${contents}`;
+    }
+    fs.writeFileSync(fPath, contents);
+  } catch (error) {
+    return { result: "Failed to get baseline test", error };
+  }
+
+  return { result: fPath, error: false }
+}
+
+let storeIridiumTest = (test) => {
+  let { attrs, contents, file, scenario } = test;
+  const baseName = file.replace(/\//g, '_');
+  const isModule = attrs.flags.module;
+  const isStrict = scenario === "strict mode";
+  const UID = Math.random().toString(36).substring(2, 15);
+  const fPath = path.resolve(`./tmp/${baseName}_baseline_${UID}.js`);
+  const fPathIri = path.resolve(`./tmp/${baseName}_baseline_${UID}.json`);
+
+  try {
+    if (isStrict && !isModule && !/^\s*['"]use strict['"]/.test(contents)) {
+      contents = `"use strict";\nundefined;\n${contents}`;
+    }
+    fs.writeFileSync(fPath, contents);
+    execSync(`${EXECIRI} ${fPath} > ${fPathIri}`, { cwd: '/home/meetesh/wd/Iridium', encoding: 'utf-8', stdio: 'pipe' });
+
+  } catch (error) {
+    return { result: "Failed to save iridium test", error };
+  }
+
+  return { result: fPathIri, error: false }
 }
 
 async function main() {
@@ -79,16 +125,47 @@ async function main() {
   let total = 0;
 
   const tasks = [];
-  const testRoot = TESTS;
+  
 
   for await (const test of tests) {
     total++;
-    // const file = `${test.file} ${test.scenario}`;
+    const file = `${test.file} ${test.scenario}`;
+    const isModule = test.attrs.flags.module;
 
     if (filter !== "I_AM_SURE" && !test.file.includes(filter)) continue;
+    console.log(`Running: ${file}`);
+
+    let baselineTestPath, iriTestPath, error;
     
-    let { attrs, contents, file } = test;
-    console.log(contents)
+    // ({result: baselineTestPath, error} = storeBaselineTest(test));
+    // if (error) {
+    //   console.error(`[Baseline Store failed]`, error);
+    //   continue;
+    // }
+
+    // try {
+    //   execSync(`${EXEC} ${isModule ? '-m' : '-C'} ${baselineTestPath}`, { encoding: 'utf-8', stdio: 'pipe' });
+    //   console.log("Baseline Test Passed");
+    // } catch (err) {
+    //   console.error('Error:', err.message);
+    // }
+
+    ({result: iriTestPath, error} = storeIridiumTest(test));
+
+    if (error) {
+      console.error(`[Iridium Store failed]`, error);
+      continue;
+    }
+
+    try {
+      execSync(`${EXEC} -X ${iriTestPath}`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (err) {
+      console.error('Error:', err.message);
+    }
+
+
+    // let { attrs, contents, file } = test;
+    // console.log(test.scenario)
     // const isModule = attrs.flags.module;
 
     // let result = await Promise.race([
@@ -101,7 +178,7 @@ async function main() {
     // ]);
 
     // console.log(result);
-    break;
+    // break;
 
     // if (chunk && !chunk.has(test.file)) continue;
     // const baseExpectedRes = getExpected(test)
