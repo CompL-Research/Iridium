@@ -685,13 +685,15 @@ export function isNumberSEXP(o: any): o is NumberSEXP {
 
 // (Extension) Yield
 export class YieldSEXP extends IridiumSEXP {
-  constructor(arg: string) {
+  constructor(arg: string, yieldReturnIndicator: string, yieldReturnResultHolder: string) {
     super("Yield");
     this.args.push(new EnvReadSEXP(arg));
+    this.args.push(new ResolveEnvBindingSEXP(yieldReturnIndicator));
+    this.args.push(new ResolveEnvBindingSEXP(yieldReturnResultHolder));
   }
 
   toString(space?: number): string {
-    return `${printIriSpace(space)}YIELD ${this.args[0].toString(0)}`;
+    return `${printIriSpace(space)}YIELD [${this.args[0].toString(0)}] ↝ ${this.args[1].toString(0)}, ${this.args[2].toString(0)}`;
   }
 }
 
@@ -2225,7 +2227,7 @@ export class IfElseJumpSEXP extends IridiumSEXP {
 }
 
 // (Primitive) IfJumpSEXP
-export type IfJumpSEXPFlags = "IDX";
+export type IfJumpSEXPFlags = "IDX" | "NOT";
 export class IfJumpSEXP extends IridiumSEXP {
   constructor(test: IridiumSEXP | null, target: number) {
     super("IfJump");
@@ -2235,6 +2237,18 @@ export class IfJumpSEXP extends IridiumSEXP {
   }
 
   // Args
+  setNot() {
+    this.setFlag("NOT");
+  }
+
+  unsetNot() {
+    this.removeFlag("NOT");
+  }
+
+  isNot() {
+    return this.hasFlag("NOT");
+  }
+
   setTest(test: IridiumSEXP) {
     this.args[0] = test;
   }
@@ -2253,7 +2267,7 @@ export class IfJumpSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printIriSpace(space)}GOTO (${this.getTest().toString(0)}) ? GOTO ${this.getIDX()} : 👇`;
+    return `${printIriSpace(space)}GOTO (${this.isNot() ? "! " : ""}${this.getTest().toString(0)}) ? GOTO ${this.getIDX()} : 👇`;
   }
 }
 
