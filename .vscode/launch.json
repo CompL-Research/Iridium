@@ -35,9 +35,9 @@
                 "--import=tsx",
                 "/home/meetesh/wd/Iridium/iridium.ts",
                 "iri",
-                "/home/meetesh/wd/Iridium/tests/basic/test1.mjs",
+                "--pp",
                 "/home/meetesh/wd/Iridium/",
-                "-g"
+                "/home/meetesh/wd/Iridium/tests/basic/test1.mjs"
             ],
             "outFiles": [
               "${workspaceFolder}/iridium*.ts",
