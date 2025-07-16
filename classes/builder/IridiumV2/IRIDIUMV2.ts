@@ -423,7 +423,7 @@ export class IRIDIUMV2 {
         if (isReturnSEXP(s)) {
           if (currSEXP.isTopLevel()) continue;
           let [target, ] = this.findReturnTarget(currSEXP.getScopeIDX());
-          if (target.isAsync) {
+          if (target.isAsync || target.isGenerator) {
             currSEXP.args[i] = new ReturnAsyncSEXP(s.args[0]);
           }
         }
