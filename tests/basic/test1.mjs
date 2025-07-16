@@ -526,9 +526,31 @@
 // f();
 
 
-let a;
-if (false) {
-  a = 12;
+// let a;
+// if (false) {
+//   a = 12;
+// }
+
+// a = 14;
+
+// var yieldSet, C, iter;
+function* g() {
+  let a = yield;
+  let b = yield;
+  let c = yield;
+  console.log(a, b, c);
 }
 
-a = 14;
+let iter = g();
+
+iter.next();
+let x = iter.next('first');
+iter.next('second');
+iter.next('third');
+iter.next();
+
+// console.log(C.prototype.first, 'get yield');
+
+// C.prototype.second = 'set yield';
+
+// console.log(yieldSet, 'set yield');
