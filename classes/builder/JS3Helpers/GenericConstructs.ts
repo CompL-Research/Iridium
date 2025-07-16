@@ -146,9 +146,11 @@ export function lowerComputedKey(
     return node;
   } else if (isDecimalLiteral(node)) {
     return node;
-  } else if (isYieldExpression(node) && !node.argument) {
-    return generateIdentifier(node, "yield");
-  } else {
+  } 
+  // else if (isYieldExpression(node) && !node.argument) {
+  //   return generateIdentifier(node, "yield");
+  // } 
+  else {
     node.leadingComments = [generateCommentBlock("JS3ContainedExprKey")];
     //@ts-expect-error: Mark the node as JS3ContainedExprKey, js3type prop helps validate it later.
     node.js3type = "JS3ContainedExprKey";
