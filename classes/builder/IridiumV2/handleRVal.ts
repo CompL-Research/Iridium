@@ -391,6 +391,10 @@ const createClassNonStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpres
   funcContext.privateMapping = privateMapping;
   const funBBIdx = funcContext.getCurrentBB().idx;
 
+  // Class constructors are strict and use an unmapped arguments object
+  funcContext.isStrict = true;
+  funcContext.argumentsKind = 2;
+
   funcContext.isAsync = false;
   funcContext.isGenerator = false;
 
@@ -462,6 +466,10 @@ const createClassStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpressio
   funcContext.privateMapping = privateMapping;
   const funBBIdx = funcContext.getCurrentBB().idx;
 
+  // Class constructors are strict and use an unmapped arguments object
+  funcContext.isStrict = true;
+  funcContext.argumentsKind = 2;
+
   funcContext.isAsync = false;
   funcContext.isGenerator = false;
 
@@ -528,6 +536,10 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
 
   const funBBIdx = funcContext.getCurrentBB().idx;
+
+  // Class constructors are strict and use an unmapped arguments object
+  funcContext.isStrict = true;
+  funcContext.argumentsKind = 2;
 
   let constructor: undefined | Array<JS3ClassMethod> | JS3ClassMethod = node.body.body.filter(item => isJS3ClassMethod(item)).filter(item => item.kind === "constructor");
   if (constructor.length === 0) constructor = undefined
@@ -788,11 +800,33 @@ const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | J
   const funBB = funcContext.getCurrentBB();
   const funBBIdx = funBB.idx;
 
+  if (isJS3ClassMethod(node) || isJS3ClassPrivateMethod(node)) funcContext.isStrict = true;
   funcContext.isStrict = funcContext.isStrict || node.body.directives.some((val) => val.value.value === "use strict");
+  
   funcContext.isAsync = node.async ? node.async : false;
   funcContext.isGenerator = node.generator ? node.generator : false;
 
-  lowerArgumentInit(cx, node.params);
+  // Add arguments object to the context
+  funcContext.argumentsKind = 2;
+  let isSimpleArgs = true;
+
+  node.params.forEach(p => {
+    if (!isIdentifier(p)) {
+      isSimpleArgs = false;
+    }
+  })
+  
+  if (!funcContext.isStrict && isSimpleArgs) { // Not strict and simple arguments => mapped arguments
+    funcContext.argumentsKind = 1;
+    node.params.forEach(p => {
+      if (isIdentifier(p)) {
+        cx.getCurrentContext().args.push(p.name);
+      }
+    })
+  } else {
+    lowerArgumentInit(cx, node.params);
+  }
+  
   if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
   // Arrow functions are handled separately
@@ -861,6 +895,9 @@ const handleArrowFunctionExpression = (cx: IRIDIUMV2, node: JS3ArrowFunctionExpr
   funcContext.isGenerator = node.generator ? node.generator : false;
 
   funcContext.kind = getRegularClosureFlag();
+
+  // No arguments object
+  funcContext.argumentsKind = 0;
 
   lowerArgumentInit(cx, node.params);
   if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());

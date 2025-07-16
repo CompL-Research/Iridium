@@ -243,12 +243,61 @@
 // f();
 
 
-console.log(1e+308);
-console.log(1e+308 + 1e+308 !== Number.POSITIVE_INFINITY);
+// console.log(1e+308);
+// console.log(1e+308 + 1e+308 !== Number.POSITIVE_INFINITY);
 
-let a = 1e+308;
-let b = 1e+308;
-let c = a + b;
-let d = Number.POSITIVE_INFINITY;
-let e = c !== d;
-console.log(e);
+// let a = 1e+308;
+// let b = 1e+308;
+// let c = a + b;
+// let d = Number.POSITIVE_INFINITY;
+// let e = c !== d;
+// console.log(e);
+// console.log(1e+308 + 1e+308 !== Number.POSITIVE_INFINITY);
+
+// var x = 1;
+// // Fails silently, returns false
+// console.log(delete x);
+
+// "use strict";
+// function showThis() {
+//   console.log(this);
+// }
+// showThis(); // true
+
+// function showThisType() {
+//   return typeof this;
+// }
+// console.log(showThisType.call(5)); // "object"
+
+
+// "hello".prop = "world";
+// "use strict";
+
+// function foo(a) {
+//   arguments[0] = "bye";
+//   console.log(a);
+// }
+
+// foo("Hello");
+var AA;
+function* foo() {
+  class A {
+    [yield] = 12;
+  }
+
+  AA = A;
+}
+
+let a = foo();
+a.next();
+a.next("yyy");
+a.next();
+console.log(new AA().yyy);
+
+// function* foo() {
+//   yield 1;
+//   yield 2;
+// }
+
+// let a = foo();
+// console.log(a.next().value);

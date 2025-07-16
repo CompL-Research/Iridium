@@ -1,11 +1,11 @@
 import debugConfig from "#debugConfig";
-import { VERSION } from "../../../configs/projectStats";
 import fs from "fs";
 import path from "path";
+import { VERSION } from "../../../configs/projectStats";
 import JS3Builder from "../JS3Builder";
 import { JS3Program } from "../JS3Helpers/JS3Types";
 import { IRIV2_STMT } from "./handleStatement";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isGlobalBindingSEXP, isJSCatchContextSEXP, isJSEnvWriteSEXP, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSScriptReturnSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, isStringSEXP, JSCatchContextSEXP, JSCATCHINITSEXP, JSEnvBindingFlags, JSEnvWriteSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSScriptReturnSEXP, JSSloppyDeclarationCheckSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NopeSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP } from "./Types";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isGlobalBindingSEXP, isJSCatchContextSEXP, isJSEnvWriteSEXP, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSScriptReturnSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, isStringSEXP, JSARGUMENTSINITSEXP, JSEnvBindingFlags, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSMARGUMENTSINITSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSScriptReturnSEXP, JSSloppyDeclarationCheckSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP } from "./Types";
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -65,6 +65,10 @@ export class IridiumBuildContext {
   tryContext: TryContext | null = null;
 
   kind: number = 0;
+  // 0 -> No Arguments Object
+  // 1 -> Mapped Arguments
+  // 2 -> Unmapped Arguments
+  argumentsKind: number = 0;
   isAsync: boolean = false;
   isGenerator: boolean = false;
   isStrict: boolean = false;
@@ -956,15 +960,34 @@ export class IRIDIUMV2 {
           }
         }
 
+        // 0 -> No Arguments Object
+        // 1 -> Mapped Arguments
+        // 2 -> Unmapped Arguments
+        if (buildContext.argumentsKind > 0) {
+          bbContainer.setArguments();
+          const bindingName = "arguments";
+          const flags: [JSEnvBindingFlags, null][] = [];
+          flags.push(["JSVAR", null]);
+          let binding = new EnvBindingSEXP(i++, bbContainerScopeIDX, bindingName, flags, bbContainerScopeIDX, bbContainerParentScopeIDX);
+          bindingsSEXP.addLocalBinding(binding);
+
+          let stmt: IridiumSEXP;
+          stmt = buildContext.argumentsKind === 1 ? new JSMARGUMENTSINITSEXP(bindingName) : new JSARGUMENTSINITSEXP(bindingName);
+
+          let startBB = buildContext.BB[0];
+          startBB.args = [stmt,...startBB.args]
+        }
+
         // If this is a function, add arguments to the scope descriptor
         let k = 0;
         
         for (let b of buildContext.args) {
           const flags: [JSEnvBindingFlags, null][] = [];
           flags.push(["JSARG", null]);
-          let binding = new EnvBindingSEXP(k++, bbContainerScopeIDX, b, [["JSARG", null]], bbContainerScopeIDX, bbContainerParentScopeIDX);
+          let binding = new EnvBindingSEXP(k++, bbContainerScopeIDX, b, flags, bbContainerScopeIDX, bbContainerParentScopeIDX);
           bindingsSEXP.addLocalBinding(binding);
         }
+        
 
         // Add initializers to local scopes
         const bindingsToInit = [...bindingsSEXP.getLocalBindings().args, ...bindingsSEXP.getRemoteBindings().args].filter(b => !toSkipInit.has(b));
@@ -1033,6 +1056,7 @@ export class IRIDIUMV2 {
           startBB.args = [stmt,...startBB.args]
         }
 
+        
         bbContainer.setBindings(bindingsSEXP);
       } else throw new Error("Expected BBContainerSEXP");
     }

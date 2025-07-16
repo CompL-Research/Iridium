@@ -485,7 +485,7 @@ export const getPrivateDerivedMethodClosureFlag = () => 10;
 export const getStaticPropInitClosureFlag = () => 11;
 export const getStaticPropInitDerivedClosureFlag = () => 12;
 
-export type BBContainerSEXPFlags = "StartBBIDX" | "ScopeIDX" | "ASYNC" | "GENERATOR" | "PROTO" | "NEW" | "SCALL" | "SOBJ" | "HOME" | "DERIVED";
+export type BBContainerSEXPFlags = "StartBBIDX" | "ScopeIDX" | "ARGUMENTS" | "ASYNC" | "GENERATOR" | "PROTO" | "NEW" | "SCALL" | "SOBJ" | "HOME" | "DERIVED";
 export class BBContainerSEXP extends IridiumSEXP {
   constructor(startBBIDx: number, scopeIDX: number, bbs: Array<BBSEXP>) {
     super("BBContainer");
@@ -498,6 +498,14 @@ export class BBContainerSEXP extends IridiumSEXP {
   }
 
   // Flags
+  setArguments() {
+    this.setFlag("ARGUMENTS");
+  }
+
+  unsetArguments() {
+    this.removeFlag("ARGUMENTS");
+  }
+
   setGenerator() {
     this.setFlag("GENERATOR");
   }
@@ -1559,6 +1567,42 @@ export class JSThisContextSEXP extends IridiumSEXP {
 export function isJSThisContextSEXP(o: any): o is JSThisContextSEXP {
   // @ts-ignore
   return o.tag === "JSThisContext";
+}
+
+// (Extension) JSARGUMENTSINIT
+export class JSARGUMENTSINITSEXP extends IridiumSEXP {
+  constructor(loc: string) {
+    super("JSARGUMENTSINIT");
+    this.args.push(new ResolveEnvBindingSEXP(loc));
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}INIT[arguments -- ${this.args[0].toString(0)}]`
+  }
+}
+
+// @ts-ignore
+export function isJSARGUMENTSINITSEXP(o: any): o is JSARGUMENTSINITSEXP {
+  // @ts-ignore
+  return o.tag === "JSARGUMENTSINIT";
+}
+
+// (Extension) JSMARGUMENTSINIT
+export class JSMARGUMENTSINITSEXP extends IridiumSEXP {
+  constructor(loc: string) {
+    super("JSMARGUMENTSINIT");
+    this.args.push(new ResolveEnvBindingSEXP(loc));
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}INIT[[m]arguments -- ${this.args[0].toString(0)}]`
+  }
+}
+
+// @ts-ignore
+export function isJSMARGUMENTSINITSEXP(o: any): o is JSMARGUMENTSINITSEXP {
+  // @ts-ignore
+  return o.tag === "JSMARGUMENTSINIT";
 }
 
 // (Extension) JSThisContext

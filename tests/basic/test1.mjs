@@ -519,8 +519,16 @@
 //   }
 // }
 
-function f() {
-  console.log("foo");
+// function f() {
+//   console.log("foo");
+// }
+
+// f();
+
+
+let a;
+if (false) {
+  a = 12;
 }
 
-f();
+a = 14;

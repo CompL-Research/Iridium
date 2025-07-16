@@ -1204,7 +1204,26 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
 
   funcContext.kind = getConstructorClosureFlag();
 
-  lowerArgumentInit(cx, stmt.params);
+  // Add arguments object to the context
+  funcContext.argumentsKind = 2;
+  let isSimpleArgs = true;
+
+  stmt.params.forEach(p => {
+    if (!isIdentifier(p)) {
+      isSimpleArgs = false;
+    }
+  })
+
+  if (!funcContext.isStrict && isSimpleArgs) { // Not strict and simple arguments => mapped arguments
+    funcContext.argumentsKind = 1;
+    stmt.params.forEach(p => {
+      if (isIdentifier(p)) {
+        cx.getCurrentContext().args.push(p.name);
+      }
+    })
+  } else {
+    lowerArgumentInit(cx, stmt.params);
+  }
 
   if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
