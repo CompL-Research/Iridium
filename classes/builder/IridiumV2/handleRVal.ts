@@ -1,9 +1,9 @@
 import { assignmentExpression, BigIntLiteral, Expression, identifier, Identifier, isArrowFunctionExpression, isBigIntLiteral, isBooleanLiteral, isClassExpression, isDecimalLiteral, isFunctionExpression, isIdentifier, isNullLiteral, isNumericLiteral, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, NumericLiteral, StringLiteral, thisExpression } from "@babel/types";
 import { handleExpression, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpression";
-import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ClassExpression, isJS3ClassMethod, isJS3ClassPrivateMethod, isJS3ClassPrivateProperty, isJS3ClassProperty, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, isJS3RegExpLiteral, isJS3SpreadElement, isJS3StaticBlock, isJS3TemplateLiteral, isJS3UnaryExpression, isJS3UpdateExpression, isJS3VariableDeclaration, isJS3YieldExpression, JS3ArrayExpression, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BlockStatement_body, JS3CallExpression, JS3ClassExpression, JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3NewExpression, JS3ObjectExpression, JS3ObjectMethod, JS3UnaryExpression, JS3YieldExpression } from "../JS3Helpers/JS3Types";
+import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ClassExpression, isJS3ClassMethod, isJS3ClassPrivateMethod, isJS3ClassPrivateProperty, isJS3ClassProperty, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, isJS3RegExpLiteral, isJS3SpreadElement, isJS3StaticBlock, isJS3TemplateLiteral, isJS3UnaryExpression, isJS3UpdateExpression, isJS3VariableDeclaration, isJS3YieldExpression, JS3ArrayExpression, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BlockStatement_body, JS3CallExpression, JS3ClassExpression, JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3NewExpression, JS3ObjectExpression, JS3ObjectMethod, JS3UnaryExpression, JS3UpdateExpression, JS3YieldExpression } from "../JS3Helpers/JS3Types";
 import { handleBlockStatement, IRIV2_STMT, lowerArgumentInit } from "./handleStatement";
 import { IRIDIUMV2 } from "./IRIDIUMV2";
-import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassMethodDefineSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSComputedObjectMethodSEXP, JSComputedObjectPropSEXP, JSEnvWriteSEXP, JSHomeObjContextSEXP, JSInitialYieldSEXP, JSNUBDSEXP, JSObjectMethodSEXP, JSObjectPropSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperContextSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSSuperObjContextSEXP, JSTemplateSEXP, JSThisContextAltSEXP, JSThisContextSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StringSEXP, UnopSEXP, YieldSEXP } from "./Types";
+import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassMethodDefineSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSComputedObjectMethodSEXP, JSComputedObjectPropSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSEnvWriteSEXP, JSHomeObjContextSEXP, JSInitialYieldSEXP, JSNUBDSEXP, JSObjectMethodSEXP, JSObjectPropSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperContextSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSSuperObjContextSEXP, JSTemplateSEXP, JSThisContextAltSEXP, JSThisContextSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StringSEXP, UnopSEXP, YieldSEXP } from "./Types";
 import { untilFirstMatch } from "#utils";
 import { generateJS3ArrayExpressionfromBaseNode } from "../JS3Helpers/JS3Constructors";
 
@@ -175,10 +175,10 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
     return handleUnaryExpression(cx, init);
   }
 
-  // // JS3UpdateExpression
-  // else if (isJS3UpdateExpression(init)) {
-  //   return this.handleJS3UpdateExpression(init);
-  // }
+  // JS3UpdateExpression
+  else if (isJS3UpdateExpression(init)) {
+    return handleUpdateExpression(cx, init);
+  }
 
   // JS3ClassExpression
   else if (isJS3ClassExpression(init)) {
@@ -677,6 +677,47 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
   return new LambdaSEXP(funBBIdx);
 }
 
+const handleUpdateExpression = (cx: IRIDIUMV2, node: JS3UpdateExpression): IridiumSEXP => {
+  if (isIdentifier(node.argument)) {
+    if (node.prefix) {
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(
+          node.argument.name, 
+          new BinopSEXP(node.operator === "++" ? "+" : "-", new EnvReadSEXP(node.argument.name), new NumberSEXP(1)),
+          false,
+          false
+        )
+      );
+      return new EnvReadSEXP(node.argument.name);
+    } else {
+      let tmp = cx.js3Builder.utils.getNewTemporary(undefined);
+
+      cx.getCurrentBB().args.push(
+        new JSEnvWriteSEXP(
+          new ResolveEnvBindingSEXP(tmp),
+          new EnvReadSEXP(node.argument.name),
+          "JSLET",
+          false
+        )
+      );
+
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(
+          node.argument.name, 
+          new BinopSEXP(node.operator === "++" ? "+" : "-", new EnvReadSEXP(node.argument.name), new NumberSEXP(1)),
+          false,
+          false
+        )
+      );
+
+      return new EnvReadSEXP(tmp);
+    }
+  } else {
+    throw new Error("Handle Update Member Expr");
+  }
+
+}
+
 const handleClassExpression = (cx: IRIDIUMV2, node: JS3ClassExpression): IridiumSEXP => {
   let superClass: EnvReadSEXP | undefined = undefined;
   if (node.superClass) {
@@ -1127,35 +1168,71 @@ const getObjKeyString = (key: Identifier | StringLiteral | NumericLiteral | BigI
 }
 
 const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
-  let isSimpleObject = !init.properties.some((e) => isJS3SpreadElement(e));
-  if (isSimpleObject) {
-    const args = init.properties.map((e) => {
-      // JS3ObjectMethod | JS3ObjectProperty | JS3SpreadElement
-      if (isJS3ObjectMethod(e)) {
-        if (e.computed) {
-          e.kind
-          return new JSComputedObjectMethodSEXP(IRIV2_RVAL(cx, e.key), handleFunctionExpression(cx, e), e.kind);
-        } else {
-          return new JSObjectMethodSEXP(getObjKeyString(e.key), handleFunctionExpression(cx, e), e.kind);
-        }
-      } else if (isJS3ObjectProperty(e)) {
-        if (e.computed) {
-          return new JSComputedObjectPropSEXP(IRIV2_RVAL(cx, e.key), IRIV2_RVAL(cx, e.value));
-        } else {
-          return new JSObjectPropSEXP(getObjKeyString(e.key), IRIV2_RVAL(cx, e.value));
-        }
-      } else {
-        throw new Error("simple objects are not expected to have spread");
-      }
-    });
-    return new JSObjectSEXP(args);
-  } else {
-    throw new Error("TODO: obj spread");
-    // S1: tmp = [all'E'suntilNow]
-    // S2: let insertionIdx = staticOffset
-    // S3: [insertionIdx, tmp] <- append (tmp, insertionIdx, spreadVal)
-    // S4: For All'E's, tmp[insertionIdx++] = E
-    // S5: Goto 
+  let obj$id = cx.js3Builder.utils.getNewTemporary("newObj");
+  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(obj$id), new JSObjectSEXP(), "JSLET", false));
+
+  for (let prop of init.properties) {
+    if (isJS3ObjectMethod(prop)) {
+      cx.getCurrentBB().args.push(
+        new JSDefineObjMethodSEXP(
+          new EnvReadSEXP(obj$id),
+          prop.computed ? IRIV2_RVAL(cx, prop.key) : new StringSEXP(getObjKeyString(prop.key)),
+          handleFunctionExpression(cx, prop), 
+          prop.kind,
+          obj$id
+        )
+      );
+    } else if (isJS3ObjectProperty(prop)) {
+      cx.getCurrentBB().args.push(
+        new JSDefineObjPropSEXP(
+          new EnvReadSEXP(obj$id),
+          prop.computed ? IRIV2_RVAL(cx, prop.key) : new StringSEXP(getObjKeyString(prop.key)),
+          IRIV2_RVAL(cx, prop.value), 
+          obj$id
+        )
+      );
+    } else {
+      // JSCopyDataProperties(exc_obj, from, to, | -> | e)
+      cx.getCurrentBB().args.push(
+        new JSCopyDataPropertiesSEXP(
+          new NullSEXP(), 
+          prop.argument.name, 
+          obj$id, 
+          obj$id
+        )
+      );
+    }
   }
 
+  return new EnvReadSEXP(obj$id);
+
+  // let isSimpleObject = !init.properties.some((e) => isJS3SpreadElement(e));
+  // if (isSimpleObject) {
+  //   const args = init.properties.map((e) => {
+  //     // JS3ObjectMethod | JS3ObjectProperty | JS3SpreadElement
+  //     if (isJS3ObjectMethod(e)) {
+  //       if (e.computed) {
+  //         e.kind
+  //         return new JSComputedObjectMethodSEXP(IRIV2_RVAL(cx, e.key), handleFunctionExpression(cx, e), e.kind);
+  //       } else {
+  //         return new JSObjectMethodSEXP(getObjKeyString(e.key), handleFunctionExpression(cx, e), e.kind);
+  //       }
+  //     } else if (isJS3ObjectProperty(e)) {
+  //       if (e.computed) {
+  //         return new JSComputedObjectPropSEXP(IRIV2_RVAL(cx, e.key), IRIV2_RVAL(cx, e.value));
+  //       } else {
+  //         return new JSObjectPropSEXP(getObjKeyString(e.key), IRIV2_RVAL(cx, e.value));
+  //       }
+  //     } else {
+  //       throw new Error("simple objects are not expected to have spread");
+  //     }
+  //   });
+  //   return new JSObjectSEXP(args);
+  // } else {
+  //   throw new Error("TODO: obj spread");
+  //   // S1: obj = {}
+  //   // S2: case Meth.  : JSComputedObjectMethodSEXP(obj, [key], func) | JSObjectMethodSEXP(obj, key, func)
+  //   //     case Prop.  : JSComputedObjectPropSEXP(obj, [key], val) | JSObjectPropSEXP(obj, key, val)
+  //   //     case Spread : JSCopyDataProperties(exc_obj / NULL, source / spread, target / obj, store / obj_ref)
+  // }
 }
