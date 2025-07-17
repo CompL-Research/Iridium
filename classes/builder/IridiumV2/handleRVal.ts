@@ -96,7 +96,7 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   // JS3YieldExpression 
   else if (isJS3YieldExpression(init)) {
     return handleYieldExpression(cx, init);
-  } 
+  }
   // JS3AwaitExpression
   else if (isJS3AwaitExpression(init)) {
     return handleAwaitExpression(cx, init);
@@ -220,11 +220,11 @@ const handleUnaryExpression = (cx: IRIDIUMV2, node: JS3UnaryExpression): Iridium
     if (isIdentifier(node.argument)) {
       if (node.operator === "void") return new EnvReadSEXP("undefined");
       const argument = IRIV2_RVAL(cx, node.argument);
-      return new UnopSEXP(node.operator, argument);      
+      return new UnopSEXP(node.operator, argument);
     } else throw new Error(
-        "JS3UnaryExpression: Expected Identifier for non delete operators",
-      );
-    
+      "JS3UnaryExpression: Expected Identifier for non delete operators",
+    );
+
   }
 };
 
@@ -239,7 +239,7 @@ const handleYieldExpression = (cx: IRIDIUMV2, node: JS3YieldExpression): Iridium
 
   cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(yieldDoneIndicator), null, "JSLET", false));
   cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(yieldReturnResultHolder), null, "JSLET", false));
-  
+
   // <yieldDoneIndicator, yieldReturnResultHolder> = YIELD ARG
   cx.getCurrentBB().args.push(new YieldSEXP(node.argument ? node.argument.name : "undefined", yieldDoneIndicator, yieldReturnResultHolder));
 
@@ -325,15 +325,15 @@ const getFieldKeyString = (key: JS3ContainedExprKey): string => {
 }
 
 const getMethodKindFlag = (kind: string): string => {
-  if (kind === "method") return("METHOD");
-  else if (kind === "get") return("GET");
-  else if (kind === "set") return("SET");
-  throw new Error ("Didnt expect constructors to be lowered this way");
+  if (kind === "method") return ("METHOD");
+  else if (kind === "get") return ("GET");
+  else if (kind === "set") return ("SET");
+  throw new Error("Didnt expect constructors to be lowered this way");
 }
 
 const lowerNonStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, privateMapping: null | Map<string, string>, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>) => {
   const nonStaticClassMethods = node.body.body.filter(classItem => isJS3ClassMethod(classItem) || isJS3ClassPrivateMethod(classItem)).filter(classItem => !classItem.static);
-  const lambdas: Array<IridiumSEXP> = [];  
+  const lambdas: Array<IridiumSEXP> = [];
   const hasSuper = node.superClass ? true : false;
 
   nonStaticClassMethods.filter(n => isJS3ClassMethod(n)).forEach(methodNode => {
@@ -375,7 +375,7 @@ const lowerNonStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, pri
 
 const lowerStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, privateMapping: null | Map<string, string>, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>) => {
   const staticClassMethods = node.body.body.filter(classItem => isJS3ClassMethod(classItem) || isJS3ClassPrivateMethod(classItem)).filter(classItem => classItem.static);
-  const lambdas: Array<IridiumSEXP> = [];  
+  const lambdas: Array<IridiumSEXP> = [];
   const hasSuper = node.superClass ? true : false;
 
   staticClassMethods.filter(n => isJS3ClassMethod(n)).forEach(methodNode => {
@@ -436,7 +436,7 @@ const createClassNonStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpres
     // add <super_obj>
     cx.getCurrentBB().args.push(new JSSuperObjContextSEXP());
   }
-  
+
   if (addBrand) {
     // add <home_obj>
     cx.getCurrentBB().args.push(new JSHomeObjContextSEXP());
@@ -544,7 +544,7 @@ const createClassStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpressio
       // this.#field = RVal
       if (!computedPropMapping.has(classItem)) throw new Error("Expected computed prop mapping to be resolved for all fields");
       let compProp = computedPropMapping.get(classItem);
-        if (!compProp) throw new Error("compProp is undefined");
+      if (!compProp) throw new Error("compProp is undefined");
       let lookupPrivateKeyHolder = new EnvReadSEXP(compProp);
       // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
       let loweredValue: IridiumSEXP = new EnvReadSEXP(classItem.value ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getBindingName() : "undefined");
@@ -657,7 +657,7 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
             if (isIdentifier(item.declarations[0].id)) {
               const thisInit = new EnvWriteSEXP("this", new EnvReadSEXP(item.declarations[0].id.name), false, true); // <- This is about the only place where we set THISINIT flag to true
               cx.getCurrentBB().args.push(thisInit);
-              
+
               // Call prop init closure
               const args1: Array<IridiumSEXP> = [];
               args1.push(new EnvReadSEXP("this"));
@@ -833,7 +833,7 @@ const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | J
 
   if (isJS3ClassMethod(node) || isJS3ClassPrivateMethod(node)) funcContext.isStrict = true;
   funcContext.isStrict = funcContext.isStrict || node.body.directives.some((val) => val.value.value === "use strict");
-  
+
   funcContext.isAsync = node.async ? node.async : false;
   funcContext.isGenerator = node.generator ? node.generator : false;
 
@@ -846,7 +846,7 @@ const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | J
       isSimpleArgs = false;
     }
   })
-  
+
   if (!funcContext.isStrict && isSimpleArgs) { // Not strict and simple arguments => mapped arguments
     funcContext.argumentsKind = 1;
     node.params.forEach(p => {
@@ -857,7 +857,7 @@ const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | J
   } else {
     lowerArgumentInit(cx, node.params);
   }
-  
+
   if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
   // Arrow functions are handled separately
@@ -1056,7 +1056,7 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
     let allEs = untilFirstMatch(init.elements, (e) => isJS3SpreadElement(e));
     cx.getCurrentBB().args.push(
       new EnvWriteSEXP(
-        temp$id, 
+        temp$id,
         handleArrayExpression(cx, generateJS3ArrayExpressionfromBaseNode(allEs, init)),
         true,
         false
@@ -1065,7 +1065,7 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
     // let insertionIdx$id = staticOffset
     cx.getCurrentBB().args.push(
       new EnvWriteSEXP(
-        insertionIdx$id, 
+        insertionIdx$id,
         new NumberSEXP(allEs.length),
         true,
         false
@@ -1116,9 +1116,8 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
     // S3: [insertionIdx, tmp] <- append (tmp, insertionIdx, spreadVal)
     // S4: For All'E's, tmp[insertionIdx++] = E
     // S5: Goto 
-
   }
-  
+
 }
 
 // Identifier | StringLiteral | NumericLiteral | BigIntLiteral -> string
@@ -1128,24 +1127,35 @@ const getObjKeyString = (key: Identifier | StringLiteral | NumericLiteral | BigI
 }
 
 const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
-  const args = init.properties.map((e) => {
-    // JS3ObjectMethod | JS3ObjectProperty | JS3SpreadElement
-    if (isJS3ObjectMethod(e)) {
-      if (e.computed) {
-        e.kind
-        return new JSComputedObjectMethodSEXP(IRIV2_RVAL(cx, e.key), handleFunctionExpression(cx, e), e.kind);
+  let isSimpleObject = !init.properties.some((e) => isJS3SpreadElement(e));
+  if (isSimpleObject) {
+    const args = init.properties.map((e) => {
+      // JS3ObjectMethod | JS3ObjectProperty | JS3SpreadElement
+      if (isJS3ObjectMethod(e)) {
+        if (e.computed) {
+          e.kind
+          return new JSComputedObjectMethodSEXP(IRIV2_RVAL(cx, e.key), handleFunctionExpression(cx, e), e.kind);
+        } else {
+          return new JSObjectMethodSEXP(getObjKeyString(e.key), handleFunctionExpression(cx, e), e.kind);
+        }
+      } else if (isJS3ObjectProperty(e)) {
+        if (e.computed) {
+          return new JSComputedObjectPropSEXP(IRIV2_RVAL(cx, e.key), IRIV2_RVAL(cx, e.value));
+        } else {
+          return new JSObjectPropSEXP(getObjKeyString(e.key), IRIV2_RVAL(cx, e.value));
+        }
       } else {
-        return new JSObjectMethodSEXP(getObjKeyString(e.key), handleFunctionExpression(cx, e), e.kind);
+        throw new Error("simple objects are not expected to have spread");
       }
-    } else if (isJS3ObjectProperty(e)) {
-      if (e.computed) {
-        return new JSComputedObjectPropSEXP(IRIV2_RVAL(cx, e.key), IRIV2_RVAL(cx, e.value));
-      } else {
-        return new JSObjectPropSEXP(getObjKeyString(e.key), IRIV2_RVAL(cx, e.value));
-      }
-    } else {
-      throw new Error("IRIV2 TODO: Object Expression Spread");
-    }
-  });
-  return new JSObjectSEXP(args);
+    });
+    return new JSObjectSEXP(args);
+  } else {
+    throw new Error("TODO: obj spread");
+    // S1: tmp = [all'E'suntilNow]
+    // S2: let insertionIdx = staticOffset
+    // S3: [insertionIdx, tmp] <- append (tmp, insertionIdx, spreadVal)
+    // S4: For All'E's, tmp[insertionIdx++] = E
+    // S5: Goto 
+  }
+
 }
