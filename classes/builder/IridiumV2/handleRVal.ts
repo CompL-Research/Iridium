@@ -322,6 +322,13 @@ const getFieldKeyString = (key: JS3ContainedExprKey): string => {
   return lookupField;
 }
 
+const getMethodKindFlag = (kind: string): string => {
+  if (kind === "method") return("METHOD");
+  else if (kind === "get") return("GET");
+  else if (kind === "set") return("SET");
+  throw new Error ("Didnt expect constructors to be lowered this way");
+}
+
 const lowerNonStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, privateMapping: null | Map<string, string>, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>) => {
   const nonStaticClassMethods = node.body.body.filter(classItem => isJS3ClassMethod(classItem) || isJS3ClassPrivateMethod(classItem)).filter(classItem => !classItem.static);
   const lambdas: Array<IridiumSEXP> = [];  
@@ -338,6 +345,7 @@ const lowerNonStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, pri
       lambda.push(new StringSEXP(getFieldKeyString(methodNode.key)));
     }
     lambda.push(handleFunctionExpression(cx, methodNode, privateMapping, hasSuper, false));
+    lambda.push(new StringSEXP(getMethodKindFlag(methodNode.kind)));
     const lambdaNode = new ListSEXP(lambda);
     lambdas.push(lambdaNode);
   });
@@ -354,6 +362,7 @@ const lowerNonStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, pri
     const lambda: Array<IridiumSEXP> = [];
     lambda.push(new PrivateSEXP(methodNode.key.id.name));
     lambda.push(new EnvReadSEXP(allocaLocation));
+    lambda.push(new StringSEXP(getMethodKindFlag(methodNode.kind)));
     const lambdaNode = new ListSEXP(lambda);
     lambdas.push(lambdaNode);
   });
@@ -378,6 +387,7 @@ const lowerStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, privat
       lambda.push(new StringSEXP(getFieldKeyString(methodNode.key)));
     }
     lambda.push(handleFunctionExpression(cx, methodNode, privateMapping, hasSuper, false));
+    lambda.push(new StringSEXP(getMethodKindFlag(methodNode.kind)));
     const lambdaNode = new ListSEXP(lambda);
     lambdas.push(lambdaNode);
   });
@@ -394,6 +404,7 @@ const lowerStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, privat
     const lambda: Array<IridiumSEXP> = [];
     lambda.push(new PrivateSEXP(methodNode.key.id.name));
     lambda.push(new EnvReadSEXP(allocaLocation));
+    lambda.push(new StringSEXP(getMethodKindFlag(methodNode.kind)));
     const lambdaNode = new ListSEXP(lambda);
     lambdas.push(lambdaNode);
   });
