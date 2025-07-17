@@ -105,19 +105,19 @@ function main() {
   switch (mainCommand) {
     case "iri": {
       const IRIPATH = initIRI(header, argv);
-      initializeOutputsPath();
+      if (!debugConfig.cli.tout) initializeOutputsPath();
       iri(IRIPATH, debugConfig.cli.tout);
       break;
     }
     case "js3": {
       const JS3PATH = initJS3(header, argv);
-      initializeOutputsPath();
+      if (!debugConfig.cli.tout) initializeOutputsPath();
       js3(JS3PATH, debugConfig.cli.tout);
       break;
     }
     case "pika": {
       const paths = initPIKA(header, argv);
-      initializeOutputsPath();
+      if (!debugConfig.cli.tout) initializeOutputsPath();
       pika(paths, debugConfig.cli.tout);
       break;
     }
