@@ -8,6 +8,11 @@ export const hasPackageJson = (folderPath: string) => {
   return fs.existsSync(path.join(folderPath, "package.json"));
 };
 
+export function untilFirstMatch<T>(arr: T[], predicate: (item: T, index: number, array: T[]) => boolean): T[] {
+  const index = arr.findIndex(predicate);
+  return index === -1 ? arr.slice() : arr.slice(0, index);
+}
+
 export const ensurePathExists = (path: string) => {
   if (fs.existsSync(path)) {
     fs.rmSync(path, { recursive: true, force: true });
