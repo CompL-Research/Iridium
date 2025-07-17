@@ -888,6 +888,28 @@ export function isJSArraySEXP(o: any): o is JSArraySEXP {
   return o.tag === "JSArray";
 }
 
+// (Extension) JSAppend
+export class JSAppendSEXP extends IridiumSEXP {
+  constructor(tmp: IridiumSEXP, insertionIdx: IridiumSEXP, spreadVal: IridiumSEXP, insertionIdxLoc: string, tmpLoc: string) {
+    super("JSAppend");
+    this.args.push(tmp);
+    this.args.push(insertionIdx);
+    this.args.push(spreadVal);
+    this.args.push(new ResolveEnvBindingSEXP(insertionIdxLoc));
+    this.args.push(new ResolveEnvBindingSEXP(tmpLoc));
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}JSAppend [${this.args.map(e => e.toString(0)).join(", ")}]`
+  }
+}
+
+// @ts-ignore
+export function isJSAppendSEXP(o: any): o is JSAppendSEXP {
+  // @ts-ignore
+  return o.tag === "JSAppend";
+}
+
 // (Extension) JSComputedObjectProp
 export class JSComputedObjectPropSEXP extends IridiumSEXP {
   constructor(key: IridiumSEXP, value: IridiumSEXP) {
