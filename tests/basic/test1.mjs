@@ -534,23 +534,128 @@
 // a = 14;
 
 // var yieldSet, C, iter;
-function* g() {
-  let a = yield;
-  let b = yield;
-  let c = yield;
-  console.log(a, b, c);
-}
+// function* g() {
+//   let a = yield;
+//   let b = yield;
+//   let c = yield;
+//   console.log(a, b, c);
+// }
 
-let iter = g();
+// let iter = g();
 
-iter.next();
-let x = iter.next('first');
-iter.next('second');
-iter.next('third');
-iter.next();
+// iter.next();
+// let x = iter.next('first');
+// iter.next('second');
+// iter.next('third');
+// iter.next();
 
 // console.log(C.prototype.first, 'get yield');
 
 // C.prototype.second = 'set yield';
 
 // console.log(yieldSet, 'set yield');
+// let R;
+// function* g() {
+//   class C {
+//     [yield] = 12;
+//   }
+
+//   R = C;
+// }
+
+// let a = g();
+// a.next();
+// a.next("abc");
+// a.next();
+// let rr = new R();
+// console.log(rr.abc)
+
+// var yieldSet, C, iter;
+// function* g() {
+//   class C_ {
+//     get foo () { return "Pikachu"; }
+//     // get [yield]() { return 'get yield'; }
+//     // set [yield](param) { yieldSet = param; }
+//   }
+
+//   C = C_;
+// }
+
+// iter = g();
+
+// iter.next();
+// iter.next('first');
+// // iter.next('second');
+
+// let obj = new C();
+// console.log(obj.foo)
+
+// // console.log(C.prototype.first, 'get yield');
+
+// // C.prototype.second = 'set yield';
+
+// // assert.sameValue(yieldSet, 'set yield');
+
+
+// var yieldSet, C, iter;
+// function* g() {
+//   class C_ {
+//     get [yield]() { return 'get yield'; }
+//     set [yield](param) { yieldSet = param; }
+//   }
+
+//   C = C_;
+// }
+
+// iter = g();
+
+// iter.next();
+// iter.next('first');
+// iter.next('second');
+
+// console.log(C.prototype.first)
+
+// class A {
+//   get ["foo"]() { return "Flower" }
+// }
+
+// console.log(new A().foo)
+
+// for (let a of [1,2,34]) {
+//   console.log(a);
+// }
+
+// var yieldSet, C, iter;
+// function* g() {
+//   class C_ {
+//     static get [yield]() { return 'get yield'; }
+//     static set [yield](param) { yieldSet = param; }
+//   }
+
+//   C = C_;
+// }
+
+// iter = g();
+
+// iter.next();
+// iter.next('first');
+// iter.next('second');
+
+// console.log(C.first, 'get yield');
+
+// C.second = 'set yield';
+
+// console.log(yieldSet, 'set yield');
+
+
+let x = null;
+
+x ??= 1;
+
+// class C {
+//   get [x ??= 1]() {
+//     return 2;
+//   }
+// };
+
+console.log(x, 1);

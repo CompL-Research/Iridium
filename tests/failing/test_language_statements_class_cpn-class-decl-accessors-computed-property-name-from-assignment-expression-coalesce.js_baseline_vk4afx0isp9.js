@@ -1,4 +1,3 @@
-"use strict";
 // Copyright (C) 2017 Ecma International.  All rights reserved.
 // This code is governed by the BSD license found in the LICENSE file.
 /*---
@@ -146,46 +145,97 @@ function $DONOTEVALUATE() {
   throw "Test262: This statement should not be evaluated.";
 }
 
-// Copyright (C) 2016 the V8 project authors. All rights reserved.
-// This code is governed by the BSD license found in the LICENSE file.
+// This file was procedurally generated from the following sources:
+// - src/computed-property-names/computed-property-name-from-assignment-expression-coalesce.case
+// - src/computed-property-names/evaluation/class-declaration-accessors.template
 /*---
-esid: sec-object-initializer-runtime-semantics-evaluation
-es6id: 12.2.6.8
-description: >
-  The `yield` keyword behaves as a YieldExpression within a generator function
+description: Computed property name from assignment expression coalesce (ComputedPropertyName in ClassDeclaration)
+esid: prod-ComputedPropertyName
+features: [computed-property-names, logical-assignment-operators]
+flags: [generated]
 info: |
-  [...]
-  21. For each ClassElement m in order from methods
-      a. If IsStatic of m is false, then
-         i. Let status be the result of performing PropertyDefinitionEvaluation
-            for m with arguments proto and false.
+    ClassExpression:
+      classBindingIdentifier opt ClassTail
 
-  ComputedPropertyName : [ AssignmentExpression ]
+    ClassTail:
+      ClassHeritage opt { ClassBody opt }
 
-  1. Let exprValue be the result of evaluating AssignmentExpression.
-  2. Let propName be ? GetValue(exprValue).
-  3. Return ? ToPropertyKey(propName).
-features: [generators]
+    ClassBody:
+      ClassElementList
+
+    ClassElementList:
+      ClassElement
+
+    ClassElement:
+      MethodDefinition
+
+    MethodDefinition:
+      PropertyName ...
+      get PropertyName ...
+      set PropertyName ...
+
+    PropertyName:
+      ComputedPropertyName
+
+    ComputedPropertyName:
+      [ AssignmentExpression ]
 ---*/
+let x = null;
 
-var yieldSet, C, iter;
-function* g() {
-  class C_ {
-    get [yield]() { return 'get yield'; }
-    set [yield](param) { yieldSet = param; }
+
+class C {
+  get [x ??= 1]() {
+    return 2;
   }
 
-  C = C_;
-}
+  set [x ??= 1](v) {
+    return 2;
+  }
 
-iter = g();
+  static get [x ??= 1]() {
+    return 2;
+  }
 
-iter.next();
-iter.next('first');
-iter.next('second');
+  static set [x ??= 1](v) {
+    return 2;
+  }
+};
 
-assert.sameValue(C.prototype.first, 'get yield');
+let c = new C();
 
-C.prototype.second = 'set yield';
+assert.sameValue(
+  c[x ??= 1],
+  2
+);
+assert.sameValue(
+  c[x ??= 1] = 2,
+  2
+);
 
-assert.sameValue(yieldSet, 'set yield');
+assert.sameValue(
+  C[x ??= 1],
+  2
+);
+assert.sameValue(
+  C[x ??= 1] = 2,
+  2
+);
+assert.sameValue(
+  c[String(x ??= 1)],
+  2
+);
+assert.sameValue(
+  c[String(x ??= 1)] = 2,
+  2
+);
+
+assert.sameValue(
+  C[String(x ??= 1)],
+  2
+);
+assert.sameValue(
+  C[String(x ??= 1)] = 2,
+  2
+);
+
+assert.sameValue(x, 1);

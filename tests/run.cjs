@@ -137,18 +137,20 @@ async function main() {
 
     let baselineTestPath, iriTestPath, error;
     
-    // ({result: baselineTestPath, error} = storeBaselineTest(test));
-    // if (error) {
-    //   console.error(`[Baseline Store failed]`, error);
-    //   continue;
-    // }
+    ({result: baselineTestPath, error} = storeBaselineTest(test));
+    if (error) {
+      console.error(`[Baseline Store failed]`, error);
+      continue;
+    }
 
-    // try {
-    //   execSync(`${EXEC} ${isModule ? '-m' : '-C'} ${baselineTestPath}`, { encoding: 'utf-8', stdio: 'pipe' });
-    //   console.log("Baseline Test Passed");
-    // } catch (err) {
-    //   console.error('Error:', err.message);
-    // }
+    try {
+      execSync(`${EXEC} ${isModule ? '-m' : '-C'} ${baselineTestPath}`, { encoding: 'utf-8', stdio: 'pipe' });
+      console.log("Baseline Test Passed");
+    } catch (err) {
+      // console.error('Error:', err.message);
+      console.log("Baseline Test Falied, skipping");
+      continue;
+    }
 
     ({result: iriTestPath, error} = storeIridiumTest(test));
 
@@ -159,6 +161,7 @@ async function main() {
 
     try {
       execSync(`${EXEC} -X ${iriTestPath}`, { encoding: 'utf-8', stdio: 'pipe' });
+      console.log("Iridium Test Passed");
     } catch (err) {
       console.error('Error:', err.message);
     }
