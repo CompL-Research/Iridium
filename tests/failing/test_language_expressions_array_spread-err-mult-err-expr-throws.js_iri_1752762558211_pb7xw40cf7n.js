@@ -1,3 +1,4 @@
+"use strict";
 // Copyright (C) 2017 Ecma International.  All rights reserved.
 // This code is governed by the BSD license found in the LICENSE file.
 /*---
@@ -146,96 +147,39 @@ function $DONOTEVALUATE() {
 }
 
 // This file was procedurally generated from the following sources:
-// - src/computed-property-names/computed-property-name-from-assignment-expression-coalesce.case
-// - src/computed-property-names/evaluation/class-declaration-accessors.template
+// - src/spread/mult-err-expr-throws.case
+// - src/spread/error/array.template
 /*---
-description: Computed property name from assignment expression coalesce (ComputedPropertyName in ClassDeclaration)
-esid: prod-ComputedPropertyName
-features: [computed-property-names, logical-assignment-operators]
+description: Spread operator following other arguments when evaluation throws (Array initializer)
+esid: sec-runtime-semantics-arrayaccumulation
+features: [generators]
 flags: [generated]
 info: |
-    ClassExpression:
-      classBindingIdentifier opt ClassTail
+    SpreadElement : ...AssignmentExpression
 
-    ClassTail:
-      ClassHeritage opt { ClassBody opt }
+    1. Let spreadRef be the result of evaluating AssignmentExpression.
+    2. Let spreadObj be ? GetValue(spreadRef).
+    3. Let iterator be ? GetIterator(spreadObj).
+    4. Repeat
+       a. Let next be ? IteratorStep(iterator).
+       b. If next is false, return nextIndex.
+       c. Let nextValue be ? IteratorValue(next).
+       d. Let status be CreateDataProperty(array, ToString(ToUint32(nextIndex)),
+          nextValue).
+       e. Assert: status is true.
+       f. Let nextIndex be nextIndex + 1.
 
-    ClassBody:
-      ClassElementList
+    12.3.6.1 Runtime Semantics: ArgumentListEvaluation
 
-    ClassElementList:
-      ClassElement
+    ArgumentList : ArgumentList , ... AssignmentExpression
 
-    ClassElement:
-      MethodDefinition
+    1. Let precedingArgs be the result of evaluating ArgumentList.
+    2. Let spreadRef be the result of evaluating AssignmentExpression.
+    3. Let iterator be GetIterator(GetValue(spreadRef) ).
+    4. ReturnIfAbrupt(iterator).
 
-    MethodDefinition:
-      PropertyName ...
-      get PropertyName ...
-      set PropertyName ...
-
-    PropertyName:
-      ComputedPropertyName
-
-    ComputedPropertyName:
-      [ AssignmentExpression ]
 ---*/
-let x = null;
 
-
-class C {
-  get [x ??= 1]() {
-    return 2;
-  }
-
-  set [x ??= 1](v) {
-    return 2;
-  }
-
-  static get [x ??= 1]() {
-    return 2;
-  }
-
-  static set [x ??= 1](v) {
-    return 2;
-  }
-};
-
-let c = new C();
-
-assert.sameValue(
-  c[x ??= 1],
-  2
-);
-assert.sameValue(
-  c[x ??= 1] = 2,
-  2
-);
-
-assert.sameValue(
-  C[x ??= 1],
-  2
-);
-assert.sameValue(
-  C[x ??= 1] = 2,
-  2
-);
-assert.sameValue(
-  c[String(x ??= 1)],
-  2
-);
-assert.sameValue(
-  c[String(x ??= 1)] = 2,
-  2
-);
-
-assert.sameValue(
-  C[String(x ??= 1)],
-  2
-);
-assert.sameValue(
-  C[String(x ??= 1)] = 2,
-  2
-);
-
-assert.sameValue(x, 1);
+assert.throws(Test262Error, function() {
+  [0, ...function*() { throw new Test262Error(); }()];
+});

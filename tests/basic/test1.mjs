@@ -648,9 +648,9 @@
 // console.log(yieldSet, 'set yield');
 
 
-let x = null;
+// let x = null;
 
-x ??= 1;
+// x ??= 1;
 
 // class C {
 //   get [x ??= 1]() {
@@ -658,4 +658,13 @@ x ??= 1;
 //   }
 // };
 
-console.log(x, 1);
+// console.log(x, 1);
+
+
+// let res = [0, ...function*() { console.log("Here"); yield 1; yield 2; }()];
+// console.log(res);
+
+let a = [1,2,3];
+let c = [...a, 4];
+
+console.log(c);
