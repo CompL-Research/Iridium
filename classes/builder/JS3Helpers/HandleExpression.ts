@@ -2480,6 +2480,8 @@ export function handleAssignmentExpression(
           generateDummyJS3VariableDeclaration(node, fin$res, condExprCheck),
         );
 
+        handleAssignmentExpression(assignmentExpression("=", node.left, fin$res), otherProps);
+
         return fin$res;
       } else if (node.operator === "||=") {
         // [1] lvalResHolder ? lvalResHolder : (LVAL_EVAL_RES = EXPR)
@@ -2498,6 +2500,8 @@ export function handleAssignmentExpression(
         otherProps.others.holder.push(
           generateDummyJS3VariableDeclaration(node, fin$res, condExprCheck),
         );
+
+        handleAssignmentExpression(assignmentExpression("=", node.left, fin$res), otherProps);
 
         return fin$res;
       } else if (node.operator === "??=") {
@@ -2534,6 +2538,8 @@ export function handleAssignmentExpression(
         otherProps.others.holder.push(
           generateDummyJS3VariableDeclaration(node, fin$res, condExprCheck),
         );
+
+        handleAssignmentExpression(assignmentExpression("=", node.left, fin$res), otherProps);
 
         return fin$res;
       }
