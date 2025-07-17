@@ -910,12 +910,67 @@ export function isJSAppendSEXP(o: any): o is JSAppendSEXP {
   return o.tag === "JSAppend";
 }
 
+// (Extension) JSDefineObjMethod
+type JSDefineObjMethodSEXPFlags = "GET" | "SET" | "METHOD";
+export class JSDefineObjMethodSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP, key: IridiumSEXP, value: IridiumSEXP, kind: "method" | "get" | "set", store: string) {
+    super("JSDefineObjMethod");
+    this.args.push(obj);
+    this.args.push(key);
+    this.args.push(value);
+    this.args.push(new ResolveEnvBindingSEXP(store));
+    if (kind === "method") this.setFlag("METHOD");
+    else if (kind === "get") this.setFlag("GET");
+    else if (kind === "set") this.setFlag("SET");
+    else throw new Error("Object method kind is invalid");
+  }
+
+  toString(space?: number): string {
+    const res = [];
+    res.push(`${printIriSpace(space)}${this.tag}${printFlagString(this.flags)}`);
+    for (let s of this.args) {
+      res.push(`${printIriSpace(10)}${s.toString(0)}`);
+    }
+    return res.join("\n");
+  }
+}
+
+// (Extension) JSDefineObjProp
+type JSDefineObjPropSEXPFlags = "GET" | "SET" | "METHOD";
+export class JSDefineObjPropSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP, key: IridiumSEXP, value: IridiumSEXP, store: string) {
+    super("JSDefineObjProp");
+    this.args.push(obj);
+    this.args.push(key);
+    this.args.push(value);
+    this.args.push(new ResolveEnvBindingSEXP(store));
+  }
+
+  toString(space?: number): string {
+    const res = [];
+    res.push(`${printIriSpace(space)}${this.tag}`);
+    for (let s of this.args) {
+      res.push(`${printIriSpace(10)}${s.toString(0)}`);
+    }
+    return res.join("\n");
+  }
+}
+
 // (Extension) JSComputedObjectProp
 export class JSComputedObjectPropSEXP extends IridiumSEXP {
   constructor(key: IridiumSEXP, value: IridiumSEXP) {
     super("JSComputedObjectProp");
     this.args.push(key);
     this.args.push(value);
+  }
+
+  toString(space?: number): string {
+    const res = [];
+    res.push(`${printIriSpace(space)}${this.tag}`);
+    for (let s of this.args) {
+      res.push(`${printIriSpace(10)}${s.toString(0)}`);
+    }
+    return res.join("\n");
   }
 }
 
@@ -986,13 +1041,12 @@ export function isJSObjectMethodSEXP(o: any): o is JSObjectMethodSEXP {
 
 // (Extension) JSObject
 export class JSObjectSEXP extends IridiumSEXP {
-  constructor(vals: Array<IridiumSEXP>) {
+  constructor() {
     super("JSObject");
-    vals.forEach(e => this.args.push(e));
   }
 
   toString(space?: number): string {
-    return `${printIriSpace(space)}${this.tag}\n${this.args.map(e => e.toString(8)).join("\n")}`;
+    return `${printIriSpace(space)}${this.tag}{}`;
   }
 }
 
@@ -1109,9 +1163,10 @@ export class JSInitialYieldSEXP extends IridiumSEXP {
 
 // (Extension) JSCopyDataProperties
 export class JSCopyDataPropertiesSEXP extends IridiumSEXP {
-  constructor(exc_obj: string, source: string, target: string, store: string) {
+  constructor(exc_obj: string | IridiumSEXP, source: string, target: string, store: string) {
     super("JSCopyDataProperties");
-    this.args.push(new EnvReadSEXP(exc_obj));
+    if (typeof exc_obj === "string") this.args.push(new EnvReadSEXP(exc_obj));
+    else this.args.push(exc_obj);
     this.args.push(new EnvReadSEXP(source));
     this.args.push(new EnvReadSEXP(target));
     this.args.push(new ResolveEnvBindingSEXP(store));
