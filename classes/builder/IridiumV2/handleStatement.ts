@@ -384,9 +384,8 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
     cx.getCurrentBB().args.push(new JSForInNextSEXP("<loop-iterator>", "<loop-done>", "<loop-next>"));
   }
 
-  cx.getCurrentBB().args.push(new EnvWriteSEXP("<loop-done>", new UnopSEXP("!", new EnvReadSEXP("<loop-done>")), false, false)); // Negate <loop-done>
-
   testBBLoopContinueNode.setTest(new EnvReadSEXP("<loop-done>"));
+  testBBLoopContinueNode.setNot();
 
   cx.getCurrentBB().args.push(testBBLoopContinueNode);
   if (isJS3ForOfStatement(stmt)) {
