@@ -1,4 +1,3 @@
-"use strict";
 // Copyright (C) 2017 Ecma International.  All rights reserved.
 // This code is governed by the BSD license found in the LICENSE file.
 /*---
@@ -147,12 +146,12 @@ function $DONOTEVALUATE() {
 }
 
 // This file was procedurally generated from the following sources:
-// - src/spread/mult-err-expr-throws.case
-// - src/spread/error/array.template
+// - src/spread/obj-mult-spread-getter.case
+// - src/spread/default/array.template
 /*---
-description: Spread operator following other arguments when evaluation throws (Array initializer)
+description: Multiple Object Spread usage calls getter multiple times (Array initializer)
 esid: sec-runtime-semantics-arrayaccumulation
-features: [generators]
+features: [object-spread]
 flags: [generated]
 info: |
     SpreadElement : ...AssignmentExpression
@@ -169,17 +168,33 @@ info: |
        e. Assert: status is true.
        f. Let nextIndex be nextIndex + 1.
 
-    12.3.6.1 Runtime Semantics: ArgumentListEvaluation
+    Pending Runtime Semantics: PropertyDefinitionEvaluation
 
-    ArgumentList : ArgumentList , ... AssignmentExpression
+    PropertyDefinition:...AssignmentExpression
 
-    1. Let precedingArgs be the result of evaluating ArgumentList.
-    2. Let spreadRef be the result of evaluating AssignmentExpression.
-    3. Let iterator be GetIterator(GetValue(spreadRef) ).
-    4. ReturnIfAbrupt(iterator).
+    1. Let exprValue be the result of evaluating AssignmentExpression.
+    2. Let fromValue be GetValue(exprValue).
+    3. ReturnIfAbrupt(fromValue).
+    4. Let excludedNames be a new empty List.
+    5. Return CopyDataProperties(object, fromValue, excludedNames).
 
 ---*/
+let getterCallCount = 0;
+let o = {
+    get a() {
+        return ++getterCallCount;
+    }
+};
 
-assert.throws(Test262Error, function() {
-  [0, ...function*() { throw new Test262Error(); }()];
-});
+
+var callCount = 0;
+
+(function(obj) {
+  assert.sameValue(obj.a, 2);
+  assert.sameValue(obj.c, 4);
+  assert.sameValue(obj.d, 5);
+  assert.sameValue(Object.keys(obj).length, 3);
+  callCount += 1;
+}.apply(null, [{...o, c: 4, d: 5, a: 42, ...o}]));
+
+assert.sameValue(callCount, 1);

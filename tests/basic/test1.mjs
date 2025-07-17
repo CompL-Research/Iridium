@@ -664,7 +664,26 @@
 // let res = [0, ...function*() { console.log("Here"); yield 1; yield 2; }()];
 // console.log(res);
 
-let a = [1,2,3];
-let c = [...a, 4];
+// let a = [1,2,3];
+// let c = [...a, 4, ...a, ...a, 521, ...a];
 
-console.log(c);
+// console.log(c);
+
+// let a = {
+//   f1: 1,
+//   f2: 2
+// }
+
+// let b = {
+//   ...a
+// }
+
+// let { ...pikachu } = b;
+
+// console.log(b.f1, b.f2, pikachu, pikachu.f1, pikachu.f2);
+
+let a = 1;
+console.log(a++);
+console.log(++a);
+console.log(--a);
+console.log(a--);
