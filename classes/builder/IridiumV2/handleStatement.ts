@@ -1,11 +1,11 @@
 import debugConfig from "#debugConfig";
-import { ArrayPattern, assignmentExpression, AssignmentExpression, AssignmentPattern, identifier, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isImportSpecifier, isObjectPattern, isVariableDeclaration, ObjectPattern, variableDeclaration, VariableDeclaration, variableDeclarator } from "@babel/types";
+import { ArrayPattern, assignmentExpression, AssignmentExpression, AssignmentPattern, identifier, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isImportSpecifier, isObjectPattern, isObjectProperty, isRestElement, isVariableDeclaration, ObjectPattern, variableDeclaration, VariableDeclaration, variableDeclarator } from "@babel/types";
 import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks";
-import { generateIdentifier, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors";
+import { generateIdentifier, generateJS3AssignmentExpressionfromBaseNode, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors";
 import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportSpecifier, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3MemberExpression, isJS3ObjectPattern, isJS3PrivateName, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3DoWhileStatement, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3MemberExpression, JS3ObjectPattern, JS3RestElement, JS3ReturnStatement, JS3StaticBlock, JS3SwitchCase_test, JS3SwitchStatement, JS3TryStatement, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3WhileStatement } from "../JS3Helpers/JS3Types";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
-import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSArraySEXP, JSCatchContextSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSObjectSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, NullSEXP, NumberSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StarExportSEXP, StaticImportSEXP, StringSEXP, ThrowSEXP, UnopSEXP } from "./Types";
-import { IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP } from "./handleRVal";
+import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getRegularClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSArraySEXP, JSCatchContextSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSNUBDSEXP, JSObjectSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, NullSEXP, NumberSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StarExportSEXP, StaticImportSEXP, StringSEXP, ThrowSEXP, UnopSEXP } from "./Types";
+import { handleArrayPatternAssignmentExpr, handleObjectPatternAssignmentExpr, IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP } from "./handleRVal";
 
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks";
 import { handleAssignmentExpression as js3handleAssignmentExpression } from "../JS3Helpers/HandleExpression";
@@ -413,7 +413,7 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
     handleLoopInitBlock(cx, newDeclaration);
   } else {
     const newAssn = assignmentExpression("=", stmt.left, initializer);
-    handleLoopAssnInitBlock(cx, newAssn);
+    reduceJSAssignmentExprToIridium(cx, newAssn);
   }
 
   handleBlockStatement(cx, stmt.body);
@@ -826,13 +826,9 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   // case b.
   // KIND [ ID, ...ID ] = RVal
   if (isJS3ArrayPattern(declaration.id)) {
-
     const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined");
-
-    let for$of$loop$next = cx.js3Builder.utils.getNewTemporary("next");
-    let for$of$loop$done = cx.js3Builder.utils.getNewTemporary("done");
-
-    // Alloca
+    
+    // Alloca all declarations
     for (let e of declaration.id.elements) {
       if (isIdentifier(e)) {
         cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(e.name), null, KIND, false));
@@ -840,188 +836,26 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
         cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(e.argument.name), null, KIND, false));
       }
     }
-
-    cx.getCurrentBB().args.push(new JSForOfStartSEXP(rValTarget));
-
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$next), null, "JSLET", false));
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$done), null, "JSLET", false));
-
-
-    for (let e of declaration.id.elements) {
-      if (isIdentifier(e)) {
-        cx.getCurrentBB().args.push(new JSForOfNextSEXP(for$of$loop$done, for$of$loop$next));
-        cx.getCurrentBB().args.push(new EnvWriteSEXP(e.name, new EnvReadSEXP(for$of$loop$next), false, false));
-      } else if (isJS3RestElement(e)) {
-        // tempres = []
-        // i = 0
-        // cx: {
-        //  next, done...
-        //  if (done) break;
-        //  tempres[i] = next;
-        //  i = i + 1;
-        //  continue
-        // }
-        let tempres = cx.js3Builder.utils.getNewTemporary("tempres");
-        let tempit = cx.js3Builder.utils.getNewTemporary("it");
-        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(tempres), new JSArraySEXP([]), "JSLET", false));
-        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(tempit), new NumberSEXP(0), "JSLET", false));
-
-        const currentContext = cx.getCurrentContext();
-        const currentBB = currentContext.getCurrentBB();
-        cx.addContinuation(currentContext);
-        const postBB = currentContext.getCurrentBB();
-
-        let loopHeadContext: IridiumBuildContext = cx.getCurrentContext();
-
-        const loopConfig: {
-          kind: "for-of" | "standard",
-          loopHeadIDX: number,
-          loopBodyIDX: number,
-          loopInitIDX: number,
-          label: string | null,
-          breakTarget: number,
-          continueTarget: number
-        } = {
-          kind: "for-of",
-          loopHeadIDX: -1,
-          loopBodyIDX: -1,
-          loopInitIDX: -1,
-          label: null,
-          breakTarget: -1,
-          continueTarget: -1
-        };
-
-        loopConfig.breakTarget = postBB.getIDX();
-
-        const currToLoop = new GotoSEXP(-1);
-        const loopToPost = new IfJumpSEXP(new EnvReadSEXP(for$of$loop$done), -1);
-
-        // 1. CurrBB to LoopBB
-        currentBB.args.push(currToLoop);
-
-        // 2. Loop
-        cx.declareAndPushLexicalContext(); // Loop Context
-        loopHeadContext = cx.getCurrentContext();
-        loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX();
-        cx.getCurrentBB().args.push(new JSForOfNextSEXP(for$of$loop$done, for$of$loop$next));
-        cx.getCurrentBB().args.push(loopToPost);
-        cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP(tempres, tempit, new EnvReadSEXP(for$of$loop$next)));
-        cx.getCurrentBB().args.push(new EnvWriteSEXP(tempit, new BinopSEXP("+", new EnvReadSEXP(tempit), new NumberSEXP(1)), false, false));
-        cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP());
-        cx.popContext(); // Loop Context
-
-        loopHeadContext.loopConfig = loopConfig;
-
-        currToLoop.setIDX(loopConfig.loopHeadIDX);
-        loopToPost.setIDX(loopConfig.breakTarget);
-
-        cx.getCurrentBB().args.push(new EnvWriteSEXP(e.argument.name, new EnvReadSEXP(tempres), false, false));
-      }
-    }
-
-    cx.getCurrentBB().args.push(new JSIteratorCloseSEXP());
+    handleArrayPatternAssignmentExpr(cx, declaration.id.elements, rValTarget, true);
+    
     return;
   }
 
   // case c.
   // KIND { TRIV_KEY: ID, ...ID } = RVal
   if (isJS3ObjectPattern(declaration.id)) {
-    let hasRest = false;
-    let restElement: JS3RestElement;
-    declaration.id.properties.forEach((e) => {
-      if (isJS3RestElement(e)) {
-        hasRest = true;
-        restElement = e;
-      }
-    });
-
     const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined");
-    let toObjRes = cx.js3Builder.utils.getNewTemporary("toObjRes");
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(toObjRes), null, "JSLET", false));
-
-    // 1. JSToObjectSEXP(rValTarget, toObjRes)
-    cx.getCurrentBB().args.push(new JSToObjectSEXP(rValTarget, toObjRes));
-
-
-    let exc_obj;
-    // 2. [*] exc_obj = {}
-    //    for (f of fields) 
-    //      exc_obj[f] = null;
-    if (hasRest) {
-      exc_obj = cx.js3Builder.utils.getNewTemporary("exc_obj");
-      cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(exc_obj), new JSObjectSEXP([]), "JSLET", false));
-    }
-
-    // 3. f1 = orig_rval.f1
+    
+    // Alloca all declarations
     for (let d of declaration.id.properties) {
       if (isJS3AssnObjectProperty(d)) {
-        const bindingName = d.value.name;
-
-        let rVal: IridiumSEXP;
-
-        if (d.computed) {
-          if (isIdentifier(d.key)) {
-            rVal = new JSComputedFieldReadSEXP(toObjRes, d.key.name);
-            if (hasRest) {
-              // @ts-ignore
-              cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP(exc_obj, d.key.name, new NullSEXP()));
-            }
-          } else if (isJS3PrivateName(d.key)) {
-            throw new Error("JS3 Private Name unhandled in destructuring");
-          } else {
-            let fieldSEXP = IRIV2_RVAL(cx, d.key)
-            rVal = new JSComputedFieldReadSEXP(toObjRes, fieldSEXP);
-            if (hasRest) {
-              // @ts-ignore
-              cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP(exc_obj, fieldSEXP, new NullSEXP()));
-            }
-          }
-        } else {
-          if (isIdentifier(d.key)) {
-            rVal = new FieldReadSEXP(toObjRes, d.key.name);
-            if (hasRest) {
-              // @ts-ignore
-              cx.getCurrentBB().args.push(new FieldWriteSEXP(exc_obj, d.key.name, new NullSEXP()));
-            }
-          } else if (isJS3PrivateName(d.key)) {
-            throw new Error("JS3 Private Name unhandled in destructuring");
-          } else {
-            rVal = new FieldReadSEXP(toObjRes, '' + d.key.value);
-            if (hasRest) {
-              // @ts-ignore
-              cx.getCurrentBB().args.push(new FieldWriteSEXP(exc_obj, '' + d.key.value, new NullSEXP()));
-            }
-          }
-        }
-
-        let KIND: "JSLET" | "JSCONST" | "JSVAR";
-        if (stmt.kind === "let") {
-          KIND = "JSLET";
-        } else if (stmt.kind === "const") {
-          KIND = "JSCONST";
-        } else {
-          KIND = "JSVAR";
-        }
-        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(bindingName), rVal, KIND, false));
+        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(d.value.name), null, KIND, false));
+      } else {
+        cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(d.argument.name), null, KIND, false));
       }
     }
-
-
-
-    if (hasRest) {
-      // @ts-ignore
-      // Declare env binding for the rest element holder
-      cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(restElement.argument.name), null, KIND, false));
-
-      // 4. [*] fin_obj = {}
-      let fin_obj = cx.js3Builder.utils.getNewTemporary("fin_obj");
-      cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(fin_obj), new JSObjectSEXP([]), "JSLET", false));
-
-      // @ts-ignore
-      // 5. [*] JSCopyDataProperties(exc_obj, orig_rval, fin_obj, | -> | e)
-      cx.getCurrentBB().args.push(new JSCopyDataPropertiesSEXP(exc_obj, toObjRes, fin_obj, restElement.argument.name));
-    }
-
+    
+    handleObjectPatternAssignmentExpr(cx, declaration.id.properties, rValTarget, true);
   }
 
   return;
@@ -1040,7 +874,7 @@ const handleLoopInitBlock = (cx: IRIDIUMV2, stmt: VariableDeclaration) => {
   }
 }
 
-const handleLoopAssnInitBlock = (cx: IRIDIUMV2, stmt: AssignmentExpression) => {
+const reduceJSAssignmentExprToIridium = (cx: IRIDIUMV2, stmt: AssignmentExpression) => {
   const otherProps = cx.js3Builder.utils;
   const js3SpillHolder: JS3BlockStatement_body = [];
   const updatedProps = {
@@ -1082,115 +916,183 @@ const handleLoopAssnInitBlock = (cx: IRIDIUMV2, stmt: AssignmentExpression) => {
 //   return [new ListSEXP(sexps), hasRest];
 // }
 
-export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctionArgs>) => {
-  let i = 0;
-  for (const arg of params) {
-    //
-    // 1. LVal Pattern to spill
-    //
-
-    let argIdx = i++;
-
-    let toLowerLval:
-      | Identifier
-      | ArrayPattern
-      | ObjectPattern
-      | AssignmentPattern;
-    if (
-      isIdentifier(arg) ||
-      isArrayPattern(arg) ||
-      isObjectPattern(arg) ||
-      isAssignmentPattern(arg)
-    ) {
-      toLowerLval = arg;
-    } else if (
-      isIdentifier(arg.argument) ||
-      isArrayPattern(arg.argument) ||
-      isObjectPattern(arg.argument) ||
-      isAssignmentPattern(arg.argument)
-    ) {
-      argIdx = -1;
-      toLowerLval = arg.argument;
-    } else {
-      toLowerLval = generateIdentifier(arg, "$TODO_IRI_UNDEFINED$");
-      throw new Error(
-        `IRIV2 function arg, LVAL is unsupported`,
-      );
+const extractBindings = (node: JS3AllowedFunctionArgs, result: Set<string>) => {
+  // Identifier | ArrayPattern | ObjectPattern | AssignmentPattern | RestElement
+  if (isIdentifier(node)) {
+    result.add(node.name);
+  } else if (isArrayPattern(node)) {
+    for (let r of node.elements) {
+      if (isIdentifier(r) || isArrayPattern(r) || isObjectPattern(r) || isAssignmentPattern(r) || isRestElement(r)) {
+        extractBindings(r, result);
+      } else throw new Error("Todo, array pattern no Identifier case");
     }
-
-    let currArg = `ARG${argIdx}`;
-
-    cx.getCurrentContext().args.push(currArg);
-
-    //
-    // 2. RVal Identifier in argument list
-    //
-    const toLowerRVal = generateIdentifier(
-      arg,
-      currArg,
-    );
-
-    //
-    // 3. Generate code in curr
-    //
-    const otherProps = cx.js3Builder.utils;
-    const js3SpillHolder: JS3BlockStatement_body = [];
-    const updatedProps = {
-      ...otherProps,
-      others: { ...otherProps.others, holder: js3SpillHolder },
-    };
-    let first = true;
-    const generator = (
-      LVal:
-        | JS3MemberExpression
-        | JS3ArrayPattern
-        | JS3ObjectPattern
-        | Identifier,
-      RVal: null | JS3VariableDeclarator_init,
-    ) => {
-      if (isJS3MemberExpression(LVal))
-        throw new Error(
-          "LVal cannot be JS3MemberExpression in case of variable declarator...",
-        );
-      else {
-        const declarator = generateJS3VariableDeclaratorfromBaseNode(
-          LVal,
-          RVal,
-          null,
-          arg,
-        );
-        // NUBD bindings
-        let nubdBindings: Array<string> = []
-        if (isIdentifier(LVal)) {
-          nubdBindings.push(LVal.name);
-        } else if (isArrayPattern(LVal)) {
-          LVal.elements.forEach(e => isIdentifier(e) ? nubdBindings.push(e.name) : nubdBindings.push(e.argument.name));
-        } else {
-          LVal.properties.forEach(p => isJS3AssnObjectProperty(p) ? nubdBindings.push(p.value.name) : nubdBindings.push(p.argument.name))
+  } else if (isObjectPattern(node)) {
+    for (let p of node.properties) {
+      if (isObjectProperty(p)) {
+        if (isIdentifier(p.value) || isArrayPattern(p.value) || isObjectPattern(p.value) || isAssignmentPattern(p.value) || isRestElement(p.value)) {
+          extractBindings(p.value, result);
         }
-        nubdBindings.forEach(b => cx.getCurrentContext().nubds.push(b));
+      } else throw new Error("Todo, object pattern unhandled case");
+    }
+  } else if (isAssignmentPattern(node)) {
+    if (isIdentifier(node.left) || isArrayPattern(node.left) || isObjectPattern(node.left) || isAssignmentPattern(node.left) || isRestElement(node.left)) {
+      extractBindings(node.left, result);
+    } else throw new Error("Todo, assignment pattern unhandled case");
+  } else if (isRestElement(node)) {
+    if (isIdentifier(node.argument) || isArrayPattern(node.argument) || isObjectPattern(node.argument) || isAssignmentPattern(node.argument) || isRestElement(node.argument)) {
+      extractBindings(node.argument, result);
+    } else throw new Error("Todo, RestElement unhandled case");
+  }
+  else throw new Error("Todo, unhandled extract bindings case");
+}
 
-        return generateJS3VariableDeclarationfromBaseNode(
-          [declarator],
-          first ? ((first = false), "var") : "let",
-          null,
-          arg,
-        );
-      }
-    };
-    handleDeclaratorRec(
-      toLowerLval,
-      toLowerRVal,
-      updatedProps,
-      generator,
-      false,
-    );
-    // this.handleJS3ProgramBody(js3SpillHolder);
+export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctionArgs>) => {
+  // S1: Extract all bindings that are being made
+  // S2: Initialize all the bindings to NUBD
+  // S3: Replace all arglist with replacement RVals
+  // S4: Use assignment logic to replace with LVal = ARG$I
 
-    for (let stmt of js3SpillHolder) {
-      IRIV2_STMT(cx, stmt)
+  // S1: Extract all bindings that are being made
+  const extractedBindingsSet: Set<string> = new Set();
+  for (let p of params) extractBindings(p, extractedBindingsSet);
+
+  // S2: Initialize all the bindings to NUBD
+  for (const b of extractedBindingsSet) {
+    const bb = new ResolveEnvBindingSEXP(b);
+    bb.markASW();
+    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(bb, new JSNUBDSEXP(), "JSVAR", false));
+  }
+
+  // S3: Replace all arglist with replacement RVals
+  const argReplacementMap: Map<JS3AllowedFunctionArgs, string> = new Map();
+  const currentContext = cx.getCurrentContext();
+  for (const arg of params) {
+    let currArg = cx.js3Builder.utils.getNewTemporary("ARG");
+    currentContext.args.push(currArg);
+    if (isRestElement(arg)) currentContext.hasRestArgs = true;
+    argReplacementMap.set(arg, currArg);
+  }
+
+  // S3: Use assignment logic
+  for (const arg of params) {
+    const rVal = argReplacementMap.get(arg);
+    if (!rVal) throw new Error("Arg replacement map is supposed to map all the arguments");
+    if (isIdentifier(arg) || isArrayPattern(arg) || isObjectPattern(arg) || isAssignmentPattern(arg)) {
+      reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", arg, identifier(rVal)));
+    } else if (isRestElement(arg)) {
+      reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", arg.argument, identifier(rVal)));
     }
   }
+  // LVal = replacedRVal
+  // assignmentExpression("=", )
+
+  // let i = 0;
+  // for (const arg of params) {
+  //   //
+  //   // 1. LVal Pattern to spill
+  //   //
+
+  //   let argIdx = i++;
+
+  //   let toLowerLval:
+  //     | Identifier
+  //     | ArrayPattern
+  //     | ObjectPattern
+  //     | AssignmentPattern;
+  //   if (
+  //     isIdentifier(arg) ||
+  //     isArrayPattern(arg) ||
+  //     isObjectPattern(arg) ||
+  //     isAssignmentPattern(arg)
+  //   ) {
+  //     toLowerLval = arg;
+  //   } else if (
+  //     isIdentifier(arg.argument) ||
+  //     isArrayPattern(arg.argument) ||
+  //     isObjectPattern(arg.argument) ||
+  //     isAssignmentPattern(arg.argument)
+  //   ) {
+  //     argIdx = -1;
+  //     toLowerLval = arg.argument;
+  //   } else {
+  //     toLowerLval = generateIdentifier(arg, "$TODO_IRI_UNDEFINED$");
+  //     throw new Error(
+  //       `IRIV2 function arg, LVAL is unsupported`,
+  //     );
+  //   }
+
+  //   let currArg = `ARG${argIdx}`;
+  //   cx.getCurrentContext().args.push(currArg);
+
+  //   //
+  //   // 2. RVal Identifier in argument list
+  //   //
+  //   const toLowerRVal = generateIdentifier(
+  //     arg,
+  //     currArg,
+  //   );
+
+  //   //
+  //   // 3. Generate code in curr
+  //   //
+  //   const otherProps = cx.js3Builder.utils;
+  //   const js3SpillHolder: JS3BlockStatement_body = [];
+  //   const updatedProps = {
+  //     ...otherProps,
+  //     others: { ...otherProps.others, holder: js3SpillHolder },
+  //   };
+  //   let first = true;
+  //   const generator = (
+  //     LVal:
+  //       | JS3MemberExpression
+  //       | JS3ArrayPattern
+  //       | JS3ObjectPattern
+  //       | Identifier,
+  //     RVal: null | JS3VariableDeclarator_init,
+  //   ) => {
+  //     if (isJS3MemberExpression(LVal))
+  //       throw new Error(
+  //         "LVal cannot be JS3MemberExpression in case of variable declarator...",
+  //       );
+  //     else {
+  //       const declarator = generateJS3VariableDeclaratorfromBaseNode(
+  //         LVal,
+  //         RVal,
+  //         null,
+  //         arg,
+  //       );
+  //       // NUBD bindings
+  //       let nubdBindings: Array<string> = []
+  //       if (isIdentifier(LVal)) {
+  //         nubdBindings.push(LVal.name);
+  //       } else if (isArrayPattern(LVal)) {
+  //         LVal.elements.forEach(e => isIdentifier(e) ? nubdBindings.push(e.name) : nubdBindings.push(e.argument.name));
+  //       } else {
+  //         LVal.properties.forEach(p => isJS3AssnObjectProperty(p) ? nubdBindings.push(p.value.name) : nubdBindings.push(p.argument.name))
+  //       }
+  //       nubdBindings.forEach(b => cx.getCurrentContext().nubds.push(b));
+
+  //       return generateJS3VariableDeclarationfromBaseNode(
+  //         [declarator],
+  //         first ? ((first = false), "var") : "let",
+  //         null,
+  //         arg,
+  //       );
+  //     }
+  //   };
+  //   handleDeclaratorRec(
+  //     toLowerLval,
+  //     toLowerRVal,
+  //     updatedProps,
+  //     generator,
+  //     false,
+  //   );
+  //   // this.handleJS3ProgramBody(js3SpillHolder);
+
+  //   for (let stmt of js3SpillHolder) {
+  //     IRIV2_STMT(cx, stmt)
+  //   }
+  // }
 }
 
 const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) => {

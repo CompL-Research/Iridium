@@ -160,12 +160,11 @@ function $DONOTEVALUATE() {
 }
 
 // This file was procedurally generated from the following sources:
-// - src/function-forms/dflt-params-ref-later.case
-// - src/function-forms/error/arrow-function.template
+// - src/function-forms/dflt-params-trailing-comma.case
+// - src/function-forms/default/arrow-function.template
 /*---
-description: Referencing a parameter that occurs later in the ParameterList (arrow function expression)
+description: A trailing comma should not increase the respective length, using default parameters (arrow function expression)
 esid: sec-arrow-function-definitions-runtime-semantics-evaluation
-features: [default-parameters]
 flags: [generated]
 info: |
     ArrowFunction : ArrowParameters => ConciseBody
@@ -197,27 +196,23 @@ info: |
            iteratorRecord and env as arguments.
     [...]
 
-    14.1.19 Runtime Semantics: IteratorBindingInitialization
+    Trailing comma in the parameters list
 
-    FormalsList : FormalsList , FormalParameter
+    14.1 Function Definitions
 
-    1. Let status be the result of performing IteratorBindingInitialization for
-       FormalsList using iteratorRecord and environment as the arguments.
-    2. ReturnIfAbrupt(status).
-    3. Return the result of performing IteratorBindingInitialization for
-       FormalParameter using iteratorRecord and environment as the arguments.
-
+    FormalParameters[Yield, Await] : FormalParameterList[?Yield, ?Await] ,
 ---*/
-var x = 0;
 
 var callCount = 0;
-var f;
-f = (x = y, y) => {
-  
+// Stores a reference `ref` for case evaluation
+var ref;
+ref = (a, b = 39,) => {
+  assert.sameValue(a, 42);
+  assert.sameValue(b, 39);
   callCount = callCount + 1;
 };
 
-assert.throws(ReferenceError, function() {
-  f();
-});
-assert.sameValue(callCount, 0, 'arrow function body not evaluated');
+ref(42, undefined, 1);
+assert.sameValue(callCount, 1, 'arrow function invoked exactly once');
+
+assert.sameValue(ref.length, 1, 'length is properly set');

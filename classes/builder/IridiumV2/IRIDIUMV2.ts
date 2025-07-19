@@ -5,7 +5,7 @@ import { VERSION } from "../../../configs/projectStats";
 import JS3Builder from "../JS3Builder";
 import { JS3Program } from "../JS3Helpers/JS3Types";
 import { IRIV2_STMT } from "./handleStatement";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isGlobalBindingSEXP, isJSCatchContextSEXP, isJSEnvWriteSEXP, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSScriptReturnSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, isStringSEXP, JSARGUMENTSINITSEXP, JSEnvBindingFlags, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSMARGUMENTSINITSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSScriptReturnSEXP, JSSloppyDeclarationCheckSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP } from "./Types";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isGlobalBindingSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSEnvWriteSEXP, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSScriptReturnSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, isStringSEXP, JSARGUMENTSINITSEXP, JSEnvBindingFlags, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSMARGUMENTSINITSEXP, JSModuleEndSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSScriptReturnSEXP, JSSloppyDeclarationCheckSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP } from "./Types";
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -58,6 +58,7 @@ export class IridiumBuildContext {
   parent: number;
   scopeIdx: number;
   args: Array<string> = [];
+  hasRestArgs: boolean = false;
   nubds: Array<string> = [];
 
   loopConfig: LoopConfig | null = null;
@@ -228,6 +229,7 @@ export class IRIDIUMV2 {
     this.promoteAsyncReturns(this.container);
     this.markNamespaceImports(this.container);
     this.markSloppyWrites(this.container);
+    this.loosenWritestoASWs(this.container);
 
     if (sourceType === "JSModule") {
       // Add Module Init Header, this has to done because of hoisting...
@@ -370,13 +372,52 @@ export class IRIDIUMV2 {
     return arr;
   }
 
+  loosenWritestoASWs(currSEXP: IridiumSEXP) {
+    if (isBindingsSEXP(currSEXP) || isPoolBindingSEXP(currSEXP)) {
+      return;
+    }
+
+    if (isEnvWriteSEXP(currSEXP) || isJSEnvWriteSEXP(currSEXP)) {
+      let left = currSEXP.args[0];
+      if (isEnvBindingSEXP(left) && left.isASW()) currSEXP.setSafe(true);
+    }
+
+    if (isJSCopyDataPropertiesSEXP(currSEXP)) {
+      let store = currSEXP.args[3];
+      if (isEnvBindingSEXP(store) && store.isASW()) currSEXP.setSafe(true);
+    }
+
+    if (isJSAppendSEXP(currSEXP)) {
+      let store1 = currSEXP.args[3];
+      if (isEnvBindingSEXP(store1) && store1.isASW()) currSEXP.setSafe(true);
+      let store2 = currSEXP.args[4];
+      if (isEnvBindingSEXP(store2) && store2.isASW()) currSEXP.setSafe(true);
+    }
+
+    if (isJSDefineObjPropSEXP(currSEXP)) {
+      let store = currSEXP.args[3];
+      if (isEnvBindingSEXP(store) && store.isASW()) currSEXP.setSafe(true);
+    }
+    
+    if (isJSDefineObjMethodSEXP(currSEXP)) {
+      let store = currSEXP.args[3];
+      if (isEnvBindingSEXP(store) && store.isASW()) currSEXP.setSafe(true);
+    }
+
+    if (isBBSEXP(currSEXP)) {
+      currSEXP.args.forEach(e => this.loosenWritestoASWs(e))
+    } else {
+      currSEXP.args.forEach(e => this.loosenWritestoASWs(e));
+    }
+  }
+
   markSloppyWrites(currSEXP: IridiumSEXP, currBBScope: number = -1) {
     if (isBindingsSEXP(currSEXP) || isPoolBindingSEXP(currSEXP)) {
       return;
     }
     let buildContext = IridiumBuildContext.CONTEXT_MAP.get(currBBScope);
 
-    if (isEnvWriteSEXP(currSEXP) || isJSEnvWriteSEXP(currSEXP)) {
+    if (isEnvWriteSEXP(currSEXP) || isJSEnvWriteSEXP(currSEXP) || isJSCopyDataPropertiesSEXP(currSEXP) || isJSAppendSEXP(currSEXP) || isJSDefineObjPropSEXP(currSEXP) || isJSDefineObjMethodSEXP(currSEXP)) {
       if (!buildContext) throw new Error("buildContext is undefined");
       if (!buildContext.isStrict && isGlobalBindingSEXP(currSEXP.args[0])) {
         currSEXP.markSloppy();
@@ -598,6 +639,7 @@ export class IRIDIUMV2 {
     for (let i = 0; i < currSEXP.args.length; i++) {
       let s = currSEXP.args[i];
       if (isResolveEnvBindingSEXP(s)) {
+        const isASW = s.isASW();
         // We will get the closure scope
         const targetScopeIDX = this.findParentClosureScope(currBBScope);
         if (targetScopeIDX < 0) throw new Error("A binding must resolve in a valid scope, none found");
@@ -606,10 +648,16 @@ export class IRIDIUMV2 {
 
         if (isBindingsSEXP(bindingsSEXP)) {
           const globalBinding = this.isGlobalBinding(s.getBindingName(), currBBScope, bindingsSEXP);
-          if (globalBinding)
+          if (globalBinding) {
+            if (isASW) throw new Error("Tried to mark a global binding as an ASW binding");
             currSEXP.args[i] = new GlobalBindingSEXP(s.getBindingName());
-          else {
+          } else {
             const resolvedBinding = this.resolveScopedLookup(s.getBindingName(), currBBScope, bindingsSEXP);
+            
+            // An ASW binding is an argument binding, if it is lexically reachable it is always trivially safe to write to it
+            if (isASW && isEnvBindingSEXP(resolvedBinding)) {
+              resolvedBinding.markASW();
+            }
             currSEXP.args[i] = resolvedBinding;
           }
         } else throw new Error("Bindings not found, it is needed to resolve bindings");
@@ -916,6 +964,7 @@ export class IRIDIUMV2 {
           bindingsSEXP.addLocalBinding(binding);
           toSkipInit.add(binding);
         }
+
         if (buildContext.moduleRequestMap) {
           // Initialize Module Imports 
           if (bbContainerScopeIDX !== 0) throw new Error("Expected module imports only to be resolved for the top level container with scopeIDX 0");
@@ -979,17 +1028,22 @@ export class IRIDIUMV2 {
           startBB.args = [stmt,...startBB.args]
         }
 
-        // If this is a function, add arguments to the scope descriptor
-        let k = 0;
-        
-        for (let b of buildContext.args) {
+        // Adding function arguments, if required
+        const argsList: Array<EnvBindingSEXP> = [];
+        for (let k = 0; k < buildContext.args.length; k++) {
           const flags: [JSEnvBindingFlags, null][] = [];
-          flags.push(["JSARG", null]);
-          let binding = new EnvBindingSEXP(k++, bbContainerScopeIDX, b, flags, bbContainerScopeIDX, bbContainerParentScopeIDX);
-          bindingsSEXP.addLocalBinding(binding);
+          if (k + 1 === buildContext.args.length && buildContext.hasRestArgs) {
+            flags.push(["JSRESTARG", null]);
+          } else {
+            flags.push(["JSARG", null]);
+          }
+          let binding = new EnvBindingSEXP(k, bbContainerScopeIDX, buildContext.args[k], flags, bbContainerScopeIDX, bbContainerParentScopeIDX);
+          
+          argsList.push(binding);
         }
-        
 
+        bindingsSEXP.getLocalBindings().args = [...argsList, ...bindingsSEXP.getLocalBindings().args]
+        
         // Add initializers to local scopes
         const bindingsToInit = [...bindingsSEXP.getLocalBindings().args, ...bindingsSEXP.getRemoteBindings().args].filter(b => !toSkipInit.has(b));
         

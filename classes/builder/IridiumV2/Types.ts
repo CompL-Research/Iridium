@@ -905,6 +905,32 @@ export class JSAppendSEXP extends IridiumSEXP {
     this.args.push(spreadVal);
     this.args.push(new ResolveEnvBindingSEXP(insertionIdxLoc));
     this.args.push(new ResolveEnvBindingSEXP(tmpLoc));
+    this.setSafe(false);
+    this.setThisInit(false);
+  }
+
+  markSloppy() {
+    this.setFlag("SLOPPY");
+  }
+
+  isSloppy() {
+    return this.hasFlag("SLOPPY");
+  }
+
+  setThisInit(val: boolean) {
+    this.setFlag("THISINIT", val);
+  }
+
+  isThisInit(): boolean {
+    return this.getFlagBoolean("THISINIT")
+  }
+
+  setSafe(val: boolean) {
+    this.setFlag("SAFE", val);
+  }
+
+  isSafe(): boolean {
+    return this.getFlagBoolean("SAFE")
   }
 
   toString(space?: number): string {
@@ -931,6 +957,32 @@ export class JSDefineObjMethodSEXP extends IridiumSEXP {
     else if (kind === "get") this.setFlag("GET");
     else if (kind === "set") this.setFlag("SET");
     else throw new Error("Object method kind is invalid");
+    this.setSafe(false);
+    this.setThisInit(false);
+  }
+
+  markSloppy() {
+    this.setFlag("SLOPPY");
+  }
+
+  isSloppy() {
+    return this.hasFlag("SLOPPY");
+  }
+
+  setThisInit(val: boolean) {
+    this.setFlag("THISINIT", val);
+  }
+
+  isThisInit(): boolean {
+    return this.getFlagBoolean("THISINIT")
+  }
+
+  setSafe(val: boolean) {
+    this.setFlag("SAFE", val);
+  }
+
+  isSafe(): boolean {
+    return this.getFlagBoolean("SAFE")
   }
 
   toString(space?: number): string {
@@ -943,6 +995,12 @@ export class JSDefineObjMethodSEXP extends IridiumSEXP {
   }
 }
 
+// @ts-ignore
+export function isJSDefineObjMethodSEXP(o: any): o is JSDefineObjMethodSEXP {
+  // @ts-ignore
+  return o.tag === "JSDefineObjMethod";
+}
+
 // (Extension) JSDefineObjProp
 type JSDefineObjPropSEXPFlags = "GET" | "SET" | "METHOD";
 export class JSDefineObjPropSEXP extends IridiumSEXP {
@@ -952,6 +1010,32 @@ export class JSDefineObjPropSEXP extends IridiumSEXP {
     this.args.push(key);
     this.args.push(value);
     this.args.push(new ResolveEnvBindingSEXP(store));
+    this.setSafe(false);
+    this.setThisInit(false);
+  }
+
+  markSloppy() {
+    this.setFlag("SLOPPY");
+  }
+
+  isSloppy() {
+    return this.hasFlag("SLOPPY");
+  }
+
+  setThisInit(val: boolean) {
+    this.setFlag("THISINIT", val);
+  }
+
+  isThisInit(): boolean {
+    return this.getFlagBoolean("THISINIT")
+  }
+
+  setSafe(val: boolean) {
+    this.setFlag("SAFE", val);
+  }
+
+  isSafe(): boolean {
+    return this.getFlagBoolean("SAFE")
   }
 
   toString(space?: number): string {
@@ -962,6 +1046,12 @@ export class JSDefineObjPropSEXP extends IridiumSEXP {
     }
     return res.join("\n");
   }
+}
+
+// @ts-ignore
+export function isJSDefineObjPropSEXP(o: any): o is JSDefineObjPropSEXP {
+  // @ts-ignore
+  return o.tag === "JSDefineObjProp";
 }
 
 // (Extension) JSComputedObjectProp
@@ -1178,16 +1268,49 @@ export class JSCopyDataPropertiesSEXP extends IridiumSEXP {
     this.args.push(new EnvReadSEXP(source));
     this.args.push(new EnvReadSEXP(target));
     this.args.push(new ResolveEnvBindingSEXP(store));
+    this.setSafe(false);
+    this.setThisInit(false);
+  }
+
+  // flags
+  markSloppy() {
+    this.setFlag("SLOPPY");
+  }
+
+  isSloppy() {
+    return this.hasFlag("SLOPPY");
+  }
+
+  setThisInit(val: boolean) {
+    this.setFlag("THISINIT", val);
+  }
+
+  isThisInit(): boolean {
+    return this.getFlagBoolean("THISINIT")
+  }
+
+  setSafe(val: boolean) {
+    this.setFlag("SAFE", val);
+  }
+
+  isSafe(): boolean {
+    return this.getFlagBoolean("SAFE")
   }
 
   toString(space?: number): string {
     const res = [];
-    res.push(`${printIriSpace(space)}${this.tag}`);
+    res.push(`${printIriSpace(space)}${this.tag} ${printFlagString(this.flags)}`);
     for (let s of this.args) {
       res.push(`${printIriSpace(10)}${s.toString(0)}`);
     }
     return res.join("\n");
   }
+}
+
+// @ts-ignore
+export function isJSCopyDataPropertiesSEXP(o: any): o is JSCopyDataPropertiesSEXP {
+  // @ts-ignore
+  return o.tag === "JSCopyDataProperties";
 }
 
 // (Extension) JSForInStart
@@ -1561,7 +1684,7 @@ export function isPoolBindingSEXP(o: any): o is PoolBindingSEXP {
 }
 
 // (Primitive) EnvBinding
-export type JSEnvBindingFlags = "JSARG" | "JSLET" | "JSCONST" | "JSVAR";
+export type JSEnvBindingFlags = "ASW" | "JSARG" | "JSRESTARG" | "JSLET" | "JSCONST" | "JSVAR";
 export type EnvBindingFlags = "IDX" | "REFIDX" | "Scope" | "ParentScope" | JSEnvBindingFlags;
 export class EnvBindingSEXP extends IridiumSEXP {
   constructor(refIdx: number, idx: number, b: string, flags: [JSEnvBindingFlags, null][], scope: number, parentScope: number) {
@@ -1575,6 +1698,14 @@ export class EnvBindingSEXP extends IridiumSEXP {
   }
 
   // Flags
+  markASW() {
+    this.setFlag("ASW");
+  }
+
+  isASW() {
+    return this.hasFlag("ASW");
+  }
+
   setIDX(idx: number) {
     this.setFlag("IDX", idx);
   }
@@ -1618,11 +1749,12 @@ export class EnvBindingSEXP extends IridiumSEXP {
     if (this.hasFlag("JSCONST")) return "JSCONST";
     if (this.hasFlag("JSVAR")) return "JSVAR";
     if (this.hasFlag("JSARG")) return "JSARG";
+    if (this.hasFlag("JSRESTARG")) return "JSRESTARG";
     throw new Error("EnvBindingSEXP, unknown kind");
   }
 
   toString(space?: number): string {
-    return `${printIriSpace(space)}[${this.getREFIDX()}] ${this.getKind()} ${this.getDeclaration()}`
+    return `${printIriSpace(space)}[${this.getREFIDX()}] ${this.isASW() ? "{ASW}" : ""} ${this.getKind()} ${this.getDeclaration()}`
   }
 }
 
@@ -2362,6 +2494,14 @@ export class ResolveEnvBindingSEXP extends IridiumSEXP {
   constructor(id: string) {
     super("ResolveEnvBinding");
     this.args.push(new StringSEXP(id));
+  }
+
+  markASW() {
+    this.setFlag("ASW");
+  }
+
+  isASW() {
+    return this.hasFlag("ASW");
   }
 
   getBindingName(): string {
