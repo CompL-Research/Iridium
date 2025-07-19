@@ -1,4 +1,5 @@
-var a = 12;
-delete a;
+// var a = 12;
+// delete a;
 
-console.log(a);
+// console.log(a);
+

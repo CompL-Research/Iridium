@@ -199,6 +199,7 @@ export class IRIDIUMV2 {
     if (sourceType === "JSModule") {
       this.getCurrentBB().args.push(new JSThisContextSEXP());
     } else {
+      this.getCurrentBB().args.push(new JSThisContextSEXP());
       this.getCurrentBB().args.push(new JSScriptReturnSEXP());
     }
     
