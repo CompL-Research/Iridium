@@ -215,6 +215,33 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
 
 const handleUnaryExpression = (cx: IRIDIUMV2, node: JS3UnaryExpression): IridiumSEXP => {
   if (node.operator === "delete") {
+
+    if (isJS3MemberExpression(node.argument)) {
+      const elems: Array<IridiumSEXP> = [];
+
+      const receiver = node.argument.object;
+      const property = node.argument.property;
+
+      if (!isIdentifier(receiver)) throw new Error("Expected receiver to be an identifier");
+      if (!isIdentifier(property)) throw new Error("Expected property to be an identifier");
+
+      elems.push(IRIV2_RVAL(cx, receiver));
+      if (node.argument.computed) {
+        elems.push(IRIV2_RVAL(cx, property));
+      } else {
+        elems.push(new StringSEXP(property.name));
+      }
+
+      const listSexp = new ListSEXP(elems);
+      listSexp.setFlag("UNOP_DEL_MEMBEREXPR");
+
+      return new UnopSEXP(node.operator, listSexp);
+    } else if (isIdentifier(node.argument)) {
+      const listSexp = new ListSEXP([new StringSEXP(node.argument.name)]);
+      listSexp.setFlag("UNOP_DEL_VAR");
+      return new UnopSEXP(node.operator, listSexp);
+    }
+
     throw new Error("TODO: unary delete operator")
   } else {
     if (isIdentifier(node.argument)) {

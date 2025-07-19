@@ -101,18 +101,31 @@ assert.throws = function (expectedErrorConstructor, func, message) {
   throw new Test262Error(message);
 };
 
-assert._toString = function (value) {
-  try {
-    if (value === 0 && 1 / value === -Infinity) {
-      return '-0';
-    }
+assert._formatIdentityFreeValue = function formatIdentityFreeValue(value) {
+  switch (value === null ? 'null' : typeof value) {
+    case 'string':
+      return typeof JSON !== "undefined" ? JSON.stringify(value) : `"${value}"`;
+    case 'bigint':
+      return `${value}n`;
+    case 'number':
+      if (value === 0 && 1 / value === -Infinity) return '-0';
+      // falls through
+    case 'boolean':
+    case 'undefined':
+    case 'null':
+      return String(value);
+  }
+};
 
+assert._toString = function (value) {
+  var basic = assert._formatIdentityFreeValue(value);
+  if (basic) return basic;
+  try {
     return String(value);
   } catch (err) {
     if (err.name === 'TypeError') {
       return Object.prototype.toString.call(value);
     }
-
     throw err;
   }
 };
@@ -145,56 +158,32 @@ function $DONOTEVALUATE() {
   throw "Test262: This statement should not be evaluated.";
 }
 
-// This file was procedurally generated from the following sources:
-// - src/spread/obj-mult-spread-getter.case
-// - src/spread/default/array.template
+// Copyright (C) 2015 the V8 project authors. All rights reserved.
+// This code is governed by the BSD license found in the LICENSE file.
 /*---
-description: Multiple Object Spread usage calls getter multiple times (Array initializer)
-esid: sec-runtime-semantics-arrayaccumulation
-features: [object-spread]
-flags: [generated]
-info: |
-    SpreadElement : ...AssignmentExpression
+es6id: 14.2
+description: >
+    ArrowFunction `this` cannot be overridden by thisArg
 
-    1. Let spreadRef be the result of evaluating AssignmentExpression.
-    2. Let spreadObj be ? GetValue(spreadRef).
-    3. Let iterator be ? GetIterator(spreadObj).
-    4. Repeat
-       a. Let next be ? IteratorStep(iterator).
-       b. If next is false, return nextIndex.
-       c. Let nextValue be ? IteratorValue(next).
-       d. Let status be CreateDataProperty(array, ToString(ToUint32(nextIndex)),
-          nextValue).
-       e. Assert: status is true.
-       f. Let nextIndex be nextIndex + 1.
+    9.2.4 FunctionInitialize (F, kind, ParameterList, Body, Scope)
 
-    Pending Runtime Semantics: PropertyDefinitionEvaluation
+      ...
+      9. If kind is Arrow, set the [[ThisMode]] internal slot of F to lexical.
+      ...
 
-    PropertyDefinition:...AssignmentExpression
+    9.2.1.2 OrdinaryCallBindThis ( F, calleeContext, thisArgument )
 
-    1. Let exprValue be the result of evaluating AssignmentExpression.
-    2. Let fromValue be GetValue(exprValue).
-    3. ReturnIfAbrupt(fromValue).
-    4. Let excludedNames be a new empty List.
-    5. Return CopyDataProperties(object, fromValue, excludedNames).
+      1. Let thisMode be the value of F’s [[ThisMode]] internal slot.
+      2. If thisMode is lexical, return NormalCompletion(undefined).
+      ...
 
 ---*/
-let getterCallCount = 0;
-let o = {
-    get a() {
-        return ++getterCallCount;
-    }
-};
 
+var calls = 0;
+var usurper = {};
+[1].forEach(value => {
+  calls++;
+  assert.notSameValue(this, usurper);
+}, usurper);
 
-var callCount = 0;
-
-(function(obj) {
-  assert.sameValue(obj.a, 2);
-  assert.sameValue(obj.c, 4);
-  assert.sameValue(obj.d, 5);
-  assert.sameValue(Object.keys(obj).length, 3);
-  callCount += 1;
-}.apply(null, [{...o, c: 4, d: 5, a: 42, ...o}]));
-
-assert.sameValue(callCount, 1);
+assert.sameValue(calls, 1);

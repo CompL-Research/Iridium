@@ -9,10 +9,10 @@ const { Worker: JestWorker } = require("jest-worker");
 const UNSUPPORTED_FEATURES = ["import-attributes", "decorators"]
 const EXCLUDE_ESID_PREFIXES = ["pending", "proposal", "legacy"];
 
-const TEST262_PATH      = "/home/meetesh/wd/Iridium/tests/test262";
+const TEST262_PATH      = "/Users/meeteshmehta/dev/Iridium/tests/test262";
 
-// const THREADS = Number(process.env.THREADS) || require("os").cpus().length / 2;
-const THREADS = 128;
+const THREADS = Number(process.env.THREADS) || require("os").cpus().length / 2;
+// const THREADS = 128;
 
 const worker = new JestWorker(require.resolve("./workerNew.cjs"), {
   numWorkers: THREADS,

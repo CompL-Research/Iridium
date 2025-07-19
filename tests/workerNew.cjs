@@ -1,10 +1,10 @@
 const path = require("path");
 const fs   = require("fs");
 
-const EXEC_BIN          = "/home/meetesh/wd/quickjs/build/qjs";
-const IRI_PATH          = "/home/meetesh/wd/Iridium";
-const TEST262_PATH      = "/home/meetesh/wd/Iridium/tests/test262";
-const TMP_PATH          = "/home/meetesh/wd/Iridium/tests/tmp";
+const EXEC_BIN          = "/Users/meeteshmehta/dev/quickjs/build/qjs";
+const IRI_PATH          = "/Users/meeteshmehta/dev/Iridium";
+const TEST262_PATH      = "/Users/meeteshmehta/dev/Iridium/tests/test262";
+const TMP_PATH          = "/Users/meeteshmehta/dev/Iridium/tests/tmp";
 const { execSync }      = require('child_process');
 
 

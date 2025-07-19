@@ -773,7 +773,7 @@ export function isPrivateSEXP(o: any): o is PrivateSEXP {
 }
 
 // (Primitive) List
-export type ListSEXPFlags = "ModuleRequests" | "ImportedBinding" | "LocalBindings" | "RemoteBindings" | "LambdaPool" | "BBs";
+export type ListSEXPFlags = "UNOP_DEL_VAR" | "UNOP_DEL_MEMBEREXPR" | "ModuleRequests" | "ImportedBinding" | "LocalBindings" | "RemoteBindings" | "LambdaPool" | "BBs";
 export class ListSEXP extends IridiumSEXP {
   constructor(elems: Array<IridiumSEXP>) {
     super("List");
@@ -865,8 +865,16 @@ export class UnopSEXP extends IridiumSEXP {
     this.args.push(val);
   }
 
+  // toString(space?: number): string {
+  //   return `${printIriSpace(space)}UNOP[${this.args[0].toString(0)}] ${this.args[1].toString(0)}`
+  // }
   toString(space?: number): string {
-    return `${printIriSpace(space)}UNOP[${this.args[0].toString(0)}] ${this.args[1].toString(0)}`
+    const res = [];
+    res.push(`${printIriSpace(space)}${this.tag}`);
+    for (let s of this.args) {
+      res.push(`${s.toString(10)}`);
+    }
+    return res.join("\n");
   }
 }
 
