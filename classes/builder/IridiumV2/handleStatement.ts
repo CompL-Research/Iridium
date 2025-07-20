@@ -1,5 +1,5 @@
 import debugConfig from "#debugConfig";
-import { ArrayPattern, assignmentExpression, AssignmentExpression, AssignmentPattern, identifier, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isImportSpecifier, isObjectPattern, isObjectProperty, isRestElement, isVariableDeclaration, ObjectPattern, variableDeclaration, VariableDeclaration, variableDeclarator } from "@babel/types";
+import { ArrayPattern, assignmentExpression, AssignmentExpression, AssignmentPattern, identifier, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isImportSpecifier, isObjectPattern, isObjectProperty, isRestElement, isVariableDeclaration, ObjectPattern, RestElement, variableDeclaration, VariableDeclaration, variableDeclarator } from "@babel/types";
 import { handleDeclaratorRec } from "../JS3Helpers/HandleBlocks";
 import { generateIdentifier, generateJS3AssignmentExpressionfromBaseNode, generateJS3VariableDeclarationfromBaseNode, generateJS3VariableDeclaratorfromBaseNode } from "../JS3Helpers/JS3Constructors";
 import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportSpecifier, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3MemberExpression, isJS3ObjectPattern, isJS3PrivateName, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern, JS3BlockStatement, JS3BlockStatement_body, JS3DoWhileStatement, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3MemberExpression, JS3ObjectPattern, JS3RestElement, JS3ReturnStatement, JS3StaticBlock, JS3SwitchCase_test, JS3SwitchStatement, JS3TryStatement, JS3VariableDeclaration, JS3VariableDeclarator_init, JS3WhileStatement } from "../JS3Helpers/JS3Types";
@@ -946,6 +946,23 @@ const extractBindings = (node: JS3AllowedFunctionArgs, result: Set<string>) => {
   else throw new Error("Todo, unhandled extract bindings case");
 }
 
+
+export const funArgLength = (
+  params: Array<Identifier | ArrayPattern | ObjectPattern | AssignmentPattern | RestElement>
+): number => {
+  let count = 0;
+  for (const param of params) {
+    // Stop at first AssignmentPattern or RestElement
+    if (isAssignmentPattern(param) || isRestElement(param)) {
+      break;
+    }
+    // Valid parameter: Identifier, ObjectPattern, ArrayPattern
+    count++;
+  }
+  return count;
+};
+
+// export type JS3AllowedFunctionArgs = Identifier | ArrayPattern | ObjectPattern | AssignmentPattern | RestElement;
 export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctionArgs>) => {
   // S1: Extract all bindings that are being made
   // S2: Initialize all the bindings to NUBD
@@ -1125,6 +1142,9 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
   } else {
     lowerArgumentInit(cx, stmt.params);
   }
+
+  // 15.1.5 Static Semantics: ExpectedArgumentCount
+  funcContext.ecmaArgs = funArgLength(stmt.params);
 
   if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 

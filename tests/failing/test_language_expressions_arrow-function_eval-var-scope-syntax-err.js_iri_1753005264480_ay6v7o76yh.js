@@ -1,4 +1,3 @@
-"use strict";
 // Copyright (C) 2017 Ecma International.  All rights reserved.
 // This code is governed by the BSD license found in the LICENSE file.
 /*---
@@ -160,12 +159,13 @@ function $DONOTEVALUATE() {
 }
 
 // This file was procedurally generated from the following sources:
-// - src/function-forms/dflt-params-trailing-comma.case
-// - src/function-forms/default/arrow-function.template
+// - src/function-forms/eval-var-scope-syntax-err.case
+// - src/function-forms/error-no-strict/arrow-function.template
 /*---
-description: A trailing comma should not increase the respective length, using default parameters (arrow function expression)
+description: sloppy direct eval in params introduces var (arrow function expression in sloppy code)
 esid: sec-arrow-function-definitions-runtime-semantics-evaluation
-flags: [generated]
+features: [default-parameters]
+flags: [generated, noStrict]
 info: |
     ArrowFunction : ArrowParameters => ConciseBody
 
@@ -196,23 +196,22 @@ info: |
            iteratorRecord and env as arguments.
     [...]
 
-    Trailing comma in the parameters list
+    
+    Runtime Semantics: IteratorBindingInitialization
+    FormalParameter : BindingElement
 
-    14.1 Function Definitions
+    1. Return the result of performing IteratorBindingInitialization for BindingElement with arguments iteratorRecord and environment.
 
-    FormalParameters[Yield, Await] : FormalParameterList[?Yield, ?Await] ,
 ---*/
 
 var callCount = 0;
-// Stores a reference `ref` for case evaluation
-var ref;
-ref = (a, b = 39,) => {
-  assert.sameValue(a, 42);
-  assert.sameValue(b, 39);
+var f;
+f = (a = eval("var a = 42")) => {
+  
   callCount = callCount + 1;
 };
 
-ref(42, undefined, 1);
-assert.sameValue(callCount, 1, 'arrow function invoked exactly once');
-
-assert.sameValue(ref.length, 1, 'length is properly set');
+assert.throws(SyntaxError, function() {
+  f();
+});
+assert.sameValue(callCount, 0, 'arrow function body not evaluated');

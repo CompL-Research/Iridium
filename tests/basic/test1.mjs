@@ -38,11 +38,21 @@
 
 // foo(1,2,3);
 
-var ref;
-ref = (a, b = 39,) => {
-  // assert.sameValue(a, 42);
-  // assert.sameValue(b, 39);
-  // callCount = callCount + 1;
+// var ref;
+// ref = (a, b = 39,) => {
+// };
+
+
+var callCount = 0;
+var f;
+f = (a = eval("var a = 42")) => {
+  
+  callCount = callCount + 1;
 };
 
-console.log(ref.length)
+f();
+console.log(callCount);
+
+// function() {
+// }
+// assert.sameValue(callCount, 0, 'arrow function body not evaluated');

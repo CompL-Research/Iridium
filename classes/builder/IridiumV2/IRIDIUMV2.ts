@@ -75,6 +75,8 @@ export class IridiumBuildContext {
   isStrict: boolean = false;
   isModule: boolean = false;
 
+  ecmaArgs: number = 0;
+
   privateMapping: Map<string, string> | null = null;
 
   moduleRequestMap: Map<string, ModuleRequestSEXP> | null = null;
@@ -761,6 +763,9 @@ export class IRIDIUMV2 {
         if (isTopLevelContainer) {
           bbContainer.setFlag("TopLevel");
         }
+
+        // If this is a function, set the number of expected ECMAArgs
+        bbContainer.setECMAArgsLen(buildContext.ecmaArgs);
 
         const sloppyDeclarations: Array<[string, JSEnvBindingFlags]> = [];
         const hoistingInfo = new Map<number, Array<[Array<string>, JSEnvBindingFlags]>>();

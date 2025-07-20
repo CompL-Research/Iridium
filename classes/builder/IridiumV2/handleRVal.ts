@@ -1,7 +1,7 @@
 import { assignmentExpression, BigIntLiteral, Expression, identifier, Identifier, isArrowFunctionExpression, isBigIntLiteral, isBooleanLiteral, isClassExpression, isDecimalLiteral, isFunctionExpression, isIdentifier, isNullLiteral, isNumericLiteral, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, NumericLiteral, StringLiteral, thisExpression } from "@babel/types";
 import { handleExpression, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpression";
 import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3AssnObjectProperty, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ClassExpression, isJS3ClassMethod, isJS3ClassPrivateMethod, isJS3ClassPrivateProperty, isJS3ClassProperty, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, isJS3RegExpLiteral, isJS3RestElement, isJS3SpreadElement, isJS3StaticBlock, isJS3TemplateLiteral, isJS3UnaryExpression, isJS3UpdateExpression, isJS3VariableDeclaration, isJS3YieldExpression, JS3ArrayExpression, JS3ArrayPattern_elements, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BlockStatement_body, JS3CallExpression, JS3ClassExpression, JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3NewExpression, JS3ObjectExpression, JS3ObjectMethod, JS3ObjectPattern_properties, JS3RestElement, JS3UnaryExpression, JS3UpdateExpression, JS3YieldExpression } from "../JS3Helpers/JS3Types";
-import { handleBlockStatement, IRIV2_STMT, lowerArgumentInit } from "./handleStatement";
+import { funArgLength, handleBlockStatement, IRIV2_STMT, lowerArgumentInit } from "./handleStatement";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
 import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassMethodDefineSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSComputedObjectMethodSEXP, JSComputedObjectPropSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSEnvWriteSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSHomeObjContextSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSNUBDSEXP, JSObjectMethodSEXP, JSObjectPropSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperContextSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSSuperObjContextSEXP, JSTemplateSEXP, JSThisContextAltSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StringSEXP, UnopSEXP, YieldSEXP } from "./Types";
 import { untilFirstMatch } from "#utils";
@@ -793,6 +793,10 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
         funcContext.isGenerator = constructor.generator ? constructor.generator : false;
 
         lowerArgumentInit(cx, constructor.params);
+
+        // 15.1.5 Static Semantics: ExpectedArgumentCount
+        funcContext.ecmaArgs = funArgLength(constructor.params);
+        
         if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
         for (let item of constructor.body.body) {
@@ -839,6 +843,10 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
         funcContext.isGenerator = constructor.generator ? constructor.generator : false;
 
         lowerArgumentInit(cx, constructor.params);
+
+        // 15.1.5 Static Semantics: ExpectedArgumentCount
+        funcContext.ecmaArgs = funArgLength(constructor.params);
+        
         if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
         for (let item of constructor.body.body) {
@@ -1083,6 +1091,9 @@ const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | J
     lowerArgumentInit(cx, node.params);
   }
 
+  // 15.1.5 Static Semantics: ExpectedArgumentCount
+  funcContext.ecmaArgs = funArgLength(node.params);
+
   if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
   // Arrow functions are handled separately
@@ -1156,6 +1167,10 @@ const handleArrowFunctionExpression = (cx: IRIDIUMV2, node: JS3ArrowFunctionExpr
   funcContext.argumentsKind = 0;
 
   lowerArgumentInit(cx, node.params);
+ 
+  // 15.1.5 Static Semantics: ExpectedArgumentCount
+  funcContext.ecmaArgs = funArgLength(node.params);
+
   if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
   for (const s of node.body.body) {

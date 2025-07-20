@@ -485,7 +485,7 @@ export const getPrivateDerivedMethodClosureFlag = () => 10;
 export const getStaticPropInitClosureFlag = () => 11;
 export const getStaticPropInitDerivedClosureFlag = () => 12;
 
-export type BBContainerSEXPFlags = "StartBBIDX" | "ScopeIDX" | "ARGUMENTS" | "ASYNC" | "GENERATOR" | "PROTO" | "NEW" | "SCALL" | "SOBJ" | "HOME" | "DERIVED";
+export type BBContainerSEXPFlags = "ECMAArgs" | "StartBBIDX" | "ScopeIDX" | "ARGUMENTS" | "ASYNC" | "GENERATOR" | "PROTO" | "NEW" | "SCALL" | "SOBJ" | "HOME" | "DERIVED";
 export class BBContainerSEXP extends IridiumSEXP {
   constructor(startBBIDx: number, scopeIDX: number, bbs: Array<BBSEXP>) {
     super("BBContainer");
@@ -498,6 +498,14 @@ export class BBContainerSEXP extends IridiumSEXP {
   }
 
   // Flags
+  setECMAArgsLen(len: number) {
+    this.setFlag("ECMAArgs", len);
+  }
+
+  getECMAArgsLen(): number {
+    return this.getFlagNumber("ECMAArgs");
+  }
+  
   setArguments() {
     this.setFlag("ARGUMENTS");
   }
