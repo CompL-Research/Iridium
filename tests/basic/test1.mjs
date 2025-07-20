@@ -43,16 +43,17 @@
 // };
 
 
-var callCount = 0;
-var f;
-f = (a = eval("var a = 42")) => {
+// var callCount = 0;
+// var f;
+// f = (a = eval("var a = 42")) => {
   
-  callCount = callCount + 1;
-};
+//   callCount = callCount + 1;
+// };
 
-f();
-console.log(callCount);
+// f();
+// console.log(callCount);
 
 // function() {
 // }
 // assert.sameValue(callCount, 0, 'arrow function body not evaluated');
+console.log(import.meta.url)

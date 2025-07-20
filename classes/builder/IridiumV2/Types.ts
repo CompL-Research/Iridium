@@ -1469,6 +1469,12 @@ export class JSModuleStartSEXP extends IridiumSEXP {
   }
 }
 
+// @ts-ignore
+export function isJSModuleStartSEXP(o: any): o is JSModuleStartSEXP {
+  // @ts-ignore
+  return o.tag === "JSModuleStart";
+}
+
 // (Extension) JSModuleEnd
 export class JSModuleEndSEXP extends IridiumSEXP {
   constructor() {
@@ -1794,6 +1800,37 @@ export class JSThisContextSEXP extends IridiumSEXP {
 export function isJSThisContextSEXP(o: any): o is JSThisContextSEXP {
   // @ts-ignore
   return o.tag === "JSThisContext";
+}
+
+// (Extension) JSModuleMeta
+export class JSModuleMetaSEXP extends IridiumSEXP {
+  constructor() {
+    super("JSModuleMeta");
+  }
+}
+
+// @ts-ignore
+export function isJSModuleMetaSEXP(o: any): o is JSModuleMetaSEXP {
+  // @ts-ignore
+  return o.tag === "JSModuleMeta";
+}
+
+// (Extension) JSMODULEMETAINIT
+export class JSMODULEMETAINITSEXP extends IridiumSEXP {
+  constructor(ref: IridiumSEXP) {
+    super("JSMODULEMETAINIT");
+    this.args.push(ref);
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}INIT[<module_meta> -- ${this.args[0].toString(0)}]`
+  }
+}
+
+// @ts-ignore
+export function isJSMODULEMETAINITSEXP(o: any): o is JSMODULEMETAINITSEXP {
+  // @ts-ignore
+  return o.tag === "JSMODULEMETAINIT";
 }
 
 // (Extension) JSARGUMENTSINIT
