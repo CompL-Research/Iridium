@@ -1,13 +1,8 @@
-// var a = 12;
-// delete a;
+let srcString = "x";
 
-// console.log(a);
+var x = 1;
+var y = 1;
+var evil = eval;
 
-var calls = 0;
-var usurper = {};
-[1].forEach(value => {
-  calls++;
-  console.log(this, usurper);
-}, usurper);
-
-console.log(calls, 1);
+srcString += "+ y";
+console.log(evil(srcString))

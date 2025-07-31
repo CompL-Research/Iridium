@@ -1,27 +1,5 @@
+import { printFlagString, printIriSpace } from "#utils";
 import { IridiumBuildContext } from "./IRIDIUMV2";
-
-let skipMid: boolean = false;
-const printIriSpace = (times: number | undefined = 0) => {
-  if (!times) times = 0;
-  let res = [];
-  for (let i = 0; i < times; i++) {
-    if (skipMid) {
-      res.push(" ");
-    } else {
-      if (i % 2 == 0) {
-        res.push("░");
-      } else {
-        res.push(" ");
-      }
-    }
-  }
-  return res.join('');
-};
-
-const printFlagString = (flags: Array<[string, IridiumPrimitives]>) => {
-  if (flags.length === 0) return "";
-  return `[${flags.map(e => e[1] !== null ? `${e[0]} : ${e[1]}` : `${e[0]}`).join(", ")}]`
-}
 
 export type IridiumPrimitives = number | boolean | string | null;
 export class IridiumSEXP {
@@ -1062,88 +1040,88 @@ export function isJSDefineObjPropSEXP(o: any): o is JSDefineObjPropSEXP {
   return o.tag === "JSDefineObjProp";
 }
 
-// (Extension) JSComputedObjectProp
-export class JSComputedObjectPropSEXP extends IridiumSEXP {
-  constructor(key: IridiumSEXP, value: IridiumSEXP) {
-    super("JSComputedObjectProp");
-    this.args.push(key);
-    this.args.push(value);
-  }
+// // (Extension) JSComputedObjectProp
+// export class JSComputedObjectPropSEXP extends IridiumSEXP {
+//   constructor(key: IridiumSEXP, value: IridiumSEXP) {
+//     super("JSComputedObjectProp");
+//     this.args.push(key);
+//     this.args.push(value);
+//   }
 
-  toString(space?: number): string {
-    const res = [];
-    res.push(`${printIriSpace(space)}${this.tag}`);
-    for (let s of this.args) {
-      res.push(`${printIriSpace(10)}${s.toString(0)}`);
-    }
-    return res.join("\n");
-  }
-}
+//   toString(space?: number): string {
+//     const res = [];
+//     res.push(`${printIriSpace(space)}${this.tag}`);
+//     for (let s of this.args) {
+//       res.push(`${printIriSpace(10)}${s.toString(0)}`);
+//     }
+//     return res.join("\n");
+//   }
+// }
 
-// @ts-ignore
-export function isJSComputedObjectPropSEXP(o: any): o is JSComputedObjectPropSEXP {
-  // @ts-ignore
-  return o.tag === "JSComputedObjectProp";
-}
+// // @ts-ignore
+// export function isJSComputedObjectPropSEXP(o: any): o is JSComputedObjectPropSEXP {
+//   // @ts-ignore
+//   return o.tag === "JSComputedObjectProp";
+// }
 
-// (Extension) JSObjectProp
-export class JSObjectPropSEXP extends IridiumSEXP {
-  constructor(key: string, value: IridiumSEXP) {
-    super("JSObjectProp");
-    this.args.push(new StringSEXP(key));
-    this.args.push(value);
-  }
+// // (Extension) JSObjectProp
+// export class JSObjectPropSEXP extends IridiumSEXP {
+//   constructor(key: string, value: IridiumSEXP) {
+//     super("JSObjectProp");
+//     this.args.push(new StringSEXP(key));
+//     this.args.push(value);
+//   }
 
-  toString(space?: number): string {
-    return `░ ░ ░ ███▒▒ ${this.tag} => {${this.args[0].toString(0)} : ${this.args[1].toString(0)}}`;
-  }
-}
+//   toString(space?: number): string {
+//     return `░ ░ ░ ███▒▒ ${this.tag} => {${this.args[0].toString(0)} : ${this.args[1].toString(0)}}`;
+//   }
+// }
 
-// @ts-ignore
-export function isJSObjectPropSEXP(o: any): o is JSObjectPropSEXP {
-  // @ts-ignore
-  return o.tag === "JSObjectProp";
-}
+// // @ts-ignore
+// export function isJSObjectPropSEXP(o: any): o is JSObjectPropSEXP {
+//   // @ts-ignore
+//   return o.tag === "JSObjectProp";
+// }
 
-// (Extension) JSComputedObjectMethod
-type JSComputedObjectMethodSEXPFlags = "GET" | "SET" | "METHOD";
-export class JSComputedObjectMethodSEXP extends IridiumSEXP {
-  constructor(key: IridiumSEXP, value: IridiumSEXP, kind: string) {
-    super("JSComputedObjectMethod");
-    this.args.push(key);
-    this.args.push(value);
-    if (kind === "method") this.setFlag("METHOD");
-    else if (kind === "get") this.setFlag("GET");
-    else if (kind === "set") this.setFlag("SET");
-    else throw new Error("Object method kind is invalid");
-  }
-}
+// // (Extension) JSComputedObjectMethod
+// type JSComputedObjectMethodSEXPFlags = "GET" | "SET" | "METHOD";
+// export class JSComputedObjectMethodSEXP extends IridiumSEXP {
+//   constructor(key: IridiumSEXP, value: IridiumSEXP, kind: string) {
+//     super("JSComputedObjectMethod");
+//     this.args.push(key);
+//     this.args.push(value);
+//     if (kind === "method") this.setFlag("METHOD");
+//     else if (kind === "get") this.setFlag("GET");
+//     else if (kind === "set") this.setFlag("SET");
+//     else throw new Error("Object method kind is invalid");
+//   }
+// }
 
-// @ts-ignore
-export function isJSComputedObjectMethodSEXP(o: any): o is JSComputedObjectMethodSEXP {
-  // @ts-ignore
-  return o.tag === "JSComputedObjectMethod";
-}
+// // @ts-ignore
+// export function isJSComputedObjectMethodSEXP(o: any): o is JSComputedObjectMethodSEXP {
+//   // @ts-ignore
+//   return o.tag === "JSComputedObjectMethod";
+// }
 
-// (Extension) JSObjectMethod
-type JSObjectMethodSEXPFlags = "GET" | "SET" | "METHOD";
-export class JSObjectMethodSEXP extends IridiumSEXP {
-  constructor(key: string, value: IridiumSEXP, kind: string) {
-    super("JSObjectMethod");
-    this.args.push(new StringSEXP(key));
-    this.args.push(value);
-    if (kind === "method") this.setFlag("METHOD");
-    else if (kind === "get") this.setFlag("GET");
-    else if (kind === "set") this.setFlag("SET");
-    else throw new Error("Object method kind is invalid");
-  }
-}
+// // (Extension) JSObjectMethod
+// type JSObjectMethodSEXPFlags = "GET" | "SET" | "METHOD";
+// export class JSObjectMethodSEXP extends IridiumSEXP {
+//   constructor(key: string, value: IridiumSEXP, kind: string) {
+//     super("JSObjectMethod");
+//     this.args.push(new StringSEXP(key));
+//     this.args.push(value);
+//     if (kind === "method") this.setFlag("METHOD");
+//     else if (kind === "get") this.setFlag("GET");
+//     else if (kind === "set") this.setFlag("SET");
+//     else throw new Error("Object method kind is invalid");
+//   }
+// }
 
-// @ts-ignore
-export function isJSObjectMethodSEXP(o: any): o is JSObjectMethodSEXP {
-  // @ts-ignore
-  return o.tag === "JSObjectMethod";
-}
+// // @ts-ignore
+// export function isJSObjectMethodSEXP(o: any): o is JSObjectMethodSEXP {
+//   // @ts-ignore
+//   return o.tag === "JSObjectMethod";
+// }
 
 // (Extension) JSObject
 export class JSObjectSEXP extends IridiumSEXP {

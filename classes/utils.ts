@@ -3,6 +3,25 @@ import { CommentBlock, CommentLine } from "@babel/types";
 import fs from "fs";
 import path from "path";
 import ts from "typescript";
+import { IridiumPrimitives } from "./builder/IridiumV2/Types";
+
+export const printIriSpace = (times: number | undefined = 0) => {
+  if (!times) times = 0;
+  let res = [];
+  for (let i = 0; i < times; i++) {
+    if (i % 2 == 0) {
+      res.push("░");
+    } else {
+      res.push(" ");
+    }
+  }
+  return res.join('');
+};
+
+export const printFlagString = (flags: Array<[string, IridiumPrimitives]>) => {
+  if (flags.length === 0) return "";
+  return `[${flags.map(e => e[1] !== null ? `${e[0]} : ${e[1]}` : `${e[0]}`).join(", ")}]`
+}
 
 export const hasPackageJson = (folderPath: string) => {
   return fs.existsSync(path.join(folderPath, "package.json"));

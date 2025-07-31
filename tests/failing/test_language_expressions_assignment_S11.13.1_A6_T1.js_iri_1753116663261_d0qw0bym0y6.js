@@ -101,31 +101,18 @@ assert.throws = function (expectedErrorConstructor, func, message) {
   throw new Test262Error(message);
 };
 
-assert._formatIdentityFreeValue = function formatIdentityFreeValue(value) {
-  switch (value === null ? 'null' : typeof value) {
-    case 'string':
-      return typeof JSON !== "undefined" ? JSON.stringify(value) : `"${value}"`;
-    case 'bigint':
-      return `${value}n`;
-    case 'number':
-      if (value === 0 && 1 / value === -Infinity) return '-0';
-      // falls through
-    case 'boolean':
-    case 'undefined':
-    case 'null':
-      return String(value);
-  }
-};
-
 assert._toString = function (value) {
-  var basic = assert._formatIdentityFreeValue(value);
-  if (basic) return basic;
   try {
+    if (value === 0 && 1 / value === -Infinity) {
+      return '-0';
+    }
+
     return String(value);
   } catch (err) {
     if (err.name === 'TypeError') {
       return Object.prototype.toString.call(value);
     }
+
     throw err;
   }
 };
@@ -158,60 +145,32 @@ function $DONOTEVALUATE() {
   throw "Test262: This statement should not be evaluated.";
 }
 
-// This file was procedurally generated from the following sources:
-// - src/function-forms/eval-var-scope-syntax-err.case
-// - src/function-forms/error-no-strict/arrow-function.template
+// Copyright (C) 2014 André Bargull. All rights reserved.
+// This code is governed by the BSD license found in the LICENSE file.
+
 /*---
-description: sloppy direct eval in params introduces var (arrow function expression in sloppy code)
-esid: sec-arrow-function-definitions-runtime-semantics-evaluation
-features: [default-parameters]
-flags: [generated, noStrict]
-info: |
-    ArrowFunction : ArrowParameters => ConciseBody
-
-    [...]
-    4. Let closure be FunctionCreate(Arrow, parameters, ConciseBody, scope, strict).
-    [...]
-
-    9.2.1 [[Call]] ( thisArgument, argumentsList)
-
-    [...]
-    7. Let result be OrdinaryCallEvaluateBody(F, argumentsList).
-    [...]
-
-    9.2.1.3 OrdinaryCallEvaluateBody ( F, argumentsList )
-
-    1. Let status be FunctionDeclarationInstantiation(F, argumentsList).
-    [...]
-
-    9.2.12 FunctionDeclarationInstantiation(func, argumentsList)
-
-    [...]
-    23. Let iteratorRecord be Record {[[iterator]]:
-        CreateListIterator(argumentsList), [[done]]: false}.
-    24. If hasDuplicates is true, then
-        [...]
-    25. Else,
-        b. Let formalStatus be IteratorBindingInitialization for formals with
-           iteratorRecord and env as arguments.
-    [...]
-
-    
-    Runtime Semantics: IteratorBindingInitialization
-    FormalParameter : BindingElement
-
-    1. Return the result of performing IteratorBindingInitialization for BindingElement with arguments iteratorRecord and environment.
-
+info: Assignment Operator calls PutValue(lref, rval)
+es5id: S11.13.1_A6_T1
+description: >
+    Evaluating LeftHandSideExpression lref returns Reference type; Reference
+    base value is an environment record and environment record kind is
+    declarative environment record. PutValue(lref, rval) uses the initially
+    created Reference even if a more local binding is available.
+flags: [noStrict]
 ---*/
 
-var callCount = 0;
-var f;
-f = (a = eval("var a = 42")) => {
-  
-  callCount = callCount + 1;
-};
+function testAssignment() {
+  var x = 0;
+  var innerX = (function() {
+    x = (eval("var x;"), 1);
+    return x;
+  })();
 
-assert.throws(SyntaxError, function() {
-  f();
-});
-assert.sameValue(callCount, 0, 'arrow function body not evaluated');
+  if (innerX !== undefined) {
+    throw new Test262Error('#1: innerX === undefined. Actual: ' + (innerX));
+  }
+  if (x !== 1) {
+    throw new Test262Error('#2: x === 1. Actual: ' + (x));
+  }
+}
+testAssignment();
