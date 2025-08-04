@@ -15,6 +15,6 @@
       "#graphlib": ["./externalDeps/graphlib-with-dominator-algo/index.js"]
     }
   },
-  "include": ["iridium.ts", "configs/*.ts", "clases/**/*.ts"],
+  "include": ["iridium.ts", "configs/*.ts", "classes/**/*.ts"],
   "exclude": ["playground"]
 }

@@ -1,7 +1,8 @@
-let srcString = "x";
+// import { boo } from "./lib.mjs";
 
-var x = 1;
-var y = 1;
+// export * from "./lib1.mjs";
 
-srcString += "+ y";
-console.log(eval(srcString))
+
+let a = 12;
+
+console.log(a);

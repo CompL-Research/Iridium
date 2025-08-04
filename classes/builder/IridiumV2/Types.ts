@@ -1,183 +1,6 @@
 import { printFlagString, printIriSpace } from "#utils";
 import { IridiumBuildContext } from "./IRIDIUMV2";
-
-export type IridiumPrimitives = number | boolean | string | null;
-export class IridiumSEXP {
-  tag: string = "IridiumSEXP";
-  args: Array<IridiumSEXP> = [];
-  flags: Array<[string, IridiumPrimitives]> = [];
-
-  constructor(tag: string) {
-    this.tag = tag;
-  }
-
-  serialize(): Array<any> {
-    return [
-      this.tag,
-      this.args.map((e) => e.serialize()),
-      this.flags.map(([flagName, e]) => [flagName, e])
-    ];
-  }
-
-  hasFlag(flag: string) {
-    return this.flags.filter(e => e[0] === flag).length === 1
-  }
-
-  removeFlag(flag: string) {
-    this.flags = this.flags.filter(e => e[0] !== flag);
-  }
-
-  setFlag(flag: string, val: IridiumPrimitives = null) {
-    if (this.hasFlag(flag)) {
-      this.removeFlag(flag);
-    }
-    this.flags.push([flag, val])
-  }
-
-  getFlag(flag: string): IridiumPrimitives {
-    const currFlag = this.flags.filter(e => e[0] === flag);
-    if (this.flags.filter(e => e[0] === flag).length === 1) {
-      return currFlag[0][1];
-    }
-    throw new Error(`Failed to get flag: ${flag}`)
-  }
-
-  getFlagNumber(flag: string): number {
-    const currFlag = this.flags.filter(e => e[0] === flag);
-    if (this.flags.filter(e => e[0] === flag).length === 1) {
-      let res = currFlag[0][1];
-      if (typeof res === "number") return res;
-      throw new Error("Expected scope to be a number");
-    }
-    throw new Error(`Failed to get flag: ${flag}`)
-  }
-
-  getFlagString(flag: string): string {
-    const currFlag = this.flags.filter(e => e[0] === flag);
-    if (this.flags.filter(e => e[0] === flag).length === 1) {
-      let res = currFlag[0][1];
-      if (typeof res === "string") return res;
-      throw new Error("Expected scope to be a number");
-    }
-    throw new Error(`Failed to get flag: ${flag}`)
-  }
-
-  getFlagBoolean(flag: string): boolean {
-    const currFlag = this.flags.filter(e => e[0] === flag);
-    if (this.flags.filter(e => e[0] === flag).length === 1) {
-      let res = currFlag[0][1];
-      if (typeof res === "boolean") return res;
-      throw new Error("Expected scope to be a number");
-    }
-    throw new Error(`Failed to get flag: ${flag}`)
-  }
-
-  toString(space = 0): string {
-    let res = []
-    res.push(`${printIriSpace(space)}${this.tag}${printFlagString(this.flags)}`);
-    res = [...res, ...this.args.map(e => e.toString(space + 2))];
-    return res.join("\n");
-  }
-
-}
-
-// =============== TopLevel ===============
-// (Primitive) File
-export type FileSEXPFlags = "JSScript" | "JSModule";
-export class FileSEXP extends IridiumSEXP {
-  constructor(flag: FileSEXPFlags | undefined = undefined) {
-    super("File");
-    if (flag) this.setFlag(flag, null);
-  }
-
-  // Flags
-  setFlag(flag: FileSEXPFlags, val: IridiumPrimitives) {
-    super.setFlag(flag, val);
-  }
-
-  initializeModuleRequests(moduleRequests: ListSEXP, staticImports: ListSEXP, staticExports: ListSEXP, staticStarExports: ListSEXP) {
-    this.args = [moduleRequests, staticImports, staticExports, staticStarExports, ...this.args];
-  }
-};
-
-// (Extension) ModuleRequest
-export class ModuleRequestSEXP extends IridiumSEXP {
-  constructor(lookupSource: string, idx: number) {
-    super("ModuleRequest");
-    this.setFlag("SOURCE", lookupSource);
-    this.setReqIDX(idx);
-  }
-
-  // Flags
-  setReqIDX(reqIDX: number) {
-    this.setFlag("REQIDX", reqIDX);
-  }
-
-  getReqIDX(): number {
-    return this.getFlagNumber("REQIDX");
-  }
-}
-
-// (Extension) StaticImportSEXP
-export class StaticImportSEXP extends IridiumSEXP {
-  constructor(storageLocation: string, fieldToImport: string, reqIdx: number) {
-    super("StaticImport");
-    this.args.push(new ResolveEnvBindingSEXP(storageLocation));
-    this.args.push(new StringSEXP(fieldToImport));
-    this.setFlag("REQIDX", reqIdx);
-  }
-}
-
-// @ts-ignore
-export function isStaticImportSEXP(o: any): o is StaticImportSEXP {
-  // @ts-ignore
-  return o.tag === "StaticImport";
-}
-
-// (Extension) LocalStaticExportSEXP
-export class LocalStaticExportSEXP extends IridiumSEXP {
-  constructor(localName: string, exportName: string) {
-    super("LocalStaticExport");
-    this.args.push(new ResolveEnvBindingSEXP(localName));
-    this.setFlag("LOCALNAME", localName);
-    this.setFlag("EXPORTNAME", exportName);
-  }
-}
-
-// @ts-ignore
-export function isLocalStaticExportSEXP(o: any): o is LocalStaticExportSEXP {
-  // @ts-ignore
-  return o.tag === "LocalStaticExport";
-}
-
-// (Extension) NamedReexportSEXP
-export class NamedReexportSEXP extends IridiumSEXP {
-  constructor(reqIdx: number, exportName: string) {
-    super("NamedReexport");
-    this.setFlag("REQIDX", reqIdx);
-    this.setFlag("EXPORTNAME", exportName);
-  }
-}
-
-// @ts-ignore
-export function isNamedReexportSEXP(o: any): o is NamedReexportSEXP {
-  // @ts-ignore
-  return o.tag === "NamedReexport";
-}
-
-// (Extension) StarExportSEXP
-export class StarExportSEXP extends IridiumSEXP {
-  constructor(reqIdx: number) {
-    super("StarExport");
-    this.setFlag("REQIDX", reqIdx);
-  }
-}
-
-// @ts-ignore
-export function isStarExportSEXP(o: any): o is StarExportSEXP {
-  // @ts-ignore
-  return o.tag === "StarExport";
-}
+import { IridiumSEXP, IridiumPrimitives, ListSEXP, isListSEXP, ResolveEnvBindingSEXP, StringSEXP, isStringSEXP, isResolveEnvBindingSEXP, isEnvBindingSEXP, EnvBindingSEXP, JSEnvBindingFlags, isRemoteEnvBindingSEXP, RemoteEnvBindingSEXP } from "./Types/index";
 
 // =============== Bindings ===============
 // (Primitive) Bindings
@@ -412,7 +235,6 @@ export function isBBSEXP(o: any): o is BBSEXP {
   // @ts-ignore
   return o.tag === "BB";
 }
-
 
 // 
 // JS Code Container Flags
@@ -718,27 +540,7 @@ export function isBitIntSEXP(o: any): o is BitIntSEXP {
 }
 
 
-// (Primitive) String
-export class StringSEXP extends IridiumSEXP {
-  constructor(str: string) {
-    super("String");
-    this.flags.push(["IridiumPrimitive", str]);
-  }
 
-  getVal(): string {
-    return this.getFlagString("IridiumPrimitive");
-  }
-
-  toString(space?: number): string {
-    return `${printIriSpace(space)}"${this.getVal()}"`
-  }
-}
-
-// @ts-ignore
-export function isStringSEXP(o: any): o is StringSEXP {
-  // @ts-ignore
-  return o.tag === "String";
-}
 
 // (Extension) Private
 export class PrivateSEXP extends IridiumSEXP {
@@ -758,41 +560,6 @@ export function isPrivateSEXP(o: any): o is PrivateSEXP {
   return o.tag === "Private";
 }
 
-// (Primitive) List
-export type ListSEXPFlags = "UNOP_DEL_VAR" | "UNOP_DEL_MEMBEREXPR" | "ModuleRequests" | "ImportedBinding" | "LocalBindings" | "RemoteBindings" | "LambdaPool" | "BBs";
-export class ListSEXP extends IridiumSEXP {
-  constructor(elems: Array<IridiumSEXP>) {
-    super("List");
-    elems.forEach(e => this.args.push(e));
-  }
-
-  setFlag(flag: ListSEXPFlags) {
-    super.setFlag(flag);
-  }
-
-  toString(space?: number): string {
-    if (!space) space = 0;
-    let res;
-    if (this.hasFlag("BBs")) {
-      res = `${printIriSpace(space)}BBs${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
-    } else if (this.hasFlag("LambdaPool")) {
-      res = `${printIriSpace(space)}LambdaPool${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
-    } else if (this.hasFlag("RemoteBindings")) {
-      res = `${printIriSpace(space)}RemoteBindings${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
-    } else if (this.hasFlag("LocalBindings")) {
-      res = `${printIriSpace(space)}LocalBindings${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
-    } else {
-      return super.toString(space)
-    }
-    return res;
-  }
-}
-
-// @ts-ignore
-export function isListSEXP(o: any): o is ListSEXP {
-  // @ts-ignore
-  return o.tag === "List";
-}
 
 // (Primitive) Boolean
 export class BooleanSEXP extends IridiumSEXP {
@@ -1040,88 +807,6 @@ export function isJSDefineObjPropSEXP(o: any): o is JSDefineObjPropSEXP {
   return o.tag === "JSDefineObjProp";
 }
 
-// // (Extension) JSComputedObjectProp
-// export class JSComputedObjectPropSEXP extends IridiumSEXP {
-//   constructor(key: IridiumSEXP, value: IridiumSEXP) {
-//     super("JSComputedObjectProp");
-//     this.args.push(key);
-//     this.args.push(value);
-//   }
-
-//   toString(space?: number): string {
-//     const res = [];
-//     res.push(`${printIriSpace(space)}${this.tag}`);
-//     for (let s of this.args) {
-//       res.push(`${printIriSpace(10)}${s.toString(0)}`);
-//     }
-//     return res.join("\n");
-//   }
-// }
-
-// // @ts-ignore
-// export function isJSComputedObjectPropSEXP(o: any): o is JSComputedObjectPropSEXP {
-//   // @ts-ignore
-//   return o.tag === "JSComputedObjectProp";
-// }
-
-// // (Extension) JSObjectProp
-// export class JSObjectPropSEXP extends IridiumSEXP {
-//   constructor(key: string, value: IridiumSEXP) {
-//     super("JSObjectProp");
-//     this.args.push(new StringSEXP(key));
-//     this.args.push(value);
-//   }
-
-//   toString(space?: number): string {
-//     return `░ ░ ░ ███▒▒ ${this.tag} => {${this.args[0].toString(0)} : ${this.args[1].toString(0)}}`;
-//   }
-// }
-
-// // @ts-ignore
-// export function isJSObjectPropSEXP(o: any): o is JSObjectPropSEXP {
-//   // @ts-ignore
-//   return o.tag === "JSObjectProp";
-// }
-
-// // (Extension) JSComputedObjectMethod
-// type JSComputedObjectMethodSEXPFlags = "GET" | "SET" | "METHOD";
-// export class JSComputedObjectMethodSEXP extends IridiumSEXP {
-//   constructor(key: IridiumSEXP, value: IridiumSEXP, kind: string) {
-//     super("JSComputedObjectMethod");
-//     this.args.push(key);
-//     this.args.push(value);
-//     if (kind === "method") this.setFlag("METHOD");
-//     else if (kind === "get") this.setFlag("GET");
-//     else if (kind === "set") this.setFlag("SET");
-//     else throw new Error("Object method kind is invalid");
-//   }
-// }
-
-// // @ts-ignore
-// export function isJSComputedObjectMethodSEXP(o: any): o is JSComputedObjectMethodSEXP {
-//   // @ts-ignore
-//   return o.tag === "JSComputedObjectMethod";
-// }
-
-// // (Extension) JSObjectMethod
-// type JSObjectMethodSEXPFlags = "GET" | "SET" | "METHOD";
-// export class JSObjectMethodSEXP extends IridiumSEXP {
-//   constructor(key: string, value: IridiumSEXP, kind: string) {
-//     super("JSObjectMethod");
-//     this.args.push(new StringSEXP(key));
-//     this.args.push(value);
-//     if (kind === "method") this.setFlag("METHOD");
-//     else if (kind === "get") this.setFlag("GET");
-//     else if (kind === "set") this.setFlag("SET");
-//     else throw new Error("Object method kind is invalid");
-//   }
-// }
-
-// // @ts-ignore
-// export function isJSObjectMethodSEXP(o: any): o is JSObjectMethodSEXP {
-//   // @ts-ignore
-//   return o.tag === "JSObjectMethod";
-// }
 
 // (Extension) JSObject
 export class JSObjectSEXP extends IridiumSEXP {
@@ -1547,97 +1232,6 @@ export function isEnvReadSEXP(o: any): o is EnvReadSEXP {
   return o.tag === "EnvRead";
 }
 
-// (Primitive) GlobalBinding
-export class GlobalBindingSEXP extends IridiumSEXP {
-  constructor(id: string) {
-    super("GlobalBinding");
-    this.args.push(new StringSEXP(id));
-  }
-
-  // Utility
-  getDeclaration(): string {
-    if (isStringSEXP(this.args[0])) return this.args[0].getVal();
-    throw new Error("Expected Env Declaration to declare a string");
-  }
-
-  toString(space?: number): string {
-    return `${printIriSpace(space)}GLOBAL[${this.args[0].toString(0)}]`
-  }
-
-}
-
-// @ts-ignore
-export function isGlobalBindingSEXP(o: any): o is GlobalBindingSEXP {
-  // @ts-ignore
-  return o.tag === "GlobalBinding";
-}
-
-export type RemoteEnvBindingSEXPFlags = "REFIDX";
-export class RemoteEnvBindingSEXP extends IridiumSEXP {
-  constructor(binding: IridiumSEXP, refIDX: number) {
-    super("RemoteEnvBinding");
-    this.setREFIDX(refIDX);
-    this.args.push(binding);
-  }
-
-  // Flags
-  setREFIDX(val: number) {
-    this.setFlag("REFIDX", val);
-  }
-
-  getREFIDX(): number {
-    return this.getFlagNumber("REFIDX");
-  }
-
-  setNSImport() {
-    this.setFlag("NSIMPORT");
-  }
-
-  unsetNSImport() {
-    this.removeFlag("NSIMPORT");
-  }
-
-  isNSImport(): boolean {
-    return this.hasFlag("NSIMPORT");
-  }
-
-  resolveRemoteBinding(binding: RemoteEnvBindingSEXP): EnvBindingSEXP {
-    let containedBinding = binding.args[0];
-    if (isEnvBindingSEXP(containedBinding)) {
-      return containedBinding;
-    } else if (isRemoteEnvBindingSEXP(containedBinding)) {
-      return this.resolveRemoteBinding(containedBinding);
-    }
-    throw new Error("RemoteEnvBindingSEXP contains invalid object");
-  }
-
-  getLookupTrace(binding: RemoteEnvBindingSEXP, res: Array<any> = []): Array<any> {
-    res.push(binding.getREFIDX());
-    let containedBinding = binding.args[0];
-    if (isEnvBindingSEXP(containedBinding)) {
-      res.push(containedBinding.getREFIDX());
-      return res;
-    } else if (isRemoteEnvBindingSEXP(containedBinding)) {
-      res.push(containedBinding.getREFIDX());
-      return this.getLookupTrace(containedBinding);
-    }
-    throw new Error("RemoteEnvBindingSEXP, failed to get lookup trace");
-  }
-
-  toString(space?: number): string {
-    if (isEnvBindingSEXP(this.args[0])) { // Top Level Binding
-      return `${printIriSpace(space)}🟧${this.isNSImport() ? "[NS]" : ""}(${this.getLookupTrace(this).join("-")})${this.resolveRemoteBinding(this).toString()}`;
-    }
-    return `${printIriSpace(space)}🟥${this.isNSImport() ? "[NS]" : ""}(${this.getLookupTrace(this).join("-")})${this.resolveRemoteBinding(this).toString()}`;
-  }
-}
-
-// @ts-ignore
-export function isRemoteEnvBindingSEXP(o: any): o is RemoteEnvBindingSEXP {
-  // @ts-ignore
-  return o.tag === "RemoteEnvBinding";
-}
-
 // (Primitive) Pool Binding
 export type PoolBindingSEXPFlags = "StartBBIDX" | "REFIDX";
 export class PoolBindingSEXP extends IridiumSEXP {
@@ -1675,86 +1269,7 @@ export function isPoolBindingSEXP(o: any): o is PoolBindingSEXP {
   return o.tag === "PoolBinding";
 }
 
-// (Primitive) EnvBinding
-export type JSEnvBindingFlags = "ASW" | "JSARG" | "JSRESTARG" | "JSLET" | "JSCONST" | "JSVAR";
-export type EnvBindingFlags = "IDX" | "REFIDX" | "Scope" | "ParentScope" | JSEnvBindingFlags;
-export class EnvBindingSEXP extends IridiumSEXP {
-  constructor(refIdx: number, idx: number, b: string, flags: [JSEnvBindingFlags, null][], scope: number, parentScope: number) {
-    super("EnvBinding");
-    this.args.push(new StringSEXP(b));
-    flags.forEach(flag => this.flags.push(flag));
-    this.setIDX(idx);
-    this.setREFIDX(refIdx);
-    this.setScope(scope);
-    this.setParentScope(parentScope);
-  }
 
-  // Flags
-  markASW() {
-    this.setFlag("ASW");
-  }
-
-  isASW() {
-    return this.hasFlag("ASW");
-  }
-
-  setIDX(idx: number) {
-    this.setFlag("IDX", idx);
-  }
-
-  getIDX(): number {
-    return this.getFlagNumber("IDX");
-  }
-
-  setREFIDX(idx: number) {
-    this.setFlag("REFIDX", idx);
-  }
-
-  getREFIDX(): number {
-    return this.getFlagNumber("REFIDX");
-  }
-
-  setScope(idx: number) {
-    this.setFlag("Scope", idx);
-  }
-
-  getScope(): number {
-    return this.getFlagNumber("Scope");
-  }
-
-  setParentScope(idx: number) {
-    this.setFlag("ParentScope", idx);
-  }
-
-  getParentScope(): number {
-    return this.getFlagNumber("ParentScope");
-  }
-
-  // Utility
-  getDeclaration(): string {
-    if (isStringSEXP(this.args[0])) return this.args[0].getVal();
-    throw new Error("Expected Env Declaration to declare a string");
-  }
-
-  getKind(): string {
-    if (this.hasFlag("JSLET")) return "JSLET";
-    if (this.hasFlag("JSCONST")) return "JSCONST";
-    if (this.hasFlag("JSVAR")) return "JSVAR";
-    if (this.hasFlag("JSARG")) return "JSARG";
-    if (this.hasFlag("JSRESTARG")) return "JSRESTARG";
-    throw new Error("EnvBindingSEXP, unknown kind");
-  }
-
-  toString(space?: number): string {
-    return `${printIriSpace(space)}[${this.getREFIDX()}] ${this.isASW() ? "{ASW}" : ""} ${this.getKind()} ${this.getDeclaration()}`
-  }
-}
-
-// @ts-ignore
-export function isEnvBindingSEXP(o: any): o is EnvBindingSEXP {
-  // @ts-ignore
-  return o.tag === "EnvBinding";
-}
 
 // (Extension) JSCheckConstructor
 export class JSCheckConstructorSEXP extends IridiumSEXP {
@@ -2512,33 +2027,7 @@ export class IfJumpSEXP extends IridiumSEXP {
 }
 
 // Abstract Operations
-// (Primitive) ResolveEnvBindingSEXP
-export class ResolveEnvBindingSEXP extends IridiumSEXP {
-  constructor(id: string) {
-    super("ResolveEnvBinding");
-    this.args.push(new StringSEXP(id));
-  }
 
-  markASW() {
-    this.setFlag("ASW");
-  }
-
-  isASW() {
-    return this.hasFlag("ASW");
-  }
-
-  getBindingName(): string {
-    let res = this.args[0]
-    if (isStringSEXP(res)) return res.getVal()
-    throw new Error("Cant get binding for ResolveEnvBindingSEXP")
-  }
-}
-
-// @ts-ignore
-export function isResolveEnvBindingSEXP(o: any): o is ResolveEnvBindingSEXP {
-  // @ts-ignore
-  return o.tag === "ResolveEnvBinding";
-}
 
 
 // (Extension) ResolvePrivateEnvBindingSEXP

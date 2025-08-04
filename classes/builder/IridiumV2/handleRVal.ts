@@ -5,7 +5,9 @@ import { generateJS3ArrayExpressionfromBaseNode } from "../JS3Helpers/JS3Constru
 import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3AssnObjectProperty, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ClassExpression, isJS3ClassMethod, isJS3ClassPrivateMethod, isJS3ClassPrivateProperty, isJS3ClassProperty, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3MetaProperty, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, isJS3RegExpLiteral, isJS3RestElement, isJS3SpreadElement, isJS3StaticBlock, isJS3TemplateLiteral, isJS3UnaryExpression, isJS3UpdateExpression, isJS3VariableDeclaration, isJS3YieldExpression, JS3ArrayExpression, JS3ArrayPattern_elements, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BlockStatement_body, JS3CallExpression, JS3ClassExpression, JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3NewExpression, JS3ObjectExpression, JS3ObjectMethod, JS3ObjectPattern_properties, JS3RestElement, JS3UnaryExpression, JS3UpdateExpression, JS3YieldExpression } from "../JS3Helpers/JS3Types";
 import { funArgLength, handleBlockStatement, IRIV2_STMT, lowerArgumentInit } from "./handleStatement";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
-import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSEnvWriteSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSHomeObjContextSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperContextSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSSuperObjContextSEXP, JSTemplateSEXP, JSThisContextAltSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StringSEXP, UnopSEXP, YieldSEXP } from "./Types";
+import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSEnvWriteSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSHomeObjContextSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperContextSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSSuperObjContextSEXP, JSTemplateSEXP, JSThisContextAltSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveContinueTargetSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, UnopSEXP, YieldSEXP } from "./Types";
+
+import { GlobalBindingSEXP, IridiumSEXP, ListSEXP, ResolveEnvBindingSEXP, StringSEXP } from "./Types/index";
 
 // Handle RValues | AMP
 export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
@@ -796,7 +798,7 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
 
         // 15.1.5 Static Semantics: ExpectedArgumentCount
         funcContext.ecmaArgs = funArgLength(constructor.params);
-        
+
         if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
         for (let item of constructor.body.body) {
@@ -846,7 +848,7 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
 
         // 15.1.5 Static Semantics: ExpectedArgumentCount
         funcContext.ecmaArgs = funArgLength(constructor.params);
-        
+
         if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
         for (let item of constructor.body.body) {
@@ -1167,7 +1169,7 @@ const handleArrowFunctionExpression = (cx: IRIDIUMV2, node: JS3ArrowFunctionExpr
   funcContext.argumentsKind = 0;
 
   lowerArgumentInit(cx, node.params);
- 
+
   // 15.1.5 Static Semantics: ExpectedArgumentCount
   funcContext.ecmaArgs = funArgLength(node.params);
 

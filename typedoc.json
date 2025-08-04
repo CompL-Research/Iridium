@@ -1,0 +1,23 @@
+{
+  "entryPoints": ["./classes/builder/IridiumV2/Types"],
+  "entryPointStrategy": "expand",
+  "categorizeByGroup": true,
+  "exclude": [
+    "**/vscode/**",
+    "**/deprecated/**",
+    "**/dist/**",
+    "**/docs/**",
+    "**/externalDeps/**",
+    "**/node_modules/**",
+    "**/out/**",
+    "**/outputs/**",
+    "**/playground/**",
+    "**/temp/**",
+    "**/tests/**"
+  ],
+  "out": "docs",
+  "plugin": ["typedoc-material-theme"],
+  "tsconfig": "./tsconfig.json",
+  "themeColor": "#cb9820",
+  "includeVersion": true
+}

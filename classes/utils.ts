@@ -3,7 +3,7 @@ import { CommentBlock, CommentLine } from "@babel/types";
 import fs from "fs";
 import path from "path";
 import ts from "typescript";
-import { IridiumPrimitives } from "./builder/IridiumV2/Types";
+import { IridiumPrimitives } from "./builder/IridiumV2/Types/index";
 
 export const printIriSpace = (times: number | undefined = 0) => {
   if (!times) times = 0;

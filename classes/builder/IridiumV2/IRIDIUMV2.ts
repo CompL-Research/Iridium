@@ -5,7 +5,8 @@ import { VERSION } from "../../../configs/projectStats";
 import JS3Builder from "../JS3Builder";
 import { JS3Program } from "../JS3Helpers/JS3Types";
 import { IRIV2_STMT } from "./handleStatement";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isGlobalBindingSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSEnvWriteSEXP, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSModuleMetaSEXP, isJSScriptReturnSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, isStringSEXP, JSARGUMENTSINITSEXP, JSEnvBindingFlags, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSMARGUMENTSINITSEXP, JSModuleEndSEXP, JSMODULEMETAINITSEXP, JSModuleMetaSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSScriptReturnSEXP, JSSloppyDeclarationCheckSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP } from "./Types";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvReadSEXP, EnvWriteSEXP, getRegularClosureFlag, GotoSEXP, InvokeFinalizerSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvWriteSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSEnvWriteSEXP, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSModuleMetaSEXP, isJSScriptReturnSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, JSARGUMENTSINITSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSMARGUMENTSINITSEXP, JSModuleEndSEXP, JSMODULEMETAINITSEXP, JSModuleMetaSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSScriptReturnSEXP, JSSloppyDeclarationCheckSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP } from "./Types";
+import { EnvBindingSEXP, FileSEXP, GlobalBindingSEXP, IridiumSEXP, isEnvBindingSEXP, isGlobalBindingSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isRemoteEnvBindingSEXP, isResolveEnvBindingSEXP, isStarExportSEXP, isStaticImportSEXP, isStringSEXP, JSEnvBindingFlags, ListSEXP, ModuleRequestSEXP, RemoteEnvBindingSEXP, ResolveEnvBindingSEXP, StaticImportSEXP } from "./Types/index";
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -439,15 +440,13 @@ export class IRIDIUMV2 {
 
       for (let e of currSEXP.args) {
         if (isStaticImportSEXP(e)) {
-          if (isStringSEXP(e.args[1])) {
-            let literal = e.args[1].getVal();
-            let binding = e.args[0];
-            if (literal === "*") {
-              if (isRemoteEnvBindingSEXP(binding)) {
-                binding.setNSImport();
-              } else throw new Error("Expected a remote env binding SEXP here...."); 
-            }
-          } else throw new Error("Expected a string literal here...");
+          let literal = e.getField();
+          let binding = e.getStorageLocation();
+          if (literal === "*") {
+            if (isRemoteEnvBindingSEXP(binding)) {
+              binding.setNSImport();
+            } else throw new Error("Expected a remote env binding SEXP here...."); 
+          }
         }
       }
       
