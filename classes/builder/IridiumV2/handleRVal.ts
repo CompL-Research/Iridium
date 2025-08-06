@@ -6,7 +6,7 @@ import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJ
 import { funArgLength, handleBlockStatement, IRIV2_STMT, lowerArgumentInit } from "./handleStatement";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
 
-import { GlobalBindingSEXP, IridiumSEXP, ListSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, StringSEXP, UNOPDelMemberExprSEXP, UNOPDelVarSEXP, getPropInitDerivedPrivateClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getDerivedMethodClosureFlag, getRegularClosureFlag, NullSEXP, AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSEnvWriteSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSHomeObjContextSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperContextSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSSuperObjContextSEXP, JSTemplateSEXP, JSThisContextAltSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ReturnAsyncSEXP, ReturnSEXP, UnopSEXP, YieldSEXP } from "./Types/index";
+import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSEnvWriteSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSTemplateSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StringSEXP, UNOPDelMemberExprSEXP, UNOPDelVarSEXP, UnopSEXP, YieldSEXP } from "./Types/index";
 
 // Handle RValues | AMP
 export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
@@ -515,7 +515,7 @@ const lowerNonStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, pri
   const lambdas: Array<IridiumSEXP> = [];
   const hasSuper = node.superClass ? true : false;
 
-  nonStaticClassMethods.filter(n => isJS3ClassMethod(n)).forEach(methodNode => {
+  nonStaticClassMethods.filter(n => isJS3ClassMethod(n)).filter(n => n.kind !== "constructor").forEach(methodNode => {
     const lambda: Array<IridiumSEXP> = [];
     if (methodNode.computed) {
       if (!computedPropMapping.has(methodNode)) throw new Error("Expected computed name to have been mapped already...");
@@ -608,17 +608,22 @@ const createClassNonStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpres
   funcContext.isAsync = false;
   funcContext.isGenerator = false;
 
-  // add this context
-  cx.getCurrentBB().args.push(new JSThisContextSEXP());
-
-  if (hasSuper) {
-    // add <super_obj>
-    cx.getCurrentBB().args.push(new JSSuperObjContextSEXP());
-  }
+  // add this
+  cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9));
 
   if (addBrand) {
     // add <home_obj>
-    cx.getCurrentBB().args.push(new JSHomeObjContextSEXP());
+    cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<home_obj>", "JSCONST", 4));
+  }
+
+  if (hasSuper) {
+    if (!addBrand) {
+      // add <home_obj>
+      cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<home_obj>", "JSCONST", 4));
+    }
+
+    // add <super_obj>
+    cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<super_obj>", "JSCONST", 8, new ListSEXP([new ResolveEnvBindingSEXP("<home_obj>")])));
   }
 
   // Set closure context
@@ -684,11 +689,13 @@ const createClassStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpressio
   funcContext.isGenerator = false;
 
   // add this context
-  cx.getCurrentBB().args.push(new JSThisContextSEXP());
+  cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9));
 
   if (hasSuper) {
+    // add <home_obj>
+    cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<home_obj>", "JSCONST", 4));
     // add <super_obj>
-    cx.getCurrentBB().args.push(new JSSuperObjContextSEXP());
+    cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<super_obj>", "JSCONST", 8, new ListSEXP([new ResolveEnvBindingSEXP("<home_obj>")])));
   }
 
   // Set closure context
@@ -762,7 +769,7 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
     funcContext.kind = getConstructorClosureFlag();
 
     // add "this" to the closure scope
-    cx.getCurrentBB().args.push(new JSThisContextSEXP());
+    cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9));
 
     // Ensure the constructor was called using new
     cx.getCurrentBB().args.push(new JSCheckConstructorSEXP());
@@ -801,11 +808,19 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
     funcContext.kind = getDerivedConstructorClosureFlag();
 
     // Add "this = NUBD"
-    cx.getCurrentBB().args.push(new JSThisContextAltSEXP());
+    cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 10));
 
-    // add "<home_obj>", "<super_ctr>", "<new_target>" and "<super_obj>" bindings to the closure scope
-    cx.getCurrentBB().args.push(new JSSuperContextSEXP());
-
+    // add <home_obj>
+    cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<home_obj>", "JSCONST", 4));
+    // add <this_func>
+    cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<this_func>", "JSCONST", 2));
+    // add <super_ctr>
+    cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<super_ctr>", "JSCONST", 7, new ListSEXP([new ResolveEnvBindingSEXP("<this_func>")])));
+    // add <super_obj>
+    cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<super_obj>", "JSCONST", 8, new ListSEXP([new ResolveEnvBindingSEXP("<home_obj>")])));
+    // add <new_target>
+    cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<new_target>", "JSCONST", 3));
+    
     // Ensure the constructor was called using new
     cx.getCurrentBB().args.push(new JSCheckConstructorSEXP());
 
@@ -1084,7 +1099,7 @@ const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | J
   if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
   // Arrow functions are handled separately
-  cx.getCurrentBB().args.push(new JSThisContextSEXP());
+  cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9));
 
   if (isPrivateMethod && hasSuper) {
     funcContext.kind = getPrivateDerivedMethodClosureFlag();
@@ -1098,7 +1113,8 @@ const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | J
 
   // If the method has access to the super object, we add <super_obj> to its scope using this
   if (hasSuper) {
-    cx.getCurrentBB().args.push(new JSSuperObjContextSEXP());
+    cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<home_obj>", "JSCONST", 4));
+    cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<super_obj>", "JSCONST", 8, new ListSEXP([new ResolveEnvBindingSEXP("<home_obj>")])));
   }
 
   for (const s of node.body.body) {

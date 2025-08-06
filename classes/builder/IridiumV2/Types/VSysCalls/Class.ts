@@ -14,6 +14,8 @@ import { IridiumSEXP } from "../General";
  * If the brand of the object instance and the private method being referenced fail the brand check, 
  * a runtime error is thrown.
  * 
+ * > add a private brand field to 'home_obj' if not already present and if obj is != null add a private brand to it
+ * 
  * One may imagine this to be a way to push the class encapsulation check to the runtime; 
  * contrary to languages like Java/C++ where it might be a static compile time check.
  * 
@@ -81,9 +83,5 @@ export class JSADDBRANDSEXP extends IridiumSEXP {
 export class JSCheckConstructorSEXP extends IridiumSEXP {
   constructor() {
     super("JSCheckConstructor");
-  }
-
-  toString(space?: number): string {
-    return `${printIriSpace(space)}CHECK[CONSTRUCTOR_CALL]`
   }
 }

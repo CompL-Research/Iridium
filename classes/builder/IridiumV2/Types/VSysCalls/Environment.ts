@@ -1,11 +1,12 @@
-import { JSEnvBindingFlags } from "../Environment";
 import { IridiumSEXP } from "../General";
+
+export type JSSloppyDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
 
 /**
  * 
  * @extends {IridiumSEXP}
  * 
- * @group JSClass Add Brand
+ * @group Sloppy Top Level Declarations
  * 
  * @description
  * 
@@ -17,14 +18,34 @@ import { IridiumSEXP } from "../General";
  * 
  * - `FLAG(NAME)`: The name of the declaration.
  * 
- * - `FLAG(JSARG | JSRESTARG | JSLET | JSCONST | JSVAR)`: The kind of the declaration, one of these allowed types. `JSARG | JSRESTARG` will never show up, but allowed for the sake of consistency.
+ * - `FLAG(JSLET | JSCONST | JSVAR)`: The kind of the declaration, one of these allowed types.
  * 
  */
 export class JSSloppyDeclarationCheckSEXP extends IridiumSEXP {
-  constructor(decl: string, kind: JSEnvBindingFlags) {
+  constructor(decl: string, kind: JSSloppyDeclarationTypes) {
     super("JSSloppyDeclarationCheck");
-    this.setFlag("NAME", decl);
+    this.setName(decl);
+    this.setKind(kind);
+  }
+
+  // Flags
+  setName(name: string) {
+    this.setFlag("NAME", name);
+  }
+
+  getName(): string {
+    return this.getFlagString("NAME");
+  }
+
+  setKind(kind: JSSloppyDeclarationTypes) {
     this.setFlag(kind);
+  }
+
+  getKind(): JSSloppyDeclarationTypes {
+    if (this.hasFlag("JSLET")) return "JSLET";
+    if (this.hasFlag("JSCONST")) return "JSCONST";
+    if (this.hasFlag("JSVAR")) return "JSVAR";
+    throw new Error("JSSloppyDeclarationCheckSEXP, unknown kind");
   }
 }
 

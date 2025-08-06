@@ -7,6 +7,15 @@
 // srcString += "+ y";
 // console.log(evil(srcString))
 
-let {a, b} = { a: 1, b: 2, c: 3 };
+// let {a, b} = { a: 1, b: 2, c: 3 };
 
-console.log(a, b);
+// console.log(a, b);
+
+// function foo(a) {
+//   arguments[0] = 12;
+//   console.log(a);
+// }
+
+// foo(1, 2, 3);
+
+console.log("Hello World");

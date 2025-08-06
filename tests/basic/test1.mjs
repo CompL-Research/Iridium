@@ -7,7 +7,7 @@
 
 // console.log(a);
 
-let {a, b} = { a: 1, b: 2, c: 3 };
+// let {a, b} = { a: 1, b: 2, c: 3 };
 
 // console.log(a, b);
 
@@ -20,9 +20,38 @@ let {a, b} = { a: 1, b: 2, c: 3 };
 //     return 42;
 //   }
 //   foo() {
-//     let test = this.#foo;
-//     return test();
+//     return this.#foo();
 //   }
 // }
 
 // console.log(new A().foo());
+
+
+// function foo() {
+//   this.x = 12;
+//   console.log(this.x);
+// }
+
+// new foo();
+
+// function foo() {
+//   console.log(arguments);
+// }
+
+// foo(1, 2, 3);
+
+
+class A {
+  constructor() {
+    console.log("Parent class constructor called");
+  }
+  bar() { return 42; }
+}
+
+class B extends A {
+  foo() {
+    return super.bar();
+  }
+}
+
+console.log(new B().foo());
