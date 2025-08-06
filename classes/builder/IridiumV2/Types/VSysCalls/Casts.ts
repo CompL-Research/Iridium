@@ -1,4 +1,4 @@
-import { printIriSpace } from "#utils";
+import { printFlagString, printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP } from "../AbstractOperations";
 import { IridiumSEXP } from "../General";
 
@@ -92,7 +92,7 @@ export class JSToObjectSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     const res = [];
-    res.push(`${printIriSpace(space)}${this.tag}`);
+    res.push(`${printIriSpace(space)}${this.tag}${printFlagString(this.flags)}`);
     for (let s of this.args) {
       res.push(`${printIriSpace(10)}${s.toString(0)}`);
     }
