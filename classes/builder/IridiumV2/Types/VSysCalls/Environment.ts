@@ -1,5 +1,8 @@
 import { IridiumSEXP } from "../General";
 
+/**
+ * @group TSHelper
+ */
 export type JSSloppyDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
 
 /**
