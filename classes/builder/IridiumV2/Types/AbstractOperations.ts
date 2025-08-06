@@ -1,6 +1,139 @@
 import { printFlagString, printIriSpace } from "#utils";
+import { EnvWriteSEXP } from "./Environment";
 import { IridiumSEXP } from "./General";
-import { ListSEXP } from "./Primitives";
+import { ListSEXP, NullSEXP } from "./Primitives";
+
+export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group Explicit Binding Creation
+ * 
+ * @description
+ * 
+ * Top level declarations in **Sloppy** Mode are not stored on the stack frame, but instead become
+ * fields of the global object.
+ * This call is used to declare such fields.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(lValTarget)`: The storage target location
+ * 
+ * - `ARG(rVal)`: The value to store (possible nothing, in case of just a declaration).
+ * 
+ * - `FLAG(JSLET | JSCONST | JSVAR)`: The kind of the declaration, one of these allowed types ({@link JSEnvWriteTypes}).
+ * 
+ * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
+ * 
+ * - `FLAG(THISINIT)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
+ * 
+ * - `FLAG(SLOPPY)`: Indicates whether the writes to target locations is sloppy.
+ * 
+ */
+export class JSEnvWriteSEXP extends IridiumSEXP {
+  constructor(lval: IridiumSEXP, rval: IridiumSEXP | null, kind: JSEnvWriteTypes | undefined = undefined, thisInit: boolean) {
+    super("JSEnvWrite");
+    this.setLValTarget(lval);
+    if (rval) this.setRVal(rval);
+    if (kind) this.setKind(kind);
+    this.setSafe(kind ? true : false); // If this is a declaration, it is safe by default
+    this.setThisInit(thisInit);
+  }
+
+  // Args
+  setLValTarget(target: IridiumSEXP) {
+    this.args[0] = target;
+  }
+
+  getLValTarget(): IridiumSEXP {
+    return this.args[0];
+  }
+
+  setRVal(rval: IridiumSEXP) {
+    this.args[1] = rval;
+  }
+
+  getRVal(): IridiumSEXP {
+    return this.args[1];
+  }
+
+  hasRVal() {
+    return this.args.length > 1
+  }
+
+  // Flags
+  setKind(kind: JSEnvWriteTypes) {
+    this.setFlag(kind);
+  }
+
+  getKind(): JSEnvWriteTypes {
+    if (this.hasFlag("JSLET")) return "JSLET";
+    if (this.hasFlag("JSCONST")) return "JSCONST";
+    if (this.hasFlag("JSVAR")) return "JSVAR";
+    throw new Error("JSSloppyDeclarationCheckSEXP, unknown kind");
+  }
+
+  markSloppy() {
+    this.setFlag("SLOPPY");
+  }
+
+  isSloppy() {
+    return this.hasFlag("SLOPPY");
+  }
+
+  setThisInit(val: boolean) {
+    this.setFlag("THISINIT", val);
+  }
+
+  isThisInit(): boolean {
+    return this.getFlagBoolean("THISINIT")
+  }
+
+  setSafe(val: boolean) {
+    this.setFlag("SAFE", val);
+  }
+
+  isSafe(): boolean {
+    return this.getFlagBoolean("SAFE")
+  }
+
+  isDecl() {
+    return this.isLetDecl() || this.isConstDecl() || this.isVarDecl()
+  }
+
+  isLetDecl() {
+    return this.hasFlag("JSLET")
+  }
+
+  isConstDecl() {
+    return this.hasFlag("JSCONST")
+  }
+
+  isVarDecl() {
+    return this.hasFlag("JSVAR")
+  }
+
+  reduceJSDecl() {
+    this.tag = "EnvWrite";
+    Object.setPrototypeOf(this, new EnvWriteSEXP("", new NullSEXP(), this.isSafe(), this.isThisInit()));
+    this.flags = this.flags.filter(e => e[0] !== "JSLET" && e[0] !== "JSCONST" && e[0] !== "JSVAR")
+  }
+
+  getDeclaredBindings() {
+    let lVal = this.args[0];
+    const res: Array<string> = [];
+    if (!isResolveEnvBindingSEXP(lVal)) throw new Error("Expected ResolveEnvBindingSEXP");
+    res.push(lVal.getBindingName());
+    return res;
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}${this.tag}${printFlagString(this.flags)}${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(10)).join("\n") : ""}`;
+  }
+}
+
 /**
  * Allowed binding kinds for JSImplicitBindingDeclarations
  */
@@ -10,7 +143,7 @@ export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Abstract Operations
+ * @group Implicit Binding Creation
  * 
  * @description
  * 
@@ -168,7 +301,7 @@ export class JSImplicitBindingDeclarationSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Abstract Operations
+ * @group Incomplete Binding Resolution
  * 
  * @description
  * 
@@ -221,7 +354,7 @@ export class ResolveEnvBindingSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Abstract Operations
+ * @group Incomplete Binding Resolution
  * 
  * @description
  * 
@@ -371,4 +504,12 @@ export function isResolveEnvBindingSEXP(o: any): o is ResolveEnvBindingSEXP {
  */
 export function isJSImplicitBindingDeclarationSEXP(o: any): o is JSImplicitBindingDeclarationSEXP {
   return o.tag === "JSImplicitBindingDeclaration";
+}
+
+/**
+ * @group TSHelper
+ */
+export function isJSEnvWriteSEXP(o: any): o is JSEnvWriteSEXP {
+  // @ts-ignore
+  return o.tag === "JSEnvWrite";
 }
