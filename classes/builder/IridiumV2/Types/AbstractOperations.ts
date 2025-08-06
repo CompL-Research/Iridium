@@ -18,16 +18,6 @@ export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * #### Possible OPID's
  * 
- * -1. `No init`:  Binding is created in the environment, but this statement does not initialize it in any way.
- * 
- * OP_SPECIAL_OBJECT_ARGUMENTS
- * OP_SPECIAL_OBJECT_MAPPED_ARGUMENTS
- * OP_SPECIAL_OBJECT_THIS_FUNC
- * OP_SPECIAL_OBJECT_NEW_TARGET
- * OP_SPECIAL_OBJECT_HOME_OBJECT
- * OP_SPECIAL_OBJECT_VAR_OBJECT
- * OP_SPECIAL_OBJECT_IMPORT_META
- * 
  * 0. `arguments`: Declares and initializes the `arguments` object.
  * 
  * 1. `arguments`: Declares and initializes the **mapped** `arguments` object.
