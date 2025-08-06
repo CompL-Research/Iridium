@@ -41,17 +41,30 @@
 // foo(1, 2, 3);
 
 
-class A {
-  constructor() {
-    console.log("Parent class constructor called");
+// class A {
+//   constructor() {
+//     console.log("Parent class constructor called");
+//   }
+//   bar() { return 42; }
+// }
+
+// class B extends A {
+//   foo() {
+//     return super.bar();
+//   }
+// }
+
+// console.log(new B().foo());
+
+function foo() {
+  for (let i of [1,2,3]) {
+    console.log(i);
+    if (i === 2) return;
   }
-  bar() { return 42; }
+
+  for (let i in [1,2,3]) {
+    console.log(i);
+  }
 }
 
-class B extends A {
-  foo() {
-    return super.bar();
-  }
-}
-
-console.log(new B().foo());
+foo();
