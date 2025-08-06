@@ -1,45 +1,66 @@
 import { printIriSpace } from "#utils";
-import { IridiumSEXP } from "./General";
+import { IridiumPrimitives, IridiumSEXP } from "./General";
+
 
 /**
  * 
+ * @group Primitive
+ * 
+ * @description
+ * 
+ * Basic allowed types during codegen for homogenous lists in Iridium.
+ * 
  */
-export type ListSEXPFlags = "UNOP_DEL_VAR" | "UNOP_DEL_MEMBEREXPR" | "ModuleRequests" | "ImportedBinding" | "LocalBindings" | "RemoteBindings" | "LambdaPool" | "BBs";
+export type ListSEXPFlags = "ModuleRequest" | "StaticImport" | "StarExport" | "EnvBinding" | "RemoteEnvBinding" | "PoolBinding" | "BB";
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group Primitive
+ * 
+ * @description
+ * 
+ * A generic List container. May contain homogenous or heterogenous elements.
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(TYPE)`: A flag that signifies that the list is homogenous, the value of this flag is the expected tag value.
+ * 
+ */
 export class ListSEXP extends IridiumSEXP {
   constructor(elems: Array<IridiumSEXP>) {
     super("List");
     elems.forEach(e => this.args.push(e));
   }
-
-  setFlag(flag: ListSEXPFlags) {
-    super.setFlag(flag);
+  
+  setFlag(flag: string, val?: IridiumPrimitives): void {
+    if (flag !== "TYPE") throw new Error("only TYPE flag is allowed in ListSEXP");
+    if (typeof val !== "string") throw new Error("only TYPE flag with string value is allowed in ListSEXP");
+    super.setFlag(flag, val);
   }
 
-  // toString(space?: number): string {
-  //   if (!space) space = 0;
-  //   let res;
-  //   if (this.hasFlag("BBs")) {
-  //     res = `${printIriSpace(space)}BBs${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
-  //   } else if (this.hasFlag("LambdaPool")) {
-  //     res = `${printIriSpace(space)}LambdaPool${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
-  //   } else if (this.hasFlag("RemoteBindings")) {
-  //     res = `${printIriSpace(space)}RemoteBindings${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
-  //   } else if (this.hasFlag("LocalBindings")) {
-  //     res = `${printIriSpace(space)}LocalBindings${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(space + 2)).join("\n") : ""}`;
-  //   } else {
-  //     return super.toString(space)
-  //   }
-  //   return res;
-  // }
+  setType(flag: ListSEXPFlags) {
+    this.setFlag("TYPE", flag);
+  }
+
 }
 
-// @ts-ignore
-export function isListSEXP(o: any): o is ListSEXP {
-  // @ts-ignore
-  return o.tag === "List";
-}
-
-// (Primitive) String
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group Primitive
+ * 
+ * @description
+ * 
+ * A primitive string.
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(IridiumPrimitive)`: string value container.
+ * 
+ */
 export class StringSEXP extends IridiumSEXP {
   constructor(str: string) {
     super("String");
@@ -55,8 +76,170 @@ export class StringSEXP extends IridiumSEXP {
   }
 }
 
+
+export class NullSEXP extends IridiumSEXP {
+  constructor() {
+    super("Null");
+    this.flags.push(["IridiumPrimitive", null]);
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}🤮`
+  }
+
+}
+
+
+export class RegExpSEXP extends IridiumSEXP {
+  constructor(exp: string, flags: string) {
+    super("RegExp");
+    this.flags.push(["EXP", exp]);
+    this.flags.push(["FLAGS", flags]);
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}REGEXP(${this.getFlagString("EXP")},${this.getFlagString("FLAGS")})`
+  }
+}
+
+export class NumberSEXP extends IridiumSEXP {
+  constructor(number: number) {
+    super("Number");
+    this.flags.push(["IridiumPrimitive", number]);
+  }
+
+  getVal(): number {
+    return this.getFlagNumber("IridiumPrimitive");
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}${this.getVal()}`
+  }
+
+}
+
+export class BooleanSEXP extends IridiumSEXP {
+  constructor(value: boolean) {
+    super("Boolean");
+    this.flags.push(["IridiumPrimitive", value]);
+  }
+
+  getVal(): boolean {
+    return this.getFlagBoolean("IridiumPrimitive");
+  }
+}
+
+const PrimitiveArithOP = ["+", "-", "/", "%", "*"];
+const PrimitiveBitwiseOP = ["&", "|", "^", "<<", ">>"];
+const PrimitiveComparisonOP = [">", "<", ">=", "<="];
+
+const isPrimitiveBinop = (b: string) => {
+  return PrimitiveArithOP.includes(b) || PrimitiveBitwiseOP.includes(b) || PrimitiveComparisonOP.includes(b)
+}
+
+
+export type BinopSEXPFlags = "Primitive" | "JSBINOP";
+export class BinopSEXP extends IridiumSEXP {
+  constructor(op: string, lBinop: IridiumSEXP, rBinop: IridiumSEXP) {
+    super("Binop");
+    this.args.push(new StringSEXP(op));
+    this.args.push(lBinop);
+    this.args.push(rBinop);
+    if (isPrimitiveBinop(op)) this.flags.push(["Primitive", null]);
+    else this.flags.push(["JSBINOP", null]);
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}${this.args[1].toString(0)} OP[${this.args[0].toString(0)}] ${this.args[2].toString(0)}`
+  }
+}
+
+// (Primitive) Unop
+export class UnopSEXP extends IridiumSEXP {
+  constructor(op: string, val: IridiumSEXP) {
+    super("Unop");
+    this.args.push(new StringSEXP(op));
+    this.args.push(val);
+  }
+
+  // toString(space?: number): string {
+  //   return `${printIriSpace(space)}UNOP[${this.args[0].toString(0)}] ${this.args[1].toString(0)}`
+  // }
+  toString(space?: number): string {
+    const res = [];
+    res.push(`${printIriSpace(space)}${this.tag}`);
+    for (let s of this.args) {
+      res.push(`${s.toString(10)}`);
+    }
+    return res.join("\n");
+  }
+}
+
+export class LambdaSEXP extends IridiumSEXP {
+  constructor(bbIdx: number) {
+    super("Lambda");
+    this.setStartBBIDX(bbIdx);
+  }
+
+  // Flags
+  setStartBBIDX(startBBIDX: number) {
+    this.setFlag("StartBBIDX", startBBIDX);
+  }
+
+  getStartBBIDX() {
+    return this.getFlagNumber("StartBBIDX");
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}λ[${this.getStartBBIDX()}]`
+  }
+}
+
 // @ts-ignore
+export function isLambdaSEXP(o: any): o is LambdaSEXP {
+  // @ts-ignore
+  return o.tag === "Lambda";
+}
+
+/**
+ * @group TSHelper
+ */
+export function isBinopSEXP(o: any): o is BinopSEXP {
+  // @ts-ignore
+  return o.tag === "Binop";
+}
+
+
+/**
+ * @group TSHelper
+ */
+export function isBooleanSEXP(o: any): o is BooleanSEXP {
+  // @ts-ignore
+  return o.tag === "Boolean";
+}
+
+
+/**
+ * @group TSHelper
+ */
+export function isNumberSEXP(o: any): o is NumberSEXP {
+  // @ts-ignore
+  return o.tag === "Number";
+}
+
+
+/**
+ * @group TSHelper
+ */
 export function isStringSEXP(o: any): o is StringSEXP {
   // @ts-ignore
   return o.tag === "String";
+}
+
+/**
+ * @group TSHelper
+ */
+export function isListSEXP(o: any): o is ListSEXP {
+  // @ts-ignore
+  return o.tag === "List";
 }
