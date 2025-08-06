@@ -5,7 +5,7 @@ import { VERSION } from "../../../configs/projectStats";
 import JS3Builder from "../JS3Builder";
 import { JS3Program } from "../JS3Helpers/JS3Types";
 import { IRIV2_STMT } from "./handleStatement";
-import { BindingsSEXP, EnvBindingSEXP, FileSEXP, GlobalBindingSEXP, IridiumSEXP, isBindingsSEXP, isEnvBindingSEXP, isGlobalBindingSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isStarExportSEXP, isStaticImportSEXP, isStringSEXP, JSEnvBindingFlags, ListSEXP, ModuleRequestSEXP, PoolBindingSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, StaticImportSEXP, BBContainerSEXP, BBSEXP, BBSEXPFlags, getRegularClosureFlag, isBBContainerSEXP, isBBSEXP, JSThisContextSEXP, EnvReadSEXP, EnvWriteSEXP, GotoSEXP, InvokeFinalizerSEXP, isEnvWriteSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSEnvWriteSEXP, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSModuleMetaSEXP, isJSScriptReturnSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isReturnSEXP, JSARGUMENTSINITSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSMARGUMENTSINITSEXP, JSModuleEndSEXP, JSMODULEMETAINITSEXP, JSModuleMetaSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSScriptReturnSEXP, JSSloppyDeclarationCheckSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSTHISINITSEXP, NOPSEXP, PopCatchContextSEXP, ReturnAsyncSEXP, ReturnSEXP, isJSToObjectSEXP } from "./Types/index";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSEnvWriteSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isJSToObjectSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSIteratorCloseSEXP, JSNUBDSEXP, JSSloppyDeclarationCheckSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP } from "./Types/index";
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -200,11 +200,22 @@ export class IRIDIUMV2 {
     this.pushContext(topLevelContext);
 
     if (sourceType === "JSModule") {
-      this.getCurrentBB().args.push(new JSThisContextSEXP());
-      this.getCurrentBB().args.push(new JSModuleMetaSEXP());
+      this.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9));
+      
+      // Early return if we dont need to evaluate the module completely
+      const earlyReturnBB = this.declareAndPushLexicalContext();
+      const earlyReturnStmt = new ReturnSEXP(new EnvReadSEXP("undefined"));
+      earlyReturnStmt.setModuleEarlyReturn();
+      this.getCurrentBB().args.push(earlyReturnStmt); // Notice how this is not an async return!!
+      this.popContext();
+
+      const ifJump = new IfJumpSEXP(new EnvReadSEXP("this"), earlyReturnBB.BB[0].idx);
+      this.getCurrentBB().args.push(ifJump);
+      
+      this.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<module_meta>", "JSCONST", 6));
     } else {
-      this.getCurrentBB().args.push(new JSThisContextSEXP());
-      this.getCurrentBB().args.push(new JSScriptReturnSEXP());
+      this.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9));
+      this.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<ret>", "JSCONST", 11));
     }
     
     const startBB = this.getCurrentBB();
@@ -212,7 +223,7 @@ export class IRIDIUMV2 {
       IRIV2_STMT(this, s);
     }
     if (sourceType === "JSModule") {
-      this.getCurrentBB().args.push(new JSModuleEndSEXP());
+      this.getCurrentBB().args.push(new ReturnAsyncSEXP(new EnvReadSEXP("undefined")));
     } else {
       this.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
     }
@@ -233,12 +244,6 @@ export class IRIDIUMV2 {
     this.markNamespaceImports(this.container);
     this.markSloppyWrites(this.container);
     this.loosenWritestoASWs(this.container);
-
-    if (sourceType === "JSModule") {
-      // Add Module Init Header, this has to done because of hoisting...
-      startBB.args = [new JSModuleStartSEXP(),...startBB.args];
-    }
-
     this.saveGeneratedFile();
   }
 
@@ -294,7 +299,8 @@ export class IRIDIUMV2 {
       // Ensure no intermediate contexts
       if (intermediateContexts.length > 0) throw new Error("Top level return not expected to be wrapped inside intermediate contexts");
       // Ensure script mode code
-      if (buildContext.isModule === true) throw new Error("Expected async returns in module top level code...");
+      if (buildContext.isModule === true) {
+        throw new Error("Expected async returns in module top level code...");}
     }
     if (startBB.isClosureBoundary()) return [buildContext, intermediateContexts];
 
@@ -427,6 +433,7 @@ export class IRIDIUMV2 {
       || isJSDefineObjPropSEXP(currSEXP) 
       || isJSDefineObjMethodSEXP(currSEXP)
       || isJSToObjectSEXP(currSEXP)
+      || isJSImplicitBindingDeclarationSEXP(currSEXP)
     ) {
       if (!buildContext) throw new Error("buildContext is undefined");
       if (!buildContext.isStrict) {
@@ -472,6 +479,7 @@ export class IRIDIUMV2 {
         let s = currSEXP.args[i];
         if (isReturnSEXP(s)) {
           if (currSEXP.isTopLevel()) continue;
+          if (s.isModuleEarlyReturn()) continue;
           let [target, ] = this.findReturnTarget(currSEXP.getScopeIDX());
           if (target.isAsync || target.isGenerator) {
             currSEXP.args[i] = new ReturnAsyncSEXP(s.args[0]);
@@ -495,6 +503,7 @@ export class IRIDIUMV2 {
         let s = currSEXP.args[i];
         if (isReturnSEXP(s)) {
           if (currSEXP.isTopLevel()) continue;
+          if (s.isModuleEarlyReturn()) continue;
           let [target, intermediateContexts] = this.findReturnTarget(currSEXP.getScopeIDX());
           s.setFlag(`Depth[${intermediateContexts.length}]`);
           decoratorMap.set(currSEXP.args[i], intermediateContexts);
@@ -785,6 +794,8 @@ export class IRIDIUMV2 {
         const contextualInit: Array<[string, IridiumSEXP, JSEnvBindingFlags]> = [];
         const staticModuleImports: Array<StaticImportSEXP> = [];
 
+        const implicitBindings: Set<JSImplicitBindingDeclarationSEXP> = new Set();
+
         // Identify bindings
         for (let bb of bbContainer.getBBs()) {
           if (isBBSEXP(bb)) {
@@ -795,6 +806,10 @@ export class IRIDIUMV2 {
             if (!hoistingInfo.has(parentClosureScope)) hoistingInfo.set(parentClosureScope, new Array());
 
             for (let stmt of bb.args) {
+
+              if (isJSImplicitBindingDeclarationSEXP(stmt)) {
+                implicitBindings.add(stmt);
+              }
 
               if (isStarExportSEXP(stmt)) {
                 staticStarExports.args.push(stmt);
@@ -838,67 +853,6 @@ export class IRIDIUMV2 {
                 const hoistingInfoList = hoistingInfo.get(localScope);
                 if (!hoistingInfoList) throw new Error("hoistingInfoList is undefined");
                 hoistingInfoList.push([[stmt.getBindingName()], "JSLET"]);
-              }
-
-              if (isJSThisContextAltSEXP(stmt)) {
-                contextualInit.push(["this", new EnvWriteSEXP("this", new JSNUBDSEXP(), true, false), "JSCONST"]);
-                if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                const toRemoveList = toRemove.get(bb);
-                if (!toRemoveList) throw new Error("toRemoveList is undefined");
-                toRemoveList.add(stmt);
-              }
-
-              if (isJSThisContextSEXP(stmt)) {
-                contextualInit.push(["this", new JSTHISINITSEXP(new ResolveEnvBindingSEXP("this")),"JSCONST"]);
-                if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                const toRemoveList = toRemove.get(bb);
-                if (!toRemoveList) throw new Error("toRemoveList is undefined");
-                toRemoveList.add(stmt);
-              }
-
-              if (isJSModuleMetaSEXP(stmt)) {
-                contextualInit.push(["<module_meta>", new JSMODULEMETAINITSEXP(new ResolveEnvBindingSEXP("<module_meta>")),"JSCONST"]);
-                if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                const toRemoveList = toRemove.get(bb);
-                if (!toRemoveList) throw new Error("toRemoveList is undefined");
-                toRemoveList.add(stmt);
-              }
-
-              if (isJSScriptReturnSEXP(stmt)) {
-                contextualInit.push(["<ret>", new EnvWriteSEXP("<ret>", new EnvReadSEXP("undefined"), true, false),"JSVAR"]);
-                if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                const toRemoveList = toRemove.get(bb);
-                if (!toRemoveList) throw new Error("toRemoveList is undefined");
-                toRemoveList.add(stmt);
-              }
-
-              // Super context: add "<super_ctr>", "<new_target>" and "<super_obj>"
-              if (isJSSuperContextSEXP(stmt)) {
-                contextualInit.push(["<super_ctr>", new JSSUPERCTRINITSEXP(new ResolveEnvBindingSEXP("<super_ctr>")),"JSCONST"]);
-                contextualInit.push(["<new_target>", new JSNEWTARGETINITSEXP(new ResolveEnvBindingSEXP("<new_target>")),"JSCONST"]);
-                contextualInit.push(["<super_obj>", new JSSUPEROBJINITSEXP(new ResolveEnvBindingSEXP("<super_obj>")),"JSCONST"]);
-                if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                const toRemoveList = toRemove.get(bb);
-                if (!toRemoveList) throw new Error("toRemoveList is undefined");
-                toRemoveList.add(stmt);
-              }
-
-              // Super context: add "<super_obj>"
-              if (isJSSuperObjContextSEXP(stmt)) {
-                contextualInit.push(["<super_obj>", new JSSUPEROBJINITSEXP(new ResolveEnvBindingSEXP("<super_obj>")),"JSCONST"]);
-                if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                const toRemoveList = toRemove.get(bb);
-                if (!toRemoveList) throw new Error("toRemoveList is undefined");
-                toRemoveList.add(stmt);
-              }
-
-              // Super context: add "<home_obj>"
-              if (isJSHomeObjContextSEXP(stmt)) {
-                contextualInit.push(["<home_obj>", new JSHOMEOBJSEXP(new ResolveEnvBindingSEXP("<home_obj>")),"JSCONST"]);
-                if (!toRemove.has(bb)) toRemove.set(bb, new Set());
-                const toRemoveList = toRemove.get(bb);
-                if (!toRemoveList) throw new Error("toRemoveList is undefined");
-                toRemoveList.add(stmt);
               }
 
               // Function Declaration
@@ -982,7 +936,19 @@ export class IRIDIUMV2 {
         let i = 0, j = 0;
         const bindingsSEXP = new BindingsSEXP(bbContainerParentScopeIDX);
 
+        // Scope bindings that will not be initialized implicitly by the codegen
         const toSkipInit: Set<IridiumSEXP> = new Set();
+
+        // Add implicit bindings
+        for (const stmt of implicitBindings) {
+          const name = stmt.getName();
+          const kind = stmt.getKind();
+          const skipInit = stmt.isSkipInit();
+          const binding = new EnvBindingSEXP(i++, bbContainerScopeIDX, name, [[kind, null]], bbContainerScopeIDX, bbContainerParentScopeIDX);
+          bindingsSEXP.addLocalBinding(binding);
+          if (skipInit) toSkipInit.add(binding);
+        }
+
 
         for (let [name, ,kind] of contextualInit) {
           const binding = new EnvBindingSEXP(i++, bbContainerScopeIDX, name, [[kind, null]], bbContainerScopeIDX, bbContainerParentScopeIDX);
@@ -1046,8 +1012,7 @@ export class IRIDIUMV2 {
           let binding = new EnvBindingSEXP(i++, bbContainerScopeIDX, bindingName, flags, bbContainerScopeIDX, bbContainerParentScopeIDX);
           bindingsSEXP.addLocalBinding(binding);
 
-          let stmt: IridiumSEXP;
-          stmt = buildContext.argumentsKind === 1 ? new JSMARGUMENTSINITSEXP(bindingName) : new JSARGUMENTSINITSEXP(bindingName);
+          let stmt = new JSImplicitBindingDeclarationSEXP(bindingName, "JSVAR", buildContext.argumentsKind === 1 ? 1 : 0);
 
           let startBB = buildContext.BB[0];
           startBB.args = [stmt,...startBB.args]
@@ -1126,8 +1091,10 @@ export class IRIDIUMV2 {
         }
 
         for (let [name, kind] of sloppyDeclarations) {
-          let startBB = topLevelContext.BB[0];
-          startBB.args = [new JSSloppyDeclarationCheckSEXP(name, kind), ...startBB.args];
+          if (kind === "JSLET" || kind === "JSCONST" || kind === "JSVAR") {
+            let startBB = topLevelContext.BB[0];
+            startBB.args = [new JSSloppyDeclarationCheckSEXP(name, kind), ...startBB.args];
+          } else throw new Error("The declaration kind for SloppyDeclarationCheck is invalid!!!");
         }
 
         // Prefix contextual init statements
