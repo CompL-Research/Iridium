@@ -5,9 +5,8 @@ import { generateJS3ArrayExpressionfromBaseNode } from "../JS3Helpers/JS3Constru
 import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJS3ArrowFunctionExpression, isJS3AssignmentExpression, isJS3AssnObjectProperty, isJS3AwaitExpression, isJS3BinaryExpression, isJS3CallExpression, isJS3ClassExpression, isJS3ClassMethod, isJS3ClassPrivateMethod, isJS3ClassPrivateProperty, isJS3ClassProperty, isJS3ConditionalExpression, isJS3ContextualCallExpression, isJS3FunctionExpression, isJS3Import, isJS3MemberExpression, isJS3MetaProperty, isJS3NewExpression, isJS3ObjectExpression, isJS3ObjectMethod, isJS3ObjectPattern, isJS3ObjectProperty, isJS3PrivateName, isJS3RegExpLiteral, isJS3RestElement, isJS3SpreadElement, isJS3StaticBlock, isJS3TemplateLiteral, isJS3UnaryExpression, isJS3UpdateExpression, isJS3VariableDeclaration, isJS3YieldExpression, JS3ArrayExpression, JS3ArrayPattern_elements, JS3ArrowFunctionExpression, JS3AssignmentExpression, JS3AssnInit, JS3AwaitExpression, JS3BlockStatement_body, JS3CallExpression, JS3ClassExpression, JS3ClassMethod, JS3ClassPrivateMethod, JS3ClassPrivateProperty, JS3ClassProperty, JS3ConditionalExpression, JS3ContainedExprKey, JS3ContextualCallExpression, JS3FunctionExpression, JS3NewExpression, JS3ObjectExpression, JS3ObjectMethod, JS3ObjectPattern_properties, JS3RestElement, JS3UnaryExpression, JS3UpdateExpression, JS3YieldExpression } from "../JS3Helpers/JS3Types";
 import { funArgLength, handleBlockStatement, IRIV2_STMT, lowerArgumentInit } from "./handleStatement";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
-import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSEnvWriteSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSHomeObjContextSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperContextSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSSuperObjContextSEXP, JSTemplateSEXP, JSThisContextAltSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveContinueTargetSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, UnopSEXP, YieldSEXP } from "./Types";
 
-import { GlobalBindingSEXP, IridiumSEXP, ListSEXP, ResolveEnvBindingSEXP, StringSEXP } from "./Types/index";
+import { GlobalBindingSEXP, IridiumSEXP, ListSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, StringSEXP, UNOPDelMemberExprSEXP, UNOPDelVarSEXP, getPropInitDerivedPrivateClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getDerivedMethodClosureFlag, getRegularClosureFlag, NullSEXP, AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSEnvWriteSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSHomeObjContextSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperContextSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSSuperObjContextSEXP, JSTemplateSEXP, JSThisContextAltSEXP, JSThisContextSEXP, JSToObjectSEXP, LambdaSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ReturnAsyncSEXP, ReturnSEXP, UnopSEXP, YieldSEXP } from "./Types/index";
 
 // Handle RValues | AMP
 export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
@@ -384,29 +383,15 @@ const handleUnaryExpression = (cx: IRIDIUMV2, node: JS3UnaryExpression): Iridium
   if (node.operator === "delete") {
 
     if (isJS3MemberExpression(node.argument)) {
-      const elems: Array<IridiumSEXP> = [];
-
       const receiver = node.argument.object;
       const property = node.argument.property;
 
       if (!isIdentifier(receiver)) throw new Error("Expected receiver to be an identifier");
       if (!isIdentifier(property)) throw new Error("Expected property to be an identifier");
 
-      elems.push(IRIV2_RVAL(cx, receiver));
-      if (node.argument.computed) {
-        elems.push(IRIV2_RVAL(cx, property));
-      } else {
-        elems.push(new StringSEXP(property.name));
-      }
-
-      const listSexp = new ListSEXP(elems);
-      listSexp.setFlag("UNOP_DEL_MEMBEREXPR");
-
-      return new UnopSEXP(node.operator, listSexp);
+      return new UnopSEXP(node.operator, new UNOPDelMemberExprSEXP(IRIV2_RVAL(cx, receiver), node.argument.computed ? IRIV2_RVAL(cx, property) : new StringSEXP(property.name)));
     } else if (isIdentifier(node.argument)) {
-      const listSexp = new ListSEXP([new StringSEXP(node.argument.name)]);
-      listSexp.setFlag("UNOP_DEL_VAR");
-      return new UnopSEXP(node.operator, listSexp);
+      return new UnopSEXP(node.operator, new UNOPDelVarSEXP(node.argument.name));
     }
 
     throw new Error("TODO: unary delete operator")
@@ -611,7 +596,7 @@ const lowerStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, privat
 
 // This method lowers code for initialization of non-static fields
 const createClassNonStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>, privateMapping: null | Map<string, string>, hasSuper: boolean, addBrand: boolean) => {
-  const location = cx.js3Builder.utils.getNewTemporary(undefined);
+  const location = cx.js3Builder.utils.getNewTemporary("PropInitClosure");
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   funcContext.privateMapping = privateMapping;
   const funBBIdx = funcContext.getCurrentBB().idx;
@@ -686,7 +671,7 @@ const createClassNonStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpres
 
 // This method lowers code for initialization of non-static fields
 const createClassStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>, privateMapping: null | Map<string, string>, hasSuper: boolean) => {
-  const location = cx.js3Builder.utils.getNewTemporary(undefined);
+  const location = cx.js3Builder.utils.getNewTemporary("StaticPropInitClosure");
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   funcContext.privateMapping = privateMapping;
   const funBBIdx = funcContext.getCurrentBB().idx;
