@@ -794,7 +794,6 @@ export class IRIDIUMV2 {
         const sloppyDeclarations: Array<[string, JSEnvBindingFlags]> = [];
         const hoistingInfo = new Map<number, Array<[Array<string>, JSEnvBindingFlags]>>();
         const toRemove: Map<BBSEXP, Set<IridiumSEXP>> = new Map();
-        const contextualInit: Array<[string, IridiumSEXP, JSEnvBindingFlags]> = [];
         const staticModuleImports: Array<StaticImportSEXP> = [];
 
         const implicitBindings: Set<JSImplicitBindingDeclarationSEXP> = new Set();
@@ -952,13 +951,6 @@ export class IRIDIUMV2 {
           if (skipInit) toSkipInit.add(binding);
         }
 
-
-        for (let [name, ,kind] of contextualInit) {
-          const binding = new EnvBindingSEXP(i++, bbContainerScopeIDX, name, [[kind, null]], bbContainerScopeIDX, bbContainerParentScopeIDX);
-          bindingsSEXP.addLocalBinding(binding);
-          toSkipInit.add(binding);
-        }
-
         if (buildContext.moduleRequestMap) {
           // Initialize Module Imports 
           if (bbContainerScopeIDX !== 0) throw new Error("Expected module imports only to be resolved for the top level container with scopeIDX 0");
@@ -1099,13 +1091,6 @@ export class IRIDIUMV2 {
             startBB.args = [new JSSloppyDeclarationCheckSEXP(name, kind), ...startBB.args];
           } else throw new Error("The declaration kind for SloppyDeclarationCheck is invalid!!!");
         }
-
-        // Prefix contextual init statements
-        for (let [, stmt] of contextualInit) {
-          let startBB = buildContext.BB[0];
-          startBB.args = [stmt,...startBB.args]
-        }
-
         
         bbContainer.setBindings(bindingsSEXP);
       } else throw new Error("Expected BBContainerSEXP");
