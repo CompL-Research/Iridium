@@ -5,8 +5,7 @@ import { VERSION } from "../../../configs/projectStats";
 import JS3Builder from "../JS3Builder";
 import { JS3Program } from "../JS3Helpers/JS3Types";
 import { IRIV2_STMT } from "./handleStatement";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvReadSEXP, EnvWriteSEXP, getRegularClosureFlag, GotoSEXP, InvokeFinalizerSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvWriteSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSEnvWriteSEXP, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSModuleMetaSEXP, isJSScriptReturnSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isPoolBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, JSARGUMENTSINITSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSMARGUMENTSINITSEXP, JSModuleEndSEXP, JSMODULEMETAINITSEXP, JSModuleMetaSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSScriptReturnSEXP, JSSloppyDeclarationCheckSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSThisContextSEXP, JSTHISINITSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP } from "./Types";
-import { EnvBindingSEXP, FileSEXP, GlobalBindingSEXP, IridiumSEXP, isEnvBindingSEXP, isGlobalBindingSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isRemoteEnvBindingSEXP, isResolveEnvBindingSEXP, isStarExportSEXP, isStaticImportSEXP, isStringSEXP, JSEnvBindingFlags, ListSEXP, ModuleRequestSEXP, RemoteEnvBindingSEXP, ResolveEnvBindingSEXP, StaticImportSEXP } from "./Types/index";
+import { BindingsSEXP, EnvBindingSEXP, FileSEXP, GlobalBindingSEXP, IridiumSEXP, isBindingsSEXP, isEnvBindingSEXP, isGlobalBindingSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isStarExportSEXP, isStaticImportSEXP, isStringSEXP, JSEnvBindingFlags, ListSEXP, ModuleRequestSEXP, PoolBindingSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, StaticImportSEXP, BBContainerSEXP, BBSEXP, BBSEXPFlags, getRegularClosureFlag, isBBContainerSEXP, isBBSEXP, JSThisContextSEXP, EnvReadSEXP, EnvWriteSEXP, GotoSEXP, InvokeFinalizerSEXP, isEnvWriteSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSEnvWriteSEXP, isJSFuncDeclSEXP, isJSHomeObjContextSEXP, isJSModuleMetaSEXP, isJSScriptReturnSEXP, isJSSuperContextSEXP, isJSSuperObjContextSEXP, isJSThisContextAltSEXP, isJSThisContextSEXP, isLambdaSEXP, isReturnSEXP, JSARGUMENTSINITSEXP, JSFuncDeclSEXP, JSHOMEOBJSEXP, JSIteratorCloseSEXP, JSMARGUMENTSINITSEXP, JSModuleEndSEXP, JSMODULEMETAINITSEXP, JSModuleMetaSEXP, JSModuleStartSEXP, JSNEWTARGETINITSEXP, JSNUBDSEXP, JSScriptReturnSEXP, JSSloppyDeclarationCheckSEXP, JSSUPERCTRINITSEXP, JSSUPEROBJINITSEXP, JSTHISINITSEXP, NOPSEXP, PopCatchContextSEXP, ReturnAsyncSEXP, ReturnSEXP, isJSToObjectSEXP } from "./Types/index";
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -420,10 +419,17 @@ export class IRIDIUMV2 {
       return;
     }
     let buildContext = IridiumBuildContext.CONTEXT_MAP.get(currBBScope);
-
-    if (isEnvWriteSEXP(currSEXP) || isJSEnvWriteSEXP(currSEXP) || isJSCopyDataPropertiesSEXP(currSEXP) || isJSAppendSEXP(currSEXP) || isJSDefineObjPropSEXP(currSEXP) || isJSDefineObjMethodSEXP(currSEXP)) {
+    if (
+      isEnvWriteSEXP(currSEXP) 
+      || isJSEnvWriteSEXP(currSEXP) 
+      || isJSCopyDataPropertiesSEXP(currSEXP) 
+      || isJSAppendSEXP(currSEXP) 
+      || isJSDefineObjPropSEXP(currSEXP) 
+      || isJSDefineObjMethodSEXP(currSEXP)
+      || isJSToObjectSEXP(currSEXP)
+    ) {
       if (!buildContext) throw new Error("buildContext is undefined");
-      if (!buildContext.isStrict && isGlobalBindingSEXP(currSEXP.args[0])) {
+      if (!buildContext.isStrict) {
         currSEXP.markSloppy();
       }
     }
@@ -749,9 +755,15 @@ export class IRIDIUMV2 {
     if (!buildContext) throw new Error("buildContext is undefined");
     const isModule = buildContext.isModule;
     const moduleRequests = new ListSEXP([]);
+    moduleRequests.setType("ModuleRequest");
+
     const staticImports = new ListSEXP([]);
+    staticImports.setType("StaticImport");
+
     const staticExports = new ListSEXP([]);
+    
     const staticStarExports = new ListSEXP([]);
+    staticStarExports.setType("StarExport");
 
     for (let bbContainer of fileSexp.args) {
       if (isBBContainerSEXP(bbContainer)) {
