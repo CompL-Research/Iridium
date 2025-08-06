@@ -126,6 +126,14 @@ export class ReturnSEXP extends IridiumSEXP {
     this.args.push(val);
   }
 
+  setModuleEarlyReturn() {
+    this.setFlag("ModuleEarlyReturn");
+  }
+
+  isModuleEarlyReturn() : boolean {
+    return this.hasFlag("ModuleEarlyReturn");
+  }
+
   toString(space?: number): string {
     return `${printIriSpace(space)}return ${this.args[0].toString(0)}`
   }
