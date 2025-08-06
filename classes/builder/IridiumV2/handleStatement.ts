@@ -5,7 +5,7 @@ import { handleArrayPatternAssignmentExpr, handleObjectPatternAssignmentExpr, IR
 
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks";
 import { handleAssignmentExpression as js3handleAssignmentExpression } from "../JS3Helpers/HandleExpression";
-import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSCatchContextSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSNUBDSEXP, JSThisContextSEXP, LambdaSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StarExportSEXP, StaticImportSEXP, ThrowSEXP, getConstructorClosureFlag } from "./Types/index";
+import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSCatchContextSEXP, JSEnvWriteFlags, JSEnvWriteSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSIteratorCloseSEXP, JSNUBDSEXP, LambdaSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StarExportSEXP, StaticImportSEXP, ThrowSEXP } from "./Types/index";
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   if (isJS3ImportDeclaration(stmt)) {
@@ -1145,7 +1145,7 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
 
   if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
-  cx.getCurrentBB().args.push(new JSThisContextSEXP());
+  cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9));
 
   for (const s of stmt.body.body) {
     IRIV2_STMT(cx, s);
