@@ -3,6 +3,9 @@ import { EnvWriteSEXP } from "./Environment";
 import { IridiumSEXP } from "./General";
 import { ListSEXP, NullSEXP } from "./Primitives";
 
+/**
+ * @group TSHelper
+ */
 export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
 
 /**
@@ -135,7 +138,7 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
 }
 
 /**
- * Allowed binding kinds for JSImplicitBindingDeclarations
+ * @group TSHelper
  */
 export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
 
@@ -301,7 +304,7 @@ export class JSImplicitBindingDeclarationSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Incomplete Binding Resolution
+ * @group Target Resolution
  * 
  * @description
  * 
@@ -354,7 +357,7 @@ export class ResolveEnvBindingSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Incomplete Binding Resolution
+ * @group Target Resolution
  * 
  * @description
  * 
@@ -394,7 +397,7 @@ export class ResolvePrivateEnvBindingSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Abstract Operations
+ * @group Target Resolution
  * 
  * @description
  * 
@@ -433,7 +436,7 @@ export class ResolveContinueTargetSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Abstract Operations
+ * @group Target Resolution
  * 
  * @description
  * 
