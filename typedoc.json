@@ -13,7 +13,8 @@
     "**/outputs/**",
     "**/playground/**",
     "**/temp/**",
-    "**/tests/**"
+    "**/tests/**",
+    "**/index.ts"
   ],
   "out": "docs",
   "plugin": ["typedoc-material-theme"],
