@@ -8,7 +8,7 @@ import { IridiumSEXP } from "./General";
 import { ListSEXP } from "./Primitives";
 
 /**
- * @group Environment
+ * @group TSHelper
  * 
  * @description
  * 
@@ -26,7 +26,7 @@ export type BBSEXPFlags = "TopLevel" | "ClosureBoundary" | "Lexical";
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Environment
+ * @group Sequential Instruction Block
  * 
  * @description
  * 
@@ -108,23 +108,58 @@ export class BBSEXP extends IridiumSEXP {
   }
 }
 
-
+/**
+ * @group TSHelper
+ */
 export const getRegularClosureFlag = () => 1;
+/**
+ * @group TSHelper
+ */
 export const getConstructorClosureFlag = () => 2;
+/**
+ * @group TSHelper
+ */
 export const getDerivedConstructorClosureFlag = () => 3;
+/**
+ * @group TSHelper
+ */
 export const getDerivedMethodClosureFlag = () => 4;
+/**
+ * @group TSHelper
+ */
 export const getPrivateMethodClosureFlag = () => 5;
+/**
+ * @group TSHelper
+ */
 export const getPropInitNoPrivateClosureFlag = () => 6;
+/**
+ * @group TSHelper
+ */
 export const getPropInitDerivedNoPrivateClosureFlag = () => 7;
+/**
+ * @group TSHelper
+ */
 export const getPropInitPrivateClosureFlag = () => 8;
+/**
+ * @group TSHelper
+ */
 export const getPropInitDerivedPrivateClosureFlag = () => 9;
+/**
+ * @group TSHelper
+ */
 export const getPrivateDerivedMethodClosureFlag = () => 10;
+/**
+ * @group TSHelper
+ */
 export const getStaticPropInitClosureFlag = () => 11;
+/**
+ * @group TSHelper
+ */
 export const getStaticPropInitDerivedClosureFlag = () => 12;
 
 
 /**
- * @group Environment
+ * @group TSHelper
  * 
  * @description
  * 
@@ -137,7 +172,7 @@ export type BBContainerSEXPFlags = "ARGUMENTS" | "ASYNC" | "GENERATOR" | "PROTO"
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Environment
+ * @group Logical Compilation Unit
  * 
  * @description
  * 
