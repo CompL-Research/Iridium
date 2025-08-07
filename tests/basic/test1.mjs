@@ -56,15 +56,21 @@
 
 // console.log(new B().foo());
 
-function foo() {
-  for (let i of [1,2,3]) {
-    console.log(i);
-    if (i === 2) return;
-  }
+// function foo() {
+//   for (let i of [1,2,3]) {
+//     console.log(i);
+//     if (i === 2) return;
+//   }
 
-  for (let i in [1,2,3]) {
-    console.log(i);
-  }
+//   for (let i in [1,2,3]) {
+//     console.log(i);
+//   }
+// }
+
+// foo();
+
+function foo() {
+  console.log("foo called");
 }
 
 foo();
