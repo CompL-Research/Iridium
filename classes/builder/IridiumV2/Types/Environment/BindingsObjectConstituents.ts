@@ -1,10 +1,10 @@
 import { printIriSpace } from "#utils";
-import { IridiumSEXP } from "../../General";
-import { isLambdaSEXP, LambdaSEXP } from "../../Primitives";
+import { IridiumSEXP } from "../General";
+import { isLambdaSEXP, LambdaSEXP } from "../Primitives";
 
 /**
  * 
- * @description
+ * @remarks
  * 
  * Flags indicating the kind of binding.
  */
@@ -17,7 +17,7 @@ export type JSEnvBindingFlags = "JSARG" | "JSRESTARG" | "JSLET" | "JSCONST" | "J
  * 
  * @group Local Binding
  * 
- * @description
+ * @remarks
  * 
  * EnvBinding represents an environment binding.
  * 
@@ -124,7 +124,7 @@ export class EnvBindingSEXP extends IridiumSEXP {
  * 
  * @group Remote Binding
  * 
- * @description
+ * @remarks
  * 
  * RemoteEnvBinding represents a reference to a remote binding (i.e. from an enclosing parent scope).
  * Its argument may contain nested {@link RemoteEnvBindingSEXP}, but it always terminates with a {@link EnvBindingSEXP}.
@@ -214,7 +214,7 @@ export class RemoteEnvBindingSEXP extends IridiumSEXP {
  * 
  * @group Remote Binding
  * 
- * @description
+ * @remarks
  * 
  * GlobalBinding represents a reference to a global binding (i.e. not declared in any declared scope).
  * 
@@ -254,7 +254,7 @@ export class GlobalBindingSEXP extends IridiumSEXP {
  * 
  * @group Local Binding
  * 
- * @description
+ * @remarks
  * 
  * PoolBinding represents a reference to a global binding (i.e. not declared in any declared scope).
  * 

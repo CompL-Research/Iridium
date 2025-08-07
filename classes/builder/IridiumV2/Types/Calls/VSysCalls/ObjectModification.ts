@@ -1,15 +1,15 @@
 import { printFlagString, printIriSpace } from "#utils";
-import { ResolveEnvBindingSEXP } from "../AbstractOperations";
-import { EnvReadSEXP } from "../Environment";
-import { IridiumSEXP } from "../General";
+import { ResolveEnvBindingSEXP } from "../../AbstractOperations/Resolution";
+import { EnvReadSEXP } from "../../Environment";
+import { IridiumSEXP } from "../../General";
 
 /**
  * 
  * @extends {IridiumSEXP}
  * 
- * @group JSArray Modification
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * Implements the `append` functionality from the ECMA spec.
  * It is currently being used to model the spread functionality when creating arrays.
@@ -134,14 +134,13 @@ export class JSAppendSEXP extends IridiumSEXP {
   }
 }
 
-
 /**
  * 
  * @extends {IridiumSEXP}
  * 
- * @group JSObject Modification
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * Given a JSObject, this call is used to define methods of different kinds on it.
  * 
@@ -291,9 +290,9 @@ export class JSDefineObjMethodSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group JSObject Modification
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * Given a JSObject, this call is used to define fields on it.
  * 
@@ -413,9 +412,9 @@ export class JSDefineObjPropSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group JSObject Modification
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * Used to copy properties from one object to another module the fields contained in the exclusion object.
  * 
@@ -531,7 +530,7 @@ export class JSCopyDataPropertiesSEXP extends IridiumSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isJSDefineObjPropSEXP(o: any): o is JSDefineObjPropSEXP {
   // @ts-ignore
@@ -539,7 +538,7 @@ export function isJSDefineObjPropSEXP(o: any): o is JSDefineObjPropSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isJSDefineObjMethodSEXP(o: any): o is JSDefineObjMethodSEXP {
   // @ts-ignore
@@ -547,7 +546,7 @@ export function isJSDefineObjMethodSEXP(o: any): o is JSDefineObjMethodSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isJSAppendSEXP(o: any): o is JSAppendSEXP {
   // @ts-ignore
@@ -555,7 +554,7 @@ export function isJSAppendSEXP(o: any): o is JSAppendSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isJSCopyDataPropertiesSEXP(o: any): o is JSCopyDataPropertiesSEXP {
   // @ts-ignore

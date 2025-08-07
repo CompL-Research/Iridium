@@ -1,14 +1,14 @@
 import { printFlagString, printIriSpace } from "#utils";
-import { ResolveEnvBindingSEXP } from "../AbstractOperations";
-import { IridiumSEXP } from "../General";
+import { ResolveEnvBindingSEXP } from "../../AbstractOperations/Resolution";
+import { IridiumSEXP } from "../../General";
 
 /**
  * 
  * @extends {IridiumSEXP}
  * 
- * @group JSObject Cast
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * Given an object, calls the `ToObject` ECMA abstract operation on it.
  * 
@@ -101,7 +101,7 @@ export class JSToObjectSEXP extends IridiumSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isJSToObjectSEXP(o: any): o is JSToObjectSEXP {
   // @ts-ignore

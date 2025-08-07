@@ -1,15 +1,15 @@
 import { printFlagString, printIriSpace } from "#utils";
-import { ResolveEnvBindingSEXP } from "../AbstractOperations";
-import { EnvReadSEXP } from "../Environment/index";
-import { IridiumSEXP } from "../General";
+import { ResolveEnvBindingSEXP } from "../../AbstractOperations/Resolution";
+import { EnvReadSEXP } from "../../Environment/index";
+import { IridiumSEXP } from "../../General";
 
 /**
  * 
  * @extends {IridiumSEXP}
  * 
- * @group For In Loop
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * For a given an object, this call stores it's For-In iterator in target.
  * 
@@ -91,9 +91,9 @@ export class JSForInStartSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group For In Loop
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * Given a For-In iterator, this call stores the loop-done indicator and loop-next object at doneTarget and nextValue respectively.
  * 
@@ -177,9 +177,9 @@ export class JSForInNextSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group For Of Loop
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * For a given an object, this call stores it's For-Of on the **stack**.
  * 
@@ -228,9 +228,9 @@ export class JSForOfStartSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group For Of Loop
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * Given a For-Of iterator context (this is implicit, three objects on stack, see {@link JSForOfStartSEXP}), this call stores the loop-done indicator and loop-next object at doneTarget and nextValue respectively.
  * 
@@ -313,9 +313,9 @@ export class JSForOfNextSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group For Of Loop
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * Marks the end of a for-of iterator loop context, the implicit values on the stack are popped by this call.
  * 
@@ -335,7 +335,7 @@ export class JSForOfIteratorCloseSEXP extends IridiumSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isJSForInStartSEXP(o: any): o is JSForInStartSEXP {
   // @ts-ignore
@@ -343,7 +343,7 @@ export function isJSForInStartSEXP(o: any): o is JSForInStartSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isJSForInNextSEXP(o: any): o is JSForInNextSEXP {
   // @ts-ignore
@@ -351,7 +351,7 @@ export function isJSForInNextSEXP(o: any): o is JSForInNextSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isJSForOfNextSEXP(o: any): o is JSForOfNextSEXP {
   // @ts-ignore

@@ -6,7 +6,7 @@ import { IridiumPrimitives, IridiumSEXP } from "./General";
  * 
  * @group Primitive
  * 
- * @description
+ * @remarks
  * 
  * Basic allowed types during codegen for homogenous lists in Iridium.
  * 
@@ -19,7 +19,7 @@ export type ListSEXPFlags = "ModuleRequest" | "StaticImport" | "StarExport" | "E
  * 
  * @group Primitive
  * 
- * @description
+ * @remarks
  * 
  * A generic List container. May contain homogenous or heterogenous elements.
  * 
@@ -52,7 +52,7 @@ export class ListSEXP extends IridiumSEXP {
  * 
  * @group Primitive
  * 
- * @description
+ * @remarks
  * 
  * A primitive string.
  * 

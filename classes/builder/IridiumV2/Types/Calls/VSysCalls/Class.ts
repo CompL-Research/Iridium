@@ -1,12 +1,12 @@
 import { printIriSpace } from "#utils";
-import { IridiumSEXP } from "../General";
+import { IridiumSEXP } from "../../General";
 /**
  * 
  * @extends {IridiumSEXP}
  * 
- * @group JSClass Add Brand
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * When instantiating an object of a JSClass, if the class happens to use private methods, 
  * we must register a brand (a unique symbol) with it.
@@ -67,9 +67,9 @@ export class JSADDBRANDSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group JSClass Constructor Check
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * Checks if the function (constructor in this case) was called using the `new` keyword.
  * If not, then it throws an error.

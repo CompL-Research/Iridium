@@ -1,5 +1,5 @@
 import { printIriSpace } from "#utils";
-import { ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP } from "../AbstractOperations";
+import { ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP } from "../AbstractOperations/Resolution";
 import { IridiumSEXP } from "../General";
 import { StringSEXP } from "../Primitives";
 import { EnvReadSEXP, isEnvReadSEXP } from "./PrimitiveEnvOps";
@@ -10,7 +10,7 @@ import { EnvReadSEXP, isEnvReadSEXP } from "./PrimitiveEnvOps";
  * 
  * @group Read
  * 
- * @description
+ * @remarks
  * 
  * Read a (dynamic) field from an object.
  * 
@@ -55,7 +55,7 @@ export class JSComputedFieldReadSEXP extends IridiumSEXP {
  * 
  * @group Write
  * 
- * @description
+ * @remarks
  * 
  * Write to a (dynamic) field of an object.
  * 
@@ -115,7 +115,7 @@ export class JSComputedFieldWriteSEXP extends IridiumSEXP {
  * 
  * @group Read
  * 
- * @description
+ * @remarks
  * 
  * Read a private field from an object.
  * 
@@ -157,7 +157,7 @@ export class JSPrivateFieldReadSEXP extends IridiumSEXP {
  * 
  * @group Write
  * 
- * @description
+ * @remarks
  * 
  * Write to a private field of an object.
  * 
@@ -211,7 +211,7 @@ export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
  * 
  * @group Read
  * 
- * @description
+ * @remarks
  * 
  * Read a field from `super`.
  * 
@@ -268,7 +268,7 @@ export class JSSuperFieldReadSEXP extends IridiumSEXP {
  * 
  * @group Write
  * 
- * @description
+ * @remarks
  * 
  * Write to field of `super`.
  * 

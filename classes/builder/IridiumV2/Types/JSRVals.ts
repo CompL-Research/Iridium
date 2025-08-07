@@ -8,7 +8,7 @@ import { LambdaSEXP, StringSEXP } from "./Primitives";
  * 
  * @group JSRVal
  * 
- * @description
+ * @remarks
  * 
  * An identifier which must not be resolved, this identifier name is used by the delete operator to delete the binding.
  * 
@@ -41,7 +41,7 @@ export class UNOPDelVarSEXP extends IridiumSEXP {
  * 
  * @group JSRVal
  * 
- * @description
+ * @remarks
  * 
  * An field reference which must not be resolved, this identifier and possibly computed field names are used by the delete operator to delete the binding.
  * 
@@ -153,7 +153,7 @@ export class JSNUBDSEXP extends IridiumSEXP {
  * 
  * @group JSRVal
  * 
- * @description
+ * @remarks
  * 
  * A JavaScript Class Object.
  * 

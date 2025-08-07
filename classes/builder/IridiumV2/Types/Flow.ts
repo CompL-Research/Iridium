@@ -1,5 +1,5 @@
 import { printIriSpace } from "#utils";
-import { isResolveEnvBindingSEXP, ResolveEnvBindingSEXP } from "./AbstractOperations";
+import { isResolveEnvBindingSEXP, ResolveEnvBindingSEXP } from "./AbstractOperations/Resolution";
 import { IridiumSEXP } from "./General";
 import { NullSEXP } from "./Primitives";
 

@@ -10,7 +10,7 @@ import { EnvBindingSEXP, isEnvBindingSEXP, isRemoteEnvBindingSEXP, JSEnvBindingF
  * 
  * @group Environment
  * 
- * @description
+ * @remarks
  * 
  * This object stores the bindings used in a logical stack frame.
  * The bindings may be local to the frame or may reference remote objects.

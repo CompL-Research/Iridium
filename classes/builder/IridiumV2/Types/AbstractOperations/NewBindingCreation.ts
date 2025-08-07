@@ -1,7 +1,8 @@
 import { printFlagString, printIriSpace } from "#utils";
-import { EnvWriteSEXP } from "./Environment";
-import { IridiumSEXP } from "./General";
-import { ListSEXP, NullSEXP } from "./Primitives";
+import { EnvWriteSEXP } from "../Environment";
+import { IridiumSEXP } from "../General";
+import { ListSEXP, NullSEXP } from "../Primitives";
+import { isResolveEnvBindingSEXP, ResolveEnvBindingSEXP } from "./Resolution";
 
 /**
  * @group TSHelper
@@ -12,13 +13,21 @@ export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Explicit Binding Creation
+ * @group AMP
  * 
- * @description
+ * @remarks
  * 
- * Top level declarations in **Sloppy** Mode are not stored on the stack frame, but instead become
- * fields of the global object.
- * This call is used to declare such fields.
+ * A JSWrite is used to either declare a new binding or perform assignment to an existing binding.
+ * After resolution, all JSWrites are reduced down to {@link EnvWriteSEXP} nodes.
+ * In case a new binding was declared, the resolution pass would end up finding the relevant scope,
+ * allocate space on the stack and take care of the initialization at scope start.
+ * After the initialization is done, all declarations can be basically reduced down to simple environment writes.
+ * The `SAFE`, `THISINIT` and `SLOPPY` flags are used to handle features like TDZ where writes/reads to a binding before
+ * its declaration is reached is invalid. Such restricted accesses to the environment are made explicit in Iridium.
+ * 
+ * #### Resolutions
+ * 
+ * - {@link Environment.EnvWriteSEXP}: A binding found in the immediate enclosing closure scope.
  * 
  * #### Structure
  * 
@@ -146,9 +155,9 @@ export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Implicit Binding Creation
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * JSImplicitBindingDecl is a way to add and initialize implicit bindings to an environment.
  * 
@@ -301,216 +310,14 @@ export class JSImplicitBindingDeclarationSEXP extends IridiumSEXP {
 }
 
 /**
- * 
- * @extends {IridiumSEXP}
- * 
- * @group Target Resolution
- * 
- * @description
- * 
- * ResolveEnvBinding is an abstract operation in the Iridium IR.
- * It indicates a reference to an unresolved identifier.
- * Upon resolution, this is replaced by its corresponding binding.
- * 
- * #### Resolutions
- * 
- * - {@link Environment.EnvBindingSEXP}: A binding found in the immediate enclosing closure scope.
- * - {@link Environment.RemoteEnvBindingSEXP}: A binding found in a non-parent closure scope (this is also the case for top-level bindings of a module).
- * - {@link Environment.GlobalBindingSEXP}: A binding not found in any declared scope, it is expected to be provided by the global environment.
- * 
- * #### Structure
- * 
- * - `FLAG(ASW)`: Always Safe Write. Bindings like argument bindings are declared as ASWs as writing to them is always safe in any scope.
- * 
- * - `FLAG(NAME)`: Binding name to resolve.
- * 
- */
-export class ResolveEnvBindingSEXP extends IridiumSEXP {
-  constructor(id: string) {
-    super("ResolveEnvBinding");
-    this.setName(id);
-  }
-
-  // Flags
-  markASW() {
-    this.setFlag("ASW");
-  }
-
-  isASW() {
-    return this.hasFlag("ASW");
-  }
-
-  setName(name: string) {
-    this.setFlag("NAME", name);
-  }
-
-  getName(): string {
-    return this.getFlagString("NAME");
-  }
-
-  getBindingName(): string {
-    return this.getName();
-  }
-}
-
-/**
- * 
- * @extends {IridiumSEXP}
- * 
- * @group Target Resolution
- * 
- * @description
- * 
- * ResolvePrivateEnvBinding is an abstract operation in the Iridium IR.
- * It indicates a reference to an unresolved private identifier reference.
- * 
- * #### Resolutions
- * 
- * - {@link EnvReadSEXP}: Environment Read that leads to a Private Symbol or a Private Closure object (lexical).
- * 
- * #### Structure
- * 
- * - `FLAG(NAME)`: Binding name to resolve.
- * 
- */
-export class ResolvePrivateEnvBindingSEXP extends IridiumSEXP {
-  constructor(id: string) {
-    super("ResolvePrivateEnvBinding");
-    this.setName(id);
-  }
-
-  // Flags
-  setName(name: string) {
-    this.setFlag("NAME", name);
-  }
-
-  getName(): string {
-    return this.getFlagString("NAME");
-  }
-
-  getBindingName(): string {
-    return this.getName();
-  }
-}
-
-/**
- * 
- * @extends {IridiumSEXP}
- * 
- * @group Target Resolution
- * 
- * @description
- * 
- * Represents an unresolved continue statement.
- * 
- * #### Resolutions
- * 
- * - {@link GotoSEXP}: An unconditional Goto.
- * 
- * #### Structure
- * 
- * - `FLAG(Label)`: Optional flag representing the target label.
- * 
- */
-export class ResolveContinueTargetSEXP extends IridiumSEXP {
-  constructor(label: string | null = null) {
-    super("ResolveContinueTarget");
-    if (label) this.setLabel(label);
-  }
-
-  // Args
-  hasLabel(): boolean {
-    return this.hasFlag("Label");
-  }
-
-  setLabel(label: string) {
-    this.setFlag("Label", label);
-  }
-
-  getLabel(): string {
-    return this.getFlagString("Label");
-  }
-}
-
-/**
- * 
- * @extends {IridiumSEXP}
- * 
- * @group Target Resolution
- * 
- * @description
- * 
- * Represents an unresolved break statement.
- * 
- * #### Resolutions
- * 
- * - {@link GotoSEXP}: An unconditional Goto.
- * 
- * #### Structure
- * 
- * - `FLAG(Label)`: Optional flag representing the target label.
- * 
- */
-export class ResolveBreakTargetSEXP extends IridiumSEXP {
-  constructor(label: string | null = null) {
-    super("ResolveBreakTarget");
-    if (label) this.setLabel(label);
-  }
-
-  // Args
-  hasLabel(): boolean {
-    return this.hasFlag("Label");
-  }
-
-  setLabel(label: string) {
-    this.setFlag("Label", label);
-  }
-
-  getLabel(): string {
-    return this.getFlagString("Label");
-  }
-}
-
-/**
- * @group TSHelper
- */
-export function isResolvePrivateEnvBindingSEXP(o: any): o is ResolvePrivateEnvBindingSEXP {
-  // @ts-ignore
-  return o.tag === "ResolvePrivateEnvBinding";
-}
-
-/**
- * @group TSHelper
- */
-export function isResolveBreakTargetSEXP(o: any): o is ResolveBreakTargetSEXP {
-  // @ts-ignore
-  return o.tag === "ResolveBreakTarget";
-}
-
-/**
- * @group TSHelper
- */
-export function isResolveContinueTargetSEXP(o: any): o is ResolveContinueTargetSEXP {
-  // @ts-ignore
-  return o.tag === "ResolveContinueTarget";
-}
-
-/**
- * @group TSHelper
- */
-export function isResolveEnvBindingSEXP(o: any): o is ResolveEnvBindingSEXP {
-  return o.tag === "ResolveEnvBinding";
-}
-
-/**
- * @group TSHelper
+ * @hidden
  */
 export function isJSImplicitBindingDeclarationSEXP(o: any): o is JSImplicitBindingDeclarationSEXP {
   return o.tag === "JSImplicitBindingDeclaration";
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isJSEnvWriteSEXP(o: any): o is JSEnvWriteSEXP {
   // @ts-ignore

@@ -1,4 +1,4 @@
-import { IridiumSEXP } from "../General";
+import { IridiumSEXP } from "../../General";
 
 /**
  * @group TSHelper
@@ -9,9 +9,9 @@ export type JSSloppyDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Sloppy Top Level Declarations
+ * @group STMT
  * 
- * @description
+ * @remarks
  * 
  * Top level declarations in **Sloppy** Mode are not stored on the stack frame, but instead become
  * fields of the global object.
@@ -53,7 +53,7 @@ export class JSSloppyDeclarationCheckSEXP extends IridiumSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isJSSloppyDeclarationCheckSEXP(o: any): o is JSSloppyDeclarationCheckSEXP {
   // @ts-ignore

@@ -1,6 +1,6 @@
-import { ResolveEnvBindingSEXP } from "./AbstractOperations";
-import { IridiumPrimitives, IridiumSEXP } from "./General";
-import { ListSEXP } from "./Primitives";
+import { ResolveEnvBindingSEXP } from "../AbstractOperations/Resolution";
+import { IridiumPrimitives, IridiumSEXP } from "../General";
+import { ListSEXP } from "../Primitives";
 
 /**
  * Top level container for script mode JS code.
@@ -56,7 +56,7 @@ export class FileSEXP extends IridiumSEXP {
  *
  * @group JSModuleExtensions
  * 
- * @description
+ * @remarks
  * 
  * A module may request to load several modules or a single module several times.
  * Whenever this happens a unique ModuleRequest is created.
@@ -109,7 +109,7 @@ export class ModuleRequestSEXP extends IridiumSEXP {
  * 
  * @group JSModuleExtensions
  * 
- * @description
+ * @remarks
  * 
  * Represents a static import expression (`StaticImportSEXP`) in Iridium IR.
  *
@@ -171,7 +171,7 @@ export class StaticImportSEXP extends IridiumSEXP {
  * 
  * @group JSModuleExtensions
  * 
- * @description
+ * @remarks
  * 
  * Represents a local export.
  * 
@@ -232,7 +232,7 @@ export class LocalStaticExportSEXP extends IridiumSEXP {
  * 
  * @group JSModuleExtensions
  * 
- * @description
+ * @remarks
  * 
  * Represents a named re-export of the form.
  * 
@@ -279,7 +279,7 @@ export class NamedReexportSEXP extends IridiumSEXP {
  * 
  * @group JSModuleExtensions
  * 
- * @description
+ * @remarks
  * 
  * Represents a direct re-export of the form.
  * 

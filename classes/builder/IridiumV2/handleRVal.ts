@@ -778,7 +778,7 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
     const args: Array<IridiumSEXP> = [];
     args.push(new EnvReadSEXP("this"));
     args.push(new EnvReadSEXP(propInitClos));
-    cx.getCurrentBB().args.push(new CallSiteSEXP(args, [["CCall", null]]));
+    cx.getCurrentBB().args.push(new CallSiteSEXP(args, "CCall"));
 
     // Lower constructor code if it exists
     if (constructor) {
@@ -829,7 +829,7 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
       const args: Array<IridiumSEXP> = [];
       args.push(new EnvReadSEXP("<super_ctr>"));
       args.push(new EnvReadSEXP("<new_target>"));
-      const superCall = new CallSiteSEXP(args, [["Super", null]]);
+      const superCall = new CallSiteSEXP(args, "Super");
       const thisInit = new EnvWriteSEXP("this", superCall, false, true); // <- This is about the only place where we set THISINIT flag to true
       cx.getCurrentBB().args.push(thisInit);
 
@@ -837,7 +837,7 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
       const args1: Array<IridiumSEXP> = [];
       args1.push(new EnvReadSEXP("this"));
       args1.push(new EnvReadSEXP(propInitClos));
-      cx.getCurrentBB().args.push(new CallSiteSEXP(args1, [["CCall", null]]));
+      cx.getCurrentBB().args.push(new CallSiteSEXP(args1, "CCall"));
     } else {
 
       if (isJS3ClassMethod(constructor)) {
@@ -864,7 +864,7 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
               const args1: Array<IridiumSEXP> = [];
               args1.push(new EnvReadSEXP("this"));
               args1.push(new EnvReadSEXP(propInitClos));
-              cx.getCurrentBB().args.push(new CallSiteSEXP(args1, [["CCall", null]]));
+              cx.getCurrentBB().args.push(new CallSiteSEXP(args1, "CCall"));
             } else throw new Error("Expected Super call result to be stored inside an identifier");
           }
         }
@@ -1145,11 +1145,11 @@ const handleNewExpression = (cx: IRIDIUMV2, node: JS3NewExpression) => {
     }
   }
   if (isIdentifier(node.callee)) {
-    return new CallSiteSEXP(args, [["ConstructorCall", null]]);
+    return new CallSiteSEXP(args, "ConstructorCall");
   } else if (isSuper(node.callee)) {
-    return new CallSiteSEXP(args, [["Super", null], ["ConstructorCall", null]]);
+    return new CallSiteSEXP(args, "Super");
   } else if (isV8IntrinsicIdentifier(node.callee)) {
-    return new CallSiteSEXP(args, [["V8Intrinsic", null], ["ConstructorCall", null]]);
+    return new CallSiteSEXP(args, "V8Intrinsic");
   }
   throw new Error("New Call Expression Unreachable Case...");
 }
@@ -1208,13 +1208,13 @@ const handleCallExpression = (cx: IRIDIUMV2, node: JS3CallExpression) => {
     }
   }
   if (isIdentifier(node.callee)) {
-    return new CallSiteSEXP(args, []);
+    return new CallSiteSEXP(args);
   } else if (isJS3Import(node.callee)) {
-    return new CallSiteSEXP(args, [["Import", null]]);
+    return new CallSiteSEXP(args, "Import");
   } else if (isSuper(node.callee)) {
-    return new CallSiteSEXP(args, [["Super", null]]);
+    return new CallSiteSEXP(args, "Super");
   } else if (isV8IntrinsicIdentifier(node.callee)) {
-    return new CallSiteSEXP(args, [["V8Intrinsic", null]]);
+    return new CallSiteSEXP(args, "V8Intrinsic");
   }
   throw new Error("Call Expression Unreachable Case...");
 }
@@ -1235,7 +1235,7 @@ const handleContextualCallExpression = (cx: IRIDIUMV2, node: JS3ContextualCallEx
         args.push(lowerExprToResolveEnvBindingSEXP(cx, a));
       }
     }
-    return new CallSiteSEXP(args, [["PrivateCall", null]]);
+    return new CallSiteSEXP(args, "PrivateCall");
   }
 
   // Non private call cases
@@ -1270,7 +1270,7 @@ const handleContextualCallExpression = (cx: IRIDIUMV2, node: JS3ContextualCallEx
       args.push(lowerExprToResolveEnvBindingSEXP(cx, a));
     }
   }
-  return new CallSiteSEXP(args, [["CCall", null]]);
+  return new CallSiteSEXP(args, "CCall");
 }
 
 const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
