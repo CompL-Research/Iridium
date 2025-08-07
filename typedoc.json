@@ -2,6 +2,7 @@
   "entryPoints": ["./classes/builder/IridiumV2/Types"],
   "entryPointStrategy": "expand",
   "categorizeByGroup": true,
+  "readme": "./classes/builder/IridiumV2/Types/README.md",
   "exclude": [
     "**/vscode/**",
     "**/deprecated/**",
@@ -20,5 +21,6 @@
   "plugin": ["typedoc-material-theme"],
   "tsconfig": "./tsconfig.json",
   "themeColor": "#cb9820",
-  "includeVersion": true
+  "includeVersion": true,
+  "customCss": "typedoc-hide-nav-projTitle.css"
 }
