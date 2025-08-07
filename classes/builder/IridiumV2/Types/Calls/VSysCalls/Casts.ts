@@ -1,6 +1,6 @@
 import { printFlagString, printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP } from "../../AbstractOperations/Resolution";
-import { IridiumSEXP } from "../../General";
+import { IridiumSEXP } from "../../Structural/General";
 
 /**
  * 

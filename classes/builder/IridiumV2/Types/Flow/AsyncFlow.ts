@@ -1,7 +1,43 @@
 import { printIriSpace } from "#utils";
-import { ResolveEnvBindingSEXP } from "./AbstractOperations/Resolution";
-import { EnvReadSEXP } from "./Environment";
-import { IridiumSEXP } from "./General";
+import { ResolveEnvBindingSEXP } from "../AbstractOperations";
+import { EnvReadSEXP } from "../Environment";
+import { IridiumSEXP } from "../Structural/General";
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group Thread Pause
+ * 
+ * @remarks
+ * 
+ * `await` is used to await the completion of an asynchronous function.
+ * 
+ * ```
+ * async foo() {
+ *  // An asynchronous function
+ * }
+ * 
+ * async bar() {
+ *   let res = await foo(); // await is used to pause the flow until an asynchronous function returns
+ * }
+ * ```
+ * 
+ * #### Structure
+ * 
+ * - `ARG(obj)`: An object, likely a promise returned by an asynchronous function.
+ * 
+ */
+export class AwaitSEXP extends IridiumSEXP {
+  constructor(arg: string) {
+    super("Await");
+    this.args.push(new EnvReadSEXP(arg));
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}AWAIT ${this.args[0].toString(0)}`;
+  }
+}
 
 export class YieldSEXP extends IridiumSEXP {
   constructor(arg: string, yieldReturnIndicator: string, yieldReturnResultHolder: string) {

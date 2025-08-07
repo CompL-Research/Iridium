@@ -1,7 +1,7 @@
 import { printIriSpace } from "#utils";
 import { IridiumBuildContext } from "../../IRIDIUMV2";
-import { IridiumSEXP } from "../General";
-import { ListSEXP } from "../Primitives";
+import { IridiumSEXP } from "../Structural/General";
+import { ListSEXP } from "../RVAL/Primitives";
 import { EnvBindingSEXP, isEnvBindingSEXP, isRemoteEnvBindingSEXP, JSEnvBindingFlags, PoolBindingSEXP, RemoteEnvBindingSEXP } from "./BindingsObjectConstituents";
 
 /**
@@ -211,5 +211,3 @@ export function isBindingsSEXP(o: any): o is BindingsSEXP {
   // @ts-ignore
   return o.tag === "Bindings";
 }
-
-export * from "./BindingsObjectConstituents";

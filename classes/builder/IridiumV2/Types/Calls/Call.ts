@@ -1,5 +1,5 @@
 import { printFlagString, printIriSpace } from "#utils";
-import { IridiumPrimitives, IridiumSEXP } from "../General";
+import { IridiumPrimitives, IridiumSEXP } from "../Structural/General";
 
 /**
  * 

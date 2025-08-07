@@ -1,5 +1,5 @@
 import { printIriSpace } from "#utils";
-import { IridiumPrimitives, IridiumSEXP } from "./General";
+import { IridiumPrimitives, IridiumSEXP } from "../Structural/General";
 
 
 /**
@@ -192,6 +192,14 @@ export class LambdaSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     return `${printIriSpace(space)}λ[${this.getStartBBIDX()}]`
+  }
+}
+
+
+// (Primitive) NOP
+export class NOPSEXP extends IridiumSEXP {
+  constructor() {
+    super("NOP");
   }
 }
 

@@ -1,7 +1,7 @@
 import { printFlagString, printIriSpace } from "#utils";
 import { BindingsSEXP, isBindingsSEXP } from "../Environment";
-import { IridiumSEXP } from "../General";
-import { ListSEXP } from "../Primitives";
+import { IridiumSEXP } from "./General";
+import { ListSEXP } from "../RVAL/Primitives";
 import { BBSEXP } from "./BB";
 
 /**

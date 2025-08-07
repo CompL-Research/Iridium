@@ -1,6 +1,6 @@
 import { ResolveEnvBindingSEXP } from "../AbstractOperations/Resolution";
-import { IridiumPrimitives, IridiumSEXP } from "../General";
-import { ListSEXP } from "../Primitives";
+import { IridiumPrimitives, IridiumSEXP } from "./General";
+import { ListSEXP } from "../RVAL/Primitives";
 
 /**
  * Top level container for script mode JS code.

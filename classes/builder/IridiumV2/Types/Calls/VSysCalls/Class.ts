@@ -1,5 +1,5 @@
 import { printIriSpace } from "#utils";
-import { IridiumSEXP } from "../../General";
+import { IridiumSEXP } from "../../Structural/General";
 /**
  * 
  * @extends {IridiumSEXP}

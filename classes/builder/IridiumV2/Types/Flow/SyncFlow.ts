@@ -1,7 +1,7 @@
 import { printIriSpace } from "#utils";
-import { isResolveEnvBindingSEXP, ResolveEnvBindingSEXP } from "./AbstractOperations/Resolution";
-import { IridiumSEXP } from "./General";
-import { NullSEXP } from "./Primitives";
+import { isResolveEnvBindingSEXP, ResolveEnvBindingSEXP } from "../AbstractOperations/Resolution";
+import { IridiumSEXP } from "../Structural/General";
+import { NullSEXP } from "../RVAL/Primitives";
 
 export class JSCatchContextSEXP extends IridiumSEXP {
   constructor(val: string) {

@@ -1,5 +1,5 @@
 import { printFlagString, printIriSpace } from "#utils";
-import { IridiumPrimitives, IridiumSEXP } from "./General";
+import { IridiumSEXP } from "../Structural/General";
 import { LambdaSEXP, StringSEXP } from "./Primitives";
 
 /**
@@ -21,7 +21,7 @@ export class UNOPDelVarSEXP extends IridiumSEXP {
   constructor(name: string) {
     super("UNOPDelVar");
     this.setName(name);
-    
+
   }
 
   // Flags
@@ -279,7 +279,7 @@ export class JSClassSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     let res = [];
-    
+
     res.push(`${printIriSpace(space)}JSClass${printFlagString(this.flags)}`)
     if (!space) space = 8;
     res.push(`${printIriSpace(space + 2)}Name: ${this.getName().toString(0)}`)

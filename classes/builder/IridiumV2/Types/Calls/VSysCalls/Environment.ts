@@ -1,4 +1,4 @@
-import { IridiumSEXP } from "../../General";
+import { IridiumSEXP } from "../../Structural/General";
 
 /**
  * @group TSHelper

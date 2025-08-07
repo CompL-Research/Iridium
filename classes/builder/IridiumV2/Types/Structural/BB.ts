@@ -1,5 +1,5 @@
 import { printFlagString, printIriSpace } from "#utils";
-import { IridiumSEXP } from "../General";
+import { IridiumSEXP } from "./General";
 
 /**
  * @group TSHelper

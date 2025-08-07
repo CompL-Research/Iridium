@@ -1,7 +1,7 @@
 import { printFlagString, printIriSpace } from "#utils";
 import { EnvWriteSEXP } from "../Environment";
-import { IridiumSEXP } from "../General";
-import { ListSEXP, NullSEXP } from "../Primitives";
+import { IridiumSEXP } from "../Structural/General";
+import { ListSEXP, NullSEXP } from "../RVAL/Primitives";
 import { isResolveEnvBindingSEXP, ResolveEnvBindingSEXP } from "./Resolution";
 
 /**
@@ -127,6 +127,7 @@ export class JSEnvWriteSEXP extends IridiumSEXP {
     return this.hasFlag("JSVAR")
   }
 
+  // Utils
   reduceJSDecl() {
     this.tag = "EnvWrite";
     Object.setPrototypeOf(this, new EnvWriteSEXP("", new NullSEXP(), this.isSafe(), this.isThisInit()));
@@ -239,7 +240,6 @@ export class JSImplicitBindingDeclarationSEXP extends IridiumSEXP {
   }
 
   // Flags
-
   setName(name: string) {
     this.setFlag("NAME", name);
   }
@@ -307,6 +307,131 @@ export class JSImplicitBindingDeclarationSEXP extends IridiumSEXP {
   toString(space?: number): string {
     return `${printIriSpace(space)}JSImplicitBindingDeclaration ${printFlagString(this.flags)} ==> ${this.getStore().toString(0)} (${this.getArgs().args.length === 1 ? this.getArgs().args[0].toString(0) : ""})`;
   }
+}
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Declares a function available in the entire scope, there are no temporal dead zones for functions declared in this fashion.
+ * The hoisting pass moves this declaration to the top of the scope to achieve this.
+ * In most cases this will be reduced down to an EnvWrite.
+ * A special node is only needed in case of top level sloppy declarations.
+ * 
+ * #### Resolutions
+ * 
+ * - {@link Environment.EnvWriteSEXP}: A binding found in the immediate enclosing closure scope.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(lValTarget)`: The storage target location
+ * 
+ * - `ARG(rVal)`: The value to store (possible nothing, in case of just a declaration).
+ * 
+ * - `FLAG(JSLET | JSCONST | JSVAR)`: This is always gonna be JSVAR, just leaving it the same because of consistency sake.
+ * 
+ * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
+ * 
+ * - `FLAG(THISINIT)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
+ * 
+ * - `FLAG(SLOPPY)`: Indicates whether the writes to target locations is sloppy.
+ * 
+ */
+export class JSFuncDeclSEXP extends IridiumSEXP {
+  constructor(lval: IridiumSEXP, rval: IridiumSEXP) {
+    super("JSFuncDecl");
+    this.setLValTarget(lval);
+    this.setRVal(rval);
+    this.setSafe(true);
+    this.setThisInit(false);
+    this.setFlag("JSVAR");
+  }
+
+  // Args
+  setLValTarget(target: IridiumSEXP) {
+    this.args[0] = target;
+  }
+
+  getLValTarget(): IridiumSEXP {
+    return this.args[0];
+  }
+
+  setRVal(rval: IridiumSEXP) {
+    this.args[1] = rval;
+  }
+
+  getRVal(): IridiumSEXP {
+    return this.args[1];
+  }
+
+  // Flags
+  markSloppy() {
+    this.setFlag("SLOPPY");
+  }
+
+  isSloppy() {
+    return this.hasFlag("SLOPPY");
+  }
+
+  setThisInit(val: boolean) {
+    this.setFlag("THISINIT", val);
+  }
+
+  isThisInit(): boolean {
+    return this.getFlagBoolean("THISINIT")
+  }
+
+  setSafe(val: boolean) {
+    this.setFlag("SAFE", val);
+  }
+
+  isSafe(): boolean {
+    return this.getFlagBoolean("SAFE")
+  }
+  
+  isDecl() {
+    return true;
+  }
+
+  setSkipInit() {
+    this.setFlag("SKIPINIT");
+  }
+
+  isSkipInit(): boolean {
+    return this.hasFlag("SKIPINIT");
+  }
+
+  unsetSkipInit() {
+    this.removeFlag("SKIPINIT");
+  }
+
+  // Utils
+  reduceDecl() {
+    this.tag = "JSEnvWrite";
+    Object.setPrototypeOf(this, new JSEnvWriteSEXP(new NullSEXP(), null, "JSVAR",false));
+  }
+
+  toString(space?: number): string {
+    if (!space) space = 0;
+    let res = [];
+    res.push(`${printIriSpace(space)}${this.tag}`);
+    const args = this.args.map(e => e.toString(10));
+    res = [...res, ...args];
+    return res.join("\n");
+  }
+}
+
+
+/**
+ * @hidden
+ */
+export function isJSFuncDeclSEXP(o: any): o is JSFuncDeclSEXP {
+  // @ts-ignore
+  return o.tag === "JSFuncDecl";
 }
 
 /**

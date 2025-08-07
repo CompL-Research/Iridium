@@ -1,7 +1,7 @@
 import { printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP } from "../AbstractOperations/Resolution";
-import { IridiumSEXP } from "../General";
-import { StringSEXP } from "../Primitives";
+import { IridiumSEXP } from "../Structural/General";
+import { StringSEXP } from "../RVAL/Primitives";
 import { EnvReadSEXP, isEnvReadSEXP } from "./PrimitiveEnvOps";
 
 /**

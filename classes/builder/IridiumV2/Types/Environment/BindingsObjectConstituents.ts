@@ -1,6 +1,6 @@
 import { printIriSpace } from "#utils";
-import { IridiumSEXP } from "../General";
-import { isLambdaSEXP, LambdaSEXP } from "../Primitives";
+import { IridiumSEXP } from "../Structural/General";
+import { isLambdaSEXP, LambdaSEXP } from "../RVAL/Primitives";
 
 /**
  * 
