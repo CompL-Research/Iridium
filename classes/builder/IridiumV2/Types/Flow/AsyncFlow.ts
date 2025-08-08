@@ -7,7 +7,7 @@ import { IridiumSEXP } from "../Structural/General";
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Thread Pause
+ * @group RVAL
  * 
  * @remarks
  * 

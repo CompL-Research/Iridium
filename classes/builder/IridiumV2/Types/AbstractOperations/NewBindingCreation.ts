@@ -162,11 +162,15 @@ export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * JSImplicitBindingDecl is a way to add and initialize implicit bindings to an environment.
  * 
+ * - The bindings that are contained in square brackets are bindings introduced by Iridium, and do not map to any identifiers created by the user.
+ * 
+ * - The bindings `arguments` and `this` correspond to the actual bindings visible to user.
+ * 
  * #### Possible OPID's
  * 
- * 0. `arguments`: Declares and initializes the `arguments` object.
+ * 0. `arguments`: Declares and initializes the `arguments` object (see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments).
  * 
- * 1. `arguments`: Declares and initializes the **mapped** `arguments` object.
+ * 1. `arguments`: Declares and initializes the **mapped** `arguments` object (see: https://medium.com/@dozie22/arguments-object-in-javascript-cf8203d92ab7).
  * 
  * 2. `<this_func>`: Declares and initializes the `<this_func>` special object; the prototype of this object is used to call the `super` class constructor.
  * 
@@ -182,7 +186,7 @@ export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * 8. `<super_obj>`: Declares and stores the `super` at `<super_obj>`; takes (<home_obj>) as an argument.
  * 
- * 9. `this`: Declares and initializes the `this` object.
+ * 9. `this`: Declares and initializes the `this` object (see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this).
  * 
  * 10. `this`: Declares and initializes it to NUBD (this initialization is needed in constructor functions with heritage).
  * 
