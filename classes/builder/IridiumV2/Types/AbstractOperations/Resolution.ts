@@ -1,4 +1,6 @@
 import { IridiumSEXP } from "../Structural/General";
+import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, EnvReadSEXP } from "../Environment";
+import { GotoSEXP } from "../Flow";
 
 /**
  * 
@@ -14,9 +16,9 @@ import { IridiumSEXP } from "../Structural/General";
  * 
  * #### Resolutions
  * 
- * - {@link Environment.EnvBindingSEXP}: A binding found in the immediate enclosing closure scope.
- * - {@link Environment.RemoteEnvBindingSEXP}: A binding found in a non-parent closure scope (this is also the case for top-level bindings of a module).
- * - {@link Environment.GlobalBindingSEXP}: A binding not found in any declared scope, it is expected to be provided by the global environment.
+ * - {@link EnvBindingSEXP}: A binding found in the immediate enclosing closure scope.
+ * - {@link RemoteEnvBindingSEXP}: A binding found in a non-parent closure scope (this is also the case for top-level bindings of a module).
+ * - {@link GlobalBindingSEXP}: A binding not found in any declared scope, it is expected to be provided by the global environment.
  * 
  * #### Structure
  * 

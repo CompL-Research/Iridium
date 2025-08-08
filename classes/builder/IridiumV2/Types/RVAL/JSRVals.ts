@@ -49,7 +49,7 @@ export class UNOPDelVarSEXP extends IridiumSEXP {
  * 
  * - `ARG(receiver)`: {@link IridiumSEXP} referencing the receiver object.
  * 
- * - `ARG(field)`: {@link IridiumSEXP} if the field is computed, {@link Primitives.StringSEXP} otherwise.
+ * - `ARG(field)`: {@link IridiumSEXP} if the field is computed, {@link StringSEXP} otherwise.
  * 
  */
 export class UNOPDelMemberExprSEXP extends IridiumSEXP {

@@ -3,7 +3,6 @@ import { IridiumBuildContext } from "../../IRIDIUMV2";
 import { IridiumSEXP } from "../Structural/General";
 import { ListSEXP } from "../RVAL/Primitives";
 import { EnvBindingSEXP, isEnvBindingSEXP, isRemoteEnvBindingSEXP, JSEnvBindingFlags, PoolBindingSEXP, RemoteEnvBindingSEXP } from "./BindingsObjectConstituents";
-
 /**
  * 
  * @extends {IridiumSEXP}
@@ -101,7 +100,7 @@ export class BindingsSEXP extends IridiumSEXP {
    * 
    * @param name Identifier to lookup
    * @param lookupScope Current lookup scope
-   * @returns {@link EnvBindingSEXP} | {@link RemoteEnvBindingSEXP} | null
+   * @returns EnvBindingSEXP | RemoteEnvBindingSEXP | null
    */
   getBinding(name: string, lookupScope: number): EnvBindingSEXP | RemoteEnvBindingSEXP | null {
     if (lookupScope === -1) return null;
@@ -181,7 +180,7 @@ export class BindingsSEXP extends IridiumSEXP {
    * Given a {@link RemoteEnvBindingSEXP} it returns the effective resultant {@link EnvBindingSEXP}.
    * 
    * @param binding Name of the binding
-   * @returns {@link EnvBindingSEXP}
+   * @returns EnvBindingSEXP
    */
   resolveRemoteBinding(binding: RemoteEnvBindingSEXP): EnvBindingSEXP {
     let containedBinding = binding.args[0];

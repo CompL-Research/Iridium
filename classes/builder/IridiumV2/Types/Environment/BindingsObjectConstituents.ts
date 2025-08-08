@@ -27,7 +27,7 @@ export type JSEnvBindingFlags = "JSARG" | "JSRESTARG" | "JSLET" | "JSCONST" | "J
  * 
  * - `FLAG(ASW)`: Always Safe Write. Bindings like argument bindings are declared as ASWs as writing to them is always safe in any scope.
  * 
- * - `FLAG(JSARG | JSRESTARG | JSLET | JSCONST | JSVAR)`: A JS binding can be one of this type {@link}.
+ * - `FLAG(JSARG | JSRESTARG | JSLET | JSCONST | JSVAR)`: A JS binding can be one of this type {@link JSEnvBindingFlags}.
  * 
  * - `FLAG(IDX)`: A unique index is assigned to each binding.
  * 

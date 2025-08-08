@@ -27,7 +27,7 @@ export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * #### Resolutions
  * 
- * - {@link Environment.EnvWriteSEXP}: A binding found in the immediate enclosing closure scope.
+ * - {@link EnvWriteSEXP}: A binding found in the immediate enclosing closure scope.
  * 
  * #### Structure
  * 
@@ -324,7 +324,7 @@ export class JSImplicitBindingDeclarationSEXP extends IridiumSEXP {
  * 
  * #### Resolutions
  * 
- * - {@link Environment.EnvWriteSEXP}: A binding found in the immediate enclosing closure scope.
+ * - {@link EnvWriteSEXP}: A binding found in the immediate enclosing closure scope.
  * 
  * #### Structure
  * 
