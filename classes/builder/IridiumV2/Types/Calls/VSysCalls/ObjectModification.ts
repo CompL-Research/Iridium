@@ -7,12 +7,18 @@ import { IridiumSEXP } from "../../Structural/General";
  * 
  * @extends {IridiumSEXP}
  * 
- * @group STMT
+ * @group RVAL
+ * 
+ * @category TODO
  * 
  * @remarks
  * 
  * Implements the `append` functionality from the ECMA spec.
  * It is currently being used to model the spread functionality when creating arrays.
+ * 
+ * #### TODO Notes
+ * 
+ * Convert to RVal.
  * 
  * #### Action
  * 
@@ -138,11 +144,17 @@ export class JSAppendSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group STMT
+ * @group RVAL
+ * 
+ * @category TODO
  * 
  * @remarks
  * 
  * Given a JSObject, this call is used to define methods of different kinds on it.
+ * 
+ * #### TODO Notes
+ * 
+ * Convert to RVal.
  * 
  * #### Action
  * 
@@ -292,9 +304,15 @@ export class JSDefineObjMethodSEXP extends IridiumSEXP {
  * 
  * @group STMT
  * 
+ * @category TODO
+ * 
  * @remarks
  * 
  * Given a JSObject, this call is used to define fields on it.
+ * 
+ * #### TODO Notes
+ * 
+ * Convert to RVal.
  * 
  * #### Action
  * 
@@ -412,11 +430,17 @@ export class JSDefineObjPropSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group STMT
+ * @group RVAL
+ * 
+ * @category TODO
  * 
  * @remarks
  * 
  * Used to copy properties from one object to another module the fields contained in the exclusion object.
+ * 
+ * #### TODO Notes
+ * 
+ * Convert to RVal.
  * 
  * #### Action
  * 

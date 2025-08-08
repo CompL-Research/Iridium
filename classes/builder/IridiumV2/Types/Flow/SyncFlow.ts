@@ -3,10 +3,34 @@ import { isResolveEnvBindingSEXP, ResolveEnvBindingSEXP } from "../AbstractOpera
 import { IridiumSEXP } from "../Structural/General";
 import { NullSEXP } from "../RVAL/Primitives";
 
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * A statement inserted at the top of a catch block; this captures the catch value into an environment binding.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(catchTarget)`: The target store for the caught value.
+ * 
+ */
 export class JSCatchContextSEXP extends IridiumSEXP {
   constructor(val: string) {
     super("JSCatchContext");
-    this.args.push(new ResolveEnvBindingSEXP(val));
+    this.setCatchTarget(new ResolveEnvBindingSEXP(val));
+  }
+
+  // Args
+  setCatchTarget(obj: IridiumSEXP) {
+    this.args[0] = obj;
+  }
+
+  getCatchTarget(): IridiumSEXP {
+    return this.args[0];
   }
 
   getBindingName(): string {
@@ -16,7 +40,22 @@ export class JSCatchContextSEXP extends IridiumSEXP {
   }
 }
 
-export type GotoSEXPFlags = "IDX";
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Standard Goto statement.
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(IDX)`: IDX of the BB to flow the control to.
+ * 
+ */
 export class GotoSEXP extends IridiumSEXP {
   constructor(idx: number) {
     super("Goto");
@@ -37,8 +76,21 @@ export class GotoSEXP extends IridiumSEXP {
   }
 }
 
-// (Extended) PushCatchContext
-export type PushCatchContextFlags = "IDX";
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Pushes Catch Offset onto the stack.
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(IDX)`: IDX of the BB to flow the control to.
+ * 
+ */
 export class PushCatchContextSEXP extends IridiumSEXP {
   constructor(idx: number) {
     super("PushCatchContext");
@@ -59,24 +111,34 @@ export class PushCatchContextSEXP extends IridiumSEXP {
   }
 }
 
-// (Extended) PushForOfCatchContext
-export type PushForOfCatchContextFlags = "IDX";
-export class PushForOfCatchContextSEXP extends IridiumSEXP {
-  constructor(obj: IridiumSEXP) {
-    super("PushForOfCatchContext");
-    this.args.push(obj);
-  }
-
-  toString(space?: number): string {
-    return `${printIriSpace(space)}FOR-OF-CATCH[${this.args[0].toString(0)}]`
-  }
-}
-
-// (Extended) ThrowSEXP
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Throws a value, which will be caught by the corresponding catch target.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(throwVal)`: The value to be thrown.
+ * 
+ */
 export class ThrowSEXP extends IridiumSEXP {
   constructor(val: IridiumSEXP) {
     super("Throw");
-    this.args.push(val);
+    this.setThrowVal(val);
+  }
+
+  // Args
+  setThrowVal(val: IridiumSEXP) {
+    this.args[0] = val;
+  }
+
+  getThrowVal(): IridiumSEXP {
+    return this.args[0];
   }
 
   // Flags
@@ -85,8 +147,17 @@ export class ThrowSEXP extends IridiumSEXP {
   }
 }
 
-// (Extended) PopCatchContext
-export type PopCatchContextFlags = "IDX";
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Exits the `catch` context.
+ * 
+ */
 export class PopCatchContextSEXP extends IridiumSEXP {
   constructor() {
     super("PopCatchContext");
@@ -98,8 +169,21 @@ export class PopCatchContextSEXP extends IridiumSEXP {
   }
 }
 
-// (Extended) InvokeFinalizer
-export type InvokeFinalizerFlags = "IDX";
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Invokes the finalizer block.
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(IDX)`: IDX of the BB to flow the control to.
+ * 
+ */
 export class InvokeFinalizerSEXP extends IridiumSEXP {
   constructor(idx: number) {
     super("InvokeFinalizer");
@@ -120,12 +204,30 @@ export class InvokeFinalizerSEXP extends IridiumSEXP {
   }
 }
 
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Used to return control back to the caller.
+ * `ModuleEarlyReturn` is a special case where a JavaScript module may call an synchronous return if the module does not need to be evaluated.
+ * A JavaScript module, after evaluation always returns asynchronously except for the aforementioned case. 
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(ModuleEarlyReturn)`: Signifies a synchronous return from a module, this happens if the module is just to be loaded and not evaluated.
+ * 
+ */
 export class ReturnSEXP extends IridiumSEXP {
   constructor(val: IridiumSEXP) {
     super("Return");
     this.args.push(val);
   }
 
+  // Flags
   setModuleEarlyReturn() {
     this.setFlag("ModuleEarlyReturn");
   }
@@ -139,14 +241,42 @@ export class ReturnSEXP extends IridiumSEXP {
   }
 }
 
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Used to return from a finalizer block, even though this is just a BasicBlock, the execution treats it like a lightweight function call.
+ * 
+ */
 export class RetSEXP extends IridiumSEXP {
   constructor() {
     super("Ret");
   }
 }
 
-// (Primitive) IfElseJump
-export type IfElseJumpSEXPFlags = "TRUE" | "FALSE";
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Used to jump to a TRUE/FALSE branch based on the test value.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(test)`: Stores the value of the object to be tested.
+ * 
+ * - `FLAG(TRUE)`: IDX of the BB to flow the control to if the test is true.
+ * 
+ * - `FLAG(FALSE)`: IDX of the BB to flow the control to if the test is false.
+ * 
+ */
 export class IfElseJumpSEXP extends IridiumSEXP {
   constructor(test: IridiumSEXP | null, trueTarget: number, falseTarget: number) {
     super("IfElseJump");
@@ -187,8 +317,25 @@ export class IfElseJumpSEXP extends IridiumSEXP {
   }
 }
 
-// (Primitive) IfJumpSEXP
-export type IfJumpSEXPFlags = "IDX" | "NOT";
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Used to jump to a BB if the test is true.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(test)`: Stores the value of the object to be tested.
+ * 
+ * - `FLAG(IDX)`: IDX of the BB to flow the control to if the test is true.
+ * 
+ * - `FLAG(NOT)`: Logical not on the test value.
+ * 
+ */
 export class IfJumpSEXP extends IridiumSEXP {
   constructor(test: IridiumSEXP | null, target: number) {
     super("IfJump");
@@ -198,6 +345,15 @@ export class IfJumpSEXP extends IridiumSEXP {
   }
 
   // Args
+  setTest(test: IridiumSEXP) {
+    this.args[0] = test;
+  }
+
+  getTest() {
+    return this.args[0];
+  }
+
+  // Flags
   setNot() {
     this.setFlag("NOT");
   }
@@ -209,16 +365,6 @@ export class IfJumpSEXP extends IridiumSEXP {
   isNot() {
     return this.hasFlag("NOT");
   }
-
-  setTest(test: IridiumSEXP) {
-    this.args[0] = test;
-  }
-
-  getTest() {
-    return this.args[0];
-  }
-
-  // Flags
   setIDX(idx: number) {
     this.setFlag("IDX", idx)
   }
@@ -233,14 +379,18 @@ export class IfJumpSEXP extends IridiumSEXP {
 }
 
 
-// @ts-ignore
+/**
+ * @hidden
+ */
 export function isReturnSEXP(o: any): o is ReturnSEXP {
   // @ts-ignore
   return o.tag === "Return";
 }
 
 
-// @ts-ignore
+/**
+ * @hidden
+ */
 export function isJSCatchContextSEXP(o: any): o is JSCatchContextSEXP {
   // @ts-ignore
   return o.tag === "JSCatchContext";

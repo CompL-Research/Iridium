@@ -13,7 +13,9 @@ export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * @extends {IridiumSEXP}
  * 
- * @group AMP
+ * @group STMT
+ * 
+ * @category TODO
  * 
  * @remarks
  * 
@@ -24,6 +26,11 @@ export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
  * After the initialization is done, all declarations can be basically reduced down to simple environment writes.
  * The `SAFE`, `THISINIT` and `SLOPPY` flags are used to handle features like TDZ where writes/reads to a binding before
  * its declaration is reached is invalid. Such restricted accesses to the environment are made explicit in Iridium.
+ * 
+ * 
+ * #### TODO Notes
+ * 
+ * See all places this node is created, ensure there is no way it can end up as an RVal.
  * 
  * #### Resolutions
  * 

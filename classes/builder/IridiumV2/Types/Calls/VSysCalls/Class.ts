@@ -4,7 +4,9 @@ import { IridiumSEXP } from "../../Structural/General";
  * 
  * @extends {IridiumSEXP}
  * 
- * @group STMT
+ * @group RVAL
+ * 
+ * @category TODO
  * 
  * @remarks
  * 
@@ -18,6 +20,10 @@ import { IridiumSEXP } from "../../Structural/General";
  * 
  * One may imagine this to be a way to push the class encapsulation check to the runtime; 
  * contrary to languages like Java/C++ where it might be a static compile time check.
+ * 
+ * #### TODO Notes
+ * 
+ * Convert to RVal.
  * 
  * #### Trigger
  * 
@@ -67,12 +73,19 @@ export class JSADDBRANDSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group STMT
+ * @group RVAL
+ * 
+ * @category TODO
  * 
  * @remarks
  * 
  * Checks if the function (constructor in this case) was called using the `new` keyword.
  * If not, then it throws an error.
+ * 
+ * #### TODO Notes
+ * 
+ * Convert to RVal.
+ * 
  * 
  * #### Trigger
  * 

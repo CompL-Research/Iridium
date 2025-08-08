@@ -11,11 +11,17 @@ export type JSSloppyDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * @group STMT
  * 
+ * @category TODO
+ * 
  * @remarks
  * 
  * Top level declarations in **Sloppy** Mode are not stored on the stack frame, but instead become
  * fields of the global object.
  * This call is used to declare such fields.
+ * 
+ * #### TODO Notes
+ * 
+ * Move to an abstract operation maybe?
  * 
  * #### Structure
  * 

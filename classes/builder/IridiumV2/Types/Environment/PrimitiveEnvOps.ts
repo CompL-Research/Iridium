@@ -41,11 +41,17 @@ export type EnvWriteFlags = "SAFE" | "THISINIT" | "SLOPPY";
  * 
  * @extends {IridiumSEXP}
  * 
- * @group RVAL
+ * @group AMP
+ * 
+ * @category TODO
  * 
  * @remarks
  * 
  * Write to an environment binding.
+ * 
+ * #### TODO Notes
+ * 
+ * Convert to RVal? or let be amphibious.
  * 
  * #### Structure
  * 

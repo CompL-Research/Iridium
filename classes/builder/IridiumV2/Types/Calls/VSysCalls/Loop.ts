@@ -7,11 +7,17 @@ import { IridiumSEXP } from "../../Structural/General";
  * 
  * @extends {IridiumSEXP}
  * 
- * @group STMT
+ * @group RVAL
+ * 
+ * @category TODO
  * 
  * @remarks
  * 
  * For a given an object, this call stores it's For-In iterator in target.
+ * 
+ * #### TODO Notes
+ * 
+ * Convert to RVal.
  * 
  * #### Structure
  * 
@@ -91,11 +97,17 @@ export class JSForInStartSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group STMT
+ * @group RVAL
+ * 
+ * @category TODO
  * 
  * @remarks
  * 
  * Given a For-In iterator, this call stores the loop-done indicator and loop-next object at doneTarget and nextValue respectively.
+ * 
+ * #### TODO Notes
+ * 
+ * Convert to RVal.
  * 
  * #### Structure
  * 
@@ -177,11 +189,17 @@ export class JSForInNextSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group STMT
+ * @group STMT-RVAL?
+ * 
+ * @category TODO
  * 
  * @remarks
  * 
  * For a given an object, this call stores it's For-Of on the **stack**.
+ * 
+ * #### TODO Notes
+ * 
+ * Think about how to model this?
  * 
  * ```
  * JSForOfStartSEXP(RVal, | -> | <loop-iterator>, <loop-method>, <loop-catchoffset>)
@@ -228,11 +246,17 @@ export class JSForOfStartSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group STMT
+ * @group RVAL
+ * 
+ * @category TODO
  * 
  * @remarks
  * 
  * Given a For-Of iterator context (this is implicit, three objects on stack, see {@link JSForOfStartSEXP}), this call stores the loop-done indicator and loop-next object at doneTarget and nextValue respectively.
+ * 
+ * #### TODO Notes
+ * 
+ * Convert to RVal.
  * 
  * ```
  * // JSForOfNext(...implicit... | -> | <loop-next>, <loop-done>)
@@ -313,7 +337,13 @@ export class JSForOfNextSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group STMT
+ * @group STMT-RVAL?
+ * 
+ * @category TODO
+ * 
+ * #### TODO Notes
+ * 
+ * How to model this meaningfully?
  * 
  * @remarks
  * 
