@@ -4,9 +4,8 @@ import { isLambdaSEXP, LambdaSEXP } from "../RVAL/Primitives";
 
 /**
  * 
- * @remarks
+ * @group TSHelper
  * 
- * Flags indicating the kind of binding.
  */
 export type JSEnvBindingFlags = "JSARG" | "JSRESTARG" | "JSLET" | "JSCONST" | "JSVAR";
 
@@ -15,7 +14,7 @@ export type JSEnvBindingFlags = "JSARG" | "JSRESTARG" | "JSLET" | "JSCONST" | "J
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Local Binding
+ * @group RVAL
  * 
  * @remarks
  * 
@@ -122,7 +121,7 @@ export class EnvBindingSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Remote Binding
+ * @group RVAL
  * 
  * @remarks
  * 
@@ -212,7 +211,7 @@ export class RemoteEnvBindingSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Remote Binding
+ * @group RVAL
  * 
  * @remarks
  * 
@@ -252,7 +251,7 @@ export class GlobalBindingSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Local Binding
+ * @group RVAL
  * 
  * @remarks
  * 
@@ -308,7 +307,7 @@ export class PoolBindingSEXP extends IridiumSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isPoolBindingSEXP(o: any): o is PoolBindingSEXP {
   // @ts-ignore
@@ -316,7 +315,7 @@ export function isPoolBindingSEXP(o: any): o is PoolBindingSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isGlobalBindingSEXP(o: any): o is GlobalBindingSEXP {
   // @ts-ignore
@@ -324,7 +323,7 @@ export function isGlobalBindingSEXP(o: any): o is GlobalBindingSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isRemoteEnvBindingSEXP(o: any): o is RemoteEnvBindingSEXP {
   // @ts-ignore
@@ -332,7 +331,7 @@ export function isRemoteEnvBindingSEXP(o: any): o is RemoteEnvBindingSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isEnvBindingSEXP(o: any): o is EnvBindingSEXP {
   // @ts-ignore

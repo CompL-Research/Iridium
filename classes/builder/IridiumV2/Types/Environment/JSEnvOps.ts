@@ -8,7 +8,7 @@ import { EnvReadSEXP, isEnvReadSEXP } from "./PrimitiveEnvOps";
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Read
+ * @group RVAL
  * 
  * @remarks
  * 
@@ -53,7 +53,7 @@ export class JSComputedFieldReadSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Write
+ * @group RVAL
  * 
  * @remarks
  * 
@@ -113,7 +113,7 @@ export class JSComputedFieldWriteSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Read
+ * @group RVAL
  * 
  * @remarks
  * 
@@ -155,7 +155,7 @@ export class JSPrivateFieldReadSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Write
+ * @group RVAL
  * 
  * @remarks
  * 
@@ -209,7 +209,7 @@ export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Read
+ * @group RVAL
  * 
  * @remarks
  * 
@@ -266,7 +266,7 @@ export class JSSuperFieldReadSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Write
+ * @group RVAL
  * 
  * @remarks
  * 

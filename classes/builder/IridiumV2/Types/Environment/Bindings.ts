@@ -7,7 +7,7 @@ import { EnvBindingSEXP, isEnvBindingSEXP, isRemoteEnvBindingSEXP, JSEnvBindingF
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Environment
+ * @group STRUCTURAL
  * 
  * @remarks
  * 
@@ -204,7 +204,7 @@ export class BindingsSEXP extends IridiumSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isBindingsSEXP(o: any): o is BindingsSEXP {
   // @ts-ignore

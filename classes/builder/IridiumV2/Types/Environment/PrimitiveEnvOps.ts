@@ -1,8 +1,25 @@
 import { printIriSpace } from "#utils";
-import { ResolveEnvBindingSEXP } from "../AbstractOperations/Resolution";
-import { IridiumSEXP } from "../Structural/General";
-import { StringSEXP } from "../RVAL/Primitives";
+import { ResolveEnvBindingSEXP } from "../AbstractOperations";
+import { IridiumSEXP } from "../Structural";
+import { StringSEXP } from "../RVAL";
+import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEXP } from "./BindingsObjectConstituents";
 
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * Read a binding from the environment.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(obj)`: The binding to be read, can be any environment binding {@link EnvBindingSEXP} | {@link RemoteEnvBindingSEXP} | {@link GlobalBindingSEXP} | {@link PoolBindingSEXP}.
+ * 
+ */
 export class EnvReadSEXP extends IridiumSEXP {
   constructor(id: string) {
     super("EnvRead");
@@ -14,7 +31,35 @@ export class EnvReadSEXP extends IridiumSEXP {
   }
 }
 
+/**
+ * 
+ * @group TSHelper
+ */
 export type EnvWriteFlags = "SAFE" | "THISINIT" | "SLOPPY";
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * Write to an environment binding.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(lValTarget)`: The storage target location
+ * 
+ * - `ARG(rVal)`: The value to store.
+ * 
+ * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
+ * 
+ * - `FLAG(THISINIT)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
+ * 
+ * - `FLAG(SLOPPY)`: Indicates whether the writes to target locations is sloppy.
+ * 
+ */
 export class EnvWriteSEXP extends IridiumSEXP {
   lval: string
   constructor(lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean) {
@@ -73,12 +118,45 @@ export class EnvWriteSEXP extends IridiumSEXP {
   }
 }
 
-// (Primitive) FieldRead
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * Read a (static) field from an object.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(obj)`: The object to be read from.
+ * 
+ * - `ARG(field)`: The field to be read.
+ * 
+ */
 export class FieldReadSEXP extends IridiumSEXP {
   constructor(object: string, field: string) {
     super("FieldRead");
-    this.args.push(new ResolveEnvBindingSEXP(object));
-    this.args.push(new StringSEXP(field));
+    this.setObj(new ResolveEnvBindingSEXP(object));
+    this.setField(new StringSEXP(field));
+  }
+
+  // Args
+  setObj(obj: IridiumSEXP) {
+    this.args[0] = obj;
+  }
+
+  getObj(): IridiumSEXP {
+    return this.args[0];
+  }
+
+  setField(field: IridiumSEXP) {
+    this.args[1] = field;
+  }
+
+  getField(): IridiumSEXP {
+    return this.args[1];
   }
 
   toString(space?: number): string {
@@ -86,7 +164,25 @@ export class FieldReadSEXP extends IridiumSEXP {
   }
 }
 
-// (Primitive) FieldWrite
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * Write to a (static) field of an object.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(obj)`: The object to be read from.
+ * 
+ * - `ARG(field)`: The field to be updated.
+ * 
+ * - `ARG(value)`: The value to be written.
+ * 
+ */
 export class FieldWriteSEXP extends IridiumSEXP {
   constructor(object: string, field: string, right: IridiumSEXP) {
     super("FieldWrite");
@@ -101,7 +197,7 @@ export class FieldWriteSEXP extends IridiumSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isEnvReadSEXP(o: any): o is EnvReadSEXP {
   // @ts-ignore
@@ -109,7 +205,7 @@ export function isEnvReadSEXP(o: any): o is EnvReadSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isEnvWriteSEXP(o: any): o is EnvWriteSEXP {
   // @ts-ignore
