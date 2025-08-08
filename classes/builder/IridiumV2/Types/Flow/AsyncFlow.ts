@@ -11,7 +11,9 @@ import { IridiumSEXP } from "../Structural/General";
  * 
  * @remarks
  * 
- * `await` is used to await the completion of an asynchronous function.
+ * `await` is used to "await" the completion of an asynchronous function.
+ * 
+ * [MDN reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)
  * 
  * ```
  * async foo() {
@@ -31,7 +33,15 @@ import { IridiumSEXP } from "../Structural/General";
 export class AwaitSEXP extends IridiumSEXP {
   constructor(arg: string) {
     super("Await");
-    this.args.push(new EnvReadSEXP(arg));
+    this.setObj(new EnvReadSEXP(arg));
+  }
+
+  // Args
+  setObj(obj: IridiumSEXP) {
+    this.args[0] = obj;
+  }
+  getObj(): IridiumSEXP {
+    return this.args[0];
   }
 
   toString(space?: number): string {
@@ -39,12 +49,72 @@ export class AwaitSEXP extends IridiumSEXP {
   }
 }
 
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group TODO-RVAL
+ * 
+ * @remarks
+ * 
+ * Implements `yield` semantics. Yield can pass arguments which can be read as iterator/next values from the iterator function.
+ * When the flow resumes, the yieldDoneIndicator value is check to perform an early return otherwise the flow of the generator function continues until next pause.
+ * 
+ * [MDN reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/yield)
+ * 
+ * ```
+ * function* foo() {
+ *    yield "The";
+ *    yield "World is";
+ * }
+ * 
+ * const iterator = foo();
+ * console.log(iterator.next().value + " " + iterator.next().value + " " + iterator.next().value);
+ * ```
+ * 
+ * ```
+ * <yieldDoneIndicator, yieldReturnResultHolder> = YIELD obj
+ * ```
+ * 
+ * #### Structure
+ * 
+ * - `ARG(obj)`: An object, likely a promise returned by an asynchronous function.
+ * 
+ * - `ARG(doneTarget)`: The target location for yieldDoneIndicator.
+ * 
+ * - `ARG(nextValue)`: The target location for yieldReturnResultHolder.
+ * 
+ */
 export class YieldSEXP extends IridiumSEXP {
   constructor(arg: string, yieldReturnIndicator: string, yieldReturnResultHolder: string) {
     super("Yield");
-    this.args.push(new EnvReadSEXP(arg));
-    this.args.push(new ResolveEnvBindingSEXP(yieldReturnIndicator));
-    this.args.push(new ResolveEnvBindingSEXP(yieldReturnResultHolder));
+    this.setObj(new EnvReadSEXP(arg));
+    this.setDoneTarget(new ResolveEnvBindingSEXP(yieldReturnIndicator));
+    this.setNextValue(new ResolveEnvBindingSEXP(yieldReturnResultHolder));
+  }
+
+  // Args
+  setObj(obj: IridiumSEXP) {
+    this.args[0] = obj;
+  }
+  getObj(): IridiumSEXP {
+    return this.args[0];
+  }
+
+  setDoneTarget(obj: IridiumSEXP) {
+    this.args[1] = obj;
+  }
+
+  getDoneTarget(): IridiumSEXP {
+    return this.args[1];
+  }
+
+  setNextValue(obj: IridiumSEXP) {
+    this.args[2] = obj;
+  }
+
+  getNextValue(): IridiumSEXP {
+    return this.args[2];
   }
 
   toString(space?: number): string {
@@ -52,18 +122,61 @@ export class YieldSEXP extends IridiumSEXP {
   }
 }
 
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Used to return from asynchronous functions in JS.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(retVal)`: The value to return.
+ * 
+ */
 export class ReturnAsyncSEXP extends IridiumSEXP {
   constructor(val: IridiumSEXP) {
     super("ReturnAsync");
-    this.args.push(val);
+    this.setRetVal(val);
+  }
+
+  // Args
+  setRetVal(obj: IridiumSEXP) {
+    this.args[0] = obj;
+  }
+
+  getRetVal(): IridiumSEXP {
+    return this.args[0];
   }
 
   toString(space?: number): string {
-    return `${printIriSpace(space)}return[async] ${this.args[0].toString(0)}`
+    return `${printIriSpace(space)}return[async] ${this.getRetVal().toString(0)}`
   }
 }
 
-// (Extension) JSInitialYield
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Initializes the stack frame for the generator and pauses the execution.
+ * 
+ * ```
+ * function* foo() {
+ *    yield "The";
+ *    yield "World is";
+ * }
+ * 
+ * const iterator = foo(); // <- Initial Yield will make this pause before any execution of the body starts
+ * ```
+ * 
+ */
 export class JSInitialYieldSEXP extends IridiumSEXP {
   constructor() {
     super("JSInitialYield");

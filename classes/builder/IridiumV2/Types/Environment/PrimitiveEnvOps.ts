@@ -49,7 +49,7 @@ export type EnvWriteFlags = "SAFE" | "THISINIT" | "SLOPPY";
  * 
  * #### Structure
  * 
- * - `ARG(lValTarget)`: The storage target location
+ * - `ARG(lValTarget)`: The storage target location(s).
  * 
  * - `ARG(rVal)`: The value to store.
  * 
