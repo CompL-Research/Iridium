@@ -19,8 +19,13 @@
 // foo(1, 2, 3);
 
 // console.log("Hello World");
-function foo() {
-  console.log("foo called");
-}
+// function foo() {
+//   console.log("foo called");
+// }
 
-foo();
+// foo();
+
+
+const x = 12;
+x = 13;
+console.log(x);
