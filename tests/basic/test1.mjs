@@ -101,6 +101,15 @@ class B {
 
 class A extends B {
   p1 = (console.log("p1init"), 12);
+  constructor() {
+    let x = () => {
+      super();
+    };
+    let y = () => {
+      super();
+    }
+    x();
+  }
 }
 
 new A()
