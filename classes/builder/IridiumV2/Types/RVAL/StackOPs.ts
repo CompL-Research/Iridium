@@ -9,6 +9,17 @@ import { IridiumSEXP } from "../Structural";
  * @remarks
  * 
  * Retain N values on the theoretical stack obtained after evaluation of the given Node.
+ * Also can take a value for M (nip), which specify how many values below the top retained values need to be removed.
+ * 
+ * ```
+ * N = 2, M = 0
+ * INITIAL : a b <- top
+ * FINAL   : a b
+ * 
+ * N = 2, M = 1
+ * INITIAL : a b c <- top
+ * FINAL   : b c
+ * ```
  * 
  * #### Structure
  * 
@@ -16,12 +27,15 @@ import { IridiumSEXP } from "../Structural";
  * 
  * - `FLAG(NVAL)`: Number of VALUES pushed onto the stack.
  * 
+ * - `FLAG(NIP)`: Remove values that occur after the first NVAL.
+ * 
  */
 export class StackRetainSEXP extends IridiumSEXP {
-  constructor(node: IridiumSEXP, nVal: number) {
+  constructor(node: IridiumSEXP, nVal: number, nip: number = 0) {
     super("StackRetain");
     this.setNode(node)
     this.setNVal(nVal);
+    this.setNip(nip);
   }
 
   // Args
@@ -41,6 +55,15 @@ export class StackRetainSEXP extends IridiumSEXP {
   getNVal(): number {
     return this.getFlagNumber("NVAL");
   }
+
+  setNip(nip: number) {
+    this.setFlag("NIP", nip);
+  }
+
+  getNip(): number {
+    return this.getFlagNumber("NIP");
+  }
+
 }
 
 /**

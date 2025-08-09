@@ -15,7 +15,7 @@ import { IridiumSEXP } from "../../Structural/General";
  * Given an `targetObj`, calls the `ToObject` ECMA abstract operation and returns the new object;
  * 
  * ```
- * JSToObject (targetObj)
+ * [1] JSToObject (targetObj)
  * ```
  * 
  * #### Trigger

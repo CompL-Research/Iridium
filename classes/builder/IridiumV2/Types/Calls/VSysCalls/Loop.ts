@@ -13,6 +13,12 @@ import { IridiumSEXP } from "../../Structural/General";
  * 
  * For a given an object, this call stores it's For-In iterator in target.
  * 
+ * #### Action
+ * 
+ * ```
+ * [0] JSForInStartSEXP(RVal)
+ * ```
+ * 
  * #### Structure
  * 
  * - `ARG(obj)`: The object instance.
@@ -49,39 +55,25 @@ export class JSForInStartSEXP extends IridiumSEXP {
  * 
  * @group RVAL
  * 
- * @category TODO
- * 
  * @remarks
  * 
  * Given a For-In iterator, this call stores the loop-done indicator and loop-next object at doneTarget and nextValue respectively.
  * 
- * #### TODO Notes
+ * #### Action
  * 
- * Convert to RVal.
+ * ```
+ * [3] JSForInStartSEXP(RVal)
+ * ```
  * 
  * #### Structure
  * 
  * - `ARG(iteratorObj)`: The iterator object.
  * 
- * - `ARG(doneTarget)`: The target location for the loop-done indicator (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
- * - `ARG(nextValue)`: The target location for the loop-next indicator (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
- * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
- * 
- * - `FLAG(THISINIT)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
- * 
- * - `FLAG(SLOPPY)`: Indicates whether the writes to target locations is sloppy.
- * 
  */
 export class JSForInNextSEXP extends IridiumSEXP {
-  constructor(iterator: string, stackTop: string, stackTopNext: string) {
+  constructor(iterator: string) {
     super("JSForInNext");
     this.setIteratorObj(new EnvReadSEXP(iterator));
-    this.setDoneTarget(new ResolveEnvBindingSEXP(stackTop));
-    this.setNextValue(new ResolveEnvBindingSEXP(stackTopNext));
-    this.setSafe(false);
-    this.setThisInit(false);
   }
 
   // Args
@@ -93,66 +85,22 @@ export class JSForInNextSEXP extends IridiumSEXP {
     return this.args[0];
   }
 
-  setDoneTarget(obj: IridiumSEXP) {
-    this.args[1] = obj;
-  }
-
-  getDoneTarget(): IridiumSEXP {
-    return this.args[1];
-  }
-
-  setNextValue(obj: IridiumSEXP) {
-    this.args[2] = obj;
-  }
-
-  getNextValue(): IridiumSEXP {
-    return this.args[2];
-  }
-
-  // Flags
-  markSloppy() {
-    this.setFlag("SLOPPY");
-  }
-
-  isSloppy() {
-    return this.hasFlag("SLOPPY");
-  }
-
-  setThisInit(val: boolean) {
-    this.setFlag("THISINIT", val);
-  }
-
-  isThisInit(): boolean {
-    return this.getFlagBoolean("THISINIT")
-  }
-
-  setSafe(val: boolean) {
-    this.setFlag("SAFE", val);
-  }
-
-  isSafe(): boolean {
-    return this.getFlagBoolean("SAFE")
-  }
 }
 
 /**
  * 
  * @extends {IridiumSEXP}
  * 
- * @group STMT-RVAL?
- * 
- * @category TODO
+ * @group RVAL
  * 
  * @remarks
  * 
  * For a given an object, this call stores it's For-Of on the **stack**.
  * 
- * #### TODO Notes
- * 
- * Think about how to model this?
+ * #### Action
  * 
  * ```
- * JSForOfStartSEXP(RVal, | -> | <loop-iterator>, <loop-method>, <loop-catchoffset>)
+ * [3] = JSForOfStartSEXP(RVal)
  * ```
  * 
  * The reason for not popping the stack is the presence of the custom catch handler which can break if stack is restructured.
@@ -198,79 +146,20 @@ export class JSForOfStartSEXP extends IridiumSEXP {
  * 
  * @group RVAL
  * 
- * @category TODO
- * 
  * @remarks
  * 
  * Given a For-Of iterator context (this is implicit, three objects on stack, see {@link JSForOfStartSEXP}), this call stores the loop-done indicator and loop-next object at doneTarget and nextValue respectively.
  * 
- * #### TODO Notes
- * 
- * Convert to RVal.
+ * #### Action
  * 
  * ```
- * // JSForOfNext(...implicit... | -> | <loop-next>, <loop-done>)
+ * [2] = JSForOfNext()
  * ```
- * 
- * The reason for not popping the stack is the presence of the custom catch handler which can break if stack is restructured.
- * Maybe some analysis passes can simplify this logic in the future.
- * 
- * #### Structure
- * 
- * - `ARG(doneTarget)`: The target location for the loop-done indicator (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
- * - `ARG(nextValue)`: The target location for the loop-next indicator (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  */
 export class JSForOfNextSEXP extends IridiumSEXP {
-  constructor(stackTop: string, stackTopNext: string) {
+  constructor() {
     super("JSForOfNext");
-    this.setDoneTarget(new ResolveEnvBindingSEXP(stackTop));
-    this.setNextValue(new ResolveEnvBindingSEXP(stackTopNext));
-    this.setSafe(false);
-    this.setThisInit(false);
-  }
-
-  // Args
-  setDoneTarget(obj: IridiumSEXP) {
-    this.args[0] = obj;
-  }
-
-  getDoneTarget(): IridiumSEXP {
-    return this.args[0];
-  }
-
-  setNextValue(obj: IridiumSEXP) {
-    this.args[1] = obj;
-  }
-
-  getNextValue(): IridiumSEXP {
-    return this.args[1];
-  }
-
-  // Flags
-  markSloppy() {
-    this.setFlag("SLOPPY");
-  }
-
-  isSloppy() {
-    return this.hasFlag("SLOPPY");
-  }
-
-  setThisInit(val: boolean) {
-    this.setFlag("THISINIT", val);
-  }
-
-  isThisInit(): boolean {
-    return this.getFlagBoolean("THISINIT")
-  }
-
-  setSafe(val: boolean) {
-    this.setFlag("SAFE", val);
-  }
-
-  isSafe(): boolean {
-    return this.getFlagBoolean("SAFE")
   }
 
   toString(space?: number): string {
@@ -287,20 +176,16 @@ export class JSForOfNextSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group STMT-RVAL?
- * 
- * @category TODO
- * 
- * #### TODO Notes
- * 
- * How to model this meaningfully?
+ * @group RVAL
  * 
  * @remarks
  * 
  * Marks the end of a for-of iterator loop context, the implicit values on the stack are popped by this call.
  * 
+ * #### Action
+ * 
  * ```
- * // JSForOfNext(<loop-iterator>, <loop-method>, <loop-catchoffset> | -> | )
+ * [0] = JSForOfIteratorClose()
  * ```
  * 
  */

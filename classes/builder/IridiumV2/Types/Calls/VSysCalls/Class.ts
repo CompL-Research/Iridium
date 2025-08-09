@@ -18,6 +18,12 @@ import { IridiumSEXP } from "../../Structural/General";
  * One may imagine this to be a way to push the class encapsulation check to the runtime; 
  * contrary to languages like Java/C++ where it might be a static compile time check.
  * 
+ * #### Action
+ * 
+ * ```
+ * [0] JSADDBRAND (obj, homeObj)
+ * ```
+ * 
  * #### Trigger
  * 
  * ```
@@ -73,6 +79,11 @@ export class JSADDBRANDSEXP extends IridiumSEXP {
  * Checks if the function (constructor in this case) was called using the `new` keyword.
  * If not, then it throws an error.
  * 
+ * #### Action
+ * 
+ * ```
+ * [0] JSCheckConstructor ()
+ * ```
  * 
  * #### Trigger
  * 

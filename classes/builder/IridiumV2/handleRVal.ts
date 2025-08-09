@@ -6,7 +6,7 @@ import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJ
 import { funArgLength, handleBlockStatement, IRIV2_STMT, lowerArgumentInit } from "./handleStatement";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
 
-import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSExplicitBindingDeclarationSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSTemplateSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StackRejectSEXP, StringSEXP, UNOPDelMemberExprSEXP, UNOPDelVarSEXP, UnopSEXP, YieldSEXP } from "./Types/index";
+import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSExplicitBindingDeclarationSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSTemplateSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StringSEXP, UNOPDelMemberExprSEXP, UNOPDelVarSEXP, UnopSEXP, YieldSEXP } from "./Types/index";
 
 // Handle RValues | AMP
 export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
@@ -218,13 +218,16 @@ export const handleArrayPatternAssignmentExpr = (cx: IRIDIUMV2, elements: JS3Arr
   let for$of$loop$next = cx.js3Builder.utils.getNewTemporary("next");
   let for$of$loop$done = cx.js3Builder.utils.getNewTemporary("done");
 
-  cx.getCurrentBB().args.push(new JSForOfStartSEXP(rValTarget));
+  // [<loop-iterator>, <loop-method>, <loop-catchoffset>] = JSForOfStartSEXP(RVal)
+  cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfStartSEXP(rValTarget), 3));
   cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(for$of$loop$next), null, "JSLET", false));
   cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(for$of$loop$done), null, "JSLET", false));
 
   for (let e of elements) {
     if (isIdentifier(e)) {
-      cx.getCurrentBB().args.push(new JSForOfNextSEXP(for$of$loop$done, for$of$loop$next));
+      cx.getCurrentBB().args.push(new JSForOfNextSEXP());
+      cx.getCurrentBB().args.push(new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false));
+      cx.getCurrentBB().args.push(new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false));
       cx.getCurrentBB().args.push(new EnvWriteSEXP(e.name, new EnvReadSEXP(for$of$loop$next), safeWrite, false));
     } else if (isJS3RestElement(e)) {
       // tempres = []
@@ -278,7 +281,10 @@ export const handleArrayPatternAssignmentExpr = (cx: IRIDIUMV2, elements: JS3Arr
       cx.declareAndPushLexicalContext(); // Loop Context
       loopHeadContext = cx.getCurrentContext();
       loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX();
-      cx.getCurrentBB().args.push(new JSForOfNextSEXP(for$of$loop$done, for$of$loop$next));
+      cx.getCurrentBB().args.push(new JSForOfNextSEXP());
+      cx.getCurrentBB().args.push(new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false));
+      cx.getCurrentBB().args.push(new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false));
+
       cx.getCurrentBB().args.push(loopToPost);
       cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP(tempres, tempit, new EnvReadSEXP(for$of$loop$next)));
       cx.getCurrentBB().args.push(new EnvWriteSEXP(tempit, new BinopSEXP("+", new EnvReadSEXP(tempit), new NumberSEXP(1)), false, false));
@@ -293,7 +299,7 @@ export const handleArrayPatternAssignmentExpr = (cx: IRIDIUMV2, elements: JS3Arr
       cx.getCurrentBB().args.push(new EnvWriteSEXP(e.argument.name, new EnvReadSEXP(tempres), safeWrite, false));
     }
   }
-  cx.getCurrentBB().args.push(new JSForOfIteratorCloseSEXP());
+  cx.getCurrentBB().args.push(new StackRejectSEXP(new JSForOfIteratorCloseSEXP(), 0));
 }
 
 export const handleObjectPatternAssignmentExpr = (cx: IRIDIUMV2, properties: JS3ObjectPattern_properties, rValTarget: IridiumSEXP, safeWrite: boolean = false) => {

@@ -117,6 +117,6 @@
 // class Test { #foo() { return 423; } foo() { return this.#foo(); } }
 // console.log(new Test().foo());
 
-for (let x in [1,2,3]) {
+for (let x of [1,2,3]) {
   console.log(x);
 }

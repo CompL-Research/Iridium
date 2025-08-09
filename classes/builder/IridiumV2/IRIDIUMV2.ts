@@ -5,7 +5,7 @@ import { VERSION } from "../../../configs/projectStats";
 import JS3Builder from "../JS3Builder";
 import { JS3Program } from "../JS3Helpers/JS3Types";
 import { IRIV2_STMT } from "./handleStatement";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, CallSiteSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getDerivedConstructorClosureFlag, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isCallSiteSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSExplicitBindingDeclarationSEXP, isJSForInNextSEXP, isJSForInStartSEXP, isJSForOfNextSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSForOfIteratorCloseSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSNUBDSEXP, JSSloppyDeclSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StackRejectSEXP, StaticImportSEXP } from "./Types/index";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, CallSiteSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getDerivedConstructorClosureFlag, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isCallSiteSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSExplicitBindingDeclarationSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSForOfIteratorCloseSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSNUBDSEXP, JSSloppyDeclSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StackRejectSEXP, StaticImportSEXP } from "./Types/index";
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -444,8 +444,6 @@ export class IRIDIUMV2 {
       || isJSDefineObjPropSEXP(currSEXP) 
       || isJSDefineObjMethodSEXP(currSEXP)
       || isJSImplicitBindingDeclarationSEXP(currSEXP)
-      || isJSForInNextSEXP(currSEXP)
-      || isJSForOfNextSEXP(currSEXP)
     ) {
       if (!buildContext) throw new Error("buildContext is undefined");
       if (!buildContext.isStrict) {
@@ -526,7 +524,7 @@ export class IRIDIUMV2 {
           if (isLoopConfig(intermediateContext)) {
             if (intermediateContext.kind === "for-of") {
               // Call Iterator close
-              this.insertBefore(currSEXP.args, element, new JSForOfIteratorCloseSEXP());
+              this.insertBefore(currSEXP.args, element, new StackRejectSEXP(new JSForOfIteratorCloseSEXP(), 0));
             }
           } else {
             this.insertBefore(currSEXP.args, element, new PopCatchContextSEXP());
@@ -569,7 +567,7 @@ export class IRIDIUMV2 {
           if (isLoopConfig(intermediateContext)) {
             if (intermediateContext.kind === "for-of") {
               // Call Iterator close
-              this.insertBefore(currSEXP.args, element, new JSForOfIteratorCloseSEXP());
+              this.insertBefore(currSEXP.args, element, new StackRejectSEXP(new JSForOfIteratorCloseSEXP(), 0));
             }
           } else {
             this.insertBefore(currSEXP.args, element, new PopCatchContextSEXP());
@@ -585,7 +583,7 @@ export class IRIDIUMV2 {
           if (!finalLoopConfig) throw new Error("finalLoopConfig is undefined");
           if (finalLoopConfig.kind === "for-of") {
             // Call Iterator close
-            this.insertBefore(currSEXP.args, element, new JSForOfIteratorCloseSEXP());
+            this.insertBefore(currSEXP.args, element, new StackRejectSEXP(new JSForOfIteratorCloseSEXP(), 0));
           }
         }
       }
