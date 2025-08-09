@@ -6,7 +6,7 @@ import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJ
 import { funArgLength, handleBlockStatement, IRIV2_STMT, lowerArgumentInit } from "./handleStatement";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
 
-import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSExplicitBindingDeclarationSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSTemplateSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StringSEXP, UNOPDelMemberExprSEXP, UNOPDelVarSEXP, UnopSEXP, YieldSEXP } from "./Types/index";
+import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSExplicitBindingDeclarationSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSTemplateSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StackRejectSEXP, StringSEXP, UNOPDelMemberExprSEXP, UNOPDelVarSEXP, UnopSEXP, YieldSEXP } from "./Types/index";
 
 // Handle RValues | AMP
 export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
@@ -778,7 +778,8 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
     const args: Array<IridiumSEXP> = [];
     args.push(new EnvReadSEXP("this"));
     args.push(new EnvReadSEXP(propInitClos));
-    cx.getCurrentBB().args.push(new CallSiteSEXP(args, "CCall"));
+
+    cx.getCurrentBB().args.push(new StackRejectSEXP(new CallSiteSEXP(args, "CCall"), 1));
 
     // Lower constructor code if it exists
     if (constructor) {
@@ -806,6 +807,7 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
   {
     // Set constructor flag
     funcContext.kind = getDerivedConstructorClosureFlag();
+    funcContext.propInitClos = propInitClos;
 
     // Add "this = NUBD"
     cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 10));
@@ -830,14 +832,8 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
       args.push(new EnvReadSEXP("<super_ctr>"));
       args.push(new EnvReadSEXP("<new_target>"));
       const superCall = new CallSiteSEXP(args, "Super");
-      const thisInit = new EnvWriteSEXP("this", superCall, false, true); // <- This is about the only place where we set THISINIT flag to true
-      cx.getCurrentBB().args.push(thisInit);
-
-      // Call prop init closure
-      const args1: Array<IridiumSEXP> = [];
-      args1.push(new EnvReadSEXP("this"));
-      args1.push(new EnvReadSEXP(propInitClos));
-      cx.getCurrentBB().args.push(new CallSiteSEXP(args1, "CCall"));
+      const superResHolder = cx.js3Builder.utils.getNewTemporary("superResHolder");
+      cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(superResHolder), superCall, "JSLET", false));
     } else {
 
       if (isJS3ClassMethod(constructor)) {
@@ -853,20 +849,6 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
 
         for (let item of constructor.body.body) {
           IRIV2_STMT(cx, item);
-
-          // All super calls are followed by prop initialization/reinitialization
-          if (isJS3VariableDeclaration(item) && isJS3CallExpression(item.declarations[0].init) && isSuper(item.declarations[0].init.callee)) {
-            if (isIdentifier(item.declarations[0].id)) {
-              const thisInit = new EnvWriteSEXP("this", new EnvReadSEXP(item.declarations[0].id.name), false, true); // <- This is about the only place where we set THISINIT flag to true
-              cx.getCurrentBB().args.push(thisInit);
-
-              // Call prop init closure
-              const args1: Array<IridiumSEXP> = [];
-              args1.push(new EnvReadSEXP("this"));
-              args1.push(new EnvReadSEXP(propInitClos));
-              cx.getCurrentBB().args.push(new CallSiteSEXP(args1, "CCall"));
-            } else throw new Error("Expected Super call result to be stored inside an identifier");
-          }
         }
       } else throw new Error("Expected constructor to be a method");
     }

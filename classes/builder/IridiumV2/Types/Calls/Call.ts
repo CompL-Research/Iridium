@@ -79,3 +79,11 @@ export class CallSiteSEXP extends IridiumSEXP {
     return `${printIriSpace(space)}CallSite[${printFlagString(this.flags)}](${this.args.map(e => e.toString(0)).join(", ")})`
   }
 }
+
+/**
+ * @hidden
+ */
+export function isCallSiteSEXP(o: any): o is CallSiteSEXP {
+  // @ts-ignore
+  return o.tag === "CallSite";
+}
