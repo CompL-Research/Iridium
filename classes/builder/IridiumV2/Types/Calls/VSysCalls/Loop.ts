@@ -16,7 +16,7 @@ import { IridiumSEXP } from "../../Structural/General";
  * #### Action
  * 
  * ```
- * [0] JSForInStartSEXP(RVal)
+ * [1] JSForInStartSEXP(RVal)
  * ```
  * 
  * #### Structure
@@ -62,7 +62,7 @@ export class JSForInStartSEXP extends IridiumSEXP {
  * #### Action
  * 
  * ```
- * [3] JSForInStartSEXP(RVal)
+ * [3] JSForInNextSEXP(RVal)
  * ```
  * 
  * #### Structure
@@ -153,7 +153,7 @@ export class JSForOfStartSEXP extends IridiumSEXP {
  * #### Action
  * 
  * ```
- * [2] = JSForOfNext()
+ * [2] = JSForOfNext([3, implicit])
  * ```
  * 
  */
@@ -185,7 +185,7 @@ export class JSForOfNextSEXP extends IridiumSEXP {
  * #### Action
  * 
  * ```
- * [0] = JSForOfIteratorClose()
+ * [-3] = JSForOfIteratorClose()
  * ```
  * 
  */
