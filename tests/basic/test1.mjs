@@ -93,23 +93,27 @@
 
 // console.log(new A());
 
-class B {
-  constructor() {
-    console.log("B constructor called");
-  }
-}
+// class B {
+//   constructor() {
+//     console.log("B constructor called");
+//   }
+// }
 
-class A extends B {
-  p1 = (console.log("p1init"), 12);
-  constructor() {
-    let x = () => {
-      super();
-    };
-    let y = () => {
-      super();
-    }
-    x();
-  }
-}
+// class A extends B {
+//   p1 = (console.log("p1init"), 12);
+//   constructor() {
+//     let x = () => {
+//       super();
+//     };
+//     let y = () => {
+//       super();
+//     }
+//     x();
+//   }
+// }
 
-new A()
+// new A()
+
+let { a: b, ...x } = { a: 1, b: 2, c: 3 };
+
+console.log(b, x.b, x.c);

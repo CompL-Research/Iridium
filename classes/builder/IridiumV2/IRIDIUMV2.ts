@@ -5,7 +5,7 @@ import { VERSION } from "../../../configs/projectStats";
 import JS3Builder from "../JS3Builder";
 import { JS3Program } from "../JS3Helpers/JS3Types";
 import { IRIV2_STMT } from "./handleStatement";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSForInStartSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isJSToObjectSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSForOfIteratorCloseSEXP, JSNUBDSEXP, JSSloppyDeclarationCheckSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP, isJSForInNextSEXP, isJSForOfNextSEXP, isJSExplicitBindingDeclarationSEXP, isCallSiteSEXP, StackRejectSEXP, CallSiteSEXP, getDerivedConstructorClosureFlag } from "./Types/index";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, CallSiteSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getDerivedConstructorClosureFlag, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isCallSiteSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSExplicitBindingDeclarationSEXP, isJSForInNextSEXP, isJSForInStartSEXP, isJSForOfNextSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSForOfIteratorCloseSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSNUBDSEXP, JSSloppyDeclarationCheckSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StackRejectSEXP, StaticImportSEXP } from "./Types/index";
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -443,7 +443,6 @@ export class IRIDIUMV2 {
       || isJSAppendSEXP(currSEXP) 
       || isJSDefineObjPropSEXP(currSEXP) 
       || isJSDefineObjMethodSEXP(currSEXP)
-      || isJSToObjectSEXP(currSEXP)
       || isJSImplicitBindingDeclarationSEXP(currSEXP)
       || isJSForInStartSEXP(currSEXP)
       || isJSForInNextSEXP(currSEXP)

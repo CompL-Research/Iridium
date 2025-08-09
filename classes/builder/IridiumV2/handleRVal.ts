@@ -307,10 +307,8 @@ export const handleObjectPatternAssignmentExpr = (cx: IRIDIUMV2, properties: JS3
   });
 
   let toObjRes = cx.js3Builder.utils.getNewTemporary("toObjRes");
-  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(toObjRes), null, "JSLET", false));
-
-  // 1. JSToObjectSEXP(rValTarget, toObjRes)
-  cx.getCurrentBB().args.push(new JSToObjectSEXP(rValTarget, toObjRes));
+  // 1. toObjRes = VSysCall[JSToObjectSEXP](rValTarget)
+  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(toObjRes), new JSToObjectSEXP(rValTarget), "JSLET", false));
 
   let exc_obj;
   // 2. [*] exc_obj = {}
