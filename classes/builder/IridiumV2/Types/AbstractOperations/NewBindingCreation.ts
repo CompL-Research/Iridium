@@ -89,7 +89,7 @@ export class JSExplicitBindingDeclarationSEXP extends IridiumSEXP {
     if (this.hasFlag("JSLET")) return "JSLET";
     if (this.hasFlag("JSCONST")) return "JSCONST";
     if (this.hasFlag("JSVAR")) return "JSVAR";
-    throw new Error("JSSloppyDeclarationCheckSEXP, unknown kind");
+    throw new Error("JSExplicitBindingDeclarationSEXP, unknown kind");
   }
 
   markSloppy() {
@@ -436,6 +436,67 @@ export class JSFuncDeclSEXP extends IridiumSEXP {
   }
 }
 
+/**
+ * @group TSHelper
+ */
+export type JSSloppyDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @category TODO
+ * 
+ * @remarks
+ * 
+ * Top level declarations in **Sloppy** Mode are not stored on the stack frame, but instead become
+ * fields of the global object.
+ * This statement declares and initializes (w.r.t JSLET | JSCONST | JSVAR) the field.
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(NAME)`: The name of the declaration.
+ * 
+ * - `FLAG(JSLET | JSCONST | JSVAR)`: The kind of the declaration, one of these allowed types.
+ * 
+ */
+export class JSSloppyDeclSEXP extends IridiumSEXP {
+  constructor(decl: string, kind: JSSloppyDeclarationTypes) {
+    super("JSSloppyDecl");
+    this.setName(decl);
+    this.setKind(kind);
+  }
+
+  // Flags
+  setName(name: string) {
+    this.setFlag("NAME", name);
+  }
+
+  getName(): string {
+    return this.getFlagString("NAME");
+  }
+
+  setKind(kind: JSSloppyDeclarationTypes) {
+    this.setFlag(kind);
+  }
+
+  getKind(): JSSloppyDeclarationTypes {
+    if (this.hasFlag("JSLET")) return "JSLET";
+    if (this.hasFlag("JSCONST")) return "JSCONST";
+    if (this.hasFlag("JSVAR")) return "JSVAR";
+    throw new Error("JSSloppyDeclSEXP, unknown kind");
+  }
+}
+
+/**
+ * @hidden
+ */
+export function isJSSloppyDeclSEXP(o: any): o is JSSloppyDeclSEXP {
+  // @ts-ignore
+  return o.tag === "JSSloppyDecl";
+}
 
 /**
  * @hidden
