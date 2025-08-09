@@ -15,7 +15,7 @@ import { NullSEXP } from "../RVAL/Primitives";
  * 
  * #### Structure
  * 
- * - `ARG(catchTarget)`: The target store for the caught value.
+ * - `ARG(catchTarget)`: The target store for the caught value (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  */
 export class JSCatchContextSEXP extends IridiumSEXP {

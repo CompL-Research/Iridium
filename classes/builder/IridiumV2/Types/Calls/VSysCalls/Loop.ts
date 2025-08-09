@@ -23,7 +23,7 @@ import { IridiumSEXP } from "../../Structural/General";
  * 
  * - `ARG(obj)`: The object instance.
  * 
- * - `ARG(targetObj)`: The target location for the iterator object.
+ * - `ARG(targetObj)`: The target location for the iterator object (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
  * 
@@ -113,9 +113,9 @@ export class JSForInStartSEXP extends IridiumSEXP {
  * 
  * - `ARG(iteratorObj)`: The iterator object.
  * 
- * - `ARG(doneTarget)`: The target location for the loop-done indicator.
+ * - `ARG(doneTarget)`: The target location for the loop-done indicator (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
- * - `ARG(nextValue)`: The target location for the loop-next indicator.
+ * - `ARG(nextValue)`: The target location for the loop-next indicator (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
  * 
@@ -267,9 +267,9 @@ export class JSForOfStartSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `ARG(doneTarget)`: The target location for the loop-done indicator.
+ * - `ARG(doneTarget)`: The target location for the loop-done indicator (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
- * - `ARG(nextValue)`: The target location for the loop-next indicator.
+ * - `ARG(nextValue)`: The target location for the loop-next indicator (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  */
 export class JSForOfNextSEXP extends IridiumSEXP {

@@ -36,7 +36,7 @@ import { IridiumSEXP } from "../../Structural/General";
  * 
  * - `ARG(targetObj)`: The source object.
  * 
- * - `ARG(updatedTargetObjHolder)`: The location to store the updated objec`t.
+ * - `ARG(updatedTargetObjHolder)`: The location to store the updated object (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
  * 

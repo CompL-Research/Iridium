@@ -17,7 +17,7 @@ import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEX
  * 
  * #### Structure
  * 
- * - `ARG(obj)`: The binding to be read, can be any environment binding {@link EnvBindingSEXP} | {@link RemoteEnvBindingSEXP} | {@link GlobalBindingSEXP} | {@link PoolBindingSEXP}.
+ * - `ARG(obj)`: The binding to be read, can be any environment binding {@link EnvBindingSEXP} | {@link RemoteEnvBindingSEXP} | {@link GlobalBindingSEXP} | {@link PoolBindingSEXP} (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  */
 export class EnvReadSEXP extends IridiumSEXP {
@@ -55,7 +55,7 @@ export type EnvWriteFlags = "SAFE" | "THISINIT" | "SLOPPY";
  * 
  * #### Structure
  * 
- * - `ARG(lValTarget)`: The storage target location(s).
+ * - `ARG(lValTarget)`: The storage target location(s) (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `ARG(rVal)`: The value to store.
  * 
@@ -136,7 +136,7 @@ export class EnvWriteSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `ARG(obj)`: The object to be read from.
+ * - `ARG(obj)`: The object to be read from (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `ARG(field)`: The field to be read.
  * 
@@ -182,7 +182,7 @@ export class FieldReadSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `ARG(obj)`: The object to be read from.
+ * - `ARG(obj)`: The object to be written to (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `ARG(field)`: The field to be updated.
  * 

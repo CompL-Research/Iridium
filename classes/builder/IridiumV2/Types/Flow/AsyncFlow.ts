@@ -80,9 +80,9 @@ export class AwaitSEXP extends IridiumSEXP {
  * 
  * - `ARG(obj)`: An object, likely a promise returned by an asynchronous function.
  * 
- * - `ARG(doneTarget)`: The target location for yieldDoneIndicator.
+ * - `ARG(doneTarget)`: The target location for yieldDoneIndicator (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
- * - `ARG(nextValue)`: The target location for yieldReturnResultHolder.
+ * - `ARG(nextValue)`: The target location for yieldReturnResultHolder (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  */
 export class YieldSEXP extends IridiumSEXP {

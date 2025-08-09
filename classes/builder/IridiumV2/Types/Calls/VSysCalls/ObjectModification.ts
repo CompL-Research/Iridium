@@ -46,9 +46,9 @@ import { IridiumSEXP } from "../../Structural/General";
  * 
  * - `ARG(spreadObj)`: The value to be spread.
  * 
- * - `ARG(updatedLengthHolder)`: The location to store the updated length.
+ * - `ARG(updatedLengthHolder)`: The location to store the updated length (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
- * - `ARG(updatedTargetObjHolder)`: The location to store the updated object.
+ * - `ARG(updatedTargetObjHolder)`: The location to store the updated object (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
  * 
@@ -182,7 +182,7 @@ export class JSAppendSEXP extends IridiumSEXP {
  * 
  * - `ARG(value)`: The value, in this case a lambda.
  * 
- * - `ARG(updatedTargetObjHolder)`: The location to store the updated object.
+ * - `ARG(updatedTargetObjHolder)`: The location to store the updated object (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
  * 
@@ -338,7 +338,7 @@ export class JSDefineObjMethodSEXP extends IridiumSEXP {
  * 
  * - `ARG(value)`: The value, in this case a lambda.
  * 
- * - `ARG(updatedTargetObjHolder)`: The location to store the updated object.
+ * - `ARG(updatedTargetObjHolder)`: The location to store the updated object (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
  * 
@@ -464,7 +464,7 @@ export class JSDefineObjPropSEXP extends IridiumSEXP {
  * 
  * - `ARG(targetObj)`: The target object.
  * 
- * - `ARG(updatedTargetObjHolder)`: The location to store the resultant object.
+ * - `ARG(updatedTargetObjHolder)`: The location to store the resultant object (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
  * 

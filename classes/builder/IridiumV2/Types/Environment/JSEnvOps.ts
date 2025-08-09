@@ -16,7 +16,7 @@ import { EnvReadSEXP, isEnvReadSEXP } from "./PrimitiveEnvOps";
  * 
  * #### Structure
  * 
- * - `ARG(obj)`: The object to be read from.
+ * - `ARG(obj)`: The object to be read from (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `ARG(field)`: The field to be read.
  * 
@@ -61,7 +61,7 @@ export class JSComputedFieldReadSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `ARG(obj)`: The object to be read from.
+ * - `ARG(obj)`: The object to be read from (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `ARG(field)`: The field to be updated.
  * 
@@ -121,7 +121,7 @@ export class JSComputedFieldWriteSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `ARG(obj)`: The object to be read from.
+ * - `ARG(obj)`: The object to be read from (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `ARG(field)`: The field to be read.
  * 
@@ -163,7 +163,7 @@ export class JSPrivateFieldReadSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `ARG(obj)`: The object to be read from.
+ * - `ARG(obj)`: The object to be read from (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `ARG(field)`: The field to be updated.
  * 
