@@ -661,7 +661,7 @@ const createClassNonStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpres
 
   if (addBrand) {
     // add_brand this <home_obj>
-    cx.getCurrentBB().args.push(new JSADDBRANDSEXP(new EnvReadSEXP("this"), new EnvReadSEXP("<home_obj>")));
+    cx.getCurrentBB().args.push(new StackRejectSEXP(new JSADDBRANDSEXP(new EnvReadSEXP("this"), new EnvReadSEXP("<home_obj>")), 0));
   }
 
   cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));

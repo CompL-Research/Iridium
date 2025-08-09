@@ -1,12 +1,9 @@
-import { printIriSpace } from "#utils";
 import { IridiumSEXP } from "../../Structural/General";
 /**
  * 
  * @extends {IridiumSEXP}
  * 
  * @group RVAL
- * 
- * @category TODO
  * 
  * @remarks
  * 
@@ -20,10 +17,6 @@ import { IridiumSEXP } from "../../Structural/General";
  * 
  * One may imagine this to be a way to push the class encapsulation check to the runtime; 
  * contrary to languages like Java/C++ where it might be a static compile time check.
- * 
- * #### TODO Notes
- * 
- * Convert to RVal.
  * 
  * #### Trigger
  * 

@@ -114,6 +114,5 @@
 
 // new A()
 
-let { a: b, ...x } = { a: 1, b: 2, c: 3 };
-
-console.log(b, x.b, x.c);
+class Test { #foo() { return 423; } foo() { return this.#foo(); } }
+console.log(new Test().foo());
