@@ -69,8 +69,38 @@
 
 // foo();
 
-function foo() {
-  console.log("foo called");
+// function foo() {
+//   console.log("foo called");
+// }
+
+// foo();
+
+// class B {
+
+// }
+
+// class A extends B{
+//   p = (console.log("pinit 1 called"), 12);
+//   constructor() {
+//     console.log("pinit 2 called")
+//     if (false) {
+//       super();
+//     } else {
+//       super();
+//     }
+//   }
+// }
+
+// console.log(new A());
+
+class B {
+  constructor() {
+    console.log("B constructor called");
+  }
 }
 
-foo();
+class A extends B {
+  p1 = (console.log("p1init"), 12);
+}
+
+new A()

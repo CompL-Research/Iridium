@@ -5,7 +5,7 @@ import { VERSION } from "../../../configs/projectStats";
 import JS3Builder from "../JS3Builder";
 import { JS3Program } from "../JS3Helpers/JS3Types";
 import { IRIV2_STMT } from "./handleStatement";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSForInStartSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isJSToObjectSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSForOfIteratorCloseSEXP, JSNUBDSEXP, JSSloppyDeclarationCheckSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP, isJSForInNextSEXP, isJSForOfNextSEXP, isJSExplicitBindingDeclarationSEXP } from "./Types/index";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSForInStartSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isJSToObjectSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSForOfIteratorCloseSEXP, JSNUBDSEXP, JSSloppyDeclarationCheckSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StaticImportSEXP, isJSForInNextSEXP, isJSForOfNextSEXP, isJSExplicitBindingDeclarationSEXP, isCallSiteSEXP, StackRejectSEXP, CallSiteSEXP, getDerivedConstructorClosureFlag } from "./Types/index";
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -66,6 +66,7 @@ export class IridiumBuildContext {
   tryContext: TryContext | null = null;
 
   kind: number = 0;
+  propInitClos: string | null = null;
   // 0 -> No Arguments Object
   // 1 -> Mapped Arguments
   // 2 -> Unmapped Arguments
@@ -234,6 +235,7 @@ export class IRIDIUMV2 {
     this.normailzeBBFlags();
     this.hoistFunctionDeclarations();
     this.generateBBContainerSEXP();
+    this.patchHeritageConstructorSuperCalls(this.container);
     this.reduceResolvePrivateEnvBindingSEXP(this.container, 0);
     this.reduceResolveEnvBindingSEXP(this.container, 0);
     this.resolveLambdaTargets();
@@ -378,6 +380,15 @@ export class IRIDIUMV2 {
       throw new Error(`Element "${target}" not found in array`);
     }
     arr.splice(index, 0, newElement);
+    return arr;
+  }
+
+  insertAfter(arr: Array<any>, target: any, ...newElements: any[]) {
+    const index = arr.indexOf(target);
+    if (index === -1) {
+      throw new Error(`Element "${target}" not found in array`);
+    }
+    arr.splice(index + 1, 0, ...newElements);
     return arr;
   }
 
@@ -723,6 +734,64 @@ export class IRIDIUMV2 {
       currSEXP.args.forEach(e => this.reduceResolvePrivateEnvBindingSEXP(e, currSEXP.getScopeIDX()));
     } else {
       currSEXP.args.forEach(e => this.reduceResolvePrivateEnvBindingSEXP(e, currBBScope));
+    }
+  }
+
+  hasNode(pred: any, currSEXP: IridiumSEXP): boolean {
+    if (pred(currSEXP)) return true;
+    for (const e of currSEXP.args) {
+      if (this.hasNode(pred, e)) return true;
+    }
+    return false;
+  }
+
+  heritageThisInit(thisValHolder: string, propInitClos: string) {
+    const res: Array<IridiumSEXP> = [];
+
+    const thisInit = new EnvWriteSEXP("this", new EnvReadSEXP(thisValHolder), false, true); // <- This is about the only place where we set THISINIT flag to true
+    res.push(thisInit);
+
+    // Call prop init closure
+    const args1: Array<IridiumSEXP> = [];
+    args1.push(new EnvReadSEXP("this"));
+    args1.push(new EnvReadSEXP(propInitClos));
+    res.push(new StackRejectSEXP(new CallSiteSEXP(args1, "CCall"), 1));
+    return res;
+  }
+
+  patchHeritageConstructorSuperCalls(currSEXP: IridiumSEXP) {
+    if (isBindingsSEXP(currSEXP)) {
+      return;
+    }
+    
+    if (isBBSEXP(currSEXP)) {
+      let superCalls: Set<IridiumSEXP> = new Set();
+      const closureScope = this.findParentClosureScope(currSEXP.getScopeIDX());
+
+      // Go over stmts of a BB, if any stmt has a child which is a super constructor call, then add this initialization logic.
+      for (let stmt of currSEXP.args) {
+        if (this.hasNode((n: IridiumSEXP) => (isCallSiteSEXP(n) && n.getCallFlag() === "Super"), stmt)) {
+          superCalls.add(stmt);
+        }
+      }
+
+      for (let scallHolder of superCalls) {
+        let buildContext = IridiumBuildContext.CONTEXT_MAP.get(closureScope);
+        do { // super calls can be lexically scoped
+          if (!buildContext) throw new Error("buildContext is undefined, failed to patch super");
+          if (buildContext.kind === getDerivedConstructorClosureFlag()) {
+            if (!isEnvWriteSEXP(scallHolder)) throw new Error("Expected super value to be stored inside an EnvWriteSEXP");
+            let lValHolder = scallHolder.getLValTarget();
+            if (!isResolveEnvBindingSEXP(lValHolder)) throw new Error("Expected LVals to be unresolved while super calls are patched");
+            if (!buildContext.propInitClos) throw new Error("Constructors with heritage are expected to have propInitClos");
+            this.insertAfter(currSEXP.args, scallHolder, ...this.heritageThisInit(lValHolder.getName(), buildContext.propInitClos));
+            break;
+          } else buildContext = IridiumBuildContext.CONTEXT_MAP.get(buildContext.parent);
+        } while(true);
+      }
+
+    } else {
+      currSEXP.args.forEach(e => this.patchHeritageConstructorSuperCalls(e));
     }
   }
 

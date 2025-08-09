@@ -120,7 +120,7 @@ export class EnvWriteSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printIriSpace(space)}${this.isSloppy() ? "[SLOP]" : ""}${this.args[0].toString(0)} ${this.isSafe() ? "=" : "=."} ${this.args[1].toString(0)}`
+    return `${printIriSpace(space)}${this.isSloppy() ? "[SLOP]" : ""}${this.args[0].toString(0)} ${this.isSafe() ? "=" : this.isThisInit() ? "=this=" : "=."} ${this.args[1].toString(0)}`
   }
 }
 
