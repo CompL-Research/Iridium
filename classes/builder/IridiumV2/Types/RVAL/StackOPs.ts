@@ -12,7 +12,7 @@ import { IridiumSEXP } from "../Structural";
  * 
  * #### Structure
  * 
- * - `ARG(Node)`: Node to be evaluated.
+ * - `...ARG(Node)`: Node(s) to be evaluated (one or more).
  * 
  * - `FLAG(NVAL)`: Number of VALUES pushed onto the stack.
  * 
@@ -55,25 +55,21 @@ export class StackRetainSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `ARG(Node)?`: Node to be evaluated (can also be empty).
+ * - `...ARG(Node)?`: Node(s) to be evaluated (can also be empty).
  * 
- * - `FLAG(NVAL)`: Number of VALUES to be popped.
+ * - `FLAG("NVAL")`: Number of VALUES to be popped.
  * 
  */
 export class StackRejectSEXP extends IridiumSEXP {
   constructor(node: IridiumSEXP | null = null, nVal: number) {
     super("StackReject");
-    if (node) this.setNode(node)
+    if (node) this.pushNode(node)
     this.setNVal(nVal);
   }
 
   // Args
-  setNode(node: IridiumSEXP) {
-    this.args[0] = node;
-  }
-
-  getNode(): IridiumSEXP {
-    return this.args[0];
+  pushNode(node: IridiumSEXP) {
+    this.args.push(node);
   }
 
   // Flags
