@@ -770,7 +770,7 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
     cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9));
 
     // Ensure the constructor was called using new
-    cx.getCurrentBB().args.push(new JSCheckConstructorSEXP());
+    cx.getCurrentBB().args.push(new StackRejectSEXP(new JSCheckConstructorSEXP(), 0));
 
     // Call prop init closure
     const args: Array<IridiumSEXP> = [];
@@ -822,7 +822,7 @@ const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, 
     cx.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<new_target>", "JSCONST", 3));
     
     // Ensure the constructor was called using new
-    cx.getCurrentBB().args.push(new JSCheckConstructorSEXP());
+    cx.getCurrentBB().args.push(new StackRejectSEXP(new JSCheckConstructorSEXP(), 0));
 
     if (!constructor) {
       // Call constructor and initialize "this"

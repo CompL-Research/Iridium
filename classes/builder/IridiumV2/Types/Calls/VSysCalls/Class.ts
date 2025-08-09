@@ -68,16 +68,10 @@ export class JSADDBRANDSEXP extends IridiumSEXP {
  * 
  * @group RVAL
  * 
- * @category TODO
- * 
  * @remarks
  * 
  * Checks if the function (constructor in this case) was called using the `new` keyword.
  * If not, then it throws an error.
- * 
- * #### TODO Notes
- * 
- * Convert to RVal.
  * 
  * 
  * #### Trigger
