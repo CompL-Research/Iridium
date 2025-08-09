@@ -6,7 +6,7 @@ import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJ
 import { funArgLength, handleBlockStatement, IRIV2_STMT, lowerArgumentInit } from "./handleStatement";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
 
-import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSEnvWriteSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSForOfIteratorCloseSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSTemplateSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StringSEXP, UNOPDelMemberExprSEXP, UNOPDelVarSEXP, UnopSEXP, YieldSEXP } from "./Types/index";
+import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSExplicitBindingDeclarationSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSTemplateSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StringSEXP, UNOPDelMemberExprSEXP, UNOPDelVarSEXP, UnopSEXP, YieldSEXP } from "./Types/index";
 
 // Handle RValues | AMP
 export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
@@ -219,8 +219,8 @@ export const handleArrayPatternAssignmentExpr = (cx: IRIDIUMV2, elements: JS3Arr
   let for$of$loop$done = cx.js3Builder.utils.getNewTemporary("done");
 
   cx.getCurrentBB().args.push(new JSForOfStartSEXP(rValTarget));
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$next), null, "JSLET", false));
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(for$of$loop$done), null, "JSLET", false));
+  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(for$of$loop$next), null, "JSLET", false));
+  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(for$of$loop$done), null, "JSLET", false));
 
   for (let e of elements) {
     if (isIdentifier(e)) {
@@ -238,8 +238,8 @@ export const handleArrayPatternAssignmentExpr = (cx: IRIDIUMV2, elements: JS3Arr
       // }
       let tempres = cx.js3Builder.utils.getNewTemporary("tempres");
       let tempit = cx.js3Builder.utils.getNewTemporary("it");
-      cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(tempres), new JSArraySEXP([]), "JSLET", false));
-      cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(tempit), new NumberSEXP(0), "JSLET", false));
+      cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(tempres), new JSArraySEXP([]), "JSLET", false));
+      cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(tempit), new NumberSEXP(0), "JSLET", false));
 
       const currentContext = cx.getCurrentContext();
       const currentBB = currentContext.getCurrentBB();
@@ -307,7 +307,7 @@ export const handleObjectPatternAssignmentExpr = (cx: IRIDIUMV2, properties: JS3
   });
 
   let toObjRes = cx.js3Builder.utils.getNewTemporary("toObjRes");
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(toObjRes), null, "JSLET", false));
+  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(toObjRes), null, "JSLET", false));
 
   // 1. JSToObjectSEXP(rValTarget, toObjRes)
   cx.getCurrentBB().args.push(new JSToObjectSEXP(rValTarget, toObjRes));
@@ -318,7 +318,7 @@ export const handleObjectPatternAssignmentExpr = (cx: IRIDIUMV2, properties: JS3
   //      exc_obj[f] = null;
   if (hasRest) {
     exc_obj = cx.js3Builder.utils.getNewTemporary("exc_obj");
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(exc_obj), new JSObjectSEXP(), "JSLET", false));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(exc_obj), new JSObjectSEXP(), "JSLET", false));
   }
 
   // 3. f1 = orig_rval.f1
@@ -369,7 +369,7 @@ export const handleObjectPatternAssignmentExpr = (cx: IRIDIUMV2, properties: JS3
   if (hasRest) {
     // 4. [*] fin_obj = {}
     let fin_obj = cx.js3Builder.utils.getNewTemporary("fin_obj");
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(fin_obj), new JSObjectSEXP(), "JSLET", false));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(fin_obj), new JSObjectSEXP(), "JSLET", false));
 
     // @ts-ignore
     // 5. [*] JSCopyDataProperties(exc_obj, orig_rval, fin_obj, | -> | e)
@@ -416,8 +416,8 @@ const handleYieldExpression = (cx: IRIDIUMV2, node: JS3YieldExpression): Iridium
   cx.getCurrentBB().args.push(new ReturnAsyncSEXP(new EnvReadSEXP(yieldReturnResultHolder)));
   cx.popContext();
 
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(yieldDoneIndicator), null, "JSLET", false));
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(yieldReturnResultHolder), null, "JSLET", false));
+  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(yieldDoneIndicator), null, "JSLET", false));
+  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(yieldReturnResultHolder), null, "JSLET", false));
 
   // <yieldDoneIndicator, yieldReturnResultHolder> = YIELD ARG
   cx.getCurrentBB().args.push(new YieldSEXP(node.argument ? node.argument.name : "undefined", yieldDoneIndicator, yieldReturnResultHolder));
@@ -440,14 +440,14 @@ const handleComputedProps = (cx: IRIDIUMV2, node: JS3ClassExpression): Map<JS3Cl
 
   computedProps.forEach(classItem => {
     let targetID = cx.js3Builder.utils.getNewTemporary(undefined);
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(targetID), null, "JSLET", false));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(targetID), null, "JSLET", false));
     computedPropMapping.set(classItem, targetID);
   });
 
   const privateProps = node.body.body.filter(classItem => isJS3ClassPrivateProperty(classItem) || isJS3ClassPrivateMethod(classItem));
   privateProps.forEach(classItem => {
     let targetID = cx.js3Builder.utils.getNewTemporary(undefined);
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(targetID), new PrivateSEXP(classItem.key.id.name), "JSLET", false));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(targetID), new PrivateSEXP(classItem.key.id.name), "JSLET", false));
     computedPropMapping.set(classItem, targetID);
   });
 
@@ -458,9 +458,9 @@ const handleComputedProps = (cx: IRIDIUMV2, node: JS3ClassExpression): Map<JS3Cl
   oldContext.getCurrentBB().args.push(new GotoSEXP(newContext.BB[0].idx))
   cx.addContinuation(oldContext);
 
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP("this"), new GlobalBindingSEXP("undefined"), "JSCONST", false));
+  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("this"), new GlobalBindingSEXP("undefined"), "JSCONST", false));
   if (isIdentifier(node.id))
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(node.id.name), new JSNUBDSEXP(), "JSCONST", false));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(node.id.name), new JSNUBDSEXP(), "JSCONST", false));
 
   computedProps.forEach(classItem => {
     if (!computedPropMapping.has(classItem)) throw new Error("Expected computed props to have a location already allocated...");
@@ -669,7 +669,7 @@ const createClassNonStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpres
   cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
 
   cx.popContext();
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(location), new LambdaSEXP(funBBIdx), "JSLET", false));
+  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(location), new LambdaSEXP(funBBIdx), "JSLET", false));
 
   return location;
 }
@@ -707,7 +707,7 @@ const createClassStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpressio
 
   // Set classname to "this" if it exists
   if (node.id) {
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(node.id.name), new EnvReadSEXP("this"), "JSCONST", false));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(node.id.name), new EnvReadSEXP("this"), "JSCONST", false));
   }
 
   for (let classItem of node.body.body) {
@@ -744,7 +744,7 @@ const createClassStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpressio
   cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
 
   cx.popContext();
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(location), new LambdaSEXP(funBBIdx), "JSLET", false));
+  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(location), new LambdaSEXP(funBBIdx), "JSLET", false));
 
   return location;
 }
@@ -895,7 +895,7 @@ const handleUpdateExpression = (cx: IRIDIUMV2, node: JS3UpdateExpression): Iridi
       let tmp = cx.js3Builder.utils.getNewTemporary(undefined);
 
       cx.getCurrentBB().args.push(
-        new JSEnvWriteSEXP(
+        new JSExplicitBindingDeclarationSEXP(
           new ResolveEnvBindingSEXP(tmp),
           new EnvReadSEXP(node.argument.name),
           "JSLET",
@@ -974,7 +974,7 @@ const handleConditionalExpression = (cx: IRIDIUMV2, node: JS3ConditionalExpressi
   const currentContext = cx.getCurrentContext();
   const currentBB = currentContext.getCurrentBB();
   const resHolder = cx.js3Builder.utils.getNewTemporary("conditionalResult");
-  currentBB.args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(resHolder), new EnvReadSEXP("undefined"), "JSLET", false));
+  currentBB.args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(resHolder), new EnvReadSEXP("undefined"), "JSLET", false));
 
   cx.addContinuation(currentContext);
   const postBB = currentContext.getCurrentBB();
@@ -1241,7 +1241,7 @@ const handleContextualCallExpression = (cx: IRIDIUMV2, node: JS3ContextualCallEx
   // Non private call cases
   const tempHolder = cx.js3Builder.utils.getNewTemporary("ccallCallee");
   const callee = new ResolveEnvBindingSEXP(tempHolder);
-  const stmt = new JSEnvWriteSEXP(callee, IRIV2_RVAL(cx, node.callee), "JSLET", false);
+  const stmt = new JSExplicitBindingDeclarationSEXP(callee, IRIV2_RVAL(cx, node.callee), "JSLET", false);
   let contextObj;
   if (isJS3MemberExpression(node.callee)) {
     if (isIdentifier(node.callee.object)) {
@@ -1290,10 +1290,10 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
   } else {
     // let temp$id, insertionIdx$id;
     let temp$id = cx.js3Builder.utils.getNewTemporary("temp");
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(temp$id), null, "JSLET", false));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(temp$id), null, "JSLET", false));
 
     let insertionIdx$id = cx.js3Builder.utils.getNewTemporary("insertionIdx");
-    cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(insertionIdx$id), null, "JSLET", false));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(insertionIdx$id), null, "JSLET", false));
 
     // temp$id = [all'E'suntilNow]
     let allEs = untilFirstMatch(init.elements, (e) => isJS3SpreadElement(e));
@@ -1371,7 +1371,7 @@ const getObjKeyString = (key: Identifier | StringLiteral | NumericLiteral | BigI
 
 const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
   let obj$id = cx.js3Builder.utils.getNewTemporary("newObj");
-  cx.getCurrentBB().args.push(new JSEnvWriteSEXP(new ResolveEnvBindingSEXP(obj$id), new JSObjectSEXP(), "JSLET", false));
+  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(obj$id), new JSObjectSEXP(), "JSLET", false));
 
   for (let prop of init.properties) {
     if (isJS3ObjectMethod(prop)) {

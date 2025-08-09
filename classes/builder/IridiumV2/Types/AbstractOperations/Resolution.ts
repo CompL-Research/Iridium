@@ -8,17 +8,11 @@ import { GotoSEXP } from "../Flow";
  * 
  * @group RVAL
  * 
- * @category TODO
- * 
  * @remarks
  * 
  * ResolveEnvBinding is an abstract operation in the Iridium IR.
  * It indicates a reference to an unresolved identifier.
  * Upon resolution, this is replaced by its corresponding binding.
- * 
- * #### TODO Notes
- * 
- * Ensure that it can never enter a BB as a statement directly.
  * 
  * #### Resolutions
  * 
@@ -67,16 +61,10 @@ export class ResolveEnvBindingSEXP extends IridiumSEXP {
  * 
  * @group RVAL
  * 
- * @category TODO
- * 
  * @remarks
  * 
  * ResolvePrivateEnvBinding is an abstract operation in the Iridium IR.
  * It indicates a reference to an unresolved private identifier reference.
- * 
- * #### TODO Notes
- * 
- * Ensure that it can never enter a BB as a statement directly.
  * 
  * #### Resolutions
  * 

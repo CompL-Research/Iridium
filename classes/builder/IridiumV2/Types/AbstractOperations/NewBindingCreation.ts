@@ -1,7 +1,7 @@
 import { printFlagString, printIriSpace } from "#utils";
 import { EnvWriteSEXP } from "../Environment";
-import { IridiumSEXP } from "../Structural/General";
 import { ListSEXP, NullSEXP } from "../RVAL/Primitives";
+import { IridiumSEXP } from "../Structural/General";
 import { isResolveEnvBindingSEXP, ResolveEnvBindingSEXP } from "./Resolution";
 
 /**
@@ -15,11 +15,9 @@ export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * @group STMT
  * 
- * @category TODO
- * 
  * @remarks
  * 
- * A JSWrite is used to either declare a new binding or perform assignment to an existing binding.
+ * A JSExplicitBindingDeclaration is used to either declare a new binding, and also (optionally) initialize it.
  * After resolution, all JSWrites are reduced down to {@link EnvWriteSEXP} nodes.
  * In case a new binding was declared, the resolution pass would end up finding the relevant scope,
  * allocate space on the stack and take care of the initialization at scope start.
@@ -51,9 +49,9 @@ export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
  * - `FLAG(SLOPPY)`: Indicates whether the writes to target locations is sloppy.
  * 
  */
-export class JSEnvWriteSEXP extends IridiumSEXP {
+export class JSExplicitBindingDeclarationSEXP extends IridiumSEXP {
   constructor(lval: IridiumSEXP, rval: IridiumSEXP | null, kind: JSEnvWriteTypes | undefined = undefined, thisInit: boolean) {
-    super("JSEnvWrite");
+    super("JSExplicitBindingDeclaration");
     this.setLValTarget(lval);
     if (rval) this.setRVal(rval);
     if (kind) this.setKind(kind);
@@ -201,7 +199,7 @@ export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * #### Structure
  * 
- * - `ARG(Store)`: Location on stack where the result is stored.
+ * - `ARG(Store)`: Location on stack where the result is stored (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
  * - `ARG(Args)`: A {@link ListSEXP}, that can pass additional arguments to the initializer. An empty list by default.
  * 
@@ -337,6 +335,8 @@ export class JSImplicitBindingDeclarationSEXP extends IridiumSEXP {
  * 
  * - {@link EnvWriteSEXP}: A binding found in the immediate enclosing closure scope.
  * 
+ * - {@link JSFuncDeclSEXP}: It is possible that node does not change its form; this happens for top-level declarations in sloppy mode code.
+ * 
  * #### Structure
  * 
  * - `ARG(lValTarget)`: The storage target location
@@ -423,7 +423,7 @@ export class JSFuncDeclSEXP extends IridiumSEXP {
   // Utils
   reduceDecl() {
     this.tag = "JSEnvWrite";
-    Object.setPrototypeOf(this, new JSEnvWriteSEXP(new NullSEXP(), null, "JSVAR",false));
+    Object.setPrototypeOf(this, new JSExplicitBindingDeclarationSEXP(new NullSEXP(), null, "JSVAR",false));
   }
 
   toString(space?: number): string {
@@ -455,7 +455,7 @@ export function isJSImplicitBindingDeclarationSEXP(o: any): o is JSImplicitBindi
 /**
  * @hidden
  */
-export function isJSEnvWriteSEXP(o: any): o is JSEnvWriteSEXP {
+export function isJSExplicitBindingDeclarationSEXP(o: any): o is JSExplicitBindingDeclarationSEXP {
   // @ts-ignore
-  return o.tag === "JSEnvWrite";
+  return o.tag === "JSExplicitBindingDeclaration";
 }
