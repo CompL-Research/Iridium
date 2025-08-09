@@ -9,36 +9,19 @@ import { IridiumSEXP } from "../../Structural/General";
  * 
  * @group RVAL
  * 
- * @category TODO
- * 
  * @remarks
  * 
  * For a given an object, this call stores it's For-In iterator in target.
- * 
- * #### TODO Notes
- * 
- * Convert to RVal.
  * 
  * #### Structure
  * 
  * - `ARG(obj)`: The object instance.
  * 
- * - `ARG(targetObj)`: The target location for the iterator object (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
- * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
- * 
- * - `FLAG(THISINIT)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
- * 
- * - `FLAG(SLOPPY)`: Indicates whether the writes to target locations is sloppy.
- * 
  */
 export class JSForInStartSEXP extends IridiumSEXP {
-  constructor(obj: string, target: string) {
+  constructor(obj: string) {
     super("JSForInStart");
     this.setObj(new EnvReadSEXP(obj));
-    this.setTargetObj(new ResolveEnvBindingSEXP(target));
-    this.setThisInit(false);
-    this.setSafe(false);
   }
 
   // Args
@@ -48,39 +31,6 @@ export class JSForInStartSEXP extends IridiumSEXP {
 
   getObj(): IridiumSEXP {
     return this.args[0];
-  }
-
-  setTargetObj(target: IridiumSEXP) {
-    this.args[1] = target;
-  }
-
-  getTargetObj(): IridiumSEXP {
-    return this.args[1];
-  }
-
-  // Flags
-  markSloppy() {
-    this.setFlag("SLOPPY");
-  }
-
-  isSloppy() {
-    return this.hasFlag("SLOPPY");
-  }
-
-  setThisInit(val: boolean) {
-    this.setFlag("THISINIT", val);
-  }
-
-  isThisInit(): boolean {
-    return this.getFlagBoolean("THISINIT")
-  }
-
-  setSafe(val: boolean) {
-    this.setFlag("SAFE", val);
-  }
-
-  isSafe(): boolean {
-    return this.getFlagBoolean("SAFE")
   }
 
   toString(space?: number): string {

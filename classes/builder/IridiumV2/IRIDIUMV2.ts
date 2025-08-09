@@ -444,7 +444,6 @@ export class IRIDIUMV2 {
       || isJSDefineObjPropSEXP(currSEXP) 
       || isJSDefineObjMethodSEXP(currSEXP)
       || isJSImplicitBindingDeclarationSEXP(currSEXP)
-      || isJSForInStartSEXP(currSEXP)
       || isJSForInNextSEXP(currSEXP)
       || isJSForOfNextSEXP(currSEXP)
     ) {

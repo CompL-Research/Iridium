@@ -5,7 +5,7 @@ import { handleArrayPatternAssignmentExpr, handleObjectPatternAssignmentExpr, IR
 
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks";
 import { handleAssignmentExpression as js3handleAssignmentExpression } from "../JS3Helpers/HandleExpression";
-import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSCatchContextSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StarExportSEXP, StaticImportSEXP, ThrowSEXP } from "./Types/index";
+import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSCatchContextSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StackPopSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, ThrowSEXP } from "./Types/index";
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   if (isJS3ImportDeclaration(stmt)) {
@@ -360,9 +360,9 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
     // JSForOfStartSEXP(RVal, | -> | <loop-iterator>, <loop-method>, <loop-catchoffset>)
     cx.getCurrentBB().args.push(new JSForOfStartSEXP(stmt.right.name));
   } else {
-    // JSForInStartSEXP(RVal, | -> | <loop-iterator>)
-    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-iterator>"), null, "JSLET", false));
-    cx.getCurrentBB().args.push(new JSForInStartSEXP(stmt.right.name, "<loop-iterator>"));
+    // <loop-iterator> = JSForInStartSEXP(RVal)
+    cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForInStartSEXP(stmt.right.name), 1));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-iterator>"), new StackPopSEXP(), "JSLET", false));
   }
   cx.getCurrentBB().args.push(loopInitToLoopTestNode);
 
