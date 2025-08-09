@@ -81,3 +81,20 @@ export class StackRejectSEXP extends IridiumSEXP {
     return this.getFlagNumber("NVAL");
   }
 }
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * Pop and return the top of the stack.
+ * 
+ */
+export class StackPopSEXP extends IridiumSEXP {
+  constructor() {
+    super("StackPop");
+  }
+}
