@@ -422,7 +422,7 @@ export class JSFuncDeclSEXP extends IridiumSEXP {
 
   // Utils
   reduceDecl() {
-    this.tag = "JSEnvWrite";
+    this.tag = "JSExplicitBindingDeclaration";
     Object.setPrototypeOf(this, new JSExplicitBindingDeclarationSEXP(new NullSEXP(), null, "JSVAR",false));
   }
 

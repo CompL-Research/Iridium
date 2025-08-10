@@ -117,6 +117,13 @@
 // class Test { #foo() { return 423; } foo() { return this.#foo(); } }
 // console.log(new Test().foo());
 
-for (let x of [1,2,3]) {
-  console.log(x);
+function test5() {
+  let a = 0;
+  let b = 1;
+  let c = 2;
+  let d = -1;
+  let e = a + b + c + d
+  console.log(e);
 }
+
+test5()
