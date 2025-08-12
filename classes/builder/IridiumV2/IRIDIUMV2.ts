@@ -38,20 +38,6 @@ function isLoopConfig(obj: any): obj is LoopConfig {
     typeof obj.continueTarget === "number"
   );
 }
-
-// Type guard for TryContext
-function isTryContext(obj: any): obj is TryContext {
-  return (
-    typeof obj === "object" &&
-    obj !== null &&
-    typeof obj.tryContextIDX === "number" &&
-    typeof obj.tryIDX === "number" &&
-    typeof obj.udCatchIDX === "number" &&
-    typeof obj.imCatchIDX === "number" &&
-    typeof obj.finalizerIDX === "number"
-  );
-}
-
 export class IridiumBuildContext {
   static SID = 0;
   static CONTEXT_MAP = new Map<number, IridiumBuildContext>();
