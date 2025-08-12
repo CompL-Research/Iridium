@@ -147,19 +147,25 @@
 // a.f = 13;
 // console.log(a.f);
 
-let f = () => {
-  for (let e of [1,2,3]) {
-    try {
-      if (e === 3) {
-        throw "Pikachu";
-      }
-    } catch (e) {
-      console.log("caught", e);
-    } finally {
-      console.log(e);
-    }
-  }
+// let f = () => {
+//   for (let e of [1,2,3]) {
+//     try {
+//       if (e === 3) {
+//         throw "Pikachu";
+//       }
+//     } catch (e) {
+//       console.log("caught", e);
+//     } finally {
+//       console.log(e);
+//     }
+//   }
   
+// }
+
+// f()
+
+function foo() {
+  console.log("Hello World");
 }
 
-f()
+foo();

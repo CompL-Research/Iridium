@@ -196,13 +196,6 @@ export class LambdaSEXP extends IridiumSEXP {
 }
 
 
-// (Primitive) NOP
-export class NOPSEXP extends IridiumSEXP {
-  constructor() {
-    super("NOP");
-  }
-}
-
 /**
  * @hidden
  */

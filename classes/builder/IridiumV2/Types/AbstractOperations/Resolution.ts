@@ -10,6 +10,31 @@ import { GotoSEXP } from "../Flow";
  * 
  * @remarks
  * 
+ * A No op node, removed before final codegen. 
+ * 
+ */
+export class NOPSEXP extends IridiumSEXP {
+  constructor() {
+    super("NOP");
+  }
+}
+
+/**
+ * @hidden
+ */
+export function isNOPSEXP(o: any): o is NOPSEXP {
+  // @ts-ignore
+  return o.tag === "NOP";
+}
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
  * ResolveEnvBinding is an abstract operation in the Iridium IR.
  * It indicates a reference to an unresolved identifier.
  * Upon resolution, this is replaced by its corresponding binding.
