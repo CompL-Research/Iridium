@@ -6,9 +6,9 @@ import { isJS3AnonMemberExpression, isJS3ArrayExpression, isJS3ArrayPattern, isJ
 import { funArgLength, handleBlockStatement, IRIV2_STMT, lowerArgumentInit } from "./handleStatement";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
 
-import { AwaitSEXP, BinopSEXP, BitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSExplicitBindingDeclarationSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSTemplateSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, PrivateSEXP, RegExpSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StringSEXP, UNOPDelMemberExprSEXP, UNOPDelVarSEXP, UnopSEXP, YieldSEXP } from "./Types/index";
+import { AwaitSEXP, BinopSEXP, JSBitIntSEXP, BooleanSEXP, CallSiteSEXP, EnvReadSEXP, EnvWriteSEXP, FieldReadSEXP, FieldWriteSEXP, getConstructorClosureFlag, getDerivedConstructorClosureFlag, getDerivedMethodClosureFlag, getPrivateDerivedMethodClosureFlag, getPrivateMethodClosureFlag, getPropInitDerivedNoPrivateClosureFlag, getPropInitDerivedPrivateClosureFlag, getPropInitNoPrivateClosureFlag, getPropInitPrivateClosureFlag, getRegularClosureFlag, getStaticPropInitClosureFlag, getStaticPropInitDerivedClosureFlag, GlobalBindingSEXP, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, IridiumSEXP, JSADDBRANDSEXP, JSAppendSEXP, JSArraySEXP, JSCheckConstructorSEXP, JSClassSEXP, JSComputedFieldReadSEXP, JSComputedFieldWriteSEXP, JSCopyDataPropertiesSEXP, JSDefineObjMethodSEXP, JSDefineObjPropSEXP, JSExplicitBindingDeclarationSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSNUBDSEXP, JSObjectSEXP, JSPrivateFieldReadSEXP, JSPrivateFieldWriteSEXP, JSSpreadSEXP, JSSuperFieldReadSEXP, JSSuperFieldWriteSEXP, JSTemplateSEXP, JSToObjectSEXP, LambdaSEXP, ListSEXP, NullSEXP, NumberSEXP, JSPrivateSEXP, RegExpSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP, ReturnAsyncSEXP, ReturnSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StringSEXP, UNOPDelMemberExprSEXP, UNOPDelVarSEXP, UnopSEXP, YieldSEXP } from "./Types/index";
 
-// Handle RValues | AMP
+// Handle RValues | AMPPrivateSEXP
 export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
 
 
@@ -51,7 +51,7 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   if (init.type === "DecimalLiteral") {
     throw new Error("IRIV2 TODO: Decimal Literal");
   } else if (init.type === "BigIntLiteral") {
-    return new BitIntSEXP(init.value);
+    return new JSBitIntSEXP(init.value);
   } else if (init.type === "StringLiteral") {
     return new StringSEXP(init.value);
   } else if (init.type === "NumericLiteral") {
@@ -454,7 +454,7 @@ const handleComputedProps = (cx: IRIDIUMV2, node: JS3ClassExpression): Map<JS3Cl
   const privateProps = node.body.body.filter(classItem => isJS3ClassPrivateProperty(classItem) || isJS3ClassPrivateMethod(classItem));
   privateProps.forEach(classItem => {
     let targetID = cx.js3Builder.utils.getNewTemporary(undefined);
-    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(targetID), new PrivateSEXP(classItem.key.id.name), "JSLET", false));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(targetID), new JSPrivateSEXP(classItem.key.id.name), "JSLET", false));
     computedPropMapping.set(classItem, targetID);
   });
 
@@ -548,7 +548,7 @@ const lowerNonStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, pri
     cx.getCurrentBB().args.push(new EnvWriteSEXP(allocaLocation, funBodyLambda, true, false));
 
     const lambda: Array<IridiumSEXP> = [];
-    lambda.push(new PrivateSEXP(methodNode.key.id.name));
+    lambda.push(new JSPrivateSEXP(methodNode.key.id.name));
     lambda.push(new EnvReadSEXP(allocaLocation));
     lambda.push(new StringSEXP(getMethodKindFlag(methodNode.kind)));
     const lambdaNode = new ListSEXP(lambda);
@@ -590,7 +590,7 @@ const lowerStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, privat
     cx.getCurrentBB().args.push(new EnvWriteSEXP(allocaLocation, funBodyLambda, true, false));
 
     const lambda: Array<IridiumSEXP> = [];
-    lambda.push(new PrivateSEXP(methodNode.key.id.name));
+    lambda.push(new JSPrivateSEXP(methodNode.key.id.name));
     lambda.push(new EnvReadSEXP(allocaLocation));
     lambda.push(new StringSEXP(getMethodKindFlag(methodNode.kind)));
     const lambdaNode = new ListSEXP(lambda);

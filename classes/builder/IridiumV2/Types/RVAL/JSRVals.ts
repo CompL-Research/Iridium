@@ -2,11 +2,56 @@ import { printFlagString, printIriSpace } from "#utils";
 import { IridiumSEXP } from "../Structural/General";
 import { LambdaSEXP, StringSEXP } from "./Primitives";
 
+
+
 /**
  * 
  * @extends {IridiumSEXP}
  * 
- * @group JSRVal
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * An field reference which must not be resolved, this identifier and possibly computed field names are used by the delete operator to delete the binding.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(receiver)`: {@link IridiumSEXP} referencing the receiver object.
+ * 
+ * - `ARG(field)`: {@link IridiumSEXP} if the field is computed, {@link StringSEXP} otherwise.
+ * 
+ */
+export class UNOPDelMemberExprSEXP extends IridiumSEXP {
+  constructor(receiver: IridiumSEXP, field: IridiumSEXP) {
+    super("UNOPDelMemberExpr");
+
+    this.setReceiver(receiver);
+    this.setField(field);
+  }
+
+  // Args
+  setReceiver(receiver: IridiumSEXP) {
+    this.args[0] = receiver;
+  }
+
+  getReceiver(): IridiumSEXP {
+    return this.args[0];
+  }
+
+  setField(receiver: IridiumSEXP) {
+    this.args[1] = receiver;
+  }
+
+  getField(): IridiumSEXP {
+    return this.args[1];
+  }
+
+}
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
  * 
  * @remarks
  * 
@@ -101,50 +146,6 @@ export class JSBinopSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group JSRVal
- * 
- * @remarks
- * 
- * An field reference which must not be resolved, this identifier and possibly computed field names are used by the delete operator to delete the binding.
- * 
- * #### Structure
- * 
- * - `ARG(receiver)`: {@link IridiumSEXP} referencing the receiver object.
- * 
- * - `ARG(field)`: {@link IridiumSEXP} if the field is computed, {@link StringSEXP} otherwise.
- * 
- */
-export class UNOPDelMemberExprSEXP extends IridiumSEXP {
-  constructor(receiver: IridiumSEXP, field: IridiumSEXP) {
-    super("UNOPDelMemberExpr");
-
-    this.setReceiver(receiver);
-    this.setField(field);
-  }
-
-  // Args
-  setReceiver(receiver: IridiumSEXP) {
-    this.args[0] = receiver;
-  }
-
-  getReceiver(): IridiumSEXP {
-    return this.args[0];
-  }
-
-  setField(receiver: IridiumSEXP) {
-    this.args[1] = receiver;
-  }
-
-  getField(): IridiumSEXP {
-    return this.args[1];
-  }
-
-}
-
-/**
- * 
- * @extends {IridiumSEXP}
- * 
  * @group RVAL
  * 
  * @remarks
@@ -187,6 +188,27 @@ export class JSUnopSEXP extends IridiumSEXP {
     return `${printIriSpace(space)} JOP[${this.getOP()}] ${this.getVal()}`
   }
 }
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * An untagged JS template object.
+ * When untagged, the default behaviour is to call the `concat` function as follows.
+ * 
+ * ```
+ * "".concat(...args)
+ * ```
+ * 
+ * #### Structure
+ * 
+ * - `...ARG(vals)`: the intermix of quasis and expressions.
+ * 
+ */
 export class JSTemplateSEXP extends IridiumSEXP {
   constructor(elements: Array<IridiumSEXP>) {
     super("JSTemplate");
@@ -198,7 +220,23 @@ export class JSTemplateSEXP extends IridiumSEXP {
   }
 }
 
-export class BitIntSEXP extends IridiumSEXP {
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * An JS BigInt object.
+ * (Ref: [mdn](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt))
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(IridiumPrimitive)`: a string.
+ * 
+ */
+export class JSBitIntSEXP extends IridiumSEXP {
   constructor(str: string) {
     super("BitInt");
     this.flags.push(["IridiumPrimitive", str]);
@@ -213,7 +251,23 @@ export class BitIntSEXP extends IridiumSEXP {
   }
 }
 
-export class PrivateSEXP extends IridiumSEXP {
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * An JS Private object.
+ * (Ref: [mdn](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_elements))
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(IridiumPrimitive)`: a string.
+ * 
+ */
+export class JSPrivateSEXP extends IridiumSEXP {
   constructor(str: string) {
     super("Private");
     this.flags.push(["IridiumPrimitive", str]);
@@ -224,6 +278,22 @@ export class PrivateSEXP extends IridiumSEXP {
   }
 }
 
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * An JS Array object.
+ * (Ref: [mdn](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))
+ * 
+ * #### Structure
+ * 
+ * - `...ARG(vals)`: values to be inserted into the array.
+ * 
+ */
 export class JSArraySEXP extends IridiumSEXP {
   constructor(vals: Array<IridiumSEXP>) {
     super("JSArray");
@@ -235,14 +305,50 @@ export class JSArraySEXP extends IridiumSEXP {
   }
 }
 
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * An JS Spread node.
+ * (Ref: [mdn](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax))
+ * 
+ * #### Structure
+ * 
+ * - `ARG(val)`: value to be spread.
+ * 
+ */
 export class JSSpreadSEXP extends IridiumSEXP {
   constructor(id: IridiumSEXP) {
     super("JSSpread");
-    this.args.push(id);
+    this.setVal(id);
   }
+
+  // Args
+  setVal(val: IridiumSEXP) {
+    this.args[0] = val;
+  }
+
+  getVal() {
+    return this.args[0];
+  }
+
 }
 
-// (Extension) JSNUBD
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * An JS special that is used to model the no-use-before-def semantics.
+ * 
+ */
 export class JSNUBDSEXP extends IridiumSEXP {
   constructor() {
     super("JSNUBD");
@@ -258,7 +364,7 @@ export class JSNUBDSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group JSRVal
+ * @group RVAL
  * 
  * @remarks
  * 
@@ -400,6 +506,17 @@ export class JSClassSEXP extends IridiumSEXP {
   }
 }
 
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * Creates a new empty JS Object.
+ * 
+ */
 export class JSObjectSEXP extends IridiumSEXP {
   constructor() {
     super("JSObject");
@@ -411,7 +528,7 @@ export class JSObjectSEXP extends IridiumSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isJSObjectSEXP(o: any): o is JSObjectSEXP {
   // @ts-ignore
@@ -419,7 +536,7 @@ export function isJSObjectSEXP(o: any): o is JSObjectSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isJSArraySEXP(o: any): o is JSArraySEXP {
   // @ts-ignore
@@ -427,24 +544,24 @@ export function isJSArraySEXP(o: any): o is JSArraySEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
-export function isPrivateSEXP(o: any): o is PrivateSEXP {
+export function isJSPrivateSEXP(o: any): o is JSPrivateSEXP {
   // @ts-ignore
   return o.tag === "Private";
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
-export function isBitIntSEXP(o: any): o is BitIntSEXP {
+export function isJSBitIntSEXP(o: any): o is JSBitIntSEXP {
   // @ts-ignore
   return o.tag === "BitInt";
 }
 
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isUNOPDelMemberExprSEXP(o: any): o is UNOPDelMemberExprSEXP {
   // @ts-ignore
@@ -452,7 +569,7 @@ export function isUNOPDelMemberExprSEXP(o: any): o is UNOPDelMemberExprSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isUNOPDelVarSEXP(o: any): o is UNOPDelVarSEXP {
   // @ts-ignore
