@@ -447,8 +447,6 @@ export type JSSloppyDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * @group STMT
  * 
- * @category TODO
- * 
  * @remarks
  * 
  * Top level declarations in **Sloppy** Mode are not stored on the stack frame, but instead become
