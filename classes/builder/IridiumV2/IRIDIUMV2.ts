@@ -890,12 +890,6 @@ export class IRIDIUMV2 {
                 toRemoveList.add(stmt);
               }
               
-              // if (isJSCatchContextSEXP(stmt)) {
-              //   const hoistingInfoList = hoistingInfo.get(localScope);
-              //   if (!hoistingInfoList) throw new Error("hoistingInfoList is undefined");
-              //   hoistingInfoList.push([[stmt.getBindingName()], "JSLET"]);
-              // }
-
               // Function Declaration
               if (isJSFuncDeclSEXP(stmt)) {
                 if (!isModule && localScope === 0) {
@@ -903,26 +897,6 @@ export class IRIDIUMV2 {
                 } else {
                   stmt.reduceDecl();
                 }
-
-                // Dont break here!!!
-
-                // const lval = stmt.args[0];
-                // if (!isResolveEnvBindingSEXP(lval)) throw new Error("Expected unresolved name for function declarations");
-                // const bindingName = lval.getBindingName();
-
-                // // Case 1: non-module code
-                // //    a. outer scope, treat binding as a global
-                // //    b. inner scope, declare local binding -> put_loc
-                // // Case 2: module code
-                // //    a. outer scope, treat a closure var -> put_var
-                // //    b. inner scope, declare local binding -> put_loc
-                // if (!isModule && localScope === 0) {
-                //   // NADA
-                // } else {
-                //   const hoistingInfoList = hoistingInfo.get(localScope);
-                //   if (!hoistingInfoList) throw new Error("hoistingInfoList is undefined");
-                //   hoistingInfoList.push([[bindingName], "JSVAR"]);
-                // }
               }
 
               // Declaration Statements

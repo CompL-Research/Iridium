@@ -203,41 +203,40 @@ export class NOPSEXP extends IridiumSEXP {
   }
 }
 
-// @ts-ignore
+/**
+ * @hidden
+ */
 export function isLambdaSEXP(o: any): o is LambdaSEXP {
   // @ts-ignore
   return o.tag === "Lambda";
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isBinopSEXP(o: any): o is BinopSEXP {
   // @ts-ignore
   return o.tag === "Binop";
 }
 
-
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isBooleanSEXP(o: any): o is BooleanSEXP {
   // @ts-ignore
   return o.tag === "Boolean";
 }
 
-
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isNumberSEXP(o: any): o is NumberSEXP {
   // @ts-ignore
   return o.tag === "Number";
 }
 
-
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isStringSEXP(o: any): o is StringSEXP {
   // @ts-ignore
@@ -245,7 +244,7 @@ export function isStringSEXP(o: any): o is StringSEXP {
 }
 
 /**
- * @group TSHelper
+ * @hidden
  */
 export function isListSEXP(o: any): o is ListSEXP {
   // @ts-ignore
