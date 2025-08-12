@@ -674,7 +674,14 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
     cx.getCurrentBB().setFlag("udCatchBB");
     tryContext.udCatchIDX = cx.getCurrentBB().getIDX();
     if (stmt.handler.param) {
-      cx.getCurrentBB().args.push(new JSCatchContextSEXP(stmt.handler.param.name));
+      cx.getCurrentBB().args.push(
+        new JSExplicitBindingDeclarationSEXP(
+          new ResolveEnvBindingSEXP(stmt.handler.param.name),
+          new JSCatchContextSEXP(),
+          "JSLET",
+          false
+        )
+      );
     }
     cx.getCurrentBB().args.push(udCatchContext);
     for (let s of stmt.handler.body.body) {
@@ -693,7 +700,14 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   cx.getCurrentBB().setFlag("imCatchBB");
   tryContext.imCatchIDX = cx.getCurrentBB().getIDX();
   const imArg = cx.js3Builder.utils.getNewTemporary("imCatchArg")
-  cx.getCurrentBB().args.push(new JSCatchContextSEXP(imArg));
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationSEXP(
+      new ResolveEnvBindingSEXP(imArg),
+      new JSCatchContextSEXP(),
+      "JSLET",
+      false
+    )
+  );
   if (stmt.finalizer) {
     cx.getCurrentBB().args.push(gotoInvokeFinalizer);
   }

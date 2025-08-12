@@ -1,45 +1,6 @@
 import { printIriSpace } from "#utils";
-import { isResolveEnvBindingSEXP, ResolveEnvBindingSEXP } from "../AbstractOperations/Resolution";
-import { IridiumSEXP } from "../Structural/General";
 import { NullSEXP } from "../RVAL/Primitives";
-
-/**
- * 
- * @extends {IridiumSEXP}
- * 
- * @group STMT
- * 
- * @remarks
- * 
- * A statement inserted at the top of a catch block; this captures the catch value into an environment binding.
- * 
- * #### Structure
- * 
- * - `ARG(catchTarget)`: The target store for the caught value (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
- */
-export class JSCatchContextSEXP extends IridiumSEXP {
-  constructor(val: string) {
-    super("JSCatchContext");
-    this.setCatchTarget(new ResolveEnvBindingSEXP(val));
-  }
-
-  // Args
-  setCatchTarget(obj: IridiumSEXP) {
-    this.args[0] = obj;
-  }
-
-  getCatchTarget(): IridiumSEXP {
-    return this.args[0];
-  }
-
-  getBindingName(): string {
-    if (isResolveEnvBindingSEXP(this.args[0])) {
-      return this.args[0].getBindingName();
-    } else throw new Error("Expected binding in JSCatchContext Node");
-  }
-}
-
+import { IridiumSEXP } from "../Structural/General";
 
 /**
  * 
@@ -385,13 +346,4 @@ export class IfJumpSEXP extends IridiumSEXP {
 export function isReturnSEXP(o: any): o is ReturnSEXP {
   // @ts-ignore
   return o.tag === "Return";
-}
-
-
-/**
- * @hidden
- */
-export function isJSCatchContextSEXP(o: any): o is JSCatchContextSEXP {
-  // @ts-ignore
-  return o.tag === "JSCatchContext";
 }

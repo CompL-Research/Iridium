@@ -5,7 +5,7 @@ import { VERSION } from "../../../configs/projectStats";
 import JS3Builder from "../JS3Builder";
 import { JS3Program } from "../JS3Helpers/JS3Types";
 import { IRIV2_STMT } from "./handleStatement";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, CallSiteSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getDerivedConstructorClosureFlag, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isCallSiteSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isJSCatchContextSEXP, isJSDefineObjPropSEXP, isJSExplicitBindingDeclarationSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSForOfIteratorCloseSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSNUBDSEXP, JSSloppyDeclSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StackRejectSEXP, StaticImportSEXP } from "./Types/index";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, CallSiteSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getDerivedConstructorClosureFlag, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isCallSiteSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isJSExplicitBindingDeclarationSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSForOfIteratorCloseSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSNUBDSEXP, JSSloppyDeclSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StackRejectSEXP, StaticImportSEXP } from "./Types/index";
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -890,11 +890,11 @@ export class IRIDIUMV2 {
                 toRemoveList.add(stmt);
               }
               
-              if (isJSCatchContextSEXP(stmt)) {
-                const hoistingInfoList = hoistingInfo.get(localScope);
-                if (!hoistingInfoList) throw new Error("hoistingInfoList is undefined");
-                hoistingInfoList.push([[stmt.getBindingName()], "JSLET"]);
-              }
+              // if (isJSCatchContextSEXP(stmt)) {
+              //   const hoistingInfoList = hoistingInfo.get(localScope);
+              //   if (!hoistingInfoList) throw new Error("hoistingInfoList is undefined");
+              //   hoistingInfoList.push([[stmt.getBindingName()], "JSLET"]);
+              // }
 
               // Function Declaration
               if (isJSFuncDeclSEXP(stmt)) {

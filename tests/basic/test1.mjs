@@ -138,11 +138,28 @@
 // let c = { ...a, c: 13 }
 // console.log(c.c)
 
-let a = {
- m() { console.log("m called"); },
- set f(val) { this.m(), this.data = val; },
- get f() { this.m(); return this.data; }
-};
+// let a = {
+//  m() { console.log("m called"); },
+//  set f(val) { this.m(), this.data = val; },
+//  get f() { this.m(); return this.data; }
+// };
 
-a.f = 13;
-console.log(a.f);
+// a.f = 13;
+// console.log(a.f);
+
+let f = () => {
+  for (let e of [1,2,3]) {
+    try {
+      if (e === 3) {
+        throw "Pikachu";
+      }
+    } catch (e) {
+      console.log("caught", e);
+    } finally {
+      console.log(e);
+    }
+  }
+  
+}
+
+f()
