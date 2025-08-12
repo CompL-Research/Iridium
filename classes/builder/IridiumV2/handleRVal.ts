@@ -1,4 +1,4 @@
-import { untilFirstMatch } from "#utils";
+import { getIridiumBinop, untilFirstMatch } from "#utils";
 import { assignmentExpression, BigIntLiteral, Expression, identifier, Identifier, isArrowFunctionExpression, isBigIntLiteral, isBooleanLiteral, isClassExpression, isDecimalLiteral, isFunctionExpression, isIdentifier, isNullLiteral, isNumericLiteral, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, NumericLiteral, StringLiteral, thisExpression } from "@babel/types";
 import { handleExpression, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpression";
 import { generateJS3ArrayExpressionfromBaseNode } from "../JS3Helpers/JS3Constructors";
@@ -129,10 +129,10 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
     if (isJS3PrivateName(init.left)) {
       left = new ResolvePrivateEnvBindingSEXP(init.left.id.name);
       // throw new Error("Handle binop with private names");
-      return new BinopSEXP("pin", IRIV2_RVAL(cx, init.right), left);
+      return getIridiumBinop("pin", IRIV2_RVAL(cx, init.right), left);
     } else {
       left = IRIV2_RVAL(cx, init.left);
-      return new BinopSEXP(init.operator, left, IRIV2_RVAL(cx, init.right));
+      return getIridiumBinop(init.operator, left, IRIV2_RVAL(cx, init.right));
     }
   }
 
@@ -287,7 +287,7 @@ export const handleArrayPatternAssignmentExpr = (cx: IRIDIUMV2, elements: JS3Arr
 
       cx.getCurrentBB().args.push(loopToPost);
       cx.getCurrentBB().args.push(new JSComputedFieldWriteSEXP(tempres, tempit, new EnvReadSEXP(for$of$loop$next)));
-      cx.getCurrentBB().args.push(new EnvWriteSEXP(tempit, new BinopSEXP("+", new EnvReadSEXP(tempit), new NumberSEXP(1)), false, false));
+      cx.getCurrentBB().args.push(new EnvWriteSEXP(tempit, getIridiumBinop("+", new EnvReadSEXP(tempit), new NumberSEXP(1)), false, false));
       cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP());
       cx.popContext(); // Loop Context
 
@@ -874,7 +874,7 @@ const handleUpdateExpression = (cx: IRIDIUMV2, node: JS3UpdateExpression): Iridi
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
           node.argument.name,
-          new BinopSEXP(node.operator === "++" ? "+" : "-", new EnvReadSEXP(node.argument.name), new NumberSEXP(1)),
+          getIridiumBinop(node.operator === "++" ? "+" : "-", new EnvReadSEXP(node.argument.name), new NumberSEXP(1)),
           false,
           false
         )
@@ -895,7 +895,7 @@ const handleUpdateExpression = (cx: IRIDIUMV2, node: JS3UpdateExpression): Iridi
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
           node.argument.name,
-          new BinopSEXP(node.operator === "++" ? "+" : "-", new EnvReadSEXP(node.argument.name), new NumberSEXP(1)),
+          getIridiumBinop(node.operator === "++" ? "+" : "-", new EnvReadSEXP(node.argument.name), new NumberSEXP(1)),
           false,
           false
         )
@@ -1332,7 +1332,7 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
         cx.getCurrentBB().args.push(
           new EnvWriteSEXP(
             insertionIdx$id,
-            new BinopSEXP("+", new EnvReadSEXP(insertionIdx$id), new NumberSEXP(1)),
+            getIridiumBinop("+", new EnvReadSEXP(insertionIdx$id), new NumberSEXP(1)),
             true,
             false
           )

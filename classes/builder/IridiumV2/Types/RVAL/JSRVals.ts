@@ -39,6 +39,68 @@ export class UNOPDelVarSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * A JS binop operation.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(lBinop)`: the left operand.
+ * 
+ * - `ARG(rBinop)`: the right operand.
+ * 
+ * - `FLAG(OP)`: a string.
+ * 
+ */
+export class JSBinopSEXP extends IridiumSEXP {
+  constructor(op: string, lBinop: IridiumSEXP, rBinop: IridiumSEXP) {
+    super("JSBinop");
+    this.setLBinop(lBinop);
+    this.setRBinop(rBinop);
+    this.setOP(op);
+  }
+
+  // Args
+  setLBinop(val: IridiumSEXP) {
+    this.args[0] = val;
+  }
+
+  getLBinop() {
+    return this.args[0];
+  }
+
+  setRBinop(val: IridiumSEXP) {
+    this.args[1] = val;
+  }
+
+  getRBinop() {
+    return this.args[1];
+  }
+
+  // Flags
+  setOP(op: string) {
+    this.setFlag("OP", op);
+  }
+
+  getOP(): string {
+    return this.getFlagString("OP");
+  }
+
+  getVal(): boolean {
+    return this.getFlagBoolean("IridiumPrimitive");
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}${this.getLBinop()} JOP[${this.getOP()}] ${this.getRBinop()}`
+  }
+}
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
  * @group JSRVal
  * 
  * @remarks

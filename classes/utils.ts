@@ -3,7 +3,23 @@ import { CommentBlock, CommentLine } from "@babel/types";
 import fs from "fs";
 import path from "path";
 import ts from "typescript";
-import { IridiumPrimitives } from "./builder/IridiumV2/Types/index";
+import { BinopSEXP, IridiumPrimitives, IridiumSEXP, JSBinopSEXP } from "./builder/IridiumV2/Types";
+
+const PrimitiveArithOP = ["+", "-", "/", "%", "*"];
+const PrimitiveBitwiseOP = ["&", "|", "^", "<<", ">>"];
+const PrimitiveComparisonOP = [">", "<", ">=", "<="];
+
+const isPrimitiveBinop = (b: string) => {
+  return PrimitiveArithOP.includes(b) || PrimitiveBitwiseOP.includes(b) || PrimitiveComparisonOP.includes(b)
+}
+
+export const getIridiumBinop = (op: string, lBinop: IridiumSEXP, rBinop: IridiumSEXP) => {
+  if (isPrimitiveBinop(op)) {
+    return new BinopSEXP(op, lBinop, rBinop);
+  } else {
+    return new JSBinopSEXP(op, lBinop, rBinop);
+  }
+}
 
 export const printIriSpace = (times: number | undefined = 0) => {
   if (!times) times = 0;

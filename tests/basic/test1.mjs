@@ -164,8 +164,12 @@
 
 // f()
 
-function foo() {
-  console.log("Hello World");
-}
+// function foo() {
+//   console.log("Hello World");
+// }
 
-foo();
+// foo();
+
+let a = 12;
+let b = 13;
+console.log(a !== b);

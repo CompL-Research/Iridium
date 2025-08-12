@@ -4,7 +4,7 @@ import { IridiumPrimitives, IridiumSEXP } from "../Structural/General";
 
 /**
  * 
- * @group Primitive
+ * @group TSHelper
  * 
  * @remarks
  * 
@@ -17,7 +17,7 @@ export type ListSEXPFlags = "ModuleRequest" | "StaticImport" | "StarExport" | "E
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Primitive
+ * @group RVAL
  * 
  * @remarks
  * 
@@ -50,7 +50,7 @@ export class ListSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group Primitive
+ * @group RVAL
  * 
  * @remarks
  * 
@@ -76,7 +76,21 @@ export class StringSEXP extends IridiumSEXP {
   }
 }
 
-
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * A primitive string.
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(IridiumPrimitive)`: string value container.
+ * 
+ */
 export class NullSEXP extends IridiumSEXP {
   constructor() {
     super("Null");
@@ -89,7 +103,23 @@ export class NullSEXP extends IridiumSEXP {
 
 }
 
-
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * A Regular Expression Value.
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(EXP)`: the regular expression string.
+ * 
+ * - `FLAG(FLAGS)`: flags for the regular expression.
+ * 
+ */
 export class RegExpSEXP extends IridiumSEXP {
   constructor(exp: string, flags: string) {
     super("RegExp");
@@ -102,6 +132,21 @@ export class RegExpSEXP extends IridiumSEXP {
   }
 }
 
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * A possibly signed numeric value.
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(IridiumPrimitive)`: a number.
+ * 
+ */
 export class NumberSEXP extends IridiumSEXP {
   constructor(number: number) {
     super("Number");
@@ -118,6 +163,21 @@ export class NumberSEXP extends IridiumSEXP {
 
 }
 
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * A boolean value.
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(IridiumPrimitive)`: a boolean.
+ * 
+ */
 export class BooleanSEXP extends IridiumSEXP {
   constructor(value: boolean) {
     super("Boolean");
@@ -129,28 +189,61 @@ export class BooleanSEXP extends IridiumSEXP {
   }
 }
 
-const PrimitiveArithOP = ["+", "-", "/", "%", "*"];
-const PrimitiveBitwiseOP = ["&", "|", "^", "<<", ">>"];
-const PrimitiveComparisonOP = [">", "<", ">=", "<="];
-
-const isPrimitiveBinop = (b: string) => {
-  return PrimitiveArithOP.includes(b) || PrimitiveBitwiseOP.includes(b) || PrimitiveComparisonOP.includes(b)
-}
-
-
-export type BinopSEXPFlags = "Primitive" | "JSBINOP";
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * A primitive binop operation.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(lBinop)`: the left operand.
+ * 
+ * - `ARG(rBinop)`: the right operand.
+ * 
+ * - `FLAG(OP)`: a string.
+ * 
+ */
 export class BinopSEXP extends IridiumSEXP {
   constructor(op: string, lBinop: IridiumSEXP, rBinop: IridiumSEXP) {
     super("Binop");
-    this.args.push(new StringSEXP(op));
-    this.args.push(lBinop);
-    this.args.push(rBinop);
-    if (isPrimitiveBinop(op)) this.flags.push(["Primitive", null]);
-    else this.flags.push(["JSBINOP", null]);
+    this.setLBinop(lBinop);
+    this.setRBinop(rBinop);
+    this.setOP(op);
+  }
+
+  // Args
+  setLBinop(val: IridiumSEXP) {
+    this.args[0] = val;
+  }
+
+  getLBinop() {
+    return this.args[0];
+  }
+
+  setRBinop(val: IridiumSEXP) {
+    this.args[1] = val;
+  }
+
+  getRBinop() {
+    return this.args[1];
+  }
+
+  // Flags
+  setOP(op: string) {
+    this.setFlag("OP", op);
+  }
+
+  getOP(): string {
+    return this.getFlagString("OP");
   }
 
   toString(space?: number): string {
-    return `${printIriSpace(space)}${this.args[1].toString(0)} OP[${this.args[0].toString(0)}] ${this.args[2].toString(0)}`
+    return `${printIriSpace(space)}${this.getLBinop()} OP[${this.getOP()}] ${this.getRBinop()}`
   }
 }
 

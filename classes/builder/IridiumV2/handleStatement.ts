@@ -3,9 +3,10 @@ import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3B
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
 import { handleArrayPatternAssignmentExpr, handleObjectPatternAssignmentExpr, IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP } from "./handleRVal";
 
+import { getIridiumBinop } from "#utils";
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks";
 import { handleAssignmentExpression as js3handleAssignmentExpression } from "../JS3Helpers/HandleExpression";
-import { BinopSEXP, EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSCatchContextSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, ThrowSEXP } from "./Types/index";
+import { EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSCatchContextSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, ThrowSEXP } from "./Types/index";
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   if (isJS3ImportDeclaration(stmt)) {
@@ -301,7 +302,7 @@ const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
       cx.getCurrentBB().args.push(new GotoSEXP(testTarget));
     } else {
       const testResHolder = lowerExprToResolveEnvBindingSEXP(cx, c.test);
-      const eqCheck = new BinopSEXP("===", new EnvReadSEXP(stmt.discriminant.name), new EnvReadSEXP(testResHolder.getBindingName()));
+      const eqCheck = getIridiumBinop("===", new EnvReadSEXP(stmt.discriminant.name), new EnvReadSEXP(testResHolder.getBindingName()));
       cx.getCurrentBB().args.push(new EnvWriteSEXP(intermediateResHolder, eqCheck, false, false));
       cx.getCurrentBB().args.push(new IfJumpSEXP(new EnvReadSEXP(intermediateResHolder), testTarget));
     }
