@@ -247,27 +247,68 @@ export class BinopSEXP extends IridiumSEXP {
   }
 }
 
-// (Primitive) Unop
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * A primitive unop operation.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(val)`: the operand.
+ * 
+ * - `FLAG(OP)`: a string.
+ * 
+ */
 export class UnopSEXP extends IridiumSEXP {
   constructor(op: string, val: IridiumSEXP) {
     super("Unop");
-    this.args.push(new StringSEXP(op));
-    this.args.push(val);
+    this.setVal(val);
+    this.setOP(op);
   }
 
-  // toString(space?: number): string {
-  //   return `${printIriSpace(space)}UNOP[${this.args[0].toString(0)}] ${this.args[1].toString(0)}`
-  // }
+  // Args
+  setVal(val: IridiumSEXP) {
+    this.args[0] = val;
+  }
+
+  getVal() {
+    return this.args[0];
+  }
+
+  // Flags
+  setOP(op: string) {
+    this.setFlag("OP", op);
+  }
+
+  getOP(): string {
+    return this.getFlagString("OP");
+  }
+
   toString(space?: number): string {
-    const res = [];
-    res.push(`${printIriSpace(space)}${this.tag}`);
-    for (let s of this.args) {
-      res.push(`${s.toString(10)}`);
-    }
-    return res.join("\n");
+    return `${printIriSpace(space)} OP[${this.getOP()}] ${this.getVal()}`
   }
 }
 
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * A Lambda :)
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(StartBBIDX)`: IDX of the first BB in the Lambda.
+ * 
+ */
 export class LambdaSEXP extends IridiumSEXP {
   constructor(bbIdx: number) {
     super("Lambda");

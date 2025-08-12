@@ -1,4 +1,4 @@
-import { getIridiumBinop, untilFirstMatch } from "#utils";
+import { getIridiumBinop, getIridiumUnop, untilFirstMatch } from "#utils";
 import { assignmentExpression, BigIntLiteral, Expression, identifier, Identifier, isArrowFunctionExpression, isBigIntLiteral, isBooleanLiteral, isClassExpression, isDecimalLiteral, isFunctionExpression, isIdentifier, isNullLiteral, isNumericLiteral, isSpreadElement, isStringLiteral, isSuper, isThisExpression, isV8IntrinsicIdentifier, memberExpression, NumericLiteral, StringLiteral, thisExpression } from "@babel/types";
 import { handleExpression, lowerToAnonArrayExpr } from "../JS3Helpers/HandleExpression";
 import { generateJS3ArrayExpressionfromBaseNode } from "../JS3Helpers/JS3Constructors";
@@ -396,9 +396,9 @@ const handleUnaryExpression = (cx: IRIDIUMV2, node: JS3UnaryExpression): Iridium
       if (!isIdentifier(receiver)) throw new Error("Expected receiver to be an identifier");
       if (!isIdentifier(property)) throw new Error("Expected property to be an identifier");
 
-      return new UnopSEXP(node.operator, new UNOPDelMemberExprSEXP(IRIV2_RVAL(cx, receiver), node.argument.computed ? IRIV2_RVAL(cx, property) : new StringSEXP(property.name)));
+      return getIridiumUnop(node.operator, new UNOPDelMemberExprSEXP(IRIV2_RVAL(cx, receiver), node.argument.computed ? IRIV2_RVAL(cx, property) : new StringSEXP(property.name)));
     } else if (isIdentifier(node.argument)) {
-      return new UnopSEXP(node.operator, new UNOPDelVarSEXP(node.argument.name));
+      return getIridiumUnop(node.operator, new UNOPDelVarSEXP(node.argument.name));
     }
 
     throw new Error("TODO: unary delete operator")
@@ -406,7 +406,7 @@ const handleUnaryExpression = (cx: IRIDIUMV2, node: JS3UnaryExpression): Iridium
     if (isIdentifier(node.argument)) {
       if (node.operator === "void") return new EnvReadSEXP("undefined");
       const argument = IRIV2_RVAL(cx, node.argument);
-      return new UnopSEXP(node.operator, argument);
+      return getIridiumUnop(node.operator, argument);
     } else throw new Error(
       "JS3UnaryExpression: Expected Identifier for non delete operators",
     );

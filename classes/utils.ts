@@ -3,7 +3,17 @@ import { CommentBlock, CommentLine } from "@babel/types";
 import fs from "fs";
 import path from "path";
 import ts from "typescript";
-import { BinopSEXP, IridiumPrimitives, IridiumSEXP, JSBinopSEXP } from "./builder/IridiumV2/Types";
+import { BinopSEXP, IridiumPrimitives, IridiumSEXP, JSBinopSEXP, JSUnopSEXP, UnopSEXP } from "./builder/IridiumV2/Types";
+
+const PrimitiveUnOP = ["!", "+", "-", "~"];
+
+export const getIridiumUnop = (op: string, val: IridiumSEXP) => {
+  if (PrimitiveUnOP.includes(op)) {
+    return new UnopSEXP(op, val);
+  } else {
+    return new JSUnopSEXP(op, val);
+  }
+}
 
 const PrimitiveArithOP = ["+", "-", "/", "%", "*"];
 const PrimitiveBitwiseOP = ["&", "|", "^", "<<", ">>"];

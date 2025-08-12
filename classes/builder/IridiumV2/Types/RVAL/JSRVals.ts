@@ -141,7 +141,52 @@ export class UNOPDelMemberExprSEXP extends IridiumSEXP {
 
 }
 
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * A JS unop operation.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(val)`: the operand.
+ * 
+ * - `FLAG(OP)`: a string.
+ * 
+ */
+export class JSUnopSEXP extends IridiumSEXP {
+  constructor(op: string, val: IridiumSEXP) {
+    super("Unop");
+    this.setVal(val);
+    this.setOP(op);
+  }
 
+  // Args
+  setVal(val: IridiumSEXP) {
+    this.args[0] = val;
+  }
+
+  getVal() {
+    return this.args[0];
+  }
+
+  // Flags
+  setOP(op: string) {
+    this.setFlag("OP", op);
+  }
+
+  getOP(): string {
+    return this.getFlagString("OP");
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)} JOP[${this.getOP()}] ${this.getVal()}`
+  }
+}
 export class JSTemplateSEXP extends IridiumSEXP {
   constructor(elements: Array<IridiumSEXP>) {
     super("JSTemplate");

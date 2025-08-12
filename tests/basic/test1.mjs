@@ -170,6 +170,6 @@
 
 // foo();
 
-let a = 12;
-let b = 13;
-console.log(a !== b);
+let a = 0;
+// let b = 13;
+console.log(typeof a);
