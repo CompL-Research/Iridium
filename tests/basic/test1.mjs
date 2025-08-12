@@ -117,13 +117,32 @@
 // class Test { #foo() { return 423; } foo() { return this.#foo(); } }
 // console.log(new Test().foo());
 
-function test5() {
-  let a = 0;
-  let b = 1;
-  let c = 2;
-  let d = -1;
-  let e = a + b + c + d
-  console.log(e);
-}
+// function test5() {
+//   let a = 0;
+//   let b = 1;
+//   let c = 2;
+//   let d = -1;
+//   let e = a + b + c + d
+//   console.log(e);
+// }
 
-test5()
+// test5()
+
+// let b = ["a", "b"];
+// let c = ["foo", "bar"];
+// let a = [1,2,...b, 3, ...c];
+
+// console.log(a);
+
+// let a = { a: 1, b: 2, c: 3 }
+// let c = { ...a, c: 13 }
+// console.log(c.c)
+
+let a = {
+ m() { console.log("m called"); },
+ set f(val) { this.m(), this.data = val; },
+ get f() { this.m(); return this.data; }
+};
+
+a.f = 13;
+console.log(a.f);

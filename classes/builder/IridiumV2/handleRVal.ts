@@ -218,7 +218,7 @@ export const handleArrayPatternAssignmentExpr = (cx: IRIDIUMV2, elements: JS3Arr
   let for$of$loop$next = cx.js3Builder.utils.getNewTemporary("next");
   let for$of$loop$done = cx.js3Builder.utils.getNewTemporary("done");
 
-  // [<loop-iterator>, <loop-method>, <loop-catchoffset>] = JSForOfStartSEXP(RVal)
+  // RetainedOnStack[<loop-iterator>, <loop-method>, <loop-catchoffset>] = JSForOfStartSEXP(RVal)
   cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfStartSEXP(rValTarget), 3));
   cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(for$of$loop$next), null, "JSLET", false));
   cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(for$of$loop$done), null, "JSLET", false));
@@ -304,7 +304,7 @@ export const handleArrayPatternAssignmentExpr = (cx: IRIDIUMV2, elements: JS3Arr
 
 export const handleObjectPatternAssignmentExpr = (cx: IRIDIUMV2, properties: JS3ObjectPattern_properties, rValTarget: IridiumSEXP, safeWrite: boolean = false) => {
   let hasRest = false;
-  let restElement: JS3RestElement;
+  let restElement: JS3RestElement | undefined = undefined;
   properties.forEach((e) => {
     if (isJS3RestElement(e)) {
       hasRest = true;
@@ -316,7 +316,7 @@ export const handleObjectPatternAssignmentExpr = (cx: IRIDIUMV2, properties: JS3
   // 1. toObjRes = VSysCall[JSToObjectSEXP](rValTarget)
   cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(toObjRes), new JSToObjectSEXP(rValTarget), "JSLET", false));
 
-  let exc_obj;
+  let exc_obj = undefined;
   // 2. [*] exc_obj = {}
   //    for (f of fields) 
   //      exc_obj[f] = null;
@@ -375,11 +375,14 @@ export const handleObjectPatternAssignmentExpr = (cx: IRIDIUMV2, properties: JS3
     let fin_obj = cx.js3Builder.utils.getNewTemporary("fin_obj");
     cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(fin_obj), new JSObjectSEXP(), "JSLET", false));
 
+    if (!exc_obj) throw new Error("exc_obj is undefined");
+    if (!restElement) throw new Error("restElement is undefined");
+    if (!isJS3RestElement(restElement)) throw new Error("restElement is not JS3RestElement");
+
+    cx.getCurrentBB().args.push(new StackRetainSEXP(new JSCopyDataPropertiesSEXP(exc_obj, toObjRes, fin_obj), 1, 2));
+
     // @ts-ignore
-    // 5. [*] JSCopyDataProperties(exc_obj, orig_rval, fin_obj, | -> | e)
-    const propCopy = new JSCopyDataPropertiesSEXP(exc_obj, toObjRes, fin_obj, restElement.argument.name);
-    propCopy.setSafe(safeWrite);
-    cx.getCurrentBB().args.push(propCopy);
+    cx.getCurrentBB().args.push(new EnvWriteSEXP(restElement.argument.name, new StackPopSEXP(),false, false));
   }
 }
 
@@ -1308,14 +1311,14 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
       if (isJS3SpreadElement(currEle)) {
         // [insertionIdx, tmp] <- append (tmp, insertionIdx, spreadVal)
         cx.getCurrentBB().args.push(
-          new JSAppendSEXP(
+          new StackRetainSEXP(new JSAppendSEXP(
             new EnvReadSEXP(temp$id),                // push
             new EnvReadSEXP(insertionIdx$id),        // push
             new EnvReadSEXP(currEle.argument.name),  // push
-            insertionIdx$id,                         // pop
-            temp$id                                  // pop
-          )
+          ), 2, 0)
         );
+        cx.getCurrentBB().args.push(new EnvWriteSEXP(insertionIdx$id, new StackPopSEXP(), false, false));
+        cx.getCurrentBB().args.push(new EnvWriteSEXP(temp$id, new StackPopSEXP(), false, false));
       } else if (isIdentifier(currEle)) {
         // tmp[insertionIdx] = E
         cx.getCurrentBB().args.push(
@@ -1362,33 +1365,35 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
   for (let prop of init.properties) {
     if (isJS3ObjectMethod(prop)) {
       cx.getCurrentBB().args.push(
-        new JSDefineObjMethodSEXP(
-          new EnvReadSEXP(obj$id),
-          prop.computed ? IRIV2_RVAL(cx, prop.key) : new StringSEXP(getObjKeyString(prop.key)),
-          handleFunctionExpression(cx, prop),
-          prop.kind,
-          obj$id
+        new EnvWriteSEXP(
+          obj$id, 
+          new JSDefineObjMethodSEXP(
+            new EnvReadSEXP(obj$id),
+            prop.computed ? IRIV2_RVAL(cx, prop.key) : new StringSEXP(getObjKeyString(prop.key)),
+            handleFunctionExpression(cx, prop),
+            prop.kind,
+          ),
+          false,
+          false
         )
       );
     } else if (isJS3ObjectProperty(prop)) {
       cx.getCurrentBB().args.push(
-        new JSDefineObjPropSEXP(
-          new EnvReadSEXP(obj$id),
-          prop.computed ? IRIV2_RVAL(cx, prop.key) : new StringSEXP(getObjKeyString(prop.key)),
-          IRIV2_RVAL(cx, prop.value),
-          obj$id
+        new EnvWriteSEXP(
+          obj$id, 
+          new JSDefineObjPropSEXP(
+            new EnvReadSEXP(obj$id),
+            prop.computed ? IRIV2_RVAL(cx, prop.key) : new StringSEXP(getObjKeyString(prop.key)),
+            IRIV2_RVAL(cx, prop.value),
+          ),
+          false,
+          false
         )
       );
     } else {
       // JSCopyDataProperties(exc_obj, from, to, | -> | e)
-      cx.getCurrentBB().args.push(
-        new JSCopyDataPropertiesSEXP(
-          new NullSEXP(),
-          prop.argument.name,
-          obj$id,
-          obj$id
-        )
-      );
+      cx.getCurrentBB().args.push(new StackRetainSEXP(new JSCopyDataPropertiesSEXP(new NullSEXP(), prop.argument.name, obj$id), 1, 2));
+      cx.getCurrentBB().args.push(new EnvWriteSEXP(obj$id, new StackPopSEXP(),false, false));
     }
   }
 

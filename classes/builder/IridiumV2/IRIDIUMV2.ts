@@ -5,7 +5,7 @@ import { VERSION } from "../../../configs/projectStats";
 import JS3Builder from "../JS3Builder";
 import { JS3Program } from "../JS3Helpers/JS3Types";
 import { IRIV2_STMT } from "./handleStatement";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, CallSiteSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getDerivedConstructorClosureFlag, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isCallSiteSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isJSAppendSEXP, isJSCatchContextSEXP, isJSCopyDataPropertiesSEXP, isJSDefineObjMethodSEXP, isJSDefineObjPropSEXP, isJSExplicitBindingDeclarationSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSForOfIteratorCloseSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSNUBDSEXP, JSSloppyDeclSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StackRejectSEXP, StaticImportSEXP } from "./Types/index";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, CallSiteSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getDerivedConstructorClosureFlag, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isCallSiteSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isJSCatchContextSEXP, isJSDefineObjPropSEXP, isJSExplicitBindingDeclarationSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSForOfIteratorCloseSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSNUBDSEXP, JSSloppyDeclSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StackRejectSEXP, StaticImportSEXP } from "./Types/index";
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -401,29 +401,7 @@ export class IRIDIUMV2 {
       let left = currSEXP.args[0];
       if (isEnvBindingSEXP(left) && left.isASW()) currSEXP.setSafe(true);
     }
-
-    if (isJSCopyDataPropertiesSEXP(currSEXP)) {
-      let store = currSEXP.args[3];
-      if (isEnvBindingSEXP(store) && store.isASW()) currSEXP.setSafe(true);
-    }
-
-    if (isJSAppendSEXP(currSEXP)) {
-      let store1 = currSEXP.args[3];
-      if (isEnvBindingSEXP(store1) && store1.isASW()) currSEXP.setSafe(true);
-      let store2 = currSEXP.args[4];
-      if (isEnvBindingSEXP(store2) && store2.isASW()) currSEXP.setSafe(true);
-    }
-
-    if (isJSDefineObjPropSEXP(currSEXP)) {
-      let store = currSEXP.args[3];
-      if (isEnvBindingSEXP(store) && store.isASW()) currSEXP.setSafe(true);
-    }
     
-    if (isJSDefineObjMethodSEXP(currSEXP)) {
-      let store = currSEXP.args[3];
-      if (isEnvBindingSEXP(store) && store.isASW()) currSEXP.setSafe(true);
-    }
-
     if (isBBSEXP(currSEXP)) {
       currSEXP.args.forEach(e => this.loosenWritestoASWs(e))
     } else {
@@ -439,10 +417,6 @@ export class IRIDIUMV2 {
     if (
       isEnvWriteSEXP(currSEXP) 
       || isJSExplicitBindingDeclarationSEXP(currSEXP) 
-      || isJSCopyDataPropertiesSEXP(currSEXP) 
-      || isJSAppendSEXP(currSEXP) 
-      || isJSDefineObjPropSEXP(currSEXP) 
-      || isJSDefineObjMethodSEXP(currSEXP)
       || isJSImplicitBindingDeclarationSEXP(currSEXP)
     ) {
       if (!buildContext) throw new Error("buildContext is undefined");

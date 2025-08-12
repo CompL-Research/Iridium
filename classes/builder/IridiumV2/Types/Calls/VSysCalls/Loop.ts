@@ -1,5 +1,4 @@
 import { printFlagString, printIriSpace } from "#utils";
-import { ResolveEnvBindingSEXP } from "../../AbstractOperations/Resolution";
 import { EnvReadSEXP } from "../../Environment/index";
 import { IridiumSEXP } from "../../Structural/General";
 
@@ -16,7 +15,7 @@ import { IridiumSEXP } from "../../Structural/General";
  * #### Action
  * 
  * ```
- * [1] JSForInStartSEXP(RVal)
+ * [for_in_iterator = 1] JSForInStartSEXP(RVal)
  * ```
  * 
  * #### Structure
@@ -62,7 +61,7 @@ export class JSForInStartSEXP extends IridiumSEXP {
  * #### Action
  * 
  * ```
- * [3] JSForInNextSEXP(RVal)
+ * [for_in_iterator,loop_next,loop_done = 3] JSForInNextSEXP(RVal)
  * ```
  * 
  * #### Structure
@@ -100,7 +99,7 @@ export class JSForInNextSEXP extends IridiumSEXP {
  * #### Action
  * 
  * ```
- * [3] = JSForOfStartSEXP(RVal)
+ * [for_of_iterator,loop_method,catch_offset = 3] = JSForOfStartSEXP(RVal)
  * ```
  * 
  * The reason for not popping the stack is the presence of the custom catch handler which can break if stack is restructured.
@@ -153,7 +152,7 @@ export class JSForOfStartSEXP extends IridiumSEXP {
  * #### Action
  * 
  * ```
- * [2] = JSForOfNext([3, implicit])
+ * [loop_next,loop_done = 2] = JSForOfNext([3, implicit])
  * ```
  * 
  */
@@ -185,7 +184,7 @@ export class JSForOfNextSEXP extends IridiumSEXP {
  * #### Action
  * 
  * ```
- * [-3] = JSForOfIteratorClose()
+ * [for_of_iterator,loop_method,catch_offset = -3] = JSForOfIteratorClose([3, implicit])
  * ```
  * 
  */

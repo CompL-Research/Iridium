@@ -361,8 +361,7 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
     cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfStartSEXP(stmt.right.name), 3));
   } else {
     // <loop-iterator> = JSForInStartSEXP(RVal)
-    cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForInStartSEXP(stmt.right.name), 1));
-    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-iterator>"), new StackPopSEXP(), "JSLET", false));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-iterator>"), new JSForInStartSEXP(stmt.right.name), "JSLET", false));
   }
   cx.getCurrentBB().args.push(loopInitToLoopTestNode);
 

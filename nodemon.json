@@ -1,0 +1,5 @@
+{
+  "watch": ["classes/builder/IridiumV2"],
+  "ext": "ts,js,json",
+  "exec": "npx typedoc"
+}
