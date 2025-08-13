@@ -161,7 +161,7 @@ export class JSBinopSEXP extends IridiumSEXP {
  */
 export class JSUnopSEXP extends IridiumSEXP {
   constructor(op: string, val: IridiumSEXP) {
-    super("Unop");
+    super("JSUnop");
     this.setVal(val);
     this.setOP(op);
   }
