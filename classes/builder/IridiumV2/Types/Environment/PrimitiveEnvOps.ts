@@ -23,7 +23,16 @@ import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEX
 export class EnvReadSEXP extends IridiumSEXP {
   constructor(id: string) {
     super("EnvRead");
-    this.args.push(new ResolveEnvBindingSEXP(id));
+    this.setObj(new ResolveEnvBindingSEXP(id));
+  }
+
+  // Args
+  setObj(val: IridiumSEXP) {
+    this.args[0] = val;
+  }
+
+  getObj() : IridiumSEXP {
+    return this.args[0];
   }
 
   toString(space?: number): string {

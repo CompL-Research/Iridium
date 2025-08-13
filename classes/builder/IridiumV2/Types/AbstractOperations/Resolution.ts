@@ -99,11 +99,14 @@ export class ResolveEnvBindingSEXP extends IridiumSEXP {
  * 
  * - `FLAG(NAME)`: Binding name to resolve.
  * 
+ * - `FLAG(FULLY_RESOLVE)`: Does the binding context request resolution?
+ * 
  */
 export class ResolvePrivateEnvBindingSEXP extends IridiumSEXP {
-  constructor(id: string) {
+  constructor(id: string, fullyResolve: boolean = true) {
     super("ResolvePrivateEnvBinding");
     this.setName(id);
+    if (fullyResolve) this.setFullyResolve();
   }
 
   // Flags
@@ -113,6 +116,14 @@ export class ResolvePrivateEnvBindingSEXP extends IridiumSEXP {
 
   getName(): string {
     return this.getFlagString("NAME");
+  }
+
+  setFullyResolve() {
+    this.setFlag("FULLY_RESOLVE");
+  }
+
+  isFullyResolve(): boolean {
+    return this.hasFlag("FULLY_RESOLVE");
   }
 
   getBindingName(): string {

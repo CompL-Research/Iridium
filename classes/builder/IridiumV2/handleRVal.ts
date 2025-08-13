@@ -127,7 +127,7 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   else if (isJS3BinaryExpression(init)) {
     let left: IridiumSEXP;
     if (isJS3PrivateName(init.left)) {
-      left = new ResolvePrivateEnvBindingSEXP(init.left.id.name);
+      left = new ResolvePrivateEnvBindingSEXP(init.left.id.name, false);
       // throw new Error("Handle binop with private names");
       return getIridiumBinop("pin", IRIV2_RVAL(cx, init.right), left);
     } else {
@@ -483,13 +483,15 @@ const handleComputedProps = (cx: IRIDIUMV2, node: JS3ClassExpression): Map<JS3Cl
   return computedPropMapping;
 }
 
-const getPrivateMapping = (computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>): Map<string, string> | null => {
-  const privateMapping: Map<string, string> = new Map();
+export type PrivateMapping = Map<string, [string, JS3ClassPrivateProperty | JS3ClassPrivateMethod]>;
+
+const getPrivateMapping = (computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>): PrivateMapping | null => {
+  const privateMapping: PrivateMapping = new Map();
   for (let [item, target] of computedPropMapping) {
     if (isJS3ClassPrivateProperty(item)) {
-      privateMapping.set(item.key.id.name, target);
+      privateMapping.set(item.key.id.name, [target, item]);
     } else if (isJS3ClassPrivateMethod(item)) {
-      privateMapping.set(item.key.id.name, target);
+      privateMapping.set(item.key.id.name, [target, item]);
     }
   }
   // In case of no private mappings, return null...
@@ -517,7 +519,7 @@ const getMethodKindFlag = (kind: string): string => {
   throw new Error("Didnt expect constructors to be lowered this way");
 }
 
-const lowerNonStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, privateMapping: null | Map<string, string>, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>) => {
+const lowerNonStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, privateMapping: null | PrivateMapping, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>) => {
   const nonStaticClassMethods = node.body.body.filter(classItem => isJS3ClassMethod(classItem) || isJS3ClassPrivateMethod(classItem)).filter(classItem => !classItem.static);
   const lambdas: Array<IridiumSEXP> = [];
   const hasSuper = node.superClass ? true : false;
@@ -559,7 +561,7 @@ const lowerNonStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, pri
   return lambdaList;
 }
 
-const lowerStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, privateMapping: null | Map<string, string>, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>) => {
+const lowerStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, privateMapping: null | PrivateMapping, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>) => {
   const staticClassMethods = node.body.body.filter(classItem => isJS3ClassMethod(classItem) || isJS3ClassPrivateMethod(classItem)).filter(classItem => classItem.static);
   const lambdas: Array<IridiumSEXP> = [];
   const hasSuper = node.superClass ? true : false;
@@ -602,7 +604,7 @@ const lowerStaticClassMethods = (cx: IRIDIUMV2, node: JS3ClassExpression, privat
 }
 
 // This method lowers code for initialization of non-static fields
-const createClassNonStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>, privateMapping: null | Map<string, string>, hasSuper: boolean, addBrand: boolean) => {
+const createClassNonStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>, privateMapping: null | PrivateMapping, hasSuper: boolean, addBrand: boolean) => {
   const location = cx.js3Builder.utils.getNewTemporary("PropInitClosure");
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   funcContext.privateMapping = privateMapping;
@@ -664,7 +666,7 @@ const createClassNonStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpres
       let lookupPrivateKeyHolder = new EnvReadSEXP(compProp);
       // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
       let loweredValue: IridiumSEXP = new EnvReadSEXP(classItem.value ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getBindingName() : "undefined");
-      cx.getCurrentBB().args.push(new JSPrivateFieldWriteSEXP("this", lookupPrivateKeyHolder, loweredValue));
+      cx.getCurrentBB().args.push(new StackRejectSEXP(new JSPrivateFieldWriteSEXP("this", lookupPrivateKeyHolder, loweredValue, true), 1));
     }
   }
 
@@ -682,7 +684,7 @@ const createClassNonStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpres
 }
 
 // This method lowers code for initialization of non-static fields
-const createClassStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>, privateMapping: null | Map<string, string>, hasSuper: boolean) => {
+const createClassStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>, privateMapping: null | PrivateMapping, hasSuper: boolean) => {
   const location = cx.js3Builder.utils.getNewTemporary("StaticPropInitClosure");
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   funcContext.privateMapping = privateMapping;
@@ -741,7 +743,7 @@ const createClassStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpressio
       let lookupPrivateKeyHolder = new EnvReadSEXP(compProp);
       // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
       let loweredValue: IridiumSEXP = new EnvReadSEXP(classItem.value ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getBindingName() : "undefined");
-      cx.getCurrentBB().args.push(new JSPrivateFieldWriteSEXP("this", lookupPrivateKeyHolder, loweredValue));
+      cx.getCurrentBB().args.push(new StackRejectSEXP(new JSPrivateFieldWriteSEXP("this", lookupPrivateKeyHolder, loweredValue, true), 1));
     } else if (isJS3StaticBlock(classItem)) {
       // { /** code **/ }
       handleBlockStatement(cx, classItem);
@@ -756,7 +758,7 @@ const createClassStaticPropInitClosure = (cx: IRIDIUMV2, node: JS3ClassExpressio
   return location;
 }
 
-const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>, superClass: EnvReadSEXP | undefined, propInitClos: string): LambdaSEXP => {
+const createClassConstructorClosure = (cx: IRIDIUMV2, node: JS3ClassExpression, superClass: EnvReadSEXP | undefined, propInitClos: string): LambdaSEXP => {
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
 
   const funBBIdx = funcContext.getCurrentBB().idx;
@@ -921,9 +923,9 @@ const handleClassExpression = (cx: IRIDIUMV2, node: JS3ClassExpression): Iridium
   const addStaticBrand = node.body.body.some(n => isJS3ClassPrivateMethod(n) && n.static);
 
   const computedPropMapping = handleComputedProps(cx, node);
-  const privateMapping = getPrivateMapping(computedPropMapping);
+  const privateMapping: PrivateMapping | null = getPrivateMapping(computedPropMapping);
   const classPropInitClosure = createClassNonStaticPropInitClosure(cx, node, computedPropMapping, privateMapping, hasSuper, addBrand);
-  const constructorLambda = createClassConstructorClosure(cx, node, computedPropMapping, superClass, classPropInitClosure);
+  const constructorLambda = createClassConstructorClosure(cx, node, superClass, classPropInitClosure);
   const methodList = lowerNonStaticClassMethods(cx, node, privateMapping, computedPropMapping);
   const staticMethodList = lowerStaticClassMethods(cx, node, privateMapping, computedPropMapping);
   const classStaticPropInitClosure = createClassStaticPropInitClosure(cx, node, computedPropMapping, privateMapping, hasSuper);
@@ -1027,7 +1029,7 @@ const handleAssignmentExpression = (cx: IRIDIUMV2, node: JS3AssignmentExpression
       }
     } else {
       let prop: string = init.property.id.name;
-      return new JSPrivateFieldWriteSEXP(obj, prop, IRIV2_RVAL(cx, right));
+      return new JSPrivateFieldWriteSEXP(obj, prop, IRIV2_RVAL(cx, right), false);
     }
   }
 
@@ -1048,7 +1050,7 @@ const handleAssignmentExpression = (cx: IRIDIUMV2, node: JS3AssignmentExpression
   throw new Error("Unhandled Assignment Expression");
 }
 
-const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | JS3ObjectMethod | JS3ClassMethod | JS3ClassPrivateMethod, privateMapping: Map<string, string> | null = null, hasSuper: boolean = false, isPrivateMethod: boolean = false) => {
+const handleFunctionExpression = (cx: IRIDIUMV2, node: JS3FunctionExpression | JS3ObjectMethod | JS3ClassMethod | JS3ClassPrivateMethod, privateMapping: PrivateMapping | null = null, hasSuper: boolean = false, isPrivateMethod: boolean = false) => {
   // Lower Function code
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   funcContext.privateMapping = privateMapping;

@@ -170,6 +170,20 @@
 
 // foo();
 
-let a = 0;
-// let b = 13;
-console.log(typeof a);
+// let a = 0;
+// // let b = 13;
+// console.log(typeof a);
+
+class Foo {
+  #bar = () => {
+    console.log("Hello World");
+  }
+  
+  foo() {
+    this.#bar();
+    this.#bar = 121;
+    console.log(this.#bar);
+  }
+}
+
+new Foo().foo()
