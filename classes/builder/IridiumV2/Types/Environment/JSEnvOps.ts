@@ -3,6 +3,7 @@ import { ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP } from "../Abstract
 import { IridiumSEXP } from "../Structural/General";
 import { StringSEXP } from "../RVAL/Primitives";
 import { EnvReadSEXP, isEnvReadSEXP } from "./PrimitiveEnvOps";
+import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEXP } from "./BindingsObjectConstituents";
 
 /**
  * 

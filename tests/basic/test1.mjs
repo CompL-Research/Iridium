@@ -178,11 +178,21 @@ class Foo {
   #bar = () => {
     console.log("Hello World");
   }
+
+  #goober() {
+    console.log("goober");
+  }
+
+  #yy = 123;
   
   foo() {
     this.#bar();
     this.#bar = 121;
+    let xx = this.#goober;
+    let yy = this.#yy;
     console.log(this.#bar);
+    xx();
+    console.log(this.#yy);
   }
 }
 
