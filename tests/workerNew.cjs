@@ -1,7 +1,7 @@
 const path = require("path");
 const fs   = require("fs");
 
-const EXEC_BIN          = "/home/meetesh/wd/quickjs/build/qjs";
+const EXEC_BIN          = "/home/meetesh/wd/quickjs/build/qjs_new";
 const IRI_PATH          = "/home/meetesh/wd/Iridium";
 const TEST262_PATH      = "/home/meetesh/wd/Iridium/tests/test262";
 const TMP_PATH          = "/home/meetesh/wd/Iridium/tests/tmp";
