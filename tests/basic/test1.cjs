@@ -1,31 +1,20 @@
-// let srcString = "x";
+assert.sameValue = function (actual, expected, message) {
+  try {
+    if (assert._isSameValue(actual, expected)) {
+      return;
+    }
+  } catch (error) {
+    throw new Test262Error(message + ' (_isSameValue operation threw) ' + error);
+    return;
+  }
 
-// var x = 1;
-// var y = 1;
-// var evil = eval;
+  if (message === undefined) {
+    message = '';
+  } else {
+    message += ' ';
+  }
 
-// srcString += "+ y";
-// console.log(evil(srcString))
+  message += 'Expected SameValue(«' + assert._toString(actual) + '», «' + assert._toString(expected) + '») to be true';
 
-// let {a, b} = { a: 1, b: 2, c: 3 };
-
-// console.log(a, b);
-
-// function foo(a) {
-//   arguments[0] = 12;
-//   console.log(a);
-// }
-
-// foo(1, 2, 3);
-
-// console.log("Hello World");
-// function foo() {
-//   console.log("foo called");
-// }
-
-// foo();
-
-
-const x = 12;
-x = 13;
-console.log(x);
+  throw new Test262Error(message);
+};

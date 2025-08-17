@@ -1,3 +1,4 @@
+"use strict";
 // Copyright (C) 2017 Ecma International.  All rights reserved.
 // This code is governed by the BSD license found in the LICENSE file.
 /*---
@@ -101,18 +102,31 @@ assert.throws = function (expectedErrorConstructor, func, message) {
   throw new Test262Error(message);
 };
 
-assert._toString = function (value) {
-  try {
-    if (value === 0 && 1 / value === -Infinity) {
-      return '-0';
-    }
+assert._formatIdentityFreeValue = function formatIdentityFreeValue(value) {
+  switch (value === null ? 'null' : typeof value) {
+    case 'string':
+      return typeof JSON !== "undefined" ? JSON.stringify(value) : `"${value}"`;
+    case 'bigint':
+      return `${value}n`;
+    case 'number':
+      if (value === 0 && 1 / value === -Infinity) return '-0';
+      // falls through
+    case 'boolean':
+    case 'undefined':
+    case 'null':
+      return String(value);
+  }
+};
 
+assert._toString = function (value) {
+  var basic = assert._formatIdentityFreeValue(value);
+  if (basic) return basic;
+  try {
     return String(value);
   } catch (err) {
     if (err.name === 'TypeError') {
       return Object.prototype.toString.call(value);
     }
-
     throw err;
   }
 };
@@ -145,32 +159,35 @@ function $DONOTEVALUATE() {
   throw "Test262: This statement should not be evaluated.";
 }
 
-// Copyright (C) 2014 André Bargull. All rights reserved.
+// Copyright (C) 2016 the V8 project authors. All rights reserved.
 // This code is governed by the BSD license found in the LICENSE file.
-
 /*---
-info: Assignment Operator calls PutValue(lref, rval)
-es5id: S11.13.1_A6_T1
+esid: sec-functiondeclarationinstantiation
 description: >
-    Evaluating LeftHandSideExpression lref returns Reference type; Reference
-    base value is an environment record and environment record kind is
-    declarative environment record. PutValue(lref, rval) uses the initially
-    created Reference even if a more local binding is available.
-flags: [noStrict]
+    Creation of new variable environment for the function body (as distinct from
+    that for the function's parameters)
+info: |
+    [...]
+    26. If hasParameterExpressions is false, then
+        [...]
+    27. Else,
+        a. NOTE A separate Environment Record is needed to ensure that closures
+           created by expressions in the formal parameter list do not have
+           visibility of declarations in the function body.
+        b. Let varEnv be NewDeclarativeEnvironment(env).
+        c. Let varEnvRec be varEnv's EnvironmentRecord.
+        d. Set the VariableEnvironment of calleeContext to varEnv.
+        e. Let instantiatedVarNames be a new empty List.
+        [...]
 ---*/
 
-function testAssignment() {
-  var x = 0;
-  var innerX = (function() {
-    x = (eval("var x;"), 1);
-    return x;
-  })();
+var x = 'outside';
+var probeParams, probeBody;
 
-  if (innerX !== undefined) {
-    throw new Test262Error('#1: innerX === undefined. Actual: ' + (innerX));
-  }
-  if (x !== 1) {
-    throw new Test262Error('#2: x === 1. Actual: ' + (x));
-  }
-}
-testAssignment();
+((_ = probeParams = function() { return x; }) => {
+  var x = 'inside';
+  probeBody = function() { return x; };
+})();
+
+assert.sameValue(probeParams(), 'outside');
+assert.sameValue(probeBody(), 'inside');

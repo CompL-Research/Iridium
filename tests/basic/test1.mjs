@@ -174,26 +174,129 @@
 // // let b = 13;
 // console.log(typeof a);
 
-class Foo {
-  #bar = () => {
-    console.log("Hello World");
-  }
+// class Foo {
+//   #bar = () => {
+//     console.log("Hello World");
+//   }
 
-  #goober() {
-    console.log("goober");
-  }
+//   #goober() {
+//     console.log("goober");
+//   }
 
-  #yy = 123;
+//   #yy = 123;
   
-  foo() {
-    this.#bar();
-    this.#bar = 121;
-    let xx = this.#goober;
-    let yy = this.#yy;
-    console.log(this.#bar);
-    xx();
-    console.log(this.#yy);
-  }
-}
+//   foo() {
+//     this.#bar();
+//     this.#bar = 121;
+//     let xx = this.#goober;
+//     let yy = this.#yy;
+//     console.log(this.#bar);
+//     xx();
+//     console.log(this.#yy);
+//   }
+// }
 
-new Foo().foo()
+// new Foo().foo()
+
+// //CHECK#1
+// if (Number.MAX_VALUE + Number.MAX_VALUE !== Number.POSITIVE_INFINITY) {
+//   console.log("Check 1 fail");
+// }
+
+// //CHECK#2
+// if (-Number.MAX_VALUE - Number.MAX_VALUE !== Number.NEGATIVE_INFINITY) {
+//   console.log("Check 2 fail");
+// }
+
+// //CHECK#3
+// if (1e+308 + 1e+308 !== Number.POSITIVE_INFINITY) {
+//   console.log("Check 3 fail");
+// }
+
+// //CHECK#4
+// if (-8.99e+307 - 8.99e+307 !== Number.NEGATIVE_INFINITY) {
+//   console.log("Check 4 fail");
+// }
+
+// var a = (xx, yy) => { let x; eval('var x;'); };
+
+// a();
+
+// var a = () => { let x; { let x; let z; let y; let a; let b; let c; eval(code); } { let z; }  };
+// var b = () => { eval(code);  };
+
+// a();
+
+// var callCount = 0;
+// var f;
+// f = ({a, b, ...rest}) => {
+//   // console.log(rest.a, undefined);
+//   // console.log(rest.b, undefined);
+
+//   // // verifyProperty(rest, "x", {
+//   // //   enumerable: true,
+//   // //   writable: true,
+//   // //   configurable: true,
+//   // //   value: 1
+//   // // });
+
+//   // // verifyProperty(rest, "y", {
+//   // //   enumerable: true,
+//   // //   writable: true,
+//   // //   configurable: true,
+//   // //   value: 2
+//   // // });
+//   // callCount = callCount + 1;
+// };
+
+// f({x: 1, y: 2, a: 5, b: 3});
+// console.log(callCount, 1, 'arrow function invoked exactly once');
+
+
+// var x = 'outside';
+// var probeParams, probeBody;
+
+// ((_ = probeParams = function() { return x; }) => {
+//   var x = 'inside';
+//   probeBody = function() { return x; };
+// })();
+
+// console.log(probeParams(), 'outside');
+// console.log(probeBody(), 'inside');
+
+
+// var zoo = 100;
+
+// function foo(x = (console.log(zoo), zoo)) {
+//   var zoo = 121;
+//   var x;
+//   console.log(x);
+// }
+
+// foo();
+
+// var zoo = 100;
+
+// function foo(x = (console.log(zoo), zoo)) {
+//   var zoo = 121;
+//   var x;
+//   console.log(x);
+// }
+
+// foo();
+
+var iter = function*() {}();
+iter.next();
+
+var callCount = 0;
+var f;
+f = ([,]) => {
+  
+  callCount = callCount + 1;
+};
+
+f(iter);
+console.log(callCount, 1, 'arrow function invoked exactly once');
+
+
+// [,,] = 121;
