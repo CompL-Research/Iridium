@@ -122,8 +122,16 @@ export class BindingsSEXP extends IridiumSEXP {
     }
     const buildContext = IridiumBuildContext.CONTEXT_MAP.get(lookupScope);
     if (!buildContext) throw new Error("buildContext is undefined");
-    const nextScope = buildContext.parent;
 
+    let nextScope = buildContext.parent;
+
+    // If the scope is an ArgInit context, bypass lookup of non-argument bindings to parent scope
+    if (buildContext.isArgInitContext) {
+      if (!buildContext.argInitContextWhitelist.has(name)) {
+        nextScope = buildContext.bypassParent;
+      }
+    }
+    
     return this.getBinding(name, nextScope);
   }
 

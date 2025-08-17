@@ -6,7 +6,7 @@ import { IridiumPrimitives, IridiumSEXP } from "../Structural/General";
  * @group TSHelper
  * 
  */
-export type CallSiteSEXPFlags = "Import" | "Super" | "V8Intrinsic" | "CCall" | "ConstructorCall" | "PrivateCall";
+export type CallSiteSEXPFlags = "Import" | "Super" | "V8Intrinsic" | "CCall" | "ConstructorCall" | "PrivateCall" | "JSDirectEval";
 
 /**
  * 
@@ -20,7 +20,9 @@ export type CallSiteSEXPFlags = "Import" | "Super" | "V8Intrinsic" | "CCall" | "
  * Depending on the marked flag (see {@link CallSiteSEXPFlags}) different values of `N` are selected.
  * Also, when calling a closure, different calling conventions might apply, these are broadly classified into the following three categories:
  * 
- * 1. **Basic Closure Application**: No flag set, N = 1 by default i.e. the first argument is the callee object. The rest of the args are passed as arguments to the callee. 
+ * 1. **Basic Closure Application**: 
+ * 
+ * - No flag set, N = 1 by default i.e. the first argument is the callee object. The rest of the args are passed as arguments to the callee. 
  * 
  * 2. **Contextual Closure Application**: 
  * 
@@ -52,6 +54,8 @@ export type CallSiteSEXPFlags = "Import" | "Super" | "V8Intrinsic" | "CCall" | "
  * 
  * - `FLAG(V8Intrinsic)`: Call to a V8 Intrinsic.
  * 
+ * - `FLAG(JSDirectEval)`: Marks the call as direct eval, i.e. in sloppy mode the evaled code **can** modify the enclosing environment.
+ * 
  */
 export class CallSiteSEXP extends IridiumSEXP {
   constructor(args: Array<IridiumSEXP>, closureFlag: CallSiteSEXPFlags | undefined = undefined) {
@@ -72,7 +76,17 @@ export class CallSiteSEXP extends IridiumSEXP {
     else if (this.hasFlag("CCall")) return "CCall";
     else if (this.hasFlag("ConstructorCall")) return "ConstructorCall";
     else if (this.hasFlag("PrivateCall")) return "PrivateCall";
+    else if (this.hasFlag("JSDirectEval")) return "JSDirectEval";
     else return undefined; 
+  }
+
+  setJSDirectEval(refIdx: number) {
+    this.setFlag("JSDirectEval", refIdx)
+  }
+
+  getJSDirectEval(): number {
+    if (!this.hasFlag("JSDirectEval")) throw new Error("Expected JSDirectEval to be set before this function is called");
+    return this.getFlagNumber("JSDirectEval");
   }
 
   toString(space?: number): string {
