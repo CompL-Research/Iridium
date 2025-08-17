@@ -225,7 +225,7 @@ export const handleArrayPatternAssignmentExpr = (cx: IRIDIUMV2, elements: JS3Arr
 
   for (let e of elements) {
     if (isIdentifier(e)) {
-      cx.getCurrentBB().args.push(new JSForOfNextSEXP());
+      cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfNextSEXP(), 2));
       cx.getCurrentBB().args.push(new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false));
       cx.getCurrentBB().args.push(new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false));
       cx.getCurrentBB().args.push(new EnvWriteSEXP(e.name, new EnvReadSEXP(for$of$loop$next), safeWrite, false));
@@ -281,7 +281,7 @@ export const handleArrayPatternAssignmentExpr = (cx: IRIDIUMV2, elements: JS3Arr
       cx.declareAndPushLexicalContext(); // Loop Context
       loopHeadContext = cx.getCurrentContext();
       loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX();
-      cx.getCurrentBB().args.push(new JSForOfNextSEXP());
+      cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfNextSEXP(), 2));
       cx.getCurrentBB().args.push(new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false));
       cx.getCurrentBB().args.push(new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false));
 
