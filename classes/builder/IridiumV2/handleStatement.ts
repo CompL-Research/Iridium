@@ -937,7 +937,10 @@ const extractBindings = (node: JS3AllowedFunctionArgs, result: Set<string>) => {
     for (let r of node.elements) {
       if (isIdentifier(r) || isArrayPattern(r) || isObjectPattern(r) || isAssignmentPattern(r) || isRestElement(r)) {
         extractBindings(r, result);
-      } else throw new Error("Todo, array pattern no Identifier case");
+      } else if (r === null) {
+        continue;
+      } else 
+          throw new Error("Todo, array pattern no Identifier case");
     }
   } else if (isObjectPattern(node)) {
     for (let p of node.properties) {
@@ -962,7 +965,8 @@ const extractBindings = (node: JS3AllowedFunctionArgs, result: Set<string>) => {
       extractBindings(node.argument, result);
     } else throw new Error("Todo, RestElement unhandled case");
   }
-  else throw new Error("Todo, unhandled extract bindings case");
+  else 
+    throw new Error("Todo, unhandled extract bindings case");
 }
 
 
