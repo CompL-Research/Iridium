@@ -945,7 +945,13 @@ const extractBindings = (node: JS3AllowedFunctionArgs, result: Set<string>) => {
         if (isIdentifier(p.value) || isArrayPattern(p.value) || isObjectPattern(p.value) || isAssignmentPattern(p.value) || isRestElement(p.value)) {
           extractBindings(p.value, result);
         }
-      } else throw new Error("Todo, object pattern unhandled case");
+      } else if (isRestElement(p))
+      {
+        if (isIdentifier(p.argument) || isArrayPattern(p.argument) || isObjectPattern(p.argument) || isAssignmentPattern(p.argument) || isRestElement(p.argument)) {
+          extractBindings(p.argument, result);
+        }
+      } else
+        throw new Error("Todo, object pattern unhandled case");
     }
   } else if (isAssignmentPattern(node)) {
     if (isIdentifier(node.left) || isArrayPattern(node.left) || isObjectPattern(node.left) || isAssignmentPattern(node.left) || isRestElement(node.left)) {
@@ -977,6 +983,27 @@ export const funArgLength = (
 
 // export type JS3AllowedFunctionArgs = Identifier | ArrayPattern | ObjectPattern | AssignmentPattern | RestElement;
 export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctionArgs>) => {
+
+  const closureTopLevelContext = cx.getCurrentContext();
+
+
+  const currToArgInit = new GotoSEXP(-1);
+  const argInitToPost = new GotoSEXP(-1);
+
+  // Goto argInitBB
+  cx.getCurrentBB().args.push(currToArgInit);
+
+  // Create continuation
+  cx.addContinuation(cx.getCurrentContext());
+  let postBBIdx = cx.getCurrentBB().getIDX();
+
+  // Lower arguments
+  const argInitConntext = cx.declareAndPushLexicalContext(); // ArgInitContext
+  let argInitBBIdx = cx.getCurrentBB().getIDX();
+
+  argInitConntext.isArgInitContext = true;
+  argInitConntext.bypassParent = closureTopLevelContext.parent;
+  
   // S1: Extract all bindings that are being made
   // S2: Initialize all the bindings to NUBD
   // S3: Replace all arglist with replacement RVals
@@ -988,6 +1015,7 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
 
   // S2: Initialize all the bindings to NUBD
   for (const b of extractedBindingsSet) {
+    argInitConntext.argInitContextWhitelist.add(b);
     const bb = new ResolveEnvBindingSEXP(b);
     bb.markASW();
     cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(bb, new JSNUBDSEXP(), "JSVAR", false));
@@ -995,11 +1023,12 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
 
   // S3: Replace all arglist with replacement RVals
   const argReplacementMap: Map<JS3AllowedFunctionArgs, string> = new Map();
-  const currentContext = cx.getCurrentContext();
+  
   for (const arg of params) {
     let currArg = cx.js3Builder.utils.getNewTemporary("ARG");
-    currentContext.args.push(currArg);
-    if (isRestElement(arg)) currentContext.hasRestArgs = true;
+    argInitConntext.argInitContextWhitelist.add(currArg);
+    closureTopLevelContext.args.push(currArg);
+    if (isRestElement(arg)) closureTopLevelContext.hasRestArgs = true;
     argReplacementMap.set(arg, currArg);
   }
 
@@ -1013,6 +1042,14 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
       reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", arg.argument, identifier(rVal)));
     }
   }
+
+  cx.getCurrentBB().args.push(argInitToPost);
+  cx.popContext(); // ArgInitContext
+
+  // Init Gotos
+  currToArgInit.setIDX(argInitBBIdx);
+  argInitToPost.setIDX(postBBIdx);
+
   // LVal = replacedRVal
   // assignmentExpression("=", )
 
