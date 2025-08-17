@@ -54,6 +54,32 @@
         },
 
         {
+            "name": "Launch iri tests/basic/test1.cjs",
+            "request": "launch",
+            "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
+            "args": [
+                "--import=tsx",
+                "/home/meetesh/wd/Iridium/iridium.ts",
+                "iri",
+                "--pp",
+                "/home/meetesh/wd/Iridium/",
+                "/home/meetesh/wd/Iridium/tests/basic/test1.cjs"
+            ],
+            "outFiles": [
+              "${workspaceFolder}/iridium*.ts",
+              "${workspaceFolder}/classes/**/*.ts"
+            ],
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/playground/**",
+                "**/temp/**",
+                "**/tests/**",
+                "**/node_modules/**"
+            ],
+            "type": "node"
+        },
+
+        {
             "name": "Launch 3js bigint-and-number.js",
             "request": "launch",
             "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
