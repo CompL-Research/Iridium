@@ -74,7 +74,6 @@ import {
   isSwitchStatement,
   isThrowStatement,
   isTryStatement,
-  isTSAsExpression,
   isTSDeclareFunction,
   isTSEnumDeclaration,
   isTSExportAssignment,
@@ -82,12 +81,8 @@ import {
   isTSInterfaceDeclaration,
   isTSModuleDeclaration,
   isTSNamespaceExportDeclaration,
-  isTSNonNullExpression,
-  isTSParameterProperty,
-  isTSSatisfiesExpression,
   isTSTypeAliasDeclaration,
   isTSTypeAnnotation,
-  isTSTypeAssertion,
   isTSTypeParameterDeclaration,
   isTypeAlias,
   isTypeAnnotation,
@@ -108,7 +103,7 @@ import {
   VariableDeclaration,
   variableDeclarator,
   WhileStatement,
-  WithStatement,
+  WithStatement
 } from "@babel/types";
 import { JS3BuilderUtils } from "../JS3Builder";
 import {
@@ -770,7 +765,7 @@ export function handleDeclaratorRec(
       const temporaryHolder = temporaries[i++];
 
       // No further reduction is needed for these cases...
-      if (isIdentifier(e)) {
+      if (isIdentifier(e) || e === null) {
         continue;
       }
 
