@@ -5,7 +5,7 @@ import { VERSION } from "../../../configs/projectStats";
 import JS3Builder from "../JS3Builder";
 import { isJS3ClassPrivateMethod, JS3Program } from "../JS3Helpers/JS3Types";
 import { IRIV2_STMT } from "./handleStatement";
-import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, CallSiteSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getDerivedConstructorClosureFlag, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isCallSiteSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isJSExplicitBindingDeclarationSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isNOPSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSForOfIteratorCloseSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSNUBDSEXP, JSSloppyDeclSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, PVTEnvReadSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StackRejectSEXP, StaticImportSEXP } from "./Types/index";
+import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, CallSiteSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getDerivedConstructorClosureFlag, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isCallSiteSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isGlobalBindingSEXP, isJSExplicitBindingDeclarationSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isNOPSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSForOfIteratorCloseSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSNUBDSEXP, JSSloppyDeclSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, PVTEnvReadSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StackRejectSEXP, StaticImportSEXP } from "./Types/index";
 import { PrivateMapping } from "./handleRVal";
 
 type LoopConfig = {
@@ -45,6 +45,9 @@ export class IridiumBuildContext {
   parent: number;
   scopeIdx: number;
   args: Array<string> = [];
+  isArgInitContext: boolean = false;
+  bypassParent: number = -1;
+  argInitContextWhitelist: Set<string> = new Set();
   hasRestArgs: boolean = false;
   nubds: Array<string> = [];
 
@@ -226,6 +229,7 @@ export class IRIDIUMV2 {
     this.patchHeritageConstructorSuperCalls(this.container);
     this.reduceResolvePrivateEnvBindingSEXP(this.container, 0);
     this.reduceResolveEnvBindingSEXP(this.container, 0);
+    this.reorderStacks(this.container);
     this.resolveLambdaTargets();
     this.addIDXForRemoteBindings();
     this.resolveBreakAndContinueTargets(this.container);
@@ -234,6 +238,7 @@ export class IRIDIUMV2 {
     this.markNamespaceImports(this.container);
     this.markSloppyWrites(this.container);
     this.loosenWritestoASWs(this.container);
+    this.markDirectEvals(this.container);
     this.saveGeneratedFile();
   }
 
@@ -379,6 +384,55 @@ export class IRIDIUMV2 {
     }
     arr.splice(index + 1, 0, ...newElements);
     return arr;
+  }
+
+  // 
+  // Mark call sites as direct evals if their callee is "eval" from the global environment.
+  // 
+  lastBindingsObj: BindingsSEXP | undefined = undefined
+  markDirectEvals(currSEXP: IridiumSEXP, currBBScope: number = -1) {
+    if (isBindingsSEXP(currSEXP)) {
+      this.lastBindingsObj = currSEXP;
+    }
+
+    if (isCallSiteSEXP(currSEXP)) {
+      if (currSEXP.getCallFlag() === undefined) { // direct eval calls are non contextual
+        const callee = currSEXP.args[0];
+        if (isGlobalBindingSEXP(callee) && callee.getDeclaration() === "eval") {
+          let getNextLookupScope = (curr: number) => {
+            if (IridiumBuildContext.CONTEXT_MAP.has(curr)) {
+              let buildContext = IridiumBuildContext.CONTEXT_MAP.get(curr);
+              if (!buildContext) throw new Error("Unexpected build context miss...");
+              return buildContext.parent;
+            } else {
+              return -1;
+            }
+          };
+
+          let currLookup = currBBScope;
+          if (!this.lastBindingsObj) throw new Error("bindingsObj missing...");
+          const bindingsObjLocalBindings = this.lastBindingsObj.getLocalBindings().args;
+          
+          do {
+            let bs = bindingsObjLocalBindings.filter(e => isEnvBindingSEXP(e)).filter(e => e.getScope() === currLookup);
+            if (bs.length > 0) {
+              bs.sort((a, b) => a.getREFIDX() - b.getREFIDX());
+              currSEXP.setJSDirectEval(bs[bs.length - 1].getREFIDX());
+              break;
+            } else {
+              currLookup = getNextLookupScope(currLookup);
+              if (currLookup === -1) break;
+            }
+          } while(true);
+        }
+      }
+    }
+
+    if (isBBSEXP(currSEXP)) {
+      currSEXP.args.forEach(e => this.markDirectEvals(e, currSEXP.getScopeIDX()))
+    } else {
+      currSEXP.args.forEach(e => this.markDirectEvals(e, currBBScope));
+    }
   }
 
   // 
@@ -626,6 +680,80 @@ export class IRIDIUMV2 {
         }
       } else throw new Error("Expected a bbContainerSEXP");
     }
+  }
+
+  //
+  // Reorder stack bindings to group lexical bindings together
+  // 
+  reorderStacks(currSEXP: IridiumSEXP) {
+    if (isBindingsSEXP(currSEXP)) {
+      let oldLength = currSEXP.getLocalBindings().args.length;
+      let args = currSEXP.getLocalBindings().args.filter(e => isEnvBindingSEXP(e)).filter(e =>  (e.getKind() === "JSARG" || e.getKind() === "JSRESTARG"));
+      let bindings = currSEXP.getLocalBindings().args.filter(e => isEnvBindingSEXP(e)).filter(e => !(e.getKind() === "JSARG" || e.getKind() === "JSRESTARG"));
+      if (oldLength !== args.length + bindings.length) throw new Error("Unexpected bindings found");
+      
+      const res: Array<EnvBindingSEXP> = [...args];
+
+      const scopeMap: Map<number, Array<EnvBindingSEXP>> = new Map();
+      const scopeBoundaryMap: Map<number, number> = new Map();
+      const scopes: Array<number> = [];
+      bindings.forEach(e => {
+        const scope = e.getScope();
+        if (!scopes.includes(scope)) scopes.push(scope);
+        if (!scopeMap.has(scope)) scopeMap.set(scope, []);
+        scopeMap.get(scope)?.push(e);
+      });
+
+      // Sort scopes
+      scopes.sort((a, b) => a - b);
+
+      let idx = 0;
+      for (let currScope of scopes) {
+        const bindings = scopeMap.get(currScope);
+        if (!bindings) throw new Error("No bindings for this scope...");
+        for (let xx = 0; xx < bindings.length; xx++) {
+          const b = bindings[xx];
+          const currRefIdx = idx++;
+          b.setREFIDX(currRefIdx);
+          if (xx === 0) {
+            b.setNEXT(-1);
+          } else {
+            b.setNEXT(currRefIdx - 1);
+          }
+          scopeBoundaryMap.set(currScope, currRefIdx);
+          res.push(b);
+        }
+      }
+
+      let topLevelTrigger: boolean = false;
+
+      for (let b of res) {
+        if (b.getKind() === "JSARG" || b.getKind() === "JSRESTARG") continue;
+        if (b.getNEXT() === -1) {
+          let parentScope = b.getParentScope();
+
+          while (true) {
+            if (scopeBoundaryMap.has(parentScope)) break;
+            let next = IridiumBuildContext.CONTEXT_MAP.get(parentScope)?.parent;
+            if (!next) {parentScope = -1; break;}
+            else parentScope = next;
+          }
+
+
+          if (scopeBoundaryMap.has(parentScope)) {
+            const next = scopeBoundaryMap.get(parentScope);
+            if (next === undefined) throw new Error("Expected next to be there...");
+            b.setNEXT(next);
+          }
+        }
+      }
+
+      currSEXP.getLocalBindings().args = res;
+      
+      return;
+    }
+
+    currSEXP.args.forEach(e => this.reorderStacks(e));
   }
 
   // 

@@ -1,4 +1,4 @@
-import { printIriSpace } from "#utils";
+import { printFlagString, printIriSpace } from "#utils";
 import { IridiumSEXP } from "../Structural/General";
 import { isLambdaSEXP, LambdaSEXP } from "../RVAL/Primitives";
 
@@ -36,6 +36,8 @@ export type JSEnvBindingFlags = "JSARG" | "JSRESTARG" | "JSLET" | "JSCONST" | "J
  * 
  * - `FLAG(ParentScope)`: The scope number of the enclosing lexical scope.
  * 
+ * - `FLAG(NEXT)`: The REFIDX of the NEXT lexical variable.
+ * 
  */
 export class EnvBindingSEXP extends IridiumSEXP {
   constructor(refIdx: number, idx: number, b: string, flags: [JSEnvBindingFlags, null][], scope: number, parentScope: number) {
@@ -49,7 +51,6 @@ export class EnvBindingSEXP extends IridiumSEXP {
   }
 
   // Flags
-
   setName(name: string) {
     this.setFlag("NAME", name);
   }
@@ -98,12 +99,20 @@ export class EnvBindingSEXP extends IridiumSEXP {
     return this.getFlagNumber("ParentScope");
   }
 
+  setNEXT(idx: number) {
+    this.setFlag("NEXT", idx);
+  }
+
+  getNEXT(): number {
+    return this.getFlagNumber("NEXT");
+  }
+
   // Utility
   getDeclaration(): string {
     return this.getName();
   }
 
-  getKind(): string {
+  getKind(): JSEnvBindingFlags {
     if (this.hasFlag("JSLET")) return "JSLET";
     if (this.hasFlag("JSCONST")) return "JSCONST";
     if (this.hasFlag("JSVAR")) return "JSVAR";
