@@ -437,6 +437,7 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
 }
 
 const handleForOfStatement = (cx: IRIDIUMV2, stmt: JS3ForOfStatement, label: string | null = null) => {
+  if (stmt.await) throw new Error("TODO: For Of await");
   handleIteratedLoops(cx, stmt, label);
 }
 
