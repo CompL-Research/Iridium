@@ -1,96 +1,96 @@
-// 
-// Inspired by babel-262 runner: https://github.com/babel/babel-test262-runner
-// 
 const path = require("path");
-const IRIAgent = require("./iri-agent.cjs");
-const { transpile, transpileJS3 } = require("./transpile.cjs");
+const fs   = require("fs");
+
+const EXEC_BIN          = "/home/meetesh/wd/quickjs/build/qjs_new";
+const IRI_PATH          = "/home/meetesh/wd/Iridium";
+const TEST262_PATH      = "/home/meetesh/wd/Iridium/tests/test262";
+const TMP_PATH          = "/home/meetesh/wd/Iridium/tests/tmp";
+const { execSync }      = require('child_process');
 
 const TEST_TIMEOUT = 60 * 1000; // 1 minute
 
-function timeout(file, waitMs = TEST_TIMEOUT) {
+exports.runBaseline = async function (test) {
+  const isModule = test.attrs.flags.module;
+  let {result: baselineTestPath, error} = storeBaselineTest(test);
+  if (error) {
+    return { result: "store-fail", error };
+  }
+  try {
+    execSync(`${EXEC_BIN} ${isModule ? '-m' : '-C'} ${baselineTestPath}`, { encoding: 'utf-8', stdio: 'pipe', timeout: TEST_TIMEOUT });
+    return { result: "success", error: false };
+  } catch (err) {
+    return { result: "exec-fail", error: err.message };
+  }
+}
+
+exports.runIridium = async function (test) {
+  let {result: iriTestPath, error} = storeIridiumTest(test);
+
+  if (error) {
+    return { result: "store-fail", error };
+  }
+
+  try {
+    execSync(`${EXEC_BIN} -X ${iriTestPath}`, { encoding: 'utf-8', stdio: 'pipe', timeout: TEST_TIMEOUT });
+    return { result: "success", error: false };
+  } catch (err) {
+    return { result: "exec-fail", error: err.message };
+  }
+}
+
+// 
+// Utility Functions
+// 
+
+function timeout(file) {
   return new Promise((_resolve, reject) =>
     setTimeout(
-      () => reject(new Error(`test ${file} timed out after ${waitMs} ms`)),
-      waitMs
+      () => reject(new Error(`test ${file} timed out after ${TEST_TIMEOUT} ms`)),
+      TEST_TIMEOUT
     )
   );
 }
 
-let agent, testRoot;
-
-exports.setup = function (opts) {
-  agent = new IRIAgent(opts);
-  testRoot = opts.testRoot;
-};
-
-exports.getBaseline = async function (test) {
-  let { attrs, contents, file } = test;
+function storeBaselineTest(test) {
+  let { attrs, contents, file, scenario } = test;
+  const baseName = file.replace(/\//g, '_');
   const isModule = attrs.flags.module;
+  const isStrict = scenario === "strict mode";
+  const UID = Math.random().toString(36).substring(2, 15);
+  const date = Date.now();
+  const fPath = `${TMP_PATH}/${baseName}_baseline_${date}_${UID}.js`;
 
   try {
-    contents = await transpile(contents, { features: attrs.features, isModule, isStrict: false });
+    if (isStrict && !isModule && !/^\s*['"]use strict['"]/.test(contents)) {
+      contents = `"use strict";\nundefined;\n${contents}`;
+    }
+    fs.writeFileSync(fPath, contents);
   } catch (error) {
-    return { result: "parser error", error };
+    return { result: "Failed to save baseline test", error };
   }
 
-  let result;
-  let ret;
-  try {
-    result = await Promise.race([
-      agent.evalScript({
-        attrs,
-        contents,
-        file: path.join(testRoot, file),
-      }, { module: isModule ? isModule : undefined }),
-      timeout(file),
-    ]);
-  } catch (error) {
-    agent.stop(); // kill process avoid 100% cpu usage
+  return { result: fPath, error: false }
+}
 
-    return { result: "timeout error", error };
-  }
-
-  if (result.error) {
-    ret = { result: "runtime error", error: result.error, contents };
-  } else {
-    ret = { result: "success", output: result.stdout };
-  }
-
-  return ret;
-};
-
-exports.runTest = async function (test) {
-  let { attrs, contents, file } = test;
+function storeIridiumTest(test) {
+  let { attrs, contents, file, scenario } = test;
+  const baseName = file.replace(/\//g, '_');
   const isModule = attrs.flags.module;
+  const isStrict = scenario === "strict mode";
+  const UID = Math.random().toString(36).substring(2, 15);
+  const date = Date.now();
+  const fPath = `${TMP_PATH}/${baseName}_iri_${date}_${UID}.js`;
+  const fPathIri = `${TMP_PATH}/${baseName}_iri_${date}_${UID}.json`;
 
   try {
-    contents = await transpileJS3(contents, { features: attrs.features, isModule, isStrict: false }, path.basename(file));
+    if (isStrict && !isModule && !/^\s*['"]use strict['"]/.test(contents)) {
+      contents = `"use strict";\nundefined;\n${contents}`;
+    }
+    fs.writeFileSync(fPath, contents);
+    execSync(`./iridium iri -s ${isModule ? 'module' : 'script'} -t ${TEST262_PATH} ${fPath} > ${fPathIri}`, { cwd: IRI_PATH, encoding: 'utf-8', stdio: 'pipe' });
   } catch (error) {
-    return { result: "parser error", error };
+    return { result: "Failed to save iridium test", error };
   }
 
-  let result;
-  let ret;
-  try {
-    result = await Promise.race([
-      agent.evalScript({
-        attrs,
-        contents,
-        file: path.join(testRoot, file),
-      }, { module: isModule ? isModule : undefined }),
-      timeout(file),
-    ]);
-  } catch (error) {
-    agent.stop(); // kill process avoid 100% cpu usage
-
-    return { result: "timeout error", error };
-  }
-
-  if (result.error) {
-    ret = { result: "runtime error", error: result.error, contents };
-  } else {
-    ret = { result: "success", output: result.stdout };
-  }
-
-  return ret;
-};
+  return { result: fPathIri, error: false }
+}

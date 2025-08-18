@@ -10,11 +10,14 @@ const UNSUPPORTED_FEATURES = ["import-attributes", "decorators"]
 const EXCLUDE_ESID_PREFIXES = ["pending", "proposal", "legacy"];
 
 const TEST262_PATH      = "/home/meetesh/wd/Iridium/tests/test262";
+const config = require("./config.cjs")
 
-const THREADS = Number(process.env.THREADS) || require("os").cpus().length / 2;
-// const THREADS = 128;
+const TESTSTOSKIP = config.toSkipUnsupported
 
-const worker = new JestWorker(require.resolve("./workerNew.cjs"), {
+// const THREADS = Number(process.env.THREADS) || require("os").cpus().length / 2;
+const THREADS = 128;
+
+const worker = new JestWorker(require.resolve("./worker.cjs"), {
   numWorkers: THREADS,
   exposedMethods: ["runBaseline", "runIridium"],
   // enableWorkerThreads: true,
@@ -77,6 +80,12 @@ async function main() {
         toSkip = true
       }
     }
+
+    // Tests to skip
+    for (const tt of TESTSTOSKIP) {
+      if (test.file.includes(tt)) { toSkip = true; }
+    }
+
     // Skip tests that are not yet part of the official ECMA spec
     if (isNonStandardTest(test)) toSkip = true;
     if (toSkip) continue
@@ -127,8 +136,9 @@ async function main() {
   tap.diag("\n\n");
   tap.diag(`Baseline: { storeFail: ${baseline.storeFail}, execFail: ${baseline.execFail}, success: ${baseline.success} }`);
   tap.diag(`Iridium:  { storeFail: ${iridium.storeFail}, execFail: ${iridium.execFail}, success: ${iridium.success} }`);
-  tap.diag(`Success: ${(1 - ((baseline.success - iridium.success)/baseline.success))*100}%.`);
+  tap.diag(`Rate: ${(1 - ((baseline.success - iridium.success)/baseline.success))*100}%.`);
   tap.diag(`PASS: ${PASS}, FAIL: ${FAIL}.`);
+  tap.diag(`Success: ${(1 - (FAIL/(PASS + FAIL)))*100}%.`);
   process.exit(0);
 }
 main().catch(error => {

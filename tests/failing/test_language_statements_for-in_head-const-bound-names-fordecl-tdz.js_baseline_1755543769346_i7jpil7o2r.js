@@ -159,35 +159,15 @@ function $DONOTEVALUATE() {
   throw "Test262: This statement should not be evaluated.";
 }
 
-// Copyright (C) 2016 the V8 project authors. All rights reserved.
+// Copyright (C) 2014 the V8 project authors. All rights reserved.
 // This code is governed by the BSD license found in the LICENSE file.
 /*---
-esid: sec-functiondeclarationinstantiation
+es6id: 13.6.4.12_S2
 description: >
-    Creation of new variable environment for the function body (as distinct from
-    that for the function's parameters)
-info: |
-    [...]
-    26. If hasParameterExpressions is false, then
-        [...]
-    27. Else,
-        a. NOTE A separate Environment Record is needed to ensure that closures
-           created by expressions in the formal parameter list do not have
-           visibility of declarations in the function body.
-        b. Let varEnv be NewDeclarativeEnvironment(env).
-        c. Let varEnvRec be varEnv's EnvironmentRecord.
-        d. Set the VariableEnvironment of calleeContext to varEnv.
-        e. Let instantiatedVarNames be a new empty List.
-        [...]
+    ForIn/Of: Bound names of ForDeclaration are in TDZ (for-of)
 ---*/
 
-var x = 'outside';
-var probeParams, probeBody;
-
-((_ = probeParams = function() { return x; }) => {
-  var x = 'inside';
-  probeBody = function() { return x; };
-})();
-
-assert.sameValue(probeParams(), 'outside');
-assert.sameValue(probeBody(), 'inside');
+assert.throws(ReferenceError, function() {
+  let x = 1;
+  for (const x in { x }) {}
+});

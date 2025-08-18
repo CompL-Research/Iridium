@@ -285,18 +285,79 @@
 
 // foo();
 
-var iter = function*() {}();
-iter.next();
+// var iter = function*() {}();
+// iter.next();
 
-var callCount = 0;
-var f;
-f = ([,]) => {
+// var callCount = 0;
+// var f;
+// f = ([,]) => {
   
-  callCount = callCount + 1;
-};
+//   callCount = callCount + 1;
+// };
 
-f(iter);
-console.log(callCount, 1, 'arrow function invoked exactly once');
+// f(iter);
+// console.log(callCount, 1, 'arrow function invoked exactly once');
 
 
-// [,,] = 121;
+// // [,,] = 121;
+
+// Array.prototype[Symbol.iterator] = function* () {
+//     if (this.length > 0) {
+//         yield this[0];
+//     }
+//     if (this.length > 1) {
+//         yield this[1];
+//     }
+//     if (this.length > 2) {
+//         yield 42;
+//     }
+// };
+
+// const [x, y, z] = [1, 2, 3];
+
+// console.log(x, 1);
+// console.log(y, 2);
+// console.log(z, 42);
+
+
+// assert.throws(TypeError, });
+
+// function foo() {
+//   for (const i = 0; i < 1; i++) {}
+// }
+
+// {
+//   const x = 12;
+//   x = 13;
+// }
+
+// const x = 12;
+// x = 13;
+
+
+// var count = 0;
+
+// const {...x} = { get v() { count++; return 2; } };
+// console.log(typeof(f));
+
+// var check = 0;
+// do {
+//   console.log(typeof(f));
+//   if(typeof(f) === "function"){
+//     check = -1;        
+//     break; 
+//   } else {
+//     check = 1;        
+//     break; 
+//   }
+// } while(function f(){});
+
+// //////////////////////////////////////////////////////////////////////////////
+// //CHECK#1
+// if (check !== 1) {
+// 	throw new Test262Error('#1: FunctionExpression within a "do-while" statement is allowed, but no function with the given name will appear in the global context');
+// }
+
+
+let x = 1;
+for (const x in { x }) {}
