@@ -129,6 +129,7 @@ export class IRIDIUMV2 {
     if (debugConfig.cli.tout)
       return;
 
+    // console.log("[Saving Iridium code]");
     const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.js3Builder.projectFile.uname, this.js3Builder.projectFile.extension) + ".json";
     fs.writeFile(
       filePath,
@@ -221,24 +222,41 @@ export class IRIDIUMV2 {
     this.popContext();
     if (this.buildContext.length !== 0) throw new Error("Expected buildContext stack to be empty after build()");
 
-    // debugConfig.logger.log(this.container.toString());
+    // console.log("[Iridium] Initial codegen complete");
     this.normailzeBBFlags();
+    // console.log("[Iridium] normailzeBBFlags complete");
     this.hoistFunctionDeclarations();
+    // console.log("[Iridium] hoistFunctionDeclarations complete");
     this.filterNOPs(this.container);
+    // console.log("[Iridium] filterNOPs complete");
     this.generateBBContainerSEXP();
+    // console.log("[Iridium] generateBBContainerSEXP complete");
     this.patchHeritageConstructorSuperCalls(this.container);
+    // console.log("[Iridium] patchHeritageConstructorSuperCalls complete");
     this.reduceResolvePrivateEnvBindingSEXP(this.container, 0);
+    // console.log("[Iridium] reduceResolvePrivateEnvBindingSEXP complete");
     this.reduceResolveEnvBindingSEXP(this.container, 0);
+    // console.log("[Iridium] reduceResolveEnvBindingSEXP complete");
     this.reorderStacks(this.container);
+    // console.log("[Iridium] reorderStacks complete");
     this.resolveLambdaTargets();
+    // console.log("[Iridium] resolveLambdaTargets complete");
     this.addIDXForRemoteBindings();
+    // console.log("[Iridium] addIDXForRemoteBindings complete");
     this.resolveBreakAndContinueTargets(this.container);
+    // console.log("[Iridium] resolveBreakAndContinueTargets complete");
     this.decorateReturnTargets(this.container);
+    // console.log("[Iridium] decorateReturnTargets complete");
     this.promoteAsyncReturns(this.container);
+    // console.log("[Iridium] promoteAsyncReturns complete");
     this.markNamespaceImports(this.container);
+    // console.log("[Iridium] markNamespaceImports complete");
     this.markSloppyWrites(this.container);
+    // console.log("[Iridium] markSloppyWrites complete");
     this.loosenWritestoASWs(this.container);
+    // console.log("[Iridium] loosenWritestoASWs complete");
     this.markDirectEvals(this.container);
+    // console.log("[Iridium] markDirectEvals complete");
     this.saveGeneratedFile();
   }
 
@@ -901,6 +919,8 @@ export class IRIDIUMV2 {
   generateBBContainerSEXP() {
     const fileSexp = this.container;
 
+    // console.log("[Iridium] generateBBContainerSEXP -- entry");
+
     // Group BBs into closure groups
     let bbGroups: Map<number, BBContainerSEXP> = new Map();
     if (!fileSexp) throw new Error("fileSexp is undefined");
@@ -929,6 +949,8 @@ export class IRIDIUMV2 {
       }
     }
 
+    // console.log("[Iridium] generateBBContainerSEXP -- closure grouping complete");
+
     fileSexp.args = [...bbGroups.values()];
 
     // const isSloppy = !IridiumBuildContext.CONTEXT_MAP.get(0).isStrict;
@@ -946,8 +968,14 @@ export class IRIDIUMV2 {
     const staticStarExports = new ListSEXP([]);
     staticStarExports.setType("StarExport");
 
+    // console.log("[Iridium] resolving -- numContainers: " + fileSexp.args.length);
+
+    let idx = 0;
+
     for (let bbContainer of fileSexp.args) {
       if (isBBContainerSEXP(bbContainer)) {
+        idx++;
+        // console.log(`[Iridium] building container ${idx}/${fileSexp.args.length}: start`);
         const bbContainerScopeIDX = bbContainer.getScopeIDX();
         const buildContext = IridiumBuildContext.CONTEXT_MAP.get(bbContainerScopeIDX);
         if (!buildContext) throw new Error("buildContext is undefined");
@@ -1058,7 +1086,9 @@ export class IRIDIUMV2 {
                   } else if (stmt.isLetDecl()) {
                     stmt.setRVal(new GlobalBindingSEXP("undefined"));
                   } else {
-                    throw new Error("Const declaration without RVal");
+                    // Can happen when const destructuring stmts are present
+                    stmt.setRVal(new GlobalBindingSEXP("undefined"));
+                    // throw new Error("Const declaration without RVal");
                   }
                 }
 
@@ -1079,6 +1109,9 @@ export class IRIDIUMV2 {
 
           } else throw new Error("Expected BBSEXP");
         }
+
+        // console.log(`[Iridium] building container ${idx}/${fileSexp.args.length}: identified bindings`);
+
 
         // Remote uninitialized declarations
         for (let [bb, toRemoveStmts] of toRemove) bb.args = bb.args.filter(e => !toRemoveStmts.has(e));
@@ -1145,6 +1178,8 @@ export class IRIDIUMV2 {
           }
         }
 
+        // console.log(`[Iridium] building container ${idx}/${fileSexp.args.length}: processed hoistingInfo`);
+
         // 0 -> No Arguments Object
         // 1 -> Mapped Arguments
         // 2 -> Unmapped Arguments
@@ -1180,6 +1215,8 @@ export class IRIDIUMV2 {
 
         // Add initializers to local scopes
         const bindingsToInit = [...bindingsSEXP.getLocalBindings().args, ...bindingsSEXP.getRemoteBindings().args].filter(b => !toSkipInit.has(b));
+
+        // console.log(`[Iridium] building container ${idx}/${fileSexp.args.length}: starting binding initialization`);
 
         for (let binding of bindingsToInit) {
           if (isEnvBindingSEXP(binding)) {
@@ -1217,8 +1254,12 @@ export class IRIDIUMV2 {
             throw new Error("Expected EnvBindingSEXP");
         }
 
+        // console.log(`[Iridium] building container ${idx}/${fileSexp.args.length}: binding initialization complete`);
+
         const topLevelContext = IridiumBuildContext.CONTEXT_MAP.get(0);
         if (!topLevelContext) throw new Error("topLevelContext is undefined");
+
+        // console.log(`[Iridium] building container ${idx}/${fileSexp.args.length}: adding sloppy declaration init`);
 
         for (let [name, kind] of sloppyDeclarations) {
           let startBB = topLevelContext.BB[0];
@@ -1231,8 +1272,11 @@ export class IRIDIUMV2 {
           }
           const val = new EnvWriteSEXP(lValName, rVal, true, false);
           // val.markSloppyDecl();
-          startBB.args = [val, ...startBB.args];
+          // startBB.args = [val, ...startBB.args];
+          startBB.args.unshift(val);
         }
+
+        // console.log(`[Iridium] building container ${idx}/${fileSexp.args.length}: JSSloppyDeclSEXP`);
 
         for (let [name, kind] of sloppyDeclarations) {
           if (kind === "JSLET" || kind === "JSCONST" || kind === "JSVAR") {
@@ -1241,9 +1285,13 @@ export class IRIDIUMV2 {
           } else throw new Error("The declaration kind for SloppyDeclarationCheck is invalid!!!");
         }
 
+        // console.log(`[Iridium] building container ${idx}/${fileSexp.args.length}: setting bindingsSEXP`);
         bbContainer.setBindings(bindingsSEXP);
+        // console.log(`[Iridium] building container ${idx}/${fileSexp.args.length}: done`);
       } else throw new Error("Expected BBContainerSEXP");
     }
+
+    // console.log("[Iridium] generateBBContainerSEXP -- bindings declaration and hoisting complete");
 
     fileSexp.initializeModuleRequests(moduleRequests, staticImports, staticExports, staticStarExports);
   }
