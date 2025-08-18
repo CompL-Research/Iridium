@@ -382,7 +382,7 @@ export const handleObjectPatternAssignmentExpr = (cx: IRIDIUMV2, properties: JS3
     cx.getCurrentBB().args.push(new StackRetainSEXP(new JSCopyDataPropertiesSEXP(exc_obj, toObjRes, fin_obj), 1, 2));
 
     // @ts-ignore
-    cx.getCurrentBB().args.push(new EnvWriteSEXP(restElement.argument.name, new StackPopSEXP(),false, false));
+    cx.getCurrentBB().args.push(new EnvWriteSEXP(restElement.argument.name, new StackPopSEXP(),safeWrite, false));
   }
 }
 
