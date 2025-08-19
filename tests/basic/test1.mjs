@@ -359,5 +359,143 @@
 // }
 
 
-let x = 1;
-for (const x in { x }) {}
+// let x = 1;
+// for (const x in { x }) {}
+
+// let log = console.log;
+// let a = { f: 1 };
+
+// log(a.f++);
+// log(++a.f);
+
+// function makeCounterBlock(b) {
+//   const counterBlock = new Array(16).fill(0);
+
+//   // low 32 bits
+//   for (let c = 0; c < 4; c++) {
+//     counterBlock[15 - c] = (b >>> (c * 8)) & 0xff;
+//   }
+
+//   // high 32 bits
+//   for (let c = 0; c < 4; c++) {
+//     counterBlock[15 - c - 4] = ((b / 0x100000000) >>> (c * 8)) & 0xff;
+//   }
+
+//   return counterBlock;
+// }
+
+// function assertEqual(name, got, expected) {
+//   const same = got.length === expected.length && got.every((v, i) => v === expected[i]);
+//   if (same) {
+//     console.log(`✅ ${name} passed`);
+//   } else {
+//     console.log(`❌ ${name} FAILED`);
+//     console.log(" got:     ", got);
+//     console.log(" expected:", expected);
+//   }
+// }
+
+// // === Unit tests ===
+// assertEqual("b=0", makeCounterBlock(0), [
+//   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+// ]);
+
+// assertEqual("b=1", makeCounterBlock(1), [
+//   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+// ]);
+
+// assertEqual("b=0x12345678", makeCounterBlock(0x12345678), [
+//   0,0,0,0,0,0,0,0,0,0,0,0,18,52,86,120
+// ]);
+
+// assertEqual("b=0x100000000", makeCounterBlock(0x100000000), [
+//   0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0
+// ]);
+
+// assertEqual("b=0x123456789ABCDEF", makeCounterBlock(0x123456789ABCDEF), [
+//   0,0,0,0,0,0,0,0,1,35,69,103,137,171,205, 240,
+// ]);
+
+// function Camera() {
+//   console.log("Camera constructor called");
+// }
+
+// Camera.prototype.render = function() {
+//     console.log("Calling render");
+// }
+
+// let o = new Camera();
+// o.render();
+
+// function Scene(a_triangles) {
+//   this.triangles = a_triangles;
+// }
+
+// Scene.prototype.testfun = function() {
+//   console.log(this.triangles);
+// }
+
+// new Scene("Hello World").testfun();
+
+// function Triangle() {
+//   this.name = "Triangle";
+// }
+
+// {
+//   var i = 0;
+//   var triangles = new Array();
+//   triangles[i++] = new Triangle();
+//   triangles[i++] = new Triangle();
+//   triangles[i++] = new Triangle();
+//   triangles[i++] = new Triangle();
+//   triangles[i++] = new Triangle();
+//   triangles[i++] = new Triangle();
+
+//   console.log(triangles[0].name);
+// }
+
+// let a = [];
+// let i = 0;
+// a[i++] = i;
+// a[i++] = i;
+// a[i++] = i;
+// a[i++] = i;
+// a[i++] = i;
+// a[i++] = i;
+// a[i++] = i;
+// console.log(a,i)
+
+// function foo(foo) {
+//   let y;
+//   let t1;
+//   ({ x: t1} = { w: undefined});
+//   ({ y } = t1);
+//   console.log(y);
+// }
+
+// foo();
+
+function f({ w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: undefined }) {
+
+}
+f();
+
+
+// let x, y, z;
+// ({ w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: undefined });
+
+// var callCount = 0;
+// var f;
+// f = ({ w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: undefined }) => {
+//   console.log(x, 4);
+//   console.log(y, 5);
+//   console.log(z, 6);
+
+//   // assert.throws(ReferenceError, function() {
+//   //   w;
+//   // });
+//   callCount = callCount + 1;
+// };
+
+// f();
+// console.log(callCount, 1, 'arrow function invoked exactly once');
