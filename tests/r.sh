@@ -4,10 +4,11 @@ set -euo pipefail
 rm -rf tmp
 mkdir tmp
 
-BASE="test/language/statements"
-
-dirs=(
-  # "async-function"
+TESTS=(
+  # "test/language/expressions/addition"
+  # "test/language/expressions/array"
+  "test/language/expressions/arrow-function"
+  # "test/language/statements/async-function"
   # "async-generator"
   # "await-using"
   # "block"
@@ -21,7 +22,7 @@ dirs=(
   # "expression"
   # "for"
   # "for-await-of"
-  "for-in"
+  # "for-in"
   # "for-of"
   # "function"
   # "generators"
@@ -38,8 +39,8 @@ dirs=(
   # "with"
 )
 
-for dirname in "${dirs[@]}"; do
-  outFile="outStmt$(tr '-' '_' <<<"$dirname" | sed -E 's/(^|_)([a-z])/\U\2/g')"
-  echo "Running $dirname -> $outFile"
-  node run.cjs "$BASE/$dirname/" > "$outFile"
+for test in "${TESTS[@]}"; do
+  outFile="out_${test//\//_}"
+  echo "Running $test -> $outFile"
+  node run.cjs "$test/" > "$outFile"
 done

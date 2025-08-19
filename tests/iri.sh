@@ -8,6 +8,6 @@ if [ $# -lt 1 ]; then
 fi
 
 cd ..
-./iridium iri . ./tests/$1
+./iridium iri --pp . ./tests/$1
 
 ls -1 outputs | sed "s|^|$PWD/outputs/|"
