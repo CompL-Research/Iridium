@@ -222,8 +222,83 @@ export class IRIDIUMV2 {
     this.popContext();
     if (this.buildContext.length !== 0) throw new Error("Expected buildContext stack to be empty after build()");
 
+    //
+    // TODOs 
+    // 1. Basic workaround to see how much it saves us (not that big) [Do this].
+    //   - isTag and getFlag, etc will need to change...
+    // 2. Create the new JSON format and save to disk from Iridium.
+    //   - Start implementing passes.
+    //   - Save back to JSON...
+    // 
+    // OPTIONALS
+    // 1. [Storage size/memory opt] Save to disk using bjson/protobuf (for huge objects) [Experiment, how much it helps over naive implementation]
+    // 
+
+
+
+    // 
+    // Quick workaround, replace all known strings with indices, reduce size and overhead of strings...
+    // 
+    // TAGS: Set<"BB", "NUMBER"...>
+    // FLAGS: SET<"IridiumPrimitive">
+    // 
+    // [<TAGS_1>, [[<TAGS_1>, [[<TAGS_1>, [....[<TAGS_1>, [], [<FLAGS_N>, Primitives]]], [<FLAGS_N>, Primitives]]], [<FLAGS_N>, Primitives]]], [<FLAGS_N>, Primitives]]
+    // 
+    
+
+    // --> Iridum Code Here --> Binary Representation
+    // 
+    // 1. Save to disk, JSON (slow, but sorta works!!!)
+
+    // C++ project, load using existing parsing pipeline
+    // C++ Project loads the bJSON -> JSON -> IridiumSEXP (non executable) -> [Passes here] -> IridiumSEXP* (executable) -> save to disk as bJSON/protobuf
+
+
+    // Execution Project, load JSON -> IridiumSEXP* -> qjs bytecode generator
+
+    // C++ Project loads the SOME_FORMAT -> IridiumSEXP (non executable)
+
+
+    // 
+    // ["TAG", [], [string : Primitivite | null]]
+
+
+    // 
+    // Node = List[1, 1, 1]
+    // 
+    // ["Node", ["List": [ ["Number", [], ["Val", 1]], ["Number", [], ["Val", 1]], ["Number", [], ["Val", 1]] ] ], [string : Primitivite | null]]
+
+    // 
+    // 0 - "Node"
+    // 1 - "Number"
+    // 2 - "List"
+    // [0, [2, [ 1, [1, 1]]]12.12.1] <- Much lower (huffman coding)
+
+    // Binary Representation
+    // MAGIC_NUMBER_IRIDIUM, NBYTES, SOME_METADATA, REMAP_TABLE_SIZE
+    // STRING_REMAP_TABLE - [NUMBER, "STR\0",...]
+    // CODE REGION
+    //   0 - '[', 1 - ']' <- Special Symbols
+    //   01010101012121212
+
+
+    // Iridium Code from JS (non-executable, needs resolution) =[C/C++-project]==> IridiumSEXP struct -> [MAIN PASSES] -> IridiumSEXP struct (executable)
+
+
+    // 
+    // Load up things faster, 1 pass vs qjs source to memory parsing
+    // 
+    // 
+
+    // 
+    // 1. Compression of symbols
+    // 2. Structure
+    //      -- Implement them as External C libraries, 
+    // 3. Reimplement the passes
+    // 
+
     // console.log("[Iridium] Initial codegen complete");
-    this.normailzeBBFlags();
+    this.normailzeBBFlags(); // External Libraries in code
     // console.log("[Iridium] normailzeBBFlags complete");
     this.hoistFunctionDeclarations();
     // console.log("[Iridium] hoistFunctionDeclarations complete");
@@ -1272,8 +1347,8 @@ export class IRIDIUMV2 {
           }
           const val = new EnvWriteSEXP(lValName, rVal, true, false);
           // val.markSloppyDecl();
-          // startBB.args = [val, ...startBB.args];
-          startBB.args.unshift(val);
+          // startBB.args = [val, ...startBB.args];  O(n + a)
+          startBB.args.unshift(val); //  O(n + a)
         }
 
         // console.log(`[Iridium] building container ${idx}/${fileSexp.args.length}: JSSloppyDeclSEXP`);
