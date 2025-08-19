@@ -793,6 +793,7 @@ export function handleDeclaratorRec(
               temporaryHolder.argument,
               otherProps,
               generator,
+              true
             );
           } else {
             throw new Error(
@@ -809,7 +810,7 @@ export function handleDeclaratorRec(
         if (isIdentifier(temporaryHolder)) {
           if (!e) throw new Error("Expected e to not be null");
           if (isVoidPattern(e)) throw new Error("TODO // unhandled Void Pattern Node");
-          handleDeclaratorRec(e, temporaryHolder, otherProps, generator);
+          handleDeclaratorRec(e, temporaryHolder, otherProps, generator, true);
         } else {
           throw new Error(
             "IMPOSSIBLE destructure pattern reduction case... expected Identifier"
@@ -908,7 +909,7 @@ export function handleDeclaratorRec(
 
     // Recursive case
     // (let...) left = fin$res
-    handleDeclaratorRec(LVal.left, fin$res, otherProps, generator);
+    handleDeclaratorRec(LVal.left, fin$res, otherProps, generator, true);
   } else if (isObjectPattern(LVal)) {
     //
     // Object pattern case...
@@ -1100,7 +1101,7 @@ export function handleDeclaratorRec(
             isAssignmentPattern(p.value)
           ) {
             // Recurse: (LVal: COMPLEX, RVal: TEMP)
-            handleDeclaratorRec(p.value, tempVar, otherProps, generator);
+            handleDeclaratorRec(p.value, tempVar, otherProps, generator, true);
           } else {
             throw new Error(
               `IMPOSSIBLE destructure objpattern reduction case... LVAL is ${p.value.type}`
@@ -1131,7 +1132,7 @@ export function handleDeclaratorRec(
             isAssignmentPattern(p.argument)
           ) {
             // Recurse: (LVal: COMPLEX, RVal: TEMP)
-            handleDeclaratorRec(p.argument, tempVar, otherProps, generator);
+            handleDeclaratorRec(p.argument, tempVar, otherProps, generator, true);
           } else {
             throw new Error(
               `IMPOSSIBLE destructure objpattern reduction case-1... LVAL is ${p.argument.type}`
