@@ -7,6 +7,8 @@ import { isJS3ClassPrivateMethod, JS3Program } from "../JS3Helpers/JS3Types";
 import { IRIV2_STMT } from "./handleStatement";
 import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, CallSiteSEXP, EnvBindingSEXP, EnvReadSEXP, EnvWriteSEXP, FileSEXP, getDerivedConstructorClosureFlag, getRegularClosureFlag, GlobalBindingSEXP, GotoSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isBBContainerSEXP, isBBSEXP, isBindingsSEXP, isCallSiteSEXP, isEnvBindingSEXP, isEnvWriteSEXP, isGlobalBindingSEXP, isJSExplicitBindingDeclarationSEXP, isJSFuncDeclSEXP, isJSImplicitBindingDeclarationSEXP, isLambdaSEXP, isListSEXP, isLocalStaticExportSEXP, isNamedReexportSEXP, isNOPSEXP, isPoolBindingSEXP, isRemoteEnvBindingSEXP, isResolveBreakTargetSEXP, isResolveContinueTargetSEXP, isResolveEnvBindingSEXP, isResolvePrivateEnvBindingSEXP, isReturnSEXP, isStarExportSEXP, isStaticImportSEXP, JSEnvBindingFlags, JSForOfIteratorCloseSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSNUBDSEXP, JSSloppyDeclSEXP, ListSEXP, ModuleRequestSEXP, NOPSEXP, PoolBindingSEXP, PopCatchContextSEXP, PVTEnvReadSEXP, RemoteEnvBindingSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ReturnAsyncSEXP, ReturnSEXP, StackRejectSEXP, StaticImportSEXP } from "./Types/index";
 import { PrivateMapping } from "./handleRVal";
+import { pack } from "msgpackr";
+import { gzipSync } from "zlib";
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -39,6 +41,130 @@ function isLoopConfig(obj: any): obj is LoopConfig {
     typeof obj.continueTarget === "number"
   );
 }
+
+// 
+// Function to serialize the Iridium build context, this information is needed by many main passes to perform resolution
+//
+
+type SerializableIridiumBuildContextObject = {
+  parent: number;
+  scopeIdx: number;
+  args: Array<string>;
+  isArgInitContext: boolean;
+  bypassParent: number;
+  argInitContextWhitelist: Array<string>; // Set
+  hasRestArgs: boolean;
+  loopConfig: {
+    kind: "for-of" | "standard",
+    loopHeadIDX: number,
+    loopBodyIDX: number,
+    loopInitIDX: number,
+    label: string | null,
+    breakTarget: number,
+    continueTarget: number
+  } | null;
+  tryContext: {
+    tryContextIDX: number,
+    tryIDX: number,
+    udCatchIDX: number,
+    imCatchIDX: number,
+    finalizerIDX: number
+  } | null;
+  kind: number;
+  propInitClos: string | null;
+  argumentsKind: number;
+  isAsync: boolean;
+  isGenerator: boolean;
+  isStrict: boolean;
+  isModule: boolean;
+
+  ecmaArgs: number;
+
+  privateMapping: Array<[
+    string,
+    [string, string]
+  ]> | null
+
+  moduleRequestMap: Array<[string, Array<any>]> | null; // Array<any> are interpreted as IridiumSEXPs
+
+  BB: Array<number>; // This must be resolved to their respective BBs at init time...
+
+}
+
+function serializeBuildContext(): Array<SerializableIridiumBuildContextObject> {
+  const res: Array<SerializableIridiumBuildContextObject> = new Array();
+  const contexts = IridiumBuildContext.CONTEXT_MAP;
+
+  for (let e of contexts) {
+    const buildContext: IridiumBuildContext = e[1];
+
+    const privateMapping: Array<[
+      string,
+      [string, string]
+    ]> = [];
+
+    if (buildContext.privateMapping) {
+      for (let p of buildContext.privateMapping) {
+        privateMapping.push([p[0], [p[1][0], p[1][1]]])
+      }
+    }
+
+    const moduleRequestMap: Array<[string, Array<any>]> = [];
+
+    if (buildContext.moduleRequestMap) {
+      for (let p of buildContext.moduleRequestMap) {
+        moduleRequestMap.push([p[0], p[1].serialize()])
+      }
+    }
+
+    // Create Serializable Iridium Build Context from buildContext
+    const serializedContext: SerializableIridiumBuildContextObject = {
+      parent: buildContext.parent,
+      scopeIdx: buildContext.scopeIdx,
+      args: buildContext.args,
+      isArgInitContext: buildContext.isArgInitContext,
+      bypassParent: buildContext.bypassParent,
+      argInitContextWhitelist: [...buildContext.argInitContextWhitelist], // Set
+      hasRestArgs: buildContext.hasRestArgs,
+      loopConfig: buildContext.loopConfig ? {
+        kind: buildContext.loopConfig.kind,
+        loopHeadIDX: buildContext.loopConfig.loopHeadIDX,
+        loopBodyIDX: buildContext.loopConfig.loopBodyIDX,
+        loopInitIDX: buildContext.loopConfig.loopInitIDX,
+        label: buildContext.loopConfig.label,
+        breakTarget: buildContext.loopConfig.breakTarget,
+        continueTarget: buildContext.loopConfig.continueTarget
+      } : null,
+      tryContext: buildContext.tryContext ? {
+        tryContextIDX: buildContext.tryContext.tryContextIDX,
+        tryIDX: buildContext.tryContext.tryIDX,
+        udCatchIDX: buildContext.tryContext.udCatchIDX,
+        imCatchIDX: buildContext.tryContext.imCatchIDX,
+        finalizerIDX: buildContext.tryContext.finalizerIDX
+      } : null,
+
+      kind: buildContext.kind,
+      propInitClos: buildContext.propInitClos,
+      argumentsKind: buildContext.argumentsKind,
+      isAsync: buildContext.isAsync,
+      isGenerator: buildContext.isGenerator,
+      isStrict: buildContext.isStrict,
+      isModule: buildContext.isModule,
+      ecmaArgs: buildContext.ecmaArgs,
+
+      privateMapping: buildContext.privateMapping ? privateMapping : null,
+
+      moduleRequestMap: buildContext.moduleRequestMap ? moduleRequestMap : null,
+
+      BB: [...buildContext.BB.map(e => e.getIDX())]
+    };
+
+    res.push(serializedContext)
+  }
+
+  return res;
+}
+
 export class IridiumBuildContext {
   static SID = 0;
   static CONTEXT_MAP = new Map<number, IridiumBuildContext>();
@@ -49,7 +175,6 @@ export class IridiumBuildContext {
   bypassParent: number = -1;
   argInitContextWhitelist: Set<string> = new Set();
   hasRestArgs: boolean = false;
-  nubds: Array<string> = [];
 
   loopConfig: LoopConfig | null = null;
 
@@ -116,28 +241,34 @@ export class IRIDIUMV2 {
     this.container = null;
   }
 
-  serialize() {
+  serialize(): Buffer {
     if (!this.container) throw new Error("this.container is null");
-    return {
-      version: VERSION,
-      ...this.js3Builder.projectFile.toJSON(),
-      iridium: this.container.serialize()
-    }
+
+    // console.time("savingIridiumFile");
+    const packed = pack(
+      {
+        version: VERSION,
+        ...this.js3Builder.projectFile.toJSON(),
+        buildContext: serializeBuildContext(),
+        iridium: this.container.serialize()
+      }
+    );
+
+    // @ts-ignore
+    const gzipped = gzipSync(packed);
+    // console.timeEnd("savingIridiumFile");
+
+    return gzipped
   }
 
   saveGeneratedFile() {
     if (debugConfig.cli.tout)
       return;
 
-    // console.log("[Saving Iridium code]");
-    const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.js3Builder.projectFile.uname, this.js3Builder.projectFile.extension) + ".json";
-    fs.writeFile(
-      filePath,
-      JSON.stringify(this.serialize())
-      , (e) => {
-        if (e) debugConfig.logger.error(`[Failed to save Iridium]: ${path.basename(this.js3Builder.projectFile.uname, this.js3Builder.projectFile.extension)}`);
-      }
-    );
+    const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.js3Builder.projectFile.uname, this.js3Builder.projectFile.extension) + ".iri";
+
+    // @ts-ignore
+    fs.writeFileSync(filePath, this.serialize());
   }
 
   getCurrentContext() {
@@ -297,41 +428,41 @@ export class IRIDIUMV2 {
     // 3. Reimplement the passes
     // 
 
-    // console.log("[Iridium] Initial codegen complete");
-    this.normailzeBBFlags(); // External Libraries in code
-    // console.log("[Iridium] normailzeBBFlags complete");
-    this.hoistFunctionDeclarations();
-    // console.log("[Iridium] hoistFunctionDeclarations complete");
-    this.filterNOPs(this.container);
-    // console.log("[Iridium] filterNOPs complete");
-    this.generateBBContainerSEXP();
-    // console.log("[Iridium] generateBBContainerSEXP complete");
-    this.patchHeritageConstructorSuperCalls(this.container);
-    // console.log("[Iridium] patchHeritageConstructorSuperCalls complete");
-    this.reduceResolvePrivateEnvBindingSEXP(this.container, 0);
-    // console.log("[Iridium] reduceResolvePrivateEnvBindingSEXP complete");
-    this.reduceResolveEnvBindingSEXP(this.container, 0);
-    // console.log("[Iridium] reduceResolveEnvBindingSEXP complete");
-    this.reorderStacks(this.container);
-    // console.log("[Iridium] reorderStacks complete");
-    this.resolveLambdaTargets();
-    // console.log("[Iridium] resolveLambdaTargets complete");
-    this.addIDXForRemoteBindings();
-    // console.log("[Iridium] addIDXForRemoteBindings complete");
-    this.resolveBreakAndContinueTargets(this.container);
-    // console.log("[Iridium] resolveBreakAndContinueTargets complete");
-    this.decorateReturnTargets(this.container);
-    // console.log("[Iridium] decorateReturnTargets complete");
-    this.promoteAsyncReturns(this.container);
-    // console.log("[Iridium] promoteAsyncReturns complete");
-    this.markNamespaceImports(this.container);
-    // console.log("[Iridium] markNamespaceImports complete");
-    this.markSloppyWrites(this.container);
-    // console.log("[Iridium] markSloppyWrites complete");
-    this.loosenWritestoASWs(this.container);
-    // console.log("[Iridium] loosenWritestoASWs complete");
-    this.markDirectEvals(this.container);
-    // console.log("[Iridium] markDirectEvals complete");
+    // // console.log("[Iridium] Initial codegen complete");
+    // this.normailzeBBFlags(); // External Libraries in code
+    // // console.log("[Iridium] normailzeBBFlags complete");
+    // this.hoistFunctionDeclarations();
+    // // console.log("[Iridium] hoistFunctionDeclarations complete");
+    // this.filterNOPs(this.container);
+    // // console.log("[Iridium] filterNOPs complete");
+    // this.generateBBContainerSEXP();
+    // // console.log("[Iridium] generateBBContainerSEXP complete");
+    // this.patchHeritageConstructorSuperCalls(this.container);
+    // // console.log("[Iridium] patchHeritageConstructorSuperCalls complete");
+    // this.reduceResolvePrivateEnvBindingSEXP(this.container, 0);
+    // // console.log("[Iridium] reduceResolvePrivateEnvBindingSEXP complete");
+    // this.reduceResolveEnvBindingSEXP(this.container, 0);
+    // // console.log("[Iridium] reduceResolveEnvBindingSEXP complete");
+    // this.reorderStacks(this.container);
+    // // console.log("[Iridium] reorderStacks complete");
+    // this.resolveLambdaTargets();
+    // // console.log("[Iridium] resolveLambdaTargets complete");
+    // this.addIDXForRemoteBindings();
+    // // console.log("[Iridium] addIDXForRemoteBindings complete");
+    // this.resolveBreakAndContinueTargets(this.container);
+    // // console.log("[Iridium] resolveBreakAndContinueTargets complete");
+    // this.decorateReturnTargets(this.container);
+    // // console.log("[Iridium] decorateReturnTargets complete");
+    // this.promoteAsyncReturns(this.container);
+    // // console.log("[Iridium] promoteAsyncReturns complete");
+    // this.markNamespaceImports(this.container);
+    // // console.log("[Iridium] markNamespaceImports complete");
+    // this.markSloppyWrites(this.container);
+    // // console.log("[Iridium] markSloppyWrites complete");
+    // this.loosenWritestoASWs(this.container);
+    // // console.log("[Iridium] loosenWritestoASWs complete");
+    // this.markDirectEvals(this.container);
+    // // console.log("[Iridium] markDirectEvals complete");
     this.saveGeneratedFile();
   }
 
@@ -505,7 +636,7 @@ export class IRIDIUMV2 {
           let currLookup = currBBScope;
           if (!this.lastBindingsObj) throw new Error("bindingsObj missing...");
           const bindingsObjLocalBindings = this.lastBindingsObj.getLocalBindings().args;
-          
+
           do {
             let bs = bindingsObjLocalBindings.filter(e => isEnvBindingSEXP(e)).filter(e => e.getScope() === currLookup);
             if (bs.length > 0) {
@@ -516,7 +647,7 @@ export class IRIDIUMV2 {
               currLookup = getNextLookupScope(currLookup);
               if (currLookup === -1) break;
             }
-          } while(true);
+          } while (true);
         }
       }
     }
@@ -781,10 +912,10 @@ export class IRIDIUMV2 {
   reorderStacks(currSEXP: IridiumSEXP) {
     if (isBindingsSEXP(currSEXP)) {
       let oldLength = currSEXP.getLocalBindings().args.length;
-      let args = currSEXP.getLocalBindings().args.filter(e => isEnvBindingSEXP(e)).filter(e =>  (e.getKind() === "JSARG" || e.getKind() === "JSRESTARG"));
+      let args = currSEXP.getLocalBindings().args.filter(e => isEnvBindingSEXP(e)).filter(e => (e.getKind() === "JSARG" || e.getKind() === "JSRESTARG"));
       let bindings = currSEXP.getLocalBindings().args.filter(e => isEnvBindingSEXP(e)).filter(e => !(e.getKind() === "JSARG" || e.getKind() === "JSRESTARG"));
       if (oldLength !== args.length + bindings.length) throw new Error("Unexpected bindings found");
-      
+
       const res: Array<EnvBindingSEXP> = [...args];
 
       const scopeMap: Map<number, Array<EnvBindingSEXP>> = new Map();
@@ -828,7 +959,7 @@ export class IRIDIUMV2 {
           while (true) {
             if (scopeBoundaryMap.has(parentScope)) break;
             let next = IridiumBuildContext.CONTEXT_MAP.get(parentScope)?.parent;
-            if (!next) {parentScope = -1; break;}
+            if (!next) { parentScope = -1; break; }
             else parentScope = next;
           }
 
@@ -842,7 +973,6 @@ export class IRIDIUMV2 {
       }
 
       currSEXP.getLocalBindings().args = res;
-      
       return;
     }
 

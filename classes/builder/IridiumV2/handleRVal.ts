@@ -483,15 +483,15 @@ const handleComputedProps = (cx: IRIDIUMV2, node: JS3ClassExpression): Map<JS3Cl
   return computedPropMapping;
 }
 
-export type PrivateMapping = Map<string, [string, JS3ClassPrivateProperty | JS3ClassPrivateMethod]>;
+export type PrivateMapping = Map<string, [string, "PROP" | "METHOD"]>;
 
 const getPrivateMapping = (computedPropMapping: Map<JS3ClassProperty | JS3ClassMethod | JS3ClassPrivateProperty | JS3ClassPrivateMethod, string>): PrivateMapping | null => {
   const privateMapping: PrivateMapping = new Map();
   for (let [item, target] of computedPropMapping) {
     if (isJS3ClassPrivateProperty(item)) {
-      privateMapping.set(item.key.id.name, [target, item]);
+      privateMapping.set(item.key.id.name, [target, "PROP"]);
     } else if (isJS3ClassPrivateMethod(item)) {
-      privateMapping.set(item.key.id.name, [target, item]);
+      privateMapping.set(item.key.id.name, [target, "METHOD"]);
     }
   }
   // In case of no private mappings, return null...
