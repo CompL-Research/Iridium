@@ -5,9 +5,11 @@ rm -rf tmp
 mkdir tmp
 
 TESTS=(
+  # "test/language/expressions"
   # "test/language/expressions/addition"
   # "test/language/expressions/array"
-  "test/language/expressions/arrow-function"
+  # "test/language/expressions/arrow-function"
+  "test/language/statements"
   # "test/language/statements/async-function"
   # "async-generator"
   # "await-using"

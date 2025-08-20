@@ -475,10 +475,10 @@
 
 // foo();
 
-function f({ w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: undefined }) {
+// function f({ w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: undefined }) {
 
-}
-f();
+// }
+// f();
 
 
 // let x, y, z;
@@ -499,3 +499,15 @@ f();
 
 // f();
 // console.log(callCount, 1, 'arrow function invoked exactly once');
+
+// console.log("Hello World");
+
+// for (let i of [1,2,3]) {
+//   console.log(i);
+// }
+
+
+try {
+  throw new Error();
+} catch(e) {
+}
