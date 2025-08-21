@@ -507,7 +507,14 @@
 // }
 
 
-try {
-  throw new Error();
-} catch(e) {
+console.log("Hello World");
+
+if (console) {
+  console.log("If Case");
+} else {
+  console.log("Else Case");
 }
+
+
+console.log("Bye World");
+
