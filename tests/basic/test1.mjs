@@ -507,14 +507,21 @@
 // }
 
 
-console.log("Hello World");
+// console.log("Hello World");
 
-if (console) {
-  console.log("If Case");
-} else {
-  console.log("Else Case");
+// if (console) {
+//   console.log("If Case");
+// } else {
+//   console.log("Else Case");
+// }
+
+
+// console.log("Bye World");
+
+
+
+function foo() {
+  console.log("Hello World");
 }
 
-
-console.log("Bye World");
-
+foo();
