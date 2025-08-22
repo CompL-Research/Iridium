@@ -92,6 +92,8 @@ export type BBContainerSEXPFlags = "ARGUMENTS" | "ASYNC" | "GENERATOR" | "PROTO"
  * 
  * - `FLAG(ASYNC)`: Is this an asynchronous function/module?
  * 
+ * - `FLAG(STRICT)`: Is the code in strict mode?
+ * 
  * - `FLAG(GENERATOR)`: Is this a generator function?
  * 
  * - `FLAG(PROTO)`: Does the function have a prototype?
