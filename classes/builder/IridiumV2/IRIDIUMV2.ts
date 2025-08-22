@@ -1187,7 +1187,7 @@ export class IRIDIUMV2 {
         const bbContainerParentScopeIDX = buildContext.parent;
         let isTopLevelContainer = bbContainerParentScopeIDX === -1;
         if (isTopLevelContainer) {
-          bbContainer.setFlag("TopLevel");
+          bbContainer.setTopLevel();
         }
 
         // If this is a function, set the number of expected ECMAArgs

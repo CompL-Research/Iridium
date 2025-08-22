@@ -108,8 +108,9 @@ export type BBContainerSEXPFlags = "ARGUMENTS" | "ASYNC" | "GENERATOR" | "PROTO"
  * 
  * - `FLAG(DERIVED)`: Is this a derived constructor function?
  * 
- * - `FLAG(ContainerFlagID)`: A number.
+ * - `FLAG(TopLevel)`: Is top Level?
  * 
+ * - `FLAG(ContainerFlagID)`: A number.
  * 
  * #### Closure Type Map
  * 
@@ -188,6 +189,14 @@ export class BBContainerSEXP extends IridiumSEXP {
 
   unsetStrict() {
     this.removeFlag("STRICT");
+  }
+
+  setTopLevel() {
+    this.setFlag("TopLevel");
+  }
+
+  unsetTopLevel() {
+    this.removeFlag("TopLevel");
   }
 
   setClosureFlags(flag: number) {
