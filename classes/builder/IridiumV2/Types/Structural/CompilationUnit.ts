@@ -108,6 +108,8 @@ export type BBContainerSEXPFlags = "ARGUMENTS" | "ASYNC" | "GENERATOR" | "PROTO"
  * 
  * - `FLAG(DERIVED)`: Is this a derived constructor function?
  * 
+ * - `FLAG(ContainerFlagID)`: A number.
+ * 
  * 
  * #### Closure Type Map
  * 
