@@ -520,8 +520,60 @@
 
 
 
-function foo() {
-  console.log("Hello World");
-}
+// function foo() {
+//   console.log("Hello World");
+// }
 
-foo();
+// foo();
+
+// import {a as foo} from "SOURCE";
+// export { a as b };
+// export * as foo from "SOURCE";
+// export * from "SRC";
+// export { a as b };
+
+// {
+//   let a = 12;
+//   let b = 13;
+//   let c = 12;
+//   let d = 13;
+// }
+
+// {
+//   let a = 12;
+//   let b = 13;
+//   let c = 12;
+//   let d = 13;
+// }
+
+// function foo(x, a) {
+//   return a;
+// }
+
+// console.log(foo(1,2));
+
+// function foo() {
+
+// }
+
+// import a from "SRC1";
+// import {a as b} from "SRC2";
+
+// export * from "SRC3";
+// export * as goo from "SRC4";
+
+// function foo(a, b, c, d) {
+
+// }
+class A {
+  #foo = 12
+  #bar() {
+
+  }
+  foo() {
+    let a = this.#foo;
+    let b = this.#bar;
+    this.#foo = 121;
+  }
+
+}

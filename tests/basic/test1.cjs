@@ -38,8 +38,18 @@
 
 // foo(13);
 
-const x = 12;
+// var x;
 
-x = 13;
+// var x;
 
-console.log(x);
+// var x;
+
+// const x = 12;
+
+// x = 13;
+
+// console.log(x);
+
+function foo() {
+  
+}
