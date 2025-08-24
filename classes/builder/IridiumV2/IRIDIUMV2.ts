@@ -1040,7 +1040,7 @@ export class IRIDIUMV2 {
             if (privateMapping.has(s.getBindingName())) {
               const bb = privateMapping.get(s.getBindingName());
               if (!bb) throw new Error("private binding is undefined");
-              currSEXP.args[i] = new PVTEnvReadSEXP(bb[0], isJS3ClassPrivateMethod(bb[1]) ? "METHOD" : "SYMBOL", s.isFullyResolve());
+              currSEXP.args[i] = new PVTEnvReadSEXP(bb[0], bb[1] ? "METHOD" : "SYMBOL", s.isFullyResolve());
               break;
             }
           }
