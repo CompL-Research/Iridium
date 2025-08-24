@@ -269,7 +269,7 @@ export class JSBitIntSEXP extends IridiumSEXP {
  */
 export class JSPrivateSEXP extends IridiumSEXP {
   constructor(str: string) {
-    super("Private");
+    super("JSPrivate");
     this.flags.push(["IridiumPrimitive", str]);
   }
 
@@ -548,7 +548,7 @@ export function isJSArraySEXP(o: any): o is JSArraySEXP {
  */
 export function isJSPrivateSEXP(o: any): o is JSPrivateSEXP {
   // @ts-ignore
-  return o.tag === "Private";
+  return o.tag === "JSPrivate";
 }
 
 /**
