@@ -565,15 +565,49 @@
 // function foo(a, b, c, d) {
 
 // }
-class A {
-  #foo = 12
-  #bar() {
+// class A {
+//   #foo = 12
+//   #bar() {
 
-  }
-  foo() {
-    let a = this.#foo;
-    let b = this.#bar;
-    this.#foo = 121;
-  }
+//   }
+//   foo() {
+//     let a = this.#foo;
+//     let b = this.#bar;
+//     this.#foo = 121;
+//   }
 
+// }
+
+
+// function foo()
+// {
+
+// }
+
+// foo: {
+//   break foo;
+//   console.log("After break");
+// }
+
+// outerLoop: for (let a of foo) {
+//   for (let x of foo) {
+//     try {
+//       for (let x of foo) {   
+//         log("HERE");
+//         break outerLoop;
+//       }
+//     } finally {
+//       console.log("FIN");
+//     }
+//   }
+// }
+
+function foo() {
+  try {
+    return;
+  } catch(e) {
+
+  } finally {
+    console.log("Finally");
+  }
 }
