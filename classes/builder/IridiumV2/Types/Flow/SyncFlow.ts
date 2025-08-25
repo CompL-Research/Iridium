@@ -179,13 +179,24 @@ export class InvokeFinalizerSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
+ * - `ARG(Obj)`: The value to return
+ * 
  * - `FLAG(ModuleEarlyReturn)`: Signifies a synchronous return from a module, this happens if the module is just to be loaded and not evaluated.
  * 
  */
 export class ReturnSEXP extends IridiumSEXP {
   constructor(val: IridiumSEXP) {
     super("Return");
-    this.args.push(val);
+    this.setObj(val);
+  }
+
+  // Args
+  setObj(obj: IridiumSEXP) {
+    this.args[0] = obj;
+  }
+
+  getObj() : IridiumSEXP {
+    return this.args[0];
   }
 
   // Flags
