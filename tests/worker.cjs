@@ -87,7 +87,7 @@ function storeIridiumTest(test) {
       contents = `"use strict";\nundefined;\n${contents}`;
     }
     fs.writeFileSync(fPath, contents);
-    execSync(`./iridium iri -s ${isModule ? 'module' : 'script'} -t ${TEST262_PATH} ${fPath} > ${fPathIri}`, { cwd: IRI_PATH, encoding: 'utf-8', stdio: 'pipe' });
+    execSync(`./iridium iri -s ${isModule ? 'module' : 'script'} --ljson -t ${TEST262_PATH} ${fPath} > ${fPathIri}`, { cwd: IRI_PATH, encoding: 'utf-8', stdio: 'pipe' });
   } catch (error) {
     return { result: "Failed to save iridium test", error };
   }
