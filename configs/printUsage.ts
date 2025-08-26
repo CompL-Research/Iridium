@@ -161,6 +161,18 @@ const IRI_OPTIONS = [
     type: Boolean,
   },
   {
+    name: "ljson",
+    description:
+      "Generate legacy json format using the old pipeline, all the passes are also run (this is very slow for large programs).",
+    type: Boolean,
+  },
+  {
+    name: "debugIri",
+    description:
+      "Print the generated intermediate binary to stdout consubed by the forge project.",
+    type: Boolean,
+  },
+  {
     name: "source-type",
     description: 'Source Type ("module" | "script" | "unambigious" (default)).',
     alias: "s",
@@ -254,6 +266,14 @@ export const handleTout = () => {
   debugConfig.cli.tout = true;
 }
 
+export const handleLjson = () => {
+  debugConfig.cli.ljson = true;
+}
+
+export const handleDebugIri = () => {
+  debugConfig.cli.debugIri = true;
+}
+
 export const handleIridiumPP = () => {
   debugConfig.cli.iridiumPP = true;
 }
@@ -275,7 +295,9 @@ export const handleSourceType = (options: any) => {
 export const handleOptions = (options: any) => {
   if ("outputs-path" in options) handleOutputsPath(options);
   if ("comments" in options) handleComments();
+  if ("debugIri" in options) handleDebugIri();
   if ("tout" in options) handleTout();
+  if ("ljson" in options) handleLjson();
   if ("pp" in options) handleIridiumPP();
   if ("source-type" in options) handleSourceType(options);
 }

@@ -6,7 +6,9 @@ const config: {
     allowLangWithSupport: boolean;
     outputsPath: string | undefined;
     comments: boolean;
+    debugIri: boolean;
     tout: boolean;
+    ljson: boolean;
     iridiumPP: boolean;
     sourceType: string;
     projectBase: string | undefined;
@@ -19,7 +21,9 @@ const config: {
     allowLangWithSupport: false,
     outputsPath: undefined,
     comments: false,
+    debugIri: false,
     tout: false,
+    ljson: false,
     iridiumPP: false,
     sourceType: "unambiguous",
     projectBase: undefined,
