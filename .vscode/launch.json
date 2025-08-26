@@ -35,6 +35,7 @@
                 "--import=tsx",
                 "/home/meetesh/wd/Iridium/iridium.ts",
                 "iri",
+                "--ljson",
                 "--pp",
                 "/home/meetesh/wd/Iridium/",
                 "/home/meetesh/wd/Iridium/tests/basic/test1.mjs"
