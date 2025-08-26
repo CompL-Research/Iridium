@@ -9,6 +9,8 @@ import { BBContainerSEXP, BBSEXP, BBSEXPFlags, BindingsSEXP, CallSiteSEXP, EnvBi
 import { PrivateMapping } from "./handleRVal";
 import { pack } from "msgpackr";
 import { gzipSync } from "zlib";
+// @ts-ignore
+import iridiumForge from '../../../../Iridium-Forge/forge.cjs';
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -235,40 +237,49 @@ export class IRIDIUMV2 {
   js3Builder: JS3Builder;
   buildContext: Array<IridiumBuildContext>;
   container: FileSEXP | null;
+  result: Buffer | null = null;
   constructor(js3Builder: JS3Builder) {
     this.js3Builder = js3Builder;
     this.buildContext = [];
     this.container = null;
   }
 
-  serialize(): Buffer {
-    if (!this.container) throw new Error("this.container is null");
+  // serialize() {
+  //   if (!this.container) throw new Error("this.container is null");
 
-    // console.time("savingIridiumFile");
-    const packed = pack(
-      {
-        version: VERSION,
-        ...this.js3Builder.projectFile.toJSON(),
-        buildContext: serializeBuildContext(),
-        iridium: this.container.serialize()
-      }
-    );
+  //   // if (debugConfig.cli.ljson) return this.serializeLegacy();
+
+  //   const packed = pack(
+  //     {
+  //       version: VERSION,
+  //       path: this.js3Builder.projectFile.absoluteFilePath,
+  //       iridium: this.container.serialize(),
+  //       buildContext: serializeBuildContext(),
+  //     }
+  //   );
+
+  //   // @ts-ignore
+  //   const gzipped = gzipSync(packed);
+
+  //   return gzipped
+  // }
+
+  // serializeLegacy() {
+  //   if (!this.container) throw new Error("this.container is null");
+  //   return JSON.stringify({
+  //     version: VERSION,
+  //     path: this.js3Builder.projectFile.absoluteFilePath,
+  //     iridium: this.container.serialize()
+  //   });
+  // }
+
+  saveToDisk() {
+    const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.js3Builder.projectFile.uname, this.js3Builder.projectFile.extension) + (debugConfig.cli.ljson ? ".json" : ".iri");
+
+    if (!this.result) throw new Error("Run build before calling 'saveToDisk'");
 
     // @ts-ignore
-    const gzipped = gzipSync(packed);
-    // console.timeEnd("savingIridiumFile");
-
-    return gzipped
-  }
-
-  saveGeneratedFile() {
-    if (debugConfig.cli.tout)
-      return;
-
-    const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.js3Builder.projectFile.uname, this.js3Builder.projectFile.extension) + ".iri";
-
-    // @ts-ignore
-    fs.writeFileSync(filePath, this.serialize());
+    fs.writeFileSync(filePath, this.result);
   }
 
   getCurrentContext() {
@@ -352,6 +363,69 @@ export class IRIDIUMV2 {
     }
     this.popContext();
     if (this.buildContext.length !== 0) throw new Error("Expected buildContext stack to be empty after build()");
+    
+    const packed = pack(
+      {
+        version: VERSION,
+        absoluteFilePath: this.js3Builder.projectFile.absoluteFilePath,
+        iridium: this.container.serialize(),
+        buildContext: serializeBuildContext(),
+      }
+    );
+
+    // @ts-ignore
+    const gzipped = gzipSync(packed);
+
+    if (debugConfig.cli.debugIri) {
+      // @ts-ignore
+      process.stdout.write(gzipped);
+    }
+    
+
+    this.result = iridiumForge.execute(gzipped, 0, debugConfig.cli.ljson);
+
+    if (!this.result) throw new Error("Forge project returned null");
+
+
+        // if (debugConfig.cli.ljson) {
+    //   // console.log("[Iridium] Initial codegen complete");
+    //   this.normailzeBBFlags(); // External Libraries in code
+    //   // console.log("[Iridium] normailzeBBFlags complete");
+    //   this.hoistFunctionDeclarations();
+    //   // console.log("[Iridium] hoistFunctionDeclarations complete");
+    //   this.filterNOPs(this.container);
+    //   // console.log("[Iridium] filterNOPs complete");
+    //   this.generateBBContainerSEXP();
+    //   // console.log("[Iridium] generateBBContainerSEXP complete");
+    //   this.patchHeritageConstructorSuperCalls(this.container);
+    //   // console.log("[Iridium] patchHeritageConstructorSuperCalls complete");
+    //   this.reduceResolvePrivateEnvBindingSEXP(this.container, 0);
+    //   // console.log("[Iridium] reduceResolvePrivateEnvBindingSEXP complete");
+    //   this.reduceResolveEnvBindingSEXP(this.container, 0);
+    //   // console.log("[Iridium] reduceResolveEnvBindingSEXP complete");
+    //   this.reorderStacks(this.container);
+    //   // console.log("[Iridium] reorderStacks complete");
+    //   this.resolveLambdaTargets();
+    //   // console.log("[Iridium] resolveLambdaTargets complete");
+    //   this.addIDXForRemoteBindings();
+    //   // console.log("[Iridium] addIDXForRemoteBindings complete");
+    //   this.resolveBreakAndContinueTargets(this.container);
+    //   // console.log("[Iridium] resolveBreakAndContinueTargets complete");
+    //   this.decorateReturnTargets(this.container);
+    //   // console.log("[Iridium] decorateReturnTargets complete");
+    //   this.promoteAsyncReturns(this.container);
+    //   // console.log("[Iridium] promoteAsyncReturns complete");
+    //   this.markNamespaceImports(this.container);
+    //   // console.log("[Iridium] markNamespaceImports complete");
+    //   this.markSloppyWrites(this.container);
+    //   // console.log("[Iridium] markSloppyWrites complete");
+    //   this.loosenWritestoASWs(this.container);
+    //   // console.log("[Iridium] loosenWritestoASWs complete");
+    //   this.markDirectEvals(this.container);
+    //   // console.log("[Iridium] markDirectEvals complete");
+    // }
+    
+    // this.saveGeneratedFile();
 
     //
     // TODOs 
@@ -375,7 +449,7 @@ export class IRIDIUMV2 {
     // 
     // [<TAGS_1>, [[<TAGS_1>, [[<TAGS_1>, [....[<TAGS_1>, [], [<FLAGS_N>, Primitives]]], [<FLAGS_N>, Primitives]]], [<FLAGS_N>, Primitives]]], [<FLAGS_N>, Primitives]]
     // 
-    
+
 
     // --> Iridum Code Here --> Binary Representation
     // 
@@ -428,42 +502,8 @@ export class IRIDIUMV2 {
     // 3. Reimplement the passes
     // 
 
-    // // console.log("[Iridium] Initial codegen complete");
-    // this.normailzeBBFlags(); // External Libraries in code
-    // // console.log("[Iridium] normailzeBBFlags complete");
-    // this.hoistFunctionDeclarations();
-    // // console.log("[Iridium] hoistFunctionDeclarations complete");
-    // this.filterNOPs(this.container);
-    // // console.log("[Iridium] filterNOPs complete");
-    // this.generateBBContainerSEXP();
-    // // console.log("[Iridium] generateBBContainerSEXP complete");
-    // this.patchHeritageConstructorSuperCalls(this.container);
-    // // console.log("[Iridium] patchHeritageConstructorSuperCalls complete");
-    // this.reduceResolvePrivateEnvBindingSEXP(this.container, 0);
-    // // console.log("[Iridium] reduceResolvePrivateEnvBindingSEXP complete");
-    // this.reduceResolveEnvBindingSEXP(this.container, 0);
-    // // console.log("[Iridium] reduceResolveEnvBindingSEXP complete");
-    // this.reorderStacks(this.container);
-    // // console.log("[Iridium] reorderStacks complete");
-    // this.resolveLambdaTargets();
-    // // console.log("[Iridium] resolveLambdaTargets complete");
-    // this.addIDXForRemoteBindings();
-    // // console.log("[Iridium] addIDXForRemoteBindings complete");
-    // this.resolveBreakAndContinueTargets(this.container);
-    // // console.log("[Iridium] resolveBreakAndContinueTargets complete");
-    // this.decorateReturnTargets(this.container);
-    // // console.log("[Iridium] decorateReturnTargets complete");
-    // this.promoteAsyncReturns(this.container);
-    // // console.log("[Iridium] promoteAsyncReturns complete");
-    // this.markNamespaceImports(this.container);
-    // // console.log("[Iridium] markNamespaceImports complete");
-    // this.markSloppyWrites(this.container);
-    // // console.log("[Iridium] markSloppyWrites complete");
-    // this.loosenWritestoASWs(this.container);
-    // // console.log("[Iridium] loosenWritestoASWs complete");
-    // this.markDirectEvals(this.container);
-    // // console.log("[Iridium] markDirectEvals complete");
-    this.saveGeneratedFile();
+
+
   }
 
   // 
