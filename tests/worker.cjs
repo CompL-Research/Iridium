@@ -18,8 +18,8 @@ exports.runBaseline = async function (test) {
   try {
     execSync(`${EXEC_BIN} ${isModule ? '-m' : '-C'} ${baselineTestPath}`, { encoding: 'utf-8', stdio: 'pipe', timeout: TEST_TIMEOUT });
     return { result: "success", error: false };
-  } catch (err) {
-    return { result: "exec-fail", error: err.message };
+  } catch (error) {
+    return { result: "exec-fail", error };
   }
 }
 
@@ -33,8 +33,8 @@ exports.runIridium = async function (test) {
   try {
     execSync(`${EXEC_BIN} -X ${iriTestPath}`, { encoding: 'utf-8', stdio: 'pipe', timeout: TEST_TIMEOUT });
     return { result: "success", error: false };
-  } catch (err) {
-    return { result: "exec-fail", error: err.message };
+  } catch (error) {
+    return { result: "exec-fail", error };
   }
 }
 
