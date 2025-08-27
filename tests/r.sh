@@ -3,7 +3,7 @@ set -euo pipefail
 
 rm -rf tmp
 mkdir tmp
-
+# Test
 TESTS=(
   # "test/language/expressions/addition"
   # "test/language/expressions/array"
@@ -73,7 +73,7 @@ TESTS=(
   # "test/language/expressions/unsigned-right-shift"
   # "test/language/expressions/void"
   # "test/language/expressions/yield"
-  
+
 
   # "test/language/arguments-object"
   # "test/language/asi"
@@ -103,7 +103,7 @@ TESTS=(
   # "test/language/statementList"
   # "test/language/statements"
   # "test/language/types"
-  # "test/language/white-space"  
+  # "test/language/white-space"
 )
 
 for test in "${TESTS[@]}"; do
