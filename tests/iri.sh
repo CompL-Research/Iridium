@@ -9,7 +9,8 @@ fi
 
 # Go to Iridium root and run Iridium
 cd ..
-./iridium iri -t . ./tests/$1 | /home/meetesh/wd/Iridium-Forge/build/iridium_forge --dump-json > forgeOut
+# ./iridium iri -s script --ljson . ./tests/$1
+./iridium iri --ljson . ./tests/$1
 
 # Collect generated outputs
 outputs=$(ls -1 "$PWD/outputs" | sed "s|^|$PWD/outputs/|")
