@@ -694,13 +694,15 @@ const handleUnaryExpression = (
       const receiver = node.argument.object;
       const property = node.argument.property;
 
-      if (!isIdentifier(receiver))
-        throw new Error(
-          `Expected receiver to be an identifier, found ${receiver.type}`,
-        );
-      if (!isIdentifier(property))
-        throw new Error("Expected property to be an identifier");
+      const acceptable = 
+        (isIdentifier(receiver) && isIdentifier(property))
+        || (isThisExpression(receiver) && isIdentifier(property));
 
+      if (!acceptable)
+        throw new Error(
+          `Invalid operand combination for 'handleUnaryExpression'`,
+        );
+      
       return getIridiumUnop(
         node.operator,
         new UNOPDelMemberExprSEXP(
