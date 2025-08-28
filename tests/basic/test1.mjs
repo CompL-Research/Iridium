@@ -625,8 +625,10 @@
 
 // new A().deleteStuff();
 
-let a = {
-  null: '\u0000',
-  bell: '\u0007',
-  escape: '\u001b',
-}
+// let a = {
+//   null: '\u0000',
+//   bell: '\u0007',
+//   escape: '\u001b',
+// }
+
+var squidImageData = [8, 7, 21, 255, 42, 39, 79, 255, 74, 64];
