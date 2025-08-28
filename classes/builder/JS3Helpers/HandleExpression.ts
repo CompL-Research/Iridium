@@ -3024,7 +3024,22 @@ export function handleArrayExpression(
         isClassExpression(_arrProp)
       ) {
         fin_elements.push(lowerToAnonArrayExpr(_arrProp, otherProps));
-      } else if (isExpression(_arrProp)) {
+      } 
+      // Specializations
+      // Identifier | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | RegExpLiteral | ThisExpression | BigIntLiteral | DecimalLiteral
+      else if (
+        isIdentifier(_arrProp) || 
+        isStringLiteral(_arrProp) ||
+        isNumericLiteral(_arrProp) ||
+        isNullLiteral(_arrProp) ||
+        isBooleanLiteral(_arrProp) ||
+        isThisExpression(_arrProp) ||
+        isBigIntLiteral(_arrProp) ||
+        isDecimalLiteral(_arrProp)
+      ) {
+        fin_elements.push(_arrProp);
+      }
+      else if (isExpression(_arrProp)) {
         fin_elements.push(handleExpression(_arrProp, otherProps));
       } else if (isSpreadElement(_arrProp)) {
         const se = handleSpreadElement(_arrProp, otherProps);
