@@ -602,12 +602,31 @@
 //   }
 // }
 
-function foo() {
-  try {
-    return;
-  } catch(e) {
+// function foo() {
+//   try {
+//     return;
+//   } catch(e) {
 
-  } finally {
-    console.log("Finally");
-  }
+//   } finally {
+//     console.log("Finally");
+//   }
+// }
+
+// class A {
+//   field = 12;
+
+//   deleteStuff() {
+//     let a = this;
+//     console.log(a.field);
+//     delete this.field;
+//     console.log(a.field);
+//   }
+// }
+
+// new A().deleteStuff();
+
+let a = {
+  null: '\u0000',
+  bell: '\u0007',
+  escape: '\u001b',
 }
