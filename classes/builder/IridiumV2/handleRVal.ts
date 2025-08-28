@@ -2196,7 +2196,17 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
 
   if (isSimpleArray) {
     const args = init.elements.map((e) => {
-      if (isIdentifier(e)) {
+
+      if (
+        isIdentifier(e) || 
+        isStringLiteral(e) ||
+        isNumericLiteral(e) ||
+        isNullLiteral(e) ||
+        isBooleanLiteral(e) ||
+        isThisExpression(e) ||
+        isBigIntLiteral(e) ||
+        isDecimalLiteral(e)
+      ) {
         return IRIV2_RVAL(cx, e);
       } else if (isSpreadElement(e)) {
         throw new Error("Simple arrays are not expected to have spreads");
