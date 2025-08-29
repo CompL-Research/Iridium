@@ -8,10 +8,11 @@ import commandLineArgs from "command-line-args";
 import commandLineUsage from "command-line-usage";
 import { projectStats } from "./projectStats";
 
-let directories = ["./classes", "./configs", "./docs", "./playground/src"];
-// 
+//let directories = ["./classes", "./configs", "./docs", "./playground/src"];
+let directories: Array<string> = [];
+//
 // Utility
-// 
+//
 export const getFirstCommand = [{ name: "command", defaultOption: true }];
 
 export const getNextCommand = (argv: Array<string> | undefined = undefined) : [string, Array<string>] => {
