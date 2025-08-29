@@ -159,7 +159,7 @@
 //       console.log(e);
 //     }
 //   }
-  
+
 // }
 
 // f()
@@ -184,7 +184,7 @@
 //   }
 
 //   #yy = 123;
-  
+
 //   foo() {
 //     this.#bar();
 //     this.#bar = 121;
@@ -291,7 +291,7 @@
 // var callCount = 0;
 // var f;
 // f = ([,]) => {
-  
+
 //   callCount = callCount + 1;
 // };
 
@@ -344,11 +344,11 @@
 // do {
 //   console.log(typeof(f));
 //   if(typeof(f) === "function"){
-//     check = -1;        
-//     break; 
+//     check = -1;
+//     break;
 //   } else {
-//     check = 1;        
-//     break; 
+//     check = 1;
+//     break;
 //   }
 // } while(function f(){});
 
@@ -592,7 +592,7 @@
 // outerLoop: for (let a of foo) {
 //   for (let x of foo) {
 //     try {
-//       for (let x of foo) {   
+//       for (let x of foo) {
 //         log("HERE");
 //         break outerLoop;
 //       }
@@ -631,4 +631,8 @@
 //   escape: '\u001b',
 // }
 
-var squidImageData = [8, 7, 21, 255, 42, 39, 79, 255, 74, 64];
+// console.log(a.null)
+// console.log(a.bell)
+// console.log(a.escape)
+
+// var squidImageData = [8, 7, 21, 255, 42, 39, 79, 255, 74, 64];

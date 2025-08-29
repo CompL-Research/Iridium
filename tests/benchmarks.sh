@@ -1,3 +1,6 @@
+#!/bin/bash
+set -e
+
 SUNSPIDER=(
   "benchmarks/sunspider/3d-cube.cjs"
   "benchmarks/sunspider/3d-morph.cjs"
@@ -48,12 +51,14 @@ V8=(
     "benchmarks/v8/combined.cjs"
 )
 
+ALL=("${SUNSPIDER[@]}" "${KRAKEN[@]}" "${V8[@]}")
+
 cd ..
 
 iridir=`pwd`
 qjsdir="/home/meetesh/wd/quickjs"
 
-for test in "${V8[@]}"; do
+for test in "${ALL[@]}"; do
   cd $iridir
 
   echo "Running Test $test"
