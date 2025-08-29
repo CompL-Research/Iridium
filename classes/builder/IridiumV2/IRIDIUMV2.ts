@@ -10,7 +10,7 @@ import { PrivateMapping } from "./handleRVal";
 import { pack } from "msgpackr";
 import { gzipSync } from "zlib";
 // @ts-ignore
-import iridiumForge from '../../../../Iridium-Forge/forge.cjs';
+import iridiumForge from '#forge';
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -44,7 +44,7 @@ function isLoopConfig(obj: any): obj is LoopConfig {
   );
 }
 
-// 
+//
 // Function to serialize the Iridium build context, this information is needed by many main passes to perform resolution
 //
 
@@ -363,7 +363,7 @@ export class IRIDIUMV2 {
     }
     this.popContext();
     if (this.buildContext.length !== 0) throw new Error("Expected buildContext stack to be empty after build()");
-    
+
     const packed = pack(
       {
         version: VERSION,
@@ -380,7 +380,7 @@ export class IRIDIUMV2 {
       // @ts-ignore
       process.stdout.write(gzipped);
     }
-    
+
 
     this.result = iridiumForge.execute(gzipped, 0, debugConfig.cli.ljson);
 
@@ -424,35 +424,35 @@ export class IRIDIUMV2 {
     //   this.markDirectEvals(this.container);
     //   // console.log("[Iridium] markDirectEvals complete");
     // }
-    
+
     // this.saveGeneratedFile();
 
     //
-    // TODOs 
+    // TODOs
     // 1. Basic workaround to see how much it saves us (not that big) [Do this].
     //   - isTag and getFlag, etc will need to change...
     // 2. Create the new JSON format and save to disk from Iridium.
     //   - Start implementing passes.
     //   - Save back to JSON...
-    // 
+    //
     // OPTIONALS
     // 1. [Storage size/memory opt] Save to disk using bjson/protobuf (for huge objects) [Experiment, how much it helps over naive implementation]
-    // 
+    //
 
 
 
-    // 
+    //
     // Quick workaround, replace all known strings with indices, reduce size and overhead of strings...
-    // 
+    //
     // TAGS: Set<"BB", "NUMBER"...>
     // FLAGS: SET<"IridiumPrimitive">
-    // 
+    //
     // [<TAGS_1>, [[<TAGS_1>, [[<TAGS_1>, [....[<TAGS_1>, [], [<FLAGS_N>, Primitives]]], [<FLAGS_N>, Primitives]]], [<FLAGS_N>, Primitives]]], [<FLAGS_N>, Primitives]]
-    // 
+    //
 
 
     // --> Iridum Code Here --> Binary Representation
-    // 
+    //
     // 1. Save to disk, JSON (slow, but sorta works!!!)
 
     // C++ project, load using existing parsing pipeline
@@ -464,16 +464,16 @@ export class IRIDIUMV2 {
     // C++ Project loads the SOME_FORMAT -> IridiumSEXP (non executable)
 
 
-    // 
+    //
     // ["TAG", [], [string : Primitivite | null]]
 
 
-    // 
+    //
     // Node = List[1, 1, 1]
-    // 
+    //
     // ["Node", ["List": [ ["Number", [], ["Val", 1]], ["Number", [], ["Val", 1]], ["Number", [], ["Val", 1]] ] ], [string : Primitivite | null]]
 
-    // 
+    //
     // 0 - "Node"
     // 1 - "Number"
     // 2 - "List"
@@ -490,25 +490,25 @@ export class IRIDIUMV2 {
     // Iridium Code from JS (non-executable, needs resolution) =[C/C++-project]==> IridiumSEXP struct -> [MAIN PASSES] -> IridiumSEXP struct (executable)
 
 
-    // 
+    //
     // Load up things faster, 1 pass vs qjs source to memory parsing
-    // 
-    // 
+    //
+    //
 
-    // 
+    //
     // 1. Compression of symbols
     // 2. Structure
-    //      -- Implement them as External C libraries, 
+    //      -- Implement them as External C libraries,
     // 3. Reimplement the passes
-    // 
+    //
 
 
 
   }
 
-  // 
+  //
   // Helper Functions
-  // 
+  //
 
   findLoopControlTarget(localScope: number, node: ResolveContinueTargetSEXP | ResolveBreakTargetSEXP, intermediateContexts: Array<TryContext | LoopConfig> = []): [LoopConfig, Array<TryContext | LoopConfig>] {
     if (localScope === -1) throw new Error("Failed to find loop control target!!!");
@@ -650,9 +650,9 @@ export class IRIDIUMV2 {
     return arr;
   }
 
-  // 
+  //
   // Mark call sites as direct evals if their callee is "eval" from the global environment.
-  // 
+  //
   lastBindingsObj: BindingsSEXP | undefined = undefined
   markDirectEvals(currSEXP: IridiumSEXP, currBBScope: number = -1) {
     if (isBindingsSEXP(currSEXP)) {
@@ -699,9 +699,9 @@ export class IRIDIUMV2 {
     }
   }
 
-  // 
+  //
   // Mark all writes to ASW bindings as safe
-  // 
+  //
   loosenWritestoASWs(currSEXP: IridiumSEXP) {
     if (isBindingsSEXP(currSEXP) || isPoolBindingSEXP(currSEXP)) {
       return;
@@ -719,9 +719,9 @@ export class IRIDIUMV2 {
     }
   }
 
-  // 
+  //
   // Mark sloppy environment writes
-  // 
+  //
   markSloppyWrites(currSEXP: IridiumSEXP, currBBScope: number = -1) {
     if (isBindingsSEXP(currSEXP) || isPoolBindingSEXP(currSEXP)) {
       return;
@@ -745,9 +745,9 @@ export class IRIDIUMV2 {
     }
   }
 
-  // 
+  //
   // Mark namespace import bindings
-  // 
+  //
   markNamespaceImports(currSEXP: IridiumSEXP) {
     if (isListSEXP(currSEXP)) {
 
@@ -767,9 +767,9 @@ export class IRIDIUMV2 {
     currSEXP.args.forEach(e => this.markNamespaceImports(e));
   }
 
-  // 
+  //
   // Return statements inside asynchronous contexts are async.
-  // 
+  //
   promoteAsyncReturns(currSEXP: IridiumSEXP) {
     if (isBindingsSEXP(currSEXP)) {
       return;
@@ -790,9 +790,9 @@ export class IRIDIUMV2 {
     currSEXP.args.forEach(e => this.promoteAsyncReturns(e));
   }
 
-  // 
+  //
   // Decorate return targets, this is needed if return occurs inside a try catch block. The finalizer (s) need to be invoked before returning.
-  // 
+  //
   decorateReturnTargets(currSEXP: IridiumSEXP) {
     if (isBindingsSEXP(currSEXP)) {
       return;
@@ -828,9 +828,9 @@ export class IRIDIUMV2 {
     currSEXP.args.forEach(e => this.decorateReturnTargets(e));
   }
 
-  // 
+  //
   // Resolves break and continue targets, also decorates them if they are inside a try block.
-  // 
+  //
 
   resolveBreakAndContinueTargets(currSEXP: IridiumSEXP) {
     if (isBindingsSEXP(currSEXP)) {
@@ -881,9 +881,9 @@ export class IRIDIUMV2 {
     currSEXP.args.forEach(e => this.resolveBreakAndContinueTargets(e));
   }
 
-  // 
+  //
   // Assign stack IDX to RemoteEnvBindingSEXP
-  // 
+  //
   addIDXForRemoteBindings() {
     const fileSexp = this.container;
     if (!fileSexp) throw new Error("fileSexp is undefined");
@@ -901,9 +901,9 @@ export class IRIDIUMV2 {
     }
   }
 
-  // 
+  //
   // Resolve lambda targets
-  // 
+  //
   reduceLambdaTargets(currSEXP: IridiumSEXP, currBBScope: number) {
     if (isBindingsSEXP(currSEXP) || isPoolBindingSEXP(currSEXP)) {
       return;
@@ -948,7 +948,7 @@ export class IRIDIUMV2 {
 
   //
   // Reorder stack bindings to group lexical bindings together
-  // 
+  //
   reorderStacks(currSEXP: IridiumSEXP) {
     if (isBindingsSEXP(currSEXP)) {
       let oldLength = currSEXP.getLocalBindings().args.length;
@@ -1019,9 +1019,9 @@ export class IRIDIUMV2 {
     currSEXP.args.forEach(e => this.reorderStacks(e));
   }
 
-  // 
+  //
   // All scope lookups are resolved to their respective scope bindings
-  // 
+  //
   reduceResolveEnvBindingSEXP(currSEXP: IridiumSEXP, currBBScope: number) {
     if (isBindingsSEXP(currSEXP)) {
       return;
@@ -1060,9 +1060,9 @@ export class IRIDIUMV2 {
     }
   }
 
-  // 
+  //
   // All private lookups are resolved to their respective symbol/closure holders
-  // 
+  //
   reduceResolvePrivateEnvBindingSEXP(currSEXP: IridiumSEXP, currBBScope: number) {
     if (isBindingsSEXP(currSEXP)) {
       return;
@@ -1096,9 +1096,9 @@ export class IRIDIUMV2 {
     }
   }
 
-  // 
+  //
   // Ensure all `super` calls in a constructor closure are followed by this initialization followed by property initialization.
-  // 
+  //
 
   hasNode(pred: any, currSEXP: IridiumSEXP): boolean {
     if (pred(currSEXP)) return true;
@@ -1158,9 +1158,9 @@ export class IRIDIUMV2 {
     }
   }
 
-  // 
+  //
   // Generate BBContainerSEXP to group compilation targets
-  // 
+  //
   generateBBContainerSEXP() {
     const fileSexp = this.container;
 
@@ -1337,7 +1337,7 @@ export class IRIDIUMV2 {
                   }
                 }
 
-                // This statement is no longer a declaration 
+                // This statement is no longer a declaration
                 stmt.reduceJSDecl();
 
                 if (scopeToHoistTo === 0 && !isModule) { // Top Level Global Declaration for script mode
@@ -1379,7 +1379,7 @@ export class IRIDIUMV2 {
         }
 
         if (buildContext.moduleRequestMap) {
-          // Initialize Module Imports 
+          // Initialize Module Imports
           if (bbContainerScopeIDX !== 0) throw new Error("Expected module imports only to be resolved for the top level container with scopeIDX 0");
           for (let b of staticModuleImports) {
             // Get the name of the binding we want...
@@ -1541,9 +1541,9 @@ export class IRIDIUMV2 {
     fileSexp.initializeModuleRequests(moduleRequests, staticImports, staticExports, staticStarExports);
   }
 
-  // 
+  //
   // Filter NOPs
-  // 
+  //
   filterNOPs(currSEXP: IridiumSEXP) {
     if (isBBSEXP(currSEXP)) {
       currSEXP.args = currSEXP.args.filter(e => !isNOPSEXP(e));
@@ -1552,9 +1552,9 @@ export class IRIDIUMV2 {
     }
   }
 
-  // 
+  //
   // Hoist all function declarations to the top of their scope
-  // 
+  //
   funcDeclHandler(currSEXP: IridiumSEXP, currScope: number, res: Map<number, Set<JSFuncDeclSEXP>>) {
     if (isBBSEXP(currSEXP)) currScope = currSEXP.getScopeIDX();
     for (let i = 0; i < currSEXP.args.length; i++) {
@@ -1583,9 +1583,9 @@ export class IRIDIUMV2 {
     }
   }
 
-  // 
-  // Ensure all BBs operating on the same scope has the same scope flag 
-  // 
+  //
+  // Ensure all BBs operating on the same scope has the same scope flag
+  //
   normailzeBBFlags() {
     for (let [scopeIdx, buildContext] of IridiumBuildContext.CONTEXT_MAP) {
       let mainBBFlag: BBSEXPFlags = buildContext.BB[0].getBBFlag();
@@ -1597,4 +1597,3 @@ export class IRIDIUMV2 {
     }
   }
 }
-
