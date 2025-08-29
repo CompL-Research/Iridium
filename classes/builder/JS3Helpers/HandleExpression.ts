@@ -1738,7 +1738,20 @@ export function handleObjectProperty(
 
   const orig_value = node.value; // Handling prop value
   let fin_value: JS3ObjectProperty_value; // Handling prop value
-  if (isIdentifier(orig_value)) {
+  // Specializations
+  // Identifier | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | RegExpLiteral | ThisExpression | BigIntLiteral | DecimalLiteral
+  if (
+    isStringLiteral(orig_value) ||
+    isNumericLiteral(orig_value) ||
+    isNullLiteral(orig_value) ||
+    isBooleanLiteral(orig_value) ||
+    isThisExpression(orig_value) ||
+    isBigIntLiteral(orig_value) ||
+    isDecimalLiteral(orig_value)
+  ) {
+    fin_value = orig_value;
+  }
+  else if (isIdentifier(orig_value)) {
     fin_value = orig_value;
   } else if (isClassExpression(orig_value)) {
     fin_value = lowerToAnonArrayExpr(orig_value, otherProps);
@@ -3024,11 +3037,11 @@ export function handleArrayExpression(
         isClassExpression(_arrProp)
       ) {
         fin_elements.push(lowerToAnonArrayExpr(_arrProp, otherProps));
-      } 
+      }
       // Specializations
       // Identifier | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | RegExpLiteral | ThisExpression | BigIntLiteral | DecimalLiteral
       else if (
-        isIdentifier(_arrProp) || 
+        isIdentifier(_arrProp) ||
         isStringLiteral(_arrProp) ||
         isNumericLiteral(_arrProp) ||
         isNullLiteral(_arrProp) ||
