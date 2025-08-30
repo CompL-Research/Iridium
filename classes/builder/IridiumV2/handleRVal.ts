@@ -126,7 +126,6 @@ import {
   GlobalBindingSEXP,
   GotoSEXP,
   IfElseJumpSEXP,
-  IfJumpSEXP,
   IridiumSEXP,
   JSADDBRANDSEXP,
   JSAppendSEXP,
@@ -488,7 +487,7 @@ export const handleArrayPatternAssignmentExpr = (
       loopConfig.breakTarget = postBB.getIDX();
 
       const currToLoop = new GotoSEXP(-1);
-      const loopToPost = new IfJumpSEXP(new EnvReadSEXP(for$of$loop$done), -1);
+      const loopToPost = new IfElseJumpSEXP(new EnvReadSEXP(for$of$loop$done), -1, -1);
 
       // 1. CurrBB to LoopBB
       currentBB.args.push(currToLoop);
@@ -510,6 +509,8 @@ export const handleArrayPatternAssignmentExpr = (
       );
 
       cx.getCurrentBB().args.push(loopToPost);
+      cx.addContinuation(cx.getCurrentContext());
+      let loopTestContinuation = cx.getCurrentBB().getIDX();
       cx.getCurrentBB().args.push(
         new JSComputedFieldWriteSEXP(
           tempres,
@@ -531,7 +532,8 @@ export const handleArrayPatternAssignmentExpr = (
       loopHeadContext.loopConfig = loopConfig;
 
       currToLoop.setIDX(loopConfig.loopHeadIDX);
-      loopToPost.setIDX(loopConfig.breakTarget);
+      loopToPost.setTRUE(loopConfig.breakTarget);
+      loopToPost.setFALSE(loopTestContinuation);
 
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
@@ -776,11 +778,15 @@ const handleYieldExpression = (
   );
 
   // Make branch check the last instruction of currentBB
-  const ifJump = new IfJumpSEXP(
+  const ifJump = new IfElseJumpSEXP(
     new EnvReadSEXP(yieldDoneIndicator),
     trueContext.BB[0].idx,
+    -1
   );
   cx.getCurrentBB().args.push(ifJump);
+
+  cx.addContinuation(cx.getCurrentContext());
+  ifJump.setFALSE(cx.getCurrentBB().getIDX());
 
   return new EnvReadSEXP(yieldReturnResultHolder);
 };
