@@ -636,3 +636,7 @@
 // console.log(a.escape)
 
 // var squidImageData = [8, 7, 21, 255, 42, 39, 79, 255, 74, 64];
+
+{
+  let a = 12;  
+}

@@ -10,7 +10,7 @@ import { PrivateMapping } from "./handleRVal";
 import { pack } from "msgpackr";
 import { gzipSync } from "zlib";
 // @ts-ignore
-import iridiumForge from '#forge';
+import iridiumForge from '/home/meetesh/wd/Iridium-Forge/forge.cjs';
 
 type LoopConfig = {
   kind: "for-of" | "standard",
