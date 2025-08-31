@@ -637,6 +637,11 @@
 
 // var squidImageData = [8, 7, 21, 255, 42, 39, 79, 255, 74, 64];
 
-{
-  let a = 12;  
-}
+// {
+//   let a = 12;  
+// }
+
+
+let arr1 = [1,2,3,4,5];
+let [a,b,...c] = arr1;
+console.log(a,b,c)

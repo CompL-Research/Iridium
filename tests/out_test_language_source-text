@@ -1,0 +1,142 @@
+TAP version 13
+# Using 128 threads.
+not ok 1 test/language/source-text/6.1.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_source-text_6.1.js_iri_1756590840965_dkjojpyjyw8.json
+
+    Test262Error: A character outside the BMP (Unicode CodePoint > 0xFFFF) should
+    consume two code units
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: A character outside the BMP (Unicode CodePoint > 0xFFFF) should
+    consume two code units
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_source-text_6.1.js_iri_1756590840965_dkjojpyjyw8.json
+
+    Test262Error: A character outside the BMP (Unicode CodePoint > 0xFFFF) should
+    consume two code units
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_source-text_6.1.js_iri_1756590840965_dkjojpyjyw8.json
+
+    Test262Error: A character outside the BMP (Unicode CodePoint > 0xFFFF) should
+    consume two code units
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 2 test/language/source-text/6.1.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_source-text_6.1.js_iri_1756590840963_t85wy51ghw9.json
+
+    Test262Error: A character outside the BMP (Unicode CodePoint > 0xFFFF) should
+    consume two code units
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: A character outside the BMP (Unicode CodePoint > 0xFFFF) should
+    consume two code units
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_source-text_6.1.js_iri_1756590840963_t85wy51ghw9.json
+
+    Test262Error: A character outside the BMP (Unicode CodePoint > 0xFFFF) should
+    consume two code units
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_source-text_6.1.js_iri_1756590840963_t85wy51ghw9.json
+
+    Test262Error: A character outside the BMP (Unicode CodePoint > 0xFFFF) should
+    consume two code units
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+# 
+# 
+# 
+# Baseline: { storeFail: 0, execFail: 0, success: 2 }
+# Iridium:  { storeFail: 0, execFail: 2, success: 0 }
+# Rate: 0%.
+# PASS: 0, FAIL: 2.
+# Success: 0%.

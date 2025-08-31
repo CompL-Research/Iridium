@@ -1,0 +1,514 @@
+TAP version 13
+# Using 128 threads.
+ok 1 test/language/computed-property-names/to-name-side-effects/object.js default # (success)
+ok 2 test/language/computed-property-names/to-name-side-effects/numbers-object.js default # (success)
+ok 3 test/language/computed-property-names/to-name-side-effects/numbers-object.js strict mode # (success)
+ok 4 test/language/computed-property-names/basics/number.js strict mode # (success)
+ok 5 test/language/computed-property-names/basics/symbol.js default # (success)
+ok 6 test/language/computed-property-names/basics/number.js default # (success)
+ok 7 test/language/computed-property-names/basics/string.js default # (success)
+ok 8 test/language/computed-property-names/to-name-side-effects/numbers-class.js default # (success)
+ok 9 test/language/computed-property-names/to-name-side-effects/class.js strict mode # (success)
+ok 10 test/language/computed-property-names/to-name-side-effects/object.js strict mode # (success)
+ok 11 test/language/computed-property-names/basics/string.js strict mode # (success)
+ok 12 test/language/computed-property-names/to-name-side-effects/numbers-class.js strict mode # (success)
+ok 13 test/language/computed-property-names/to-name-side-effects/class.js default # (success)
+ok 14 test/language/computed-property-names/basics/symbol.js strict mode # (success)
+ok 15 test/language/computed-property-names/class/static/generator-prototype.js strict mode # (success)
+not ok 16 test/language/computed-property-names/object/method/super.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_method_super.js_iri_1756589985313_lmyahk5ddc.json
+
+    ReferenceError: <super_obj> is not defined
+        at a (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    ReferenceError: <super_obj> is not defined
+
+    a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_method_super.js_iri_1756589985313_lmyahk5ddc.json
+
+    ReferenceError: <super_obj> is not defined
+
+    a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_method_super.js_iri_1756589985313_lmyahk5ddc.json
+
+    ReferenceError: <super_obj> is not defined
+
+    a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 17 test/language/computed-property-names/class/static/getter-prototype.js strict mode # (success)
+ok 18 test/language/computed-property-names/class/static/setter-prototype.js default # (success)
+ok 19 test/language/computed-property-names/object/method/symbol.js strict mode # (success)
+ok 20 test/language/computed-property-names/class/method/constructor-duplicate-1.js strict mode # (success)
+ok 21 test/language/computed-property-names/class/method/constructor-can-be-generator.js default # (success)
+ok 22 test/language/computed-property-names/class/static/setter-prototype.js strict mode # (success)
+ok 23 test/language/computed-property-names/class/static/generator-constructor.js strict mode # (success)
+ok 24 test/language/computed-property-names/class/method/constructor-can-be-setter.js default # (success)
+ok 25 test/language/computed-property-names/object/method/number.js default # (success)
+ok 26 test/language/computed-property-names/object/method/generator.js default # (success)
+ok 27 test/language/computed-property-names/class/accessor/setter-duplicates.js strict mode # (success)
+ok 28 test/language/computed-property-names/object/method/string.js strict mode # (success)
+ok 29 test/language/computed-property-names/class/accessor/getter-duplicates.js strict mode # (success)
+not ok 30 test/language/computed-property-names/object/method/super.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_method_super.js_iri_1756589985314_vmyicva23xp.json
+
+    ReferenceError: <super_obj> is not defined
+        at a (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    ReferenceError: <super_obj> is not defined
+
+    a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_method_super.js_iri_1756589985314_vmyicva23xp.json
+
+    ReferenceError: <super_obj> is not defined
+
+    a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_method_super.js_iri_1756589985314_vmyicva23xp.json
+
+    ReferenceError: <super_obj> is not defined
+
+    a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 31 test/language/computed-property-names/class/accessor/getter.js default # (success)
+ok 32 test/language/computed-property-names/class/accessor/getter-duplicates.js default # (success)
+ok 33 test/language/computed-property-names/class/accessor/getter.js strict mode # (success)
+ok 34 test/language/computed-property-names/class/static/method-string-order.js strict mode # (success)
+not ok 35 test/language/computed-property-names/object/accessor/setter-super.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_accessor_setter-super.js_iri_1756589985314_xvc89zavlo.json
+
+    ReferenceError: <super_obj> is not defined
+        at set a (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    ReferenceError: <super_obj> is not defined
+
+    set a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_accessor_setter-super.js_iri_1756589985314_xvc89zavlo.json
+
+    ReferenceError: <super_obj> is not defined
+
+    set a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_accessor_setter-super.js_iri_1756589985314_xvc89zavlo.json
+
+    ReferenceError: <super_obj> is not defined
+
+    set a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 36 test/language/computed-property-names/class/static/getter-constructor.js strict mode # (success)
+ok 37 test/language/computed-property-names/class/method/constructor-duplicate-2.js default # (success)
+ok 38 test/language/computed-property-names/class/static/method-symbol.js default # (success)
+ok 39 test/language/computed-property-names/class/static/method-number.js strict mode # (success)
+ok 40 test/language/computed-property-names/class/static/method-string.js default # (success)
+ok 41 test/language/computed-property-names/class/method/constructor.js default # (success)
+ok 42 test/language/computed-property-names/class/method/constructor-can-be-setter.js strict mode # (success)
+ok 43 test/language/computed-property-names/class/method/symbol.js strict mode # (success)
+ok 44 test/language/computed-property-names/object/accessor/getter.js strict mode # (success)
+ok 45 test/language/computed-property-names/object/accessor/setter-duplicates.js default # (success)
+ok 46 test/language/computed-property-names/class/static/getter-constructor.js default # (success)
+ok 47 test/language/computed-property-names/object/accessor/getter-duplicates.js default # (success)
+ok 48 test/language/computed-property-names/class/method/constructor-can-be-getter.js strict mode # (success)
+ok 49 test/language/computed-property-names/class/static/getter-prototype.js default # (success)
+ok 50 test/language/computed-property-names/class/static/method-prototype.js strict mode # (success)
+not ok 51 test/language/computed-property-names/object/accessor/getter-super.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_accessor_getter-super.js_iri_1756589985314_1cglbb42lo2.json
+
+    ReferenceError: <super_obj> is not defined
+        at get a (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    ReferenceError: <super_obj> is not defined
+
+    get a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_accessor_getter-super.js_iri_1756589985314_1cglbb42lo2.json
+
+    ReferenceError: <super_obj> is not defined
+
+    get a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_accessor_getter-super.js_iri_1756589985314_1cglbb42lo2.json
+
+    ReferenceError: <super_obj> is not defined
+
+    get a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 52 test/language/computed-property-names/object/method/generator.js strict mode # (success)
+ok 53 test/language/computed-property-names/class/method/number.js strict mode # (success)
+ok 54 test/language/computed-property-names/class/method/constructor-duplicate-3.js strict mode # (success)
+not ok 55 test/language/computed-property-names/object/accessor/setter-super.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_accessor_setter-super.js_iri_1756589985332_gyg24up1qb.json
+
+    ReferenceError: <super_obj> is not defined
+        at set a (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    ReferenceError: <super_obj> is not defined
+
+    set a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_accessor_setter-super.js_iri_1756589985332_gyg24up1qb.json
+
+    ReferenceError: <super_obj> is not defined
+
+    set a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_accessor_setter-super.js_iri_1756589985332_gyg24up1qb.json
+
+    ReferenceError: <super_obj> is not defined
+
+    set a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 56 test/language/computed-property-names/object/method/symbol.js default # (success)
+ok 57 test/language/computed-property-names/object/property/number-duplicates.js strict mode # (success)
+ok 58 test/language/computed-property-names/class/static/method-number-order.js strict mode # (success)
+ok 59 test/language/computed-property-names/class/accessor/setter-duplicates.js default # (success)
+ok 60 test/language/computed-property-names/class/static/method-number.js default # (success)
+ok 61 test/language/computed-property-names/class/static/method-number-order.js default # (success)
+ok 62 test/language/computed-property-names/class/static/method-symbol-order.js strict mode # (success)
+ok 63 test/language/computed-property-names/class/static/setter-constructor.js default # (success)
+ok 64 test/language/computed-property-names/class/static/method-symbol-order.js default # (success)
+ok 65 test/language/computed-property-names/class/static/method-prototype.js default # (success)
+ok 66 test/language/computed-property-names/class/method/generator.js default # (success)
+ok 67 test/language/computed-property-names/class/method/number.js default # (success)
+ok 68 test/language/computed-property-names/class/static/generator-constructor.js default # (success)
+ok 69 test/language/computed-property-names/object/method/string.js default # (success)
+ok 70 test/language/computed-property-names/class/method/string.js default # (success)
+ok 71 test/language/computed-property-names/class/static/method-string-order.js default # (success)
+ok 72 test/language/computed-property-names/class/method/constructor.js strict mode # (success)
+ok 73 test/language/computed-property-names/class/static/setter-constructor.js strict mode # (success)
+ok 74 test/language/computed-property-names/class/method/constructor-can-be-generator.js strict mode # (success)
+not ok 75 test/language/computed-property-names/object/accessor/getter-super.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_accessor_getter-super.js_iri_1756589985305_bh66wr1cy9c.json
+
+    ReferenceError: <super_obj> is not defined
+        at get a (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    ReferenceError: <super_obj> is not defined
+
+    get a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_accessor_getter-super.js_iri_1756589985305_bh66wr1cy9c.json
+
+    ReferenceError: <super_obj> is not defined
+
+    get a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_computed-property-names_object_accessor_getter-super.js_iri_1756589985305_bh66wr1cy9c.json
+
+    ReferenceError: <super_obj> is not defined
+
+    get a (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 76 test/language/computed-property-names/class/method/constructor-can-be-getter.js default # (success)
+ok 77 test/language/computed-property-names/class/method/string.js strict mode # (success)
+ok 78 test/language/computed-property-names/object/property/number-duplicates.js default # (success)
+ok 79 test/language/computed-property-names/class/method/symbol.js default # (success)
+ok 80 test/language/computed-property-names/object/accessor/setter.js strict mode # (success)
+ok 81 test/language/computed-property-names/object/accessor/setter.js default # (success)
+ok 82 test/language/computed-property-names/class/accessor/setter.js default # (success)
+ok 83 test/language/computed-property-names/object/accessor/getter.js default # (success)
+ok 84 test/language/computed-property-names/class/static/method-constructor.js strict mode # (success)
+ok 85 test/language/computed-property-names/class/static/method-string.js strict mode # (success)
+ok 86 test/language/computed-property-names/object/accessor/getter-duplicates.js strict mode # (success)
+ok 87 test/language/computed-property-names/class/static/generator-prototype.js default # (success)
+ok 88 test/language/computed-property-names/class/method/constructor-duplicate-2.js strict mode # (success)
+ok 89 test/language/computed-property-names/class/static/method-constructor.js default # (success)
+ok 90 test/language/computed-property-names/class/accessor/setter.js strict mode # (success)
+ok 91 test/language/computed-property-names/class/static/method-symbol.js strict mode # (success)
+ok 92 test/language/computed-property-names/object/accessor/setter-duplicates.js strict mode # (success)
+ok 93 test/language/computed-property-names/class/method/generator.js strict mode # (success)
+ok 94 test/language/computed-property-names/class/method/constructor-duplicate-1.js default # (success)
+ok 95 test/language/computed-property-names/class/method/constructor-duplicate-3.js default # (success)
+ok 96 test/language/computed-property-names/object/method/number.js strict mode # (success)
+# 
+# 
+# 
+# Baseline: { storeFail: 0, execFail: 0, success: 96 }
+# Iridium:  { storeFail: 0, execFail: 6, success: 90 }
+# Rate: 93.75%.
+# PASS: 90, FAIL: 6.
+# Success: 93.75%.

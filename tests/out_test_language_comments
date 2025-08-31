@@ -1,0 +1,44 @@
+TAP version 13
+# Using 128 threads.
+ok 1 test/language/comments/multi-line-asi-line-feed.js default # (success)
+ok 2 test/language/comments/multi-line-asi-line-separator.js default # (success)
+ok 3 test/language/comments/mongolian-vowel-separator-single.js default # (success)
+ok 4 test/language/comments/S7.4_A4_T2.js default # (success)
+ok 5 test/language/comments/mongolian-vowel-separator-multi.js strict mode # (success)
+ok 6 test/language/comments/multi-line-asi-carriage-return.js default # (success)
+ok 7 test/language/comments/multi-line-asi-paragraph-separator.js default # (success)
+ok 8 test/language/comments/mongolian-vowel-separator-single-eval.js default # (success)
+ok 9 test/language/comments/S7.4_A1_T2.js strict mode # (success)
+ok 10 test/language/comments/mongolian-vowel-separator-multi.js default # (success)
+ok 11 test/language/comments/mongolian-vowel-separator-single.js strict mode # (success)
+ok 12 test/language/comments/S7.4_A4_T3.js strict mode # (success)
+ok 13 test/language/comments/S7.4_A2_T1.js strict mode # (success)
+ok 14 test/language/comments/S7.4_A4_T3.js default # (success)
+ok 15 test/language/comments/S7.4_A4_T7.js default # (success)
+ok 16 test/language/comments/S7.4_A1_T1.js strict mode # (success)
+ok 17 test/language/comments/S7.4_A1_T2.js default # (success)
+ok 18 test/language/comments/S7.4_A4_T6.js default # (success)
+ok 19 test/language/comments/S7.4_A4_T5.js default # (success)
+ok 20 test/language/comments/multi-line-asi-line-separator.js strict mode # (success)
+ok 21 test/language/comments/S7.4_A4_T2.js strict mode # (success)
+ok 22 test/language/comments/S7.4_A1_T1.js default # (success)
+ok 23 test/language/comments/multi-line-asi-paragraph-separator.js strict mode # (success)
+ok 24 test/language/comments/multi-line-asi-carriage-return.js strict mode # (success)
+ok 25 test/language/comments/S7.4_A2_T1.js default # (success)
+ok 26 test/language/comments/S7.4_A4_T5.js strict mode # (success)
+ok 27 test/language/comments/S7.4_A4_T6.js strict mode # (success)
+ok 28 test/language/comments/multi-line-asi-line-feed.js strict mode # (success)
+ok 29 test/language/comments/S7.4_A4_T7.js strict mode # (success)
+ok 30 test/language/comments/mongolian-vowel-separator-single-eval.js strict mode # (success)
+ok 31 test/language/comments/S7.4_A6.js strict mode # (success)
+ok 32 test/language/comments/S7.4_A6.js default # (success)
+ok 33 test/language/comments/S7.4_A5.js default # (success)
+ok 34 test/language/comments/S7.4_A5.js strict mode # (success)
+# 
+# 
+# 
+# Baseline: { storeFail: 0, execFail: 0, success: 34 }
+# Iridium:  { storeFail: 0, execFail: 0, success: 34 }
+# Rate: 100%.
+# PASS: 34, FAIL: 0.
+# Success: 100%.
