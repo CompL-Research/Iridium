@@ -742,15 +742,15 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   // Add context and initialize nodes
   tryContextObj.tryContext = tryContext;
 
-  if (finalizerContextObj) { // Prevent infinite loops when decorating break/continue/return targets inside the finalizer block
-    finalizerContextObj.tryContext = {
-      tryContextIDX: -1,
-      tryIDX: -1,
-      udCatchIDX: -1,
-      imCatchIDX: -1,
-      finalizerIDX: -1
-    }
-  }
+  // if (finalizerContextObj) { // Prevent infinite loops when decorating break/continue/return targets inside the finalizer block
+  //   finalizerContextObj.tryContext = {
+  //     tryContextIDX: -1,
+  //     tryIDX: -1,
+  //     udCatchIDX: -1,
+  //     imCatchIDX: -1,
+  //     finalizerIDX: -1
+  //   }
+  // }
 
   if (stmt.handler) {
     tryCatchContext.setIDX(tryContext.udCatchIDX);
