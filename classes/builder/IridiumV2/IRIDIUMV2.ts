@@ -380,8 +380,8 @@ export class IRIDIUMV2 {
     const gzipped = gzipSync(packed);
 
     if (debugConfig.cli.debugIri) {
-      // @ts-ignore
-      process.stdout.write(gzipped);
+      this.result = gzipped;
+      return;
     }
 
 
