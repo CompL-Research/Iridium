@@ -1332,10 +1332,10 @@ export class IRIDIUMV2 {
                     if (!toRemoveList) throw new Error("toRemoveList is undefined");
                     toRemoveList.add(stmt);
                   } else if (stmt.isLetDecl()) {
-                    stmt.setRVal(new GlobalBindingSEXP("undefined"));
+                    stmt.setRVal(new EnvReadSEXP("undefined"));
                   } else {
                     // Can happen when const destructuring stmts are present
-                    stmt.setRVal(new GlobalBindingSEXP("undefined"));
+                    stmt.setRVal(new EnvReadSEXP("undefined"));
                     // throw new Error("Const declaration without RVal");
                   }
                 }

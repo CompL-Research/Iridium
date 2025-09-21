@@ -864,7 +864,7 @@ const handleComputedProps = (
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
       new ResolveEnvBindingSEXP("this"),
-      new GlobalBindingSEXP("undefined"),
+      new EnvReadSEXP("undefined"),
       "JSCONST",
       false,
     ),
@@ -1494,7 +1494,7 @@ const createClassConstructorClosure = (
     }
 
     cx.getCurrentBB().args.push(
-      new ReturnSEXP(new GlobalBindingSEXP("undefined")),
+      new ReturnSEXP(new EnvReadSEXP("undefined")),
     );
   } // Case 2: Has Heritage
   else {
@@ -1721,7 +1721,7 @@ const handleClassExpression = (
   const name = node.id ? node.id.name : "";
   const heritage = node.superClass
     ? superClass
-    : new GlobalBindingSEXP("undefined");
+    : new EnvReadSEXP("undefined");
   const addBrand = node.body.body.some(
     (n) => isJS3ClassPrivateMethod(n) && !n.static,
   );
@@ -1769,7 +1769,7 @@ const handleClassExpression = (
   return new JSClassSEXP(
     hasSuper,
     name,
-    heritage ? heritage : new GlobalBindingSEXP("undefined"),
+    heritage ? heritage : new EnvReadSEXP("undefined"),
     constructorLambda,
     new EnvReadSEXP(classPropInitClosure),
     methodList,
@@ -2030,15 +2030,15 @@ const handleFunctionExpression = (
 const handleNewExpression = (cx: IRIDIUMV2, node: JS3NewExpression) => {
   const args: Array<IridiumSEXP> = [];
   if (isIdentifier(node.callee)) {
-    args.push(new ResolveEnvBindingSEXP(node.callee.name));
+    args.push(new EnvReadSEXP(node.callee.name));
   } else if (isSuper(node.callee)) {
-    args.push(new ResolveEnvBindingSEXP("super"));
+    args.push(new EnvReadSEXP("super"));
   } else if (isV8IntrinsicIdentifier(node.callee)) {
-    args.push(new ResolveEnvBindingSEXP(node.callee.name));
+    args.push(new EnvReadSEXP(node.callee.name));
   }
   for (const a of node.arguments) {
     if (isIdentifier(a)) {
-      args.push(new ResolveEnvBindingSEXP(a.name));
+      args.push(new EnvReadSEXP(a.name));
     } else {
       args.push(new JSSpreadSEXP(new ResolveEnvBindingSEXP(a.argument.name)));
     }
@@ -2095,19 +2095,19 @@ const handleArrowFunctionExpression = (
 const handleCallExpression = (cx: IRIDIUMV2, node: JS3CallExpression) => {
   const args: Array<IridiumSEXP> = [];
   if (isIdentifier(node.callee)) {
-    args.push(new ResolveEnvBindingSEXP(node.callee.name));
+    args.push(new EnvReadSEXP(node.callee.name));
   } else if (isJS3Import(node.callee)) {
-    args.push(new ResolveEnvBindingSEXP("import"));
+    args.push(new EnvReadSEXP("import"));
   } else if (isSuper(node.callee)) {
     args.push(new EnvReadSEXP("<super_ctr>"));
     args.push(new EnvReadSEXP("<new_target>"));
   } else if (isV8IntrinsicIdentifier(node.callee)) {
-    args.push(new ResolveEnvBindingSEXP(node.callee.name));
+    args.push(new EnvReadSEXP(node.callee.name));
   }
 
   for (const a of node.arguments) {
     if (isIdentifier(a)) {
-      args.push(new ResolveEnvBindingSEXP(a.name));
+      args.push(new EnvReadSEXP(a.name));
     } else {
       args.push(new JSSpreadSEXP(new ResolveEnvBindingSEXP(a.argument.name)));
     }
@@ -2141,7 +2141,7 @@ const handleContextualCallExpression = (
     args.push(callee);
     for (const a of node.arguments) {
       if (isIdentifier(a)) {
-        args.push(new ResolveEnvBindingSEXP(a.name));
+        args.push(new EnvReadSEXP(a.name));
       } else if (isSpreadElement(a)) {
         args.push(
           new JSSpreadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a.argument)),
@@ -2181,11 +2181,11 @@ const handleContextualCallExpression = (
 
   const args: Array<IridiumSEXP> = [];
   args.push(new EnvReadSEXP(contextObj));
-  if (callee) args.push(new ResolveEnvBindingSEXP(tempHolder));
+  if (callee) args.push(new EnvReadSEXP(tempHolder));
 
   for (const a of node.arguments) {
     if (isIdentifier(a)) {
-      args.push(new ResolveEnvBindingSEXP(a.name));
+      args.push(new EnvReadSEXP(a.name));
     } else if (isSpreadElement(a)) {
       args.push(
         new JSSpreadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a.argument)),
