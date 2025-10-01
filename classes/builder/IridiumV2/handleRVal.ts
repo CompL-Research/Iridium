@@ -2147,7 +2147,7 @@ const handleContextualCallExpression = (
           new JSSpreadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a.argument)),
         );
       } else {
-        args.push(lowerExprToResolveEnvBindingSEXP(cx, a));
+        args.push(new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a).getName()));
       }
     }
     return new CallSiteSEXP(args, "PrivateCall");
@@ -2191,7 +2191,7 @@ const handleContextualCallExpression = (
         new JSSpreadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a.argument)),
       );
     } else {
-      args.push(lowerExprToResolveEnvBindingSEXP(cx, a));
+      args.push(new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a).getName()));
     }
   }
   return new CallSiteSEXP(args, "CCall");

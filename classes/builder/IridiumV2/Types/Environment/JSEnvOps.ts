@@ -93,7 +93,7 @@ export class PVTEnvReadSEXP extends IridiumSEXP {
 export class JSComputedFieldReadSEXP extends IridiumSEXP {
   constructor(object: string, field: string | IridiumSEXP) {
     super("JSComputedFieldRead");
-    this.setObj(new ResolveEnvBindingSEXP(object));
+    this.setObj(new EnvReadSEXP(object));
     if (typeof field === "string")
       this.setField(new EnvReadSEXP(field));
     else
@@ -140,7 +140,7 @@ export class JSComputedFieldReadSEXP extends IridiumSEXP {
 export class JSComputedFieldWriteSEXP extends IridiumSEXP {
   constructor(object: string, field: string | IridiumSEXP, right: IridiumSEXP) {
     super("JSComputedFieldWrite");
-    this.setObj(new ResolveEnvBindingSEXP(object));
+    this.setObj(new EnvReadSEXP(object));
     if (typeof field === "string")
       this.setField(new EnvReadSEXP(field));
     else
@@ -198,7 +198,7 @@ export class JSComputedFieldWriteSEXP extends IridiumSEXP {
 export class JSPrivateFieldReadSEXP extends IridiumSEXP {
   constructor(object: string, field: string) {
     super("JSPrivateFieldRead");
-    this.setObj(new ResolveEnvBindingSEXP(object));
+    this.setObj(new EnvReadSEXP(object));
     this.setField(new ResolvePrivateEnvBindingSEXP(field));
   }
 
@@ -244,7 +244,7 @@ export class JSPrivateFieldReadSEXP extends IridiumSEXP {
 export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
   constructor(object: string, field: EnvReadSEXP | string, right: IridiumSEXP, isDeclaration: boolean) {
     super("JSPrivateFieldWrite");
-    this.setObj(new ResolveEnvBindingSEXP(object));
+    this.setObj(new EnvReadSEXP(object));
     if (isEnvReadSEXP(field)) this.setField(field);
     else this.setField(new ResolvePrivateEnvBindingSEXP(field, false));
     this.setValue(right);
