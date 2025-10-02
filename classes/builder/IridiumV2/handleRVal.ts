@@ -125,6 +125,7 @@ import {
   getStaticPropInitDerivedClosureFlag,
   GlobalBindingSEXP,
   GotoSEXP,
+  IDOPSEXP,
   IfElseJumpSEXP,
   IridiumSEXP,
   JSADDBRANDSEXP,
@@ -142,6 +143,7 @@ import {
   JSForOfIteratorCloseSEXP,
   JSForOfNextSEXP,
   JSForOfStartSEXP,
+  JSIDOPSEXP,
   JSImplicitBindingDeclarationSEXP,
   JSInitialYieldSEXP,
   JSNUBDSEXP,
@@ -1593,6 +1595,13 @@ const handleUpdateExpression = (
   node: JS3UpdateExpression,
 ): IridiumSEXP => {
   if (isIdentifier(node.argument)) {
+    
+    // return new IDOPSEXP(
+    //   new EnvReadSEXP(node.argument.name),
+    //   node.prefix,
+    //   node.operator === "++"
+    // );
+    
     if (node.prefix) {
       // n = n [+|-] 1
       // ret n
@@ -1641,6 +1650,27 @@ const handleUpdateExpression = (
       return new EnvReadSEXP(tmp);
     }
   } else {
+
+    // JS3MemberExpression
+    //  object = Identifier | ThisExpression | Super
+    //  property = Identifier | JS3PrivateName
+    //  computed = true | false
+
+    // a.x++ || --this.a || a[x]++ || --this[a]
+    if ((isIdentifier(node.argument.object) || isThisExpression(node.argument.object)) && isIdentifier(node.argument.property))
+    {
+      if (!node.argument.computed)
+      {
+        return new IDOPSEXP(new FieldReadSEXP(isThisExpression(node.argument.object) ? "this" : node.argument.object.name, node.argument.property.name), node.prefix, node.operator === "++");
+      }
+      else
+      {
+        return new JSIDOPSEXP(new JSComputedFieldReadSEXP(isThisExpression(node.argument.object) ? "this" : node.argument.object.name, node.argument.property.name), node.prefix, node.operator === "++");
+      }
+    }
+
+    // Fallback to generalized emission for other cases...
+
     // tmp = n[x]
     // n[x] = tmp [+|-] 1
     // prefix ? tmp = tmp [+|-] 1

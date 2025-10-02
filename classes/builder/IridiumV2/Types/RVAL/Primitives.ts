@@ -329,6 +329,58 @@ export class LambdaSEXP extends IridiumSEXP {
   }
 }
 
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * Increment Decrement Operator on simple FieldReadSEXP.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(Obj)`: FieldReadSEXP
+ * - `FLAG(PREFIX)`: Is the operation in the prefix
+ * - `FLAG(INCREMENT)`: Is the operation performing increment (true = increment, false = decrement)
+ * 
+ */
+export class IDOPSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP, isPrefix: boolean, isIncrement: boolean) {
+    super("IDOP");
+    this.setObj(obj);
+    this.setPREFIX(isPrefix);
+    this.setINCREMENT(isIncrement);
+  }
+
+  // Args
+  setObj(val: IridiumSEXP) {
+    this.args[0] = val;
+  }
+
+  getObj() {
+    return this.args[0];
+  }
+
+  // Flags
+  setPREFIX(isPrefix: boolean) {
+    this.setFlag("PREFIX", isPrefix);
+  }
+
+  getPREFIX() {
+    return this.getFlagBoolean("PREFIX");
+  }
+
+  setINCREMENT(isIncrement: boolean) {
+    this.setFlag("INCREMENT", isIncrement);
+  }
+
+  getINCREMENT() {
+    return this.getFlagBoolean("INCREMENT");
+  }
+}
+
 
 /**
  * @hidden
