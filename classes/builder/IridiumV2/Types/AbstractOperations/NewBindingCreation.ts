@@ -177,19 +177,19 @@ export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * 1. `arguments`: Declares and initializes the **mapped** `arguments` object (see: https://medium.com/@dozie22/arguments-object-in-javascript-cf8203d92ab7).
  * 
- * 2. `<this_func>`: Declares and initializes the `<this_func>` special object; the prototype of this object is used to call the `super` class constructor.
+ * 2. `this.active_func`: Declares and initializes the `this.active_func` special object; the prototype of this object is used to call the `super` class constructor.
  * 
- * 3. `<new_target>`: Declares and initializes the `<new_target>` object; this can be used to check if the function was called as a constructor or not.
+ * 3. `new.target`: Declares and initializes the `new.target` object; this can be used to check if the function was called as a constructor or not.
  * 
- * 4. `<home_obj>`: Declares and initializes the `<home_obj>` object; the prototype of this object is used to access the `super` class methods.
+ * 4. `<home_object>`: Declares and initializes the `<home_object>` object; the prototype of this object is used to access the `super` class methods.
  * 
  * 5. `<var_obj>`: Declares and initializes the `<var_obj>` object; Not used currently.
  * 
  * 6. `<module_meta>`: Declares and initializes the `<module_meta>` (same as `import.meta` provided in the source code) object; It is generally used to get metadata such as filepath of the module/etc.
  * 
- * 7. `<super_ctr>`: Declares and stores the `super()` at `<super_ctr>`; takes (<this_func>) as an argument.
+ * 7. `<super_ctr>`: Declares and stores the `super()` at `<super_ctr>`; takes (this.active_func) as an argument.
  * 
- * 8. `<super_obj>`: Declares and stores the `super` at `<super_obj>`; takes (<home_obj>) as an argument.
+ * 8. `<super_obj>`: Declares and stores the `super` at `<super_obj>`; takes (<home_object>) as an argument.
  * 
  * 9. `this`: Declares and initializes the `this` object (see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this).
  * 

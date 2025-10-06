@@ -1147,17 +1147,17 @@ const createClassNonStaticPropInitClosure = (
   );
 
   if (addBrand) {
-    // add <home_obj>
+    // add <home_object>
     cx.getCurrentBB().args.push(
-      new JSImplicitBindingDeclarationSEXP("<home_obj>", "JSCONST", 4),
+      new JSImplicitBindingDeclarationSEXP("<home_object>", "JSCONST", 4),
     );
   }
 
   if (hasSuper) {
     if (!addBrand) {
-      // add <home_obj>
+      // add <home_object>
       cx.getCurrentBB().args.push(
-        new JSImplicitBindingDeclarationSEXP("<home_obj>", "JSCONST", 4),
+        new JSImplicitBindingDeclarationSEXP("<home_object>", "JSCONST", 4),
       );
     }
 
@@ -1167,7 +1167,7 @@ const createClassNonStaticPropInitClosure = (
         "<super_obj>",
         "JSCONST",
         8,
-        new ListSEXP([new ResolveEnvBindingSEXP("<home_obj>")]),
+        new ListSEXP([new ResolveEnvBindingSEXP("<home_object>")]),
       ),
     );
   }
@@ -1250,12 +1250,12 @@ const createClassNonStaticPropInitClosure = (
   }
 
   if (addBrand) {
-    // add_brand this <home_obj>
+    // add_brand this <home_object>
     cx.getCurrentBB().args.push(
       new StackRejectSEXP(
         new JSADDBRANDSEXP(
           new EnvReadSEXP("this"),
-          new EnvReadSEXP("<home_obj>"),
+          new EnvReadSEXP("<home_object>"),
         ),
         0,
       ),
@@ -1309,9 +1309,9 @@ const createClassStaticPropInitClosure = (
   );
 
   if (hasSuper) {
-    // add <home_obj>
+    // add <home_object>
     cx.getCurrentBB().args.push(
-      new JSImplicitBindingDeclarationSEXP("<home_obj>", "JSCONST", 4),
+      new JSImplicitBindingDeclarationSEXP("<home_object>", "JSCONST", 4),
     );
     // add <super_obj>
     cx.getCurrentBB().args.push(
@@ -1319,7 +1319,7 @@ const createClassStaticPropInitClosure = (
         "<super_obj>",
         "JSCONST",
         8,
-        new ListSEXP([new ResolveEnvBindingSEXP("<home_obj>")]),
+        new ListSEXP([new ResolveEnvBindingSEXP("<home_object>")]),
       ),
     );
   }
@@ -1464,6 +1464,16 @@ const createClassConstructorClosure = (
       new StackRejectSEXP(new JSCheckConstructorSEXP(), 0),
     );
 
+    // Store <class_fields_init> so eval can find it
+    cx.getCurrentBB().args.push(
+      new JSExplicitBindingDeclarationSEXP(
+        new ResolveEnvBindingSEXP("<class_fields_init>"),
+        new EnvReadSEXP(propInitClos),
+        "JSLET",
+        false,
+      ),
+    );
+
     // Call prop init closure
     const args: Array<IridiumSEXP> = [];
     args.push(new EnvReadSEXP("this"));
@@ -1504,18 +1514,28 @@ const createClassConstructorClosure = (
     funcContext.kind = getDerivedConstructorClosureFlag();
     funcContext.propInitClos = propInitClos;
 
+    // Store <class_fields_init> so eval can find it
+    cx.getCurrentBB().args.push(
+      new JSExplicitBindingDeclarationSEXP(
+        new ResolveEnvBindingSEXP("<class_fields_init>"),
+        new EnvReadSEXP(propInitClos),
+        "JSLET",
+        false,
+      ),
+    );
+
     // Add "this = NUBD"
     cx.getCurrentBB().args.push(
       new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 10),
     );
 
-    // add <home_obj>
+    // add <home_object>
     cx.getCurrentBB().args.push(
-      new JSImplicitBindingDeclarationSEXP("<home_obj>", "JSCONST", 4),
+      new JSImplicitBindingDeclarationSEXP("<home_object>", "JSCONST", 4),
     );
-    // add <this_func>
+    // add this.active_func
     cx.getCurrentBB().args.push(
-      new JSImplicitBindingDeclarationSEXP("<this_func>", "JSCONST", 2),
+      new JSImplicitBindingDeclarationSEXP("this.active_func", "JSCONST", 2),
     );
     // add <super_ctr>
     cx.getCurrentBB().args.push(
@@ -1523,7 +1543,7 @@ const createClassConstructorClosure = (
         "<super_ctr>",
         "JSCONST",
         7,
-        new ListSEXP([new ResolveEnvBindingSEXP("<this_func>")]),
+        new ListSEXP([new ResolveEnvBindingSEXP("this.active_func")]),
       ),
     );
     // add <super_obj>
@@ -1532,12 +1552,12 @@ const createClassConstructorClosure = (
         "<super_obj>",
         "JSCONST",
         8,
-        new ListSEXP([new ResolveEnvBindingSEXP("<home_obj>")]),
+        new ListSEXP([new ResolveEnvBindingSEXP("<home_object>")]),
       ),
     );
-    // add <new_target>
+    // add new.target
     cx.getCurrentBB().args.push(
-      new JSImplicitBindingDeclarationSEXP("<new_target>", "JSCONST", 3),
+      new JSImplicitBindingDeclarationSEXP("new.target", "JSCONST", 3),
     );
 
     // Ensure the constructor was called using new
@@ -1549,7 +1569,7 @@ const createClassConstructorClosure = (
       // Call constructor and initialize "this"
       const args: Array<IridiumSEXP> = [];
       args.push(new EnvReadSEXP("<super_ctr>"));
-      args.push(new EnvReadSEXP("<new_target>"));
+      args.push(new EnvReadSEXP("new.target"));
       const superCall = new CallSiteSEXP(args, "Super");
       const superResHolder =
         cx.js3Builder.utils.getNewTemporary("superResHolder");
@@ -1864,7 +1884,7 @@ const handleConditionalExpression = (
   const trueContext = cx.declareAndPushLexicalContext();
   let trueVal = lowerExprToResolveEnvBindingSEXP(cx, node.consequent);
   cx.getCurrentBB().args.push(
-    new EnvWriteSEXP(resHolder, trueVal, false, false),
+    new EnvWriteSEXP(resHolder, new EnvReadSEXP(trueVal.getName()), false, false),
   );
   cx.getCurrentBB().args.push(new GotoSEXP(postBB.idx));
   cx.popContext();
@@ -1873,7 +1893,7 @@ const handleConditionalExpression = (
   const falseContext = cx.declareAndPushLexicalContext();
   let falseVal = lowerExprToResolveEnvBindingSEXP(cx, node.alternate);
   cx.getCurrentBB().args.push(
-    new EnvWriteSEXP(resHolder, falseVal, false, false),
+    new EnvWriteSEXP(resHolder, new EnvReadSEXP(falseVal.getName()), false, false),
   );
   cx.getCurrentBB().args.push(new GotoSEXP(postBB.idx));
   cx.popContext();
@@ -1886,7 +1906,7 @@ const handleConditionalExpression = (
   );
   currentBB.args.push(ifElseJump);
 
-  return new ResolveEnvBindingSEXP(resHolder);
+  return new EnvReadSEXP(resHolder);
 };
 
 const handleAssignmentExpression = (
@@ -1998,7 +2018,7 @@ const handleFunctionExpression = (
     }
   });
 
-  if (!funcContext.isStrict && isSimpleArgs) {
+  if (isSimpleArgs) { // !funcContext.isStrict && isSimpleArgs
     // Not strict and simple arguments => mapped arguments
     funcContext.argumentsKind = 1;
     node.params.forEach((p) => {
@@ -2034,14 +2054,14 @@ const handleFunctionExpression = (
   // If the method has access to the super object, we add <super_obj> to its scope using this
   if (hasSuper) {
     cx.getCurrentBB().args.push(
-      new JSImplicitBindingDeclarationSEXP("<home_obj>", "JSCONST", 4),
+      new JSImplicitBindingDeclarationSEXP("<home_object>", "JSCONST", 4),
     );
     cx.getCurrentBB().args.push(
       new JSImplicitBindingDeclarationSEXP(
         "<super_obj>",
         "JSCONST",
         8,
-        new ListSEXP([new ResolveEnvBindingSEXP("<home_obj>")]),
+        new ListSEXP([new ResolveEnvBindingSEXP("<home_object>")]),
       ),
     );
   }
@@ -2130,7 +2150,7 @@ const handleCallExpression = (cx: IRIDIUMV2, node: JS3CallExpression) => {
     args.push(new EnvReadSEXP("import"));
   } else if (isSuper(node.callee)) {
     args.push(new EnvReadSEXP("<super_ctr>"));
-    args.push(new EnvReadSEXP("<new_target>"));
+    args.push(new EnvReadSEXP("new.target"));
   } else if (isV8IntrinsicIdentifier(node.callee)) {
     args.push(new EnvReadSEXP(node.callee.name));
   }

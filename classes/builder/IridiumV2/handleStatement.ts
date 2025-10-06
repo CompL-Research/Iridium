@@ -1195,7 +1195,8 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
     }
   })
 
-  if (!funcContext.isStrict && isSimpleArgs) { // Not strict and simple arguments => mapped arguments
+  if (isSimpleArgs) { // !funcContext.isStrict && isSimpleArgs
+    // Not strict and simple arguments => mapped arguments
     funcContext.argumentsKind = 1;
     stmt.params.forEach(p => {
       if (isIdentifier(p)) {

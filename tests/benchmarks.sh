@@ -2,8 +2,8 @@
 set -e
 
 SUNSPIDER=(
-  # "benchmarks/sunspider/3d-cube.mjs"
-  "benchmarks/sunspider/3d-morph.mjs"
+  "benchmarks/sunspider/3d-cube.cjs"
+  # "benchmarks/sunspider/3d-morph.cjs"
   # "benchmarks/sunspider/3d-raytrace.cjs"
   # "benchmarks/sunspider/access-binary-trees.cjs"
   # "benchmarks/sunspider/access-fannkuch.cjs"
@@ -17,7 +17,7 @@ SUNSPIDER=(
   # "benchmarks/sunspider/crypto-aes.cjs"
   # "benchmarks/sunspider/crypto-md5.cjs"
   # "benchmarks/sunspider/crypto-sha1.cjs"
-  # # "benchmarks/sunspider/date-format-tofte.cjs"
+  # "benchmarks/sunspider/date-format-tofte.cjs"
   # "benchmarks/sunspider/date-format-xparb.cjs"
   # "benchmarks/sunspider/math-cordic.cjs"
   # "benchmarks/sunspider/math-partial-sums.cjs"
@@ -75,7 +75,8 @@ for test in "${SUNSPIDER[@]}"; do
   # Run in quickjs if files exist
   cd $qjsdir
 
-  time ./module.sh "$iridir/tests/$test"
+  time ./script.sh "$iridir/tests/$test"
+  # time ./script.sh "$js3_file"
 
   if [[ -n "$json_file" ]]; then
     time ./tiri.sh "$json_file"
