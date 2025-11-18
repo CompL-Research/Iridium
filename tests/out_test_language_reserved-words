@@ -1,0 +1,38 @@
+TAP version 13
+# Using 128 threads.
+ok 1 test/language/reserved-words/unreserved-words.js default # (success)
+ok 2 test/language/reserved-words/ident-name-keyword-prop-name.js default # (success)
+ok 3 test/language/reserved-words/await-script.js default # (success)
+ok 4 test/language/reserved-words/ident-name-reserved-word-literal-memberexpr.js strict mode # (success)
+ok 5 test/language/reserved-words/ident-name-reserved-word-literal-memberexpr.js default # (success)
+ok 6 test/language/reserved-words/ident-name-reserved-word-literal-prop-name.js default # (success)
+ok 7 test/language/reserved-words/ident-name-keyword-memberexpr.js default # (success)
+ok 8 test/language/reserved-words/ident-name-global-property-prop-name.js default # (success)
+ok 9 test/language/reserved-words/ident-name-keyword-prop-name.js strict mode # (success)
+ok 10 test/language/reserved-words/ident-name-global-property-accessor.js strict mode # (success)
+ok 11 test/language/reserved-words/ident-name-keyword-memberexpr-str.js default # (success)
+ok 12 test/language/reserved-words/ident-name-global-property-memberexpr-str.js default # (success)
+ok 13 test/language/reserved-words/ident-name-global-property-accessor.js default # (success)
+ok 14 test/language/reserved-words/ident-name-keyword-memberexpr.js strict mode # (success)
+ok 15 test/language/reserved-words/await-script.js strict mode # (success)
+ok 16 test/language/reserved-words/ident-name-global-property-prop-name.js strict mode # (success)
+ok 17 test/language/reserved-words/ident-name-keyword-memberexpr-str.js strict mode # (success)
+ok 18 test/language/reserved-words/ident-name-global-property-memberexpr.js default # (success)
+ok 19 test/language/reserved-words/ident-name-reserved-word-literal-accessor.js default # (success)
+ok 20 test/language/reserved-words/ident-name-reserved-word-literal-memberexpr-str.js default # (success)
+ok 21 test/language/reserved-words/ident-name-reserved-word-literal-memberexpr-str.js strict mode # (success)
+ok 22 test/language/reserved-words/ident-name-reserved-word-literal-prop-name.js strict mode # (success)
+ok 23 test/language/reserved-words/ident-name-global-property-memberexpr-str.js strict mode # (success)
+ok 24 test/language/reserved-words/unreserved-words.js strict mode # (success)
+ok 25 test/language/reserved-words/ident-name-reserved-word-literal-accessor.js strict mode # (success)
+ok 26 test/language/reserved-words/ident-name-global-property-memberexpr.js strict mode # (success)
+ok 27 test/language/reserved-words/ident-name-keyword-accessor.js default # (success)
+ok 28 test/language/reserved-words/ident-name-keyword-accessor.js strict mode # (success)
+# 
+# 
+# 
+# Baseline: { storeFail: 0, execFail: 0, success: 28 }
+# Iridium:  { storeFail: 0, execFail: 0, success: 28 }
+# Rate: 100%.
+# PASS: 28, FAIL: 0.
+# Success: 100%.

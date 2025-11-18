@@ -179,13 +179,24 @@ export class InvokeFinalizerSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
+ * - `ARG(Obj)`: The value to return
+ * 
  * - `FLAG(ModuleEarlyReturn)`: Signifies a synchronous return from a module, this happens if the module is just to be loaded and not evaluated.
  * 
  */
 export class ReturnSEXP extends IridiumSEXP {
   constructor(val: IridiumSEXP) {
     super("Return");
-    this.args.push(val);
+    this.setObj(val);
+  }
+
+  // Args
+  setObj(obj: IridiumSEXP) {
+    this.args[0] = obj;
+  }
+
+  getObj() : IridiumSEXP {
+    return this.args[0];
   }
 
   // Flags
@@ -237,6 +248,8 @@ export class RetSEXP extends IridiumSEXP {
  * 
  * - `FLAG(FALSE)`: IDX of the BB to flow the control to if the test is false.
  * 
+ * - `FLAG(NOT)`: Negate the test condition
+ * 
  */
 export class IfElseJumpSEXP extends IridiumSEXP {
   constructor(test: IridiumSEXP | null, trueTarget: number, falseTarget: number) {
@@ -273,69 +286,20 @@ export class IfElseJumpSEXP extends IridiumSEXP {
     return this.getFlagNumber("FALSE");
   }
 
-  toString(space?: number): string {
-    return `${printIriSpace(space)}GOTO (${this.getTest().toString(0)}) ? ${this.getTRUE()} : ${this.getFALSE()}`;
-  }
-}
-
-/**
- * 
- * @extends {IridiumSEXP}
- * 
- * @group STMT
- * 
- * @remarks
- * 
- * Used to jump to a BB if the test is true.
- * 
- * #### Structure
- * 
- * - `ARG(test)`: Stores the value of the object to be tested.
- * 
- * - `FLAG(IDX)`: IDX of the BB to flow the control to if the test is true.
- * 
- * - `FLAG(NOT)`: Logical not on the test value.
- * 
- */
-export class IfJumpSEXP extends IridiumSEXP {
-  constructor(test: IridiumSEXP | null, target: number) {
-    super("IfJump");
-    if (test) this.setTest(test);
-    else this.setTest(new NullSEXP());
-    this.setIDX(target);
+  setNOT() {
+    this.setFlag("NOT")
   }
 
-  // Args
-  setTest(test: IridiumSEXP) {
-    this.args[0] = test;
+  unsetNOT() {
+    this.removeFlag("NOT")
   }
 
-  getTest() {
-    return this.args[0];
-  }
-
-  // Flags
-  setNot() {
-    this.setFlag("NOT");
-  }
-
-  unsetNot() {
-    this.removeFlag("NOT");
-  }
-
-  isNot() {
+  hasNOT(): boolean {
     return this.hasFlag("NOT");
   }
-  setIDX(idx: number) {
-    this.setFlag("IDX", idx)
-  }
-
-  getIDX(): number {
-    return this.getFlagNumber("IDX");
-  }
 
   toString(space?: number): string {
-    return `${printIriSpace(space)}GOTO (${this.isNot() ? "! " : ""}${this.getTest().toString(0)}) ? GOTO ${this.getIDX()} : 👇`;
+    return `${printIriSpace(space)}GOTO (${this.getTest().toString(0)}) ? ${this.getTRUE()} : ${this.getFALSE()}`;
   }
 }
 

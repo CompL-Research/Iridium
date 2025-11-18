@@ -269,7 +269,7 @@ export class JSBitIntSEXP extends IridiumSEXP {
  */
 export class JSPrivateSEXP extends IridiumSEXP {
   constructor(str: string) {
-    super("Private");
+    super("JSPrivate");
     this.flags.push(["IridiumPrimitive", str]);
   }
 
@@ -528,6 +528,58 @@ export class JSObjectSEXP extends IridiumSEXP {
 }
 
 /**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * Increment Decrement Operator on JSComputedFieldRead.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(obj)`: JSComputedFieldRead
+ * - `FLAG(PREFIX)`: Is the operation in the prefix
+ * - `FLAG(INCREMENT)`: Is the operation performing increment (true = increment, false = decrement)
+ * 
+ */
+export class JSIDOPSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP, isPrefix: boolean, isIncrement: boolean) {
+    super("JSIDOP");
+    this.setObj(obj);
+    this.setPREFIX(isPrefix);
+    this.setINCREMENT(isIncrement);
+  }
+
+  // Args
+  setObj(val: IridiumSEXP) {
+    this.args[0] = val;
+  }
+
+  getObj() {
+    return this.args[0];
+  }
+
+  // Flags
+  setPREFIX(isPrefix: boolean) {
+    this.setFlag("PREFIX", isPrefix);
+  }
+
+  getPREFIX() {
+    return this.getFlagBoolean("PREFIX");
+  }
+
+  setINCREMENT(isIncrement: boolean) {
+    this.setFlag("INCREMENT", isIncrement);
+  }
+
+  getINCREMENT() {
+    return this.getFlagBoolean("INCREMENT");
+  }
+}
+
+/**
  * @hidden
  */
 export function isJSObjectSEXP(o: any): o is JSObjectSEXP {
@@ -548,7 +600,7 @@ export function isJSArraySEXP(o: any): o is JSArraySEXP {
  */
 export function isJSPrivateSEXP(o: any): o is JSPrivateSEXP {
   // @ts-ignore
-  return o.tag === "Private";
+  return o.tag === "JSPrivate";
 }
 
 /**

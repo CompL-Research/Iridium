@@ -6,7 +6,7 @@ import { handleArrayPatternAssignmentExpr, handleObjectPatternAssignmentExpr, IR
 import { getIridiumBinop } from "#utils";
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks";
 import { handleAssignmentExpression as js3handleAssignmentExpression } from "../JS3Helpers/HandleExpression";
-import { EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, IfJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSCatchContextSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, ThrowSEXP } from "./Types/index";
+import { EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSCatchContextSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, ThrowSEXP } from "./Types/index";
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   if (isJS3ImportDeclaration(stmt)) {
@@ -304,7 +304,10 @@ const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
       const testResHolder = lowerExprToResolveEnvBindingSEXP(cx, c.test);
       const eqCheck = getIridiumBinop("===", new EnvReadSEXP(stmt.discriminant.name), new EnvReadSEXP(testResHolder.getBindingName()));
       cx.getCurrentBB().args.push(new EnvWriteSEXP(intermediateResHolder, eqCheck, false, false));
-      cx.getCurrentBB().args.push(new IfJumpSEXP(new EnvReadSEXP(intermediateResHolder), testTarget));
+      let t = new IfElseJumpSEXP(new EnvReadSEXP(intermediateResHolder), testTarget, -1)
+      cx.getCurrentBB().args.push(t);
+      cx.addContinuation(cx.getCurrentContext());
+      t.setFALSE(cx.getCurrentBB().getIDX());
     }
   }
   cx.getCurrentBB().args.push(new ResolveBreakTargetSEXP());
@@ -347,7 +350,7 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
   // Control Flow Nodes
   const currentBBToLoopInitNode = new GotoSEXP(-1);
   const loopInitToLoopTestNode = new GotoSEXP(-1);
-  const testBBLoopContinueNode = new IfJumpSEXP(null, -1);
+  const testBBLoopContinueNode = new IfElseJumpSEXP(null, -1, -1);
   const testBBLoopExitNode = new GotoSEXP(-1);
 
   // 1. Current BB to LoopHead
@@ -384,9 +387,13 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
   }
 
   testBBLoopContinueNode.setTest(new EnvReadSEXP("<loop-done>"));
-  testBBLoopContinueNode.setNot();
+  testBBLoopContinueNode.setNOT();
 
   cx.getCurrentBB().args.push(testBBLoopContinueNode);
+  cx.addContinuation(cx.getCurrentContext());
+  let testBBLoopContinueNodeContinuation = cx.getCurrentBB().getIDX();
+
+
   if (isJS3ForOfStatement(stmt)) {
     cx.getCurrentBB().args.push(new StackRejectSEXP(new JSForOfIteratorCloseSEXP(), 0));
   }
@@ -428,7 +435,8 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
     loopInitToLoopTestNode.setIDX(loopConfig.loopHeadIDX);
     // testBBElseIfNode.setTRUE(loopConfig.breakTarget); // If Done, exit
     // testBBElseIfNode.setFALSE(loopConfig.loopBodyIDX); // Goto body
-    testBBLoopContinueNode.setIDX(loopConfig.loopBodyIDX);
+    testBBLoopContinueNode.setTRUE(loopConfig.loopBodyIDX);
+    testBBLoopContinueNode.setFALSE(testBBLoopContinueNodeContinuation);
     testBBLoopExitNode.setIDX(loopConfig.breakTarget);
   } else {
     throw new Error("[Iterated Loop] Loop head context is null...");
@@ -734,15 +742,15 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   // Add context and initialize nodes
   tryContextObj.tryContext = tryContext;
 
-  if (finalizerContextObj) { // Prevent infinite loops when decorating break/continue/return targets inside the finalizer block
-    finalizerContextObj.tryContext = {
-      tryContextIDX: -1,
-      tryIDX: -1,
-      udCatchIDX: -1,
-      imCatchIDX: -1,
-      finalizerIDX: -1
-    }
-  }
+  // if (finalizerContextObj) { // Prevent infinite loops when decorating break/continue/return targets inside the finalizer block
+  //   finalizerContextObj.tryContext = {
+  //     tryContextIDX: -1,
+  //     tryIDX: -1,
+  //     udCatchIDX: -1,
+  //     imCatchIDX: -1,
+  //     finalizerIDX: -1
+  //   }
+  // }
 
   if (stmt.handler) {
     tryCatchContext.setIDX(tryContext.udCatchIDX);
@@ -1187,7 +1195,8 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
     }
   })
 
-  if (!funcContext.isStrict && isSimpleArgs) { // Not strict and simple arguments => mapped arguments
+  if (isSimpleArgs) { // !funcContext.isStrict && isSimpleArgs
+    // Not strict and simple arguments => mapped arguments
     funcContext.argumentsKind = 1;
     stmt.params.forEach(p => {
       if (isIdentifier(p)) {

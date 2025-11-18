@@ -24,7 +24,8 @@ export default [
       '@babel/generator',
       '@babel/traverse',
       '@babel/parser',
-      'typescript'
+      'typescript',
+      '#forge'
     ],
     plugins: [
       json(),

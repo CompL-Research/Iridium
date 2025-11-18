@@ -18,8 +18,8 @@ exports.runBaseline = async function (test) {
   try {
     execSync(`${EXEC_BIN} ${isModule ? '-m' : '-C'} ${baselineTestPath}`, { encoding: 'utf-8', stdio: 'pipe', timeout: TEST_TIMEOUT });
     return { result: "success", error: false };
-  } catch (err) {
-    return { result: "exec-fail", error: err.message };
+  } catch (error) {
+    return { result: "exec-fail", error };
   }
 }
 
@@ -33,8 +33,8 @@ exports.runIridium = async function (test) {
   try {
     execSync(`${EXEC_BIN} -X ${iriTestPath}`, { encoding: 'utf-8', stdio: 'pipe', timeout: TEST_TIMEOUT });
     return { result: "success", error: false };
-  } catch (err) {
-    return { result: "exec-fail", error: err.message };
+  } catch (error) {
+    return { result: "exec-fail", error };
   }
 }
 
@@ -87,7 +87,7 @@ function storeIridiumTest(test) {
       contents = `"use strict";\nundefined;\n${contents}`;
     }
     fs.writeFileSync(fPath, contents);
-    execSync(`./iridium iri -s ${isModule ? 'module' : 'script'} -t ${TEST262_PATH} ${fPath} > ${fPathIri}`, { cwd: IRI_PATH, encoding: 'utf-8', stdio: 'pipe' });
+    execSync(`./iridium iri -s ${isModule ? 'module' : 'script'} --ljson -t ${TEST262_PATH} ${fPath} > ${fPathIri}`, { cwd: IRI_PATH, encoding: 'utf-8', stdio: 'pipe' });
   } catch (error) {
     return { result: "Failed to save iridium test", error };
   }

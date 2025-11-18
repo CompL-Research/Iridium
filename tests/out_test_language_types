@@ -1,0 +1,1229 @@
+TAP version 13
+# Using 128 threads.
+ok 1 test/language/types/number/S8.5_A6.js default # (success)
+ok 2 test/language/types/number/S8.5_A14_T1.js strict mode # (success)
+ok 3 test/language/types/list/S8.8_A2_T2.js default # (success)
+ok 4 test/language/types/number/S8.5_A10_T1.js strict mode # (success)
+ok 5 test/language/types/number/S8.5_A11_T1.js strict mode # (success)
+ok 6 test/language/types/reference/S8.7.2_A3.js default # (success)
+ok 7 test/language/types/object/S8.6.2_A3.js strict mode # (success)
+ok 8 test/language/types/list/S8.8_A2_T3.js default # (success)
+ok 9 test/language/types/number/S8.5_A1.js strict mode # (success)
+ok 10 test/language/types/number/S8.5_A7.js default # (success)
+ok 11 test/language/types/null/S8.2_A3.js strict mode # (success)
+ok 12 test/language/types/object/S8.6.1_A2.js default # (success)
+ok 13 test/language/types/reference/8.7.2-3-s.js strict mode # (success)
+ok 14 test/language/types/number/S8.5_A1.js default # (success)
+ok 15 test/language/types/object/S8.6.2_A5_T1.js default # (success)
+ok 16 test/language/types/boolean/S8.3_A3.js strict mode # (success)
+ok 17 test/language/types/reference/8.7.2-3-1-s.js strict mode # (success)
+ok 18 test/language/types/object/S8.6.2_A2.js default # (success)
+ok 19 test/language/types/boolean/S8.3_A1_T1.js default # (success)
+ok 20 test/language/types/number/S8.5_A4_T1.js default # (success)
+ok 21 test/language/types/reference/8.7.2-1-s.js strict mode # (success)
+ok 22 test/language/types/null/S8.2_A1_T1.js default # (success)
+ok 23 test/language/types/boolean/S8.3_A1_T2.js strict mode # (success)
+ok 24 test/language/types/list/S8.8_A2_T1.js default # (success)
+ok 25 test/language/types/reference/8.7.2-8-s.js strict mode # (success)
+ok 26 test/language/types/boolean/S8.3_A1_T2.js default # (success)
+ok 27 test/language/types/number/S8.5_A12.1.js default # (success)
+ok 28 test/language/types/reference/S8.7_A2.js default # (success)
+ok 29 test/language/types/object/S8.6.2_A5_T3.js default # (success)
+ok 30 test/language/types/number/S8.5_A2.2.js default # (success)
+ok 31 test/language/types/object/S8.6.2_A5_T2.js strict mode # (success)
+ok 32 test/language/types/object/S8.6.2_A1.js default # (success)
+ok 33 test/language/types/object/S8.6.2_A5_T3.js strict mode # (success)
+ok 34 test/language/types/object/S8.6.2_A3.js default # (success)
+ok 35 test/language/types/object/S8.6.2_A5_T2.js default # (success)
+not ok 36 test/language/types/reference/S8.7_A5_T2.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_reference_S8.7_A5_T2.js_iri_1756591444054_ra2gjl49sn.json
+
+    Segmentation fault (core dumped)
+  stack: >-
+    Segmentation fault (core dumped)
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_reference_S8.7_A5_T2.js_iri_1756591444054_ra2gjl49sn.json
+
+    Segmentation fault (core dumped)
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_reference_S8.7_A5_T2.js_iri_1756591444054_ra2gjl49sn.json
+
+    Segmentation fault (core dumped)
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 37 test/language/types/reference/S8.7.2_A3.js strict mode # (success)
+ok 38 test/language/types/list/S8.8_A2_T1.js strict mode # (success)
+ok 39 test/language/types/object/S8.6.2_A4.js strict mode # (success)
+ok 40 test/language/types/object/S8.6.2_A2.js strict mode # (success)
+ok 41 test/language/types/object/S8.6.2_A1.js strict mode # (success)
+ok 42 test/language/types/reference/8.7.2-3-a-1gs.js strict mode # (success)
+ok 43 test/language/types/number/S8.5_A10_T1.js default # (success)
+ok 44 test/language/types/number/S8.5_A2.1.js default # (success)
+not ok 45 test/language/types/number/8.5.1.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >-
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_number_8.5.1.js_iri_1756591443980_tg4ngdufpk.json
+  stack: >-
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_number_8.5.1.js_iri_1756591443980_tg4ngdufpk.json
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_number_8.5.1.js_iri_1756591443980_tg4ngdufpk.json
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 46 test/language/types/number/S8.5_A3.js strict mode # (success)
+not ok 47 test/language/types/reference/S8.7_A5_T1.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_reference_S8.7_A5_T1.js_iri_1756591444198_2lj08atc4jv.json
+
+    Segmentation fault (core dumped)
+  stack: >-
+    Segmentation fault (core dumped)
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_reference_S8.7_A5_T1.js_iri_1756591444198_2lj08atc4jv.json
+
+    Segmentation fault (core dumped)
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_reference_S8.7_A5_T1.js_iri_1756591444198_2lj08atc4jv.json
+
+    Segmentation fault (core dumped)
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 48 test/language/types/object/S8.6_A2_T1.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A2_T1.js_iri_1756591444013_mylzf4fqxu.json
+
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+        at <anonymous> (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A2_T1.js_iri_1756591444013_mylzf4fqxu.json
+
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A2_T1.js_iri_1756591444013_mylzf4fqxu.json
+
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 49 test/language/types/object/S8.6_A3_T2.js strict mode # (success)
+ok 50 test/language/types/null/S8.2_A3.js default # (success)
+not ok 51 test/language/types/object/S8.6_A3_T1.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A3_T1.js_iri_1756591444045_t2dud7roh4b.json
+
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+        at <anonymous> (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A3_T1.js_iri_1756591444045_t2dud7roh4b.json
+
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A3_T1.js_iri_1756591444045_t2dud7roh4b.json
+
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 52 test/language/types/object/S8.6.2_A7.js default # (success)
+ok 53 test/language/types/list/S8.8_A2_T2.js strict mode # (success)
+ok 54 test/language/types/reference/S8.7_A6.js strict mode # (success)
+ok 55 test/language/types/number/S8.5_A12.2.js strict mode # (success)
+ok 56 test/language/types/number/S8.5_A11_T2.js strict mode # (success)
+ok 57 test/language/types/object/S8.6.1_A3.js default # (success)
+ok 58 test/language/types/number/S8.5_A9.js default # (success)
+ok 59 test/language/types/object/S8.6.1_A1.js default # (success)
+ok 60 test/language/types/null/S8.2_A1_T2.js default # (success)
+ok 61 test/language/types/number/S8.5_A2.2.js strict mode # (success)
+not ok 62 test/language/types/number/8.5.1.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >-
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_number_8.5.1.js_iri_1756591443987_2v10xih5yrd.json
+  stack: >-
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_number_8.5.1.js_iri_1756591443987_2v10xih5yrd.json
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_number_8.5.1.js_iri_1756591443987_2v10xih5yrd.json
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 63 test/language/types/object/S8.6.2_A7.js strict mode # (success)
+ok 64 test/language/types/object/S8.6.2_A5_T1.js strict mode # (success)
+ok 65 test/language/types/number/S8.5_A8.js default # (success)
+ok 66 test/language/types/boolean/S8.3_A1_T1.js strict mode # (success)
+ok 67 test/language/types/reference/S8.7_A7.js strict mode # (success)
+ok 68 test/language/types/reference/S8.7_A1.js strict mode # (success)
+ok 69 test/language/types/number/S8.5_A8.js strict mode # (success)
+ok 70 test/language/types/reference/S8.7_A4.js default # (success)
+ok 71 test/language/types/number/S8.5_A13_T2.js default # (success)
+ok 72 test/language/types/number/S8.5_A4_T2.js default # (success)
+ok 73 test/language/types/reference/S8.7.1_A1.js strict mode # (success)
+ok 74 test/language/types/list/S8.8_A2_T3.js strict mode # (success)
+ok 75 test/language/types/reference/8.7.2-5-s.js strict mode # (success)
+ok 76 test/language/types/object/S8.6.1_A2.js strict mode # (success)
+ok 77 test/language/types/reference/8.7.2-6-s.js default # (success)
+ok 78 test/language/types/reference/8.7.2-2-s.js default # (success)
+ok 79 test/language/types/reference/8.7.2-7-s.js strict mode # (success)
+ok 80 test/language/types/number/S8.5_A13_T2.js strict mode # (success)
+ok 81 test/language/types/number/S8.5_A11_T1.js default # (success)
+not ok 82 test/language/types/object/S8.6_A2_T2.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A2_T2.js_iri_1756591444010_x7lvwddbbna.json
+
+    Test262Error: Expected SameValue(Â«undefinedÂ», Â«NaNÂ») to be true
+        at <anonymous> (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: Expected SameValue(Â«undefinedÂ», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A2_T2.js_iri_1756591444010_x7lvwddbbna.json
+
+    Test262Error: Expected SameValue(Â«undefinedÂ», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A2_T2.js_iri_1756591444010_x7lvwddbbna.json
+
+    Test262Error: Expected SameValue(Â«undefinedÂ», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 83 test/language/types/number/S8.5_A6.js strict mode # (success)
+ok 84 test/language/types/reference/get-value-prop-base-primitive-realm.js strict mode # (exec-fail)
+ok 85 test/language/types/object/S8.6_A4_T1.js default # (success)
+ok 86 test/language/types/object/S8.6.2_A8.js default # (success)
+ok 87 test/language/types/number/S8.5_A14_T1.js default # (success)
+ok 88 test/language/types/reference/8.7.2-3-a-2gs.js strict mode # (success)
+ok 89 test/language/types/object/S8.6.2_A5_T4.js default # (success)
+ok 90 test/language/types/number/S8.5_A14_T2.js default # (success)
+not ok 91 test/language/types/object/S8.6_A3_T1.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A3_T1.js_iri_1756591444025_556hj7lnn0k.json
+
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+        at <anonymous> (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A3_T1.js_iri_1756591444025_556hj7lnn0k.json
+
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A3_T1.js_iri_1756591444025_556hj7lnn0k.json
+
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 92 test/language/types/reference/S8.7_A1.js default # (success)
+ok 93 test/language/types/object/S8.6.2_A4.js default # (success)
+ok 94 test/language/types/number/S8.5_A12.1.js strict mode # (success)
+not ok 95 test/language/types/reference/S8.7.1_A2.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_reference_S8.7.1_A2.js_iri_1756591444046_3d0yamxt7j3.json
+
+    Segmentation fault (core dumped)
+  stack: >-
+    Segmentation fault (core dumped)
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_reference_S8.7.1_A2.js_iri_1756591444046_3d0yamxt7j3.json
+
+    Segmentation fault (core dumped)
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_reference_S8.7.1_A2.js_iri_1756591444046_3d0yamxt7j3.json
+
+    Segmentation fault (core dumped)
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 96 test/language/types/null/S8.2_A1_T1.js strict mode # (success)
+ok 97 test/language/types/reference/8.7.2-6-s.js strict mode # (success)
+ok 98 test/language/types/object/S8.6.2_A5_T4.js strict mode # (success)
+ok 99 test/language/types/object/S8.6.2_A6.js default # (success)
+ok 100 test/language/types/object/S8.6.2_A6.js strict mode # (success)
+ok 101 test/language/types/reference/S8.7.1_A1.js default # (success)
+ok 102 test/language/types/number/S8.5_A11_T2.js default # (success)
+ok 103 test/language/types/number/S8.5_A2.1.js strict mode # (success)
+ok 104 test/language/types/object/S8.6.2_A8.js strict mode # (success)
+ok 105 test/language/types/object/S8.6_A3_T2.js default # (success)
+ok 106 test/language/types/null/S8.2_A1_T2.js strict mode # (success)
+ok 107 test/language/types/reference/8.7.2-7-s.js default # (success)
+ok 108 test/language/types/object/S8.6_A4_T1.js strict mode # (success)
+ok 109 test/language/types/reference/8.7.2-3-1-s.js default # (success)
+ok 110 test/language/types/number/S8.5_A7.js strict mode # (success)
+ok 111 test/language/types/reference/S8.7.2_A2.js strict mode # (success)
+ok 112 test/language/types/reference/S8.7.2_A2.js default # (success)
+ok 113 test/language/types/number/S8.5_A10_T2.js default # (success)
+ok 114 test/language/types/reference/S8.7_A4.js strict mode # (success)
+ok 115 test/language/types/number/S8.5_A5.js default # (success)
+ok 116 test/language/types/boolean/S8.3_A3.js default # (success)
+ok 117 test/language/types/reference/8.7.2-4-s.js strict mode # (success)
+ok 118 test/language/types/reference/8.7.2-8-s.js default # (success)
+ok 119 test/language/types/number/S8.5_A14_T2.js strict mode # (success)
+ok 120 test/language/types/reference/S8.7_A2.js strict mode # (success)
+ok 121 test/language/types/number/S8.5_A3.js default # (success)
+not ok 122 test/language/types/object/S8.6_A2_T1.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A2_T1.js_iri_1756591444010_uyfo4iqzvv.json
+
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+        at <anonymous> (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A2_T1.js_iri_1756591444010_uyfo4iqzvv.json
+
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A2_T1.js_iri_1756591444010_uyfo4iqzvv.json
+
+    Test262Error: Expected SameValue(Â«"bar1"Â», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 123 test/language/types/reference/8.7.2-2-s.js strict mode # (success)
+ok 124 test/language/types/number/S8.5_A5.js strict mode # (success)
+ok 125 test/language/types/reference/S8.7_A3.js default # (success)
+not ok 126 test/language/types/object/S8.6_A2_T2.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A2_T2.js_iri_1756591444009_ms2vjwarlc.json
+
+    Test262Error: Expected SameValue(Â«undefinedÂ», Â«NaNÂ») to be true
+        at <anonymous> (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: Expected SameValue(Â«undefinedÂ», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A2_T2.js_iri_1756591444009_ms2vjwarlc.json
+
+    Test262Error: Expected SameValue(Â«undefinedÂ», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_object_S8.6_A2_T2.js_iri_1756591444009_ms2vjwarlc.json
+
+    Test262Error: Expected SameValue(Â«undefinedÂ», Â«NaNÂ») to be true
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 127 test/language/types/number/S8.5_A4_T1.js strict mode # (success)
+ok 128 test/language/types/number/S8.5_A12.2.js default # (success)
+ok 129 test/language/types/reference/S8.7_A3.js strict mode # (success)
+ok 130 test/language/types/string/S8.4_A1.js default # (success)
+ok 131 test/language/types/reference/put-value-prop-base-primitive-realm.js default # (exec-fail)
+ok 132 test/language/types/reference/S8.7_A6.js default # (success)
+ok 133 test/language/types/reference/S8.7_A7.js default # (success)
+ok 134 test/language/types/string/S8.4_A1.js strict mode # (success)
+ok 135 test/language/types/reference/put-value-prop-base-primitive-realm.js strict mode # (exec-fail)
+ok 136 test/language/types/reference/get-value-prop-base-primitive.js default # (success)
+ok 137 test/language/types/reference/get-value-prop-base-primitive-realm.js default # (exec-fail)
+ok 138 test/language/types/reference/put-value-prop-base-primitive.js default # (success)
+ok 139 test/language/types/string/S8.4_A4.js strict mode # (success)
+not ok 140 test/language/types/string/S8.4_A5.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A5.js_iri_1756591448604_fk9z6wd97hh.json
+
+    Test262Error: #1: "x\0y" !== "x"
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: #1: "x\0y" !== "x"
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A5.js_iri_1756591448604_fk9z6wd97hh.json
+
+    Test262Error: #1: "x\0y" !== "x"
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A5.js_iri_1756591448604_fk9z6wd97hh.json
+
+    Test262Error: #1: "x\0y" !== "x"
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 141 test/language/types/string/S8.4_A6.2.js strict mode # (success)
+ok 142 test/language/types/string/S8.4_A12.js strict mode # (success)
+ok 143 test/language/types/string/S8.4_A3.js strict mode # (success)
+not ok 144 test/language/types/string/S8.4_A7.4.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A7.4.js_iri_1756591448817_xs9re8nrnro.json
+
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+        at <anonymous> (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A7.4.js_iri_1756591448817_xs9re8nrnro.json
+
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A7.4.js_iri_1756591448817_xs9re8nrnro.json
+
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 145 test/language/types/string/S8.4_A12.js default # (success)
+ok 146 test/language/types/string/S8.4_A11.js default # (success)
+ok 147 test/language/types/string/S8.4_A6.1.js strict mode # (success)
+ok 148 test/language/types/string/S8.4_A2.js default # (success)
+ok 149 test/language/types/string/S8.4_A7.1.js strict mode # (success)
+ok 150 test/language/types/string/S8.4_A7.1.js default # (success)
+ok 151 test/language/types/string/S8.4_A4.js default # (success)
+ok 152 test/language/types/string/S8.4_A6.1.js default # (success)
+ok 153 test/language/types/string/S8.4_A3.js default # (success)
+ok 154 test/language/types/reference/get-value-prop-base-primitive.js strict mode # (success)
+ok 155 test/language/types/string/S8.4_A8.js default # (success)
+ok 156 test/language/types/string/S8.4_A9_T2.js default # (success)
+ok 157 test/language/types/undefined/S8.1_A2_T1.js strict mode # (success)
+not ok 158 test/language/types/string/S8.4_A7.3.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A7.3.js_iri_1756591448773_qoxp5up22v.json
+
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+        at <anonymous> (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A7.3.js_iri_1756591448773_qoxp5up22v.json
+
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A7.3.js_iri_1756591448773_qoxp5up22v.json
+
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 159 test/language/types/string/S8.4_A10.js strict mode # (success)
+ok 160 test/language/types/string/S8.4_A9_T1.js default # (success)
+ok 161 test/language/types/string/S8.4_A8.js strict mode # (success)
+ok 162 test/language/types/string/S8.4_A7.2.js default # (success)
+ok 163 test/language/types/string/S8.4_A10.js default # (success)
+ok 164 test/language/types/string/S8.4_A11.js strict mode # (success)
+ok 165 test/language/types/string/S8.4_A6.2.js default # (success)
+ok 166 test/language/types/string/S8.4_A9_T3.js default # (success)
+ok 167 test/language/types/reference/put-value-prop-base-primitive.js strict mode # (success)
+ok 168 test/language/types/undefined/S8.1_A3_T1.js default # (success)
+ok 169 test/language/types/undefined/S8.1_A1_T2.js default # (success)
+ok 170 test/language/types/undefined/S8.1_A1_T1.js default # (success)
+ok 171 test/language/types/undefined/S8.1_A2_T1.js default # (success)
+ok 172 test/language/types/undefined/S8.1_A1_T1.js strict mode # (success)
+not ok 173 test/language/types/string/S8.4_A7.4.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A7.4.js_iri_1756591448805_l7qc1uh6pm.json
+
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+        at <anonymous> (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A7.4.js_iri_1756591448805_l7qc1uh6pm.json
+
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A7.4.js_iri_1756591448805_l7qc1uh6pm.json
+
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 174 test/language/types/undefined/S8.1_A4.js default # (success)
+ok 175 test/language/types/string/S8.4_A7.2.js strict mode # (success)
+ok 176 test/language/types/string/S8.4_A2.js strict mode # (success)
+ok 177 test/language/types/undefined/S8.1_A5.js strict mode # (success)
+ok 178 test/language/types/undefined/S8.1_A5.js default # (success)
+not ok 179 test/language/types/string/S8.4_A5.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A5.js_iri_1756591448743_52cxlhjuy8v.json
+
+    Test262Error: #1: "x\0y" !== "x"
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: #1: "x\0y" !== "x"
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A5.js_iri_1756591448743_52cxlhjuy8v.json
+
+    Test262Error: #1: "x\0y" !== "x"
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A5.js_iri_1756591448743_52cxlhjuy8v.json
+
+    Test262Error: #1: "x\0y" !== "x"
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 180 test/language/types/undefined/S8.1_A3_T1.js strict mode # (success)
+ok 181 test/language/types/undefined/S8.1_A2_T2.js default # (success)
+ok 182 test/language/types/undefined/S8.1_A2_T2.js strict mode # (success)
+ok 183 test/language/types/string/S8.4_A9_T2.js strict mode # (success)
+ok 184 test/language/types/undefined/S8.1_A3_T2.js default # (success)
+not ok 185 test/language/types/string/S8.4_A7.3.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >+
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A7.3.js_iri_1756591448740_o8e05ib0se.json
+
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+        at <anonymous> (<null>:1:1)
+        at <anonymous> (<null>:1:1)
+
+  stack: >-
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A7.3.js_iri_1756591448740_o8e05ib0se.json
+
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_types_string_S8.4_A7.3.js_iri_1756591448740_o8e05ib0se.json
+
+    Test262Error: Expected a ReferenceError but got a SyntaxError
+
+    <anonymous> (<null>:1:1)
+
+    <anonymous> (<null>:1:1)
+
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 186 test/language/types/undefined/S8.1_A4.js strict mode # (success)
+ok 187 test/language/types/string/S8.4_A9_T3.js strict mode # (success)
+ok 188 test/language/types/string/S8.4_A9_T1.js strict mode # (success)
+ok 189 test/language/types/undefined/S8.1_A1_T2.js strict mode # (success)
+# 
+# 
+# 
+# Baseline: { storeFail: 0, execFail: 4, success: 185 }
+# Iridium:  { storeFail: 0, execFail: 21, success: 168 }
+# Rate: 90.81081081081082%.
+# PASS: 172, FAIL: 17.
+# Success: 91.005291005291%.

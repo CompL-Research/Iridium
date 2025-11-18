@@ -1,0 +1,709 @@
+TAP version 13
+# Using 128 threads.
+not ok 1 test/language/identifier-resolution/S10.2.2_A1_T5.js default # (expected success, got store-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T5.js_iri_1756590743092_78uhmjqp3rg.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T5.js_iri_1756590743092_78uhmjqp3rg.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+        at iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+        at main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+        at <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+        at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+        at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+        at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+    Node.js v20.18.0
+  stack: >-
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    Error: Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T5.js_iri_1756590743092_78uhmjqp3rg.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T5.js_iri_1756590743092_78uhmjqp3rg.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T5.js_iri_1756590743092_78uhmjqp3rg.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T5.js_iri_1756590743092_78uhmjqp3rg.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    storeIridiumTest (/home/meetesh/wd/Iridium/tests/worker.cjs:90:5)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:27:38)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+  ...
+not ok 2 test/language/identifier-resolution/S10.2.2_A1_T6.js default # (expected success, got store-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T6.js_iri_1756590743082_owk170wz2w8.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T6.js_iri_1756590743082_owk170wz2w8.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+        at iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+        at main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+        at <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+        at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+        at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+        at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+    Node.js v20.18.0
+  stack: >-
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    Error: Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T6.js_iri_1756590743082_owk170wz2w8.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T6.js_iri_1756590743082_owk170wz2w8.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T6.js_iri_1756590743082_owk170wz2w8.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T6.js_iri_1756590743082_owk170wz2w8.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    storeIridiumTest (/home/meetesh/wd/Iridium/tests/worker.cjs:90:5)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:27:38)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+  ...
+not ok 3 test/language/identifier-resolution/S10.2.2_A1_T9.js default # (expected success, got store-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T9.js_iri_1756590743094_jyfab83mlr.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T9.js_iri_1756590743094_jyfab83mlr.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+        at iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+        at main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+        at <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+        at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+        at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+        at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+    Node.js v20.18.0
+  stack: >-
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    Error: Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T9.js_iri_1756590743094_jyfab83mlr.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T9.js_iri_1756590743094_jyfab83mlr.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T9.js_iri_1756590743094_jyfab83mlr.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T9.js_iri_1756590743094_jyfab83mlr.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    storeIridiumTest (/home/meetesh/wd/Iridium/tests/worker.cjs:90:5)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:27:38)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+  ...
+not ok 4 test/language/identifier-resolution/S10.2.2_A1_T7.js default # (expected success, got store-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T7.js_iri_1756590743092_a6kcchw6e1r.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T7.js_iri_1756590743092_a6kcchw6e1r.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+        at iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+        at main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+        at <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+        at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+        at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+        at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+    Node.js v20.18.0
+  stack: >-
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    Error: Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T7.js_iri_1756590743092_a6kcchw6e1r.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T7.js_iri_1756590743092_a6kcchw6e1r.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T7.js_iri_1756590743092_a6kcchw6e1r.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T7.js_iri_1756590743092_a6kcchw6e1r.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    storeIridiumTest (/home/meetesh/wd/Iridium/tests/worker.cjs:90:5)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:27:38)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+  ...
+not ok 5 test/language/identifier-resolution/S10.2.2_A1_T8.js default # (expected success, got store-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T8.js_iri_1756590743094_4vfipe1bcjx.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T8.js_iri_1756590743094_4vfipe1bcjx.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+        at iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+        at main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+        at <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+        at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+        at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+        at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+    Node.js v20.18.0
+  stack: >-
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    Error: Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T8.js_iri_1756590743094_4vfipe1bcjx.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T8.js_iri_1756590743094_4vfipe1bcjx.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: ./iridium iri -s script --ljson -t
+    /home/meetesh/wd/Iridium/tests/test262
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T8.js_iri_1756590743094_4vfipe1bcjx.js
+    >
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_identifier-resolution_S10.2.2_A1_T8.js_iri_1756590743094_4vfipe1bcjx.json
+
+    /home/meetesh/wd/Iridium/iridium.ts:81
+        throw new Error(`Failed to generate Iridium: ${e}`);
+              ^
+
+
+    Error: Failed to generate Iridium: Error: Failed to generate JS3: Error: TODO
+    // unhandled Statement->WithStatement [REMOVED SUPPORT]
+
+    iri (/home/meetesh/wd/Iridium/iridium.ts:81:11)
+
+    main (/home/meetesh/wd/Iridium/iridium.ts:113:7)
+
+    <anonymous> (/home/meetesh/wd/Iridium/iridium.ts:138:1)
+
+    ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+
+    async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+
+    async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+
+
+    Node.js v20.18.0
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    storeIridiumTest (/home/meetesh/wd/Iridium/tests/worker.cjs:90:5)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:27:38)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+  ...
+ok 6 test/language/identifier-resolution/S11.1.2_A1_T2.js default # (success)
+ok 7 test/language/identifier-resolution/S11.1.2_A1_T1.js default # (success)
+ok 8 test/language/identifier-resolution/S10.2.2_A1_T1.js default # (success)
+ok 9 test/language/identifier-resolution/S11.1.2_A1_T2.js strict mode # (success)
+ok 10 test/language/identifier-resolution/unscopables.js default # (success)
+ok 11 test/language/identifier-resolution/S10.2.2_A1_T2.js strict mode # (success)
+ok 12 test/language/identifier-resolution/S10.2.2_A1_T4.js strict mode # (success)
+ok 13 test/language/identifier-resolution/S10.2.2_A1_T3.js default # (success)
+ok 14 test/language/identifier-resolution/S10.2.2_A1_T2.js default # (success)
+ok 15 test/language/identifier-resolution/S11.1.2_A1_T1.js strict mode # (success)
+ok 16 test/language/identifier-resolution/S10.2.2_A1_T1.js strict mode # (success)
+ok 17 test/language/identifier-resolution/S10.2.2_A1_T4.js default # (success)
+ok 18 test/language/identifier-resolution/unscopables.js strict mode # (success)
+ok 19 test/language/identifier-resolution/S10.2.2_A1_T3.js strict mode # (success)
+# 
+# 
+# 
+# Baseline: { storeFail: 0, execFail: 0, success: 19 }
+# Iridium:  { storeFail: 5, execFail: 0, success: 14 }
+# Rate: 73.6842105263158%.
+# PASS: 14, FAIL: 5.
+# Success: 73.6842105263158%.

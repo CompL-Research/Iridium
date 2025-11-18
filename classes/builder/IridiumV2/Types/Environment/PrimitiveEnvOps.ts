@@ -147,7 +147,7 @@ export class EnvWriteSEXP extends IridiumSEXP {
 export class FieldReadSEXP extends IridiumSEXP {
   constructor(object: string, field: string) {
     super("FieldRead");
-    this.setObj(new ResolveEnvBindingSEXP(object));
+    this.setObj(new EnvReadSEXP(object));
     this.setField(new StringSEXP(field));
   }
 
@@ -195,7 +195,7 @@ export class FieldReadSEXP extends IridiumSEXP {
 export class FieldWriteSEXP extends IridiumSEXP {
   constructor(object: string, field: string, right: IridiumSEXP) {
     super("FieldWrite");
-    this.args.push(new ResolveEnvBindingSEXP(object));
+    this.args.push(new EnvReadSEXP(object));
     this.args.push(new StringSEXP(field));
     this.args.push(right);
   }

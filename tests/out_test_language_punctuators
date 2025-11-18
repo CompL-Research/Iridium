@@ -1,0 +1,12 @@
+TAP version 13
+# Using 128 threads.
+ok 1 test/language/punctuators/S7.7_A1.js default # (success)
+ok 2 test/language/punctuators/S7.7_A1.js strict mode # (success)
+# 
+# 
+# 
+# Baseline: { storeFail: 0, execFail: 0, success: 2 }
+# Iridium:  { storeFail: 0, execFail: 0, success: 2 }
+# Rate: 100%.
+# PASS: 2, FAIL: 0.
+# Success: 100%.

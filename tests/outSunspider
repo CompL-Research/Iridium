@@ -1,0 +1,1825 @@
+Running Test benchmarks/sunspider/3d-cube.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 22 -> 17
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 6 -> 6
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 6 -> 6
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 8 -> 6
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 8 -> 5
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/3d-cube.js3
+0
+
+real	0m0.171s
+user	0m0.161s
+sys	0m0.010s
+running iridium code: /home/meetesh/wd/Iridium/outputs/3d-cube.json
+0
+
+real	0m0.083s
+user	0m0.070s
+sys	0m0.013s
+Running Test benchmarks/sunspider/3d-morph.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 8 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/3d-morph.js3
+0
+
+real	0m0.124s
+user	0m0.116s
+sys	0m0.009s
+running iridium code: /home/meetesh/wd/Iridium/outputs/3d-morph.json
+0
+
+real	0m0.036s
+user	0m0.027s
+sys	0m0.009s
+Running Test benchmarks/sunspider/3d-raytrace.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 22 -> 12
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 11 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 6 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 5
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 17 -> 11
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 5
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 30 -> 19
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 16 -> 8
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 14 -> 12
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 57 -> 16
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/3d-raytrace.js3
+0
+
+real	0m0.127s
+user	0m0.118s
+sys	0m0.009s
+running iridium code: /home/meetesh/wd/Iridium/outputs/3d-raytrace.json
+0
+
+real	0m0.106s
+user	0m0.101s
+sys	0m0.005s
+Running Test benchmarks/sunspider/access-binary-trees.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/access-binary-trees.js3
+0
+
+real	0m0.080s
+user	0m0.071s
+sys	0m0.009s
+running iridium code: /home/meetesh/wd/Iridium/outputs/access-binary-trees.json
+0
+
+real	0m0.051s
+user	0m0.042s
+sys	0m0.009s
+Running Test benchmarks/sunspider/access-fannkuch.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 21 -> 14
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/access-fannkuch.js3
+0
+
+real	0m0.208s
+user	0m0.204s
+sys	0m0.004s
+running iridium code: /home/meetesh/wd/Iridium/outputs/access-fannkuch.json
+0
+
+real	0m0.077s
+user	0m0.070s
+sys	0m0.007s
+Running Test benchmarks/sunspider/access-nbody.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 8 -> 8
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 10 -> 9
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 13 -> 12
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 12 -> 11
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/access-nbody.js3
+0
+
+real	0m0.123s
+user	0m0.118s
+sys	0m0.005s
+running iridium code: /home/meetesh/wd/Iridium/outputs/access-nbody.json
+0
+
+real	0m0.072s
+user	0m0.070s
+sys	0m0.002s
+Running Test benchmarks/sunspider/access-nsieve.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 7 -> 5
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 5
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/access-nsieve.js3
+0
+
+real	0m0.089s
+user	0m0.072s
+sys	0m0.017s
+running iridium code: /home/meetesh/wd/Iridium/outputs/access-nsieve.json
+0
+
+real	0m0.066s
+user	0m0.057s
+sys	0m0.009s
+Running Test benchmarks/sunspider/bitops-3bit-bits-in-byte.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/bitops-3bit-bits-in-byte.js3
+0
+
+real	0m0.121s
+user	0m0.116s
+sys	0m0.005s
+running iridium code: /home/meetesh/wd/Iridium/outputs/bitops-3bit-bits-in-byte.json
+0
+
+real	0m0.034s
+user	0m0.026s
+sys	0m0.009s
+Running Test benchmarks/sunspider/bitops-bits-in-byte.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/bitops-bits-in-byte.js3
+0
+
+real	0m0.135s
+user	0m0.126s
+sys	0m0.009s
+running iridium code: /home/meetesh/wd/Iridium/outputs/bitops-bits-in-byte.json
+0
+
+real	0m0.073s
+user	0m0.073s
+sys	0m0.000s
+Running Test benchmarks/sunspider/bitops-bitwise-and.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/bitops-bitwise-and.js3
+0
+
+real	0m0.110s
+user	0m0.103s
+sys	0m0.007s
+running iridium code: /home/meetesh/wd/Iridium/outputs/bitops-bitwise-and.json
+0
+
+real	0m0.037s
+user	0m0.033s
+sys	0m0.005s
+Running Test benchmarks/sunspider/bitops-nsieve-bits.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 8 -> 6
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/bitops-nsieve-bits.js3
+0
+
+real	0m0.137s
+user	0m0.132s
+sys	0m0.005s
+running iridium code: /home/meetesh/wd/Iridium/outputs/bitops-nsieve-bits.json
+0
+
+real	0m0.079s
+user	0m0.074s
+sys	0m0.005s
+Running Test benchmarks/sunspider/controlflow-recursive.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/controlflow-recursive.js3
+0
+
+real	0m0.106s
+user	0m0.102s
+sys	0m0.005s
+running iridium code: /home/meetesh/wd/Iridium/outputs/controlflow-recursive.json
+0
+
+real	0m0.035s
+user	0m0.031s
+sys	0m0.004s
+Running Test benchmarks/sunspider/crypto-aes.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 23 -> 11
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 18 -> 10
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 12 -> 8
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 28 -> 13
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 11 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 6 -> 6
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 7 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 5
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 8 -> 6
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 24 -> 14
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/crypto-aes.js3
+0
+
+real	0m0.114s
+user	0m0.110s
+sys	0m0.004s
+running iridium code: /home/meetesh/wd/Iridium/outputs/crypto-aes.json
+0
+
+real	0m0.047s
+user	0m0.038s
+sys	0m0.009s
+Running Test benchmarks/sunspider/crypto-md5.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 7 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 6 -> 6
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 7 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 71 -> 14
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 7 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 7 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 8 -> 6
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 5
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/crypto-md5.js3
+0
+
+real	0m0.103s
+user	0m0.094s
+sys	0m0.009s
+running iridium code: /home/meetesh/wd/Iridium/outputs/crypto-md5.json
+0
+
+real	0m0.023s
+user	0m0.022s
+sys	0m0.000s
+Running Test benchmarks/sunspider/crypto-sha1.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 8 -> 6
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 16 -> 16
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 5
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/crypto-sha1.js3
+0
+
+real	0m0.098s
+user	0m0.094s
+sys	0m0.004s
+running iridium code: /home/meetesh/wd/Iridium/outputs/crypto-sha1.json
+0
+
+real	0m0.019s
+user	0m0.017s
+sys	0m0.003s
+Running Test benchmarks/sunspider/date-format-xparb.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 9 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 8 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 6 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 16 -> 11
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/date-format-xparb.js3
+0
+
+real	0m0.090s
+user	0m0.081s
+sys	0m0.009s
+running iridium code: /home/meetesh/wd/Iridium/outputs/date-format-xparb.json
+0
+
+real	0m0.084s
+user	0m0.072s
+sys	0m0.013s
+Running Test benchmarks/sunspider/math-cordic.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 8 -> 8
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/math-cordic.js3
+0
+
+real	0m0.161s
+user	0m0.157s
+sys	0m0.005s
+running iridium code: /home/meetesh/wd/Iridium/outputs/math-cordic.json
+0
+
+real	0m0.087s
+user	0m0.082s
+sys	0m0.005s
+Running Test benchmarks/sunspider/math-partial-sums.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 7 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/math-partial-sums.js3
+0
+
+real	0m0.048s
+user	0m0.043s
+sys	0m0.005s
+running iridium code: /home/meetesh/wd/Iridium/outputs/math-partial-sums.json
+0
+
+real	0m0.028s
+user	0m0.024s
+sys	0m0.005s
+Running Test benchmarks/sunspider/math-spectral-norm.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 5
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 7 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 5
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/math-spectral-norm.js3
+0
+
+real	0m0.051s
+user	0m0.046s
+sys	0m0.005s
+running iridium code: /home/meetesh/wd/Iridium/outputs/math-spectral-norm.json
+0
+
+real	0m0.040s
+user	0m0.040s
+sys	0m0.000s
+Running Test benchmarks/sunspider/regexp-dna.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 10 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/regexp-dna.js3
+0
+
+real	0m0.136s
+user	0m0.127s
+sys	0m0.009s
+running iridium code: /home/meetesh/wd/Iridium/outputs/regexp-dna.json
+0
+
+real	0m0.213s
+user	0m0.204s
+sys	0m0.009s
+Running Test benchmarks/sunspider/string-base64.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 5
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 9 -> 8
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/string-base64.js3
+0
+
+real	0m0.110s
+user	0m0.100s
+sys	0m0.010s
+running iridium code: /home/meetesh/wd/Iridium/outputs/string-base64.json
+0
+
+real	0m0.032s
+user	0m0.028s
+sys	0m0.005s
+Running Test benchmarks/sunspider/string-fasta.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 7 -> 5
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 6 -> 6
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 10 -> 8
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/string-fasta.js3
+0
+
+real	0m0.147s
+user	0m0.147s
+sys	0m0.000s
+running iridium code: /home/meetesh/wd/Iridium/outputs/string-fasta.json
+0
+
+real	0m0.122s
+user	0m0.107s
+sys	0m0.015s
+Running Test benchmarks/sunspider/string-tagcloud.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 7 -> 5
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 12 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 18 -> 9
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 10 -> 10
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 9 -> 6
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 14 -> 9
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 2 -> 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/string-tagcloud.js3
+0
+
+real	0m0.115s
+user	0m0.102s
+sys	0m0.013s
+running iridium code: /home/meetesh/wd/Iridium/outputs/string-tagcloud.json
+0
+
+real	0m0.071s
+user	0m0.066s
+sys	0m0.005s
+Running Test benchmarks/sunspider/string-unpack-code.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 10 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 10 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 5 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 10 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 10 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/string-unpack-code.js3
+0
+
+real	0m0.138s
+user	0m0.126s
+sys	0m0.013s
+running iridium code: /home/meetesh/wd/Iridium/outputs/string-unpack-code.json
+0
+
+real	0m0.132s
+user	0m0.123s
+sys	0m0.009s
+Running Test benchmarks/sunspider/string-validate-input.cjs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:9 Completed Initial Parsing
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:37 Starting core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:40 Completed normalizeBBFlags
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:43 Completed hoistFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:46 Completed filterNOPs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:49 Completed groupIntoClosureGroups
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:52 Completed populateModuleBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:55 Completed populateImplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:58 Completed reduceFunctionDeclarations
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:61 Completed populateExplicitBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:64 Completed addClosureArgsBindings
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:67 Completed initializeStackFrame
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:70 Completed patchHeritageConstructorSuperCalls
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:73 Completed reduceResolvePrivateEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:76 Completed reduceResolveEnvBindingSEXP
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:79 Completed resolveLambdaTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:82 Completed resolveBreakAndContinueTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:85 Completed decorateReturnTargets
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:88 Completed promoteAsyncReturns
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:91 Completed markNamespaceImports
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:94 Completed markSloppyWrites
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:97 Completed loosenWritestoASWs
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/entrypoint.cpp:100 Completed markDirectEvals
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:41 Completed core passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:59 IRIDIUM_DUMP_AFTER_CORE_PASSES
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:70 Starting opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 2
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/PassManager.cpp:40 Iter: 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 0 -> 0
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 12 -> 7
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 3 -> 3
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 4 -> 4
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:519 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+Stack collapse: 1 -> 1
+[DEBUG] /home/meetesh/wd/Iridium-Forge/src/Structure/BBContainerView.cpp:632 IRIDIUM_DUMP_BEFORE_STACK_COLLAPSE
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:72 Completed opt passes
+[DEBUG] /home/meetesh/wd/Iridium-Forge/shared.cpp:90 IRIDIUM_DUMP_FINAL_SEXP
+running script: /home/meetesh/wd/Iridium/outputs/string-validate-input.js3
+0
+
+real	0m0.847s
+user	0m0.177s
+sys	0m0.670s
+running iridium code: /home/meetesh/wd/Iridium/outputs/string-validate-input.json
+0
+
+real	0m0.767s
+user	0m0.152s
+sys	0m0.616s

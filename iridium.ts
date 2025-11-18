@@ -68,9 +68,13 @@ function iri(filePath: string, printToConsole = false): IRIDIUMV2 {
     }
 
     if (printToConsole) {
-      console.log(JSON.stringify(iridiumV2Builder.serialize()));
+      // @ts-ignore
+      process.stdout.write(iridiumV2Builder.result);
     }
-      
+    else
+    {
+      iridiumV2Builder.saveToDisk()
+    }
 
     return iridiumV2Builder;
   } catch (e) {
@@ -81,7 +85,7 @@ function iri(filePath: string, printToConsole = false): IRIDIUMV2 {
 function pika(files: Array<string>, printToConsole = false) {
   const finalRes = [];
   for (let i = 0; i < files.length; i++) {
-    finalRes.push(iri(files[i], false).serialize());
+    finalRes.push(iri(files[i], false).result);
     IridiumBuildContext.resetBuildContext();
   }
 

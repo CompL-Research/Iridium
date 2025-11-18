@@ -92,6 +92,8 @@ export type BBContainerSEXPFlags = "ARGUMENTS" | "ASYNC" | "GENERATOR" | "PROTO"
  * 
  * - `FLAG(ASYNC)`: Is this an asynchronous function/module?
  * 
+ * - `FLAG(STRICT)`: Is the code in strict mode?
+ * 
  * - `FLAG(GENERATOR)`: Is this a generator function?
  * 
  * - `FLAG(PROTO)`: Does the function have a prototype?
@@ -106,6 +108,9 @@ export type BBContainerSEXPFlags = "ARGUMENTS" | "ASYNC" | "GENERATOR" | "PROTO"
  * 
  * - `FLAG(DERIVED)`: Is this a derived constructor function?
  * 
+ * - `FLAG(TopLevel)`: Is top Level?
+ * 
+ * - `FLAG(ContainerFlagID)`: A number.
  * 
  * #### Closure Type Map
  * 
@@ -184,6 +189,14 @@ export class BBContainerSEXP extends IridiumSEXP {
 
   unsetStrict() {
     this.removeFlag("STRICT");
+  }
+
+  setTopLevel() {
+    this.setFlag("TopLevel");
+  }
+
+  unsetTopLevel() {
+    this.removeFlag("TopLevel");
   }
 
   setClosureFlags(flag: number) {

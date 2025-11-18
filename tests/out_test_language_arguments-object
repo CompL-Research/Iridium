@@ -1,0 +1,3919 @@
+TAP version 13
+# Using 128 threads.
+ok 1 test/language/arguments-object/10.5-7-b-4-s.js default # (success)
+ok 2 test/language/arguments-object/10.6-14-c-4-s.js strict mode # (success)
+ok 3 test/language/arguments-object/10.6-13-a-2.js default # (success)
+ok 4 test/language/arguments-object/10.5-7-b-3-s.js strict mode # (success)
+ok 5 test/language/arguments-object/10.6-12-1.js default # (success)
+ok 6 test/language/arguments-object/10.6-13-a-3.js default # (success)
+ok 7 test/language/arguments-object/S10.6_A5_T3.js strict mode # (success)
+ok 8 test/language/arguments-object/10.6-6-3.js default # (success)
+ok 9 test/language/arguments-object/10.6-13-c-1-s.js strict mode # (success)
+ok 10 test/language/arguments-object/10.6-10-c-ii-2.js default # (success)
+ok 11 test/language/arguments-object/10.5-7-b-2-s.js strict mode # (success)
+ok 12 test/language/arguments-object/S10.1.6_A1_T2.js strict mode # (success)
+ok 13 test/language/arguments-object/S10.6_A5_T1.js strict mode # (success)
+ok 14 test/language/arguments-object/arguments-caller.js default # (success)
+ok 15 test/language/arguments-object/10.5-7-b-2-s.js default # (success)
+ok 16 test/language/arguments-object/10.6-13-c-2-s.js strict mode # (success)
+ok 17 test/language/arguments-object/10.6-12-2.js default # (success)
+ok 18 test/language/arguments-object/S10.6_A5_T4.js default # (success)
+ok 19 test/language/arguments-object/10.6-6-3-s.js default # (success)
+ok 20 test/language/arguments-object/async-gen-meth-args-trailing-comma-multiple.js default # (success)
+ok 21 test/language/arguments-object/10.5-7-b-4-s.js strict mode # (success)
+ok 22 test/language/arguments-object/async-gen-named-func-expr-args-trailing-comma-multiple.js default # (success)
+ok 23 test/language/arguments-object/async-gen-named-func-expr-args-trailing-comma-single-args.js default # (success)
+ok 24 test/language/arguments-object/10.6-6-4.js default # (success)
+ok 25 test/language/arguments-object/10.6-6-1.js strict mode # (success)
+ok 26 test/language/arguments-object/10.6-10-c-ii-1-s.js strict mode # (success)
+not ok 27 test/language/arguments-object/cls-decl-async-gen-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947460_5ddleglefk.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947460_5ddleglefk.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947460_5ddleglefk.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 28 test/language/arguments-object/async-gen-meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 29 test/language/arguments-object/S10.6_A5_T2.js default # (success)
+ok 30 test/language/arguments-object/S10.6_A3_T1.js default # (success)
+ok 31 test/language/arguments-object/async-gen-meth-args-trailing-comma-null.js strict mode # (success)
+ok 32 test/language/arguments-object/10.6-13-c-2-s.js default # (success)
+not ok 33 test/language/arguments-object/async-gen-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947407_6v8h6ix9mc9.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947407_6v8h6ix9mc9.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947407_6v8h6ix9mc9.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 34 test/language/arguments-object/S10.6_A5_T4.js strict mode # (success)
+ok 35 test/language/arguments-object/10.6-6-1.js default # (success)
+ok 36 test/language/arguments-object/S10.6_A5_T2.js strict mode # (success)
+ok 37 test/language/arguments-object/async-gen-meth-args-trailing-comma-null.js default # (success)
+ok 38 test/language/arguments-object/cls-decl-async-private-gen-meth-static-args-trailing-comma-null.js strict mode # (success)
+not ok 39 test/language/arguments-object/cls-decl-async-private-gen-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947538_1min7xt86et.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947538_1min7xt86et.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947538_1min7xt86et.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 40 test/language/arguments-object/S10.6_A6.js default # (success)
+ok 41 test/language/arguments-object/async-gen-named-func-expr-args-trailing-comma-null.js strict mode # (success)
+ok 42 test/language/arguments-object/10.6-6-4-s.js default # (success)
+ok 43 test/language/arguments-object/S10.6_A2.js strict mode # (success)
+ok 44 test/language/arguments-object/10.6-2gs.js strict mode # (success)
+ok 45 test/language/arguments-object/async-gen-meth-args-trailing-comma-single-args.js default # (success)
+ok 46 test/language/arguments-object/S10.6_A7.js default # (success)
+ok 47 test/language/arguments-object/cls-decl-async-gen-meth-static-args-trailing-comma-single-args.js default # (success)
+ok 48 test/language/arguments-object/10.6-6-3-s.js strict mode # (success)
+ok 49 test/language/arguments-object/S10.6_A1.js default # (success)
+ok 50 test/language/arguments-object/S10.6_A5_T3.js default # (success)
+ok 51 test/language/arguments-object/10.5-1-s.js strict mode # (success)
+not ok 52 test/language/arguments-object/async-gen-named-func-expr-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_async-gen-named-func-expr-args-trailing-comma-spread-operator.js_iri_1756589947430_ptjf6bbv21.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_async-gen-named-func-expr-args-trailing-comma-spread-operator.js_iri_1756589947430_ptjf6bbv21.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_async-gen-named-func-expr-args-trailing-comma-spread-operator.js_iri_1756589947430_ptjf6bbv21.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 53 test/language/arguments-object/cls-decl-async-gen-meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 54 test/language/arguments-object/cls-decl-async-gen-meth-args-trailing-comma-single-args.js default # (success)
+ok 55 test/language/arguments-object/cls-decl-async-gen-meth-static-args-trailing-comma-multiple.js default # (success)
+ok 56 test/language/arguments-object/async-gen-meth-args-trailing-comma-undefined.js default # (success)
+ok 57 test/language/arguments-object/cls-decl-async-gen-func-args-trailing-comma-null.js strict mode # (success)
+ok 58 test/language/arguments-object/async-gen-named-func-expr-args-trailing-comma-multiple.js strict mode # (success)
+not ok 59 test/language/arguments-object/cls-decl-async-gen-func-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-func-args-trailing-comma-spread-operator.js_iri_1756589947428_fy9sryno5og.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-func-args-trailing-comma-spread-operator.js_iri_1756589947428_fy9sryno5og.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-func-args-trailing-comma-spread-operator.js_iri_1756589947428_fy9sryno5og.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 60 test/language/arguments-object/cls-decl-async-private-gen-meth-static-args-trailing-comma-multiple.js default # (success)
+ok 61 test/language/arguments-object/cls-decl-async-gen-func-args-trailing-comma-single-args.js strict mode # (success)
+ok 62 test/language/arguments-object/cls-decl-async-private-gen-meth-args-trailing-comma-undefined.js strict mode # (success)
+ok 63 test/language/arguments-object/10.6-13-c-3-s.js strict mode # (success)
+ok 64 test/language/arguments-object/S10.6_A1.js strict mode # (success)
+not ok 65 test/language/arguments-object/cls-decl-async-gen-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947446_lrzdt09u66i.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947446_lrzdt09u66i.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947446_lrzdt09u66i.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 66 test/language/arguments-object/S10.1.6_A1_T2.js default # (success)
+ok 67 test/language/arguments-object/S10.6_A5_T1.js default # (success)
+not ok 68 test/language/arguments-object/cls-decl-async-gen-meth-static-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589947524_9y2bf6f62yh.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589947524_9y2bf6f62yh.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589947524_9y2bf6f62yh.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 69 test/language/arguments-object/S10.6_A3_T1.js strict mode # (success)
+ok 70 test/language/arguments-object/10.6-6-4-s.js strict mode # (success)
+ok 71 test/language/arguments-object/cls-decl-async-private-gen-meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 72 test/language/arguments-object/10.5-7-b-1-s.js strict mode # (success)
+ok 73 test/language/arguments-object/cls-decl-async-gen-func-args-trailing-comma-undefined.js strict mode # (success)
+ok 74 test/language/arguments-object/cls-decl-async-private-gen-meth-args-trailing-comma-single-args.js default # (success)
+ok 75 test/language/arguments-object/cls-decl-async-gen-meth-args-trailing-comma-undefined.js default # (success)
+ok 76 test/language/arguments-object/cls-decl-async-private-gen-meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 77 test/language/arguments-object/async-gen-named-func-expr-args-trailing-comma-null.js default # (success)
+not ok 78 test/language/arguments-object/async-gen-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947409_3ecpllyqzkx.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947409_3ecpllyqzkx.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589947409_3ecpllyqzkx.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 79 test/language/arguments-object/cls-decl-async-private-gen-meth-static-args-trailing-comma-null.js default # (success)
+ok 80 test/language/arguments-object/10.5-7-b-3-s.js default # (success)
+not ok 81 test/language/arguments-object/async-gen-named-func-expr-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_async-gen-named-func-expr-args-trailing-comma-spread-operator.js_iri_1756589947425_xzeiau68bel.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_async-gen-named-func-expr-args-trailing-comma-spread-operator.js_iri_1756589947425_xzeiau68bel.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_async-gen-named-func-expr-args-trailing-comma-spread-operator.js_iri_1756589947425_xzeiau68bel.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 82 test/language/arguments-object/S10.6_A3_T2.js strict mode # (success)
+ok 83 test/language/arguments-object/async-gen-named-func-expr-args-trailing-comma-undefined.js default # (success)
+ok 84 test/language/arguments-object/cls-decl-async-private-gen-meth-args-trailing-comma-multiple.js default # (success)
+ok 85 test/language/arguments-object/S10.6_A3_T2.js default # (success)
+ok 86 test/language/arguments-object/cls-decl-async-gen-meth-args-trailing-comma-null.js strict mode # (success)
+ok 87 test/language/arguments-object/arguments-caller.js strict mode # (success)
+ok 88 test/language/arguments-object/cls-decl-async-private-gen-meth-static-args-trailing-comma-undefined.js default # (success)
+ok 89 test/language/arguments-object/cls-decl-async-private-gen-meth-static-args-trailing-comma-multiple.js strict mode # (success)
+ok 90 test/language/arguments-object/S10.6_A7.js strict mode # (success)
+ok 91 test/language/arguments-object/10.6-5-1.js default # (success)
+ok 92 test/language/arguments-object/cls-decl-async-gen-meth-static-args-trailing-comma-undefined.js default # (success)
+ok 93 test/language/arguments-object/cls-decl-async-gen-func-args-trailing-comma-undefined.js default # (success)
+ok 94 test/language/arguments-object/cls-decl-async-gen-func-args-trailing-comma-null.js default # (success)
+ok 95 test/language/arguments-object/async-gen-meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 96 test/language/arguments-object/10.6-10-c-ii-1.js default # (success)
+ok 97 test/language/arguments-object/async-gen-named-func-expr-args-trailing-comma-single-args.js strict mode # (success)
+ok 98 test/language/arguments-object/cls-decl-async-private-gen-meth-args-trailing-comma-null.js default # (success)
+ok 99 test/language/arguments-object/S10.6_A3_T4.js default # (success)
+ok 100 test/language/arguments-object/cls-decl-async-private-gen-meth-args-trailing-comma-null.js strict mode # (success)
+ok 101 test/language/arguments-object/cls-decl-async-gen-meth-args-trailing-comma-multiple.js default # (success)
+ok 102 test/language/arguments-object/S10.6_A6.js strict mode # (success)
+not ok 103 test/language/arguments-object/cls-decl-async-gen-func-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-func-args-trailing-comma-spread-operator.js_iri_1756589947451_4lb7lg432yg.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-func-args-trailing-comma-spread-operator.js_iri_1756589947451_4lb7lg432yg.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-func-args-trailing-comma-spread-operator.js_iri_1756589947451_4lb7lg432yg.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 104 test/language/arguments-object/S10.6_A2.js default # (success)
+ok 105 test/language/arguments-object/cls-decl-async-gen-func-args-trailing-comma-multiple.js strict mode # (success)
+ok 106 test/language/arguments-object/cls-decl-async-gen-meth-static-args-trailing-comma-undefined.js strict mode # (success)
+ok 107 test/language/arguments-object/S10.6_A3_T3.js default # (success)
+ok 108 test/language/arguments-object/async-gen-meth-args-trailing-comma-undefined.js strict mode # (success)
+ok 109 test/language/arguments-object/cls-decl-async-gen-meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 110 test/language/arguments-object/S10.6_A4.js default # (success)
+ok 111 test/language/arguments-object/cls-decl-async-gen-meth-args-trailing-comma-undefined.js strict mode # (success)
+ok 112 test/language/arguments-object/10.6-5-1.js strict mode # (success)
+ok 113 test/language/arguments-object/cls-decl-async-gen-meth-static-args-trailing-comma-null.js default # (success)
+ok 114 test/language/arguments-object/cls-decl-async-gen-meth-static-args-trailing-comma-multiple.js strict mode # (success)
+ok 115 test/language/arguments-object/cls-decl-async-gen-meth-args-trailing-comma-null.js default # (success)
+ok 116 test/language/arguments-object/async-gen-named-func-expr-args-trailing-comma-undefined.js strict mode # (success)
+ok 117 test/language/arguments-object/cls-decl-async-gen-func-args-trailing-comma-single-args.js default # (success)
+ok 118 test/language/arguments-object/10.6-11-b-1.js default # (success)
+ok 119 test/language/arguments-object/cls-decl-async-gen-func-args-trailing-comma-multiple.js default # (success)
+ok 120 test/language/arguments-object/cls-decl-async-gen-meth-static-args-trailing-comma-null.js strict mode # (success)
+ok 121 test/language/arguments-object/10.6-13-a-1.js default # (success)
+ok 122 test/language/arguments-object/10.6-7-1.js default # (success)
+ok 123 test/language/arguments-object/10.6-7-1.js strict mode # (success)
+ok 124 test/language/arguments-object/10.6-6-2.js default # (success)
+ok 125 test/language/arguments-object/10.6-11-b-1.js strict mode # (success)
+ok 126 test/language/arguments-object/10.6-14-c-1-s.js default # (success)
+ok 127 test/language/arguments-object/10.6-14-c-1-s.js strict mode # (success)
+ok 128 test/language/arguments-object/10.6-6-2.js strict mode # (success)
+ok 129 test/language/arguments-object/cls-decl-gen-meth-static-args-trailing-comma-undefined.js strict mode # (success)
+ok 130 test/language/arguments-object/cls-decl-async-private-gen-meth-static-args-trailing-comma-single-args.js strict mode # (success)
+ok 131 test/language/arguments-object/cls-decl-async-gen-meth-static-args-trailing-comma-single-args.js strict mode # (success)
+ok 132 test/language/arguments-object/cls-decl-async-private-gen-meth-static-args-trailing-comma-single-args.js default # (success)
+ok 133 test/language/arguments-object/cls-decl-gen-meth-static-args-trailing-comma-single-args.js default # (success)
+ok 134 test/language/arguments-object/cls-decl-gen-meth-static-args-trailing-comma-null.js strict mode # (success)
+ok 135 test/language/arguments-object/cls-decl-meth-args-trailing-comma-multiple.js default # (success)
+not ok 136 test/language/arguments-object/cls-decl-async-private-gen-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589951939_16uhcia0kky.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589951939_16uhcia0kky.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589951939_16uhcia0kky.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 137 test/language/arguments-object/cls-decl-gen-meth-args-trailing-comma-undefined.js default # (success)
+ok 138 test/language/arguments-object/cls-decl-gen-meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 139 test/language/arguments-object/cls-decl-gen-meth-args-trailing-comma-undefined.js strict mode # (success)
+not ok 140 test/language/arguments-object/cls-decl-async-gen-meth-static-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589951833_q6jl7sm2u5l.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589951833_q6jl7sm2u5l.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589951833_q6jl7sm2u5l.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 141 test/language/arguments-object/cls-decl-gen-meth-static-args-trailing-comma-undefined.js default # (success)
+ok 142 test/language/arguments-object/cls-decl-meth-args-trailing-comma-single-args.js default # (success)
+not ok 143 test/language/arguments-object/cls-decl-gen-meth-static-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952189_jrepz8ba8zm.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952189_jrepz8ba8zm.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952189_jrepz8ba8zm.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 144 test/language/arguments-object/cls-decl-async-private-gen-meth-static-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952056_mllzhjumsq.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952056_mllzhjumsq.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952056_mllzhjumsq.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 145 test/language/arguments-object/cls-decl-private-gen-meth-static-args-trailing-comma-multiple.js strict mode # (success)
+ok 146 test/language/arguments-object/cls-expr-async-gen-func-args-trailing-comma-null.js default # (success)
+ok 147 test/language/arguments-object/cls-decl-async-private-gen-meth-args-trailing-comma-undefined.js default # (success)
+ok 148 test/language/arguments-object/cls-decl-private-gen-meth-args-trailing-comma-null.js default # (success)
+ok 149 test/language/arguments-object/cls-decl-gen-meth-static-args-trailing-comma-multiple.js strict mode # (success)
+ok 150 test/language/arguments-object/cls-decl-meth-args-trailing-comma-null.js strict mode # (success)
+ok 151 test/language/arguments-object/cls-expr-async-gen-meth-args-trailing-comma-undefined.js default # (success)
+ok 152 test/language/arguments-object/cls-decl-meth-static-args-trailing-comma-null.js strict mode # (success)
+not ok 153 test/language/arguments-object/cls-decl-private-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-meth-args-trailing-comma-spread-operator.js_iri_1756589952648_h9g8cjepm8.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-meth-args-trailing-comma-spread-operator.js_iri_1756589952648_h9g8cjepm8.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-meth-args-trailing-comma-spread-operator.js_iri_1756589952648_h9g8cjepm8.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 154 test/language/arguments-object/cls-decl-private-gen-meth-args-trailing-comma-multiple.js strict mode # (success)
+not ok 155 test/language/arguments-object/cls-decl-private-gen-meth-static-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952638_8od25ptggpd.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952638_8od25ptggpd.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952638_8od25ptggpd.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 156 test/language/arguments-object/cls-decl-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-meth-args-trailing-comma-spread-operator.js_iri_1756589952293_awrx8w9gxpv.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-meth-args-trailing-comma-spread-operator.js_iri_1756589952293_awrx8w9gxpv.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-meth-args-trailing-comma-spread-operator.js_iri_1756589952293_awrx8w9gxpv.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 157 test/language/arguments-object/cls-decl-meth-static-args-trailing-comma-multiple.js strict mode # (success)
+ok 158 test/language/arguments-object/cls-decl-gen-meth-args-trailing-comma-null.js strict mode # (success)
+ok 159 test/language/arguments-object/cls-decl-gen-meth-static-args-trailing-comma-single-args.js strict mode # (success)
+ok 160 test/language/arguments-object/cls-decl-meth-static-args-trailing-comma-single-args.js default # (success)
+not ok 161 test/language/arguments-object/cls-decl-meth-static-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952549_bp1k7efcj0h.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952549_bp1k7efcj0h.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952549_bp1k7efcj0h.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 162 test/language/arguments-object/cls-decl-gen-meth-args-trailing-comma-single-args.js default # (success)
+not ok 163 test/language/arguments-object/cls-decl-gen-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952294_4bjljx22zja.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952294_4bjljx22zja.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952294_4bjljx22zja.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 164 test/language/arguments-object/cls-decl-gen-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952171_e3y3v5ifmi.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952171_e3y3v5ifmi.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952171_e3y3v5ifmi.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 165 test/language/arguments-object/cls-decl-private-meth-args-trailing-comma-multiple.js default # (success)
+ok 166 test/language/arguments-object/cls-decl-gen-meth-args-trailing-comma-null.js default # (success)
+not ok 167 test/language/arguments-object/cls-decl-private-gen-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952625_99lxqoqbx84.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952625_99lxqoqbx84.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952625_99lxqoqbx84.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 168 test/language/arguments-object/cls-decl-async-private-gen-meth-static-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589951602_fhd1a3jn4bj.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589951602_fhd1a3jn4bj.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-async-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589951602_fhd1a3jn4bj.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 169 test/language/arguments-object/cls-decl-meth-static-args-trailing-comma-single-args.js strict mode # (success)
+ok 170 test/language/arguments-object/cls-decl-gen-meth-static-args-trailing-comma-null.js default # (success)
+ok 171 test/language/arguments-object/cls-decl-private-gen-meth-static-args-trailing-comma-multiple.js default # (success)
+not ok 172 test/language/arguments-object/cls-decl-meth-static-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952580_hk4hlf1y7pg.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952580_hk4hlf1y7pg.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952580_hk4hlf1y7pg.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 173 test/language/arguments-object/cls-decl-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-meth-args-trailing-comma-spread-operator.js_iri_1756589952162_8p9dwkcq8hs.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-meth-args-trailing-comma-spread-operator.js_iri_1756589952162_8p9dwkcq8hs.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-meth-args-trailing-comma-spread-operator.js_iri_1756589952162_8p9dwkcq8hs.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 174 test/language/arguments-object/cls-expr-async-gen-meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 175 test/language/arguments-object/cls-expr-async-gen-meth-args-trailing-comma-undefined.js strict mode # (success)
+ok 176 test/language/arguments-object/cls-decl-meth-args-trailing-comma-undefined.js default # (success)
+ok 177 test/language/arguments-object/cls-decl-private-meth-static-args-trailing-comma-null.js strict mode # (success)
+ok 178 test/language/arguments-object/cls-decl-meth-args-trailing-comma-undefined.js strict mode # (success)
+ok 179 test/language/arguments-object/cls-expr-async-gen-func-args-trailing-comma-undefined.js strict mode # (success)
+ok 180 test/language/arguments-object/cls-decl-meth-static-args-trailing-comma-undefined.js default # (success)
+ok 181 test/language/arguments-object/cls-decl-gen-meth-static-args-trailing-comma-multiple.js default # (success)
+not ok 182 test/language/arguments-object/cls-expr-async-gen-func-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-func-args-trailing-comma-spread-operator.js_iri_1756589952664_n706suik9ih.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-func-args-trailing-comma-spread-operator.js_iri_1756589952664_n706suik9ih.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-func-args-trailing-comma-spread-operator.js_iri_1756589952664_n706suik9ih.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 183 test/language/arguments-object/cls-decl-private-meth-static-args-trailing-comma-multiple.js default # (success)
+ok 184 test/language/arguments-object/cls-decl-private-meth-static-args-trailing-comma-null.js default # (success)
+ok 185 test/language/arguments-object/cls-decl-private-gen-meth-args-trailing-comma-multiple.js default # (success)
+ok 186 test/language/arguments-object/cls-decl-meth-args-trailing-comma-null.js default # (success)
+ok 187 test/language/arguments-object/cls-expr-async-private-gen-meth-args-trailing-comma-null.js default # (success)
+ok 188 test/language/arguments-object/cls-decl-gen-meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 189 test/language/arguments-object/cls-decl-private-meth-static-args-trailing-comma-undefined.js default # (success)
+ok 190 test/language/arguments-object/cls-decl-private-gen-meth-args-trailing-comma-undefined.js default # (success)
+ok 191 test/language/arguments-object/cls-decl-async-private-gen-meth-static-args-trailing-comma-undefined.js strict mode # (success)
+ok 192 test/language/arguments-object/cls-decl-gen-meth-args-trailing-comma-multiple.js default # (success)
+not ok 193 test/language/arguments-object/cls-expr-async-gen-meth-static-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589953114_xbl9576g47.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589953114_xbl9576g47.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589953114_xbl9576g47.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 194 test/language/arguments-object/cls-decl-private-gen-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952625_sgnj4bnyi9b.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952625_sgnj4bnyi9b.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952625_sgnj4bnyi9b.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 195 test/language/arguments-object/cls-decl-meth-static-args-trailing-comma-undefined.js strict mode # (success)
+not ok 196 test/language/arguments-object/cls-decl-gen-meth-static-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952364_l2w9e3qhxha.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952364_l2w9e3qhxha.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952364_l2w9e3qhxha.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 197 test/language/arguments-object/cls-decl-private-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-meth-args-trailing-comma-spread-operator.js_iri_1756589952638_y2tlzv062kp.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-meth-args-trailing-comma-spread-operator.js_iri_1756589952638_y2tlzv062kp.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-meth-args-trailing-comma-spread-operator.js_iri_1756589952638_y2tlzv062kp.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 198 test/language/arguments-object/cls-decl-private-meth-args-trailing-comma-undefined.js default # (success)
+ok 199 test/language/arguments-object/cls-decl-private-meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 200 test/language/arguments-object/cls-decl-private-meth-static-args-trailing-comma-single-args.js strict mode # (success)
+ok 201 test/language/arguments-object/cls-decl-private-gen-meth-args-trailing-comma-null.js strict mode # (success)
+ok 202 test/language/arguments-object/cls-decl-private-meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 203 test/language/arguments-object/cls-decl-meth-static-args-trailing-comma-multiple.js default # (success)
+not ok 204 test/language/arguments-object/cls-expr-async-gen-meth-static-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952796_vknnq8s2on.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952796_vknnq8s2on.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952796_vknnq8s2on.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 205 test/language/arguments-object/cls-decl-private-gen-meth-static-args-trailing-comma-null.js strict mode # (success)
+ok 206 test/language/arguments-object/cls-decl-private-meth-static-args-trailing-comma-multiple.js strict mode # (success)
+ok 207 test/language/arguments-object/cls-decl-meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 208 test/language/arguments-object/cls-expr-async-gen-meth-args-trailing-comma-null.js strict mode # (success)
+ok 209 test/language/arguments-object/cls-decl-private-meth-args-trailing-comma-null.js strict mode # (success)
+ok 210 test/language/arguments-object/cls-decl-private-gen-meth-args-trailing-comma-single-args.js default # (success)
+ok 211 test/language/arguments-object/cls-expr-async-gen-func-args-trailing-comma-null.js strict mode # (success)
+not ok 212 test/language/arguments-object/cls-decl-private-gen-meth-static-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952633_twvtu8p2pmn.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952633_twvtu8p2pmn.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952633_twvtu8p2pmn.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 213 test/language/arguments-object/cls-decl-private-gen-meth-static-args-trailing-comma-undefined.js default # (success)
+ok 214 test/language/arguments-object/cls-expr-async-gen-func-args-trailing-comma-multiple.js strict mode # (success)
+ok 215 test/language/arguments-object/cls-decl-private-gen-meth-static-args-trailing-comma-single-args.js default # (success)
+ok 216 test/language/arguments-object/cls-decl-private-meth-static-args-trailing-comma-undefined.js strict mode # (success)
+ok 217 test/language/arguments-object/cls-expr-async-gen-func-args-trailing-comma-undefined.js default # (success)
+ok 218 test/language/arguments-object/cls-decl-private-meth-args-trailing-comma-single-args.js default # (success)
+ok 219 test/language/arguments-object/cls-decl-private-gen-meth-static-args-trailing-comma-single-args.js strict mode # (success)
+not ok 220 test/language/arguments-object/cls-expr-async-gen-func-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-func-args-trailing-comma-spread-operator.js_iri_1756589952725_1zajl6plt6y.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-func-args-trailing-comma-spread-operator.js_iri_1756589952725_1zajl6plt6y.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-func-args-trailing-comma-spread-operator.js_iri_1756589952725_1zajl6plt6y.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 221 test/language/arguments-object/cls-expr-async-gen-func-args-trailing-comma-single-args.js default # (success)
+ok 222 test/language/arguments-object/cls-expr-async-gen-meth-static-args-trailing-comma-multiple.js default # (success)
+ok 223 test/language/arguments-object/cls-expr-async-private-gen-meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 224 test/language/arguments-object/cls-expr-async-gen-meth-static-args-trailing-comma-undefined.js default # (success)
+ok 225 test/language/arguments-object/cls-decl-meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 226 test/language/arguments-object/cls-decl-private-gen-meth-static-args-trailing-comma-undefined.js strict mode # (success)
+ok 227 test/language/arguments-object/cls-expr-async-private-gen-meth-args-trailing-comma-null.js strict mode # (success)
+ok 228 test/language/arguments-object/cls-expr-async-gen-meth-static-args-trailing-comma-multiple.js strict mode # (success)
+ok 229 test/language/arguments-object/cls-decl-private-gen-meth-args-trailing-comma-undefined.js strict mode # (success)
+not ok 230 test/language/arguments-object/cls-expr-async-private-gen-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589953135_4b3k5dyd49l.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589953135_4b3k5dyd49l.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589953135_4b3k5dyd49l.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 231 test/language/arguments-object/cls-expr-async-gen-meth-static-args-trailing-comma-null.js default # (success)
+ok 232 test/language/arguments-object/cls-expr-async-gen-meth-static-args-trailing-comma-null.js strict mode # (success)
+ok 233 test/language/arguments-object/cls-expr-async-gen-meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 234 test/language/arguments-object/cls-expr-async-gen-meth-static-args-trailing-comma-undefined.js strict mode # (success)
+ok 235 test/language/arguments-object/cls-expr-async-gen-meth-args-trailing-comma-single-args.js default # (success)
+ok 236 test/language/arguments-object/cls-expr-async-private-gen-meth-args-trailing-comma-undefined.js strict mode # (success)
+not ok 237 test/language/arguments-object/cls-decl-private-meth-static-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952655_v3kfhttpbta.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952655_v3kfhttpbta.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952655_v3kfhttpbta.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 238 test/language/arguments-object/cls-decl-meth-static-args-trailing-comma-null.js default # (success)
+ok 239 test/language/arguments-object/cls-expr-async-private-gen-meth-args-trailing-comma-single-args.js default # (success)
+not ok 240 test/language/arguments-object/cls-expr-async-gen-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952704_ke59tb8l24r.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952704_ke59tb8l24r.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952704_ke59tb8l24r.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 241 test/language/arguments-object/cls-decl-private-gen-meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 242 test/language/arguments-object/cls-decl-private-meth-args-trailing-comma-null.js default # (success)
+ok 243 test/language/arguments-object/cls-expr-async-private-gen-meth-args-trailing-comma-multiple.js default # (success)
+ok 244 test/language/arguments-object/cls-decl-private-meth-args-trailing-comma-undefined.js strict mode # (success)
+ok 245 test/language/arguments-object/cls-expr-async-gen-meth-args-trailing-comma-null.js default # (success)
+ok 246 test/language/arguments-object/cls-expr-async-gen-meth-static-args-trailing-comma-single-args.js default # (success)
+ok 247 test/language/arguments-object/cls-decl-private-meth-static-args-trailing-comma-single-args.js default # (success)
+ok 248 test/language/arguments-object/cls-expr-async-gen-func-args-trailing-comma-multiple.js default # (success)
+ok 249 test/language/arguments-object/cls-decl-private-gen-meth-static-args-trailing-comma-null.js default # (success)
+not ok 250 test/language/arguments-object/cls-expr-async-gen-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952692_mvaxgvvyfva.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952692_mvaxgvvyfva.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589952692_mvaxgvvyfva.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 251 test/language/arguments-object/cls-expr-async-gen-meth-static-args-trailing-comma-single-args.js strict mode # (success)
+ok 252 test/language/arguments-object/cls-expr-async-private-gen-meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 253 test/language/arguments-object/cls-expr-async-gen-meth-args-trailing-comma-multiple.js default # (success)
+not ok 254 test/language/arguments-object/cls-decl-private-meth-static-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952654_1dimpbm8m3o.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952654_1dimpbm8m3o.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-decl-private-meth-static-args-trailing-comma-spread-operator.js_iri_1756589952654_1dimpbm8m3o.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 255 test/language/arguments-object/cls-expr-async-gen-func-args-trailing-comma-single-args.js strict mode # (success)
+ok 256 test/language/arguments-object/cls-expr-async-private-gen-meth-args-trailing-comma-undefined.js default # (success)
+ok 257 test/language/arguments-object/cls-expr-async-private-gen-meth-static-args-trailing-comma-multiple.js default # (success)
+not ok 258 test/language/arguments-object/cls-expr-async-private-gen-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589956351_mzez1mce5v.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589956351_mzez1mce5v.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589956351_mzez1mce5v.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 259 test/language/arguments-object/cls-expr-meth-args-trailing-comma-single-args.js default # (success)
+ok 260 test/language/arguments-object/cls-expr-gen-meth-args-trailing-comma-single-args.js default # (success)
+ok 261 test/language/arguments-object/cls-expr-async-private-gen-meth-static-args-trailing-comma-single-args.js default # (success)
+ok 262 test/language/arguments-object/cls-expr-async-private-gen-meth-static-args-trailing-comma-single-args.js strict mode # (success)
+not ok 263 test/language/arguments-object/cls-expr-gen-meth-static-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957107_i0yp4h8ptmh.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957107_i0yp4h8ptmh.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957107_i0yp4h8ptmh.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 264 test/language/arguments-object/cls-expr-private-gen-meth-args-trailing-comma-undefined.js default # (success)
+ok 265 test/language/arguments-object/cls-expr-async-private-gen-meth-static-args-trailing-comma-null.js default # (success)
+ok 266 test/language/arguments-object/cls-expr-async-private-gen-meth-static-args-trailing-comma-multiple.js strict mode # (success)
+ok 267 test/language/arguments-object/cls-expr-meth-static-args-trailing-comma-undefined.js strict mode # (success)
+ok 268 test/language/arguments-object/cls-expr-gen-meth-static-args-trailing-comma-single-args.js strict mode # (success)
+ok 269 test/language/arguments-object/cls-expr-gen-meth-args-trailing-comma-undefined.js strict mode # (success)
+ok 270 test/language/arguments-object/cls-expr-gen-meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 271 test/language/arguments-object/cls-expr-private-meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 272 test/language/arguments-object/cls-expr-meth-static-args-trailing-comma-multiple.js default # (success)
+ok 273 test/language/arguments-object/cls-expr-gen-meth-static-args-trailing-comma-multiple.js default # (success)
+not ok 274 test/language/arguments-object/cls-expr-async-private-gen-meth-static-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589956753_9bhlg86cl7c.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589956753_9bhlg86cl7c.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589956753_9bhlg86cl7c.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 275 test/language/arguments-object/cls-expr-meth-static-args-trailing-comma-single-args.js default # (success)
+ok 276 test/language/arguments-object/cls-expr-gen-meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 277 test/language/arguments-object/cls-expr-async-private-gen-meth-static-args-trailing-comma-undefined.js strict mode # (success)
+ok 278 test/language/arguments-object/cls-expr-gen-meth-static-args-trailing-comma-null.js strict mode # (success)
+not ok 279 test/language/arguments-object/cls-expr-async-private-gen-meth-static-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589956489_4rfu31v1bp4.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589956489_4rfu31v1bp4.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-async-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589956489_4rfu31v1bp4.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 280 test/language/arguments-object/cls-expr-gen-meth-args-trailing-comma-undefined.js default # (success)
+ok 281 test/language/arguments-object/cls-expr-async-private-gen-meth-static-args-trailing-comma-undefined.js default # (success)
+ok 282 test/language/arguments-object/cls-expr-gen-meth-static-args-trailing-comma-undefined.js default # (success)
+ok 283 test/language/arguments-object/cls-expr-gen-meth-args-trailing-comma-null.js default # (success)
+ok 284 test/language/arguments-object/cls-expr-async-private-gen-meth-static-args-trailing-comma-null.js strict mode # (success)
+ok 285 test/language/arguments-object/cls-expr-meth-static-args-trailing-comma-single-args.js strict mode # (success)
+ok 286 test/language/arguments-object/cls-expr-gen-meth-static-args-trailing-comma-multiple.js strict mode # (success)
+ok 287 test/language/arguments-object/cls-expr-meth-args-trailing-comma-multiple.js default # (success)
+not ok 288 test/language/arguments-object/cls-expr-private-gen-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589957506_d1cw3ag2f0b.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589957506_d1cw3ag2f0b.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589957506_d1cw3ag2f0b.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 289 test/language/arguments-object/cls-expr-gen-meth-static-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957169_9k2cmv2i95.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957169_9k2cmv2i95.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957169_9k2cmv2i95.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 290 test/language/arguments-object/cls-expr-gen-meth-args-trailing-comma-multiple.js default # (success)
+not ok 291 test/language/arguments-object/cls-expr-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-meth-args-trailing-comma-spread-operator.js_iri_1756589957135_ruo68qlmn1o.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-meth-args-trailing-comma-spread-operator.js_iri_1756589957135_ruo68qlmn1o.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-meth-args-trailing-comma-spread-operator.js_iri_1756589957135_ruo68qlmn1o.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 292 test/language/arguments-object/cls-expr-private-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-meth-args-trailing-comma-spread-operator.js_iri_1756589957563_l04957yl8wf.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-meth-args-trailing-comma-spread-operator.js_iri_1756589957563_l04957yl8wf.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-meth-args-trailing-comma-spread-operator.js_iri_1756589957563_l04957yl8wf.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 293 test/language/arguments-object/cls-expr-private-gen-meth-static-args-trailing-comma-single-args.js default # (success)
+ok 294 test/language/arguments-object/cls-expr-private-gen-meth-static-args-trailing-comma-undefined.js default # (success)
+ok 295 test/language/arguments-object/cls-expr-meth-args-trailing-comma-single-args.js strict mode # (success)
+not ok 296 test/language/arguments-object/cls-expr-gen-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589957104_f5bi5ddojb4.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589957104_f5bi5ddojb4.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589957104_f5bi5ddojb4.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 297 test/language/arguments-object/cls-expr-gen-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589957001_jtxf1r6gsi.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589957001_jtxf1r6gsi.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589957001_jtxf1r6gsi.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 298 test/language/arguments-object/cls-expr-private-gen-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589957302_31zkwpldxof.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589957302_31zkwpldxof.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-gen-meth-args-trailing-comma-spread-operator.js_iri_1756589957302_31zkwpldxof.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 299 test/language/arguments-object/cls-expr-private-meth-static-args-trailing-comma-single-args.js strict mode # (success)
+not ok 300 test/language/arguments-object/cls-expr-meth-static-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957289_r2b92rl4ny.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957289_r2b92rl4ny.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957289_r2b92rl4ny.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 301 test/language/arguments-object/cls-expr-meth-static-args-trailing-comma-null.js default # (success)
+not ok 302 test/language/arguments-object/cls-expr-meth-static-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957170_uauxdzwop5p.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957170_uauxdzwop5p.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957170_uauxdzwop5p.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 303 test/language/arguments-object/func-expr-args-trailing-comma-null.js default # (success)
+ok 304 test/language/arguments-object/cls-expr-gen-meth-static-args-trailing-comma-single-args.js default # (success)
+ok 305 test/language/arguments-object/cls-expr-meth-static-args-trailing-comma-null.js strict mode # (success)
+ok 306 test/language/arguments-object/cls-expr-meth-static-args-trailing-comma-undefined.js default # (success)
+not ok 307 test/language/arguments-object/cls-expr-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-meth-args-trailing-comma-spread-operator.js_iri_1756589957133_uw7k25jtlbn.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-meth-args-trailing-comma-spread-operator.js_iri_1756589957133_uw7k25jtlbn.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-meth-args-trailing-comma-spread-operator.js_iri_1756589957133_uw7k25jtlbn.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 308 test/language/arguments-object/func-decl-args-trailing-comma-undefined.js strict mode # (success)
+ok 309 test/language/arguments-object/cls-expr-gen-meth-args-trailing-comma-null.js strict mode # (success)
+ok 310 test/language/arguments-object/cls-expr-meth-args-trailing-comma-null.js strict mode # (success)
+ok 311 test/language/arguments-object/cls-expr-private-meth-static-args-trailing-comma-multiple.js strict mode # (success)
+ok 312 test/language/arguments-object/cls-expr-private-meth-args-trailing-comma-single-args.js default # (success)
+ok 313 test/language/arguments-object/func-decl-args-trailing-comma-multiple.js default # (success)
+ok 314 test/language/arguments-object/cls-expr-private-meth-static-args-trailing-comma-null.js default # (success)
+ok 315 test/language/arguments-object/cls-expr-private-gen-meth-static-args-trailing-comma-multiple.js default # (success)
+ok 316 test/language/arguments-object/cls-expr-meth-static-args-trailing-comma-multiple.js strict mode # (success)
+ok 317 test/language/arguments-object/cls-expr-meth-args-trailing-comma-undefined.js default # (success)
+ok 318 test/language/arguments-object/cls-expr-meth-args-trailing-comma-null.js default # (success)
+ok 319 test/language/arguments-object/cls-expr-private-meth-args-trailing-comma-null.js strict mode # (success)
+ok 320 test/language/arguments-object/func-expr-args-trailing-comma-single-args.js default # (success)
+ok 321 test/language/arguments-object/cls-expr-private-gen-meth-static-args-trailing-comma-null.js strict mode # (success)
+ok 322 test/language/arguments-object/cls-expr-private-gen-meth-args-trailing-comma-null.js default # (success)
+ok 323 test/language/arguments-object/func-decl-args-trailing-comma-single-args.js strict mode # (success)
+ok 324 test/language/arguments-object/cls-expr-gen-meth-static-args-trailing-comma-undefined.js strict mode # (success)
+ok 325 test/language/arguments-object/cls-expr-private-gen-meth-static-args-trailing-comma-multiple.js strict mode # (success)
+ok 326 test/language/arguments-object/cls-expr-private-gen-meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 327 test/language/arguments-object/cls-expr-private-gen-meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 328 test/language/arguments-object/func-decl-args-trailing-comma-null.js default # (success)
+ok 329 test/language/arguments-object/cls-expr-private-gen-meth-static-args-trailing-comma-single-args.js strict mode # (success)
+ok 330 test/language/arguments-object/gen-func-expr-args-trailing-comma-null.js default # (success)
+ok 331 test/language/arguments-object/cls-expr-meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 332 test/language/arguments-object/gen-func-decl-args-trailing-comma-undefined.js strict mode # (success)
+ok 333 test/language/arguments-object/cls-expr-meth-args-trailing-comma-undefined.js strict mode # (success)
+ok 334 test/language/arguments-object/gen-func-decl-args-trailing-comma-multiple.js strict mode # (success)
+ok 335 test/language/arguments-object/cls-expr-private-meth-static-args-trailing-comma-multiple.js default # (success)
+ok 336 test/language/arguments-object/func-decl-args-trailing-comma-undefined.js default # (success)
+ok 337 test/language/arguments-object/cls-expr-private-meth-args-trailing-comma-null.js default # (success)
+ok 338 test/language/arguments-object/cls-expr-gen-meth-static-args-trailing-comma-null.js default # (success)
+ok 339 test/language/arguments-object/cls-expr-private-meth-args-trailing-comma-undefined.js default # (success)
+ok 340 test/language/arguments-object/cls-expr-private-meth-args-trailing-comma-multiple.js default # (success)
+not ok 341 test/language/arguments-object/cls-expr-private-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-meth-args-trailing-comma-spread-operator.js_iri_1756589957597_3o14kkkntue.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-meth-args-trailing-comma-spread-operator.js_iri_1756589957597_3o14kkkntue.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-meth-args-trailing-comma-spread-operator.js_iri_1756589957597_3o14kkkntue.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 342 test/language/arguments-object/cls-expr-private-meth-static-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957537_5asrduybo5a.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957537_5asrduybo5a.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957537_5asrduybo5a.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 343 test/language/arguments-object/func-decl-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_func-decl-args-trailing-comma-spread-operator.js_iri_1756589957648_kq9329b4egd.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_func-decl-args-trailing-comma-spread-operator.js_iri_1756589957648_kq9329b4egd.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_func-decl-args-trailing-comma-spread-operator.js_iri_1756589957648_kq9329b4egd.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 344 test/language/arguments-object/cls-expr-private-gen-meth-static-args-trailing-comma-undefined.js strict mode # (success)
+ok 345 test/language/arguments-object/cls-expr-private-gen-meth-args-trailing-comma-multiple.js default # (success)
+not ok 346 test/language/arguments-object/func-expr-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_func-expr-args-trailing-comma-spread-operator.js_iri_1756589957963_5bxol86j2rl.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_func-expr-args-trailing-comma-spread-operator.js_iri_1756589957963_5bxol86j2rl.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_func-expr-args-trailing-comma-spread-operator.js_iri_1756589957963_5bxol86j2rl.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 347 test/language/arguments-object/cls-expr-private-gen-meth-static-args-trailing-comma-null.js default # (success)
+not ok 348 test/language/arguments-object/cls-expr-private-gen-meth-static-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957461_2goip98z82k.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957461_2goip98z82k.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957461_2goip98z82k.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 349 test/language/arguments-object/cls-expr-private-meth-static-args-trailing-comma-undefined.js default # (success)
+ok 350 test/language/arguments-object/cls-expr-private-gen-meth-args-trailing-comma-null.js strict mode # (success)
+not ok 351 test/language/arguments-object/func-decl-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_func-decl-args-trailing-comma-spread-operator.js_iri_1756589957895_oxrz968dgu8.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_func-decl-args-trailing-comma-spread-operator.js_iri_1756589957895_oxrz968dgu8.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_func-decl-args-trailing-comma-spread-operator.js_iri_1756589957895_oxrz968dgu8.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 352 test/language/arguments-object/func-expr-args-trailing-comma-undefined.js default # (success)
+not ok 353 test/language/arguments-object/gen-func-decl-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-func-decl-args-trailing-comma-spread-operator.js_iri_1756589957829_pk8wjj6p3t.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-func-decl-args-trailing-comma-spread-operator.js_iri_1756589957829_pk8wjj6p3t.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-func-decl-args-trailing-comma-spread-operator.js_iri_1756589957829_pk8wjj6p3t.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 354 test/language/arguments-object/cls-expr-private-meth-static-args-trailing-comma-null.js strict mode # (success)
+not ok 355 test/language/arguments-object/cls-expr-private-meth-static-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957725_l8t49o7gs8.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957725_l8t49o7gs8.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957725_l8t49o7gs8.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 356 test/language/arguments-object/cls-expr-private-meth-args-trailing-comma-undefined.js strict mode # (success)
+not ok 357 test/language/arguments-object/func-expr-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_func-expr-args-trailing-comma-spread-operator.js_iri_1756589957910_aa2rh0bsc69.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_func-expr-args-trailing-comma-spread-operator.js_iri_1756589957910_aa2rh0bsc69.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_func-expr-args-trailing-comma-spread-operator.js_iri_1756589957910_aa2rh0bsc69.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 358 test/language/arguments-object/func-expr-args-trailing-comma-multiple.js default # (success)
+not ok 359 test/language/arguments-object/cls-expr-private-gen-meth-static-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957660_b9brmoosggd.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957660_b9brmoosggd.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_cls-expr-private-gen-meth-static-args-trailing-comma-spread-operator.js_iri_1756589957660_b9brmoosggd.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 360 test/language/arguments-object/cls-expr-private-gen-meth-args-trailing-comma-single-args.js default # (success)
+ok 361 test/language/arguments-object/func-decl-args-trailing-comma-multiple.js strict mode # (success)
+ok 362 test/language/arguments-object/cls-expr-private-meth-static-args-trailing-comma-single-args.js default # (success)
+ok 363 test/language/arguments-object/cls-expr-private-meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 364 test/language/arguments-object/gen-func-decl-args-trailing-comma-single-args.js default # (success)
+ok 365 test/language/arguments-object/func-decl-args-trailing-comma-single-args.js default # (success)
+not ok 366 test/language/arguments-object/gen-func-decl-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-func-decl-args-trailing-comma-spread-operator.js_iri_1756589957963_4eaz35qzh8s.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-func-decl-args-trailing-comma-spread-operator.js_iri_1756589957963_4eaz35qzh8s.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-func-decl-args-trailing-comma-spread-operator.js_iri_1756589957963_4eaz35qzh8s.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 367 test/language/arguments-object/gen-meth-args-trailing-comma-multiple.js default # (success)
+ok 368 test/language/arguments-object/gen-func-decl-args-trailing-comma-multiple.js default # (success)
+ok 369 test/language/arguments-object/func-expr-args-trailing-comma-multiple.js strict mode # (success)
+ok 370 test/language/arguments-object/func-expr-args-trailing-comma-undefined.js strict mode # (success)
+ok 371 test/language/arguments-object/func-expr-args-trailing-comma-null.js strict mode # (success)
+ok 372 test/language/arguments-object/gen-func-expr-args-trailing-comma-multiple.js default # (success)
+ok 373 test/language/arguments-object/cls-expr-private-gen-meth-args-trailing-comma-undefined.js strict mode # (success)
+ok 374 test/language/arguments-object/gen-func-decl-args-trailing-comma-null.js default # (success)
+ok 375 test/language/arguments-object/func-decl-args-trailing-comma-null.js strict mode # (success)
+ok 376 test/language/arguments-object/gen-func-decl-args-trailing-comma-undefined.js default # (success)
+ok 377 test/language/arguments-object/cls-expr-private-meth-static-args-trailing-comma-undefined.js strict mode # (success)
+ok 378 test/language/arguments-object/gen-func-decl-args-trailing-comma-single-args.js strict mode # (success)
+ok 379 test/language/arguments-object/meth-args-trailing-comma-null.js default # (success)
+not ok 380 test/language/arguments-object/gen-meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-meth-args-trailing-comma-spread-operator.js_iri_1756589958215_t33lee57vgl.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-meth-args-trailing-comma-spread-operator.js_iri_1756589958215_t33lee57vgl.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-meth-args-trailing-comma-spread-operator.js_iri_1756589958215_t33lee57vgl.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 381 test/language/arguments-object/gen-func-expr-args-trailing-comma-single-args.js default # (success)
+not ok 382 test/language/arguments-object/gen-func-expr-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-func-expr-args-trailing-comma-spread-operator.js_iri_1756589958539_cfitdcoevsd.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-func-expr-args-trailing-comma-spread-operator.js_iri_1756589958539_cfitdcoevsd.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-func-expr-args-trailing-comma-spread-operator.js_iri_1756589958539_cfitdcoevsd.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 383 test/language/arguments-object/gen-func-decl-args-trailing-comma-null.js strict mode # (success)
+ok 384 test/language/arguments-object/func-expr-args-trailing-comma-single-args.js strict mode # (success)
+ok 385 test/language/arguments-object/gen-meth-args-trailing-comma-undefined.js strict mode # (success)
+ok 386 test/language/arguments-object/gen-func-expr-args-trailing-comma-single-args.js strict mode # (success)
+ok 387 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-nonwritable-2.js default # (success)
+ok 388 test/language/arguments-object/gen-func-expr-args-trailing-comma-multiple.js strict mode # (success)
+ok 389 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-nonwritable-3.js default # (success)
+ok 390 test/language/arguments-object/gen-meth-args-trailing-comma-null.js default # (success)
+ok 391 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-nonwritable-4.js default # (success)
+ok 392 test/language/arguments-object/gen-func-expr-args-trailing-comma-undefined.js default # (success)
+not ok 393 test/language/arguments-object/gen-func-expr-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-func-expr-args-trailing-comma-spread-operator.js_iri_1756589961387_s71li7kvg9j.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-func-expr-args-trailing-comma-spread-operator.js_iri_1756589961387_s71li7kvg9j.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-func-expr-args-trailing-comma-spread-operator.js_iri_1756589961387_s71li7kvg9j.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 394 test/language/arguments-object/meth-args-trailing-comma-multiple.js default # (success)
+ok 395 test/language/arguments-object/gen-meth-args-trailing-comma-undefined.js default # (success)
+ok 396 test/language/arguments-object/gen-meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 397 test/language/arguments-object/gen-meth-args-trailing-comma-null.js strict mode # (success)
+ok 398 test/language/arguments-object/mapped/writable-enumerable-configurable-descriptor.js default # (success)
+ok 399 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-nonwritable-5.js default # (success)
+ok 400 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-delete-4.js default # (success)
+not ok 401 test/language/arguments-object/gen-meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-meth-args-trailing-comma-spread-operator.js_iri_1756589961356_mjy7clbdf8.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-meth-args-trailing-comma-spread-operator.js_iri_1756589961356_mjy7clbdf8.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_gen-meth-args-trailing-comma-spread-operator.js_iri_1756589961356_mjy7clbdf8.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 402 test/language/arguments-object/meth-args-trailing-comma-null.js strict mode # (success)
+ok 403 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-strict-delete-4.js default # (success)
+ok 404 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-3.js default # (success)
+ok 405 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-strict-delete-3.js default # (success)
+ok 406 test/language/arguments-object/mapped/nonconfigurable-descriptors-define-failure.js default # (success)
+ok 407 test/language/arguments-object/gen-meth-args-trailing-comma-single-args.js default # (success)
+ok 408 test/language/arguments-object/meth-args-trailing-comma-undefined.js strict mode # (success)
+ok 409 test/language/arguments-object/meth-args-trailing-comma-multiple.js strict mode # (success)
+ok 410 test/language/arguments-object/mapped/mapped-arguments-nonwritable-nonconfigurable-2.js default # (success)
+ok 411 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-delete-3.js default # (success)
+ok 412 test/language/arguments-object/mapped/mapped-arguments-nonwritable-nonconfigurable-1.js default # (success)
+ok 413 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-1.js default # (success)
+ok 414 test/language/arguments-object/mapped/enumerable-configurable-accessor-descriptor.js default # (success)
+ok 415 test/language/arguments-object/gen-func-expr-args-trailing-comma-undefined.js strict mode # (success)
+not ok 416 test/language/arguments-object/meth-args-trailing-comma-spread-operator.js strict mode # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_meth-args-trailing-comma-spread-operator.js_iri_1756589961872_x99j33jfrr.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_meth-args-trailing-comma-spread-operator.js_iri_1756589961872_x99j33jfrr.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_meth-args-trailing-comma-spread-operator.js_iri_1756589961872_x99j33jfrr.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+not ok 417 test/language/arguments-object/meth-args-trailing-comma-spread-operator.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_meth-args-trailing-comma-spread-operator.js_iri_1756589961879_jqopgto9p08.json
+
+    TODO: unhandled RVal: JSSpread
+  stack: >-
+    TODO: unhandled RVal: JSSpread
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_meth-args-trailing-comma-spread-operator.js_iri_1756589961879_jqopgto9p08.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_meth-args-trailing-comma-spread-operator.js_iri_1756589961879_jqopgto9p08.json
+
+    TODO: unhandled RVal: JSSpread
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 418 test/language/arguments-object/gen-meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 419 test/language/arguments-object/meth-args-trailing-comma-single-args.js default # (success)
+ok 420 test/language/arguments-object/gen-func-expr-args-trailing-comma-null.js strict mode # (success)
+ok 421 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-4.js default # (success)
+ok 422 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-delete-1.js default # (success)
+ok 423 test/language/arguments-object/meth-args-trailing-comma-single-args.js strict mode # (success)
+ok 424 test/language/arguments-object/unmapped/via-params-rest.js strict mode # (success)
+ok 425 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-nonwritable-1.js default # (success)
+ok 426 test/language/arguments-object/unmapped/via-params-dstr.js default # (success)
+ok 427 test/language/arguments-object/unmapped/via-params-dflt.js default # (success)
+ok 428 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-2.js default # (success)
+ok 429 test/language/arguments-object/unmapped/via-strict.js strict mode # (success)
+ok 430 test/language/arguments-object/mapped/mapped-arguments-nonwritable-nonconfigurable-4.js default # (success)
+ok 431 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-delete-2.js default # (success)
+ok 432 test/language/arguments-object/mapped/mapped-arguments-nonwritable-nonconfigurable-3.js default # (success)
+ok 433 test/language/arguments-object/unmapped/via-params-rest.js default # (success)
+ok 434 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-strict-delete-1.js default # (success)
+ok 435 test/language/arguments-object/unmapped/via-params-dflt.js strict mode # (success)
+ok 436 test/language/arguments-object/meth-args-trailing-comma-undefined.js default # (success)
+ok 437 test/language/arguments-object/mapped/mapped-arguments-nonconfigurable-strict-delete-2.js default # (success)
+not ok 438 test/language/arguments-object/non-strict-arguments-object-is-immutable.js default # (expected success, got exec-fail)
+  ---
+  name: Error
+  message: >
+    Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_non-strict-arguments-object-is-immutable.js_iri_1756589962360_a8uqsvjtl68.json
+
+    Segmentation fault (core dumped)
+  stack: >-
+    Segmentation fault (core dumped)
+
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_non-strict-arguments-object-is-immutable.js_iri_1756589962360_a8uqsvjtl68.json
+
+    Segmentation fault (core dumped)
+
+
+    /home/meetesh/wd/Iridium/tests/run.cjs:126:17
+
+    Error: Command failed: /home/meetesh/wd/quickjs/build/qjs_new -X
+    /home/meetesh/wd/Iridium/tests/tmp/test_language_arguments-object_non-strict-arguments-object-is-immutable.js_iri_1756589962360_a8uqsvjtl68.json
+
+    Segmentation fault (core dumped)
+
+
+    genericNodeError (node:internal/errors:984:15)
+
+    wrappedFn (node:internal/errors:538:14)
+
+    checkExecSyncError (node:child_process:891:11)
+
+    execSync (node:child_process:963:15)
+
+    exports.runIridium (/home/meetesh/wd/Iridium/tests/worker.cjs:34:5)
+
+    execFunction
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:149:17)
+
+    execHelper
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:137:5)
+
+    execMethod
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:140:5)
+
+    process.messageListener
+    (/home/meetesh/wd/Iridium/node_modules/jest-worker/build/workers/processChild.js:44:7)
+
+    process.emit (node:events:519:28)
+
+  ...
+ok 439 test/language/arguments-object/unmapped/via-params-dstr.js strict mode # (success)
+ok 440 test/language/arguments-object/mapped/nonconfigurable-nonwritable-descriptors-basic.js default # (success)
+ok 441 test/language/arguments-object/mapped/nonwritable-nonconfigurable-descriptors-set-by-arguments.js default # (success)
+ok 442 test/language/arguments-object/mapped/nonconfigurable-descriptors-set-value-by-arguments.js default # (success)
+ok 443 test/language/arguments-object/mapped/nonconfigurable-descriptors-with-param-assign.js default # (success)
+ok 444 test/language/arguments-object/mapped/nonwritable-nonconfigurable-descriptors-set-by-param.js default # (success)
+ok 445 test/language/arguments-object/mapped/nonwritable-nonconfigurable-descriptors-basic.js default # (success)
+ok 446 test/language/arguments-object/mapped/Symbol.iterator.js default # (success)
+ok 447 test/language/arguments-object/unmapped/Symbol.iterator.js default # (success)
+ok 448 test/language/arguments-object/mapped/nonconfigurable-descriptors-set-value-with-define-property.js default # (success)
+ok 449 test/language/arguments-object/mapped/nonwritable-nonenumerable-nonconfigurable-descriptors-set-by-define-property.js default # (success)
+ok 450 test/language/arguments-object/mapped/nonconfigurable-nonenumerable-nonwritable-descriptors-set-by-arguments.js default # (success)
+ok 451 test/language/arguments-object/mapped/nonconfigurable-descriptors-basic.js default # (success)
+ok 452 test/language/arguments-object/mapped/nonconfigurable-nonwritable-descriptors-set-by-param.js default # (success)
+ok 453 test/language/arguments-object/mapped/nonwritable-nonenumerable-nonconfigurable-descriptors-basic.js default # (success)
+ok 454 test/language/arguments-object/mapped/nonwritable-nonenumerable-nonconfigurable-descriptors-set-by-param.js default # (success)
+ok 455 test/language/arguments-object/mapped/nonconfigurable-nonenumerable-nonwritable-descriptors-basic.js default # (success)
+ok 456 test/language/arguments-object/mapped/nonwritable-nonenumerable-nonconfigurable-descriptors-set-by-arguments.js default # (success)
+ok 457 test/language/arguments-object/mapped/nonconfigurable-nonwritable-descriptors-define-property-consecutive.js default # (success)
+ok 458 test/language/arguments-object/mapped/nonconfigurable-nonwritable-descriptors-set-by-arguments.js default # (success)
+ok 459 test/language/arguments-object/mapped/nonconfigurable-nonenumerable-nonwritable-descriptors-set-by-param.js default # (success)
+# 
+# 
+# 
+# Baseline: { storeFail: 0, execFail: 0, success: 459 }
+# Iridium:  { storeFail: 0, execFail: 69, success: 390 }
+# Rate: 84.9673202614379%.
+# PASS: 390, FAIL: 69.
+# Success: 84.9673202614379%.
