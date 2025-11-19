@@ -1,0 +1,3 @@
+[submodule "externalDeps/Iridium-Forge"]
+	path = externalDeps/Iridium-Forge
+	url = git@gitlab.com:iridium-working-group/iridium-forge.git
