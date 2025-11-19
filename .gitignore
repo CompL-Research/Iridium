@@ -10,7 +10,6 @@ iridium_interp
 temp
 
 # Tests
-tests/test262
 tests/tmp/*
 
 # Outputs
