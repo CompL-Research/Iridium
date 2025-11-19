@@ -1,3 +1,6 @@
 [submodule "externalDeps/Iridium-Forge"]
 	path = externalDeps/Iridium-Forge
 	url = git@gitlab.com:iridium-working-group/iridium-forge.git
+[submodule "tests/test262"]
+	path = tests/test262
+	url = git@github.com:tc39/test262.git
