@@ -11,8 +11,7 @@
     "skipLibCheck": true,
     "paths": {
       "#debugConfig": ["./configs/debug.ts"],
-      "#utils": ["./classes/utils.ts"],
-      "#graphlib": ["./externalDeps/graphlib-with-dominator-algo/index.js"]
+      "#utils": ["./classes/utils.ts"]
     }
   },
   "include": ["iridium.ts", "configs/*.ts", "classes/**/*.ts"],

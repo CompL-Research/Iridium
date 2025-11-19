@@ -34,7 +34,6 @@
   "imports": {
     "#debugConfig": "./configs/debug.ts",
     "#utils": "./classes/utils.ts",
-    "#graphlib": "./externalDeps/graphlib-with-dominator-algo/index.js",
     "#forge": "/home/meetesh/wd/Iridium-Forge/forge.cjs"
   },
   "devDependencies": {
