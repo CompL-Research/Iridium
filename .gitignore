@@ -11,6 +11,9 @@ temp
 
 # Tests
 tests/tmp/*
+tests/results/*
+tests/js3_benchmark/*
+tests/json_benchmark/*
 
 # Outputs
 outputs

@@ -13,7 +13,7 @@ import shutil
 RUNS = 10                     # Number of runs per benchmark
 GRID_COLS = 5                 # Number of columns in the final boxplot grid
 IRIDIUM_DIR = Path("..").resolve()
-QJS_DIR = Path("/home/anirudh/wd/quickjs")
+QJS_DIR = Path("/home/meetesh/wd/quickjs")
 
 # --- Directory Configuration ---
 RESULTS_DIR = Path("results").resolve()
@@ -47,24 +47,24 @@ SUNSPIDER = [
     "benchmarks/sunspider/string-tagcloud.cjs",
     "benchmarks/sunspider/string-unpack-code.cjs",
     "benchmarks/sunspider/string-validate-input.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-ai-astar.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-audio-beat-detection.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-audio-dft.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-audio-fft.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-audio-oscillator.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-imaging-darkroom.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-imaging-desaturate.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-imaging-gaussian-blur.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-json-parse-financial.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-json-stringify-tinderbox.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-stanford-crypto-aes.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-stanford-crypto-ccm.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-stanford-crypto-pbkdf2.cjs",
-    "benchmarks/kraken-1.0/kraken-1.0-stanford-crypto-sha256-iterative.cjs",
-    "benchmarks/ML/ML_load.cjs",
-    "benchmarks/Octane2/Regexpbenchmark.cjs",
-    "benchmarks/SeaMonster/gaussian-blur.cjs",
-    "benchmarks/UniPoker/benchmark.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-ai-astar.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-audio-beat-detection.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-audio-dft.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-audio-fft.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-audio-oscillator.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-imaging-darkroom.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-imaging-desaturate.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-imaging-gaussian-blur.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-json-parse-financial.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-json-stringify-tinderbox.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-stanford-crypto-aes.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-stanford-crypto-ccm.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-stanford-crypto-pbkdf2.cjs",
+    # "benchmarks/kraken-1.0/kraken-1.0-stanford-crypto-sha256-iterative.cjs",
+    # "benchmarks/ML/ML_load.cjs",
+    # "benchmarks/Octane2/Regexpbenchmark.cjs",
+    # "benchmarks/SeaMonster/gaussian-blur.cjs",
+    # "benchmarks/UniPoker/benchmark.cjs",
 ]
 
 
