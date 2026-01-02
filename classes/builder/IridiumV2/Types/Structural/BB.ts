@@ -14,7 +14,7 @@ import { IridiumSEXP } from "./General";
  * 
  * - `Lexical`: Represents that the BB operates on a lexical scope.
  */
-export type BBSEXPFlags = "TopLevel" | "ClosureBoundary" | "Lexical";
+export type BBSEXPFlags = "TopLevel" | "ClosureBoundary" | "Lexical" | "VARBoundary";
 
 /**
  * 

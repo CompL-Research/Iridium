@@ -1,4 +1,4 @@
-import { printFlagString, printIriSpace } from "#utils";
+import { getLocInfoIfAvailable, printFlagString, printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP } from "../../AbstractOperations/Resolution";
 import { EnvReadSEXP } from "../../Environment";
 import { IridiumSEXP } from "../../Structural/General";
@@ -303,10 +303,10 @@ export class JSDefineObjPropSEXP extends IridiumSEXP {
 export class JSCopyDataPropertiesSEXP extends IridiumSEXP {
   constructor(exc_obj: string | IridiumSEXP, source: string, target: string) {
     super("JSCopyDataProperties");
-    if (typeof exc_obj === "string") this.setExclusionObj(new EnvReadSEXP(exc_obj));
+    if (typeof exc_obj === "string") this.setExclusionObj(new EnvReadSEXP(exc_obj, getLocInfoIfAvailable()));
     else this.setExclusionObj(exc_obj);
-    this.setSourceObj(new EnvReadSEXP(source));
-    this.setTargetObj(new EnvReadSEXP(target));
+    this.setSourceObj(new EnvReadSEXP(source, getLocInfoIfAvailable()));
+    this.setTargetObj(new EnvReadSEXP(target, getLocInfoIfAvailable()));
   }
 
   // Args

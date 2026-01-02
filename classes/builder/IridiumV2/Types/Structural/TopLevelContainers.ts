@@ -1,6 +1,7 @@
 import { ResolveEnvBindingSEXP } from "../AbstractOperations/Resolution";
 import { IridiumPrimitives, IridiumSEXP } from "./General";
 import { ListSEXP } from "../RVAL/Primitives";
+import { getLocInfoIfAvailable } from "#utils";
 
 /**
  * Top level container for script mode JS code.
@@ -133,7 +134,7 @@ export class ModuleRequestSEXP extends IridiumSEXP {
 export class StaticImportSEXP extends IridiumSEXP {
   constructor(storageLocation: string, fieldToImport: string, reqIdx: number) {
     super("StaticImport");
-    this.setStorageLocation(new ResolveEnvBindingSEXP(storageLocation));
+    this.setStorageLocation(new ResolveEnvBindingSEXP(storageLocation, getLocInfoIfAvailable()));
     this.setField(fieldToImport);
     this.setModuleReqIDX(reqIdx);
   }
@@ -194,7 +195,7 @@ export class StaticImportSEXP extends IridiumSEXP {
 export class LocalStaticExportSEXP extends IridiumSEXP {
   constructor(localName: string, exportName: string) {
     super("LocalStaticExport");
-    this.setStorageLocation(new ResolveEnvBindingSEXP(localName));
+    this.setStorageLocation(new ResolveEnvBindingSEXP(localName, getLocInfoIfAvailable()));
     this.setLocalName(localName);
     this.setExportName(exportName);
   }

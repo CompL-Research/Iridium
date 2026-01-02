@@ -1,4 +1,4 @@
-import { printFlagString, printIriSpace } from "#utils";
+import { getLocInfoIfAvailable, printFlagString, printIriSpace } from "#utils";
 import { EnvReadSEXP } from "../../Environment/index";
 import { IridiumSEXP } from "../../Structural/General";
 
@@ -26,7 +26,7 @@ import { IridiumSEXP } from "../../Structural/General";
 export class JSForInStartSEXP extends IridiumSEXP {
   constructor(obj: string) {
     super("JSForInStart");
-    this.setObj(new EnvReadSEXP(obj));
+    this.setObj(new EnvReadSEXP(obj, getLocInfoIfAvailable()));
   }
 
   // Args
@@ -72,7 +72,7 @@ export class JSForInStartSEXP extends IridiumSEXP {
 export class JSForInNextSEXP extends IridiumSEXP {
   constructor(iterator: string) {
     super("JSForInNext");
-    this.setIteratorObj(new EnvReadSEXP(iterator));
+    this.setIteratorObj(new EnvReadSEXP(iterator, getLocInfoIfAvailable()));
   }
 
   // Args
@@ -114,7 +114,7 @@ export class JSForOfStartSEXP extends IridiumSEXP {
   constructor(obj: string | IridiumSEXP) {
     super("JSForOfStart");
     if (typeof (obj) === "string") {
-      this.setObj(new EnvReadSEXP(obj));
+      this.setObj(new EnvReadSEXP(obj, getLocInfoIfAvailable()));
     } else {
       this.setObj(obj);
     }

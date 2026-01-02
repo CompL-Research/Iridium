@@ -53,9 +53,10 @@ export function isNOPSEXP(o: any): o is NOPSEXP {
  * 
  */
 export class ResolveEnvBindingSEXP extends IridiumSEXP {
-  constructor(id: string) {
+  constructor(id: string, mapInf: string) {
     super("ResolveEnvBinding");
     this.setName(id);
+    this.setFlag("MAP_INF", mapInf);
   }
 
   // Flags

@@ -1,4 +1,4 @@
-import { printIriSpace } from "#utils";
+import { getLocInfoIfAvailable, printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP } from "../AbstractOperations";
 import { IridiumSEXP } from "../Structural";
 import { StringSEXP } from "../RVAL";
@@ -19,11 +19,23 @@ import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEX
  * 
  * - `ARG(obj)`: The binding to be read, can be any environment binding {@link EnvBindingSEXP} | {@link RemoteEnvBindingSEXP} | {@link GlobalBindingSEXP} | {@link PoolBindingSEXP} (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
+ * - `FLAG(SAFE)`: Is it safe to read this binding?
+ * 
  */
 export class EnvReadSEXP extends IridiumSEXP {
-  constructor(id: string) {
+  constructor(id: string, mapInf: string) {
     super("EnvRead");
-    this.setObj(new ResolveEnvBindingSEXP(id));
+    this.setFlag("MAP_INF", mapInf);
+    this.setObj(new ResolveEnvBindingSEXP(id, getLocInfoIfAvailable(mapInf)));
+  }
+
+  // Flags
+  markSAFE() {
+    this.setFlag("SAFE");
+  }
+
+  isSAFE() {
+    return this.hasFlag("SAFE");
   }
 
   // Args
@@ -71,13 +83,14 @@ export type EnvWriteFlags = "SAFE" | "THISINIT" | "SLOPPY";
  */
 export class EnvWriteSEXP extends IridiumSEXP {
   lval: string
-  constructor(lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean) {
+  constructor(lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean, mapInf: string) {
     super("EnvWrite");
     this.lval = lval
-    this.setLValTarget(new ResolveEnvBindingSEXP(lval));
+    this.setLValTarget(new ResolveEnvBindingSEXP(lval, getLocInfoIfAvailable()));
     this.setRVal(rval);
     this.setSafe(safe);
     this.setThisInit(thisInit);
+    this.setFlag("MAP_INF", mapInf);
   }
 
   // Args
@@ -131,6 +144,39 @@ export class EnvWriteSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Non local EnvWrite, this is used to write to sibling environments in JS.
+ * This will be reduced to a normal {@link EnvWriteSEXP} after scope resolution.
+ * 
+ * #### Structure
+ * 
+ * - `FLAG(ScopeIDX)`: Target Scope IDX.
+ * 
+ */
+export class SiblingSpecialWriteSEXP extends EnvWriteSEXP {
+  constructor(lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean, mapInf: string, scopeIDX: number) {
+    super(lval, rval, safe, thisInit, mapInf);
+    this.tag = "SiblingSpecialWrite";
+    this.setScopeIDX(scopeIDX);
+  }
+
+  // Flags
+  setScopeIDX(val: number) {
+    this.setFlag("ScopeIDX", val);
+  }
+
+  getScopeIDX(): number {
+    return this.getFlagNumber("ScopeIDX");
+  }
+}
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
  * @group RVAL
  * 
  * @remarks
@@ -145,9 +191,10 @@ export class EnvWriteSEXP extends IridiumSEXP {
  * 
  */
 export class FieldReadSEXP extends IridiumSEXP {
-  constructor(object: string, field: string) {
+  constructor(object: string, field: string, mapInf: string) {
     super("FieldRead");
-    this.setObj(new EnvReadSEXP(object));
+    this.setFlag("MAP_INF", mapInf)
+    this.setObj(new EnvReadSEXP(object, mapInf));
     this.setField(new StringSEXP(field));
   }
 
@@ -193,9 +240,10 @@ export class FieldReadSEXP extends IridiumSEXP {
  * 
  */
 export class FieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: string, right: IridiumSEXP) {
+  constructor(object: string, field: string, right: IridiumSEXP, mapInf: string) {
     super("FieldWrite");
-    this.args.push(new EnvReadSEXP(object));
+    this.setFlag("MAP_INF", mapInf)
+    this.args.push(new EnvReadSEXP(object, mapInf));
     this.args.push(new StringSEXP(field));
     this.args.push(right);
   }

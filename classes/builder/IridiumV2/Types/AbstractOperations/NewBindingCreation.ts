@@ -1,4 +1,4 @@
-import { printFlagString, printIriSpace } from "#utils";
+import { getLocInfoIfAvailable, printFlagString, printIriSpace } from "#utils";
 import { EnvWriteSEXP } from "../Environment";
 import { ListSEXP, NullSEXP } from "../RVAL/Primitives";
 import { IridiumSEXP } from "../Structural/General";
@@ -50,13 +50,14 @@ export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  */
 export class JSExplicitBindingDeclarationSEXP extends IridiumSEXP {
-  constructor(lval: IridiumSEXP, rval: IridiumSEXP | null, kind: JSEnvWriteTypes | undefined = undefined, thisInit: boolean) {
+  constructor(lval: IridiumSEXP, rval: IridiumSEXP | null, kind: JSEnvWriteTypes | undefined = undefined, thisInit: boolean, mapInf: string) {
     super("JSExplicitBindingDeclaration");
     this.setLValTarget(lval);
     if (rval) this.setRVal(rval);
     if (kind) this.setKind(kind);
     this.setSafe(kind ? true : false); // If this is a declaration, it is safe by default
     this.setThisInit(thisInit);
+    this.setFlag("MAP_INF", mapInf);
   }
 
   // Args
@@ -135,7 +136,7 @@ export class JSExplicitBindingDeclarationSEXP extends IridiumSEXP {
   // Utils
   reduceJSDecl() {
     this.tag = "EnvWrite";
-    Object.setPrototypeOf(this, new EnvWriteSEXP("", new NullSEXP(), this.isSafe(), this.isThisInit()));
+    Object.setPrototypeOf(this, new EnvWriteSEXP("", new NullSEXP(), this.isSafe(), this.isThisInit(), this.getFlagString("MAP_INF")));
     this.flags = this.flags.filter(e => e[0] !== "JSLET" && e[0] !== "JSCONST" && e[0] !== "JSVAR")
   }
 
@@ -149,6 +150,24 @@ export class JSExplicitBindingDeclarationSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     return `${printIriSpace(space)}${this.tag}${printFlagString(this.flags)}${this.args.length > 0 ? "\n" + this.args.map(e => e.toString(10)).join("\n") : ""}`;
+  }
+}
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * An JSExplicitBindingDeclaration that is not initialized.
+ * 
+ */
+export class JSExplicitBindingDeclarationNSEXP extends JSExplicitBindingDeclarationSEXP {
+  constructor(lval: IridiumSEXP, rval: IridiumSEXP | null, kind: JSEnvWriteTypes | undefined = undefined, thisInit: boolean, mapInf: string) {
+    super(lval, rval, kind, thisInit, mapInf);
+    this.tag = "JSExplicitBindingDeclarationN"
   }
 }
 
@@ -221,7 +240,7 @@ export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
 export class JSImplicitBindingDeclarationSEXP extends IridiumSEXP {
   constructor(bindingName: string, kind: JSImplicitBindingDeclarationTypes, opid: number, args: ListSEXP = new ListSEXP([])) {
     super("JSImplicitBindingDeclaration");
-    this.setStore(new ResolveEnvBindingSEXP(bindingName));
+    this.setStore(new ResolveEnvBindingSEXP(bindingName, getLocInfoIfAvailable()));
     this.setArgs(args);
     this.setName(bindingName);
     this.setKind(kind);
@@ -353,13 +372,14 @@ export class JSImplicitBindingDeclarationSEXP extends IridiumSEXP {
  * 
  */
 export class JSFuncDeclSEXP extends IridiumSEXP {
-  constructor(lval: IridiumSEXP, rval: IridiumSEXP) {
+  constructor(lval: IridiumSEXP, rval: IridiumSEXP, mapInf: string) {
     super("JSFuncDecl");
     this.setLValTarget(lval);
     this.setRVal(rval);
     this.setSafe(true);
     this.setThisInit(false);
     this.setFlag("JSVAR");
+    this.setFlag("MAP_INF", mapInf);
   }
 
   // Args
@@ -423,7 +443,7 @@ export class JSFuncDeclSEXP extends IridiumSEXP {
   // Utils
   reduceDecl() {
     this.tag = "JSExplicitBindingDeclaration";
-    Object.setPrototypeOf(this, new JSExplicitBindingDeclarationSEXP(new NullSEXP(), null, "JSVAR",false));
+    Object.setPrototypeOf(this, new JSExplicitBindingDeclarationSEXP(new NullSEXP(), null, "JSVAR",false, this.getFlagString("MAP_INF")));
   }
 
   toString(space?: number): string {

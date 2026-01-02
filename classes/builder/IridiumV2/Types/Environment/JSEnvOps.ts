@@ -1,4 +1,4 @@
-import { printFlagString, printIriSpace } from "#utils";
+import { getLocInfoIfAvailable, printFlagString, printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP } from "../AbstractOperations/Resolution";
 import { IridiumSEXP } from "../Structural/General";
 import { StringSEXP } from "../RVAL/Primitives";
@@ -27,7 +27,7 @@ import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEX
 export class PVTEnvReadSEXP extends IridiumSEXP {
   constructor(id: string, kind: "SYMBOL" | "METHOD", fullyResolve: boolean) {
     super("PVTEnvRead");
-    this.setObj(new ResolveEnvBindingSEXP(id));
+    this.setObj(new ResolveEnvBindingSEXP(id, getLocInfoIfAvailable()));
     if (kind === "METHOD") this.setMethod();
     else this.setSymbol();
     if (fullyResolve) this.setFullyResolve();
@@ -91,11 +91,12 @@ export class PVTEnvReadSEXP extends IridiumSEXP {
  * 
  */
 export class JSComputedFieldReadSEXP extends IridiumSEXP {
-  constructor(object: string, field: string | IridiumSEXP) {
+  constructor(object: string, field: string | IridiumSEXP, mapInf: string) {
     super("JSComputedFieldRead");
-    this.setObj(new EnvReadSEXP(object));
+    this.setFlag("MAP_INF", mapInf)
+    this.setObj(new EnvReadSEXP(object, mapInf));
     if (typeof field === "string")
-      this.setField(new EnvReadSEXP(field));
+      this.setField(new EnvReadSEXP(field, mapInf));
     else
       this.setField(field);
   }
@@ -138,11 +139,12 @@ export class JSComputedFieldReadSEXP extends IridiumSEXP {
  * 
  */
 export class JSComputedFieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: string | IridiumSEXP, right: IridiumSEXP) {
+  constructor(object: string, field: string | IridiumSEXP, right: IridiumSEXP, mapInf: string) {
     super("JSComputedFieldWrite");
-    this.setObj(new EnvReadSEXP(object));
+    this.setFlag("MAP_INF", mapInf)
+    this.setObj(new EnvReadSEXP(object, mapInf));
     if (typeof field === "string")
-      this.setField(new EnvReadSEXP(field));
+      this.setField(new EnvReadSEXP(field, mapInf));
     else
       this.setField(field);
     this.setValue(right);
@@ -196,9 +198,9 @@ export class JSComputedFieldWriteSEXP extends IridiumSEXP {
  * 
  */
 export class JSPrivateFieldReadSEXP extends IridiumSEXP {
-  constructor(object: string, field: string) {
+  constructor(object: string, field: string, mapInf: string) {
     super("JSPrivateFieldRead");
-    this.setObj(new EnvReadSEXP(object));
+    this.setObj(new EnvReadSEXP(object, mapInf));
     this.setField(new ResolvePrivateEnvBindingSEXP(field));
   }
 
@@ -242,9 +244,10 @@ export class JSPrivateFieldReadSEXP extends IridiumSEXP {
  * 
  */
 export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: EnvReadSEXP | string, right: IridiumSEXP, isDeclaration: boolean) {
+  constructor(object: string, field: EnvReadSEXP | string, right: IridiumSEXP, isDeclaration: boolean, mapInf: string) {
     super("JSPrivateFieldWrite");
-    this.setObj(new EnvReadSEXP(object));
+    this.setFlag("MAP_INF", mapInf)
+    this.setObj(new EnvReadSEXP(object, mapInf));
     if (isEnvReadSEXP(field)) this.setField(field);
     else this.setField(new ResolvePrivateEnvBindingSEXP(field, false));
     this.setValue(right);
@@ -300,7 +303,7 @@ export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
  * 
  * - `ARG(this)`: The lexical `this` object.
  * 
- * - `ARG(<super_obj>)`: The lexical `<super_obj>` object.
+ * - `ARG(<home_object>)`: The lexical `<home_object>` object.
  * 
  * - `ARG(field)`: The field to be read.
  * 
@@ -308,9 +311,9 @@ export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
 export class JSSuperFieldReadSEXP extends IridiumSEXP {
   constructor(field: string) {
     super("JSSuperFieldRead");
-    this.setThis(new EnvReadSEXP("this"));
-    this.setSuper(new EnvReadSEXP("<super_obj>"));
-    this.setField(new StringSEXP(field));
+    this.setThis(new EnvReadSEXP("this", getLocInfoIfAvailable()));
+    this.setSuper(new EnvReadSEXP("<home_object>", getLocInfoIfAvailable()));
+    this.setField(new EnvReadSEXP(field, getLocInfoIfAvailable()));
   }
 
   // Args
@@ -367,8 +370,8 @@ export class JSSuperFieldReadSEXP extends IridiumSEXP {
 export class JSSuperFieldWriteSEXP extends IridiumSEXP {
   constructor(field: string, value: IridiumSEXP) {
     super("JSSuperFieldWrite");
-    this.setThis(new EnvReadSEXP("this"));
-    this.setSuper(new EnvReadSEXP("<super_obj>"));
+    this.setThis(new EnvReadSEXP("this", getLocInfoIfAvailable()));
+    this.setSuper(new EnvReadSEXP("<super_obj>", getLocInfoIfAvailable()));
     this.setField(new StringSEXP(field));
     this.setValue(value);
   }

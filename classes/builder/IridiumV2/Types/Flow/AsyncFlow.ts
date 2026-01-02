@@ -1,4 +1,4 @@
-import { printIriSpace } from "#utils";
+import { getLocInfoIfAvailable, printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP } from "../AbstractOperations";
 import { EnvReadSEXP } from "../Environment";
 import { IridiumSEXP } from "../Structural/General";
@@ -33,7 +33,7 @@ import { IridiumSEXP } from "../Structural/General";
 export class AwaitSEXP extends IridiumSEXP {
   constructor(arg: string) {
     super("Await");
-    this.setObj(new EnvReadSEXP(arg));
+    this.setObj(new EnvReadSEXP(arg, getLocInfoIfAvailable()));
   }
 
   // Args
@@ -88,9 +88,9 @@ export class AwaitSEXP extends IridiumSEXP {
 export class YieldSEXP extends IridiumSEXP {
   constructor(arg: string, yieldReturnIndicator: string, yieldReturnResultHolder: string) {
     super("Yield");
-    this.setObj(new EnvReadSEXP(arg));
-    this.setDoneTarget(new ResolveEnvBindingSEXP(yieldReturnIndicator));
-    this.setNextValue(new ResolveEnvBindingSEXP(yieldReturnResultHolder));
+    this.setObj(new EnvReadSEXP(arg, getLocInfoIfAvailable()));
+    this.setDoneTarget(new ResolveEnvBindingSEXP(yieldReturnIndicator, getLocInfoIfAvailable()));
+    this.setNextValue(new ResolveEnvBindingSEXP(yieldReturnResultHolder, getLocInfoIfAvailable()));
   }
 
   // Args
