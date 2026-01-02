@@ -8,15 +8,15 @@
         {
             "name": "Launch pika tests/basic/test1.mjs",
             "request": "launch",
-            "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
+            "runtimeExecutable": "/root/.nvm/versions/node/v24.12.0/bin/node",
             "args": [
                 "--import=tsx",
-                "/home/meetesh/wd/Iridium/iridium.ts",
+                "/root/Iridium/iridium.ts",
                 "pika",
                 "-g",
                 ".",
-                "/home/meetesh/wd/Iridium/tests/basic/test1.mjs",
-                "/home/meetesh/wd/Iridium/tests/basic/lib.mjs",
+                "/root/Iridium/tests/basic/test1.mjs",
+                "/root/Iridium/tests/basic/lib.mjs",
             ],
             "skipFiles": [
                 "<node_internals>/**",
@@ -28,17 +28,17 @@
             "type": "node"
         },
         {
-            "name": "Launch iri tests/basic/test1.mjs",
+            "name": "Launch iri temp.js",
             "request": "launch",
-            "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
+            "runtimeExecutable": "/root/.nvm/versions/node/v24.12.0/bin/node",
             "args": [
                 "--import=tsx",
-                "/home/meetesh/wd/Iridium/iridium.ts",
+                "/root/Iridium/iridium.ts",
                 "iri",
                 "--ljson",
                 "--pp",
-                "/home/meetesh/wd/Iridium/",
-                "/home/meetesh/wd/Iridium/tests/basic/test1.mjs"
+                "/root/Iridium/",
+                "/root/Iridium/temp.js"
             ],
             "outFiles": [
               "${workspaceFolder}/iridium*.ts",
@@ -57,14 +57,14 @@
         {
             "name": "Launch iri tests/basic/test1.cjs",
             "request": "launch",
-            "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
+            "runtimeExecutable": "/root/.nvm/versions/node/v24.12.0/bin/node",
             "args": [
                 "--import=tsx",
-                "/home/meetesh/wd/Iridium/iridium.ts",
+                "/root/Iridium/iridium.ts",
                 "iri",
                 "--pp",
-                "/home/meetesh/wd/Iridium/",
-                "/home/meetesh/wd/Iridium/tests/basic/test1.cjs"
+                "/root/Iridium/",
+                "/root/Iridium/tests/basic/test1.cjs"
             ],
             "outFiles": [
               "${workspaceFolder}/iridium*.ts",
@@ -83,10 +83,10 @@
         {
             "name": "Launch 3js bigint-and-number.js",
             "request": "launch",
-            "runtimeExecutable": "/home/meetesh/.nvm/versions/node/v20.18.0/bin/node",
+            "runtimeExecutable": "/root/.nvm/versions/node/v24.12.0/bin/node",
             "args": [
                 "--import=tsx",
-                "/home/meetesh/wd/Iridium/iridium.ts",
+                "/root/Iridium/iridium.ts",
                 "js3",
                 "bigint-and-number.js",
             ],
