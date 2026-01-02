@@ -1,5 +1,5 @@
 import debugConfig from "#debugConfig";
-import { CommentBlock, CommentLine } from "@babel/types";
+import { CommentBlock, CommentLine, Identifier } from "@babel/types";
 import fs from "fs";
 import path from "path";
 import ts from "typescript";
@@ -29,6 +29,14 @@ export const getIridiumBinop = (op: string, lBinop: IridiumSEXP, rBinop: Iridium
   } else {
     return new JSBinopSEXP(op, lBinop, rBinop);
   }
+}
+
+export const getLocInfoIfAvailable = (id?: any) => {
+  if (id?.loc?.start?.line)
+  {
+    return "+" + id.name + "#" + id.loc.start.line;
+  }
+  return "NA";
 }
 
 export const printIriSpace = (times: number | undefined = 0) => {
