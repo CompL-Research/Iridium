@@ -13,6 +13,7 @@ import {
   Expression,
   FunctionExpression,
   identifier,
+  super as supp,
   Identifier,
   Import,
   ImportExpression,
@@ -94,6 +95,7 @@ import {
   isYieldExpression,
   logicalExpression,
   LogicalExpression,
+  memberExpression,
   MemberExpression,
   MetaProperty,
   NewExpression,
@@ -111,6 +113,8 @@ import {
   UnaryExpression,
   UpdateExpression,
   YieldExpression,
+  Super,
+  stringLiteral
 } from "@babel/types";
 import { JS3BuilderUtils } from "../JS3Builder";
 import {
@@ -1119,6 +1123,34 @@ export function handleMemberExpression(
   ) {
     fin_property = lowerToAnonArrayExpr(orig_property, otherProps);
   } else if (isExpression(orig_property)) {
+    if (!isSuper(fin_object))
+    {
+      const varDecl = generateDummyJS3VariableDeclaration(
+        node,
+        generateIdentifier(
+          node,
+          otherProps.getNewTemporary(otherProps?.others?.prefix),
+        ),
+        fin_object,
+      );
+      otherProps?.others?.holder?.push(varDecl);
+    }
+    else
+    {
+      // TODO: handle special case
+      console.error("TDZ check for super references inside constructors are relaxed! be careful here")
+      // const varDecl = generateDummyJS3VariableDeclaration(
+      //   node,
+      //   generateIdentifier(
+      //     node,
+      //     otherProps.getNewTemporary(otherProps?.others?.prefix),
+      //   ),
+      //   handleExpression( memberExpression( supp(), identifier("_"), false ), otherProps ),
+      // );
+      // otherProps?.others?.holder?.push(varDecl);
+    }
+
+    // otherProps.others?.holder?.push()
     fin_property = handleExpression(orig_property, otherProps);
   } else {
     fin_property = handlePrivateName(orig_property, otherProps);
@@ -2011,9 +2043,10 @@ export function handleFunctionExpression(
       "TODO // unhandled FunctionExpression->predicate->InferredPredicate",
     );
   } else if (isnull(orig_predicate)) {
-    throw new Error(
-      "TODO // unhandled FunctionExpression->predicate->null",
-    );
+    // FLOW SUPPORT
+    // throw new Error(
+    //   "TODO // unhandled FunctionExpression->predicate->null",
+    // );
   }
   const orig_returnType = node.returnType; // Handling prop returnType
   let fin_returnType: JS3FunctionExpression_returnType; // Handling prop returnType
@@ -2030,9 +2063,10 @@ export function handleFunctionExpression(
       "TODO // unhandled FunctionExpression->returnType->Noop",
     );
   } else if (isnull(orig_returnType)) {
-    throw new Error(
-      "TODO // unhandled FunctionExpression->returnType->null",
-    );
+    // FLOW SUPPORT
+    // throw new Error(
+    //   "TODO // unhandled FunctionExpression->returnType->null",
+    // );
   }
   const orig_typeParameters = node.typeParameters; // Handling prop typeParameters
   let fin_typeParameters: JS3FunctionExpression_typeParameters; // Handling prop typeParameters
@@ -2927,7 +2961,11 @@ export function handleClassExpression(
   // 2 fallthrough props, 7 restricted props
   const orig_superClass = node.superClass; // Handling prop superClass
   let fin_superClass: JS3ClassExpression_superClass = null; // Handling prop superClass
-  if (isExpression(orig_superClass)) {
+  
+  if (isIdentifier(orig_superClass))
+  {
+    fin_superClass = orig_superClass;
+  } else if (isExpression(orig_superClass)) {
     fin_superClass = lowerComputedKey(orig_superClass, otherProps);
   }
   //
@@ -3426,3 +3464,4 @@ export function handlePrivateName(node: PrivateName, _otherProps: OtherProps) {
   const result: JS3PrivateName = generateJS3PrivateName(node);
   return result;
 }
+
