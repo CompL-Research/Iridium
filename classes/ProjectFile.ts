@@ -85,6 +85,9 @@ export class ProjectFile {
     // 2. Parse Source Code
     const presets: Array<Array<string | object>> = [
       [
+        "@babel/preset-flow"
+      ],
+      [
         "@babel/preset-env",
         { targets: "last 2 Chrome versions", modules: false },
       ],
