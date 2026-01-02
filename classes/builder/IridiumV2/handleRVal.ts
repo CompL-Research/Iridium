@@ -541,12 +541,15 @@ export const handleArrayPatternAssignmentExpr = (
       cx.addContinuation(cx.getCurrentContext());
       let loopTestContinuation = cx.getCurrentBB().getIDX();
       cx.getCurrentBB().args.push(
-        new JSComputedFieldWriteSEXP(
-          tempres,
-          tempit,
-          new EnvReadSEXP(for$of$loop$next, getLocInfoIfAvailable()),
-          getLocInfoIfAvailable(e),
-        ),
+        new StackRejectSEXP(
+          new JSComputedFieldWriteSEXP(
+            tempres,
+            tempit,
+            new EnvReadSEXP(for$of$loop$next, getLocInfoIfAvailable()),
+            getLocInfoIfAvailable(e),
+          ),
+          1
+        )
       );
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
@@ -639,8 +642,16 @@ export const handleObjectPatternAssignmentExpr = (
           if (hasRest) {
             
             cx.getCurrentBB().args.push(
-              // @ts-ignore
-              new JSComputedFieldWriteSEXP(exc_obj, d.key.name, new NullSEXP(), getLocInfoIfAvailable(d)),
+              new StackRejectSEXP(
+                new JSComputedFieldWriteSEXP(
+                  // @ts-expect-error
+                  exc_obj, 
+                  d.key.name, 
+                  new NullSEXP(), 
+                  getLocInfoIfAvailable(d)
+                ),
+                1
+              )
             );
           }
         } else if (isJS3PrivateName(d.key)) {
@@ -651,8 +662,16 @@ export const handleObjectPatternAssignmentExpr = (
           if (hasRest) {
             
             cx.getCurrentBB().args.push(
-              // @ts-ignore
-              new JSComputedFieldWriteSEXP(exc_obj, fieldSEXP, new NullSEXP(), getLocInfoIfAvailable(d)),
+              new StackRejectSEXP(
+                new JSComputedFieldWriteSEXP(
+                  // @ts-expect-error
+                  exc_obj,
+                  fieldSEXP,
+                  new NullSEXP(),
+                  getLocInfoIfAvailable(d)
+                ),
+                1
+              )
             );
           }
         }
@@ -662,8 +681,16 @@ export const handleObjectPatternAssignmentExpr = (
           if (hasRest) {
             
             cx.getCurrentBB().args.push(
-              // @ts-ignore
-              new FieldWriteSEXP(exc_obj, d.key.name, new NullSEXP(), getLocInfoIfAvailable(d)),
+              new StackRejectSEXP(
+                new FieldWriteSEXP(
+                  // @ts-expect-error
+                  exc_obj, 
+                  d.key.name, 
+                  new NullSEXP(), 
+                  getLocInfoIfAvailable(d)
+                ),
+                1
+              )
             );
           }
         } else if (isJS3PrivateName(d.key)) {
@@ -672,8 +699,16 @@ export const handleObjectPatternAssignmentExpr = (
           rVal = new FieldReadSEXP(toObjRes, "" + d.key.value, getLocInfoIfAvailable(d.key));
           if (hasRest) {
             cx.getCurrentBB().args.push(
-              // @ts-ignore
-              new FieldWriteSEXP(exc_obj, "" + d.key.value, new NullSEXP(), getLocInfoIfAvailable(d)),
+              new StackRejectSEXP(
+                new FieldWriteSEXP(
+                  // @ts-expect-error
+                  exc_obj, 
+                  "" + d.key.value,
+                  new NullSEXP(), 
+                  getLocInfoIfAvailable(d)
+                ),
+                1
+              )
             );
           }
         }
