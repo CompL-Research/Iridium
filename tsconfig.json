@@ -11,7 +11,8 @@
     "skipLibCheck": true,
     "paths": {
       "#debugConfig": ["./configs/debug.ts"],
-      "#utils": ["./classes/utils.ts"]
+      "#utils": ["./classes/utils.ts"],
+      "#forge": ["./externalDeps/Iridium-Forge/forge.cjs"]
     }
   },
   "include": ["iridium.ts", "configs/*.ts", "classes/**/*.ts"],
