@@ -645,25 +645,29 @@ export function handleDeclaratorRec(
   if (!otherProps.others) throw new Error("otherProps.others undefined");
   if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
   // Spill RVal
-  let fin_init: JS3VariableDeclarator_init = null;
-  if (
-    isIdentifier(RVal) ||
-    isDecimalLiteral(RVal) ||
-    isBigIntLiteral(RVal) ||
-    isStringLiteral(RVal) ||
-    isNumericLiteral(RVal) ||
-    isNullLiteral(RVal) ||
-    isBooleanLiteral(RVal)
-  ) {
-    fin_init = RVal;
-  } else if (isArrowFunctionExpression(RVal)) {
-    fin_init = handleArrowFunctionExpression(RVal, otherProps);
-  } else if (isFunctionExpression(RVal)) {
-    fin_init = handleFunctionExpression(RVal, otherProps);
-  } else if (isClassExpression(RVal)) {
-    fin_init = handleClassExpression(RVal, otherProps);
-  } else if (isExpression(RVal)) {
-    fin_init = handleExpression(RVal, otherProps);
+
+  const getFinInit = () => {
+    let fin_init: JS3VariableDeclarator_init = null;
+    if (
+      isIdentifier(RVal) ||
+      isDecimalLiteral(RVal) ||
+      isBigIntLiteral(RVal) ||
+      isStringLiteral(RVal) ||
+      isNumericLiteral(RVal) ||
+      isNullLiteral(RVal) ||
+      isBooleanLiteral(RVal)
+    ) {
+      fin_init = RVal;
+    } else if (isArrowFunctionExpression(RVal)) {
+      fin_init = handleArrowFunctionExpression(RVal, otherProps);
+    } else if (isFunctionExpression(RVal)) {
+      fin_init = handleFunctionExpression(RVal, otherProps);
+    } else if (isClassExpression(RVal)) {
+      fin_init = handleClassExpression(RVal, otherProps);
+    } else if (isExpression(RVal)) {
+      fin_init = handleExpression(RVal, otherProps);
+    }
+    return fin_init;
   }
 
   // Three cases for LVal: ID, ArrayPattern, ObjectPattern
@@ -675,7 +679,7 @@ export function handleDeclaratorRec(
     // LVal = ID
     // RVal = JS3VariableDeclarator_init | null
     //
-    otherProps.others.holder.push(generator(LVal, fin_init));
+    otherProps.others.holder.push(generator(LVal, getFinInit()));
   } else if (isMemberExpression(LVal)) {
     //
     // Second base case... this is only possible in case of assignment expressions...
@@ -684,7 +688,7 @@ export function handleDeclaratorRec(
     // RVal = JS3VariableDeclarator_init
     //
     otherProps.others.holder.push(
-      generator(handleMemberExpression(LVal, otherProps), fin_init),
+      generator(handleMemberExpression(LVal, otherProps), getFinInit()),
     );
   } else if (isArrayPattern(LVal)) {
     //
@@ -733,6 +737,8 @@ export function handleDeclaratorRec(
           // CASE: 1
           // ...ID
           temporaries.push(generateJS3RestElement(e.argument, e));
+        } else if (isMemberExpression(e.argument) && e.argument.computed) {
+          throw new Error("TODO// Lowering of computed fields in member expressions of Lvals Rest element is not yet supported.")
         } else {
           // CASE: 2
           // ...EXPR
@@ -755,7 +761,7 @@ export function handleDeclaratorRec(
     );
 
     // 3. Call generator: VarDecl or Assn or other...
-    otherProps.others.holder.push(generator(assnPattern, fin_init));
+    otherProps.others.holder.push(generator(assnPattern, getFinInit()));
 
     //
     // Recursively solve cases that need to be reduced further
@@ -845,7 +851,7 @@ export function handleDeclaratorRec(
     // let fin$res = RVal
     const declarator = generateJS3VariableDeclaratorfromBaseNode(
       fin$res,
-      fin_init,
+      getFinInit(),
       null,
       LVal,
     );
@@ -1067,7 +1073,7 @@ export function handleDeclaratorRec(
     // { [t$1] : t$2, d, ...e }
     const objectPattern = generateJS3ObjectPattern(temporaries, LVal);
 
-    otherProps.others.holder.push(generator(objectPattern, fin_init));
+    otherProps.others.holder.push(generator(objectPattern, getFinInit()));
 
     //
     // Recursively solve cases that need to be reduced further
