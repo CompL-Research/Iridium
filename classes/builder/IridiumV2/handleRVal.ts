@@ -93,6 +93,7 @@ import {
   JS3NewExpression,
   JS3ObjectExpression,
   JS3ObjectMethod,
+  JS3ObjectMethod_key,
   JS3ObjectPattern_properties,
   JS3RestElement,
   JS3UnaryExpression,
@@ -134,6 +135,7 @@ import {
   IDOPSEXP,
   IfElseJumpSEXP,
   IridiumSEXP,
+  isLambdaSEXP,
   JSADDBRANDSEXP,
   JSAppendSEXP,
   JSArraySEXP,
@@ -2037,7 +2039,14 @@ const handleAssignmentExpression = (
   // case a.
   // ID = RVal
   if (isIdentifier(left)) {
-    return new EnvWriteSEXP(left.name, IRIV2_RVAL(cx, right), false, false, getLocInfoIfAvailable(left));
+    const rv = IRIV2_RVAL(cx, right);
+
+    // Propagate name property
+    if (isLambdaSEXP(rv)) {
+      rv.setSETNAME(true);
+      rv.setNAME(left.name);
+    }
+    return new EnvWriteSEXP(left.name, rv, false, false, getLocInfoIfAvailable(left));
   }
 
   // case b.
@@ -2147,6 +2156,29 @@ const handleFunctionExpression = (
     },
   ];
 
+  let name = "";
+  let isComputedName = false;
+  let toSetName = false;
+
+  // Propagate lambda name
+  if (isJS3FunctionExpression(node) && node.id) {
+    name = node.id.name;
+    isComputedName = false;
+    toSetName = false;
+  } else if (isJS3ObjectMethod(node)) {
+    name = getObjKeyString(node.key);
+    isComputedName = node.computed;
+    toSetName = node.computed ? true : false;
+  } else if (isJS3ClassMethod(node)) {
+    // Set name
+    if (isIdentifier(node.key)) name = node.key.name;
+    else if (isDecimalLiteral(node.key) || isBigIntLiteral(node.key) || isStringLiteral(node.key) || isNumericLiteral(node.key) || isBooleanLiteral(node.key)) name = "" + node.key.value;
+    else if (isNullLiteral(node.key)) name = "null";
+    else name = "TODO//JS3ClassMethod::name";
+    isComputedName = node.computed;
+    toSetName = node.computed ? true : false;
+  }
+
   const funBBIdx = createLambda(
     cx,
     isSimpleArgs,
@@ -2157,10 +2189,17 @@ const handleFunctionExpression = (
     ecmaArgs,
     node.params,
     node.body.body,
-    implicitBindings
-  )
+    implicitBindings,
+    name,
+    privateMapping
+  );
 
-  return new LambdaSEXP(funBBIdx);
+  const lambda = new LambdaSEXP(funBBIdx);
+  lambda.setNAME(name);
+  lambda.setCNAME(isComputedName);
+  lambda.setSETNAME(toSetName);
+
+  return lambda;
 };
 
 const handleNewExpression = (cx: IRIDIUMV2, node: JS3NewExpression) => {
@@ -2472,8 +2511,7 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
 const getObjKeyString = (
   key: Identifier | StringLiteral | NumericLiteral | BigIntLiteral,
 ): string => {
-  if (isIdentifier(key)) return key.name;
-  else return "" + key.value;
+  return isIdentifier(key) ? key.name : "" + key.value;
 };
 
 const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {

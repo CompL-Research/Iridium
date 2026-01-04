@@ -1,12 +1,12 @@
 import { ArrayPattern, assignmentExpression, AssignmentExpression, AssignmentPattern, identifier, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isImportSpecifier, isObjectPattern, isObjectProperty, isRestElement, isVariableDeclaration, ObjectPattern, RestElement, variableDeclaration, VariableDeclaration, variableDeclarator } from "@babel/types";
 import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportSpecifier, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedBlockStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3BlockStatement, JS3BlockStatement_body, JS3DoWhileStatement, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3ReturnStatement, JS3StaticBlock, JS3SwitchCase_test, JS3SwitchStatement, JS3TryStatement, JS3VariableDeclaration, JS3WhileStatement } from "../JS3Helpers/JS3Types";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
-import { handleArrayPatternAssignmentExpr, handleObjectPatternAssignmentExpr, IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP } from "./handleRVal";
+import { handleArrayPatternAssignmentExpr, handleObjectPatternAssignmentExpr, IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP, PrivateMapping } from "./handleRVal";
 
 import { getIridiumBinop, getLocInfoIfAvailable } from "#utils";
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks";
 import { handleAssignmentExpression as js3handleAssignmentExpression } from "../JS3Helpers/HandleExpression";
-import { EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, JSCatchContextSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationNSEXP, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSImplicitBindingDeclarationTypes, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, SiblingSpecialWriteSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, ThrowSEXP } from "./Types/index";
+import { EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isLambdaSEXP, JSCatchContextSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationNSEXP, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSImplicitBindingDeclarationTypes, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, SiblingSpecialWriteSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, ThrowSEXP } from "./Types/index";
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   if (isJS3ImportDeclaration(stmt)) {
@@ -842,6 +842,12 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   if (isIdentifier(declaration.id)) {
     let rValTarget = declaration.init && IRIV2_RVAL(cx, declaration.init);
 
+    // Propagate name property
+    if (rValTarget && isLambdaSEXP(rValTarget)) {
+      rValTarget.setSETNAME(true);
+      rValTarget.setNAME(declaration.id.name);
+    }
+
     if (!rValTarget) {
       if (KIND === "JSLET") {
         rValTarget = new EnvReadSEXP("undefined", getLocInfoIfAvailable());
@@ -1117,16 +1123,20 @@ export const createLambda = (
   ecmaArgs: number,
   params: Array<JS3AllowedFunctionArgs>,
   body: Array<JS3AllowedBlockStatement>,
-  implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP  }>
+  implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP  }>,
+  name: string = "",
+  privateMapping: PrivateMapping | null = null,
 ) => {
   // Lower Function code
-  const funcContext         = cx.declareAndPushLexicalContext("ClosureBoundary"); // ClosureBoundary
-  const funBBIdx            = funcContext.getCurrentBB().idx;
-  funcContext.isStrict      = isStrict;
-  funcContext.isAsync       = isAsync;
-  funcContext.isGenerator   = isGenerator;
-  funcContext.kind          = kind;
-  funcContext.ecmaArgs      = ecmaArgs;
+  const funcContext          = cx.declareAndPushLexicalContext("ClosureBoundary"); // ClosureBoundary
+  const funBBIdx             = funcContext.getCurrentBB().idx;
+  funcContext.isStrict       = isStrict;
+  funcContext.isAsync        = isAsync;
+  funcContext.isGenerator    = isGenerator;
+  funcContext.kind           = kind;
+  funcContext.ecmaArgs       = ecmaArgs;
+  funcContext.privateMapping = privateMapping;
+  funcContext.name           = name;
 
   const abstractResolutions: Array<SiblingSpecialWriteSEXP> = [];
   const extractedBindingsSet: Set<string> = new Set();
@@ -1232,12 +1242,16 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
     ecmaArgs,
     stmt.params,
     stmt.body.body,
-    implicitBindings
+    implicitBindings,
+    stmt.id.name
   )
+
+  const lambda = new LambdaSEXP(funBBIdx, stmt.id.name);
+
   // FUNC = LAMBDA
   cx.getCurrentBB().args.push(
     new JSFuncDeclSEXP(
-      new ResolveEnvBindingSEXP(stmt.id.name, getLocInfoIfAvailable(stmt.id)), new LambdaSEXP(funBBIdx), getLocInfoIfAvailable(stmt.id)
+      new ResolveEnvBindingSEXP(stmt.id.name, getLocInfoIfAvailable(stmt.id)), lambda, getLocInfoIfAvailable(stmt.id)
     )
   );
 }

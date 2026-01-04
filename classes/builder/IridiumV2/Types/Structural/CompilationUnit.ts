@@ -112,6 +112,8 @@ export type BBContainerSEXPFlags = "ARGUMENTS" | "ASYNC" | "GENERATOR" | "PROTO"
  * 
  * - `FLAG(ContainerFlagID)`: A number.
  * 
+ * - `FLAG(NAME)`: string function name.
+ * 
  * #### Closure Type Map
  * 
  * 1. Regular Closure = { }

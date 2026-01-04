@@ -308,11 +308,20 @@ export class UnopSEXP extends IridiumSEXP {
  * 
  * - `FLAG(StartBBIDX)`: IDX of the first BB in the Lambda.
  * 
+ * - `FLAG(NAME)`: Name for the closure, "" by default.
+ * 
+ * - `FLAG(CNAME)`: Is it a computed name context?
+ * 
+ * - `FLAG(SETNAME)`: boolean specifying whether the name needs to be explicitly set.
+ * 
  */
 export class LambdaSEXP extends IridiumSEXP {
-  constructor(bbIdx: number) {
+  constructor(bbIdx: number, name: string = "", cName: boolean = false, setName: boolean = false) {
     super("Lambda");
     this.setStartBBIDX(bbIdx);
+    this.setNAME(name);
+    this.setCNAME(cName);
+    this.setSETNAME(setName);
   }
 
   // Flags
@@ -322,6 +331,30 @@ export class LambdaSEXP extends IridiumSEXP {
 
   getStartBBIDX() {
     return this.getFlagNumber("StartBBIDX");
+  }
+
+  setNAME(name: string) {
+    this.setFlag("NAME", name);
+  }
+
+  getNAME() {
+    return this.getFlagString("NAME");
+  }
+
+  setCNAME(val: boolean) {
+    this.setFlag("CNAME", val);
+  }
+
+  getCNAME() {
+    return this.getFlagBoolean("CNAME");
+  }
+
+  setSETNAME(val: boolean) {
+    this.setFlag("SETNAME", val);
+  }
+
+  getSETNAME() {
+    return this.getFlagBoolean("SETNAME");
   }
 
   toString(space?: number): string {
