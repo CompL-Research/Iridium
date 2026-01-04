@@ -28,7 +28,7 @@
             "type": "node"
         },
         {
-            "name": "Launch iri temp.js",
+            "name": "Launch iri temp.cjs",
             "request": "launch",
             "runtimeExecutable": "/root/.nvm/versions/node/v24.12.0/bin/node",
             "args": [
@@ -38,7 +38,36 @@
                 "--ljson",
                 "--pp",
                 "/root/Iridium/",
-                "/root/Iridium/temp.js"
+                "/root/Iridium/temp.cjs"
+            ],
+            "outFiles": [
+              "${workspaceFolder}/iridium*.ts",
+              "${workspaceFolder}/classes/**/*.ts"
+            ],
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/playground/**",
+                "**/temp/**",
+                "**/tests/**",
+                "**/node_modules/**"
+            ],
+            "type": "node"
+        },
+
+        {
+            "name": "Launch iri TEST262Test",
+            "request": "launch",
+            "runtimeExecutable": "/root/.nvm/versions/node/v24.12.0/bin/node",
+            "args": [
+                "--import=tsx",
+                "/root/Iridium/iridium.ts",
+                "iri",
+                "-s",
+                "script",
+                "--ljson",
+                "--pp",
+                "/root/Iridium/tests/test262",
+                "/root/Iridium/tests/tmp/test_language_expressions_addition_S11.6.1_A2.4_T2.js_iri_1767458739055_ylootvp0jch.js"
             ],
             "outFiles": [
               "${workspaceFolder}/iridium*.ts",
