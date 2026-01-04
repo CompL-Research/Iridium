@@ -20,6 +20,7 @@ const babell = babel
 export type JS3BuilderUtils = {
   getNewTemporary: (prefix: string | undefined) => string;
   debugTrace: Array<string>;
+  iridiumArgContext: boolean;
   others?: {
     holder: JS3Program_body | Array<JS3AllowedBlockStatement> | null;
     prefix?: string;
@@ -39,6 +40,7 @@ export default class JS3Builder {
     getNewTemporary: (prefix: string | undefined) =>
       `${prefix ? "js3$" + prefix : "js3"}$${++JS3Builder.varIdx}`,
     debugTrace: new Array<string>(),
+    iridiumArgContext: false
   };
 
   constructor(file: ProjectFile) {
@@ -74,7 +76,7 @@ export default class JS3Builder {
     if (debugConfig.cli.tout)
       return;
 
-    const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.projectFile.uname, this.projectFile.extension) + ".js3";
+    const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.projectFile.uname, this.projectFile.extension) + ".js3.js";
     fs.writeFileSync(
       filePath,
       this.getCodeString()

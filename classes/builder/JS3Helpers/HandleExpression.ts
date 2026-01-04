@@ -155,6 +155,7 @@ import {
   generateJS3ReturnStatementfromBaseNode,
   generateJS3SpreadElement,
   generateJS3TaggedTemplateExpression,
+  generateJS3TDZCheckfromBaseNode,
   generateJS3TemplateLiteral,
   generateJS3UnaryExpression,
   generateJS3UpdateExpression,
@@ -2359,7 +2360,10 @@ export function handleAssnPatRec(
   }
 
   const generateTDZCheck = (i: Identifier) => {
-    handleExpression(i, otherProps);
+    if (otherProps.iridiumArgContext) return;
+    otherProps.others?.holder?.push(
+      generateJS3TDZCheckfromBaseNode(i, i)
+    );
   }
 
   // Three cases for LVal: ID, ArrayPattern, ObjectPattern

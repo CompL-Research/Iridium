@@ -1,15 +1,22 @@
 import { ArrayPattern, assignmentExpression, AssignmentExpression, AssignmentPattern, identifier, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isImportSpecifier, isObjectPattern, isObjectProperty, isRestElement, isVariableDeclaration, ObjectPattern, RestElement, variableDeclaration, VariableDeclaration, variableDeclarator } from "@babel/types";
-import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportSpecifier, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedBlockStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3BlockStatement, JS3BlockStatement_body, JS3DoWhileStatement, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3ReturnStatement, JS3StaticBlock, JS3SwitchCase_test, JS3SwitchStatement, JS3TryStatement, JS3VariableDeclaration, JS3WhileStatement } from "../JS3Helpers/JS3Types";
+import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportSpecifier, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3TDZCheck, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedBlockStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3BlockStatement, JS3BlockStatement_body, JS3DoWhileStatement, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3ReturnStatement, JS3StaticBlock, JS3SwitchCase_test, JS3SwitchStatement, JS3TryStatement, JS3VariableDeclaration, JS3WhileStatement } from "../JS3Helpers/JS3Types";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
 import { handleArrayPatternAssignmentExpr, handleObjectPatternAssignmentExpr, IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP, PrivateMapping } from "./handleRVal";
 
 import { getIridiumBinop, getLocInfoIfAvailable } from "#utils";
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks";
 import { handleAssignmentExpression as js3handleAssignmentExpression } from "../JS3Helpers/HandleExpression";
-import { EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isLambdaSEXP, JSCatchContextSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationNSEXP, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSImplicitBindingDeclarationTypes, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, SiblingSpecialWriteSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, ThrowSEXP } from "./Types/index";
+import { EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isLambdaSEXP, JSCatchContextSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationNSEXP, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSImplicitBindingDeclarationTypes, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, SiblingSpecialWriteSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, TDZReadSEXP, ThrowSEXP } from "./Types/index";
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
-  if (isJS3ImportDeclaration(stmt)) {
+  if (isJS3TDZCheck(stmt)) {
+    cx.getCurrentBB().args.push(
+      new StackRejectSEXP(
+        new TDZReadSEXP(stmt.expression.name, getLocInfoIfAvailable()),
+        1
+      )
+    );
+  } else if (isJS3ImportDeclaration(stmt)) {
     const currentContext = cx.getCurrentContext();
 
     // Create/Reuse a Module Request
@@ -912,7 +919,7 @@ const handleLoopInitBlock = (cx: IRIDIUMV2, stmt: VariableDeclaration) => {
   }
 }
 
-const reduceJSAssignmentExprToIridium = (cx: IRIDIUMV2, stmt: AssignmentExpression) => {
+export const reduceJSAssignmentExprToIridium = (cx: IRIDIUMV2, stmt: AssignmentExpression) => {
   const otherProps = cx.js3Builder.utils;
   const js3SpillHolder: JS3BlockStatement_body = [];
   const updatedProps = {
@@ -1074,6 +1081,7 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
     }
   
     // S3: Use assignment logic
+    cx.js3Builder.utils.iridiumArgContext = true;
     for (const arg of params) {
       const rVal = argReplacementMap.get(arg);
       if (!rVal) throw new Error("Arg replacement map is supposed to map all the arguments");
@@ -1083,6 +1091,7 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
         reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", arg.argument, identifier(rVal)));
       }
     }
+    cx.js3Builder.utils.iridiumArgContext = false;
 
     // Sibling scope forwarding
     // Sibling[a] = CurrScope[a]

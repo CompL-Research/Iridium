@@ -1,8 +1,8 @@
-// Generated on 4/1/2026, 8:25:02 pm, extended 64 interfaces 
+// Generated on 4/1/2026, 10:27:27 pm, extended 64 interfaces 
 
 import { LVal, ConditionalExpression, AssignmentPattern, ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, Expression, OptionalCallExpression, OptionalMemberExpression, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DebuggerStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
-export type JS3AllowedBlockStatement = JS3DebuggerStatement | JS3WithStatement | JS3VariableDeclaration | JS3ReturnStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement | JS3FunctionDeclaration | JS3EmptyStatement | JS3WhileStatement | JS3BreakStatement | JS3ContinueStatement | JS3BlockStatement | JS3ForInStatement | JS3LabeledStatement | JS3ForStatement | JS3DoWhileStatement | JS3SwitchStatement | JS3ForOfStatement;
+export type JS3AllowedBlockStatement = JS3TDZCheck | JS3DebuggerStatement | JS3WithStatement | JS3VariableDeclaration | JS3ReturnStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement | JS3FunctionDeclaration | JS3EmptyStatement | JS3WhileStatement | JS3BreakStatement | JS3ContinueStatement | JS3BlockStatement | JS3ForInStatement | JS3LabeledStatement | JS3ForStatement | JS3DoWhileStatement | JS3SwitchStatement | JS3ForOfStatement;
 export type JS3Literals = DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral;
 export type JS3ContainedExprKey = Identifier | JS3Literals | OptionalCallExpression | OptionalMemberExpression | Expression;
 export type JS3AllowedFunctionArgs = Identifier | ArrayPattern | ObjectPattern | AssignmentPattern | RestElement;
@@ -47,6 +47,24 @@ export interface JS3DefaultExportMemberExpression extends MemberExpression {
 export function isJS3DefaultExportMemberExpression(node: any): node is JS3DefaultExportMemberExpression {
   // @ts-ignore
   if (node && node.js3type === "JS3DefaultExportMemberExpression") return true;
+  return false;
+}
+
+// 
+// "JS3TDZCheck" node is inserted before writing to a binding, 
+// if the eval mode is sloppy and write happens to a global binding, this check should be removed
+// 
+
+// @ts-ignore
+export interface JS3TDZCheck extends ExpressionStatement {
+  expression: Identifier;
+  js3type: "JS3TDZCheck";
+}
+
+// @ts-ignore
+export function isJS3TDZCheck(node: any): node is JS3TDZCheck {
+  // @ts-ignore
+  if (node && node.js3type === "JS3TDZCheck") return true;
   return false;
 }
 

@@ -54,6 +54,24 @@ export class EnvReadSEXP extends IridiumSEXP {
 
 /**
  * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * A TDZ check for the binding before it is written to.
+ * 
+ */
+export class TDZReadSEXP extends EnvReadSEXP {
+  constructor(id: string, mapInf: string) {
+    super(id, mapInf);
+    this.tag = "TDZRead";
+  }
+}
+
+/**
+ * 
  * @group TSHelper
  */
 export type EnvWriteFlags = "SAFE" | "THISINIT" | "SLOPPY";
