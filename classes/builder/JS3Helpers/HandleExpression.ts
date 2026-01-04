@@ -114,7 +114,8 @@ import {
   UpdateExpression,
   YieldExpression,
   Super,
-  stringLiteral
+  stringLiteral,
+  ArrayPattern
 } from "@babel/types";
 import { JS3BuilderUtils } from "../JS3Builder";
 import {
@@ -123,10 +124,14 @@ import {
   generateJS3AnonArrayExpressionfromBaseNode,
   generateJS3AnonMemberExpressionfromBaseNode,
   generateJS3ArrayExpression,
+  generateJS3ArrayPatternfromBaseNode,
   generateJS3ArrowFunctionExpression,
   generateJS3AssignmentExpression,
+  generateJS3AssignmentExpressionfromBaseNode,
+  generateJS3AssnObjectPropertyfromBaseNode,
   generateJS3AwaitExpression,
   generateJS3BinaryExpression,
+  generateJS3BinaryExpressionfromBaseNode,
   generateJS3BlockStatementfromBaseNode,
   generateJS3CallExpression,
   generateJS3ClassExpression,
@@ -142,18 +147,25 @@ import {
   generateJS3NewExpression,
   generateJS3ObjectExpression,
   generateJS3ObjectMethod,
+  generateJS3ObjectPattern,
   generateJS3ObjectProperty,
   generateJS3PrivateName,
   generateJS3RegExpLiteral,
+  generateJS3RestElement,
   generateJS3ReturnStatementfromBaseNode,
   generateJS3SpreadElement,
   generateJS3TaggedTemplateExpression,
   generateJS3TemplateLiteral,
   generateJS3UnaryExpression,
   generateJS3UpdateExpression,
+  generateJS3VariableDeclarationfromBaseNode,
+  generateJS3VariableDeclaratorfromBaseNode,
   generateJS3YieldExpression,
+  generateTempIdentifier,
 } from "./JS3Constructors";
 import {
+  isJS3AssnObjectProperty,
+  JS3AllowedBlockStatement,
   JS3ArrayExpression,
   JS3ArrayExpression_elements,
   JS3ArrayPattern,
@@ -163,6 +175,7 @@ import {
   JS3ArrowFunctionExpression_predicate,
   JS3ArrowFunctionExpression_returnType,
   JS3ArrowFunctionExpression_typeParameters,
+  JS3AssnObjectProperty,
   JS3AwaitExpression,
   JS3AwaitExpression_argument,
   JS3BinaryExpression,
@@ -224,6 +237,7 @@ import {
   JS3ObjectProperty_value,
   JS3PrivateName,
   JS3RegExpLiteral,
+  JS3RestElement,
   JS3SpreadElement,
   JS3SpreadElement_argument,
   JS3TaggedTemplateExpression,
@@ -248,9 +262,10 @@ import {
   isTSTypeParameterInstantiation,
   isTypeParameterInstantiation,
   isV8IntrinsicIdentifier,
+  LVal
 } from "@babel/types";
 import { lowerComputedKey } from "./GenericConstructs";
-import { handleBlockStatement, handleDeclaratorRec } from "./HandleBlocks";
+import { handleBlockStatement } from "./HandleBlocks";
 import { handleClassBody } from "./HandleClassDeclaration";
 import {
   JS3CallExpression_arguments,
@@ -1096,9 +1111,11 @@ export function handleMemberExpression(
   // 3 fallthrough props, 2 restricted props
   const orig_object = node.object; // Handling prop object
   let fin_object: JS3MemberExpression_object; // Handling prop object
-  if (isIdentifier(orig_object)) {
-    fin_object = orig_object;
-  } else if (isSuper(orig_object)) {
+  // Breaks TDZ check... let handleExpression perform a read
+  // if (isIdentifier(orig_object)) {
+  //   fin_object = orig_object;
+  // } else 
+  if (isSuper(orig_object)) {
     fin_object = orig_object;
   } else if (isThisExpression(orig_object)) {
     fin_object = orig_object;
@@ -1114,7 +1131,8 @@ export function handleMemberExpression(
 
   const orig_property = node.property; // Handling prop property
   let fin_property: JS3MemberExpression_property; // Handling prop property
-  if (isIdentifier(orig_property)) {
+  // Breaks TDZ check... let handleExpression perform a read
+  if (isIdentifier(orig_property) && !node.computed) {
     fin_property = orig_property;
   } else if (
     isFunctionExpression(orig_property) ||
@@ -1123,34 +1141,6 @@ export function handleMemberExpression(
   ) {
     fin_property = lowerToAnonArrayExpr(orig_property, otherProps);
   } else if (isExpression(orig_property)) {
-    if (!isSuper(fin_object))
-    {
-      const varDecl = generateDummyJS3VariableDeclaration(
-        node,
-        generateIdentifier(
-          node,
-          otherProps.getNewTemporary(otherProps?.others?.prefix),
-        ),
-        fin_object,
-      );
-      otherProps?.others?.holder?.push(varDecl);
-    }
-    else
-    {
-      // TODO: handle special case
-      console.error("TDZ check for super references inside constructors are relaxed! be careful here")
-      // const varDecl = generateDummyJS3VariableDeclaration(
-      //   node,
-      //   generateIdentifier(
-      //     node,
-      //     otherProps.getNewTemporary(otherProps?.others?.prefix),
-      //   ),
-      //   handleExpression( memberExpression( supp(), identifier("_"), false ), otherProps ),
-      // );
-      // otherProps?.others?.holder?.push(varDecl);
-    }
-
-    // otherProps.others?.holder?.push()
     fin_property = handleExpression(orig_property, otherProps);
   } else {
     fin_property = handlePrivateName(orig_property, otherProps);
@@ -2322,6 +2312,422 @@ export function handleLogicalExpression(
   return rValFinalResHolder;
 }
 
+//
+// Take LVal, RVal, otherProps, f(ID | JS3ArrayPattern | JS3ObjectPattern,null | JS3VariableDeclarator_init) -> pushable
+//
+
+export function handleAssnPatRec(
+  LVal: LVal,
+  RVal: Expression,
+  otherProps: OtherProps,
+  generator: (
+    LVal: JS3MemberExpression | ArrayPattern | JS3ObjectPattern | Identifier,
+    RVal: null | JS3VariableDeclarator_init,
+  ) => JS3AllowedBlockStatement
+) {
+  if (!otherProps.others) throw new Error("otherProps.others undefined");
+  if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+  
+  // Spill RVal
+
+  const getFinInit = () => {
+    let fin_init: JS3VariableDeclarator_init = null;
+    if (
+      isIdentifier(RVal) ||
+      isDecimalLiteral(RVal) ||
+      isBigIntLiteral(RVal) ||
+      isStringLiteral(RVal) ||
+      isNumericLiteral(RVal) ||
+      isNullLiteral(RVal) ||
+      isBooleanLiteral(RVal)
+    ) {
+      fin_init = RVal;
+    } else if (isArrowFunctionExpression(RVal)) {
+      fin_init = handleArrowFunctionExpression(RVal, otherProps);
+    } else if (isFunctionExpression(RVal)) {
+      fin_init = handleFunctionExpression(RVal, otherProps);
+    } else if (isClassExpression(RVal)) {
+      fin_init = handleClassExpression(RVal, otherProps);
+    } else if (isExpression(RVal)) {
+      fin_init = handleExpression(RVal, otherProps);
+    }
+    return fin_init;
+  }
+
+  const getFinInitDelayed = () => {
+    return lowerComputedKey(RVal, otherProps);
+  }
+
+  const generateTDZCheck = (i: Identifier) => {
+    handleExpression(i, otherProps);
+  }
+
+  // Three cases for LVal: ID, ArrayPattern, ObjectPattern
+  if (isIdentifier(LVal)) {
+    //
+    // Base case...
+    //
+    // LVal = ID
+    // RVal = JS3VariableDeclarator_init | null
+    //
+    // 1/TDZ check for a
+    // 2/Lower Key
+    // 3/Res
+
+    generateTDZCheck(LVal);
+    otherProps.others.holder.push(generator(LVal, getFinInit()));
+  } else if (isMemberExpression(LVal)) {
+    //
+    // Second base case... this is only possible in case of assignment expressions...
+    //
+    // LVal = (EXPR)*.ID
+    // RVal = JS3VariableDeclarator_init
+    //
+    // 1/ reduce member expression
+    // 2/ Lower Key
+    // 3/ Res
+    otherProps.others.holder.push(
+      generator(handleMemberExpression(LVal, otherProps), getFinInit()),
+    );
+  } else if (isObjectPattern(LVal)) {
+    //
+    // Object pattern case...
+    //
+    // let { ["a" + k] : [a, b, c] = [1,2,3], d, ...e } = RVal
+    //
+    // let t$1 = "a" + k
+    // let {     [t$1] : t$2                  d  ...e } = fin_init
+    //
+    // ...Recurse: ([a, b, c] = [1,2,3], t$2)
+    //
+
+    const properties = LVal.properties;
+    const temporaries: Array<JS3AssnObjectProperty | JS3RestElement> = [];
+
+    // 1. Generate temporaries for each property
+    // let { ["a" + k] : [a, b, c] = [1,2,3], d, ...e } = RVal
+    //                 |                      |     |
+    //           [t$1] : t$2                  d     e
+
+    const reassigned = [];
+    for (const p of properties) {
+      // isTrivialKey = true if key is Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | PrivateName
+      const isTrivialKey = (k: any) =>
+        isIdentifier(k) ||
+        isStringLiteral(k) ||
+        isNumericLiteral(k) ||
+        isBigIntLiteral(k) ||
+        isDecimalLiteral(k);
+
+      //
+      // Base Case 1: Value is an identifier
+      //
+      if (isObjectProperty(p) && isIdentifier(p.value)) {
+        reassigned.push(false);
+        if (isTrivialKey(p.key)) {
+          temporaries.push(
+            generateJS3AssnObjectPropertyfromBaseNode(
+              p.key,
+              p.value,
+              null,
+              p.computed,
+              p.shorthand,
+              p,
+            ),
+          ); // p.key, p.value, null, p
+        } else if (isPrivateName(p.key)) {
+          temporaries.push(
+            generateJS3AssnObjectPropertyfromBaseNode(
+              generateJS3PrivateName(p.key),
+              p.value,
+              null,
+              p.computed,
+              p.shorthand,
+              p,
+            ),
+          ); // generateJS3PrivateName(p.key), p.value, null, p
+        } else {
+          temporaries.push(
+            generateJS3AssnObjectPropertyfromBaseNode(
+              handleExpression(p.key, otherProps),
+              p.value,
+              null,
+              p.computed,
+              p.shorthand,
+              p,
+            ),
+          ); // handleExpression(p.key, otherProps), p.value, null, p
+        }
+        continue;
+      }
+
+      //
+      // Base Case 2: ...ID
+      //
+      if (isRestElement(p) && isIdentifier(p.argument)) {
+        reassigned.push(false);
+        temporaries.push(generateJS3RestElement(p.argument, p));
+        continue;
+      }
+
+      reassigned.push(true);
+
+      const temporary = generateIdentifier(
+        LVal,
+        otherProps.getNewTemporary("objPat"),
+      );
+
+      otherProps.others.holder.push(
+        generateDummyJS3VariableDeclaration(
+          LVal,
+          temporary,
+          null,
+          "let",
+          null,
+          null,
+        ),
+      );
+      
+      if (isObjectProperty(p)) {
+        if (isTrivialKey(p.key)) {
+          //
+          // { ID : COMPLEX }   -> { ID : TEMP }
+          //
+          temporaries.push(
+            generateJS3AssnObjectPropertyfromBaseNode(
+              p.key,
+              temporary,
+              null,
+              p.computed,
+              p.shorthand,
+              p,
+            ),
+          ); // p.key, temporary, null, p
+        } else if (isPrivateName(p.key)) {
+          //
+          // { #PVT : COMPLEX } -> { #PVT : TEMP }
+          //
+          temporaries.push(
+            generateJS3AssnObjectPropertyfromBaseNode(
+              generateJS3PrivateName(p.key),
+              temporary,
+              null,
+              p.computed,
+              p.shorthand,
+              p,
+            ),
+          ); // generateJS3PrivateName(p.key), temporary, null, p
+        } else {
+          //
+          // { EXPR : COMPLEX } -> { ID : TEMP }
+          //
+          temporaries.push(
+            generateJS3AssnObjectPropertyfromBaseNode(
+              handleExpression(p.key, otherProps),
+              temporary,
+              null,
+              p.computed,
+              p.shorthand,
+              p,
+            ),
+          ); // handleExpression(p.key, otherProps), temporary, null, p
+        }
+      } else {
+        //
+        // { ...COMPLEX }       -> { ...TEMP }
+        //
+        temporaries.push(generateJS3RestElement(temporary, p));
+      }
+    }
+
+    // 2. Generate simplified assignment pattern
+    // { [t$1] : t$2, d, ...e }
+    const objectPattern = generateJS3ObjectPattern(temporaries, LVal);
+
+    otherProps.others.holder.push(generator(objectPattern, getFinInit()));
+
+    //
+    // Recursively solve cases that need to be reduced further
+    //
+    let i = 0;
+    for (const p of properties) {
+      // Load current vars
+      const currTemp = temporaries[i];
+      const reassignmentStatus = reassigned[i];
+
+      // Increment
+      i++;
+
+      // Cases where no reassignment happened, nothing to do...
+      if (reassignmentStatus === false) continue;
+
+      if (isObjectProperty(p)) {
+        if (
+          isJS3AssnObjectProperty(currTemp) &&
+          currTemp.value.type === "Identifier"
+        ) {
+          const tempVar = currTemp.value;
+          //
+          // Member expression is needed to support code like this...
+          // test262/test/language/expressions/assignment/destructuring/keyed-destructuring-property-reference-target-evaluation-order.js
+          //
+          if (
+            isMemberExpression(p.value) ||
+            isObjectPattern(p.value) ||
+            isArrayPattern(p.value) ||
+            isAssignmentPattern(p.value)
+          ) {
+            // Recurse: (LVal: COMPLEX, RVal: TEMP)
+            handleAssnPatRec(p.value, tempVar, otherProps, generator);
+          } else {
+            throw new Error(
+              `IMPOSSIBLE destructure objpattern reduction case... LVAL is ${p.value.type}`
+            );
+          }
+        } else {
+          throw new Error(
+            `IMPOSSIBLE destructure objpattern reduction case... expected Identifier`
+          );
+        }
+      } else {
+        //
+        // { ...COMPLEX } -> { ...TEMP }
+        //
+        if (
+          currTemp.type === "RestElement" &&
+          currTemp.argument.type === "Identifier"
+        ) {
+          const tempVar = currTemp.argument;
+
+          //
+          // Member expression is needed to support code like this...
+          // test262/test/language/expressions/assignment/dstr/obj-rest-to-property-with-setter.js
+          if (
+            isMemberExpression(p.argument) ||
+            isObjectPattern(p.argument) ||
+            isArrayPattern(p.argument) ||
+            isAssignmentPattern(p.argument)
+          ) {
+            // Recurse: (LVal: COMPLEX, RVal: TEMP)
+            handleAssnPatRec(p.argument, tempVar, otherProps, generator);
+          } else {
+            throw new Error(
+              `IMPOSSIBLE destructure objpattern reduction case-1... LVAL is ${p.argument.type}`
+            );
+          }
+        } else {
+          throw new Error(
+            `IMPOSSIBLE destructure objpattern reduction case-1... expected Identifier`
+          );
+        }
+      }
+    }
+  } else if (isAssignmentPattern(LVal)) {
+    //
+    // Assignment pattern case
+    //
+    // left = RVal !== undefined ? RVal : right
+    //
+    // let fin$res = RVal
+    // let cond$res = fin$res === undefined
+    // fin$res = cond$res ?
+    //
+    // Recurse:
+    //  left = fin$res
+    //
+
+    const fin$res = generateIdentifier(
+      LVal,
+      otherProps.getNewTemporary("assnPat"),
+    );
+    const cond$res = generateIdentifier(
+      LVal,
+      otherProps.getNewTemporary("condRes"),
+    );
+    const undefID = generateIdentifier(LVal, "undefined");
+
+    // let fin$res = RVal
+    const declarator = generateJS3VariableDeclaratorfromBaseNode(
+      fin$res,
+      getFinInit(),
+      null,
+      LVal,
+    );
+    otherProps.others.holder.push(
+      generateJS3VariableDeclarationfromBaseNode(
+        [declarator],
+        "let",
+        null,
+        LVal,
+      ),
+    );
+
+    // fin$res === undefined
+    const binop = generateJS3BinaryExpressionfromBaseNode(
+      fin$res,
+      undefID,
+      "===",
+      LVal,
+    );
+    // let cond$res = fin$res === undefined
+    const declaratorCondRes = generateJS3VariableDeclaratorfromBaseNode(
+      cond$res,
+      binop,
+      null,
+      LVal,
+    );
+    otherProps.others.holder.push(
+      generateJS3VariableDeclarationfromBaseNode(
+        [declaratorCondRes],
+        "let",
+        null,
+        LVal,
+      ),
+    );
+
+    // let tempVar = fin$res = cond$res ? EXPR1 : EXPR2
+    const condExpr = generateJS3ConditionalExpressionfromBaseNode(
+      cond$res,
+      lowerComputedKey(LVal.right, otherProps),
+      fin$res,
+      LVal,
+    );
+    const tempVar = generateTempIdentifier(
+      LVal,
+      otherProps.getNewTemporary("tempID"),
+    );
+    const finDeclarator = generateJS3VariableDeclaratorfromBaseNode(
+      tempVar,
+      generateJS3AssignmentExpressionfromBaseNode("=", fin$res, condExpr, LVal),
+      null,
+      LVal,
+    );
+    otherProps.others.holder.push(
+      generateJS3VariableDeclarationfromBaseNode(
+        [finDeclarator],
+        "let",
+        null,
+        LVal,
+      ),
+    );
+
+    // Recursive case
+    // (let...) left = fin$res
+    handleAssnPatRec(LVal.left, fin$res, otherProps, generator);
+  } else if (isArrayPattern(LVal)) {
+
+    otherProps.others.holder.push(
+      generator(
+        LVal,
+        handleExpression(RVal, otherProps)
+      )
+    );
+
+  }
+  
+  else throw new Error("3JS TODO// ASSN PATT")
+}
+
 export function handleAssignmentExpression(
   node: AssignmentExpression,
   otherProps: OtherProps,
@@ -2355,7 +2761,7 @@ export function handleAssignmentExpression(
     const generator = (
       LVal:
         | JS3MemberExpression
-        | JS3ArrayPattern
+        | ArrayPattern
         | JS3ObjectPattern
         | Identifier,
       RVal: null | JS3VariableDeclarator_init,
@@ -2393,7 +2799,7 @@ export function handleAssignmentExpression(
         "LVal of assignment is not allowed to be an optional member expression (this is experimental syntax)",
       );
     } else {
-      handleDeclaratorRec(node.left, node.right, otherProps, generator, true);
+      handleAssnPatRec(node.left, node.right, otherProps, generator);
     }
 
     if (!init$res)
@@ -2600,213 +3006,6 @@ export function handleAssignmentExpression(
       "TODO // Assignment Expression: Unknown case...",
     );
   }
-
-  // // 2 fallthrough props, 2 restricted props
-
-  // let isMemberExpressionContext = false
-  // let orig_left = node.left; // Handling prop left
-  // let fin_left: JS3AssignmentExpression_left; // Handling prop left
-  // if (isIdentifier(orig_left)) {
-  //   fin_left = orig_left
-  // } else if (isMemberExpression(orig_left)) {
-  //   isMemberExpressionContext = true
-  //   fin_left = handleMemberExpression(orig_left, otherProps)
-  // } else if (isRestElement(orig_left)) {
-  //   throw new Error("TODO // unhandled AssignmentExpression->left->RestElement");
-  // } else if (isAssignmentPattern(orig_left)) {
-  //   throw new Error("TODO // unhandled AssignmentExpression->left->AssignmentPattern");
-  // } else if (isArrayPattern(orig_left)) {
-  //   fin_left = orig_left
-  // } else if (isObjectPattern(orig_left)) {
-  //   fin_left = orig_left
-  // } else if (isTSParameterProperty(orig_left)) {
-  //   throw new Error("TODO // unhandled AssignmentExpression->left->TSParameterProperty");
-  // } else if (isTSAsExpression(orig_left)) {
-  //   throw new Error("TODO // unhandled AssignmentExpression->left->TSAsExpression");
-  // } else if (isTSSatisfiesExpression(orig_left)) {
-  //   throw new Error("TODO // unhandled AssignmentExpression->left->TSSatisfiesExpression");
-  // } else if (isTSTypeAssertion(orig_left)) {
-  //   throw new Error("TODO // unhandled AssignmentExpression->left->TSTypeAssertion");
-  // } else if (isTSNonNullExpression(orig_left)) {
-  //   throw new Error("TODO // unhandled AssignmentExpression->left->TSNonNullExpression");
-  // } else if (isOptionalMemberExpression(orig_left)) {
-  //   throw new Error("TODO // unhandled AssignmentExpression->left->OptionalMemberExpression");
-  // }
-
-  //
-  // Ensuring expressions that are conditionally evaluated remain intact is important
-  //
-  // 1. Base Case
-  //
-  // lVal = rVal
-  //
-  //   rVal$res = rVal...
-  //   lVal = rVal$res
-  //
-  // 2. Operator Case (https://262.ecma-international.org/12.0/#prod-AssignmentOperator)
-  //
-  // lVal [OP]= rVal
-  //
-  //   rVal$res = rVal...
-  //   lVal [OP]= rVal$res
-  //
-  // 3. &&= Case (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_AND_assignment)
-  // The logical AND assignment (&&=) operator only evaluates the right operand and assigns to the left if the left operand is truthy.
-  //
-  // lVal &&= rVal
-  //
-  //   lVal$res = ...lVal
-  //   rVal$resHolder = lVal$res
-  //   bCond = lVal$res === true
-  //   if (bCond) {
-  //      rVal$resHolder = ...rVal
-  //   }
-  //   lVal$res = rVal$ResHolder
-  //
-  // 4. ||= Case (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR_assignment)
-  // The logical OR assignment (||=) operator only evaluates the right operand and assigns to the left if the left operand is falsy.
-  //
-  // lVal ||= rVal
-  //
-  //   lVal$res = ...lVal
-  //   rVal$resHolder = lVal$res
-  //   bCond = lVal$res === false
-  //   if (bCond) {
-  //      rVal$resHolder = ...rVal
-  //   }
-  //   lVal$res = rVal$ResHolder
-  //
-  // 5. ??= Case (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_assignment)
-  // The nullish coalescing assignment (??=) operator only evaluates the right operand and assigns to the left if the left operand is nullish (null or undefined).
-  //
-  // lVal ??= rVal
-  //
-  //   lVal$res = ...lVal
-  //   rVal$resHolder = lVal$res
-  //   bCond = lVal$res === null || lVal$res === undefined
-  //   if (bCond) {
-  //      rVal$resHolder = ...rVal
-  //   }
-  //   lVal$res = rVal$ResHolder
-  //
-
-  // let orig_right = node.right; // Handling prop right
-  // let fin_right: JS3AssignmentExpression_right; // Handling prop right
-
-  // if (isIdentifier(orig_right) || isDecimalLiteral(orig_right) || isBigIntLiteral(orig_right) || isStringLiteral(orig_right) || isNumericLiteral(orig_right) || isNullLiteral(orig_right) || isBooleanLiteral(orig_right)) {
-  //   fin_right = orig_right
-  //   return generateJS3AssignmentExpression(fin_left, fin_right, node);
-  // } else if (isArrowFunctionExpression(orig_right)) {
-  //   fin_right = handleArrowFunctionExpression(orig_right, otherProps);
-  //   return generateJS3AssignmentExpression(fin_left, fin_right, node);
-  // } else if (isFunctionExpression(orig_right)) {
-  //   fin_right = handleFunctionExpression(orig_right, otherProps);
-  //   return generateJS3AssignmentExpression(fin_left, fin_right, node);
-  // } else if (isClassExpression(orig_right)) {
-  //   fin_right = handleClassExpression(orig_right, otherProps);
-  //   return generateJS3AssignmentExpression(fin_left, fin_right, node);
-  // } else if (isThisExpression(orig_right)) {
-  //   fin_right = orig_right
-  //   return generateJS3AssignmentExpression(fin_left, fin_right, node);
-  // } else if (isExpression(orig_right)) {
-
-  //   if (!(node.operator === "&&=" || node.operator === "||=" || node.operator === "??=")) {
-  //     let fin_right: JS3AssignmentExpression_right; // Handling prop right
-  //     if (isMemberExpressionContext) {
-  //       fin_right = lowerComputedKey(node.right, otherProps);
-  //     } else if (isFunctionExpression(node.right) || isArrowFunctionExpression(node.right) || isClassExpression(node.right)) { // Probably redundant but keep it for consistency
-  //       fin_right = lowerToAnonArrayExpr(node.right, otherProps);
-  //     } else {
-  //       fin_right = handleExpression(node.right, otherProps);
-  //     }
-
-  //     return generateJS3AssignmentExpression(fin_left, fin_right, node);
-  //   }
-
-  //   // rVal$resHolder = lVal$res
-  //   const rValFinalResHolder = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
-  //   const lValRes = fin_left;
-  //   let varDecl;
-  //   // @ts-ignore
-  //   if (isArrayPattern(lValRes) || isObjectPattern(lValRes) || isAssignmentPattern(lValRes) || isRestElement(lValRes)) {
-  //     varDecl = generateIdentifier(node, "$TODO$UNSUPPORTED_LVAL_TYPE")
-  //     throw new Error("TODO // unhandled UNSUPPORTED_LVAL_TYPE");
-  //   } else {
-  //     varDecl = generateDummyJS3VariableDeclaration(node, rValFinalResHolder, lValRes);
-  //   }
-  //   otherProps.others.holder.push(varDecl)
-
-  //   // Spill RHS into a temporary block
-  //   // { BODY }
-  //   const blockHolder: JS3BlockStatement_body = new Array()
-  //   const condBody = generateJS3BlockStatementfromBaseNode(blockHolder, new Array(), node.right)
-  //   const updatedProps = { ...otherProps, others: { ...otherProps.others, holder: blockHolder } }
-  //   let rvalEvaled: JS3AssignmentExpression_right;
-
-  //   if (isMemberExpressionContext) {
-  //     rvalEvaled = lowerComputedKey(node.right, updatedProps);
-  //   } else {
-  //     if (isFunctionExpression(node.right) || isArrowFunctionExpression(node.right) || isClassExpression(node.right)) { // Probably redundant but keep it for consistency
-  //       rvalEvaled = lowerToAnonArrayExpr(node.right, updatedProps);
-  //     } else {
-  //       rvalEvaled = handleExpression(node.right, updatedProps);
-  //     }
-  //   }
-
-  //   // rVal$resHolder = rVal$res
-  //   const updateRes = generateJS3AssignmentExpressionfromBaseNode(rValFinalResHolder, rvalEvaled, "=", node.right);
-  //   blockHolder.push(updateRes)
-
-  // if (node.operator === "&&=") {
-  //   // If (lVal$res) { BODY }
-  //   let bCondTrue;
-  //   // @ts-ignore
-  //   if (isArrayPattern(lValRes) || isObjectPattern(lValRes) || isAssignmentPattern(lValRes) || isRestElement(lValRes)) {
-  //     bCondTrue = generateIdentifier(node, "$TODO$UNSUPPORTED_LVAL_RES")
-  //     throw new Error("TODO // unhandled UNSUPPORTED_LVAL_TYPE");
-  //   } else {
-  //     // @ts-ignore
-  //     bCondTrue = handleExpression(lValRes, otherProps)
-  //   }
-  //   const ifStmt = generateJS3IfStatementfromBaseNode(bCondTrue, condBody, null, node)
-
-  //   otherProps.others.holder.push(ifStmt)
-  //   return generateJS3AssignmentExpression(lValRes, rValFinalResHolder, node);
-
-  // } else if (node.operator === "||=") {
-  //   // if ( !TEST1 ) { BODY }
-  //   // @ts-ignore
-  //   const bCondFalse = handleExpression(unaryExpression("!", lValRes), otherProps)
-  //   const ifStmt = generateJS3IfStatementfromBaseNode(bCondFalse, condBody, null, node)
-
-  //   otherProps.others.holder.push(ifStmt)
-  //   return generateJS3AssignmentExpression(lValRes, rValFinalResHolder, node);
-  // } else if (node.operator === "??=") {
-  //   // if (TEST1 || TEST2) { BODY }
-  //   // TEST1
-  //   const bCondTestUndef = handleExpression(
-  //     // @ts-ignore
-  //     binaryExpression("===", fin_left, identifier("undefined")), otherProps
-  //   )
-  //   // TEST2
-  //   const bCondTestNull = handleExpression(
-  //     // @ts-ignore
-  //     binaryExpression("===", fin_left, nullLiteral()), otherProps
-  //   )
-  //   // TEST1 || TEST2
-  //   const bCondTest = handleExpression(
-  //     logicalExpression("||", bCondTestUndef, bCondTestNull), otherProps
-  //   )
-
-  //   const ifStmt = generateJS3IfStatementfromBaseNode(bCondTest, condBody, null, node)
-
-  //   otherProps.others.holder.push(ifStmt)
-  //   return generateJS3AssignmentExpression(fin_left, rValFinalResHolder, node);
-  // }
-  // }
-
-  // let result: JS3AssignmentExpression = generateJS3AssignmentExpression(fin_left, fin_right, node);
-  // return result
 }
 
 export function handleUnaryExpression(
