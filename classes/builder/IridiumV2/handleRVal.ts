@@ -114,6 +114,7 @@ import {
   IRIV2_STMT,
   lowerArgumentInit,
   reduceJSAssignmentExprToIridium,
+  reduceMemberExpressionIntoJS3MemberExpression,
 } from "./handleStatement";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
 
@@ -488,9 +489,8 @@ export const handleArrayPatternAssignmentExpr = (
   );
 
   for (let e of elements) {
-    
-    // Identifier | MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | VoidPattern | TSAsExpression | TSSatisfiesExpression | TSTypeAssertion | TSNonNullExpression;
-    if (isIdentifier(e) || isAssignmentPattern(e) || isArrayPattern(e) || isObjectPattern(e)) {
+
+    const stepIterator = () => {
       // Get next element from the iterator
       cx.getCurrentBB().args.push(
         new StackRetainSEXP(new JSForOfNextSEXP(), 2),
@@ -501,10 +501,21 @@ export const handleArrayPatternAssignmentExpr = (
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
       );
+    };
+    
+    // Identifier | MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | VoidPattern | TSAsExpression | TSSatisfiesExpression | TSTypeAssertion | TSNonNullExpression;
+    if (isIdentifier(e) || isAssignmentPattern(e) || isArrayPattern(e) || isObjectPattern(e)) {
+      stepIterator();
       reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", e, identifier(for$of$loop$next)));
       continue;
     } else if (isMemberExpression(e)) {
-      throw new Error("WIP// Member Expression array destructuring");
+      const mExpr = reduceMemberExpressionIntoJS3MemberExpression(cx, e);
+      stepIterator();
+      reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", mExpr, identifier(for$of$loop$next)));  
+      continue;
+    } else if (e === null) {
+      stepIterator();
+      continue;
     }
 
     const spreadTillEnd = () => {
@@ -621,164 +632,19 @@ export const handleArrayPatternAssignmentExpr = (
       loopToPost.setTRUE(loopConfig.breakTarget);
       loopToPost.setFALSE(loopTestContinuation);
 
-      
-
       return identifier(tempres);
     };
 
     if (isRestElement(e)) {
-
-      // isIdentifier(e) || isArrayPattern(e) || isObjectPattern(e)
-
       if (isIdentifier(e.argument) || isArrayPattern(e.argument) || isObjectPattern(e.argument)) {
-
-        // cx.getCurrentBB().args.push(
-        //   new EnvWriteSEXP(
-        //     e.argument.name,
-        //     new EnvReadSEXP(tempres, getLocInfoIfAvailable()),
-        //     safeWrite,
-        //     false,
-        //     getLocInfoIfAvailable(e.argument)
-        //   ),
-        // );
         reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", e.argument, spreadTillEnd()));
-      } else throw new Error("WIP// Rest element in array destructuring unhandled case");
-
-    } else throw new Error("TODO// unhandled array destructuring pattern");
-
-
-    // if (isIdentifier(e)) {
-    //   cx.getCurrentBB().args.push(
-    //     new EnvWriteSEXP(
-    //       e.name,
-    //       new EnvReadSEXP(for$of$loop$next, getLocInfoIfAvailable()),
-    //       safeWrite,
-    //       false,
-    //       getLocInfoIfAvailable(e)
-    //     ),
-    //   );
-    // } else if (isJS3RestElement(e)) {
-    //   // tempres = []
-    //   // i = 0
-    //   // cx: {
-    //   //  next, done...
-    //   //  if (done) break;
-    //   //  tempres[i] = next;
-    //   //  i = i + 1;
-    //   //  continue
-    //   // }
-    //   let tempres = cx.js3Builder.utils.getNewTemporary("tempres");
-    //   let tempit = cx.js3Builder.utils.getNewTemporary("it");
-    //   cx.getCurrentBB().args.push(
-    //     new JSExplicitBindingDeclarationSEXP(
-    //       new ResolveEnvBindingSEXP(tempres, getLocInfoIfAvailable()),
-    //       new JSArraySEXP([]),
-    //       "JSLET",
-    //       false,
-    //       getLocInfoIfAvailable()
-    //     ),
-    //   );
-    //   cx.getCurrentBB().args.push(
-    //     new JSExplicitBindingDeclarationSEXP(
-    //       new ResolveEnvBindingSEXP(tempit, getLocInfoIfAvailable()),
-    //       new NumberSEXP(0),
-    //       "JSLET",
-    //       false,
-    //       getLocInfoIfAvailable()
-    //     ),
-    //   );
-
-    //   const currentContext = cx.getCurrentContext();
-    //   const currentBB = currentContext.getCurrentBB();
-    //   cx.addContinuation(currentContext);
-    //   const postBB = currentContext.getCurrentBB();
-
-    //   let loopHeadContext: IridiumBuildContext = cx.getCurrentContext();
-
-    //   const loopConfig: {
-    //     kind: "for-of" | "standard";
-    //     loopHeadIDX: number;
-    //     loopBodyIDX: number;
-    //     loopInitIDX: number;
-    //     label: string | null;
-    //     breakTarget: number;
-    //     continueTarget: number;
-    //   } = {
-    //     kind: "for-of",
-    //     loopHeadIDX: -1,
-    //     loopBodyIDX: -1,
-    //     loopInitIDX: -1,
-    //     label: null,
-    //     breakTarget: -1,
-    //     continueTarget: -1,
-    //   };
-
-    //   loopConfig.breakTarget = postBB.getIDX();
-
-    //   const currToLoop = new GotoSEXP(-1);
-    //   const loopToPost = new IfElseJumpSEXP(new EnvReadSEXP(for$of$loop$done, getLocInfoIfAvailable()), -1, -1);
-
-    //   // 1. CurrBB to LoopBB
-    //   currentBB.args.push(currToLoop);
-
-    //   // 2. Loop
-    //   cx.declareAndPushLexicalContext(); // Loop Context
-    //   loopHeadContext = cx.getCurrentContext();
-    //   loopConfig.loopHeadIDX = loopConfig.continueTarget = cx
-    //     .getCurrentBB()
-    //     .getIDX();
-    //   cx.getCurrentBB().args.push(
-    //     new StackRetainSEXP(new JSForOfNextSEXP(), 2),
-    //   );
-    //   cx.getCurrentBB().args.push(
-    //     new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
-    //   );
-    //   cx.getCurrentBB().args.push(
-    //     new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
-    //   );
-
-    //   cx.getCurrentBB().args.push(loopToPost);
-    //   cx.addContinuation(cx.getCurrentContext());
-    //   let loopTestContinuation = cx.getCurrentBB().getIDX();
-    //   cx.getCurrentBB().args.push(
-    //     new StackRejectSEXP(
-    //       new JSComputedFieldWriteSEXP(
-    //         tempres,
-    //         tempit,
-    //         new EnvReadSEXP(for$of$loop$next, getLocInfoIfAvailable()),
-    //         getLocInfoIfAvailable(e),
-    //       ),
-    //       1
-    //     )
-    //   );
-    //   cx.getCurrentBB().args.push(
-    //     new EnvWriteSEXP(
-    //       tempit,
-    //       getIridiumBinop("+", new EnvReadSEXP(tempit, getLocInfoIfAvailable()), new NumberSEXP(1)),
-    //       false,
-    //       false,
-    //       getLocInfoIfAvailable()
-    //     ),
-    //   );
-    //   cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP());
-    //   cx.popContext(); // Loop Context
-
-    //   loopHeadContext.loopConfig = loopConfig;
-
-    //   currToLoop.setIDX(loopConfig.loopHeadIDX);
-    //   loopToPost.setTRUE(loopConfig.breakTarget);
-    //   loopToPost.setFALSE(loopTestContinuation);
-
-    //   cx.getCurrentBB().args.push(
-    //     new EnvWriteSEXP(
-    //       e.argument.name,
-    //       new EnvReadSEXP(tempres, getLocInfoIfAvailable()),
-    //       safeWrite,
-    //       false,
-    //       getLocInfoIfAvailable(e.argument)
-    //     ),
-    //   );
-    // }
+        continue;
+      } else if (isMemberExpression(e.argument)) {
+        const mExpr = reduceMemberExpressionIntoJS3MemberExpression(cx, e.argument);
+        reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", mExpr, spreadTillEnd()));
+        continue;
+      } else throw new Error("// unhandled rest array destructuring pattern");
+    } else throw new Error(`TODO// unhandled array destructuring pattern: \n${JSON.stringify(e)}`);
   }
   
   cx.getCurrentBB().args.push(

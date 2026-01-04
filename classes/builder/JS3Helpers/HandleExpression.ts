@@ -2405,6 +2405,8 @@ export function handleAssnPatRec(
     // ...Recurse: ([a, b, c] = [1,2,3], t$2)
     //
 
+    const earlyInit = getFinInit();
+
     const properties = LVal.properties;
     const temporaries: Array<JS3AssnObjectProperty | JS3RestElement> = [];
 
@@ -2548,7 +2550,7 @@ export function handleAssnPatRec(
     // { [t$1] : t$2, d, ...e }
     const objectPattern = generateJS3ObjectPattern(temporaries, LVal);
 
-    otherProps.others.holder.push(generator(objectPattern, getFinInit()));
+    otherProps.others.holder.push(generator(objectPattern, earlyInit));
 
     //
     // Recursively solve cases that need to be reduced further
