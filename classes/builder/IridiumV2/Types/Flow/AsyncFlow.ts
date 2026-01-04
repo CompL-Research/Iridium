@@ -86,9 +86,9 @@ export class AwaitSEXP extends IridiumSEXP {
  * 
  */
 export class YieldSEXP extends IridiumSEXP {
-  constructor(arg: string, yieldReturnIndicator: string, yieldReturnResultHolder: string) {
+  constructor(arg: IridiumSEXP, yieldReturnIndicator: string, yieldReturnResultHolder: string) {
     super("Yield");
-    this.setObj(new EnvReadSEXP(arg, getLocInfoIfAvailable()));
+    this.setObj(arg);
     this.setDoneTarget(new ResolveEnvBindingSEXP(yieldReturnIndicator, getLocInfoIfAvailable()));
     this.setNextValue(new ResolveEnvBindingSEXP(yieldReturnResultHolder, getLocInfoIfAvailable()));
   }

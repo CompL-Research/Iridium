@@ -109,15 +109,18 @@ export class JSForInNextSEXP extends IridiumSEXP {
  * 
  * - `ARG(obj)`: The object instance.
  * 
+ * - `FLAG(AWAIT)`: true if this is a for await of loop otherwise false.
+ * 
  */
 export class JSForOfStartSEXP extends IridiumSEXP {
-  constructor(obj: string | IridiumSEXP) {
+  constructor(obj: string | IridiumSEXP, awaitVal: boolean = false) {
     super("JSForOfStart");
     if (typeof (obj) === "string") {
       this.setObj(new EnvReadSEXP(obj, getLocInfoIfAvailable()));
     } else {
       this.setObj(obj);
     }
+    this.setAWAIT(awaitVal);
   }
 
   // Args
@@ -127,6 +130,15 @@ export class JSForOfStartSEXP extends IridiumSEXP {
 
   getObj(): IridiumSEXP {
     return this.args[0];
+  }
+
+  // Flags
+  setAWAIT(awaitVal: boolean) {
+    this.setFlag("AWAIT", awaitVal);
+  }
+
+  getAWAIT() {
+    return this.getFlag("AWAIT");
   }
 
   toString(space?: number): string {
@@ -155,10 +167,24 @@ export class JSForOfStartSEXP extends IridiumSEXP {
  * [loop_next,loop_done = 2] = JSForOfNext([3, implicit])
  * ```
  * 
+ * #### Structure
+ * 
+ * - `FLAG(AWAIT)`: true if this is a for await of loop otherwise false.
+ * 
  */
 export class JSForOfNextSEXP extends IridiumSEXP {
-  constructor() {
+  constructor(awaitVal: boolean = false) {
     super("JSForOfNext");
+    this.setAWAIT(awaitVal);
+  }
+
+  // Flags
+  setAWAIT(awaitVal: boolean) {
+    this.setFlag("AWAIT", awaitVal);
+  }
+
+  getAWAIT() {
+    return this.getFlag("AWAIT");
   }
 
   toString(space?: number): string {

@@ -884,14 +884,39 @@ const handleYieldExpression = (
   cx: IRIDIUMV2,
   node: JS3YieldExpression,
 ): IridiumSEXP => {
+
+  if (node.delegate) throw new Error("//TODO handle Yield * (delegated yield)");
   let yieldDoneIndicator =
     cx.js3Builder.utils.getNewTemporary("yieldDoneIndicator");
   let yieldReturnResultHolder = cx.js3Builder.utils.getNewTemporary(
     "yieldReturnResultHolder",
   );
 
+  // Is async context?
+  const isAsyncContext = (curr: IridiumBuildContext) => {
+    if (curr.BB[0].isClosureBoundary()) return curr.isAsync;
+    // recurse
+    const parentContext = IridiumBuildContext.CONTEXT_MAP.get(curr.parent);
+    if (!parentContext) throw new Error("YIELD: Iridium build context not found");
+    return isAsyncContext(parentContext);
+  }
+
+  let isAsync = isAsyncContext(cx.getCurrentContext());
+
   // Lower If code
   const trueContext = cx.declareAndPushLexicalContext();
+
+  if (isAsync) {
+    cx.getCurrentBB().args.push(
+      new EnvWriteSEXP(
+        yieldReturnResultHolder,
+        new AwaitSEXP(yieldReturnResultHolder),
+        true,
+        false,
+        getLocInfoIfAvailable()
+      )
+    );
+  }
   cx.getCurrentBB().args.push(
     new ReturnAsyncSEXP(new EnvReadSEXP(yieldReturnResultHolder, getLocInfoIfAvailable())),
   );
@@ -916,10 +941,11 @@ const handleYieldExpression = (
     ),
   );
 
-  // <yieldDoneIndicator, yieldReturnResultHolder> = YIELD ARG
+  // [STACK (VAL)] AWAIT ARG
+  // <yieldDoneIndicator, yieldReturnResultHolder> = YIELD [POP_CTX]
   cx.getCurrentBB().args.push(
     new YieldSEXP(
-      node.argument ? node.argument.name : "undefined",
+      isAsync ? new AwaitSEXP(node.argument ? node.argument.name : "undefined") : new EnvReadSEXP(node.argument ? node.argument.name : "undefined", getLocInfoIfAvailable()),
       yieldDoneIndicator,
       yieldReturnResultHolder,
     ),
@@ -2287,7 +2313,8 @@ const handleNewExpression = (cx: IRIDIUMV2, node: JS3NewExpression) => {
     if (isIdentifier(a)) {
       args.push(new EnvReadSEXP(a.name, getLocInfoIfAvailable(a)));
     } else {
-      args.push(new JSSpreadSEXP(new ResolveEnvBindingSEXP(a.argument.name, getLocInfoIfAvailable(a.argument))));
+      throw new Error ("TODO // JSSpreadSEXP");
+      // args.push(new JSSpreadSEXP(new ResolveEnvBindingSEXP(a.argument.name, getLocInfoIfAvailable(a.argument))));
     }
   }
   if (isIdentifier(node.callee)) {
@@ -2349,7 +2376,8 @@ const handleCallExpression = (cx: IRIDIUMV2, node: JS3CallExpression | JS3JSXCal
       args.push(new StringSEXP(a.value));
     }
     else {
-      args.push(new JSSpreadSEXP(new ResolveEnvBindingSEXP(a.argument.name, getLocInfoIfAvailable(a.argument))));
+      throw new Error ("TODO // JSSpreadSEXP");
+      // args.push(new JSSpreadSEXP(new ResolveEnvBindingSEXP(a.argument.name, getLocInfoIfAvailable(a.argument))));
     }
   }
   if (isIdentifier(node.callee)) {
@@ -2383,9 +2411,10 @@ const handleContextualCallExpression = (
       if (isIdentifier(a)) {
         args.push(new EnvReadSEXP(a.name, getLocInfoIfAvailable(a)));
       } else if (isSpreadElement(a)) {
-        args.push(
-          new JSSpreadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a.argument)),
-        );
+        throw new Error ("TODO // JSSpreadSEXP");
+        // args.push(
+        //   new JSSpreadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a.argument)),
+        // );
       } else {
         args.push(new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a).getName(), getLocInfoIfAvailable()));
       }
@@ -2428,9 +2457,10 @@ const handleContextualCallExpression = (
     if (isIdentifier(a)) {
       args.push(new EnvReadSEXP(a.name, getLocInfoIfAvailable(a)));
     } else if (isSpreadElement(a)) {
-      args.push(
-        new JSSpreadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a.argument)),
-      );
+      throw new Error ("TODO // JSSpreadSEXP");
+      // args.push(
+      //   new JSSpreadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a.argument)),
+      // );
     } else {
       args.push(new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a).getName(), getLocInfoIfAvailable()));
     }

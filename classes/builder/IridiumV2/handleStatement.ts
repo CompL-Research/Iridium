@@ -377,7 +377,11 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
 
   if (isJS3ForOfStatement(stmt)) {
     // [<loop-iterator>, <loop-method>, <loop-catchoffset>] = JSForOfStartSEXP(RVal)
-    cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfStartSEXP(stmt.right.name), 3));
+    if (stmt.await) {
+      cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfStartSEXP(stmt.right.name, true), 3));
+    } else {
+      cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfStartSEXP(stmt.right.name), 3));
+    }
   } else {
     // <loop-iterator> = JSForInStartSEXP(RVal)
     cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-iterator>", getLocInfoIfAvailable()), new JSForInStartSEXP(stmt.right.name), "JSLET", false, getLocInfoIfAvailable()));
@@ -390,12 +394,16 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
   loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX();
 
   if (isJS3ForOfStatement(stmt)) {
-    // [<loop-done>, <loop-next>] = JSForOfNextSEXP(RVal)
-    cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfNextSEXP(), 2, 0));
+    // [<loop-next>, <loop-done>] = JSForOfNextSEXP(RVal)
+    if (stmt.await) {
+      cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfNextSEXP(true), 2, 0));
+    } else {
+      cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfNextSEXP(), 2, 0));
+    }
     cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-done>", getLocInfoIfAvailable()), new StackPopSEXP(), "JSLET", false, getLocInfoIfAvailable()));
     cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-next>", getLocInfoIfAvailable()), new StackPopSEXP(), "JSLET", false, getLocInfoIfAvailable()));
   } else {
-    // [<loop-done>, <loop-next>] = JSForInNextSEXP(RVal)
+    // [<loop-next>, <loop-done>] = JSForInNextSEXP(RVal)
     cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForInNextSEXP("<loop-iterator>"), 2, 1));
     cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-done>", getLocInfoIfAvailable()), new StackPopSEXP(), "JSLET", false, getLocInfoIfAvailable()));
     cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-next>", getLocInfoIfAvailable()), new StackPopSEXP(), "JSLET", false, getLocInfoIfAvailable()));
@@ -460,7 +468,6 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
 }
 
 const handleForOfStatement = (cx: IRIDIUMV2, stmt: JS3ForOfStatement, label: string | null = null) => {
-  if (stmt.await) throw new Error("TODO: For Of await");
   handleIteratedLoops(cx, stmt, label);
 }
 
