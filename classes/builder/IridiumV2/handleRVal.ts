@@ -2242,7 +2242,7 @@ const handleFunctionExpression = (
   const ecmaArgs      = funArgLength(node.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
 
   const implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP  }> = [
-    { name: "arguments", type: "JSVAR", value: isSimpleArgs ? 1 : 0 },
+    { name: "arguments", type: "JSVAR", value: isStrict ? 0 : isSimpleArgs ? 1 : 0 },
     { name: "this", type: "JSLET", value: 9 },
     { name: "new.target", type: "JSVAR", value: 3 },
     { name: "<home_object>", type: "JSVAR", value: 4 },
