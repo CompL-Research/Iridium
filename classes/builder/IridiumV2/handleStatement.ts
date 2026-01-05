@@ -1,12 +1,12 @@
 import { ArrayPattern, assignmentExpression, AssignmentExpression, AssignmentPattern, identifier, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isImportSpecifier, isObjectPattern, isObjectProperty, isRestElement, isVariableDeclaration, MemberExpression, ObjectPattern, RestElement, variableDeclaration, VariableDeclaration, variableDeclarator } from "@babel/types";
-import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportSpecifier, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3TDZCheck, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedBlockStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3BlockStatement, JS3BlockStatement_body, JS3DoWhileStatement, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3ReturnStatement, JS3StaticBlock, JS3SwitchCase_test, JS3SwitchStatement, JS3TryStatement, JS3VariableDeclaration, JS3WhileStatement } from "../JS3Helpers/JS3Types";
+import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportSpecifier, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3TDZCheck, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedBlockStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern_elements, JS3BlockStatement, JS3BlockStatement_body, JS3DoWhileStatement, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3ReturnStatement, JS3StaticBlock, JS3SwitchCase, JS3SwitchCase_test, JS3SwitchStatement, JS3TryStatement, JS3VariableDeclaration, JS3WhileStatement } from "../JS3Helpers/JS3Types";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
 import { handleArrayPatternAssignmentExpr, handleObjectPatternAssignmentExpr, IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP, PrivateMapping } from "./handleRVal";
 
 import { getIridiumBinop, getLocInfoIfAvailable } from "#utils";
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks";
 import { handleMemberExpression, handleAssignmentExpression as js3handleAssignmentExpression } from "../JS3Helpers/HandleExpression";
-import { EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isLambdaSEXP, JSCatchContextSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationNSEXP, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSImplicitBindingDeclarationTypes, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, SiblingSpecialWriteSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, TDZReadSEXP, ThrowSEXP } from "./Types/index";
+import { EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isLambdaSEXP, JSArraySEXP, JSCatchContextSEXP, JSComputedFieldWriteSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationNSEXP, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSImplicitBindingDeclarationTypes, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, NumberSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, SiblingSpecialWriteSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, TDZReadSEXP, ThrowSEXP } from "./Types/index";
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   if (isJS3TDZCheck(stmt)) {
@@ -271,12 +271,14 @@ const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
 
   loopConfig.breakTarget = postBB.getIDX();
 
-  const caseToBBIdxMap: Map<JS3SwitchCase_test, number> = new Map();
+  // const caseToBBIdxMap: Map<JS3SwitchCase_test, number> = new Map();
+
+  const caseGotoMap: Map<JS3SwitchCase, GotoSEXP | IfElseJumpSEXP> = new Map();
 
   // Control Flow Nodes
   const currentBBToSwitchControlBB = new GotoSEXP(-1);
 
-  // 1. Current BB to Switch Control Block
+  // 1. Enter Switch BB from Current BB
   currentBB.args.push(currentBBToSwitchControlBB);
 
   // 2. Switch Control Context (Just adding to have a clear scope hierarchy, as such it is redundant)
@@ -284,8 +286,32 @@ const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
   loopHeadContext = cx.getCurrentContext();
   loopConfig.loopHeadIDX = cx.getCurrentBB().getIDX();
 
+  // Add control header
+  const intermediateResHolder = cx.js3Builder.utils.getNewTemporary("switchResHolder");
+  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(intermediateResHolder, getLocInfoIfAvailable()), null, "JSLET", false, getLocInfoIfAvailable()));
+  let defaultCase: null | JS3SwitchCase = null;
+  for (let c of stmt.cases) {
+    if (c.test === null) { // default case, exhaust all case matches before checking for default case...
+      defaultCase = c;
+    } else {
+      const testResHolder = lowerExprToResolveEnvBindingSEXP(cx, c.test);
+      const eqCheck = getIridiumBinop("===", new EnvReadSEXP(stmt.discriminant.name, getLocInfoIfAvailable(stmt.discriminant)), new EnvReadSEXP(testResHolder.getBindingName(), getLocInfoIfAvailable()));
+      cx.getCurrentBB().args.push(new EnvWriteSEXP(intermediateResHolder, eqCheck, false, false, getLocInfoIfAvailable()));
+      let t = new IfElseJumpSEXP(new EnvReadSEXP(intermediateResHolder, getLocInfoIfAvailable()), -1, -1);
+      caseGotoMap.set(c, t);
+      cx.getCurrentBB().args.push(t);
+      cx.addContinuation(cx.getCurrentContext());
+      t.setFALSE(cx.getCurrentBB().getIDX());
+    }
+  }
+  if (defaultCase) {
+    let gg = new GotoSEXP(-1);
+    caseGotoMap.set(defaultCase, gg);
+    cx.getCurrentBB().args.push(gg);
+  }
+  cx.getCurrentBB().args.push(new ResolveBreakTargetSEXP());
+
   // 2. Switch FlowBB
-  cx.declareAndPushLexicalContext();
   for (let c of stmt.cases) {
     const currentContext = cx.getCurrentContext();
     const currentBB = currentContext.getCurrentBB();
@@ -294,6 +320,12 @@ const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
 
     const currentCaseBBIdx = postBB.getIDX();
 
+    let gotoTarget = caseGotoMap.get(c);
+    if (gotoTarget === undefined) throw new Error("switch case target not set!");
+
+    if (gotoTarget instanceof GotoSEXP) gotoTarget.setIDX(currentCaseBBIdx);
+    else gotoTarget.setTRUE(currentCaseBBIdx);
+
     // 1. CurrentBB to CaseBB (same scope, this is just a continuation)
     currentBB.args.push(new GotoSEXP(currentCaseBBIdx));
 
@@ -301,31 +333,8 @@ const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
     for (let s of c.consequent) {
       IRIV2_STMT(cx, s);
     }
-
-    caseToBBIdxMap.set(c.test, currentCaseBBIdx);
   }
   cx.getCurrentBB().args.push(new ResolveBreakTargetSEXP()); // If there is no break anywhere, a break will match to the loop context and find the break context during resolution of break and continue.
-  cx.popContext();
-
-  // 2. Add code to the control context
-  const intermediateResHolder = cx.js3Builder.utils.getNewTemporary("switchResHolder");
-  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(intermediateResHolder, getLocInfoIfAvailable()), null, "JSLET", false, getLocInfoIfAvailable()));
-  for (let c of stmt.cases) {
-    const testTarget = caseToBBIdxMap.get(c.test);
-    if (typeof testTarget !== "number") throw new Error("Test target must be a number");
-    if (c.test === null) { // default case
-      cx.getCurrentBB().args.push(new GotoSEXP(testTarget));
-    } else {
-      const testResHolder = lowerExprToResolveEnvBindingSEXP(cx, c.test);
-      const eqCheck = getIridiumBinop("===", new EnvReadSEXP(stmt.discriminant.name, getLocInfoIfAvailable(stmt.discriminant)), new EnvReadSEXP(testResHolder.getBindingName(), getLocInfoIfAvailable()));
-      cx.getCurrentBB().args.push(new EnvWriteSEXP(intermediateResHolder, eqCheck, false, false, getLocInfoIfAvailable()));
-      let t = new IfElseJumpSEXP(new EnvReadSEXP(intermediateResHolder, getLocInfoIfAvailable()), testTarget, -1)
-      cx.getCurrentBB().args.push(t);
-      cx.addContinuation(cx.getCurrentContext());
-      t.setFALSE(cx.getCurrentBB().getIDX());
-    }
-  }
-  cx.getCurrentBB().args.push(new ResolveBreakTargetSEXP());
   cx.popContext(); // Switch Parent Context
 
   // Initialize Nodes
@@ -827,6 +836,186 @@ const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
   currentBB.args.push(ifElseJump);
 }
 
+export const handleArrayPatternAssignmentDecl = (
+  cx: IRIDIUMV2,
+  elements: JS3ArrayPattern_elements,
+  rValTarget: IridiumSEXP,
+  safeWrite: boolean = false,
+) => {
+  let for$of$loop$next = cx.js3Builder.utils.getNewTemporary("next");
+  let for$of$loop$done = cx.js3Builder.utils.getNewTemporary("done");
+
+  // RetainedOnStack[<loop-iterator>, <loop-method>, <loop-catchoffset>] = JSForOfStartSEXP(RVal)
+  cx.getCurrentBB().args.push(
+    new StackRetainSEXP(new JSForOfStartSEXP(rValTarget), 3),
+  );
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationSEXP(
+      new ResolveEnvBindingSEXP(for$of$loop$next, getLocInfoIfAvailable()),
+      null,
+      "JSLET",
+      false,
+      getLocInfoIfAvailable()
+    ),
+  );
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationSEXP(
+      new ResolveEnvBindingSEXP(for$of$loop$done, getLocInfoIfAvailable()),
+      null,
+      "JSLET",
+      false,
+      getLocInfoIfAvailable()
+    ),
+  );
+
+  for (let e of elements) {
+    if (isIdentifier(e)) {
+      cx.getCurrentBB().args.push(
+        new StackRetainSEXP(new JSForOfNextSEXP(), 2),
+      );
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
+      );
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
+      );
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(
+          e.name,
+          new EnvReadSEXP(for$of$loop$next, getLocInfoIfAvailable()),
+          safeWrite,
+          false,
+          getLocInfoIfAvailable()
+        ),
+      );
+    } else if (isJS3RestElement(e)) {
+      // tempres = []
+      // i = 0
+      // cx: {
+      //  next, done...
+      //  if (done) break;
+      //  tempres[i] = next;
+      //  i = i + 1;
+      //  continue
+      // }
+      let tempres = cx.js3Builder.utils.getNewTemporary("tempres");
+      let tempit = cx.js3Builder.utils.getNewTemporary("it");
+      cx.getCurrentBB().args.push(
+        new JSExplicitBindingDeclarationSEXP(
+          new ResolveEnvBindingSEXP(tempres, getLocInfoIfAvailable()),
+          new JSArraySEXP([]),
+          "JSLET",
+          false,
+          getLocInfoIfAvailable()
+        ),
+      );
+      cx.getCurrentBB().args.push(
+        new JSExplicitBindingDeclarationSEXP(
+          new ResolveEnvBindingSEXP(tempit, getLocInfoIfAvailable()),
+          new NumberSEXP(0),
+          "JSLET",
+          false,
+          getLocInfoIfAvailable()
+        ),
+      );
+
+      const currentContext = cx.getCurrentContext();
+      const currentBB = currentContext.getCurrentBB();
+      cx.addContinuation(currentContext);
+      const postBB = currentContext.getCurrentBB();
+
+      let loopHeadContext: IridiumBuildContext = cx.getCurrentContext();
+
+      const loopConfig: {
+        kind: "for-of" | "standard";
+        loopHeadIDX: number;
+        loopBodyIDX: number;
+        loopInitIDX: number;
+        label: string | null;
+        breakTarget: number;
+        continueTarget: number;
+      } = {
+        kind: "for-of",
+        loopHeadIDX: -1,
+        loopBodyIDX: -1,
+        loopInitIDX: -1,
+        label: null,
+        breakTarget: -1,
+        continueTarget: -1,
+      };
+
+      loopConfig.breakTarget = postBB.getIDX();
+
+      const currToLoop = new GotoSEXP(-1);
+      const loopToPost = new IfElseJumpSEXP(new EnvReadSEXP(for$of$loop$done, getLocInfoIfAvailable()), -1, -1);
+
+      // 1. CurrBB to LoopBB
+      currentBB.args.push(currToLoop);
+
+      // 2. Loop
+      cx.declareAndPushLexicalContext(); // Loop Context
+      loopHeadContext = cx.getCurrentContext();
+      loopConfig.loopHeadIDX = loopConfig.continueTarget = cx
+        .getCurrentBB()
+        .getIDX();
+      cx.getCurrentBB().args.push(
+        new StackRetainSEXP(new JSForOfNextSEXP(), 2),
+      );
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
+      );
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
+      );
+
+      cx.getCurrentBB().args.push(loopToPost);
+      cx.addContinuation(cx.getCurrentContext());
+      let loopTestContinuation = cx.getCurrentBB().getIDX();
+      cx.getCurrentBB().args.push(
+        new StackRejectSEXP(
+          new JSComputedFieldWriteSEXP(
+            tempres,
+            tempit,
+            new EnvReadSEXP(for$of$loop$next, getLocInfoIfAvailable()),
+            getLocInfoIfAvailable()
+          ),
+          1
+        )
+      );
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(
+          tempit,
+          getIridiumBinop("+", new EnvReadSEXP(tempit, getLocInfoIfAvailable()), new NumberSEXP(1)),
+          false,
+          false,
+          getLocInfoIfAvailable()
+        ),
+      );
+      cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP());
+      cx.popContext(); // Loop Context
+
+      loopHeadContext.loopConfig = loopConfig;
+
+      currToLoop.setIDX(loopConfig.loopHeadIDX);
+      loopToPost.setTRUE(loopConfig.breakTarget);
+      loopToPost.setFALSE(loopTestContinuation);
+
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(
+          e.argument.name,
+          new EnvReadSEXP(tempres, getLocInfoIfAvailable()),
+          safeWrite,
+          false,
+          getLocInfoIfAvailable()
+        ),
+      );
+    }
+  }
+  cx.getCurrentBB().args.push(
+    new StackRejectSEXP(new JSForOfIteratorCloseSEXP(), 0),
+  );
+};
+
 const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) => {
   // Assert that only one specifier exists
   if (stmt.kind === "using" || stmt.kind === "await using") {
@@ -888,7 +1077,7 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
         cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(e.argument.name, getLocInfoIfAvailable(e.argument)), null, KIND, false, getLocInfoIfAvailable(e.argument)));
       }
     }
-    handleArrayPatternAssignmentExpr(cx, declaration.id.elements, rValTarget, true);
+    handleArrayPatternAssignmentDecl(cx, declaration.id.elements, rValTarget, true);
 
     return;
   }
@@ -1250,7 +1439,7 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
   const ecmaArgs      = funArgLength(stmt.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
   
   const implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP  }> = [
-    { name: "arguments", type: "JSVAR", value: isSimpleArgs ? 1 : 0 },
+    { name: "arguments", type: "JSVAR", value: isStrict ? 0 : isSimpleArgs ? 1 : 0 },
     { name: "this", type: "JSLET", value: 9 },
     { name: "new.target", type: "JSVAR", value: 3 },
     { name: "<home_object>", type: "JSVAR", value: 4 },
