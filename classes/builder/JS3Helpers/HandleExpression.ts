@@ -115,7 +115,8 @@ import {
   YieldExpression,
   Super,
   stringLiteral,
-  ArrayPattern
+  ArrayPattern,
+  booleanLiteral
 } from "@babel/types";
 import { JS3BuilderUtils } from "../JS3Builder";
 import {
@@ -3035,7 +3036,11 @@ export function handleUnaryExpression(
     } else if (isIdentifier(orig_argument)) {
       fin_argument = orig_argument;
     } else {
-      fin_argument = lowerComputedKey(orig_argument, otherProps);
+      // 
+      // Complex delete operation are simply reduced down to a true value...
+      // 
+      handleExpression(orig_argument, otherProps);
+      return booleanLiteral(true);
     }
   } else {
     if (isIdentifier(orig_argument)) {
