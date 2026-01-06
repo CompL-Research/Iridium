@@ -6,7 +6,7 @@ import { handleArrayPatternAssignmentExpr, handleObjectPatternAssignmentExpr, IR
 import { getIridiumBinop, getLocInfoIfAvailable } from "#utils";
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks";
 import { handleMemberExpression, handleAssignmentExpression as js3handleAssignmentExpression } from "../JS3Helpers/HandleExpression";
-import { EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isLambdaSEXP, JSArraySEXP, JSCatchContextSEXP, JSComputedFieldWriteSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationNSEXP, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSImplicitBindingDeclarationTypes, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, ModuleRequestSEXP, NamedReexportSEXP, NumberSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, SiblingSpecialWriteSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, TDZReadSEXP, ThrowSEXP } from "./Types/index";
+import { EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isLambdaSEXP, JSArraySEXP, JSCatchContextSEXP, JSComputedFieldWriteSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationNSEXP, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSImplicitBindingDeclarationTypes, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, LoopInitPreludeEndSEXP, ModuleRequestSEXP, NamedReexportSEXP, NumberSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, SiblingSpecialWriteSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, TDZReadSEXP, ThrowSEXP } from "./Types/index";
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   if (isJS3TDZCheck(stmt)) {
@@ -216,20 +216,32 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   }
 };
 
-export const handleBlockStatement = (cx: IRIDIUMV2, stmt: JS3BlockStatement | JS3StaticBlock): IridiumBuildContext => {
+type IRILoopBodyCTX = {
+  label: string | null
+};
+
+export const handleBlockStatement = (cx: IRIDIUMV2, stmt: JS3BlockStatement | JS3StaticBlock, loopBodyCTX: IRILoopBodyCTX | null = null): IridiumBuildContext => {
   const oldContext = cx.getCurrentContext();
   const newContext = cx.declareAndPushLexicalContext();
 
   // Add Gotos from oldContext's last BB to currentBB.
   oldContext.getCurrentBB().args.push(new GotoSEXP(newContext.BB[0].idx))
-  cx.addContinuation(oldContext);
+  
+  if (!loopBodyCTX) { // Such an implicit jump should not be allowed in a loop body context, it will result in an empty BB
+    cx.addContinuation(oldContext);
+  }
 
   for (const s of stmt.body) {
     IRIV2_STMT(cx, s);
   }
 
-  // After generating the code, add a goto from the last lowered block to the oldContexts continuation
-  cx.getCurrentBB().args.push(new GotoSEXP(oldContext.getCurrentBB().idx));
+  if (loopBodyCTX) {
+    cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP(loopBodyCTX.label));
+  } else {
+    // After generating the code, add a goto from the last lowered block to the oldContexts continuation
+    cx.getCurrentBB().args.push(new GotoSEXP(oldContext.getCurrentBB().idx));
+  }
+
   cx.popContext();
 
   return newContext;
@@ -454,8 +466,7 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
     reduceJSAssignmentExprToIridium(cx, newAssn);
   }
 
-  handleBlockStatement(cx, stmt.body);
-  cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP(label));
+  handleBlockStatement(cx, stmt.body, { label: label });
   cx.popContext(); // Loop Body
   cx.popContext(); // Loop Test
   cx.popContext(); // Loop Init
@@ -532,6 +543,7 @@ const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement, label: string 
     } else {
       lowerExprToResolveEnvBindingSEXP(cx, stmt.init);
     }
+    cx.getCurrentBB().args.push(new LoopInitPreludeEndSEXP());
   }
   cx.getCurrentBB().args.push(loopInitToLoopTestNode);
 
@@ -548,14 +560,10 @@ const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement, label: string 
     cx.getCurrentBB().args.push(testBBUCTrueNode);
   }
 
-  // 4. While Body
-  cx.declareAndPushLexicalContext();
-  loopConfig.loopBodyIDX = cx.getCurrentBB().getIDX();
-  handleBlockStatement(cx, stmt.body);
-  cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP(label));
-  cx.popContext(); // While Body
+  // 4. For Body
+  loopConfig.loopBodyIDX = handleBlockStatement(cx, stmt.body, { label: label }).BB[0].getIDX();
 
-  // 5. Update Body
+  // 5. For Update Iterator
   cx.declareAndPushLexicalContext();
   loopConfig.continueTarget = cx.getCurrentBB().getIDX();
   if (stmt.update) {
@@ -617,22 +625,18 @@ const handleWhileStatement = (cx: IRIDIUMV2, stmt: JS3WhileStatement | JS3DoWhil
   // 1. Current BB to LoopHead
   currentBB.args.push(currentBBToLoopHeadNode);
 
-  // 2. While Loop Test
-  cx.declareAndPushLexicalContext();
-  loopHeadContext = cx.getCurrentContext();
-  loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX(); // In a while loop continue returns to test block
-  const testResult = lowerExprToResolveEnvBindingSEXP(cx, stmt.test);
-  testBBElseIfNode.setTest(new EnvReadSEXP(testResult.getBindingName(), getLocInfoIfAvailable()));
-  cx.getCurrentBB().args.push(testBBElseIfNode);
+    // 2. While Loop Test
+    cx.declareAndPushLexicalContext();
+    loopHeadContext = cx.getCurrentContext();
+    loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX(); // In a while loop continue returns to test block
+    const testResult = lowerExprToResolveEnvBindingSEXP(cx, stmt.test);
+    testBBElseIfNode.setTest(new EnvReadSEXP(testResult.getBindingName(), getLocInfoIfAvailable()));
+    cx.getCurrentBB().args.push(testBBElseIfNode);
 
-  // 3. While Body
-  cx.declareAndPushLexicalContext();
-  loopConfig.loopBodyIDX = cx.getCurrentBB().getIDX();
-  handleBlockStatement(cx, stmt.body);
-  cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP(label));
+      // 3. While Body
+      loopConfig.loopBodyIDX = handleBlockStatement(cx, stmt.body, { label: label }).BB[0].getIDX();
 
-  cx.popContext(); // While Body
-  cx.popContext(); // While Loop Test
+    cx.popContext(); // While Loop Test
 
   // Initialize Nodes
   if (loopHeadContext) {
