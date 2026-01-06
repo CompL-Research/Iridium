@@ -85,6 +85,24 @@ export class ResolveEnvBindingSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
+ * @group STMT
+ * 
+ * @remarks
+ * 
+ * Marks the end of LoopInit, at this point escaping bindings must be moved to heap if any
+ * 
+ */
+export class LoopInitPreludeEndSEXP extends IridiumSEXP {
+  constructor() {
+    super("LoopInitPreludeEnd");
+  }
+}
+
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
  * @group RVAL
  * 
  * @remarks
