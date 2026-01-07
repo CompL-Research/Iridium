@@ -19,6 +19,7 @@ import {
   isNullLiteral,
   isNumericLiteral,
   isObjectPattern,
+  isOptionalMemberExpression,
   isRestElement,
   isSpreadElement,
   isStringLiteral,
@@ -26,14 +27,17 @@ import {
   isThisExpression,
   isV8IntrinsicIdentifier,
   memberExpression,
+  Node,
   NumericLiteral,
   PatternLike,
+  SpreadElement,
   stringLiteral,
   StringLiteral,
   thisExpression
 } from "@babel/types";
 import {
   handleExpression,
+  handleSpreadElement,
   lowerToAnonArrayExpr,
 } from "../JS3Helpers/HandleExpression";
 import {
@@ -103,6 +107,7 @@ import {
   JS3ObjectMethod_key,
   JS3ObjectPattern_properties,
   JS3RestElement,
+  JS3SpreadElement,
   JS3UnaryExpression,
   JS3UpdateExpression,
   JS3YieldExpression
@@ -119,6 +124,7 @@ import {
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
 
 import {
+  ApplySEXP,
   AwaitSEXP,
   BinopSEXP,
   BooleanSEXP,
@@ -215,7 +221,7 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
         } else {
           throw new Error(
             "TODO: handle super non computed fields",
-          );  
+          );
         }
       } else
         throw new Error(
@@ -283,12 +289,10 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
 
   // JS3Meta Property
   else if (isJS3MetaProperty(init)) {
-    if (init.meta.name === "import")
-    {
+    if (init.meta.name === "import") {
       return new EnvReadSEXP("<module_meta>", getLocInfoIfAvailable());
     }
-    else
-    {
+    else {
       return new EnvReadSEXP("new.target", getLocInfoIfAvailable());
     }
   }
@@ -502,7 +506,7 @@ export const handleArrayPatternAssignmentExpr = (
         new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
       );
     };
-    
+
     // Identifier | MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | VoidPattern | TSAsExpression | TSSatisfiesExpression | TSTypeAssertion | TSNonNullExpression;
     if (isIdentifier(e) || isAssignmentPattern(e) || isArrayPattern(e) || isObjectPattern(e)) {
       stepIterator();
@@ -511,7 +515,7 @@ export const handleArrayPatternAssignmentExpr = (
     } else if (isMemberExpression(e)) {
       const mExpr = reduceMemberExpressionIntoJS3MemberExpression(cx, e);
       stepIterator();
-      reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", mExpr, identifier(for$of$loop$next)));  
+      reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", mExpr, identifier(for$of$loop$next)));
       continue;
     } else if (e === null) {
       stepIterator();
@@ -646,14 +650,14 @@ export const handleArrayPatternAssignmentExpr = (
       } else throw new Error("// unhandled rest array destructuring pattern");
     } else throw new Error(`TODO// unhandled array destructuring pattern: \n${JSON.stringify(e)}`);
   }
-  
+
   cx.getCurrentBB().args.push(
     new StackRejectSEXP(new JSForOfIteratorCloseSEXP(), 0),
   );
 
   // Exit from current loop
   cx.getCurrentBB().args.push(exitFromLoop);
-  
+
   // Close === loop context ===
   cx.popContext();
 
@@ -714,14 +718,14 @@ export const handleObjectPatternAssignmentExpr = (
         if (isIdentifier(d.key)) {
           rVal = new JSComputedFieldReadSEXP(toObjRes, d.key.name, getLocInfoIfAvailable(d));
           if (hasRest) {
-            
+
             cx.getCurrentBB().args.push(
               new StackRejectSEXP(
                 new JSComputedFieldWriteSEXP(
                   // @ts-expect-error
-                  exc_obj, 
-                  d.key.name, 
-                  new NullSEXP(), 
+                  exc_obj,
+                  d.key.name,
+                  new NullSEXP(),
                   getLocInfoIfAvailable(d)
                 ),
                 1
@@ -734,7 +738,7 @@ export const handleObjectPatternAssignmentExpr = (
           let fieldSEXP = IRIV2_RVAL(cx, d.key);
           rVal = new JSComputedFieldReadSEXP(toObjRes, fieldSEXP, getLocInfoIfAvailable(d));
           if (hasRest) {
-            
+
             cx.getCurrentBB().args.push(
               new StackRejectSEXP(
                 new JSComputedFieldWriteSEXP(
@@ -753,14 +757,14 @@ export const handleObjectPatternAssignmentExpr = (
         if (isIdentifier(d.key)) {
           rVal = new FieldReadSEXP(toObjRes, d.key.name, getLocInfoIfAvailable(d.key));
           if (hasRest) {
-            
+
             cx.getCurrentBB().args.push(
               new StackRejectSEXP(
                 new FieldWriteSEXP(
                   // @ts-expect-error
-                  exc_obj, 
-                  d.key.name, 
-                  new NullSEXP(), 
+                  exc_obj,
+                  d.key.name,
+                  new NullSEXP(),
                   getLocInfoIfAvailable(d)
                 ),
                 1
@@ -776,9 +780,9 @@ export const handleObjectPatternAssignmentExpr = (
               new StackRejectSEXP(
                 new FieldWriteSEXP(
                   // @ts-expect-error
-                  exc_obj, 
+                  exc_obj,
                   "" + d.key.value,
-                  new NullSEXP(), 
+                  new NullSEXP(),
                   getLocInfoIfAvailable(d)
                 ),
                 1
@@ -842,7 +846,7 @@ const handleUnaryExpression = (
       const receiver = node.argument.object;
       const property = node.argument.property;
 
-      const acceptable = 
+      const acceptable =
         (isIdentifier(receiver) && isIdentifier(property))
         || (isThisExpression(receiver) && isIdentifier(property));
 
@@ -850,7 +854,7 @@ const handleUnaryExpression = (
         throw new Error(
           `Invalid operand combination for 'handleUnaryExpression'`,
         );
-      
+
       return getIridiumUnop(
         node.operator,
         new UNOPDelMemberExprSEXP(
@@ -1407,11 +1411,11 @@ const createClassNonStaticPropInitClosure = (
       let loweredValue: IridiumSEXP = new EnvReadSEXP(
         classItem.value
           ? lowerExprToResolveEnvBindingSEXP(
-              cx,
-              classItem.value,
-            ).getBindingName()
+            cx,
+            classItem.value,
+          ).getBindingName()
           : "undefined",
-          getLocInfoIfAvailable()
+        getLocInfoIfAvailable()
       );
       cx.getCurrentBB().args.push(
         new StackRejectSEXP(
@@ -1571,11 +1575,11 @@ const createClassStaticPropInitClosure = (
       let loweredValue: IridiumSEXP = new EnvReadSEXP(
         classItem.value
           ? lowerExprToResolveEnvBindingSEXP(
-              cx,
-              classItem.value,
-            ).getBindingName()
+            cx,
+            classItem.value,
+          ).getBindingName()
           : "undefined",
-          getLocInfoIfAvailable()
+        getLocInfoIfAvailable()
       );
       cx.getCurrentBB().args.push(
         new StackRejectSEXP(
@@ -1802,13 +1806,13 @@ const handleUpdateExpression = (
   node: JS3UpdateExpression,
 ): IridiumSEXP => {
   if (isIdentifier(node.argument)) {
-    
+
     // return new IDOPSEXP(
     //   new EnvReadSEXP(node.argument.name),
     //   node.prefix,
     //   node.operator === "++"
     // );
-    
+
     if (node.prefix) {
       // n = n [+|-] 1
       // ret n
@@ -1867,14 +1871,11 @@ const handleUpdateExpression = (
     //  computed = true | false
 
     // a.x++ || --this.a || a[x]++ || --this[a]
-    if ((isIdentifier(node.argument.object) || isThisExpression(node.argument.object)) && isIdentifier(node.argument.property))
-    {
-      if (!node.argument.computed)
-      {
+    if ((isIdentifier(node.argument.object) || isThisExpression(node.argument.object)) && isIdentifier(node.argument.property)) {
+      if (!node.argument.computed) {
         return new IDOPSEXP(new FieldReadSEXP(isThisExpression(node.argument.object) ? "this" : node.argument.object.name, node.argument.property.name, isThisExpression(node.argument.object) ? getLocInfoIfAvailable() : getLocInfoIfAvailable(node.argument)), node.prefix, node.operator === "++");
       }
-      else
-      {
+      else {
         return new JSIDOPSEXP(new JSComputedFieldReadSEXP(isThisExpression(node.argument.object) ? "this" : node.argument.object.name, node.argument.property.name, isThisExpression(node.argument.object) ? getLocInfoIfAvailable() : getLocInfoIfAvailable(node.argument)), node.prefix, node.operator === "++");
       }
     }
@@ -1954,97 +1955,116 @@ const handleClassExpression = (
   cx: IRIDIUMV2,
   node: JS3ClassExpression,
 ): IridiumSEXP => {
-  const name = node.id ? node.id.name : "";
+  throw new Error("WIP CLASS EXPRESSION");
 
-  let superClass: EnvReadSEXP | undefined = undefined;
-  if (node.superClass) {
-    if (isIdentifier(node.superClass))
-    {
-      superClass = new EnvReadSEXP(
-        node.superClass.name,
-        getLocInfoIfAvailable(node.superClass)
-      );
-    }
-    else
-    {
-      // 
-      // Heritage evaluation should take place in a special scope where the classname eventually points to the name of the class if it exists
-      // 
-      if (name === "")
-      {
-        superClass = new EnvReadSEXP(
-          lowerExprToResolveEnvBindingSEXP(cx, node.superClass).getBindingName(),
-          getLocInfoIfAvailable()
-        );
-      }
-      else
-      {
-        throw new Error("Heritage computation special block not supported yet!");
-      }
+  // const name = node.id ? node.id.name : "";
 
-    }
+  // let superClass: EnvReadSEXP | undefined = undefined;
+  // if (node.superClass) {
+  //   if (isIdentifier(node.superClass)) {
+  //     superClass = new EnvReadSEXP(
+  //       node.superClass.name,
+  //       getLocInfoIfAvailable(node.superClass)
+  //     );
+  //   }
+  //   else {
+  //     // 
+  //     // Heritage evaluation should take place in a special scope where the classname eventually points to the name of the class if it exists
+  //     // 
+  //     if (name === "") {
+  //       superClass = new EnvReadSEXP(
+  //         lowerExprToResolveEnvBindingSEXP(cx, node.superClass).getBindingName(),
+  //         getLocInfoIfAvailable()
+  //       );
+  //     }
+  //     else {
+  //       throw new Error("Heritage computation special block not supported yet!");
+  //     }
+
+  //   }
+  // }
+  // const hasSuper = node.superClass ? true : false;
+
+  // const heritage = node.superClass
+  //   ? superClass
+  //   : new EnvReadSEXP("undefined", getLocInfoIfAvailable());
+  // const addBrand = node.body.body.some(
+  //   (n) => isJS3ClassPrivateMethod(n) && !n.static,
+  // );
+  // const addStaticBrand = node.body.body.some(
+  //   (n) => isJS3ClassPrivateMethod(n) && n.static,
+  // );
+
+  // const computedPropMapping = handleComputedProps(cx, node);
+  // const privateMapping: PrivateMapping | null =
+  //   getPrivateMapping(computedPropMapping);
+  // const classPropInitClosure = createClassNonStaticPropInitClosure(
+  //   cx,
+  //   node,
+  //   computedPropMapping,
+  //   privateMapping,
+  //   hasSuper,
+  //   addBrand,
+  // );
+  // const constructorLambda = createClassConstructorClosure(
+  //   cx,
+  //   node,
+  //   superClass,
+  //   classPropInitClosure,
+  // );
+  // const methodList = lowerNonStaticClassMethods(
+  //   cx,
+  //   node,
+  //   privateMapping,
+  //   computedPropMapping,
+  // );
+  // const staticMethodList = lowerStaticClassMethods(
+  //   cx,
+  //   node,
+  //   privateMapping,
+  //   computedPropMapping,
+  // );
+  // const classStaticPropInitClosure = createClassStaticPropInitClosure(
+  //   cx,
+  //   node,
+  //   computedPropMapping,
+  //   privateMapping,
+  //   hasSuper,
+  // );
+
+  // return new JSClassSEXP(
+  //   hasSuper,
+  //   name,
+  //   heritage ? heritage : new EnvReadSEXP("undefined", getLocInfoIfAvailable()),
+  //   constructorLambda,
+  //   new EnvReadSEXP(classPropInitClosure, getLocInfoIfAvailable()),
+  //   methodList,
+  //   staticMethodList,
+  //   addBrand,
+  //   addStaticBrand,
+  //   new EnvReadSEXP(classStaticPropInitClosure, getLocInfoIfAvailable()),
+  // );
+};
+
+export const lowerSpreadToJS3Spread = (
+  cx: IRIDIUMV2,
+  from: SpreadElement,
+) => {
+  // Generate 3JS code
+  const otherProps = cx.js3Builder.utils;
+  const js3SpillHolder: JS3BlockStatement_body = [];
+  const updatedProps = {
+    ...otherProps,
+    others: { ...otherProps.others, holder: js3SpillHolder },
+  };
+
+  let res: JS3SpreadElement = handleSpreadElement(from, updatedProps);
+
+  for (const s of js3SpillHolder) {
+    IRIV2_STMT(cx, s);
   }
-  const hasSuper = node.superClass ? true : false;
-  
-  const heritage = node.superClass
-    ? superClass
-    : new EnvReadSEXP("undefined", getLocInfoIfAvailable());
-  const addBrand = node.body.body.some(
-    (n) => isJS3ClassPrivateMethod(n) && !n.static,
-  );
-  const addStaticBrand = node.body.body.some(
-    (n) => isJS3ClassPrivateMethod(n) && n.static,
-  );
 
-  const computedPropMapping = handleComputedProps(cx, node);
-  const privateMapping: PrivateMapping | null =
-    getPrivateMapping(computedPropMapping);
-  const classPropInitClosure = createClassNonStaticPropInitClosure(
-    cx,
-    node,
-    computedPropMapping,
-    privateMapping,
-    hasSuper,
-    addBrand,
-  );
-  const constructorLambda = createClassConstructorClosure(
-    cx,
-    node,
-    superClass,
-    classPropInitClosure,
-  );
-  const methodList = lowerNonStaticClassMethods(
-    cx,
-    node,
-    privateMapping,
-    computedPropMapping,
-  );
-  const staticMethodList = lowerStaticClassMethods(
-    cx,
-    node,
-    privateMapping,
-    computedPropMapping,
-  );
-  const classStaticPropInitClosure = createClassStaticPropInitClosure(
-    cx,
-    node,
-    computedPropMapping,
-    privateMapping,
-    hasSuper,
-  );
-
-  return new JSClassSEXP(
-    hasSuper,
-    name,
-    heritage ? heritage : new EnvReadSEXP("undefined", getLocInfoIfAvailable()),
-    constructorLambda,
-    new EnvReadSEXP(classPropInitClosure, getLocInfoIfAvailable()),
-    methodList,
-    staticMethodList,
-    addBrand,
-    addStaticBrand,
-    new EnvReadSEXP(classStaticPropInitClosure, getLocInfoIfAvailable()),
-  );
+  return res;
 };
 
 export const lowerExprToResolveEnvBindingSEXP = (
@@ -2219,15 +2239,15 @@ const handleFunctionExpression = (
   hasSuper: boolean = false,
   isPrivateMethod: boolean = false,
 ) => {
-  const isSimpleArgs  = node.params.every(p => isIdentifier(p));
-  
+  const isSimpleArgs = node.params.every(p => isIdentifier(p));
+
   let isStrict;
   if (isJS3ClassMethod(node) || isJS3ClassPrivateMethod(node)) isStrict = true;
   else isStrict = cx.getCurrentContext().isStrict || node.body.directives.some((val) => val.value.value === "use strict");
-  
-  const isAsync       = node.async ? node.async : false;
-  const isGenerator   = node.generator ? node.generator : false;
-  
+
+  const isAsync = node.async ? node.async : false;
+  const isGenerator = node.generator ? node.generator : false;
+
   let kind;
   if (isPrivateMethod && hasSuper) {
     kind = getPrivateDerivedMethodClosureFlag();
@@ -2239,9 +2259,9 @@ const handleFunctionExpression = (
     kind = getConstructorClosureFlag();
   }
 
-  const ecmaArgs      = funArgLength(node.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
+  const ecmaArgs = funArgLength(node.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
 
-  const implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP  }> = [
+  const implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP }> = [
     { name: "arguments", type: "JSVAR", value: isStrict ? 0 : isSimpleArgs ? 1 : 0 },
     { name: "this", type: "JSLET", value: 9 },
     { name: "new.target", type: "JSVAR", value: 3 },
@@ -2300,45 +2320,197 @@ const handleFunctionExpression = (
   return lambda;
 };
 
-const handleNewExpression = (cx: IRIDIUMV2, node: JS3NewExpression) => {
-  const args: Array<IridiumSEXP> = [];
-  if (isIdentifier(node.callee)) {
-    args.push(new EnvReadSEXP(node.callee.name, getLocInfoIfAvailable(node.callee)));
-  } else if (isSuper(node.callee)) {
-    args.push(new EnvReadSEXP("super", getLocInfoIfAvailable()));
-  } else if (isV8IntrinsicIdentifier(node.callee)) {
-    args.push(new EnvReadSEXP(node.callee.name, getLocInfoIfAvailable()));
-  }
-  for (const a of node.arguments) {
-    if (isIdentifier(a)) {
-      args.push(new EnvReadSEXP(a.name, getLocInfoIfAvailable(a)));
+const generateDynamicCallArgList = (cx: IRIDIUMV2, argList: Array < Identifier | JS3SpreadElement >): string => {
+  // let temp$id, insertionIdx$id;
+  let temp$id = cx.js3Builder.utils.getNewTemporary("temp");
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationSEXP(
+      new ResolveEnvBindingSEXP(temp$id, getLocInfoIfAvailable()),
+      null,
+      "JSLET",
+      false,
+      getLocInfoIfAvailable()
+    ),
+  );
+
+  let insertionIdx$id = cx.js3Builder.utils.getNewTemporary("insertionIdx");
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationSEXP(
+      new ResolveEnvBindingSEXP(insertionIdx$id, getLocInfoIfAvailable()),
+      null,
+      "JSLET",
+      false,
+      getLocInfoIfAvailable()
+    ),
+  );
+
+  // temp$id = [all'E'suntilNow]
+  let allEs = untilFirstMatch(argList, (e) => isJS3SpreadElement(e));
+
+  cx.getCurrentBB().args.push(
+    new EnvWriteSEXP(
+      temp$id,
+      handleArrayExpression(
+        cx,
+        generateJS3ArrayExpressionfromBaseNode(allEs, identifier("IridiumCode")),
+      ),
+      true,
+      false,
+      getLocInfoIfAvailable()
+    ),
+  );
+
+  // let insertionIdx$id = staticOffset
+  cx.getCurrentBB().args.push(
+    new EnvWriteSEXP(
+      insertionIdx$id,
+      new NumberSEXP(allEs.length),
+      true,
+      false,
+      getLocInfoIfAvailable()
+    ),
+  );
+
+  if (!isJS3SpreadElement(argList[allEs.length]))
+    throw new Error(`Expected atleast one JS3SpreadElement when lowering dynamic call arg list, use simple routine otherwise! this is inefficient!!`);
+
+  for (let i = allEs.length; i < argList.length; i++) {
+    let currEle = argList[i];
+
+    if (isJS3SpreadElement(currEle)) {
+      let sElem: JS3SpreadElement = currEle;
+      
+      // [tmp, insertionIdx] <- append (tmp, insertionIdx, spreadVal)
+      cx.getCurrentBB().args.push(
+        new StackRetainSEXP(
+          new JSAppendSEXP(
+            new EnvReadSEXP(temp$id, getLocInfoIfAvailable()), // push
+            new EnvReadSEXP(insertionIdx$id, getLocInfoIfAvailable()), // push
+            new EnvReadSEXP(sElem.argument.name, getLocInfoIfAvailable()), // push
+          ),
+          2,
+          0,
+        ),
+      );
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(insertionIdx$id, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
+      );
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(temp$id, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
+      );
     } else {
-      throw new Error ("TODO // JSSpreadSEXP");
-      // args.push(new JSSpreadSEXP(new ResolveEnvBindingSEXP(a.argument.name, getLocInfoIfAvailable(a.argument))));
+      let rVal = new EnvReadSEXP(currEle.name, getLocInfoIfAvailable());
+      
+      // tmp[insertionIdx] = rVal
+      cx.getCurrentBB().args.push(
+        new StackRejectSEXP(
+          new JSComputedFieldWriteSEXP(
+            temp$id,
+            insertionIdx$id,
+            rVal,
+            getLocInfoIfAvailable()
+          ),
+          1
+        )
+      );
+      // insertionIdx++
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(
+          insertionIdx$id,
+          getIridiumBinop(
+            "+",
+            new EnvReadSEXP(insertionIdx$id, getLocInfoIfAvailable()),
+            new NumberSEXP(1),
+          ),
+          true,
+          false,
+          getLocInfoIfAvailable()
+        ),
+      );
     }
   }
-  if (isIdentifier(node.callee)) {
-    return new CallSiteSEXP(args, "ConstructorCall");
-  } else if (isSuper(node.callee)) {
-    return new CallSiteSEXP(args, "Super");
-  } else if (isV8IntrinsicIdentifier(node.callee)) {
-    return new CallSiteSEXP(args, "V8Intrinsic");
+
+  return temp$id;
+}
+
+const generateIridiumCall = (cx: IRIDIUMV2, callee: IridiumSEXP, calleeContext: IridiumSEXP, rawCallArguments: Array <JS3ContainedExprKey | JS3SpreadElement | SpreadElement>, kind: "NORMAL" | "CONSTRUCTOR" | "CONTEXTUAL") => {
+  let callArguments: Array<Identifier | JS3SpreadElement> = [];
+
+  // Process lower, it might have been delayed by 3JS
+  callArguments = rawCallArguments.map(e => {
+    if (isIdentifier(e) || isJS3SpreadElement(e)) return e
+    else if (isSpreadElement(e)) return lowerSpreadToJS3Spread(cx, e);
+    else return identifier(lowerExprToResolveEnvBindingSEXP(cx, e).getName());
+  });
+
+  const isSimpleArgList: boolean = callArguments.find(e => !isIdentifier(e)) === undefined;
+
+  if (isSimpleArgList) {
+    // Regular call semantics
+
+    const args: Array<IridiumSEXP> = [];
+    if (kind == "CONTEXTUAL") {
+      args.push(calleeContext);
+    }
+    args.push(callee);
+
+    for (const a of callArguments) {
+      if (isIdentifier(a)) {
+        args.push(new EnvReadSEXP(a.name, getLocInfoIfAvailable(a)));
+      } else throw new Error("TODO // SimpleArgList cannot have spread");
+    }
+
+    if (kind === "CONTEXTUAL") {
+      return new CallSiteSEXP(args, "CCall");
+    } else if (kind === "CONSTRUCTOR") {
+      return new CallSiteSEXP(args, "ConstructorCall");
+    } else {
+      return new CallSiteSEXP(args);
+    }
+  } else {
+    // Apply semantics for arguments
+    const argListHolder = generateDynamicCallArgList(cx, callArguments);
+
+    if (kind === "NORMAL" || kind === "CONTEXTUAL") {
+      return new ApplySEXP(
+        callee, // Callee
+        calleeContext,  // CTX, ignored
+        new EnvReadSEXP(argListHolder, getLocInfoIfAvailable()), // arglist
+        false 
+      );
+    } else {
+      return new ApplySEXP(
+        callee, // Callee
+        calleeContext,  // CTX, ignored
+        new EnvReadSEXP(argListHolder, getLocInfoIfAvailable()), // arglist
+        true // constructor call
+      );
+    }
   }
-  throw new Error("New Call Expression Unreachable Case...");
+}
+
+const handleNewExpression = (cx: IRIDIUMV2, node: JS3NewExpression) => {
+  let callee: IridiumSEXP;
+  if (isIdentifier(node.callee)) {
+    callee = new EnvReadSEXP(node.callee.name, getLocInfoIfAvailable(node.callee));
+  } else throw new Error("TODO // NewExpression with Super | V8IntrinsicIdentifier not supported yet");
+
+  let calleeContext: IridiumSEXP = new NullSEXP();
+  return generateIridiumCall(cx, callee, calleeContext, node.arguments, "CONSTRUCTOR");
 };
 
 const handleArrowFunctionExpression = (
   cx: IRIDIUMV2,
   node: JS3ArrowFunctionExpression,
 ) => {
-  const isSimpleArgs  = node.params.every(p => isIdentifier(p));
-  const isStrict      = cx.getCurrentContext().isStrict || node.body.directives.some((val) => val.value.value === "use strict");
-  const isAsync       = node.async ? node.async : false;
-  const isGenerator   = node.generator ? node.generator : false;
-  const kind          = getRegularClosureFlag();
-  const ecmaArgs      = funArgLength(node.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
+  const isSimpleArgs = node.params.every(p => isIdentifier(p));
+  const isStrict = cx.getCurrentContext().isStrict || node.body.directives.some((val) => val.value.value === "use strict");
+  const isAsync = node.async ? node.async : false;
+  const isGenerator = node.generator ? node.generator : false;
+  const kind = getRegularClosureFlag();
+  const ecmaArgs = funArgLength(node.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
   // There are no implicit bindings in an arrow function
-  const implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP  }> = [];
+  const implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP }> = [];
 
   const funBBIdx = createLambda(
     cx,
@@ -2357,115 +2529,44 @@ const handleArrowFunctionExpression = (
 };
 
 const handleCallExpression = (cx: IRIDIUMV2, node: JS3CallExpression | JS3JSXCallExpression) => {
-  const args: Array<IridiumSEXP> = [];
+  let callee: IridiumSEXP;
   if (isIdentifier(node.callee)) {
-    args.push(new EnvReadSEXP(node.callee.name, getLocInfoIfAvailable(node.callee)));
-  } else if (isJS3Import(node.callee)) {
-    args.push(new EnvReadSEXP("import", getLocInfoIfAvailable()));
-  } else if (isSuper(node.callee)) {
-    args.push(new EnvReadSEXP("<super_ctr>", getLocInfoIfAvailable()));
-    args.push(new EnvReadSEXP("new.target", getLocInfoIfAvailable()));
-  } else if (isV8IntrinsicIdentifier(node.callee)) {
-    args.push(new EnvReadSEXP(node.callee.name, getLocInfoIfAvailable()));
-  }
+    callee = new EnvReadSEXP(node.callee.name, getLocInfoIfAvailable(node.callee));
+  } else throw new Error("TODO // CallExpression with JS3Import | Super | V8IntrinsicIdentifier");
 
-  for (const a of node.arguments) {
-    if (isIdentifier(a)) {
-      args.push(new EnvReadSEXP(a.name, getLocInfoIfAvailable(a)));
-    } else if (isStringLiteral(a)) {
-      args.push(new StringSEXP(a.value));
-    }
-    else {
-      throw new Error ("TODO // JSSpreadSEXP");
-      // args.push(new JSSpreadSEXP(new ResolveEnvBindingSEXP(a.argument.name, getLocInfoIfAvailable(a.argument))));
-    }
-  }
-  if (isIdentifier(node.callee)) {
-    return new CallSiteSEXP(args);
-  } else if (isJS3Import(node.callee)) {
-    return new CallSiteSEXP(args, "Import");
-  } else if (isSuper(node.callee)) {
-    return new CallSiteSEXP(args, "Super");
-  } else if (isV8IntrinsicIdentifier(node.callee)) {
-    return new CallSiteSEXP(args, "V8Intrinsic");
-  }
-  throw new Error("Call Expression Unreachable Case...");
+  let calleeContext: IridiumSEXP = new NullSEXP();
+  return generateIridiumCall(cx, callee, calleeContext, node.arguments, "NORMAL");
 };
 
 const handleContextualCallExpression = (
   cx: IRIDIUMV2,
   node: JS3ContextualCallExpression,
 ) => {
-  // Special case for private calls
-  if (
-    isJS3MemberExpression(node.callee) &&
-    isJS3PrivateName(node.callee.property)
-  ) {
-    const callee = new ResolvePrivateEnvBindingSEXP(
-      node.callee.property.id.name,
-    );
-    const args: Array<IridiumSEXP> = [];
-    args.push(new EnvReadSEXP("this", getLocInfoIfAvailable()));
-    args.push(callee);
-    for (const a of node.arguments) {
-      if (isIdentifier(a)) {
-        args.push(new EnvReadSEXP(a.name, getLocInfoIfAvailable(a)));
-      } else if (isSpreadElement(a)) {
-        throw new Error ("TODO // JSSpreadSEXP");
-        // args.push(
-        //   new JSSpreadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a.argument)),
-        // );
-      } else {
-        args.push(new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a).getName(), getLocInfoIfAvailable()));
-      }
-    }
-    return new CallSiteSEXP(args, "PrivateCall");
-  }
 
-  // Non private call cases
+  if (isOptionalMemberExpression(node.callee)) throw new Error("TODO // ContextualCall with OptionalMemberExpression");
+
+  // Callee
   const tempHolder = cx.js3Builder.utils.getNewTemporary("ccallCallee");
-  const callee = new ResolveEnvBindingSEXP(tempHolder, getLocInfoIfAvailable());
-  const stmt = new JSExplicitBindingDeclarationSEXP(
-    callee,
-    IRIV2_RVAL(cx, node.callee),
-    "JSLET",
-    false,
-    getLocInfoIfAvailable()
-  );
-  let contextObj;
-  if (isJS3MemberExpression(node.callee)) {
-    if (isIdentifier(node.callee.object)) {
-      contextObj = node.callee.object.name;
-    } else if (isThisExpression(node.callee.object)) {
-      contextObj = "this";
-    } else {
-      contextObj = "this"; // <- Context object remains this even for super calls...
-    }
-  } else {
-    throw new Error(
-      "Optional callees in contextual call expressions are not supported yet.",
+  {
+    const stmt = new JSExplicitBindingDeclarationSEXP(
+      new ResolveEnvBindingSEXP(tempHolder, getLocInfoIfAvailable()),
+      IRIV2_RVAL(cx, node.callee),
+      "JSLET",
+      false,
+      getLocInfoIfAvailable()
     );
+    cx.getCurrentBB().args.push(stmt);
   }
+  const callee = new EnvReadSEXP(tempHolder, getLocInfoIfAvailable());
 
-  cx.getCurrentBB().args.push(stmt);
-
-  const args: Array<IridiumSEXP> = [];
-  args.push(new EnvReadSEXP(contextObj, getLocInfoIfAvailable()));
-  if (callee) args.push(new EnvReadSEXP(tempHolder, getLocInfoIfAvailable()));
-
-  for (const a of node.arguments) {
-    if (isIdentifier(a)) {
-      args.push(new EnvReadSEXP(a.name, getLocInfoIfAvailable(a)));
-    } else if (isSpreadElement(a)) {
-      throw new Error ("TODO // JSSpreadSEXP");
-      // args.push(
-      //   new JSSpreadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a.argument)),
-      // );
-    } else {
-      args.push(new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, a).getName(), getLocInfoIfAvailable()));
-    }
+  // CalleeContext
+  let calleeContext: IridiumSEXP;
+  if (isIdentifier(node.callee.object)) {
+    calleeContext = new EnvReadSEXP(node.callee.object.name, getLocInfoIfAvailable());
+  } else {
+    calleeContext = new EnvReadSEXP("this", getLocInfoIfAvailable());
   }
-  return new CallSiteSEXP(args, "CCall");
+  return generateIridiumCall(cx, callee, calleeContext, node.arguments, "CONTEXTUAL");
 };
 
 const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
@@ -2475,7 +2576,7 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
     const args = init.elements.map((e) => {
 
       if (
-        isIdentifier(e) || 
+        isIdentifier(e) ||
         isStringLiteral(e) ||
         isNumericLiteral(e) ||
         isNullLiteral(e) ||
