@@ -1,4 +1,5 @@
 import { printFlagString, printIriSpace } from "#utils";
+import { JSArraySEXP } from "../RVAL";
 import { IridiumPrimitives, IridiumSEXP } from "../Structural/General";
 
 /**
@@ -92,6 +93,93 @@ export class CallSiteSEXP extends IridiumSEXP {
   toString(space?: number): string {
     return `${printIriSpace(space)}CallSite[${printFlagString(this.flags)}](${this.args.map(e => e.toString(0)).join(", ")})`
   }
+}
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * For calls that pass a dynamic number of arguments
+ * 
+ * 1. **ConstructorCall**: 
+ *  
+ * - Note that callee is duplicated, ctx is never used
+ * 
+ * 2. **JSDirectEval**
+ * 
+ * - Note that the ctx object is ignored as it is not required by eval.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(Callee)`: The method to be called.
+ * 
+ * - `ARG(Context)`: The `this` context to be provided.
+ * 
+ * - `ARG(ArgList)`: A JSArray containing the arguments to be passed.
+ * 
+ * - `FLAG(ConstructorCall?)`: Contextual Call where `this` binding is provided by the call site.
+ * 
+ * - `FLAG(JSDirectEval?: double)`: Marks the call as direct eval, i.e. in sloppy mode the evaled code **can** modify the enclosing environment.
+ * 
+ */
+export class ApplySEXP extends IridiumSEXP {
+  constructor(callee: IridiumSEXP, context: IridiumSEXP, argList: IridiumSEXP, isConstructorCall: boolean = false) {
+    super("Apply");
+
+    this.setCallee(callee);
+    this.setContext(context);
+    this.setArgList(argList);
+
+    if (isConstructorCall) this.setConstructorCall();    
+  }
+
+  // Args
+  setCallee(obj: IridiumSEXP) {
+    this.args[0] = obj;
+  }
+
+  getCallee(): IridiumSEXP {
+    return this.args[0];
+  }
+
+  setContext(obj: IridiumSEXP) {
+    this.args[1] = obj;
+  }
+
+  getContext(): IridiumSEXP {
+    return this.args[1];
+  }
+
+  setArgList(obj: IridiumSEXP) {
+    this.args[2] = obj;
+  }
+
+  getArgList(): IridiumSEXP {
+    return this.args[2];
+  }
+
+  // Flags
+  setConstructorCall() {
+    this.setFlag("ConstructorCall");
+  }
+
+  hasConstructorCall(): boolean {
+    return this.hasFlag("ConstructorCall");
+  }
+
+  setJSDirectEval(refIdx: number) {
+    this.setFlag("JSDirectEval", refIdx);
+  }
+
+  getJSDirectEval(): number {
+    if (!this.hasFlag("JSDirectEval")) throw new Error("Expected JSDirectEval to be set before this function is called");
+    return this.getFlagNumber("JSDirectEval");
+  }
+
 }
 
 /**
