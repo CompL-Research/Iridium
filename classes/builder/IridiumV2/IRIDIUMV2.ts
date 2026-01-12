@@ -291,9 +291,10 @@ export class IRIDIUMV2 {
 
     topLevelContext.isModule = sourceType === "JSModule";
     topLevelContext.isStrict = sourceType === "JSModule" || program.directives.some((val) => val.value.value === "use strict");
+    topLevelContext.isAsync = sourceType === "JSModule";
 
     topLevelContext.moduleRequestMap = new Map();
-    topLevelContext.kind = getRegularClosureFlag();
+    topLevelContext.kind = sourceType === "JSModule" ? 13 : getRegularClosureFlag();
     this.pushContext(topLevelContext);
 
     if (sourceType === "JSModule") {
