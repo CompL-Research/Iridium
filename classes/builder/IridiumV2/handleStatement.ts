@@ -1349,6 +1349,9 @@ export const createLambda = (
   implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP  }>,
   name: string = "",
   privateMapping: PrivateMapping | null = null,
+  funcContextCallback: (arg0: IridiumBuildContext) => void = () => {},
+  closureScopeCallback: () => void = () => {},
+  bodyScopeCallback: () => void = () => {}
 ) => {
   // Lower Function code
   const funcContext          = cx.declareAndPushLexicalContext("ClosureBoundary"); // ClosureBoundary
@@ -1360,6 +1363,17 @@ export const createLambda = (
   funcContext.ecmaArgs       = ecmaArgs;
   funcContext.privateMapping = privateMapping;
   funcContext.name           = name;
+
+  implicitBindings.forEach(binding => {
+    cx.getCurrentBB().args.push(
+      binding.initializer
+        ? new JSImplicitBindingDeclarationSEXP(binding.name, binding.type, binding.value, binding.initializer)
+        : new JSImplicitBindingDeclarationSEXP(binding.name, binding.type, binding.value)
+    );
+  });
+
+  // Callback called when emitting code to top level closure scope
+  closureScopeCallback();
 
   const abstractResolutions: Array<SiblingSpecialWriteSEXP> = [];
   const extractedBindingsSet: Set<string> = new Set();
@@ -1406,16 +1420,21 @@ export const createLambda = (
         )
       })
     }
-  
+
+    
     if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
-    implicitBindings.forEach(binding => {
-      cx.getCurrentBB().args.push(
-        binding.initializer
-          ? new JSImplicitBindingDeclarationSEXP(binding.name, binding.type, binding.value, binding.initializer)
-          : new JSImplicitBindingDeclarationSEXP(binding.name, binding.type, binding.value)
-      );
-    });
+    // Callback called when emitting code to top level closure scope
+    bodyScopeCallback();
+
+    // These need to be accessible to the argInitScope, moving to top scope...
+    // implicitBindings.forEach(binding => {
+    //   cx.getCurrentBB().args.push(
+    //     binding.initializer
+    //       ? new JSImplicitBindingDeclarationSEXP(binding.name, binding.type, binding.value, binding.initializer)
+    //       : new JSImplicitBindingDeclarationSEXP(binding.name, binding.type, binding.value)
+    //   );
+    // });
   
     for (const s of body) {
       IRIV2_STMT(cx, s);
@@ -1428,6 +1447,9 @@ export const createLambda = (
       cx.popContext();
     }
   }
+
+  // Call at the very end, to allow overrides and avoid confusion
+  funcContextCallback(funcContext);
 
   cx.popContext(); // ClosureBoundary
 
