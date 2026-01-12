@@ -309,11 +309,11 @@ export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
  * 
  */
 export class JSSuperFieldReadSEXP extends IridiumSEXP {
-  constructor(field: string) {
+  constructor(field: IridiumSEXP) {
     super("JSSuperFieldRead");
     this.setThis(new EnvReadSEXP("this", getLocInfoIfAvailable()));
     this.setSuper(new EnvReadSEXP("<home_object>", getLocInfoIfAvailable()));
-    this.setField(new EnvReadSEXP(field, getLocInfoIfAvailable()));
+    this.setField(field);
   }
 
   // Args
