@@ -123,6 +123,8 @@ export class CallSiteSEXP extends IridiumSEXP {
  * 
  * - `FLAG(ConstructorCall?)`: Contextual Call where `this` binding is provided by the call site.
  * 
+ * - `FLAG(Super?)`: Call to the super constructor, is is used by the decorator to identify the call to the constructor...
+ * 
  * - `FLAG(JSDirectEval?: double)`: Marks the call as direct eval, i.e. in sloppy mode the evaled code **can** modify the enclosing environment.
  * 
  */
@@ -169,6 +171,14 @@ export class ApplySEXP extends IridiumSEXP {
 
   hasConstructorCall(): boolean {
     return this.hasFlag("ConstructorCall");
+  }
+
+  setSuper() {
+    this.setFlag("Super");
+  }
+
+  hasSuper(): boolean {
+    return this.hasFlag("Super");
   }
 
   setJSDirectEval(refIdx: number) {
