@@ -1193,6 +1193,8 @@ const lowerNonStaticClassMethods = (
       let allocaLocation = computedPropMapping.get(methodNode);
       if (!allocaLocation) throw new Error("allocaLocation is undefined");
 
+      if (methodNode.kind === "get" || methodNode.kind === "set") throw new Error("setter and getters for private fields not supported yet");
+
       const funBodyLambda = handleFunctionExpression(
         cx,
         methodNode,
@@ -1275,6 +1277,8 @@ const lowerStaticClassMethods = (
       let allocaLocation = computedPropMapping.get(methodNode);
       if (!allocaLocation) throw new Error("allocaLocation is undefined");
 
+      if (methodNode.kind === "get" || methodNode.kind === "set") throw new Error("setter and getters for private fields not supported yet");
+
       const funBodyLambda = handleFunctionExpression(
         cx,
         methodNode,
@@ -1331,7 +1335,7 @@ const createClassNonStaticPropInitClosure = (
     new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9),
   );
 
-  if (addBrand) {
+  if (addBrand || hasSuper) {
     // add <home_object>
     cx.getCurrentBB().args.push(
       new JSImplicitBindingDeclarationSEXP("<home_object>", "JSCONST", 4),
@@ -1339,13 +1343,6 @@ const createClassNonStaticPropInitClosure = (
   }
 
   if (hasSuper) {
-    if (!addBrand) {
-      // add <home_object>
-      cx.getCurrentBB().args.push(
-        new JSImplicitBindingDeclarationSEXP("<home_object>", "JSCONST", 4),
-      );
-    }
-
     // add <super_obj>
     cx.getCurrentBB().args.push(
       new JSImplicitBindingDeclarationSEXP(
@@ -1721,6 +1718,20 @@ const createClassConstructorClosure = (
     );
 
     if (!superClass) {
+      // call propInitClosure
+      cx.getCurrentBB().args.push(
+        new StackRejectSEXP(
+          generateIridiumCall(
+            cx,
+            new EnvReadSEXP(propInitClos, getLocInfoIfAvailable()),
+            new EnvReadSEXP("this", getLocInfoIfAvailable()),
+            [],
+            "CONTEXTUAL"
+          ),
+          1
+        )
+      );
+
       for (let item of constructorBody) IRIV2_STMT(cx, item);
 
       cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined", getLocInfoIfAvailable())));
@@ -1741,7 +1752,7 @@ const createClassConstructorClosure = (
           ),
         );
       } else for (let item of constructorBody) IRIV2_STMT(cx, item);
-      
+
       cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("this", getLocInfoIfAvailable())));
     }
   };
@@ -1761,7 +1772,7 @@ const createClassConstructorClosure = (
     params,
     [],
     implicitBindings,
-    node.id ? node.id.name : "",
+    node.id ? node.id.name : "<CONSTRUCTOR>",
     null,
     funcContextCallback,
     closureScopeCallback,
@@ -1927,6 +1938,43 @@ const handleClassExpression = (
 ): IridiumSEXP => {
   const name = node.id ? node.id.name : "";
 
+  const finalClassRes = cx.js3Builder.utils.getNewTemporary("ClassRes");
+
+  let oldContext: IridiumBuildContext | undefined = undefined, newContext: IridiumBuildContext | undefined = undefined;
+
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationSEXP(
+      new ResolveEnvBindingSEXP(finalClassRes, getLocInfoIfAvailable()),
+      null,
+      "JSLET",
+      false,
+      getLocInfoIfAvailable()
+    ),
+  );
+
+
+  if (name !== "") {
+    // If this is a named class, create a special evaluation scope where the class name is resolvable
+
+    oldContext = cx.getCurrentContext();
+    newContext = cx.declareAndPushLexicalContext();
+
+    oldContext.getCurrentBB().args.push(new GotoSEXP(newContext.BB[0].idx))
+
+    cx.addContinuation(oldContext);
+
+    cx.getCurrentBB().args.push(
+      new JSExplicitBindingDeclarationNSEXP(
+        new ResolveEnvBindingSEXP(name, getLocInfoIfAvailable()),
+        new JSNUBDSEXP(),
+        "JSCONST",
+        false,
+        getLocInfoIfAvailable()
+      ),
+    );
+
+  }
+
   let superClass: EnvReadSEXP | undefined = undefined;
   if (node.superClass) {
     if (isIdentifier(node.superClass)) {
@@ -1939,18 +1987,18 @@ const handleClassExpression = (
       // 
       // Heritage evaluation should take place in a special scope where the classname eventually points to the name of the class if it exists
       // 
-      if (name === "") {
+      // if (name === "") {
         superClass = new EnvReadSEXP(
           lowerExprToResolveEnvBindingSEXP(cx, node.superClass).getBindingName(),
           getLocInfoIfAvailable()
         );
-      }
-      else {
-        throw new Error("Heritage computation special block not supported yet!");
-      }
+      // }
+      // else {
+      //   throw new Error("Heritage computation special block not supported yet!");
+      // }
 
     }
-  }
+  };
   const hasSuper = node.superClass ? true : false;
 
   const heritage = node.superClass
@@ -2000,7 +2048,7 @@ const handleClassExpression = (
     hasSuper,
   );
 
-  return new JSClassSEXP(
+  const classObj = new JSClassSEXP(
     hasSuper,
     name,
     heritage ? heritage : new EnvReadSEXP("undefined", getLocInfoIfAvailable()),
@@ -2012,6 +2060,36 @@ const handleClassExpression = (
     addStaticBrand,
     new EnvReadSEXP(classStaticPropInitClosure, getLocInfoIfAvailable()),
   );
+
+  if (name !== "") {
+    cx.getCurrentBB().args.push(
+      new EnvWriteSEXP(
+        name,
+        classObj,
+        true,
+        false,
+        getLocInfoIfAvailable()
+      ),
+    );
+
+    cx.getCurrentBB().args.push(
+      new EnvWriteSEXP(
+        finalClassRes,
+        new EnvReadSEXP(name, getLocInfoIfAvailable()),
+        true,
+        false,
+        getLocInfoIfAvailable()
+      ),
+    );
+
+    if (!oldContext) throw new Error("Impossible check, TS cant resolve this yet...");
+
+    cx.getCurrentBB().args.push(new GotoSEXP(oldContext.getCurrentBB().idx));
+    cx.popContext();
+    return new EnvReadSEXP(finalClassRes, getLocInfoIfAvailable());
+  }
+
+  return classObj;
 };
 
 export const lowerSpreadToJS3Spread = (
