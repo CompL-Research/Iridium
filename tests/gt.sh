@@ -1,6 +1,5 @@
-#!/usr/bin/env bash
-set -euo pipefail  # safe defaults
-rm failing/*
+#!/bin/bash
+rm failing/* &>/dev/null
 
 if [ $# -lt 1 ]; then
   echo "Error: Missing argument!" >&2

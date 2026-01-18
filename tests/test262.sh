@@ -5,9 +5,12 @@ rm -rf tmp
 mkdir tmp
 # Test
 TESTS=(
+  # "test/language/expressions/call"
+
+
   # "test/language/expressions/addition"
   # "test/language/expressions/array"
-  "test/language/expressions/arrow-function"
+  # "test/language/expressions/arrow-function"
   # "test/language/expressions/assignment"
   # "test/language/expressions/assignmenttargettype"
   # "test/language/expressions/async-arrow-function"
@@ -19,7 +22,7 @@ TESTS=(
   # "test/language/expressions/bitwise-or"
   # "test/language/expressions/bitwise-xor"
   # "test/language/expressions/call"
-  # "test/language/expressions/class"
+  "test/language/expressions/class"
   # "test/language/expressions/coalesce"
   # "test/language/expressions/comma"
   # "test/language/expressions/compound-assignment"
@@ -74,6 +77,8 @@ TESTS=(
   # "test/language/expressions/void"
   # "test/language/expressions/yield"
 
+  # "test/language/M_super"
+
 
   # "test/language/arguments-object"
   # "test/language/asi"
@@ -84,7 +89,7 @@ TESTS=(
   # "test/language/directive-prologue"
   # "test/language/eval-code"
   # "test/language/export"
-  # "test/language/expressions"
+  # # "test/language/expressions"
   # "test/language/function-code"
   # "test/language/future-reserved-words"
   # "test/language/global-code"
@@ -99,15 +104,49 @@ TESTS=(
   # "test/language/reserved-words"
   # "test/language/rest-parameters"
   # "test/language/source-text"
-  # "test/language/start"
   # "test/language/statementList"
-  # "test/language/statements"
+  # # "test/language/statements"
   # "test/language/types"
   # "test/language/white-space"
+
+
+
+
+
+  # "test/language/statements/async-function"
+  # "test/language/statements/async-generator"
+  # # "test/language/statements/await-using"
+  # "test/language/statements/block"
+  # "test/language/statements/break"
+  # # "test/language/statements/class"
+  # "test/language/statements/const"
+  # "test/language/statements/continue"
+  # # "test/language/statements/debugger"
+  # "test/language/statements/do-while"
+  # "test/language/statements/empty"
+  # "test/language/statements/expression"
+  # "test/language/statements/for"
+  # "test/language/statements/for-await-of"
+  # "test/language/statements/for-in"
+  # "test/language/statements/for-of"
+  # "test/language/statements/function"
+  # "test/language/statements/generators"
+  # "test/language/statements/if"
+  # "test/language/statements/labeled"
+  # "test/language/statements/let"
+  # "test/language/statements/return"
+  # "test/language/statements/switch"
+  # "test/language/statements/throw"
+  # "test/language/statements/try"
+  # # "test/language/statements/using"
+  # "test/language/statements/variable"
+  # "test/language/statements/while"
+  # "test/language/statements/with"
 )
 
 for test in "${TESTS[@]}"; do
   outFile="out_${test//\//_}"
-  echo "Running $test -> $outFile"
-  node run.cjs "$test/" > "$outFile"
+  echo "Running $test -> test262out/$outFile"
+  # NO_OPT=1 IRI_CS_BRREACHED=1 node run.cjs "$test/" > "test262out/$outFile"
+  NO_OPT=1 IRI_CS_BRREACHED=1 node run.cjs "$test/" > "test262out/$outFile"
 done

@@ -1,10 +1,10 @@
 const path = require("path");
 const fs   = require("fs");
 
-const EXEC_BIN          = "/home/meetesh/wd/quickjs/build/qjs_new";
-const IRI_PATH          = "/home/meetesh/wd/Iridium";
-const TEST262_PATH      = "/home/meetesh/wd/Iridium/tests/test262";
-const TMP_PATH          = "/home/meetesh/wd/Iridium/tests/tmp";
+const EXEC_BIN          = path.resolve("../externalDeps/quickjs/build/qjs_new");
+const IRI_PATH          = path.resolve("../");
+const TEST262_PATH      = path.resolve("./test262");
+const TMP_PATH          = path.resolve("./tmp");
 const { execSync }      = require('child_process');
 
 const TEST_TIMEOUT = 60 * 1000; // 1 minute
@@ -87,7 +87,7 @@ function storeIridiumTest(test) {
       contents = `"use strict";\nundefined;\n${contents}`;
     }
     fs.writeFileSync(fPath, contents);
-    execSync(`./iridium iri -s ${isModule ? 'module' : 'script'} --ljson -t ${TEST262_PATH} ${fPath} > ${fPathIri}`, { cwd: IRI_PATH, encoding: 'utf-8', stdio: 'pipe' });
+    execSync(`./iridium iri -s ${isModule ? 'module' : 'script'} --ljson -t ${TEST262_PATH} ${fPath} > ${fPathIri}`, { cwd: IRI_PATH, encoding: 'utf-8', stdio: 'pipe', env: { ...process.env }  });
   } catch (error) {
     return { result: "Failed to save iridium test", error };
   }

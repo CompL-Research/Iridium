@@ -3,19 +3,20 @@
 // Inspired by babel-262 runner: https://github.com/babel/babel-test262-runner
 // 
 const Test262Stream = require("test262-stream");
+const path = require("path");
 const tap = require("make-tap-output")({ count: true });
 const { Worker: JestWorker } = require("jest-worker");
 
 const UNSUPPORTED_FEATURES = ["import-attributes", "decorators"]
 const EXCLUDE_ESID_PREFIXES = ["pending", "proposal", "legacy"];
 
-const TEST262_PATH      = "/home/meetesh/wd/Iridium/tests/test262";
-const config = require("./config.cjs")
+const TEST262_PATH      = path.resolve("test262");
+const config = require("./config.cjs");
 
 const TESTSTOSKIP = config.toSkipUnsupported
 
 // const THREADS = Number(process.env.THREADS) || require("os").cpus().length / 2;
-const THREADS = 128;
+const THREADS = 64;
 
 const worker = new JestWorker(require.resolve("./worker.cjs"), {
   numWorkers: THREADS,
@@ -65,7 +66,12 @@ async function main() {
   for await (const test of tests) {
     const file = `${test.file} ${test.scenario}`;
 
-    if (filter !== "I_AM_SURE" && !test.file.includes(filter)) continue;
+    
+
+    if (filter !== "I_AM_SURE" && !test.file.includes(filter)) {
+      continue;
+    }
+
 
     // if (chunk && !chunk.has(test.file)) continue;
     const baseExpectedRes = getExpected(test)

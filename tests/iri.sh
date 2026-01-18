@@ -19,16 +19,16 @@ outputs=$(ls -1 "$PWD/outputs" | sed "s|^|$PWD/outputs/|")
 echo "$outputs"
 
 # # Extract the generated .js3 and .json paths
-# js3_file=$(echo "$outputs" | grep '\.js3$' || true)
-# json_file=$(echo "$outputs" | grep '\.json$' || true)
+js3_file=$(echo "$outputs" | grep '\.js3$' || true)
+json_file=$(echo "$outputs" | grep '\.json$' || true)
 
-# # Run in quickjs if files exist
-# cd /home/meetesh/wd/quickjs
+# Run in quickjs if files exist
+cd /home/meetesh/wd/quickjs
 
-# if [[ -n "$js3_file" ]]; then
-#   ./script.sh "$js3_file"
-# fi
+if [[ -n "$js3_file" ]]; then
+  ./script.sh "$js3_file"
+fi
 
-# if [[ -n "$json_file" ]]; then
-#   ./tiri.sh "$json_file"
-# fi
+if [[ -n "$json_file" ]]; then
+  ./tiri.sh "$json_file"
+fi
