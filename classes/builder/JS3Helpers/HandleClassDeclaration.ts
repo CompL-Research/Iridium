@@ -5,6 +5,7 @@ import {
   ClassPrivateMethod,
   ClassPrivateProperty,
   ClassProperty,
+  identifier,
   isArrowFunctionExpression,
   isBigIntLiteral,
   isBooleanLiteral,
@@ -207,6 +208,8 @@ export function handleClassProperty(
     fin_value = handleFunctionExpression(orig_value, otherProps);
   } else if (isExpression(orig_value)) {
     fin_value = lowerComputedKey(orig_value, otherProps);
+  } else {
+    fin_value = identifier("undefined");
   }
 
   // = lowerComputedKey(orig_value, otherProps); // <-- This mostly works but breaks super call, due to scoping

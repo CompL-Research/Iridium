@@ -1321,6 +1321,7 @@ const createClassNonStaticPropInitClosure = (
   const location = cx.js3Builder.utils.getNewTemporary("PropInitClosure");
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   funcContext.privateMapping = privateMapping;
+  funcContext.name = "ClassNonStaticPropInitClosure";
   const funBBIdx = funcContext.getCurrentBB().idx;
 
   // Class constructors are strict and use an unmapped arguments object
@@ -1333,6 +1334,11 @@ const createClassNonStaticPropInitClosure = (
   // add this
   cx.getCurrentBB().args.push(
     new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9),
+  );
+
+  // add new.target
+  cx.getCurrentBB().args.push(
+    new JSImplicitBindingDeclarationSEXP("new.target", "JSVAR", 3),
   );
 
   if (addBrand || hasSuper) {
@@ -1357,12 +1363,12 @@ const createClassNonStaticPropInitClosure = (
   // Set closure context
   if (hasSuper) {
     funcContext.kind = addBrand
-      ? getPropInitDerivedPrivateClosureFlag()
-      : getPropInitDerivedNoPrivateClosureFlag();
+      ? getPropInitDerivedPrivateClosureFlag() // 9
+      : getPropInitDerivedNoPrivateClosureFlag(); // 7
   } else {
     funcContext.kind = addBrand
-      ? getPropInitPrivateClosureFlag()
-      : getPropInitNoPrivateClosureFlag();
+      ? getPropInitPrivateClosureFlag() // 8
+      : getPropInitNoPrivateClosureFlag(); // 6
   }
 
   for (let classItem of node.body.body) {
