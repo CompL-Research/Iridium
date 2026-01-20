@@ -11,6 +11,100 @@ import { IridiumSEXP } from "../../Structural/General";
  * 
  * @remarks
  * 
+ * Used to set the home object, this mechanism is also used to verify brands for private method calls at runtime...
+ * 
+ * ```
+ * [homeObj, funcObj = 2] JSSetHome (homeObj, funcObj)
+ * ```
+ * 
+ * #### Structure
+ * 
+ * - `ARG(homeObj)`: The home object.
+ * 
+ * - `ARG(funcObj)`: The function object.
+ * 
+ * 
+ */
+export class JSSetHomeSEXP extends IridiumSEXP {
+  constructor(homeObj: IridiumSEXP, funcObj: IridiumSEXP) {
+    super("JSSetHome");
+    this.setHomeObj(homeObj);
+    this.setFuncObj(funcObj);
+  }
+
+  // Args
+  setHomeObj(obj: IridiumSEXP) {
+    this.args[0] = obj;
+  }
+
+  getHomeObj(): IridiumSEXP {
+    return this.args[0];
+  }
+
+  setFuncObj(obj: IridiumSEXP) {
+    this.args[1] = obj;
+  }
+
+  getFuncObj(): IridiumSEXP {
+    return this.args[1];
+  }
+}
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * Used to name an object... 
+ * 
+ * ```
+ * [obj = 1] JSSetName (obj)
+ * ```
+ * 
+ * #### Structure
+ * 
+ * - `ARG(obj)`: The object to name.
+ * 
+ * - `ARG(name)` : The name to be given (StringSEXP for static name otherwise assumed computed)
+ * 
+ */
+export class JSSetNameSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP, name: IridiumSEXP) {
+    super("JSSetName");
+    this.setObj(obj);
+    this.setName(name);
+  }
+
+  // Args
+  setObj(obj: IridiumSEXP) {
+    this.args[0] = obj;
+  }
+
+  getObj(): IridiumSEXP {
+    return this.args[0];
+  }
+
+  setName(name: IridiumSEXP) {
+    this.args[1] = name;
+  }
+
+  getName(): IridiumSEXP {
+    return this.args[1];
+  }
+
+}
+
+/**
+ * 
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
  * Implements the `append` functionality from the ECMA spec.
  * It is currently being used to model the spread functionality when creating arrays.
  * 
@@ -114,9 +208,11 @@ export class JSAppendSEXP extends IridiumSEXP {
  * 
  * - `ARG(value)`: The value, in this case a lambda.
  * 
+ * - `FLAG(NOENUM : void)`: Setting this flag ensures the fiels is not enumerable.
+ * 
  */
 export class JSDefineObjMethodSEXP extends IridiumSEXP {
-  constructor(obj: IridiumSEXP, key: IridiumSEXP, value: IridiumSEXP, kind: "method" | "get" | "set") {
+  constructor(obj: IridiumSEXP, key: IridiumSEXP, value: IridiumSEXP, kind: "method" | "get" | "set", noenum: boolean = false) {
     super("JSDefineObjMethod");
     this.setTargetObj(obj);
     this.setKey(key);
@@ -124,7 +220,7 @@ export class JSDefineObjMethodSEXP extends IridiumSEXP {
     if (kind === "method") this.setMethod();
     else if (kind === "get") this.setGetter();
     else if (kind === "set") this.setSetter();
-    else throw new Error("Object method kind is invalid");
+    if (noenum) this.setNOENUM();
   }
 
   // Args
@@ -176,6 +272,15 @@ export class JSDefineObjMethodSEXP extends IridiumSEXP {
   isSetter() {
     return this.hasFlag("SET");
   }
+  
+  setNOENUM() {
+    this.setFlag("NOENUM");
+  }
+
+  isNOENUM() {
+    return this.hasFlag("NOENUM");
+  }
+
 
   toString(space?: number): string {
     const res = [];

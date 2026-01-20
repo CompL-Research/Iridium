@@ -359,7 +359,6 @@ export class JSNUBDSEXP extends IridiumSEXP {
   }
 }
 
-
 /**
  * 
  * @extends {IridiumSEXP}
@@ -372,137 +371,56 @@ export class JSNUBDSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `ARG(Name)`: The name of the class, stored as {@link StringSEXP}.
- * 
  * - `ARG(Parent)`: The parent class object.
  * 
  * - `ARG(Constructor)`: The constructor closure.
  * 
- * - `ARG(PropInit)`: Property initializer closure, this initializes the class fields of the created instance.
+ * - `FLAG(NAME : string)`: Name of the class.
  * 
- * - `ARG(MethodList)`: List of class methods.
- * 
- * - `ARG(StaticMethodList)`: List of **static** class methods.
- * 
- * - `ARG(StaticPropInit)`: List of **static** class methods.
- * 
- * - `FLAG(Derived)`: This flag is set if the class is a derived class.
- * 
- * - `FLAG(BrandPrototype)`: This flag is set if the prototype needs to be branded i.e. the class has private method(s).
- * 
- * - `FLAG(BrandConstructor)`: This flag is set if the static prototype needs to be branded i.e. the class has static private method(s).
+ * - `FLAG(DERIVED : void)`: This flag is set if the class is a derived class.
  * 
  */
 export class JSClassSEXP extends IridiumSEXP {
-  constructor(hasSuper: boolean, name: string, parent: IridiumSEXP, constructorLambda: LambdaSEXP, propInitLambda: IridiumSEXP, methodList: IridiumSEXP, staticMethodList: IridiumSEXP, brandPrototype: boolean, brandConstructor: boolean, staticPropInitLambda: IridiumSEXP) {
+  constructor(parent: IridiumSEXP, constructor: LambdaSEXP, name: string = "", isDerived: boolean) {
     super("JSClass");
-    if (hasSuper) this.setDerived();
-    if (brandPrototype) this.setBrandPrototype();
-    if (brandConstructor) this.setBrandConstructor();
-    this.setName(new StringSEXP(name));
     this.setParent(parent);
-    this.setConstructor(constructorLambda);
-    this.setPropInit(propInitLambda);
-    this.setMethodList(methodList);
-    this.setStaticMethodList(staticMethodList);
-    this.setStaticPropInit(staticPropInitLambda);
+    this.setConstructor(constructor);
+    this.setNAME(name);
+    if (isDerived) this.setDERIVED();
   }
 
   // Args
-  setName(name: IridiumSEXP) {
-    this.args[0] = name;
-  }
-
-  getName(): IridiumSEXP {
-    return this.args[0];
-  }
-
   setParent(parent: IridiumSEXP) {
-    this.args[1] = parent;
+    this.args[0] = parent;
   }
 
   getParent(): IridiumSEXP {
-    return this.args[1];
+    return this.args[0];
   }
 
   setConstructor(constructor: IridiumSEXP) {
-    this.args[2] = constructor;
+    this.args[1] = constructor;
   }
 
   getConstructor(): IridiumSEXP {
-    return this.args[2];
-  }
-
-  setPropInit(propInit: IridiumSEXP) {
-    this.args[3] = propInit;
-  }
-
-  getPropInit(): IridiumSEXP {
-    return this.args[3];
-  }
-
-  setMethodList(methodList: IridiumSEXP) {
-    this.args[4] = methodList;
-  }
-
-  getMethodList(): IridiumSEXP {
-    return this.args[4];
-  }
-
-  setStaticMethodList(methodList: IridiumSEXP) {
-    this.args[5] = methodList;
-  }
-
-  getStaticMethodList(): IridiumSEXP {
-    return this.args[5];
-  }
-
-  setStaticPropInit(propInit: IridiumSEXP) {
-    this.args[6] = propInit;
-  }
-
-  getStaticPropInit(): IridiumSEXP {
-    return this.args[6];
+    return this.args[1];
   }
 
   // Flags
-  setDerived() {
-    this.setFlag("Derived");
+  setNAME(name: string) {
+    this.setFlag("NAME", name);
   }
 
-  isDerived(): boolean {
-    return this.hasFlag("Derived")
+  getName(): string {
+    return this.getFlagString("NAME");
   }
 
-  setBrandPrototype() {
-    this.setFlag("BrandPrototype");
+  setDERIVED() {
+    this.setFlag("DERIVED");
   }
 
-  isBrandPrototype(): boolean {
-    return this.hasFlag("BrandPrototype")
-  }
-
-  setBrandConstructor() {
-    this.setFlag("BrandConstructor");
-  }
-
-  isBrandConstructor(): boolean {
-    return this.hasFlag("BrandConstructor")
-  }
-
-  toString(space?: number): string {
-    let res = [];
-
-    res.push(`${printIriSpace(space)}JSClass${printFlagString(this.flags)}`)
-    if (!space) space = 8;
-    res.push(`${printIriSpace(space + 2)}Name: ${this.getName().toString(0)}`)
-    res.push(`${printIriSpace(space + 2)}Parent: ${this.getParent().toString(0)}`)
-    res.push(`${printIriSpace(space + 2)}Constructor: ${this.getConstructor().toString(0)}`)
-    res.push(`${printIriSpace(space + 2)}PropInit: ${this.getPropInit().toString(0)}`)
-    res.push(`${printIriSpace(space + 2)}MethodList:\n${this.getMethodList().toString(space + 4)}`)
-    res.push(`${printIriSpace(space + 2)}StaticMethodList:\n${this.getStaticMethodList().toString(space + 4)}`)
-    res.push(`${printIriSpace(space + 2)}StaticPropInit: ${this.getStaticPropInit().toString(0)}`)
-    return res.join("\n");
+  isDERIVED(): boolean {
+    return this.hasFlag("DERIVED");
   }
 }
 
