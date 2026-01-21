@@ -1909,17 +1909,13 @@ const handleClassExpression = (
     ),
   );
 
+  oldContext = cx.getCurrentContext();
+  newContext = cx.declareAndPushLexicalContext();
+  oldContext.getCurrentBB().args.push(new GotoSEXP(newContext.BB[0].idx))
+  cx.addContinuation(oldContext);
 
   if (name !== "") {
     // If this is a named class, create a special evaluation scope where the class name is resolvable
-
-    oldContext = cx.getCurrentContext();
-    newContext = cx.declareAndPushLexicalContext();
-
-    oldContext.getCurrentBB().args.push(new GotoSEXP(newContext.BB[0].idx))
-
-    cx.addContinuation(oldContext);
-
     cx.getCurrentBB().args.push(
       new JSExplicitBindingDeclarationNSEXP(
         new ResolveEnvBindingSEXP(name, getLocInfoIfAvailable()),
@@ -1929,7 +1925,6 @@ const handleClassExpression = (
         getLocInfoIfAvailable()
       ),
     );
-
   }
 
   let superClass: EnvReadSEXP | undefined = undefined;
@@ -2103,11 +2098,10 @@ const handleClassExpression = (
     );
 
     if (!oldContext) throw new Error("Impossible check, TS cant resolve this yet...");
-
-    cx.getCurrentBB().args.push(new GotoSEXP(oldContext.getCurrentBB().idx));
-    cx.popContext();
   }
 
+  cx.getCurrentBB().args.push(new GotoSEXP(oldContext.getCurrentBB().idx));
+  cx.popContext();
   return new EnvReadSEXP(finalClassRes, getLocInfoIfAvailable());
 };
 
