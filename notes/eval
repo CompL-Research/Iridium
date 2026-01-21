@@ -1,0 +1,80 @@
+The problem with eval:
+
+1/ We have two modes of evaluation, mainly direct and indirect.
+2/ A direct eval context takes place when eval is called directly, without being stored in an intermediate binding as follows:
+
+eval("STR") <- Direct Eval
+
+
+let x = eval;
+x("STR") <- Indirect Eval
+
+
+3/ Strict vs Sloppy modes also impact how eval will execute, in case of sloppy mode a direct eval has direct access to the 
+function stack frame whereas in strict mode semantics, the evaluation takes place in a separate environment, the effect of 
+these semantics can be understood by understanding the output of the following piece of code:
+
+function foo(a, b=eval("var a;")) {
+	...
+}
+
+- (Output: sloppy): SyntaxError: Redeclaration of a.
+
+- (Output: strict): No error.
+
+4/ What is visible inside a function body and its arg init scope?
+
+On top of this, another complication presents itself in the form of evaluation mode, namely strict and slopp.
+
+The bindings visible to eval, changes depending on these four criteria.
+
+A reasonable way to solve this problem is to take a cross product and identify how it works under each context. 
+
+
+SLOPPY + DIRECT
+=== Case 1 === 
+
+
+
+FUCK E V A L
+
+
+/* add an argument definition in the argument scope. Only needed when
+   "eval()" may be called in the argument scope. Return 0 if OK. */
+static int add_arguments_arg(JSContext *ctx, JSFunctionDef *fd)
+{
+    int idx;
+    if (fd->arguments_arg_idx < 0)
+    {
+        idx = find_var_in_scope(ctx, fd, JS_ATOM_arguments, ARG_SCOPE_INDEX);
+        if (idx < 0)
+        {
+            /* XXX: the scope links are not fully updated. May be an
+               issue if there are child scopes of the argument
+               scope */
+            idx = add_var(ctx, fd, JS_ATOM_arguments);
+            if (idx < 0)
+                return -1;
+            fd->vars[idx].scope_next = fd->scopes[ARG_SCOPE_INDEX].first;
+            fd->scopes[ARG_SCOPE_INDEX].first = idx;
+            fd->vars[idx].scope_level = ARG_SCOPE_INDEX;
+            fd->vars[idx].is_lexical = true;
+
+            fd->arguments_arg_idx = idx;
+        }
+    }
+    return 0;
+}
+
+
+
+==== Observations ====
+
+
+CASE 1: Direct eval + Sloppy Mode + Top Level
+
+Top level eval object is the same as the one visible to eval:  true
+Direct access to the stack frame (let|var conflict): True
+Direct access to the stack frame (var|var conflict): False
+
+CASE 2: Direct eval + Sloppy Mode + Function Arg Init Scope
