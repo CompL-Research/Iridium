@@ -10277,6 +10277,10 @@ function runTest(test, iterations) {
   }
 }
 
+// This is needed to run 3JS, 3JS currently emits conservative TDZ checks... For top level scripts these throw reference errors
+// Iridium handles this in a pass, no such pass currently exists for 3JS, will do later...
+var DSP, DFT, FFT, Sampler, Oscillator, ADSR, IIRFilter, IIRFilter2, WindowFunction, Biquad, GraphicalEq, MultiDelay, SingleDelay, Reverb, BeatDetektor;
+
 /*
  *  DSP.js - a comprehensive digital signal processing  library for javascript
  *

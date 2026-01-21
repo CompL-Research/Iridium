@@ -8,7 +8,7 @@ var MQube = new Array();  // position information of qube
 var I = new Array();      // entity matrix
 var Origin = new Object();
 var Testing = new Object();
-var LoopTimer;
+var LoopTime;
 
 var validation = {
  20: 2889.0000000000045,

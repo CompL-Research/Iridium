@@ -1,0 +1,15 @@
+box2d_standalone
+code-load_standalone
+crypto_standalone
+deltablue_standalone
+earley-boyer_standalone
+gbemu_standalone
+mandreel_standalone
+navier-stokes_standalone
+pdfjs_standalone
+raytrace_standalone
+regexp_standalone
+richards_standalone
+splay_standalone
+typescript_standalone
+zlib_standalone
