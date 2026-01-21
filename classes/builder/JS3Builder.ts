@@ -76,7 +76,7 @@ export default class JS3Builder {
     if (debugConfig.cli.tout)
       return;
 
-    const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.projectFile.uname, this.projectFile.extension) + ".js3.js";
+    const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.projectFile.uname, this.projectFile.extension) + ".js3";
     fs.writeFileSync(
       filePath,
       this.getCodeString()
