@@ -83,7 +83,7 @@ export class ProjectFile {
     this.initData.loc = sourceCode.split(/\r\n|\r|\n/).length;
 
     // 2. Parse Source Code
-    const presets: Array<Array<string | object>> = [
+    let presets: Array<Array<string | object>> = [
       // [
       //   "@babel/preset-flow"
       // ],
@@ -103,6 +103,10 @@ export class ProjectFile {
         "@babel/preset-typescript"
       ]
     ];
+
+    if (process.env.PRESET_FLOW) {
+      presets = [["@babel/preset-flow"],...presets]
+    }
 
     plugins = ["@babel/plugin-syntax-jsx", ...plugins];
 
