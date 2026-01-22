@@ -1,6 +1,0 @@
-1. Running benchmarks
-python3 bm.py
-
-2. Running test262
-node run.cjs test/language/expressions/addition
-

@@ -1,8 +1,16 @@
 
 import pandas as pd
 import numpy as np
+from pathlib import Path
 
-CSV_PATH = "/root/Iridium/tests/results/21-01-2026-19-12-58/benchmark_results.csv"
+RESULTS_DIR = Path("./results")
+all_folders = [d for d in RESULTS_DIR.iterdir() if d.is_dir()]
+LATEST_FOLDER = max(all_folders, key=lambda d: d.stat().st_mtime)
+CSV_FILE_PATH = LATEST_FOLDER / "benchmark_results.csv"
+
+CSV_PATH = CSV_FILE_PATH
+OUTPUT_DIR = Path("./FINAL_RESULTS")
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 metric = "exec_time_ms"
 
 df = pd.read_csv(CSV_PATH)
@@ -37,7 +45,5 @@ print("\nOverall speedup of IRIDIUM (geometric mean across benchmarks):\n")
 for config, value in overall_speedup.items():
     print(f"  IRIDIUM vs {config}: {value:.2f}×")
 
-speedups.to_csv("iridium_speedups_per_benchmark.csv")
-overall_speedup.to_frame(name="overall_speedup").to_csv(
-    "iridium_speedups_overall.csv"
-)
+speedups.to_csv(f"{OUTPUT_DIR}/iridium_speedups_per_benchmark.csv")
+overall_speedup.to_frame(name="overall_speedup").to_csv(f"{OUTPUT_DIR}/iridium_speedups_overall.csv")

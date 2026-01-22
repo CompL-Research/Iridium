@@ -16,6 +16,25 @@ async function runInDirectory(cmd, cwd = ".") {
 
 const QJS_BIN="../externalDeps/quickjs/build/qjs_new"
 
+const config = {
+  "ML_LOAD": {
+    baselineSrc: "benchmarks/ML/ML_load.cjs",
+    iridiumSrc: "json_benchmark/ML_load.cjs.json"
+  },
+  "Octane2_Regexp": {
+    baselineSrc: "benchmarks/Octane2/Regexpbenchmark.cjs",
+    iridiumSrc: "json_benchmark/Regexpbenchmark.cjs.json"
+  },
+  "UniPoker": {
+    baselineSrc: "benchmarks/UniPoker/benchmark.cjs",
+    iridiumSrc: "json_benchmark/benchmark.cjs.json"
+  },
+  "KrakenDesaturate": {
+    baselineSrc: "benchmarks/kraken-1.0/kraken-1.0-imaging-desaturate.cjs",
+    iridiumSrc: "json_benchmark/kraken-1.0-imaging-desaturate.cjs.json"
+  },
+};
+
 const bytecodeClassification = {
   "C-SITE": {
     "Least Optimized": ["OP_call", "OP_call_method", "OP_return"],
@@ -41,25 +60,6 @@ const bytecodeClassification = {
     "Highly Optimized": [],
     "Most Optimized": ["OP_get_array_el2", "OP_get_field2", "OP_get_length"],
   }
-};
-
-const config = {
-  "ML_LOAD": {
-    baselineSrc: "benchmarks/ML/ML_load.cjs",
-    iridiumSrc: "json_benchmark/ML_load.cjs.json"
-  },
-  "Octane2_Regexp": {
-    baselineSrc: "benchmarks/Octane2/Regexpbenchmark.cjs",
-    iridiumSrc: "json_benchmark/Regexpbenchmark.cjs.json"
-  },
-  "UniPoker": {
-    baselineSrc: "benchmarks/UniPoker/benchmark.cjs",
-    iridiumSrc: "json_benchmark/benchmark.cjs.json"
-  },
-  "KrakenDesaturate": {
-    baselineSrc: "benchmarks/kraken-1.0/kraken-1.0-imaging-desaturate.cjs",
-    iridiumSrc: "json_benchmark/kraken-1.0-imaging-desaturate.cjs.json"
-  },
 };
 
 async function executeAndCollectData(cmd, baselineResPath) {
