@@ -43,9 +43,6 @@ OOPSLA_FINAL = [
     "benchmarks/UniPoker/benchmark.cjs",
 ]
 
-# ======================
-# Utilities
-# ======================
 def run_timed(cmd, cwd=None):
     """Run a command and extract parse and execution times (ms)."""
     result = subprocess.run(
@@ -59,10 +56,8 @@ def run_timed(cmd, cwd=None):
     parse_time = None
     exec_time = None
 
-    # Combine stdout and stderr in case output goes to either
     output = result.stdout + "\n" + result.stderr
 
-    # Regex patterns
     parse_match = re.search(r"Parse time\s*:\s*([\d.]+)\s*ms", output)
     exec_match = re.search(r"Execution time\s*:\s*([\d.]+)\s*ms", output)
 
@@ -114,15 +109,10 @@ def compile(test_path, benchmark_name, opt_level):
         print(f"  ⚠️ Could not find generated JSON for {benchmark_name}", flush=True)
         sys.exit(1)
 
-# ======================
-# Main Benchmark Loop
-# ======================
 def main():
     start_time = datetime.now()
     print(f"--- Script started at: {start_time.strftime('%Y-%m-%d %H:%M:%S')} ---", flush=True)
 
-    # timestamp = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
-    # run_output_dir = RESULTS_DIR / timestamp
     run_output_dir = RESULTS_DIR
     run_output_dir.mkdir(parents=True, exist_ok=True)
     JSON_BENCHMARK_DIR.mkdir(exist_ok=True)
@@ -176,9 +166,6 @@ def main():
     print(f"--- Total runtime: {total_runtime} ---", flush=True)
 
 
-# ======================
-# Grid Plot
-# ======================
 def plot_grid(results, output_dir):
     """
     Create two separate boxplot grids: one for parse time, one for execution time.

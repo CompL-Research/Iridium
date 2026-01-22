@@ -46,10 +46,6 @@ IRI_CS_BRREACHED = [
     "benchmarks/kraken-1.0/kraken-1.0-audio-beat-detection.cjs"
 ]
 
-
-# ======================
-# Utilities
-# ======================
 def run_timed(cmd, cwd=None):
     """Run a command and extract parse and execution times (ms)."""
     result = subprocess.run(
@@ -63,12 +59,10 @@ def run_timed(cmd, cwd=None):
     parse_time = None
     exec_time = None
 
-    # Combine stdout and stderr in case output goes to either
     output = result.stdout + "\n" + result.stderr
 
     print(output)
 
-    # Regex patterns
     parse_match = re.search(r"Parse time\s*:\s*([\d.]+)\s*ms", output)
     exec_match = re.search(r"Execution time\s*:\s*([\d.]+)\s*ms", output)
 
@@ -84,10 +78,6 @@ def run_multiple(cmd, runs=RUNS, cwd=None):
     """Run command multiple times and return list of times."""
     return [run_timed(cmd, cwd) for _ in range(runs)]
 
-
-# ======================
-# Main Benchmark Loop
-# ======================
 def main():
     start_time = datetime.now()
     print(f"--- Script started at: {start_time.strftime('%Y-%m-%d %H:%M:%S')} ---", flush=True)
@@ -153,7 +143,6 @@ def main():
                 print(f"  ⚠️ Could not find generated JS3 for {benchmark_name}", flush=True)
                 js3_file = None
 
-        # js3_file = None # Disable JS3 temporarily
         configs = {
             "QJS+SOURCE": ["./script.sh", str(test_path)],
             "QJS+JS3": ["./script.sh", str(js3_file)] if js3_file else None,
@@ -186,10 +175,6 @@ def main():
     print(f"\n--- Script finished at: {end_time.strftime('%Y-%m-%d %H:%M:%S')} ---", flush=True)
     print(f"--- Total runtime: {total_runtime} ---", flush=True)
 
-
-# ======================
-# Grid Plot
-# ======================
 def plot_grid(results, output_dir):
     """
     Create two separate boxplot grids: one for parse time, one for execution time.

@@ -30,20 +30,14 @@ BENCHMARK_NAME_MAP = {
     "benchmarks/UniPoker/benchmark.cjs": "UniPoker",
 }
 
-# ================================================================
-# Plotting Logic
-# ================================================================
-
 def plot_metric_grid(df, metric_col, title, filename):
     """
     Creates and saves a boxplot grid for a given metric ('parse_time_ms' or 'exec_time_ms').
     """
     print(f"Generating plot for {metric_col}...", flush=True)
 
-    # Ensure the output directory exists
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Filter benchmarks to only those present in both the CSV and the name map
     benchmarks_in_csv = df["benchmark"].unique()
     benchmarks_to_plot = [bm for bm in BENCHMARK_NAME_MAP.keys() if bm in benchmarks_in_csv]
 
@@ -51,13 +45,11 @@ def plot_metric_grid(df, metric_col, title, filename):
         print("  ❌ Error: No matching benchmarks found between CSV and BENCHMARK_NAME_MAP. Please check paths.")
         return
 
-    # --- Plotting Setup ---
     ncols = GRID_COLS
     nrows = (len(benchmarks_to_plot) + ncols - 1) // ncols
     fig, axes = plt.subplots(nrows, ncols, figsize=(4 * ncols, 3.5 * nrows), constrained_layout=True)
     axes = axes.flatten()
 
-    # --- Plotting Customization ---
     colors = {"QJS+SOURCE": "#fdae61", "QJS+JS3": "#abd9e9", "IRIDIUM": "#2c7bb6"}
     config_order = ["QJS+SOURCE", "QJS+JS3", "IRIDIUM"]
     labels = ["QJS+SRC", "QJS+JS3", "IRIDIUM"]
@@ -66,7 +58,6 @@ def plot_metric_grid(df, metric_col, title, filename):
         ax = axes[i]
         subset = df[df["benchmark"] == bm_path]
 
-        # Prepare data for boxplot in the specified order
         data = [subset[subset["config"] == c][metric_col].dropna() for c in config_order]
 
         if all(d.empty for d in data):
@@ -75,17 +66,14 @@ def plot_metric_grid(df, metric_col, title, filename):
 
         bp = ax.boxplot(data, patch_artist=True, labels=labels)
 
-        # Apply colors to boxes
         for patch, config_name in zip(bp["boxes"], config_order):
             patch.set_facecolor(colors.get(config_name, "#cccccc"))
 
-        # Set titles and labels from the map
         ax.set_title(BENCHMARK_NAME_MAP.get(bm_path, bm_path), fontsize=10)
         ax.set_ylabel("Time (ms)")
         ax.tick_params(axis="x", labelrotation=45, labelsize=8)
         ax.grid(axis="y", linestyle="--", alpha=0.6)
 
-    # Hide any unused subplots
     for j in range(len(benchmarks_to_plot), len(axes)):
         axes[j].axis("off")
 
