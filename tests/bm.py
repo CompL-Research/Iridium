@@ -7,6 +7,7 @@ import pandas as pd
 from datetime import datetime
 import shutil
 import re
+import os
 
 USE_CACHE = False
 RUNS = 15
@@ -36,6 +37,12 @@ OOPSLA_FINAL = [
     "benchmarks/UniPoker/benchmark.cjs",
 ]
 
+IRI_CS_BRREACHED = [
+    "benchmarks/kraken-1.0/kraken-1.0-ai-astar.cjs",
+    "benchmarks/kraken-1.0/kraken-1.0-audio-beat-detection.cjs"
+]
+
+
 # ======================
 # Utilities
 # ======================
@@ -54,6 +61,8 @@ def run_timed(cmd, cwd=None):
 
     # Combine stdout and stderr in case output goes to either
     output = result.stdout + "\n" + result.stderr
+
+    print(output)
 
     # Regex patterns
     parse_match = re.search(r"Parse time\s*:\s*([\d.]+)\s*ms", output)
@@ -104,12 +113,19 @@ def main():
         else:
             print(f"  ▷ Cache miss. Compiling {benchmark_name} with Iridium...", flush=True)
             
+            myEnv = os.environ.copy()
+            if test in IRI_CS_BRREACHED:
+                myEnv["IRI_CS_BRREACHED"] = "1"
+
             compile_result = subprocess.run(
                 ["./iridium", "iri", "--ljson", "-s", "script", ".", str(test_path)],
+                env=myEnv,
                 cwd=IRIDIUM_DIR,
                 capture_output=True,
                 text=True
             )
+
+            print(compile_result)
 
             if compile_result.returncode != 0:
                 print(f"  ❌ Iridium compilation FAILED for {benchmark_name}. Skipping.", flush=True)
@@ -134,6 +150,7 @@ def main():
                 print(f"  ⚠️ Could not find generated JS3 for {benchmark_name}", flush=True)
                 js3_file = None
 
+        js3_file = None # Disable JS3 temporarily
         configs = {
             "QJS+SOURCE": ["./script.sh", str(test_path)],
             "QJS+JS3": ["./script.sh", str(js3_file)] if js3_file else None,
