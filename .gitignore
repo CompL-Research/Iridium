@@ -4,6 +4,14 @@ IRIDIUM.png
 iridium
 diridium
 
+tests/collated_results
+tests/FINAL_RESULTS
+tests/json_ablation_benchmark
+tests/results_ablation
+tests/out*
+tests/qualitative_*_IRI
+tests/qualitative_*_QJS
+
 iridium_interp
 
 # Temp
