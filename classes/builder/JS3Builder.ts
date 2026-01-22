@@ -65,7 +65,7 @@ export default class JS3Builder {
   getCodeString(): string {
     if (this.generatedCode) return this.generatedCode;
     if (!this.generatedAST) throw new Error("Generated AST is nullish");
-    if (!this.projectFile.initData.sourceCode) throw new Error("Source code not found");
+    if (!this.projectFile.initData.sourceCode) throw new Error("Source code not found, empty files are not supported");
     const result = babel.transformFromAstSync(this.generatedAST, this.projectFile.initData.sourceCode, { sourceMaps: "inline" });
     if (!result) throw new Error("BABEL transform from AST failed");
     if (!result.code) throw new Error("BABEL transformed code not found");
