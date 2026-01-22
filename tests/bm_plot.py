@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import seaborn as sns
 
-RESULTS_DIR = Path("./results")
-all_folders = [d for d in RESULTS_DIR.iterdir() if d.is_dir()]
-LATEST_FOLDER = max(all_folders, key=lambda d: d.stat().st_mtime)
-CSV_FILE_PATH = LATEST_FOLDER / "benchmark_results.csv"
+CSV_FILE_PATH = Path("FINAL_RESULTS/BM1_data.csv")
+OUTPUT_PARSE_PNG="BM1_parse_times.png"
+OUTPUT_EXEC_PNG="BM1_exec_times.png"
+
 OUTPUT_DIR = Path("./FINAL_RESULTS")
 GRID_COLS = 4
 BENCHMARK_NAME_MAP = {
@@ -108,14 +108,14 @@ def main():
         df,
         metric_col="parse_time_ms",
         title="Benchmark Parse Time Comparison",
-        filename="benchmark_parse_times.png"
+        filename=OUTPUT_PARSE_PNG
     )
 
     plot_metric_grid(
         df,
         metric_col="exec_time_ms",
         title="Benchmark Execution Time Comparison",
-        filename="benchmark_exec_times.png"
+        filename=OUTPUT_EXEC_PNG
     )
     print("\nAll plots generated successfully.")
 

@@ -11,13 +11,18 @@ import re
 import sys
 
 USE_CACHE = False
-RUNS = 1
+RUNS = 5
 GRID_COLS = 4
 IRIDIUM_DIR = Path("..").resolve()
 QJS_DIR = Path("../externalDeps/quickjs").resolve()
-RESULTS_DIR = Path("results_ablation").resolve()
-JSON_BENCHMARK_DIR = Path("json_ablation_benchmark").resolve()
-JS3_BENCHMARK_DIR = Path("js3_ablation_benchmark").resolve()
+RESULTS_DIR = Path("FINAL_RESULTS").resolve()
+
+JSON_BENCHMARK_DIR = Path("FINAL_RESULTS/BM3_JSON_CACHE").resolve()
+JS3_BENCHMARK_DIR = Path("FINAL_RESULTS/BM3_JS3_CACHE").resolve()
+
+OUTPUT_CSV_NAME="BM3_data.csv"
+OUTPUT_PARSE_PNG="BM3_parse_times.png"
+OUTPUT_EXEC_PNG="BM3_exec_times.png"
 
 OOPSLA_FINAL = [
     "benchmarks/sunspider/3d-cube.cjs",
@@ -116,13 +121,14 @@ def main():
     start_time = datetime.now()
     print(f"--- Script started at: {start_time.strftime('%Y-%m-%d %H:%M:%S')} ---", flush=True)
 
-    timestamp = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
-    run_output_dir = RESULTS_DIR / timestamp
+    # timestamp = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+    # run_output_dir = RESULTS_DIR / timestamp
+    run_output_dir = RESULTS_DIR
     run_output_dir.mkdir(parents=True, exist_ok=True)
     JSON_BENCHMARK_DIR.mkdir(exist_ok=True)
     JS3_BENCHMARK_DIR.mkdir(exist_ok=True)
 
-    results_csv_path = run_output_dir / "benchmark_results.csv"
+    results_csv_path = run_output_dir / OUTPUT_CSV_NAME
 
     all_results = []
 
@@ -221,8 +227,8 @@ def plot_grid(results, output_dir):
         plt.close(fig)
         print(f"📊 Plot saved to {plot_path}", flush=True)
 
-    plot_metric("parse_time_ms", "Benchmark Parse Time Comparison (ms)", "parse_time_boxplots.png")
-    plot_metric("exec_time_ms", "Benchmark Execution Time Comparison (ms)", "exec_time_boxplots.png")
+    plot_metric("parse_time_ms", "Benchmark Parse Time Comparison (ms)", OUTPUT_PARSE_PNG)
+    plot_metric("exec_time_ms", "Benchmark Execution Time Comparison (ms)", OUTPUT_EXEC_PNG)
 
 if __name__ == "__main__":
     main()

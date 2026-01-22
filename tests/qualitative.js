@@ -6,7 +6,6 @@ const execPromise = promisify(exec);
 
 async function runInDirectory(cmd, cwd = ".") {
   try {
-    // Setting the CWD to the "projects" folder
     const { stdout } = await execPromise(cmd, { cwd });
     console.log(stdout);
   } catch (err) {
@@ -19,19 +18,19 @@ const QJS_BIN="../externalDeps/quickjs/build/qjs_new"
 const config = {
   "ML_LOAD": {
     baselineSrc: "benchmarks/ML/ML_load.cjs",
-    iridiumSrc: "json_benchmark/ML_load.cjs.json"
+    iridiumSrc: "FINAL_RESULTS/BM1_JSON_CACHE/ML_load.cjs.json"
   },
   "Octane2_Regexp": {
     baselineSrc: "benchmarks/Octane2/Regexpbenchmark.cjs",
-    iridiumSrc: "json_benchmark/Regexpbenchmark.cjs.json"
+    iridiumSrc: "FINAL_RESULTS/BM1_JSON_CACHE/Regexpbenchmark.cjs.json"
   },
   "UniPoker": {
     baselineSrc: "benchmarks/UniPoker/benchmark.cjs",
-    iridiumSrc: "json_benchmark/benchmark.cjs.json"
+    iridiumSrc: "FINAL_RESULTS/BM1_JSON_CACHE/benchmark.cjs.json"
   },
   "KrakenDesaturate": {
     baselineSrc: "benchmarks/kraken-1.0/kraken-1.0-imaging-desaturate.cjs",
-    iridiumSrc: "json_benchmark/kraken-1.0-imaging-desaturate.cjs.json"
+    iridiumSrc: "FINAL_RESULTS/BM1_JSON_CACHE/kraken-1.0-imaging-desaturate.cjs.json"
   },
 };
 
@@ -83,11 +82,11 @@ async function executeAndCollectData(cmd, baselineResPath) {
 
 try {
   for (let bm of Object.keys(config)) {
-    const baselineResPath = `qualitative_${bm}_QJS`;
+    const baselineResPath = `FINAL_RESULTS/qualitative_${bm}_QJS`;
     const baselineRes = await executeAndCollectData(`${QJS_BIN} -D1 -C ${config[bm].baselineSrc} > ${baselineResPath}`, baselineResPath)
     console.log(`QJS::${bm}::`, baselineRes)
     
-    const iridiumResPath = `qualitative_${bm}_IRI`;
+    const iridiumResPath = `FINAL_RESULTS/qualitative_${bm}_IRI`;
     const iridiumRes = await executeAndCollectData(`${QJS_BIN} -D1 -X ${config[bm].iridiumSrc} > ${iridiumResPath}`, iridiumResPath)
     console.log(`IRI::${bm}::`, iridiumRes)
   }
