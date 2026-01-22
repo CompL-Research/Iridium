@@ -153,7 +153,7 @@ def main():
                 print(f"  ⚠️ Could not find generated JS3 for {benchmark_name}", flush=True)
                 js3_file = None
 
-        js3_file = None # Disable JS3 temporarily
+        # js3_file = None # Disable JS3 temporarily
         configs = {
             "QJS+SOURCE": ["./script.sh", str(test_path)],
             "QJS+JS3": ["./script.sh", str(js3_file)] if js3_file else None,
