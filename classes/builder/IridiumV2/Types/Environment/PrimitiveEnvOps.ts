@@ -19,7 +19,7 @@ import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEX
  * 
  * - `ARG(obj)`: The binding to be read, can be any environment binding {@link EnvBindingSEXP} | {@link RemoteEnvBindingSEXP} | {@link GlobalBindingSEXP} | {@link PoolBindingSEXP} (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
- * - `FLAG(SAFE)`: Is it safe to read this binding?
+ * - `FLAG(SAFE : void)`: Is it safe to read this binding?
  * 
  */
 export class EnvReadSEXP extends IridiumSEXP {
@@ -92,11 +92,11 @@ export type EnvWriteFlags = "SAFE" | "THISINIT" | "SLOPPY";
  * 
  * - `ARG(rVal)`: The value to store.
  * 
- * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
+ * - `FLAG(SAFE : boolean)`: Indicates whether the writes being performed are safe.
  * 
- * - `FLAG(THISINIT)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
+ * - `FLAG(THISINIT : boolean)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
  * 
- * - `FLAG(SLOPPY)`: Indicates whether the writes to target locations is sloppy.
+ * - `FLAG(SLOPPY : void)`: Indicates whether the writes to target locations is sloppy.
  * 
  */
 export class EnvWriteSEXP extends IridiumSEXP {
@@ -171,7 +171,7 @@ export class EnvWriteSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(ScopeIDX)`: Target Scope IDX.
+ * - `FLAG(ScopeIDX : number)`: Target Scope IDX.
  * 
  */
 export class SiblingSpecialWriteSEXP extends EnvWriteSEXP {

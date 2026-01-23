@@ -25,28 +25,23 @@ export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
  * The `SAFE`, `THISINIT` and `SLOPPY` flags are used to handle features like TDZ where writes/reads to a binding before
  * its declaration is reached is invalid. Such restricted accesses to the environment are made explicit in Iridium.
  * 
- * 
- * #### TODO Notes
- * 
- * See all places this node is created, ensure there is no way it can end up as an RVal.
- * 
  * #### Resolutions
  * 
- * - {@link EnvWriteSEXP}: A binding found in the immediate enclosing closure scope.
+ * - {@link EnvWriteSEXP}: A standard environment write operation.
  * 
  * #### Structure
  * 
- * - `ARG(lValTarget)`: The storage target location
+ * - `ARG(lValTarget)`: {@link ResolveEnvBindingSEXP} The storage target location.
  * 
- * - `ARG(rVal)`: The value to store (possible nothing, in case of just a declaration).
+ * - `ARG(rVal)`: The value to store (is set to null in case of just a declaration).
  * 
- * - `FLAG(JSLET | JSCONST | JSVAR)`: The kind of the declaration, one of these allowed types ({@link JSEnvWriteTypes}).
+ * - `FLAG(JSLET : void | JSCONST : void | JSVAR : void)`: The kind of the declaration, one of these allowed types ({@link JSEnvWriteTypes}).
  * 
- * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
+ * - `FLAG(SAFE : boolean)`: Indicates whether the writes being performed are safe.
  * 
- * - `FLAG(THISINIT)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
+ * - `FLAG(THISINIT : boolean)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
  * 
- * - `FLAG(SLOPPY)`: Indicates whether the writes to target locations is sloppy.
+ * - `FLAG(SLOPPY : boolean)`: Indicates whether the writes to target locations is sloppy.
  * 
  */
 export class JSExplicitBindingDeclarationSEXP extends IridiumSEXP {
@@ -220,21 +215,21 @@ export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * - `ARG(Store)`: Location on stack where the result is stored (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
- * - `ARG(Args)`: A {@link ListSEXP}, that can pass additional arguments to the initializer. An empty list by default.
+ * - `ARG(Args)`: A {@link ListSEXP}, that can pass additional arguments to the initializer. An empty list by default. Needed for `super()` and `super`.
  * 
- * - `FLAG(NAME)`: Name of the created binding.
+ * - `FLAG(NAME : string)`: Name of the created binding.
  * 
- * - `FLAG(JSLET | JSCONST | JSVAR)`: The JSkind for the created binding.
+ * - `FLAG(JSLET : void | JSCONST : void | JSVAR : void)`: The JSkind for the created binding.
  * 
- * - `FLAG(OPID)`: The Operation ID.
+ * - `FLAG(OPID : number)`: The Operation ID.
  * 
- * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
+ * - `FLAG(SAFE : boolean)`: Indicates whether the writes being performed are safe.
  * 
- * - `FLAG(THISINIT)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
+ * - `FLAG(THISINIT : boolean)`: Indicates whether an initialization write is being performed to `this`.
  * 
- * - `FLAG(SLOPPY)`: Indicates whether the writes to target locations is sloppy.
+ * - `FLAG(SLOPPY : void)`: Indicates whether the writes to target locations is sloppy.
  * 
- * - `FLAG(SKIPINIT)`: This flag is set by default, this ensures that the bindings declared are not initialized by the codegen at scope entry.
+ * - `FLAG(SKIPINIT : void)`: This flag is set by default, this ensures that the bindings declared are not initialized by the codegen at scope entry.
  * 
  */
 export class JSImplicitBindingDeclarationSEXP extends IridiumSEXP {
@@ -362,13 +357,13 @@ export class JSImplicitBindingDeclarationSEXP extends IridiumSEXP {
  * 
  * - `ARG(rVal)`: The value to store (possible nothing, in case of just a declaration).
  * 
- * - `FLAG(JSLET | JSCONST | JSVAR)`: This is always gonna be JSVAR, just leaving it the same because of consistency sake.
+ * - `FLAG(JSLET : void | JSCONST : void | JSVAR : void)`: This is always gonna be JSVAR, just leaving it the same because of consistency sake.
  * 
- * - `FLAG(SAFE)`: Indicates whether the writes being performed are safe.
+ * - `FLAG(SAFE : boolean)`: Indicates whether the writes being performed are safe.
  * 
- * - `FLAG(THISINIT)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
+ * - `FLAG(THISINIT : boolean)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
  * 
- * - `FLAG(SLOPPY)`: Indicates whether the writes to target locations is sloppy.
+ * - `FLAG(SLOPPY : void)`: Indicates whether the writes to target locations is sloppy.
  * 
  */
 export class JSFuncDeclSEXP extends IridiumSEXP {
@@ -475,9 +470,9 @@ export type JSSloppyDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 
  * #### Structure
  * 
- * - `FLAG(NAME)`: The name of the declaration.
+ * - `FLAG(NAME : string)`: The name of the declaration.
  * 
- * - `FLAG(JSLET | JSCONST | JSVAR)`: The kind of the declaration, one of these allowed types.
+ * - `FLAG(JSLET : void | JSCONST : void | JSVAR : void)`: The kind of the declaration, one of these allowed types.
  * 
  */
 export class JSSloppyDeclSEXP extends IridiumSEXP {

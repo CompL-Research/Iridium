@@ -6,7 +6,7 @@ import { GotoSEXP } from "../Flow";
  * 
  * @extends {IridiumSEXP}
  * 
- * @group RVAL
+ * @group STMT
  * 
  * @remarks
  * 
@@ -47,9 +47,9 @@ export function isNOPSEXP(o: any): o is NOPSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(ASW)`: Always Safe Write. Bindings like argument bindings are declared as ASWs as writing to them is always safe in any scope.
+ * - `FLAG(ASW : void)`: Always Safe Write. Bindings like argument bindings are declared as ASWs as writing to them is always safe in any scope.
  * 
- * - `FLAG(NAME)`: Binding name to resolve.
+ * - `FLAG(NAME : string)`: Binding name to resolve.
  * 
  */
 export class ResolveEnvBindingSEXP extends IridiumSEXP {
@@ -116,9 +116,9 @@ export class LoopInitPreludeEndSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(NAME)`: Binding name to resolve.
+ * - `FLAG(NAME : string)`: Binding name to resolve.
  * 
- * - `FLAG(FULLY_RESOLVE)`: Does the binding context request resolution?
+ * - `FLAG(FULLY_RESOLVE : void)`: Does the binding context request resolution?
  * 
  */
 export class ResolvePrivateEnvBindingSEXP extends IridiumSEXP {
@@ -166,7 +166,7 @@ export class ResolvePrivateEnvBindingSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(Label)`: Optional flag representing the target label.
+ * - `FLAG(Label? : string)`: Optional flag representing the target label.
  * 
  */
 export class ResolveContinueTargetSEXP extends IridiumSEXP {
@@ -205,7 +205,7 @@ export class ResolveContinueTargetSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(Label)`: Optional flag representing the target label.
+ * - `FLAG(Label? : string)`: Optional flag representing the target label.
  * 
  */
 export class ResolveBreakTargetSEXP extends IridiumSEXP {

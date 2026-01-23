@@ -15,6 +15,11 @@ import { IridiumSEXP } from "../../Structural";
  * ```
  * [caughtValue = 1] JSCatchContext ([1, implicit])
  * ```
+ * #### Trigger
+ * 
+ * ```
+ * try {  } catch(e) {  } // result of e will be obtained using JSCatchContext
+ * ```
  * 
  * #### Structure
  * 

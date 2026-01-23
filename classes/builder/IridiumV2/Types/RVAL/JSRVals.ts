@@ -59,7 +59,7 @@ export class UNOPDelMemberExprSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(NAME)`: Name of the binding to delete.
+ * - `FLAG(NAME : string)`: Name of the binding to delete.
  * 
  */
 export class UNOPDelVarSEXP extends IridiumSEXP {
@@ -96,7 +96,7 @@ export class UNOPDelVarSEXP extends IridiumSEXP {
  * 
  * - `ARG(rBinop)`: the right operand.
  * 
- * - `FLAG(OP)`: a string.
+ * - `FLAG(OP : string)`: a string.
  * 
  */
 export class JSBinopSEXP extends IridiumSEXP {
@@ -156,7 +156,7 @@ export class JSBinopSEXP extends IridiumSEXP {
  * 
  * - `ARG(val)`: the operand.
  * 
- * - `FLAG(OP)`: a string.
+ * - `FLAG(OP : string)`: a string.
  * 
  */
 export class JSUnopSEXP extends IridiumSEXP {
@@ -233,7 +233,7 @@ export class JSTemplateSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(IridiumPrimitive)`: a string.
+ * - `FLAG(IridiumPrimitive : string)`: a string.
  * 
  */
 export class JSBitIntSEXP extends IridiumSEXP {
@@ -264,7 +264,7 @@ export class JSBitIntSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(IridiumPrimitive)`: a string.
+ * - `FLAG(IridiumPrimitive : string)`: a string.
  * 
  */
 export class JSPrivateSEXP extends IridiumSEXP {
@@ -286,7 +286,7 @@ export class JSPrivateSEXP extends IridiumSEXP {
  * 
  * @remarks
  * 
- * An JS Array object.
+ * A new JS Array object.
  * (Ref: [mdn](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))
  * 
  * #### Structure
@@ -303,39 +303,6 @@ export class JSArraySEXP extends IridiumSEXP {
   toString(space?: number): string {
     return `${printIriSpace(space)}JSArray [${this.args.map(e => e.toString(0)).join(", ")}]`
   }
-}
-
-/**
- * 
- * @extends {IridiumSEXP}
- * 
- * @group RVAL
- * 
- * @remarks
- * 
- * An JS Spread node.
- * (Ref: [mdn](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax))
- * 
- * #### Structure
- * 
- * - `ARG(val)`: value to be spread.
- * 
- */
-export class JSSpreadSEXP extends IridiumSEXP {
-  constructor(id: IridiumSEXP) {
-    super("JSSpread");
-    this.setVal(id);
-  }
-
-  // Args
-  setVal(val: IridiumSEXP) {
-    this.args[0] = val;
-  }
-
-  getVal() {
-    return this.args[0];
-  }
-
 }
 
 /**
@@ -458,8 +425,8 @@ export class JSObjectSEXP extends IridiumSEXP {
  * #### Structure
  * 
  * - `ARG(obj)`: JSComputedFieldRead
- * - `FLAG(PREFIX)`: Is the operation in the prefix
- * - `FLAG(INCREMENT)`: Is the operation performing increment (true = increment, false = decrement)
+ * - `FLAG(PREFIX : boolean)`: Is the operation in the prefix
+ * - `FLAG(INCREMENT : boolean)`: Is the operation performing increment (true = increment, false = decrement)
  * 
  */
 export class JSIDOPSEXP extends IridiumSEXP {

@@ -25,7 +25,7 @@ export type ListSEXPFlags = "ModuleRequest" | "StaticImport" | "StarExport" | "E
  * 
  * #### Structure
  * 
- * - `FLAG(TYPE)`: A flag that signifies that the list is homogenous, the value of this flag is the expected tag value.
+ * - `FLAG(TYPE? : string)`: A flag that signifies that the list is homogenous, the value of this flag is the expected tag value.
  * 
  */
 export class ListSEXP extends IridiumSEXP {
@@ -58,7 +58,7 @@ export class ListSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(IridiumPrimitive)`: string value container.
+ * - `FLAG(IridiumPrimitive : string)`: string value container.
  * 
  */
 export class StringSEXP extends IridiumSEXP {
@@ -88,7 +88,7 @@ export class StringSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(IridiumPrimitive)`: string value container.
+ * - `FLAG(IridiumPrimitive: void)`: string value container.
  * 
  */
 export class NullSEXP extends IridiumSEXP {
@@ -115,9 +115,9 @@ export class NullSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(EXP)`: the regular expression string.
+ * - `FLAG(EXP : string)`: the regular expression string.
  * 
- * - `FLAG(FLAGS)`: flags for the regular expression.
+ * - `FLAG(FLAGS : string)`: flags for the regular expression.
  * 
  */
 export class RegExpSEXP extends IridiumSEXP {
@@ -144,7 +144,7 @@ export class RegExpSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(IridiumPrimitive)`: a number.
+ * - `FLAG(IridiumPrimitive : number)`: a number.
  * 
  */
 export class NumberSEXP extends IridiumSEXP {
@@ -175,7 +175,7 @@ export class NumberSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(IridiumPrimitive)`: a boolean.
+ * - `FLAG(IridiumPrimitive : boolean)`: a boolean.
  * 
  */
 export class BooleanSEXP extends IridiumSEXP {
@@ -205,7 +205,7 @@ export class BooleanSEXP extends IridiumSEXP {
  * 
  * - `ARG(rBinop)`: the right operand.
  * 
- * - `FLAG(OP)`: a string.
+ * - `FLAG(OP : string)`: a string.
  * 
  */
 export class BinopSEXP extends IridiumSEXP {
@@ -261,7 +261,7 @@ export class BinopSEXP extends IridiumSEXP {
  * 
  * - `ARG(val)`: the operand.
  * 
- * - `FLAG(OP)`: a string.
+ * - `FLAG(OP : string)`: a string.
  * 
  */
 export class UnopSEXP extends IridiumSEXP {
@@ -308,11 +308,11 @@ export class UnopSEXP extends IridiumSEXP {
  * 
  * - `FLAG(StartBBIDX)`: IDX of the first BB in the Lambda.
  * 
- * - `FLAG(NAME)`: Name for the closure, "" by default.
+ * - `FLAG(NAME : string)`: Name for the closure, "" by default.
  * 
- * - `FLAG(CNAME)`: Is it a computed name context?
+ * - `FLAG(CNAME : boolean)`: Is it a computed name context?
  * 
- * - `FLAG(SETNAME)`: boolean specifying whether the name needs to be explicitly set.
+ * - `FLAG(SETNAME : boolean)`: boolean specifying whether the name needs to be explicitly set.
  * 
  */
 export class LambdaSEXP extends IridiumSEXP {
@@ -375,8 +375,8 @@ export class LambdaSEXP extends IridiumSEXP {
  * #### Structure
  * 
  * - `ARG(Obj)`: FieldReadSEXP
- * - `FLAG(PREFIX)`: Is the operation in the prefix
- * - `FLAG(INCREMENT)`: Is the operation performing increment (true = increment, false = decrement)
+ * - `FLAG(PREFIX : boolean)`: Is the operation in the prefix
+ * - `FLAG(INCREMENT : boolean)`: Is the operation performing increment (true = increment, false = decrement)
  * 
  */
 export class IDOPSEXP extends IridiumSEXP {

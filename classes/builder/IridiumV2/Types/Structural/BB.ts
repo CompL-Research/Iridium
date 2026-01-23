@@ -13,6 +13,8 @@ import { IridiumSEXP } from "./General";
  * - `ClosureBoundary`: Represents that the BB operates on the topmost scope of a closure.
  * 
  * - `Lexical`: Represents that the BB operates on a lexical scope.
+ * 
+ * - `VARBoundary`: A non-closure scope where VAR bindings must be hoisted to.
  */
 export type BBSEXPFlags = "TopLevel" | "ClosureBoundary" | "Lexical" | "VARBoundary";
 
@@ -28,11 +30,11 @@ export type BBSEXPFlags = "TopLevel" | "ClosureBoundary" | "Lexical" | "VARBound
  * 
  * #### Structure
  * 
- * - `FLAG(TopLevel | ClosureBoundary | Lexical)`: Flag indicating the operating scope of the BB.
+ * - `FLAG(TopLevel : void | ClosureBoundary : void | Lexical : void | VARBoundary : void)`: Flag indicating the operating scope of the BB.
  * 
- * - `FLAG(IDX)`: An auto populated unique IDX given to each BB instance.
+ * - `FLAG(IDX : number)`: An auto populated unique IDX given to each BB instance.
  * 
- * - `FLAG(ScopeIDX)`: Scope IDX represents the environment/scope IDX, this is used for logical separation of bindings.
+ * - `FLAG(ScopeIDX : number)`: Scope IDX represents the environment/scope IDX, this is used for logical separation of bindings.
  * 
  */
 export class BBSEXP extends IridiumSEXP {

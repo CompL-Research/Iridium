@@ -23,7 +23,7 @@ import { EnvBindingSEXP, isEnvBindingSEXP, isRemoteEnvBindingSEXP, JSEnvBindingF
  * 
  * - `ARG(lambdas)`: A {@link ListSEXP} object containing pool bindings {@link PoolBindingSEXP} (used to store lambdas in Iridium).
  * 
- * - `FLAG(ParentScope)`: IDX of parent closure scope.
+ * - `FLAG(ParentScope : number)`: IDX of parent closure scope.
  * 
  */
 export class BindingsSEXP extends IridiumSEXP {

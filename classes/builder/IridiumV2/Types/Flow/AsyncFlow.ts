@@ -53,7 +53,7 @@ export class AwaitSEXP extends IridiumSEXP {
  * 
  * @extends {IridiumSEXP}
  * 
- * @group TODO-RVAL
+ * @group STMT
  * 
  * @remarks
  * 

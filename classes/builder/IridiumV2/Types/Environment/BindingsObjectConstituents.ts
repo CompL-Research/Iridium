@@ -22,21 +22,21 @@ export type JSEnvBindingFlags = "JSARG" | "JSRESTARG" | "JSLET" | "JSCONST" | "J
  * 
  * #### Structure
  * 
- * - `FLAG(NAME)`: The name of the binding.
+ * - `FLAG(NAME : string)`: The name of the binding.
  * 
- * - `FLAG(ASW)`: Always Safe Write. Bindings like argument bindings are declared as ASWs as writing to them is always safe in any scope.
+ * - `FLAG(ASW : void)`: Always Safe Write. Bindings like argument bindings are declared as ASWs as writing to them is always safe in any scope.
  * 
- * - `FLAG(JSARG | JSRESTARG | JSLET | JSCONST | JSVAR)`: A JS binding can be one of this type {@link JSEnvBindingFlags}.
+ * - `FLAG(JSARG : void | JSRESTARG : void | JSLET : void | JSCONST : void | JSVAR : void)`: A JS binding can be one of this type {@link JSEnvBindingFlags}.
  * 
- * - `FLAG(IDX)`: A unique index is assigned to each binding.
+ * - `FLAG(IDX : number)`: A unique index is assigned to each binding.
  * 
- * - `FLAG(REFIDX)`: Reference IDX refers to the offset of the binding on the stack frame.
+ * - `FLAG(REFIDX : number)`: Reference IDX refers to the offset of the binding on the stack frame.
  * 
- * - `FLAG(Scope)`: The scope number of the identifier, useful during analysis and code generation.
+ * - `FLAG(Scope : number)`: The scope number of the identifier, useful during analysis and code generation.
  * 
- * - `FLAG(ParentScope)`: The scope number of the enclosing lexical scope.
+ * - `FLAG(ParentScope : number)`: The scope number of the enclosing lexical scope.
  * 
- * - `FLAG(NEXT)`: The REFIDX of the NEXT lexical variable.
+ * - `FLAG(NEXT? : number)`: The REFIDX of the NEXT lexical variable.
  * 
  */
 export class EnvBindingSEXP extends IridiumSEXP {
@@ -141,9 +141,9 @@ export class EnvBindingSEXP extends IridiumSEXP {
  * 
  * - `ARG(parentReference)`: An {@link EnvBindingSEXP} or {@link RemoteEnvBindingSEXP}.
  * 
- * - `FLAG(REFIDX)`: Reference IDX refers to the offset of the binding on the stack frame.
+ * - `FLAG(REFIDX : number)`: Reference IDX refers to the offset of the binding on the stack frame.
  * 
- * - `FLAG(NSIMPORT)`: Indicates that the current binding stores the result of a namespace import.
+ * - `FLAG(NSIMPORT : void)`: Indicates that the current binding stores the result of a namespace import.
  * 
  */
 export class RemoteEnvBindingSEXP extends IridiumSEXP {
@@ -228,7 +228,7 @@ export class RemoteEnvBindingSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(NAME)`: The name of the binding.
+ * - `FLAG(NAME : string)`: The name of the binding.
  * 
  */
 export class GlobalBindingSEXP extends IridiumSEXP {
@@ -270,9 +270,9 @@ export class GlobalBindingSEXP extends IridiumSEXP {
  * 
  * - `ARG(lambda)`: A {@link LambdaSEXP} object.
  * 
- * - `FLAG(StartBBIDX)`: IDX of the start BB.
+ * - `FLAG(StartBBIDX : number)`: IDX of the start BB.
  * 
- * - `FLAG(REFIDX)`: Reference IDX refers to the offset of the binding on the iridium constant pool.
+ * - `FLAG(REFIDX : number)`: Reference IDX refers to the offset of the binding on the iridium constant pool.
  * 
  */
 export class PoolBindingSEXP extends IridiumSEXP {

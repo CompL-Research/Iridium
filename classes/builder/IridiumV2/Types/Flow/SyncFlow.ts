@@ -14,7 +14,7 @@ import { IridiumSEXP } from "../Structural/General";
  * 
  * #### Structure
  * 
- * - `FLAG(IDX)`: IDX of the BB to flow the control to.
+ * - `FLAG(IDX : number)`: IDX of the BB to flow the control to.
  * 
  */
 export class GotoSEXP extends IridiumSEXP {
@@ -49,7 +49,7 @@ export class GotoSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(IDX)`: IDX of the BB to flow the control to.
+ * - `FLAG(IDX : number)`: IDX of the BB to flow the control to.
  * 
  */
 export class PushCatchContextSEXP extends IridiumSEXP {
@@ -142,7 +142,7 @@ export class PopCatchContextSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(IDX)`: IDX of the BB to flow the control to.
+ * - `FLAG(IDX : number)`: IDX of the BB to flow the control to.
  * 
  */
 export class InvokeFinalizerSEXP extends IridiumSEXP {
@@ -181,7 +181,7 @@ export class InvokeFinalizerSEXP extends IridiumSEXP {
  * 
  * - `ARG(Obj)`: The value to return
  * 
- * - `FLAG(ModuleEarlyReturn)`: Signifies a synchronous return from a module, this happens if the module is just to be loaded and not evaluated.
+ * - `FLAG(ModuleEarlyReturn : void)`: Signifies a synchronous return from a module, this happens if the module is just to be loaded and not evaluated.
  * 
  */
 export class ReturnSEXP extends IridiumSEXP {
@@ -244,11 +244,11 @@ export class RetSEXP extends IridiumSEXP {
  * 
  * - `ARG(test)`: Stores the value of the object to be tested.
  * 
- * - `FLAG(TRUE)`: IDX of the BB to flow the control to if the test is true.
+ * - `FLAG(TRUE : number)`: IDX of the BB to flow the control to if the test is true.
  * 
- * - `FLAG(FALSE)`: IDX of the BB to flow the control to if the test is false.
+ * - `FLAG(FALSE : number)`: IDX of the BB to flow the control to if the test is false.
  * 
- * - `FLAG(NOT)`: Negate the test condition
+ * - `FLAG(NOT : void)`: Negate the test condition
  * 
  */
 export class IfElseJumpSEXP extends IridiumSEXP {

@@ -109,7 +109,7 @@ export class JSForInNextSEXP extends IridiumSEXP {
  * 
  * - `ARG(obj)`: The object instance.
  * 
- * - `FLAG(AWAIT)`: true if this is a for await of loop otherwise false.
+ * - `FLAG(AWAIT : boolean)`: true if this is a for await of loop otherwise false.
  * 
  */
 export class JSForOfStartSEXP extends IridiumSEXP {
@@ -169,7 +169,7 @@ export class JSForOfStartSEXP extends IridiumSEXP {
  * 
  * #### Structure
  * 
- * - `FLAG(AWAIT)`: true if this is a for await of loop otherwise false.
+ * - `FLAG(AWAIT : boolean)`: true if this is a for await of loop otherwise false.
  * 
  */
 export class JSForOfNextSEXP extends IridiumSEXP {

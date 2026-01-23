@@ -25,9 +25,9 @@ import { IridiumSEXP } from "../Structural";
  * 
  * - `...ARG(Node)`: Node(s) to be evaluated (one or more).
  * 
- * - `FLAG(NVAL)`: Number of VALUES pushed onto the stack.
+ * - `FLAG(NVAL : number)`: Number of VALUES pushed onto the stack.
  * 
- * - `FLAG(NIP)`: Remove values that occur after the first NVAL.
+ * - `FLAG(NIP : number)`: Remove values that occur after the first NVAL.
  * 
  */
 export class StackRetainSEXP extends IridiumSEXP {
@@ -80,7 +80,7 @@ export class StackRetainSEXP extends IridiumSEXP {
  * 
  * - `...ARG(Node)?`: Node(s) to be evaluated (can also be empty).
  * 
- * - `FLAG("NVAL")`: Number of VALUES to be popped.
+ * - `FLAG(NVAL : number)`: Number of VALUES to be popped.
  * 
  */
 export class StackRejectSEXP extends IridiumSEXP {

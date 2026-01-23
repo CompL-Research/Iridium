@@ -2,7 +2,7 @@ import { getLocInfoIfAvailable, printFlagString, printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP } from "../../AbstractOperations/Resolution";
 import { EnvReadSEXP } from "../../Environment";
 import { IridiumSEXP } from "../../Structural/General";
-
+import { StringSEXP } from "../../RVAL/Primitives";
 /**
  * 
  * @extends {IridiumSEXP}
@@ -68,7 +68,7 @@ export class JSSetHomeSEXP extends IridiumSEXP {
  * 
  * - `ARG(obj)`: The object to name.
  * 
- * - `ARG(name)` : The name to be given (StringSEXP for static name otherwise assumed computed)
+ * - `ARG(name)` : The name to be given ({@link StringSEXP} for static name otherwise assumed computed)
  * 
  */
 export class JSSetNameSEXP extends IridiumSEXP {

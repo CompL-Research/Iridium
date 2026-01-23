@@ -105,13 +105,9 @@ export class CallSiteSEXP extends IridiumSEXP {
  * 
  * For calls that pass a dynamic number of arguments
  * 
- * 1. **ConstructorCall**: 
- *  
- * - Note that callee is duplicated, ctx is never used
+ * 1. **ConstructorCall**: Note that callee is duplicated, ctx is never used
  * 
- * 2. **JSDirectEval**
- * 
- * - Note that the ctx object is ignored as it is not required by eval.
+ * 2. **JSDirectEval**: Note that the ctx object is ignored as it is not required by eval.
  * 
  * #### Structure
  * 

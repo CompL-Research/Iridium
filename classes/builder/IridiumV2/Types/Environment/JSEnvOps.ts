@@ -19,9 +19,9 @@ import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEX
  * 
  * - `ARG(obj)`: The binding to be read, can be any environment binding {@link EnvBindingSEXP} | {@link RemoteEnvBindingSEXP} | {@link GlobalBindingSEXP} | {@link PoolBindingSEXP} (usually {@link ResolveEnvBindingSEXP} before transition).
  * 
- * - `FLAG(SYMBOL | METHOD)`: Depending on the kind of binding, different checks/resolution semantics are applied. SYMBOL leads to a private field lookup while METHOD leads to a branch check. 
+ * - `FLAG(SYMBOL : void | METHOD : void)`: Depending on the kind of binding, different checks/resolution semantics are applied. SYMBOL leads to a private field lookup while METHOD leads to a branch check. 
  * 
- * - `FLAG(FULLY_RESOLVE)`: Does the binding context request resolution?
+ * - `FLAG(FULLY_RESOLVE : void)`: Does the binding context request resolution?
  * 
  */
 export class PVTEnvReadSEXP extends IridiumSEXP {
@@ -240,7 +240,7 @@ export class JSPrivateFieldReadSEXP extends IridiumSEXP {
  * 
  * - `ARG(value)`: The value to be written.
  * 
- * - `FLAG(DECL)`: Is it a declaration?
+ * - `FLAG(DECL : void)`: Is it a declaration?
  * 
  */
 export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
