@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import seaborn as sns
 
-CSV_FILE_PATH = Path("FINAL_RESULTS/BM1_data.csv")
-OUTPUT_PARSE_PNG="BM1_parse_times.png"
-OUTPUT_EXEC_PNG="BM1_exec_times.png"
+CSV_FILE_PATH = Path("FINAL_RESULTS/BM3_data.csv")
+OUTPUT_PARSE_PNG="BM3_parse_times.png"
+OUTPUT_EXEC_PNG="BM3_exec_times.png"
 
 OUTPUT_DIR = Path("./FINAL_RESULTS")
 GRID_COLS = 4
@@ -50,9 +50,9 @@ def plot_metric_grid(df, metric_col, title, filename):
     fig, axes = plt.subplots(nrows, ncols, figsize=(4 * ncols, 3.5 * nrows), constrained_layout=True)
     axes = axes.flatten()
 
-    colors = {"QJS+SOURCE": "#fdae61", "QJS+JS3": "#abd9e9", "IRIDIUM": "#2c7bb6"}
-    config_order = ["QJS+SOURCE", "QJS+JS3", "IRIDIUM"]
-    labels = ["QJS+SRC", "QJS+3JS", "IRIDIUM"]
+    # colors = {"QJS+SOURCE": "#fdae61", "QJS+JS3": "#abd9e9", "IRIDIUM": "#2c7bb6"}
+    config_order = ["O0", "O1", "O2", "O3"]
+    labels = ["O0", "O1", "O2", "O3"]
 
     for i, bm_path in enumerate(benchmarks_to_plot):
         ax = axes[i]
@@ -80,8 +80,8 @@ def plot_metric_grid(df, metric_col, title, filename):
             spine.set_linewidth(1)
             spine.set_visible(True)
 
-        for patch, config_name in zip(bp["boxes"], config_order):
-            patch.set_facecolor(colors.get(config_name, "#cccccc"))
+        # for patch, config_name in zip(bp["boxes"], config_order):
+        #     patch.set_facecolor(colors.get(config_name, "#cccccc"))
 
         ax.set_title(BENCHMARK_NAME_MAP.get(bm_path, bm_path), 
                      fontsize=12, fontweight='bold', pad=6, color='#333333')

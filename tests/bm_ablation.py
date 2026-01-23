@@ -21,8 +21,8 @@ JSON_BENCHMARK_DIR = Path("FINAL_RESULTS/BM3_JSON_CACHE").resolve()
 JS3_BENCHMARK_DIR = Path("FINAL_RESULTS/BM3_JS3_CACHE").resolve()
 
 OUTPUT_CSV_NAME="BM3_data.csv"
-OUTPUT_PARSE_PNG="BM3_parse_times.png"
-OUTPUT_EXEC_PNG="BM3_exec_times.png"
+OUTPUT_PARSE_PNG="BM3_parse_times(raw).png"
+OUTPUT_EXEC_PNG="BM3_exec_times(raw).png"
 
 OOPSLA_FINAL = [
     "benchmarks/sunspider/3d-cube.cjs",
