@@ -180,7 +180,6 @@ import {
   JSPrivateSEXP,
   JSSetHomeSEXP,
   JSSetNameSEXP,
-  JSSpreadSEXP,
   JSSuperFieldReadSEXP,
   JSSuperFieldWriteSEXP,
   JSTemplateSEXP,
