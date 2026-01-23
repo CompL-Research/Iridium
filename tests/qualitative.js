@@ -85,10 +85,14 @@ try {
     const baselineResPath = `FINAL_RESULTS/qualitative_${bm}_QJS`;
     const baselineRes = await executeAndCollectData(`${QJS_BIN} -D1 -C ${config[bm].baselineSrc} > ${baselineResPath}`, baselineResPath)
     console.log(`QJS::${bm}::`, baselineRes)
+
+    await runInDirectory(`bash count_bc_size.sh ${baselineResPath}`);
     
     const iridiumResPath = `FINAL_RESULTS/qualitative_${bm}_IRI`;
     const iridiumRes = await executeAndCollectData(`${QJS_BIN} -D1 -X ${config[bm].iridiumSrc} > ${iridiumResPath}`, iridiumResPath)
     console.log(`IRI::${bm}::`, iridiumRes)
+
+    await runInDirectory(`bash count_bc_size.sh ${iridiumResPath}`);
   }
 } catch(e) {
   console.error("Failed to get bytecode for ML_Load");
