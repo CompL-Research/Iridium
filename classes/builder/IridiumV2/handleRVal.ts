@@ -179,6 +179,7 @@ import {
   JSPrivateFieldWriteSEXP,
   JSPrivateSEXP,
   JSSetHomeSEXP,
+  JSSetPrototypeOfSEXP,
   JSSetNameSEXP,
   JSSuperFieldReadSEXP,
   JSSuperFieldWriteSEXP,
@@ -200,7 +201,7 @@ import {
   StringSEXP,
   UNOPDelMemberExprSEXP,
   UNOPDelVarSEXP,
-  YieldSEXP
+  YieldSEXP,
 } from "./Types/index";
 
 // Handle RValues | AMPPrivateSEXP
@@ -2816,21 +2817,39 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
         ),
       );
     } else if (isJS3ObjectProperty(prop)) {
-      cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(
-          obj$id,
-          new JSDefineObjPropSEXP(
-            new EnvReadSEXP(obj$id, getLocInfoIfAvailable()),
-            prop.computed
-              ? IRIV2_RVAL(cx, prop.key)
-              : new StringSEXP(getObjKeyString(prop.key)),
-            IRIV2_RVAL(cx, prop.value),
+      const keyStr = getObjKeyString(prop.key);
+      if (!prop.computed && keyStr === "__proto__") {
+        // ECMAScript 13.2.5.5: non-computed __proto__ sets the prototype
+        cx.getCurrentBB().args.push(
+          new EnvWriteSEXP(
+            obj$id,
+            new JSSetPrototypeOfSEXP(
+              new EnvReadSEXP(obj$id, getLocInfoIfAvailable()),
+              IRIV2_RVAL(cx, prop.value),
+            ),
+            false,
+            false,
+            getLocInfoIfAvailable(),
           ),
-          false,
-          false,
-          getLocInfoIfAvailable()
-        ),
-      );
+        );
+      } else {
+        // Regular property definition (including computed ["__proto__"])
+        cx.getCurrentBB().args.push(
+          new EnvWriteSEXP(
+            obj$id,
+            new JSDefineObjPropSEXP(
+              new EnvReadSEXP(obj$id, getLocInfoIfAvailable()),
+              prop.computed
+                ? IRIV2_RVAL(cx, prop.key)
+                : new StringSEXP(getObjKeyString(prop.key)),
+              IRIV2_RVAL(cx, prop.value),
+            ),
+            false,
+            false,
+            getLocInfoIfAvailable(),
+          ),
+        );
+      }
     } else {
       // JSCopyDataProperties(exc_obj, from, to, | -> | e)
       cx.getCurrentBB().args.push(

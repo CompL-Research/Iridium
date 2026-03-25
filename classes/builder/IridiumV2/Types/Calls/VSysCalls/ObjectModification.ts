@@ -50,6 +50,16 @@ export class JSSetHomeSEXP extends IridiumSEXP {
   }
 }
 
+// Special case: While setting non-computed __proto__ field
+export class JSSetPrototypeOfSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP, proto: IridiumSEXP) {
+    super("JSSetPrototypeOf");
+    this.args[0] = obj; // targetObj
+    this.args[1] = proto; // prototype value
+  }
+  // ... getters/setters/toString following the same pattern
+}
+
 /**
  * 
  * @extends {IridiumSEXP}
