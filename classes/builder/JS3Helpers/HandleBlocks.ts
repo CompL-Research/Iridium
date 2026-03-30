@@ -712,6 +712,16 @@ export function handleDeclaratorRec(
         continue;
       }
 
+      if (e === null) {
+        temporaries.push(
+          generateIdentifier(
+            LVal,
+            otherProps.getNewTemporary("arraPat"),
+          )
+        );
+        continue;
+      }
+
       const temporary = generateIdentifier(
         LVal,
         otherProps.getNewTemporary("arraPat"),
