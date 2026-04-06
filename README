@@ -27,3 +27,6 @@ Command List
   pika   Generate Iridium Pika-ge (package).   
   iri    Generate Iridium file (.iri)          
 
+=== Setup ===
+
+  Run `bash setup.sh`.
