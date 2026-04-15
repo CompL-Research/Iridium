@@ -52,7 +52,7 @@ export class IridiumSEXP {
       res.push(e);
     }
     for (let a of this.args) {
-      a.serialize(res);
+      a.serializeFlat(res);
     }
     return res;
   }
@@ -94,7 +94,7 @@ export class IridiumSEXP {
     // 4. Handle Args (Children)
     for (let i = 0; i < numArgs; i++) {
       // Recursive call handles its own incrementing of state.index
-      IridiumSEXP.dump(data, depth + 2, state);
+      IridiumSEXP.dumpFlat(data, depth + 2, state);
     }
 
     return state.result;
