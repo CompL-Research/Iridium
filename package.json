@@ -34,7 +34,7 @@
   "imports": {
     "#debugConfig": "./configs/debug.ts",
     "#utils": "./classes/utils.ts",
-    "#forge": "./externalDeps/Iridium-Forge/forge.cjs"
+    "#forge": "./externalDeps/Iridium-Forge/forge.ts"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
