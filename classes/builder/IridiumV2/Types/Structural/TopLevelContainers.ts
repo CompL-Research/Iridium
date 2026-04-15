@@ -1,7 +1,6 @@
 import { ResolveEnvBindingSEXP } from "../AbstractOperations/Resolution";
 import { IridiumPrimitives, IridiumSEXP } from "./General";
 import { ListSEXP } from "../RVAL/Primitives";
-import { getLocInfoIfAvailable } from "#utils";
 
 /**
  * Top level container for script mode JS code.
@@ -52,32 +51,32 @@ export class FileSEXP extends IridiumSEXP {
 };
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
  *
  * @group JSModuleExtensions
- * 
+ *
  * @remarks
- * 
+ *
  * A module may request to load several modules or a single module several times.
  * Whenever this happens a unique ModuleRequest is created.
- * 
+ *
  * #### Trigger
- * 
+ *
  * ```
- * import {foo as bar} from "SOURCE"; 
+ * import {foo as bar} from "SOURCE";
  * import a from "SOURCE";
  * import "SOURCE";
  * export * from "SOURCE";
  * export * as boo from "SOURCE";
  * ```
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(SOURCE)`: Lookup source (the string used for import, different strings may actually resolve to the same file, this is handled durint runtime).
- * 
+ *
  * - `FLAG(REQIDX)`: A unique IDX associated with each ModuleRequest.
- * 
+ *
  */
 export class ModuleRequestSEXP extends IridiumSEXP {
   constructor(lookupSource: string, idx: number) {
@@ -94,7 +93,7 @@ export class ModuleRequestSEXP extends IridiumSEXP {
   getSource(): string {
     return this.getFlagString("SOURCE");
   }
-  
+
   setReqIDX(reqIDX: number) {
     this.setFlag("REQIDX", reqIDX);
   }
@@ -105,36 +104,36 @@ export class ModuleRequestSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group JSModuleExtensions
- * 
+ *
  * @remarks
- * 
+ *
  * Represents a static import expression (`StaticImportSEXP`) in Iridium IR.
  *
- * This is used when a file imports bindings from another file. 
- * 
+ * This is used when a file imports bindings from another file.
+ *
  * #### Trigger
- * 
+ *
  * ```
  * import a from "SOURCE";
  * ```
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(storageLocation)`: Location where the import will be stored, initially a stub {@link ResolveEnvBindingSEXP}.
- * 
+ *
  * - `FLAG(FIELD)`: Field to import from the remote module.
- * 
+ *
  * - `FLAG(MODULEREQIDX)`: The index (REQIDX) of the corresponding {@link ModuleRequestSEXP}.
- * 
+ *
  */
 export class StaticImportSEXP extends IridiumSEXP {
   constructor(storageLocation: string, fieldToImport: string, reqIdx: number) {
     super("StaticImport");
-    this.setStorageLocation(new ResolveEnvBindingSEXP(storageLocation, getLocInfoIfAvailable()));
+    this.setStorageLocation(new ResolveEnvBindingSEXP(storageLocation));
     this.setField(fieldToImport);
     this.setModuleReqIDX(reqIdx);
   }
@@ -167,35 +166,35 @@ export class StaticImportSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group JSModuleExtensions
- * 
+ *
  * @remarks
- * 
+ *
  * Represents a local export.
- * 
+ *
  * #### Trigger
- * 
+ *
  * ```
  * export {a as default};
  * export {a as boo};
  * ```
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(storageLocation)`: Local Binding to export, initially a stub {@link ResolveEnvBindingSEXP}.
- * 
+ *
  * - `FLAG(LOCALNAME)`: Name of the local binding.
- * 
+ *
  * - `FLAG(EXPORTNAME)`: Name of the exported binding.
- * 
+ *
  */
 export class LocalStaticExportSEXP extends IridiumSEXP {
   constructor(localName: string, exportName: string) {
     super("LocalStaticExport");
-    this.setStorageLocation(new ResolveEnvBindingSEXP(localName, getLocInfoIfAvailable()));
+    this.setStorageLocation(new ResolveEnvBindingSEXP(localName));
     this.setLocalName(localName);
     this.setExportName(exportName);
   }
@@ -230,25 +229,25 @@ export class LocalStaticExportSEXP extends IridiumSEXP {
 
 /**
  * @extends {IridiumSEXP}
- * 
+ *
  * @group JSModuleExtensions
- * 
+ *
  * @remarks
- * 
+ *
  * Represents a named re-export of the form.
- * 
+ *
  * #### Trigger
- * 
+ *
  * ```
  * export * as boo from "SOURCE";
  * ```
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(MODULEREQIDX)`: The index (REQIDX) of the corresponding {@link ModuleRequestSEXP}.
- * 
+ *
  * - `FLAG(EXPORTNAME)`: Name of the exported binding.
- * 
+ *
  */
 export class NamedReexportSEXP extends IridiumSEXP {
   constructor(reqIdx: number, exportName: string) {
@@ -277,24 +276,24 @@ export class NamedReexportSEXP extends IridiumSEXP {
 
 /**
  * @extends {IridiumSEXP}
- * 
+ *
  * @group JSModuleExtensions
- * 
+ *
  * @remarks
- * 
+ *
  * Represents a direct re-export of the form.
- * 
+ *
  * #### Trigger
- * 
+ *
  * ```
  * export * from "SOURCE";
  * ```
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(MODULEREQIDX)`: The index (REQIDX) of the corresponding {@link ModuleRequestSEXP}.
- * 
- * 
+ *
+ *
  */
 export class StarExportSEXP extends IridiumSEXP {
   constructor(reqIdx: number) {
