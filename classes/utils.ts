@@ -31,17 +31,9 @@ export const getIridiumBinop = (op: string, lBinop: IridiumSEXP, rBinop: Iridium
   }
 }
 
-export const getLocInfoIfAvailable = (id?: any) => {
-  if (id?.loc?.start?.line)
-  {
-    return "+" + id.name + "#" + id.loc.start.line;
-  }
-  return "NA";
-}
-
 export const printIriSpace = (times: number | undefined = 0) => {
   if (!times) times = 0;
-  let res = [];
+  let res: Array<string> = [];
   for (let i = 0; i < times; i++) {
     if (i % 2 == 0) {
       res.push("░");
