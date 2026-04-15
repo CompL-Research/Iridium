@@ -1116,7 +1116,7 @@ export function handleMemberExpression(
   // Breaks TDZ check... let handleExpression perform a read
   // if (isIdentifier(orig_object)) {
   //   fin_object = orig_object;
-  // } else 
+  // } else
   if (isSuper(orig_object)) {
     fin_object = orig_object;
   } else if (isThisExpression(orig_object)) {
@@ -2329,7 +2329,7 @@ export function handleAssnPatRec(
 ) {
   if (!otherProps.others) throw new Error("otherProps.others undefined");
   if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
-  
+
   // Spill RVal
 
   const getFinInit = () => {
@@ -2416,7 +2416,7 @@ export function handleAssnPatRec(
     //                 |                      |     |
     //           [t$1] : t$2                  d     e
 
-    const reassigned = [];
+    const reassigned: Array<boolean> = [];
     for (const p of properties) {
       // isTrivialKey = true if key is Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | PrivateName
       const isTrivialKey = (k: any) =>
@@ -2494,7 +2494,7 @@ export function handleAssnPatRec(
           null,
         ),
       );
-      
+
       if (isObjectProperty(p)) {
         if (isTrivialKey(p.key)) {
           //
@@ -2731,7 +2731,7 @@ export function handleAssnPatRec(
     );
 
   }
-  
+
   else throw new Error("3JS TODO// ASSN PATT")
 }
 
@@ -3036,9 +3036,9 @@ export function handleUnaryExpression(
     } else if (isIdentifier(orig_argument)) {
       fin_argument = orig_argument;
     } else {
-      // 
+      //
       // Complex delete operation are simply reduced down to a true value...
-      // 
+      //
       handleExpression(orig_argument, otherProps);
       return booleanLiteral(true);
     }
@@ -3171,7 +3171,7 @@ export function handleClassExpression(
   // 2 fallthrough props, 7 restricted props
   const orig_superClass = node.superClass; // Handling prop superClass
   let fin_superClass: JS3ClassExpression_superClass = null; // Handling prop superClass
-  
+
   if (isIdentifier(orig_superClass))
   {
     fin_superClass = orig_superClass;
@@ -3674,4 +3674,3 @@ export function handlePrivateName(node: PrivateName, _otherProps: OtherProps) {
   const result: JS3PrivateName = generateJS3PrivateName(node);
   return result;
 }
-

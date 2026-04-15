@@ -272,7 +272,7 @@ export function handleExportDefaultDeclaration(
     // Case 1: It has a name
     if (isIdentifier(orig_declaration.id)) {
       const js3ClassDecl = handleClassDeclaration(orig_declaration, otherProps);
-      
+
       js3ClassDecl.forEach((s) => {
         if (!otherProps.others) throw new Error("otherProps.others undefined");
         if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
@@ -369,7 +369,7 @@ export function handleExportNamedDeclaration(
     if (!otherProps.others) throw new Error("otherProps.others undefined");
     if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
     otherProps.others.holder.push(js3FnDecl);
-    const specifierArray = [];
+    const specifierArray: Array<JS3ExportSpecifier> = [];
     const specifier = generateJS3ExportSpecifierfromBaseNode(
       js3FnDecl.id,
       js3FnDecl.id,
@@ -479,7 +479,7 @@ export function handleExportNamedDeclaration(
         }
 
         for (const b of declaredBindings) {
-          const specifierArray = [];
+          const specifierArray : Array<JS3ExportSpecifier> = [];
           const specifier = generateJS3ExportSpecifierfromBaseNode(
             generateIdentifier(orig_declaration, b),
             generateIdentifier(orig_declaration, b),
@@ -513,7 +513,7 @@ export function handleExportNamedDeclaration(
       otherProps.others.holder.push(s);
     });
     // otherProps.others.holder.push(js3ClassDecl)
-    const specifierArray = [];
+    const specifierArray: Array<JS3ExportSpecifier> = [];
     if (!orig_declaration.id) throw new Error("Expected declaration id to be non null");
     const specifier = generateJS3ExportSpecifierfromBaseNode(
       orig_declaration.id,

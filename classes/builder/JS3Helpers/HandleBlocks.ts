@@ -946,7 +946,7 @@ export function handleDeclaratorRec(
     //                 |                      |     |
     //           [t$1] : t$2                  d     e
 
-    const reassigned = [];
+    const reassigned: Array<boolean> = [];
     for (const p of properties) {
       // isTrivialKey = true if key is Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | PrivateName
       const isTrivialKey = (k: any) =>
