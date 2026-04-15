@@ -3,7 +3,7 @@ import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3B
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
 import { handleArrayPatternAssignmentExpr, handleObjectPatternAssignmentExpr, IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP, PrivateMapping } from "./handleRVal";
 
-import { getIridiumBinop, getLocInfoIfAvailable } from "#utils";
+import { getIridiumBinop } from "#utils";
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks";
 import { handleMemberExpression, handleAssignmentExpression as js3handleAssignmentExpression } from "../JS3Helpers/HandleExpression";
 import { EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isLambdaSEXP, JSArraySEXP, JSCatchContextSEXP, JSComputedFieldWriteSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationNSEXP, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSImplicitBindingDeclarationTypes, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, LoopInitPreludeEndSEXP, ModuleRequestSEXP, NamedReexportSEXP, NumberSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, SiblingSpecialWriteSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, TDZReadSEXP, ThrowSEXP } from "./Types/index";
@@ -12,7 +12,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   if (isJS3TDZCheck(stmt)) {
     cx.getCurrentBB().args.push(
       new StackRejectSEXP(
-        new TDZReadSEXP(stmt.expression.name, getLocInfoIfAvailable()),
+        new TDZReadSEXP(stmt.expression.name),
         1
       )
     );
@@ -56,7 +56,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
       }
 
     }
-    // if (specifiers.length !== 1) 
+    // if (specifiers.length !== 1)
     //   throw new Error("Expected only one specifier to exist after 3js conversion");
   } else if (isJS3ExportDefaultDeclaration(stmt)) {
     // I dont think I allowed this statement to exist in the codegen...
@@ -226,7 +226,7 @@ export const handleBlockStatement = (cx: IRIDIUMV2, stmt: JS3BlockStatement | JS
 
   // Add Gotos from oldContext's last BB to currentBB.
   oldContext.getCurrentBB().args.push(new GotoSEXP(newContext.BB[0].idx))
-  
+
   if (!loopBodyCTX) { // Such an implicit jump should not be allowed in a loop body context, it will result in an empty BB
     cx.addContinuation(oldContext);
   }
@@ -250,7 +250,7 @@ export const handleBlockStatement = (cx: IRIDIUMV2, stmt: JS3BlockStatement | JS
 const handleReturnStatement = (cx: IRIDIUMV2, stmt: JS3ReturnStatement) => {
   let arg: IridiumSEXP;
   if (stmt.argument) arg = IRIV2_RVAL(cx, stmt.argument);
-  else arg = new EnvReadSEXP("undefined", getLocInfoIfAvailable());
+  else arg = new EnvReadSEXP("undefined");
   cx.getCurrentBB().args.push(new ReturnSEXP(arg));
 }
 
@@ -300,16 +300,16 @@ const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
 
   // Add control header
   const intermediateResHolder = cx.js3Builder.utils.getNewTemporary("switchResHolder");
-  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(intermediateResHolder, getLocInfoIfAvailable()), null, "JSLET", false, getLocInfoIfAvailable()));
+  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(intermediateResHolder), null, "JSLET", false));
   let defaultCase: null | JS3SwitchCase = null;
   for (let c of stmt.cases) {
     if (c.test === null) { // default case, exhaust all case matches before checking for default case...
       defaultCase = c;
     } else {
       const testResHolder = lowerExprToResolveEnvBindingSEXP(cx, c.test);
-      const eqCheck = getIridiumBinop("===", new EnvReadSEXP(stmt.discriminant.name, getLocInfoIfAvailable(stmt.discriminant)), new EnvReadSEXP(testResHolder.getBindingName(), getLocInfoIfAvailable()));
-      cx.getCurrentBB().args.push(new EnvWriteSEXP(intermediateResHolder, eqCheck, false, false, getLocInfoIfAvailable()));
-      let t = new IfElseJumpSEXP(new EnvReadSEXP(intermediateResHolder, getLocInfoIfAvailable()), -1, -1);
+      const eqCheck = getIridiumBinop("===", new EnvReadSEXP(stmt.discriminant.name), new EnvReadSEXP(testResHolder.getBindingName()));
+      cx.getCurrentBB().args.push(new EnvWriteSEXP(intermediateResHolder, eqCheck, false, false));
+      let t = new IfElseJumpSEXP(new EnvReadSEXP(intermediateResHolder), -1, -1);
       caseGotoMap.set(c, t);
       cx.getCurrentBB().args.push(t);
       cx.addContinuation(cx.getCurrentContext());
@@ -405,7 +405,7 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
     }
   } else {
     // <loop-iterator> = JSForInStartSEXP(RVal)
-    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-iterator>", getLocInfoIfAvailable()), new JSForInStartSEXP(stmt.right.name), "JSLET", false, getLocInfoIfAvailable()));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-iterator>"), new JSForInStartSEXP(stmt.right.name), "JSLET", false));
   }
   cx.getCurrentBB().args.push(loopInitToLoopTestNode);
 
@@ -421,16 +421,16 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
     } else {
       cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfNextSEXP(), 2, 0));
     }
-    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-done>", getLocInfoIfAvailable()), new StackPopSEXP(), "JSLET", false, getLocInfoIfAvailable()));
-    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-next>", getLocInfoIfAvailable()), new StackPopSEXP(), "JSLET", false, getLocInfoIfAvailable()));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-done>"), new StackPopSEXP(), "JSLET", false));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-next>"), new StackPopSEXP(), "JSLET", false));
   } else {
     // [<loop-next>, <loop-done>] = JSForInNextSEXP(RVal)
     cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForInNextSEXP("<loop-iterator>"), 2, 1));
-    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-done>", getLocInfoIfAvailable()), new StackPopSEXP(), "JSLET", false, getLocInfoIfAvailable()));
-    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-next>", getLocInfoIfAvailable()), new StackPopSEXP(), "JSLET", false, getLocInfoIfAvailable()));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-done>"), new StackPopSEXP(), "JSLET", false));
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-next>"), new StackPopSEXP(), "JSLET", false));
   }
 
-  testBBLoopContinueNode.setTest(new EnvReadSEXP("<loop-done>", getLocInfoIfAvailable()));
+  testBBLoopContinueNode.setTest(new EnvReadSEXP("<loop-done>"));
   testBBLoopContinueNode.setNOT();
 
   cx.getCurrentBB().args.push(testBBLoopContinueNode);
@@ -534,7 +534,7 @@ const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement, label: string 
   // 1. Current BB to LoopHead
   currentBB.args.push(currentBBToLoopInitNode);
 
-  // 2. For Loop Init 
+  // 2. For Loop Init
   cx.declareAndPushLexicalContext();
   loopConfig.loopInitIDX = cx.getCurrentBB().getIDX();
   if (stmt.init) {
@@ -554,7 +554,7 @@ const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement, label: string 
 
   if (stmt.test) {
     const testResult = lowerExprToResolveEnvBindingSEXP(cx, stmt.test);
-    testBBElseIfNode.setTest(new EnvReadSEXP(testResult.getBindingName(), getLocInfoIfAvailable()));
+    testBBElseIfNode.setTest(new EnvReadSEXP(testResult.getBindingName()));
     cx.getCurrentBB().args.push(testBBElseIfNode);
   } else {
     cx.getCurrentBB().args.push(testBBUCTrueNode);
@@ -630,7 +630,7 @@ const handleWhileStatement = (cx: IRIDIUMV2, stmt: JS3WhileStatement | JS3DoWhil
     loopHeadContext = cx.getCurrentContext();
     loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX(); // In a while loop continue returns to test block
     const testResult = lowerExprToResolveEnvBindingSEXP(cx, stmt.test);
-    testBBElseIfNode.setTest(new EnvReadSEXP(testResult.getBindingName(), getLocInfoIfAvailable()));
+    testBBElseIfNode.setTest(new EnvReadSEXP(testResult.getBindingName()));
     cx.getCurrentBB().args.push(testBBElseIfNode);
 
       // 3. While Body
@@ -721,11 +721,10 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
     if (stmt.handler.param) {
       cx.getCurrentBB().args.push(
         new JSExplicitBindingDeclarationSEXP(
-          new ResolveEnvBindingSEXP(stmt.handler.param.name, getLocInfoIfAvailable(stmt.handler.param)),
+          new ResolveEnvBindingSEXP(stmt.handler.param.name),
           new JSCatchContextSEXP(),
           "JSLET",
-          false,
-          getLocInfoIfAvailable(stmt.handler.param)
+          false
         )
       );
     }
@@ -748,17 +747,16 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   const imArg = cx.js3Builder.utils.getNewTemporary("imCatchArg")
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
-      new ResolveEnvBindingSEXP(imArg, getLocInfoIfAvailable()),
+      new ResolveEnvBindingSEXP(imArg),
       new JSCatchContextSEXP(),
       "JSLET",
-      false,
-      getLocInfoIfAvailable()
+      false
     )
   );
   if (stmt.finalizer) {
     cx.getCurrentBB().args.push(gotoInvokeFinalizer);
   }
-  cx.getCurrentBB().args.push(new ThrowSEXP(new EnvReadSEXP(imArg, getLocInfoIfAvailable())));
+  cx.getCurrentBB().args.push(new ThrowSEXP(new EnvReadSEXP(imArg)));
   cx.popContext(); // imCatchBB
 
   if (stmt.finalizer) {
@@ -826,7 +824,7 @@ const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
   cx.popContext();
 
   // Lower Else code
-  let falseContext = undefined;
+  let falseContext: undefined | IridiumBuildContext = undefined;
   if (stmt.alternate) {
     falseContext = cx.declareAndPushLexicalContext();
     for (const s of stmt.alternate.body) {
@@ -836,7 +834,7 @@ const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
     cx.popContext();
   }
   // Make branch check the last instruction of currentBB
-  const ifElseJump = new IfElseJumpSEXP(new EnvReadSEXP(stmt.test.name, getLocInfoIfAvailable(stmt.test)), trueContext.BB[0].idx, falseContext ? falseContext.BB[0].idx : postBB.idx)
+  const ifElseJump = new IfElseJumpSEXP(new EnvReadSEXP(stmt.test.name), trueContext.BB[0].idx, falseContext ? falseContext.BB[0].idx : postBB.idx)
   currentBB.args.push(ifElseJump);
 }
 
@@ -855,20 +853,18 @@ export const handleArrayPatternAssignmentDecl = (
   );
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
-      new ResolveEnvBindingSEXP(for$of$loop$next, getLocInfoIfAvailable()),
+      new ResolveEnvBindingSEXP(for$of$loop$next),
       null,
       "JSLET",
-      false,
-      getLocInfoIfAvailable()
+      false
     ),
   );
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
-      new ResolveEnvBindingSEXP(for$of$loop$done, getLocInfoIfAvailable()),
+      new ResolveEnvBindingSEXP(for$of$loop$done),
       null,
       "JSLET",
-      false,
-      getLocInfoIfAvailable()
+      false
     ),
   );
 
@@ -878,18 +874,17 @@ export const handleArrayPatternAssignmentDecl = (
         new StackRetainSEXP(new JSForOfNextSEXP(), 2),
       );
       cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
+        new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false),
       );
       cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
+        new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false),
       );
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
           e.name,
-          new EnvReadSEXP(for$of$loop$next, getLocInfoIfAvailable()),
+          new EnvReadSEXP(for$of$loop$next),
           safeWrite,
-          false,
-          getLocInfoIfAvailable()
+          false
         ),
       );
     } else if (isJS3RestElement(e)) {
@@ -906,20 +901,18 @@ export const handleArrayPatternAssignmentDecl = (
       let tempit = cx.js3Builder.utils.getNewTemporary("it");
       cx.getCurrentBB().args.push(
         new JSExplicitBindingDeclarationSEXP(
-          new ResolveEnvBindingSEXP(tempres, getLocInfoIfAvailable()),
+          new ResolveEnvBindingSEXP(tempres),
           new JSArraySEXP([]),
           "JSLET",
-          false,
-          getLocInfoIfAvailable()
+          false
         ),
       );
       cx.getCurrentBB().args.push(
         new JSExplicitBindingDeclarationSEXP(
-          new ResolveEnvBindingSEXP(tempit, getLocInfoIfAvailable()),
+          new ResolveEnvBindingSEXP(tempit),
           new NumberSEXP(0),
           "JSLET",
-          false,
-          getLocInfoIfAvailable()
+          false
         ),
       );
 
@@ -951,7 +944,7 @@ export const handleArrayPatternAssignmentDecl = (
       loopConfig.breakTarget = postBB.getIDX();
 
       const currToLoop = new GotoSEXP(-1);
-      const loopToPost = new IfElseJumpSEXP(new EnvReadSEXP(for$of$loop$done, getLocInfoIfAvailable()), -1, -1);
+      const loopToPost = new IfElseJumpSEXP(new EnvReadSEXP(for$of$loop$done), -1, -1);
 
       // 1. CurrBB to LoopBB
       currentBB.args.push(currToLoop);
@@ -966,10 +959,10 @@ export const handleArrayPatternAssignmentDecl = (
         new StackRetainSEXP(new JSForOfNextSEXP(), 2),
       );
       cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
+        new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false),
       );
       cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false, getLocInfoIfAvailable()),
+        new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false),
       );
 
       cx.getCurrentBB().args.push(loopToPost);
@@ -980,8 +973,7 @@ export const handleArrayPatternAssignmentDecl = (
           new JSComputedFieldWriteSEXP(
             tempres,
             tempit,
-            new EnvReadSEXP(for$of$loop$next, getLocInfoIfAvailable()),
-            getLocInfoIfAvailable()
+            new EnvReadSEXP(for$of$loop$next)
           ),
           1
         )
@@ -989,10 +981,9 @@ export const handleArrayPatternAssignmentDecl = (
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
           tempit,
-          getIridiumBinop("+", new EnvReadSEXP(tempit, getLocInfoIfAvailable()), new NumberSEXP(1)),
+          getIridiumBinop("+", new EnvReadSEXP(tempit), new NumberSEXP(1)),
           false,
-          false,
-          getLocInfoIfAvailable()
+          false
         ),
       );
       cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP());
@@ -1007,10 +998,9 @@ export const handleArrayPatternAssignmentDecl = (
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
           e.argument.name,
-          new EnvReadSEXP(tempres, getLocInfoIfAvailable()),
+          new EnvReadSEXP(tempres),
           safeWrite,
-          false,
-          getLocInfoIfAvailable()
+          false
         ),
       );
     }
@@ -1057,13 +1047,13 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
 
     if (!rValTarget) {
       if (KIND === "JSLET") {
-        rValTarget = new EnvReadSEXP("undefined", getLocInfoIfAvailable());
+        rValTarget = new EnvReadSEXP("undefined");
       } else if (KIND === "JSCONST") {
         throw new Error("const decl without Rval is disallowed");
       }
     }
 
-    const envWrite = new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(declaration.id.name, getLocInfoIfAvailable(declaration.id)), rValTarget ? rValTarget : null, KIND, false, getLocInfoIfAvailable(declaration.id));
+    const envWrite = new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(declaration.id.name), rValTarget ? rValTarget : null, KIND, false);
     cx.getCurrentBB().args.push(envWrite);
     return;
   }
@@ -1071,14 +1061,14 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   // case b.
   // KIND [ ID, ...ID ] = RVal
   if (isJS3ArrayPattern(declaration.id)) {
-    const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined", getLocInfoIfAvailable());
+    const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined");
 
     // Alloca all declarations
     for (let e of declaration.id.elements) {
       if (isIdentifier(e)) {
-        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(e.name, getLocInfoIfAvailable(e)), null, KIND, false, getLocInfoIfAvailable(e)));
+        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(e.name), null, KIND, false));
       } else if (isJS3RestElement(e)) {
-        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(e.argument.name, getLocInfoIfAvailable(e.argument)), null, KIND, false, getLocInfoIfAvailable(e.argument)));
+        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(e.argument.name), null, KIND, false));
       }
     }
     handleArrayPatternAssignmentDecl(cx, declaration.id.elements, rValTarget, true);
@@ -1089,14 +1079,14 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   // case c.
   // KIND { TRIV_KEY: ID, ...ID } = RVal
   if (isJS3ObjectPattern(declaration.id)) {
-    const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined", getLocInfoIfAvailable());
+    const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined");
 
     // Alloca all declarations
     for (let d of declaration.id.properties) {
       if (isJS3AssnObjectProperty(d)) {
-        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(d.value.name, getLocInfoIfAvailable(d.value)), null, KIND, false, getLocInfoIfAvailable(d.value)));
+        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(d.value.name), null, KIND, false));
       } else {
-        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(d.argument.name, getLocInfoIfAvailable(d.argument)), null, KIND, false, getLocInfoIfAvailable(d.argument)));
+        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(d.argument.name), null, KIND, false));
       }
     }
 
@@ -1243,7 +1233,7 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
   // Create continuation
   cx.addContinuation(cx.getCurrentContext());
   let postBBIdx = cx.getCurrentBB().getIDX();
-  
+
   {
     // Arguments
 
@@ -1254,22 +1244,21 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
     // S2: Declare all argument as let bindings in the argument init scope
     // S3: Replace all arglist with replacement RVals
     // S4: Use assignment logic to replace with LVal = ARG$I
-  
+
     // S1: Extract all bindings that are being made
     // const extractedBindingsSet: Set<string> = new Set();
     for (let p of params) extractBindings(p, extractedBindingsSet);
-  
+
     // S2: Declare all argument as let bindings in the argument init scope
     for (const b of extractedBindingsSet) {
-      const bindingUnresolved = new ResolveEnvBindingSEXP(b, getLocInfoIfAvailable());
+      const bindingUnresolved = new ResolveEnvBindingSEXP(b);
       bindingUnresolved.markASW();
       cx.getCurrentBB().args.push(
         new JSExplicitBindingDeclarationNSEXP(
           bindingUnresolved,
           null,
           "JSLET",
-          false,
-          getLocInfoIfAvailable()
+          false
         ),
       );
 
@@ -1278,22 +1267,21 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
           b,
           new JSNUBDSEXP(),
           true,
-          false,
-          getLocInfoIfAvailable()
+          false
         ),
       );
     }
-  
+
     // S3: Replace all arglist with replacement RVals
     const argReplacementMap: Map<JS3AllowedFunctionArgs, string> = new Map();
-  
+
     for (const arg of params) {
       let currArg = cx.js3Builder.utils.getNewTemporary("ARG");
       closureTopLevelContext.args.push(currArg);
       if (isRestElement(arg)) closureTopLevelContext.hasRestArgs = true;
       argReplacementMap.set(arg, currArg);
     }
-  
+
     // S3: Use assignment logic
     cx.js3Builder.utils.iridiumArgContext = true;
     for (const arg of params) {
@@ -1314,10 +1302,9 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
       // lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean, mapInf: string, scopeIDX: number
       const siblingSpecialWrite = new SiblingSpecialWriteSEXP(
         b,
-        new EnvReadSEXP(b, getLocInfoIfAvailable()),
+        new EnvReadSEXP(b),
         true,
         false,
-        getLocInfoIfAvailable(),
         -1
       );
 
@@ -1326,10 +1313,10 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
       abstractResolutions.push(siblingSpecialWrite);
     }
 
-  
+
     cx.getCurrentBB().args.push(argInitToPost);
     cx.popContext(); // VARBoundary End -- Arguments
-    
+
     // Init Gotos
     currToArgInit.setIDX(argInitBBIdx);
     argInitToPost.setIDX(postBBIdx);
@@ -1337,7 +1324,7 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
 }
 
 export const createLambda = (
-  cx: IRIDIUMV2, 
+  cx: IRIDIUMV2,
   isSimpleArgs: boolean,
   isStrict: boolean,
   isAsync: boolean,
@@ -1411,17 +1398,16 @@ export const createLambda = (
       extractedBindingsSet.forEach(bb => {
         cx.getCurrentBB().args.push(
           new JSExplicitBindingDeclarationNSEXP(
-            new ResolveEnvBindingSEXP(bb, getLocInfoIfAvailable()),
+            new ResolveEnvBindingSEXP(bb),
             null,
             "JSVAR",
-            false,
-            getLocInfoIfAvailable()
+            false
           )
         )
       })
     }
 
-    
+
     if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
     // Callback called when emitting code to top level closure scope
@@ -1435,13 +1421,13 @@ export const createLambda = (
     //       : new JSImplicitBindingDeclarationSEXP(binding.name, binding.type, binding.value)
     //   );
     // });
-  
+
     for (const s of body) {
       IRIV2_STMT(cx, s);
     }
-  
-    cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined", getLocInfoIfAvailable())));
-  
+
+    cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
+
     if (!isSimpleArgs) {
       // VARBoundary End -- Body
       cx.popContext();
@@ -1463,7 +1449,7 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
   const isGenerator   = stmt.generator ? stmt.generator : false;
   const kind          = getConstructorClosureFlag();
   const ecmaArgs      = funArgLength(stmt.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
-  
+
   const implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP  }> = [
     { name: "arguments", type: "JSVAR", value: isStrict ? 0 : isSimpleArgs ? 1 : 0 },
     { name: "this", type: "JSLET", value: 9 },
@@ -1473,7 +1459,7 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
       name: "<super_obj>",
       type: "JSCONST",
       value: 8,
-      initializer: new ListSEXP([new ResolveEnvBindingSEXP("<home_object>", getLocInfoIfAvailable())]),
+      initializer: new ListSEXP([new ResolveEnvBindingSEXP("<home_object>")]),
     },
   ];
 
@@ -1496,7 +1482,7 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
   // FUNC = LAMBDA
   cx.getCurrentBB().args.push(
     new JSFuncDeclSEXP(
-      new ResolveEnvBindingSEXP(stmt.id.name, getLocInfoIfAvailable(stmt.id)), lambda, getLocInfoIfAvailable(stmt.id)
+      new ResolveEnvBindingSEXP(stmt.id.name), lambda
     )
   );
 }

@@ -8,11 +8,9 @@ import JS3Builder from "../JS3Builder";
 import { JS3Program } from "../JS3Helpers/JS3Types";
 import { PrivateMapping } from "./handleRVal";
 import { IRIV2_STMT } from "./handleStatement";
-import { BBSEXP, BBSEXPFlags, EnvReadSEXP, FileSEXP, getRegularClosureFlag, IfElseJumpSEXP, JSImplicitBindingDeclarationSEXP, ModuleRequestSEXP, ReturnAsyncSEXP, ReturnSEXP } from "./Types/index";
+import { BBSEXP, BBSEXPFlags, EnvReadSEXP, FileSEXP, getRegularClosureFlag, IfElseJumpSEXP, IridiumSEXP, JSImplicitBindingDeclarationSEXP, ModuleRequestSEXP, ReturnAsyncSEXP, ReturnSEXP } from "./Types/index";
 
-// @ts-expect-error
 import iridiumForge from '#forge';
-import { getLocInfoIfAvailable } from "#utils";
 
 type LoopConfig = {
   kind: "for-of" | "standard",
@@ -302,12 +300,12 @@ export class IRIDIUMV2 {
 
       // Early return if we dont need to evaluate the module completely
       const earlyReturnBB = this.declareAndPushLexicalContext();
-      const earlyReturnStmt = new ReturnSEXP(new EnvReadSEXP("undefined", getLocInfoIfAvailable()));
+      const earlyReturnStmt = new ReturnSEXP(new EnvReadSEXP("undefined"));
       earlyReturnStmt.setModuleEarlyReturn();
       this.getCurrentBB().args.push(earlyReturnStmt); // Notice how this is not an async return!!
       this.popContext();
 
-      const ifJump = new IfElseJumpSEXP(new EnvReadSEXP("this", getLocInfoIfAvailable()), earlyReturnBB.BB[0].idx, -1);
+      const ifJump = new IfElseJumpSEXP(new EnvReadSEXP("this"), earlyReturnBB.BB[0].idx, -1);
       this.getCurrentBB().args.push(ifJump);
 
       this.addContinuation(this.getCurrentContext());
@@ -324,18 +322,25 @@ export class IRIDIUMV2 {
       IRIV2_STMT(this, s);
     }
     if (sourceType === "JSModule") {
-      this.getCurrentBB().args.push(new ReturnAsyncSEXP(new EnvReadSEXP("undefined", getLocInfoIfAvailable())));
+      this.getCurrentBB().args.push(new ReturnAsyncSEXP(new EnvReadSEXP("undefined")));
     } else {
-      this.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined", getLocInfoIfAvailable())));
+      this.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
     }
     this.popContext();
     if (this.buildContext.length !== 0) throw new Error("Expected buildContext stack to be empty after build()");
+
+
+    const serializedData = this.container.serialize();
+
+    console.log(IridiumSEXP.dump(serializedData).join("\n"))
+
+    process.exit(0);
 
     const packed = pack(
       {
         version: VERSION,
         absoluteFilePath: this.js3Builder.projectFile.absoluteFilePath,
-        iridium: this.container.serialize(),
+        iridium: serializedData,
         buildContext: serializeBuildContext(),
       }
     );
