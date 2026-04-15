@@ -1,4 +1,4 @@
-import { getLocInfoIfAvailable, printFlagString, printIriSpace } from "#utils";
+import { printFlagString, printIriSpace } from "#utils";
 import { EnvWriteSEXP } from "../Environment";
 import { ListSEXP, NullSEXP } from "../RVAL/Primitives";
 import { IridiumSEXP } from "../Structural/General";
@@ -10,13 +10,13 @@ import { isResolveEnvBindingSEXP, ResolveEnvBindingSEXP } from "./Resolution";
 export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * A JSExplicitBindingDeclaration is used to either declare a new binding, and also (optionally) initialize it.
  * After resolution, all JSWrites are reduced down to {@link EnvWriteSEXP} nodes.
  * In case a new binding was declared, the resolution pass would end up finding the relevant scope,
@@ -24,35 +24,34 @@ export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
  * After the initialization is done, all declarations can be basically reduced down to simple environment writes.
  * The `SAFE`, `THISINIT` and `SLOPPY` flags are used to handle features like TDZ where writes/reads to a binding before
  * its declaration is reached is invalid. Such restricted accesses to the environment are made explicit in Iridium.
- * 
+ *
  * #### Resolutions
- * 
+ *
  * - {@link EnvWriteSEXP}: A standard environment write operation.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(lValTarget)`: {@link ResolveEnvBindingSEXP} The storage target location.
- * 
+ *
  * - `ARG(rVal)`: The value to store (is set to null in case of just a declaration).
- * 
+ *
  * - `FLAG(JSLET : void | JSCONST : void | JSVAR : void)`: The kind of the declaration, one of these allowed types ({@link JSEnvWriteTypes}).
- * 
+ *
  * - `FLAG(SAFE : boolean)`: Indicates whether the writes being performed are safe.
- * 
+ *
  * - `FLAG(THISINIT : boolean)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
- * 
+ *
  * - `FLAG(SLOPPY : boolean)`: Indicates whether the writes to target locations is sloppy.
- * 
+ *
  */
 export class JSExplicitBindingDeclarationSEXP extends IridiumSEXP {
-  constructor(lval: IridiumSEXP, rval: IridiumSEXP | null, kind: JSEnvWriteTypes | undefined = undefined, thisInit: boolean, mapInf: string) {
+  constructor(lval: IridiumSEXP, rval: IridiumSEXP | null, kind: JSEnvWriteTypes | undefined = undefined, thisInit: boolean) {
     super("JSExplicitBindingDeclaration");
     this.setLValTarget(lval);
     if (rval) this.setRVal(rval);
     if (kind) this.setKind(kind);
     this.setSafe(kind ? true : false); // If this is a declaration, it is safe by default
     this.setThisInit(thisInit);
-    this.setFlag("MAP_INF", mapInf);
   }
 
   // Args
@@ -131,7 +130,7 @@ export class JSExplicitBindingDeclarationSEXP extends IridiumSEXP {
   // Utils
   reduceJSDecl() {
     this.tag = "EnvWrite";
-    Object.setPrototypeOf(this, new EnvWriteSEXP("", new NullSEXP(), this.isSafe(), this.isThisInit(), this.getFlagString("MAP_INF")));
+    Object.setPrototypeOf(this, new EnvWriteSEXP("", new NullSEXP(), this.isSafe(), this.isThisInit()));
     this.flags = this.flags.filter(e => e[0] !== "JSLET" && e[0] !== "JSCONST" && e[0] !== "JSVAR")
   }
 
@@ -149,19 +148,19 @@ export class JSExplicitBindingDeclarationSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * An JSExplicitBindingDeclaration that is not initialized.
- * 
+ *
  */
 export class JSExplicitBindingDeclarationNSEXP extends JSExplicitBindingDeclarationSEXP {
-  constructor(lval: IridiumSEXP, rval: IridiumSEXP | null, kind: JSEnvWriteTypes | undefined = undefined, thisInit: boolean, mapInf: string) {
-    super(lval, rval, kind, thisInit, mapInf);
+  constructor(lval: IridiumSEXP, rval: IridiumSEXP | null, kind: JSEnvWriteTypes | undefined = undefined, thisInit: boolean) {
+    super(lval, rval, kind, thisInit);
     this.tag = "JSExplicitBindingDeclarationN"
   }
 }
@@ -172,70 +171,70 @@ export class JSExplicitBindingDeclarationNSEXP extends JSExplicitBindingDeclarat
 export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * JSImplicitBindingDecl is a way to add and initialize implicit bindings to an environment.
- * 
+ *
  * - The bindings that are contained in square brackets are bindings introduced by Iridium, and do not map to any identifiers created by the user.
- * 
+ *
  * - The bindings `arguments` and `this` correspond to the actual bindings visible to user.
- * 
+ *
  * #### Possible OPID's
- * 
+ *
  * 0. `arguments`: Declares and initializes the `arguments` object (see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments).
- * 
+ *
  * 1. `arguments`: Declares and initializes the **mapped** `arguments` object (see: https://medium.com/@dozie22/arguments-object-in-javascript-cf8203d92ab7).
- * 
+ *
  * 2. `this.active_func`: Declares and initializes the `this.active_func` special object; the prototype of this object is used to call the `super` class constructor.
- * 
+ *
  * 3. `new.target`: Declares and initializes the `new.target` object; this can be used to check if the function was called as a constructor or not.
- * 
+ *
  * 4. `<home_object>`: Declares and initializes the `<home_object>` object; the prototype of this object is used to access the `super` class methods.
- * 
+ *
  * 5. `<var_obj>`: Declares and initializes the `<var_obj>` object; Not used currently.
- * 
+ *
  * 6. `<module_meta>`: Declares and initializes the `<module_meta>` (same as `import.meta` provided in the source code) object; It is generally used to get metadata such as filepath of the module/etc.
- * 
+ *
  * 7. `<super_ctr>`: Declares and stores the `super()` at `<super_ctr>`; takes (this.active_func) as an argument.
- * 
+ *
  * 8. `<super_obj>`: Declares and stores the `super` at `<super_obj>`; takes (<home_object>) as an argument.
- * 
+ *
  * 9. `this`: Declares and initializes the `this` object (see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this).
- * 
+ *
  * 10. `this`: Declares and initializes it to NUBD (this initialization is needed in constructor functions with heritage).
- * 
+ *
  * 11. `<ret>`: Declares and initializes it to undefined.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(Store)`: Location on stack where the result is stored (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
+ *
  * - `ARG(Args)`: A {@link ListSEXP}, that can pass additional arguments to the initializer. An empty list by default. Needed for `super()` and `super`.
- * 
+ *
  * - `FLAG(NAME : string)`: Name of the created binding.
- * 
+ *
  * - `FLAG(JSLET : void | JSCONST : void | JSVAR : void)`: The JSkind for the created binding.
- * 
+ *
  * - `FLAG(OPID : number)`: The Operation ID.
- * 
+ *
  * - `FLAG(SAFE : boolean)`: Indicates whether the writes being performed are safe.
- * 
+ *
  * - `FLAG(THISINIT : boolean)`: Indicates whether an initialization write is being performed to `this`.
- * 
+ *
  * - `FLAG(SLOPPY : void)`: Indicates whether the writes to target locations is sloppy.
- * 
+ *
  * - `FLAG(SKIPINIT : void)`: This flag is set by default, this ensures that the bindings declared are not initialized by the codegen at scope entry.
- * 
+ *
  */
 export class JSImplicitBindingDeclarationSEXP extends IridiumSEXP {
   constructor(bindingName: string, kind: JSImplicitBindingDeclarationTypes, opid: number, args: ListSEXP = new ListSEXP([])) {
     super("JSImplicitBindingDeclaration");
-    this.setStore(new ResolveEnvBindingSEXP(bindingName, getLocInfoIfAvailable()));
+    this.setStore(new ResolveEnvBindingSEXP(bindingName));
     this.setArgs(args);
     this.setName(bindingName);
     this.setKind(kind);
@@ -333,48 +332,47 @@ export class JSImplicitBindingDeclarationSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * Declares a function available in the entire scope, there are no temporal dead zones for functions declared in this fashion.
  * The hoisting pass moves this declaration to the top of the scope to achieve this.
  * In most cases this will be reduced down to an EnvWrite.
  * A special node is only needed in case of top level sloppy declarations.
- * 
+ *
  * #### Resolutions
- * 
+ *
  * - {@link EnvWriteSEXP}: A binding found in the immediate enclosing closure scope.
- * 
+ *
  * - {@link JSFuncDeclSEXP}: It is possible that node does not change its form; this happens for top-level declarations in sloppy mode code.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(lValTarget)`: The storage target location
- * 
+ *
  * - `ARG(rVal)`: The value to store (possible nothing, in case of just a declaration).
- * 
+ *
  * - `FLAG(JSLET : void | JSCONST : void | JSVAR : void)`: This is always gonna be JSVAR, just leaving it the same because of consistency sake.
- * 
+ *
  * - `FLAG(SAFE : boolean)`: Indicates whether the writes being performed are safe.
- * 
+ *
  * - `FLAG(THISINIT : boolean)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
- * 
+ *
  * - `FLAG(SLOPPY : void)`: Indicates whether the writes to target locations is sloppy.
- * 
+ *
  */
 export class JSFuncDeclSEXP extends IridiumSEXP {
-  constructor(lval: IridiumSEXP, rval: IridiumSEXP, mapInf: string) {
+  constructor(lval: IridiumSEXP, rval: IridiumSEXP) {
     super("JSFuncDecl");
     this.setLValTarget(lval);
     this.setRVal(rval);
     this.setSafe(true);
     this.setThisInit(false);
     this.setFlag("JSVAR");
-    this.setFlag("MAP_INF", mapInf);
   }
 
   // Args
@@ -418,7 +416,7 @@ export class JSFuncDeclSEXP extends IridiumSEXP {
   isSafe(): boolean {
     return this.getFlagBoolean("SAFE")
   }
-  
+
   isDecl() {
     return true;
   }
@@ -438,12 +436,12 @@ export class JSFuncDeclSEXP extends IridiumSEXP {
   // Utils
   reduceDecl() {
     this.tag = "JSExplicitBindingDeclaration";
-    Object.setPrototypeOf(this, new JSExplicitBindingDeclarationSEXP(new NullSEXP(), null, "JSVAR",false, this.getFlagString("MAP_INF")));
+    Object.setPrototypeOf(this, new JSExplicitBindingDeclarationSEXP(new NullSEXP(), null, "JSVAR",false));
   }
 
   toString(space?: number): string {
     if (!space) space = 0;
-    let res = [];
+    let res: Array<string> = [];
     res.push(`${printIriSpace(space)}${this.tag}`);
     const args = this.args.map(e => e.toString(10));
     res = [...res, ...args];
@@ -457,23 +455,23 @@ export class JSFuncDeclSEXP extends IridiumSEXP {
 export type JSSloppyDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * Top level declarations in **Sloppy** Mode are not stored on the stack frame, but instead become
  * fields of the global object.
  * This statement declares and initializes (w.r.t JSLET | JSCONST | JSVAR) the field.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(NAME : string)`: The name of the declaration.
- * 
+ *
  * - `FLAG(JSLET : void | JSCONST : void | JSVAR : void)`: The kind of the declaration, one of these allowed types.
- * 
+ *
  */
 export class JSSloppyDeclSEXP extends IridiumSEXP {
   constructor(decl: string, kind: JSSloppyDeclarationTypes) {
