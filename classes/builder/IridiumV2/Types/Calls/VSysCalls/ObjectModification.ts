@@ -1,29 +1,29 @@
-import { getLocInfoIfAvailable, printFlagString, printIriSpace } from "#utils";
+import { printFlagString, printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP } from "../../AbstractOperations/Resolution";
 import { EnvReadSEXP } from "../../Environment";
 import { IridiumSEXP } from "../../Structural/General";
 import { StringSEXP } from "../../RVAL/Primitives";
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Used to set the home object, this mechanism is also used to verify brands for private method calls at runtime...
- * 
+ *
  * ```
  * [homeObj, funcObj = 2] JSSetHome (homeObj, funcObj)
  * ```
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(homeObj)`: The home object.
- * 
+ *
  * - `ARG(funcObj)`: The function object.
- * 
- * 
+ *
+ *
  */
 export class JSSetHomeSEXP extends IridiumSEXP {
   constructor(homeObj: IridiumSEXP, funcObj: IridiumSEXP) {
@@ -61,25 +61,25 @@ export class JSSetPrototypeOfSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
- * Used to name an object... 
- * 
+ *
+ * Used to name an object...
+ *
  * ```
  * [obj = 1] JSSetName (obj)
  * ```
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(obj)`: The object to name.
- * 
+ *
  * - `ARG(name)` : The name to be given ({@link StringSEXP} for static name otherwise assumed computed)
- * 
+ *
  */
 export class JSSetNameSEXP extends IridiumSEXP {
   constructor(obj: IridiumSEXP, name: IridiumSEXP) {
@@ -108,41 +108,41 @@ export class JSSetNameSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Implements the `append` functionality from the ECMA spec.
  * It is currently being used to model the spread functionality when creating arrays.
- * 
+ *
  * #### Action
- * 
+ *
  * Given the target array `targetObj` and an `insertionIdx` (start index for spread).
  * This call appends the elements of `spreadObj` at the given index.
- * 
+ *
  * ```
  * [resultObj,insertionIdx = 2] JSAppend (targetObj, insertionIdx, spreadObj)
  * ```
- * 
+ *
  * #### Trigger
- * 
+ *
  * ```
  * let b = ["a", "b"];
  * let c = ["foo", "bar"];
  * let a = [1,2,...b, 3, ...c];
  * ```
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(targetObj)`: The source object.
- * 
+ *
  * - `ARG(insertionIdx)`: The index where the insertion must be performed.
- * 
+ *
  * - `ARG(spreadObj)`: The value to be spread.
- * 
+ *
  */
 export class JSAppendSEXP extends IridiumSEXP {
   constructor(tmp: IridiumSEXP, insertionIdx: IridiumSEXP, spreadVal: IridiumSEXP) {
@@ -183,25 +183,25 @@ export class JSAppendSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Given a JSObject, this call is used to define methods of different kinds on it.
- * 
+ *
  * #### Action
- * 
+ *
  * Given an `targetObj`, `key` and `value`, it adds the `value` to the specified `field`.
- * 
+ *
  * ```
  * [updatedObject = 1] JSDefineObjMethod (targetObj, key, value)
  * ```
- * 
+ *
  * #### Trigger
- * 
+ *
  * ```
  * let a = {
  *  m() {},
@@ -209,17 +209,17 @@ export class JSAppendSEXP extends IridiumSEXP {
  *  get f() {}
  * };
  * ```
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(targetObj)`: The source object.
- * 
+ *
  * - `ARG(key)`: The field where the value must be stored.
- * 
+ *
  * - `ARG(value)`: The value, in this case a lambda.
- * 
+ *
  * - `FLAG(NOENUM : void)`: Setting this flag ensures the fiels is not enumerable.
- * 
+ *
  */
 export class JSDefineObjMethodSEXP extends IridiumSEXP {
   constructor(obj: IridiumSEXP, key: IridiumSEXP, value: IridiumSEXP, kind: "method" | "get" | "set", noenum: boolean = false) {
@@ -282,7 +282,7 @@ export class JSDefineObjMethodSEXP extends IridiumSEXP {
   isSetter() {
     return this.hasFlag("SET");
   }
-  
+
   setNOENUM() {
     this.setFlag("NOENUM");
   }
@@ -293,7 +293,7 @@ export class JSDefineObjMethodSEXP extends IridiumSEXP {
 
 
   toString(space?: number): string {
-    const res = [];
+    const res: Array<string> = [];
     res.push(`${printIriSpace(space)}${this.tag}${printFlagString(this.flags)}`);
     for (let s of this.args) {
       res.push(`${printIriSpace(10)}${s.toString(0)}`);
@@ -303,39 +303,39 @@ export class JSDefineObjMethodSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * Given a JSObject, this call is used to define fields on it.
- * 
+ *
  * #### Action
- * 
+ *
  * Given an `targetObj`, `key` and `value`, it adds the `value` to the specified `field`.
- * 
+ *
  * ```
  * [updatedObject = 1] JSDefineObjProp (targetObj, key, value)
  * ```
- * 
+ *
  * #### Trigger
- * 
+ *
  * ```
  * let a = {
  *  f: 12
  * };
  * ```
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(targetObj)`: The source object.
- * 
+ *
  * - `ARG(key)`: The field where the value must be stored.
- * 
+ *
  * - `ARG(value)`: The value, in this case a lambda.
- * 
+ *
  */
 export class JSDefineObjPropSEXP extends IridiumSEXP {
   constructor(obj: IridiumSEXP, key: IridiumSEXP, value: IridiumSEXP) {
@@ -371,7 +371,7 @@ export class JSDefineObjPropSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    const res = [];
+    const res: Array<string> = [];
     res.push(`${printIriSpace(space)}${this.tag}`);
     for (let s of this.args) {
       res.push(`${printIriSpace(10)}${s.toString(0)}`);
@@ -381,47 +381,47 @@ export class JSDefineObjPropSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Used to copy properties from one object to another module the fields contained in the exclusion object.
- * 
+ *
  * #### Action
- * 
+ *
  * Copies all fields from source to target object, excluding those fileds specified in the exclude_list.
- * 
+ *
  * ```
  * [source,exclude_list,updatedObj = 3] JSCopyDataPropertiesSEXP (exclude_list, source, target)
  * ```
- * 
+ *
  * #### Trigger
- * 
+ *
  * ```
  * let a = { a: 1, b: 2, c: 3 }
  * let c = { ...a, c: 13 }
  * console.log(c.c)
  * ```
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(exclusionObj)`: The exclusion object, fields that exist in this object will not be copied to the targetObj.
- * 
+ *
  * - `ARG(sourceObj)`: The source object.
- * 
+ *
  * - `ARG(targetObj)`: The target object.
- * 
+ *
  */
 export class JSCopyDataPropertiesSEXP extends IridiumSEXP {
   constructor(exc_obj: string | IridiumSEXP, source: string, target: string) {
     super("JSCopyDataProperties");
-    if (typeof exc_obj === "string") this.setExclusionObj(new EnvReadSEXP(exc_obj, getLocInfoIfAvailable()));
+    if (typeof exc_obj === "string") this.setExclusionObj(new EnvReadSEXP(exc_obj));
     else this.setExclusionObj(exc_obj);
-    this.setSourceObj(new EnvReadSEXP(source, getLocInfoIfAvailable()));
-    this.setTargetObj(new EnvReadSEXP(target, getLocInfoIfAvailable()));
+    this.setSourceObj(new EnvReadSEXP(source));
+    this.setTargetObj(new EnvReadSEXP(target));
   }
 
   // Args
@@ -440,7 +440,7 @@ export class JSCopyDataPropertiesSEXP extends IridiumSEXP {
   getSourceObj(): IridiumSEXP {
     return this.args[1];
   }
-  
+
   setTargetObj(obj: IridiumSEXP) {
     this.args[2] = obj;
   }
@@ -448,9 +448,9 @@ export class JSCopyDataPropertiesSEXP extends IridiumSEXP {
   getTargetObj(): IridiumSEXP {
     return this.args[2];
   }
-  
+
   toString(space?: number): string {
-    const res = [];
+    const res: Array<string> = [];
     res.push(`${printIriSpace(space)}${this.tag} ${printFlagString(this.flags)}`);
     for (let s of this.args) {
       res.push(`${printIriSpace(10)}${s.toString(0)}`);
