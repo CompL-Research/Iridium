@@ -1,32 +1,34 @@
 
-
 ██╗██████╗ ██╗██████╗ ██╗██╗   ██╗███╗   ███╗
 ██║██╔══██╗██║██╔══██╗██║██║   ██║████╗ ████║
 ██║██████╔╝██║██║  ██║██║██║   ██║██╔████╔██║
 ██║██╔══██╗██║██║  ██║██║██║   ██║██║╚██╔╝██║
 ██║██║  ██║██║██████╔╝██║╚██████╔╝██║ ╚═╝ ██║
 ╚═╝╚═╝  ╚═╝╚═╝╚═════╝ ╚═╝ ╚═════╝ ╚═╝     ╚═╝
-                                             
+
 Iridium Version: 0.9a
 
 
 === Iridium ===
 
-  Iridium is a static analysis framework for JavaScript Programs 📈. 
-  $ ./iridium <command>                                              
-  $ ./iridium js3                                                    
-  $ ./iridium pika                                                   
-  $ ./iridium iri                                                    
-  $ ./iridium stats                                                  
-  $ ./iridium help                                                   
+  Iridium is a static analysis framework for JavaScript Programs 📈.
+  $ ./iridium <command>
+  $ ./iridium js3
+  $ ./iridium pika
+  $ ./iridium iri
+  $ ./iridium stats
+  $ ./iridium help
 
 Command List
 
-  help   Display this information.             
-  js3    Generate JS3 file and print to stdout 
-  pika   Generate Iridium Pika-ge (package).   
-  iri    Generate Iridium file (.iri)          
+  help   Display this information.
+  js3    Generate JS3 file and print to stdout
+  pika   Generate Iridium Pika-ge (package).
+  iri    Generate Iridium file (.iri)
 
 === Setup ===
 
   Run `bash setup.sh`.
+
+=== Run Typecheck ===
+  `npx tsc -p tsCheck.json`

@@ -25,7 +25,7 @@ const header = `
 ██║██╔══██╗██║██║  ██║██║██║   ██║██║╚██╔╝██║
 ██║██║  ██║██║██████╔╝██║╚██████╔╝██║ ╚═╝ ██║
 ╚═╝╚═╝  ╚═╝╚═╝╚═════╝ ╚═╝ ╚═════╝ ╚═╝     ╚═╝
-                                             
+
 Iridium Version: ${chalk.red(VERSION)}
 `;
 
@@ -83,7 +83,7 @@ function iri(filePath: string, printToConsole = false): IRIDIUMV2 {
 }
 
 function pika(files: Array<string>, printToConsole = false) {
-  const finalRes = [];
+  const finalRes: Array<any> = [];
   for (let i = 0; i < files.length; i++) {
     finalRes.push(iri(files[i], false).result);
     IridiumBuildContext.resetBuildContext();

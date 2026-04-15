@@ -59,7 +59,7 @@ export function projectStats(filePaths: Array<string>) {
     });
   });
 
-  const res = [];
+  const res: Array<string> = [];
   res.push(`Total Files  : ${totalFiles}`);
   res.push(`LOC          : ${totalLinesOfCode}`);
   res.push(`Extensions   : ${Array.from(extensions).join(", ")}`);
