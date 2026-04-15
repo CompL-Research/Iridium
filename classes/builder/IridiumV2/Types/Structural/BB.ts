@@ -3,39 +3,39 @@ import { IridiumSEXP } from "./General";
 
 /**
  * @group TSHelper
- * 
+ *
  * @remarks
- * 
+ *
  * Flags indicating the kind of BB.
- * 
+ *
  * - `TopLevel`: Represents that the BB operates on the topmost scope.
- * 
+ *
  * - `ClosureBoundary`: Represents that the BB operates on the topmost scope of a closure.
- * 
+ *
  * - `Lexical`: Represents that the BB operates on a lexical scope.
- * 
+ *
  * - `VARBoundary`: A non-closure scope where VAR bindings must be hoisted to.
  */
 export type BBSEXPFlags = "TopLevel" | "ClosureBoundary" | "Lexical" | "VARBoundary";
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group Sequential Instruction Block
- * 
+ *
  * @remarks
- * 
+ *
  * An Iridium Basic Block Object. It is used to hold a contigious sequence Iridium code.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(TopLevel : void | ClosureBoundary : void | Lexical : void | VARBoundary : void)`: Flag indicating the operating scope of the BB.
- * 
+ *
  * - `FLAG(IDX : number)`: An auto populated unique IDX given to each BB instance.
- * 
+ *
  * - `FLAG(ScopeIDX : number)`: Scope IDX represents the environment/scope IDX, this is used for logical separation of bindings.
- * 
+ *
  */
 export class BBSEXP extends IridiumSEXP {
   static bbIdx: number = 0;
@@ -93,7 +93,7 @@ export class BBSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    const res = [];
+    const res: Array<string> = [];
     // res.push("\n");
     res.push(`${printIriSpace(space)}██▒${printFlagString(this.flags)}`);
     for (let s of this.args) {
