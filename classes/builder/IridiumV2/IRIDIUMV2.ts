@@ -329,12 +329,10 @@ export class IRIDIUMV2 {
     this.popContext();
     if (this.buildContext.length !== 0) throw new Error("Expected buildContext stack to be empty after build()");
 
+    let serializedData;
 
-    const serializedData = this.container.serialize();
-
-    console.log(IridiumSEXP.dump(serializedData).join("\n"))
-
-    process.exit(0);
+    if (debugConfig.cli.ljson) serializedData = this.container.serialize();
+    else serializedData = this.container.serializeFlat();
 
     const packed = pack(
       {
@@ -345,7 +343,6 @@ export class IRIDIUMV2 {
       }
     );
 
-    // @ts-ignore
     const gzipped = gzipSync(packed);
 
     if (debugConfig.cli.debugIri) {
