@@ -1,4 +1,4 @@
-import { getLocInfoIfAvailable, printIriSpace } from "#utils";
+import {  printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP } from "../AbstractOperations";
 import { IridiumSEXP } from "../Structural";
 import { StringSEXP } from "../RVAL";
@@ -6,27 +6,26 @@ import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEX
 
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Read a binding from the environment.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(obj)`: The binding to be read, can be any environment binding {@link EnvBindingSEXP} | {@link RemoteEnvBindingSEXP} | {@link GlobalBindingSEXP} | {@link PoolBindingSEXP} (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
+ *
  * - `FLAG(SAFE : void)`: Is it safe to read this binding?
- * 
+ *
  */
 export class EnvReadSEXP extends IridiumSEXP {
-  constructor(id: string, mapInf: string) {
+  constructor(id: string) {
     super("EnvRead");
-    this.setFlag("MAP_INF", mapInf);
-    this.setObj(new ResolveEnvBindingSEXP(id, getLocInfoIfAvailable(mapInf)));
+    this.setObj(new ResolveEnvBindingSEXP(id));
   }
 
   // Flags
@@ -53,62 +52,61 @@ export class EnvReadSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * A TDZ check for the binding before it is written to.
- * 
+ *
  */
 export class TDZReadSEXP extends EnvReadSEXP {
-  constructor(id: string, mapInf: string) {
-    super(id, mapInf);
+  constructor(id: string) {
+    super(id);
     this.tag = "TDZRead";
   }
 }
 
 /**
- * 
+ *
  * @group TSHelper
  */
 export type EnvWriteFlags = "SAFE" | "THISINIT" | "SLOPPY";
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group AMP
- * 
+ *
  * @remarks
- * 
+ *
  * Write to an environment binding.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(lValTarget)`: The storage target location(s) (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
+ *
  * - `ARG(rVal)`: The value to store.
- * 
+ *
  * - `FLAG(SAFE : boolean)`: Indicates whether the writes being performed are safe.
- * 
+ *
  * - `FLAG(THISINIT : boolean)`: Indicates whether the write is being performed to `this`, in this case it will never be true but is kept around for implementation consistency during lowering.
- * 
+ *
  * - `FLAG(SLOPPY : void)`: Indicates whether the writes to target locations is sloppy.
- * 
+ *
  */
 export class EnvWriteSEXP extends IridiumSEXP {
   lval: string
-  constructor(lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean, mapInf: string) {
+  constructor(lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean) {
     super("EnvWrite");
     this.lval = lval
-    this.setLValTarget(new ResolveEnvBindingSEXP(lval, getLocInfoIfAvailable()));
+    this.setLValTarget(new ResolveEnvBindingSEXP(lval));
     this.setRVal(rval);
     this.setSafe(safe);
     this.setThisInit(thisInit);
-    this.setFlag("MAP_INF", mapInf);
   }
 
   // Args
@@ -159,24 +157,24 @@ export class EnvWriteSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * Non local EnvWrite, this is used to write to sibling environments in JS.
  * This will be reduced to a normal {@link EnvWriteSEXP} after scope resolution.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(ScopeIDX : number)`: Target Scope IDX.
- * 
+ *
  */
 export class SiblingSpecialWriteSEXP extends EnvWriteSEXP {
-  constructor(lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean, mapInf: string, scopeIDX: number) {
-    super(lval, rval, safe, thisInit, mapInf);
+  constructor(lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean, scopeIDX: number) {
+    super(lval, rval, safe, thisInit);
     this.tag = "SiblingSpecialWrite";
     this.setScopeIDX(scopeIDX);
   }
@@ -192,27 +190,26 @@ export class SiblingSpecialWriteSEXP extends EnvWriteSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Read a (static) field from an object.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(obj)`: The object to be read from (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
+ *
  * - `ARG(field)`: The field to be read.
- * 
+ *
  */
 export class FieldReadSEXP extends IridiumSEXP {
-  constructor(object: string, field: string, mapInf: string) {
+  constructor(object: string, field: string) {
     super("FieldRead");
-    this.setFlag("MAP_INF", mapInf)
-    this.setObj(new EnvReadSEXP(object, mapInf));
+    this.setObj(new EnvReadSEXP(object));
     this.setField(new StringSEXP(field));
   }
 
@@ -239,29 +236,28 @@ export class FieldReadSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Write to a (static) field of an object.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(obj)`: The object to be written to (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
+ *
  * - `ARG(field)`: The field to be updated.
- * 
+ *
  * - `ARG(value)`: The value to be written.
- * 
+ *
  */
 export class FieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: string, right: IridiumSEXP, mapInf: string) {
+  constructor(object: string, field: string, right: IridiumSEXP) {
     super("FieldWrite");
-    this.setFlag("MAP_INF", mapInf)
-    this.args.push(new EnvReadSEXP(object, mapInf));
+    this.args.push(new EnvReadSEXP(object));
     this.args.push(new StringSEXP(field));
     this.args.push(right);
   }

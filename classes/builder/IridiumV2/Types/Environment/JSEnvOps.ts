@@ -1,4 +1,4 @@
-import { getLocInfoIfAvailable, printFlagString, printIriSpace } from "#utils";
+import { printFlagString, printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP } from "../AbstractOperations/Resolution";
 import { IridiumSEXP } from "../Structural/General";
 import { StringSEXP } from "../RVAL/Primitives";
@@ -6,28 +6,28 @@ import { EnvReadSEXP, isEnvReadSEXP } from "./PrimitiveEnvOps";
 import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEXP } from "./BindingsObjectConstituents";
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
- * Read a private binding from the environment, the read functionality 
- * 
+ *
+ * Read a private binding from the environment, the read functionality
+ *
  * #### Structure
- * 
+ *
  * - `ARG(obj)`: The binding to be read, can be any environment binding {@link EnvBindingSEXP} | {@link RemoteEnvBindingSEXP} | {@link GlobalBindingSEXP} | {@link PoolBindingSEXP} (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
- * - `FLAG(SYMBOL : void | METHOD : void)`: Depending on the kind of binding, different checks/resolution semantics are applied. SYMBOL leads to a private field lookup while METHOD leads to a branch check. 
- * 
+ *
+ * - `FLAG(SYMBOL : void | METHOD : void)`: Depending on the kind of binding, different checks/resolution semantics are applied. SYMBOL leads to a private field lookup while METHOD leads to a branch check.
+ *
  * - `FLAG(FULLY_RESOLVE : void)`: Does the binding context request resolution?
- * 
+ *
  */
 export class PVTEnvReadSEXP extends IridiumSEXP {
   constructor(id: string, kind: "SYMBOL" | "METHOD", fullyResolve: boolean) {
     super("PVTEnvRead");
-    this.setObj(new ResolveEnvBindingSEXP(id, getLocInfoIfAvailable()));
+    this.setObj(new ResolveEnvBindingSEXP(id));
     if (kind === "METHOD") this.setMethod();
     else this.setSymbol();
     if (fullyResolve) this.setFullyResolve();
@@ -74,29 +74,28 @@ export class PVTEnvReadSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Read a (dynamic) field from an object.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(obj)`: The object to be read from (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
+ *
  * - `ARG(field)`: The field to be read.
- * 
+ *
  */
 export class JSComputedFieldReadSEXP extends IridiumSEXP {
-  constructor(object: string, field: string | IridiumSEXP, mapInf: string) {
+  constructor(object: string, field: string | IridiumSEXP) {
     super("JSComputedFieldRead");
-    this.setFlag("MAP_INF", mapInf)
-    this.setObj(new EnvReadSEXP(object, mapInf));
+    this.setObj(new EnvReadSEXP(object));
     if (typeof field === "string")
-      this.setField(new EnvReadSEXP(field, mapInf));
+      this.setField(new EnvReadSEXP(field));
     else
       this.setField(field);
   }
@@ -120,31 +119,30 @@ export class JSComputedFieldReadSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Write to a (dynamic) field of an object.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(obj)`: The object to be read from (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
+ *
  * - `ARG(field)`: The field to be updated.
- * 
+ *
  * - `ARG(value)`: The value to be written.
- * 
+ *
  */
 export class JSComputedFieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: string | IridiumSEXP, right: IridiumSEXP, mapInf: string) {
+  constructor(object: string, field: string | IridiumSEXP, right: IridiumSEXP) {
     super("JSComputedFieldWrite");
-    this.setFlag("MAP_INF", mapInf)
-    this.setObj(new EnvReadSEXP(object, mapInf));
+    this.setObj(new EnvReadSEXP(object));
     if (typeof field === "string")
-      this.setField(new EnvReadSEXP(field, mapInf));
+      this.setField(new EnvReadSEXP(field));
     else
       this.setField(field);
     this.setValue(right);
@@ -181,26 +179,26 @@ export class JSComputedFieldWriteSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Read a private field from an object.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(obj)`: The object to be read from (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
+ *
  * - `ARG(field)`: The field to be read.
- * 
+ *
  */
 export class JSPrivateFieldReadSEXP extends IridiumSEXP {
-  constructor(object: string, field: string, mapInf: string) {
+  constructor(object: string, field: string) {
     super("JSPrivateFieldRead");
-    this.setObj(new EnvReadSEXP(object, mapInf));
+    this.setObj(new EnvReadSEXP(object));
     this.setField(new ResolvePrivateEnvBindingSEXP(field));
   }
 
@@ -223,31 +221,30 @@ export class JSPrivateFieldReadSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Write to a private field of an object.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(obj)`: The object to be read from (usually {@link ResolveEnvBindingSEXP} before transition).
- * 
+ *
  * - `ARG(field)`: The field to be updated.
- * 
+ *
  * - `ARG(value)`: The value to be written.
- * 
+ *
  * - `FLAG(DECL : void)`: Is it a declaration?
- * 
+ *
  */
 export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: EnvReadSEXP | string, right: IridiumSEXP, isDeclaration: boolean, mapInf: string) {
+  constructor(object: string, field: EnvReadSEXP | string, right: IridiumSEXP, isDeclaration: boolean) {
     super("JSPrivateFieldWrite");
-    this.setFlag("MAP_INF", mapInf)
-    this.setObj(new EnvReadSEXP(object, mapInf));
+    this.setObj(new EnvReadSEXP(object));
     if (isEnvReadSEXP(field)) this.setField(field);
     else this.setField(new ResolvePrivateEnvBindingSEXP(field, false));
     this.setValue(right);
@@ -290,29 +287,29 @@ export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Read a field from `super`.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(this)`: The lexical `this` object.
- * 
+ *
  * - `ARG(<home_object>)`: The lexical `<home_object>` object.
- * 
+ *
  * - `ARG(field)`: The field to be read.
- * 
+ *
  */
 export class JSSuperFieldReadSEXP extends IridiumSEXP {
   constructor(field: IridiumSEXP) {
     super("JSSuperFieldRead");
-    this.setThis(new EnvReadSEXP("this", getLocInfoIfAvailable()));
-    this.setSuper(new EnvReadSEXP("<home_object>", getLocInfoIfAvailable()));
+    this.setThis(new EnvReadSEXP("this"));
+    this.setSuper(new EnvReadSEXP("<home_object>"));
     this.setField(field);
   }
 
@@ -347,31 +344,31 @@ export class JSSuperFieldReadSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Write to field of `super`.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(this)`: The lexical `this` object.
- * 
+ *
  * - `ARG(<super_obj>)`: The lexical `<super_obj>` object.
- * 
+ *
  * - `ARG(field)`: The field to be updated.
- * 
+ *
  * - `ARG(value)`: The value to be written.
- * 
+ *
  */
 export class JSSuperFieldWriteSEXP extends IridiumSEXP {
   constructor(field: string, value: IridiumSEXP) {
     super("JSSuperFieldWrite");
-    this.setThis(new EnvReadSEXP("this", getLocInfoIfAvailable()));
-    this.setSuper(new EnvReadSEXP("<super_obj>", getLocInfoIfAvailable()));
+    this.setThis(new EnvReadSEXP("this"));
+    this.setSuper(new EnvReadSEXP("<super_obj>"));
     this.setField(new StringSEXP(field));
     this.setValue(value);
   }
