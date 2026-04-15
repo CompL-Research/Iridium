@@ -4,27 +4,27 @@ import { IridiumSEXP } from "../Structural/General";
 import { ListSEXP } from "../RVAL/Primitives";
 import { EnvBindingSEXP, isEnvBindingSEXP, isRemoteEnvBindingSEXP, JSEnvBindingFlags, PoolBindingSEXP, RemoteEnvBindingSEXP } from "./BindingsObjectConstituents";
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STRUCTURAL
- * 
+ *
  * @remarks
- * 
+ *
  * This object stores the bindings used in a logical stack frame.
  * The bindings may be local to the frame or may reference remote objects.
  * This also stores the references made to closure objects in the LambdaPool.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(localBindings)`: A {@link ListSEXP} object containing local bindings {@link EnvBindingSEXP}.
- * 
+ *
  * - `ARG(remoteBindings)`: A {@link ListSEXP} object containing remote bindings {@link RemoteEnvBindingSEXP}.
- * 
+ *
  * - `ARG(lambdas)`: A {@link ListSEXP} object containing pool bindings {@link PoolBindingSEXP} (used to store lambdas in Iridium).
- * 
+ *
  * - `FLAG(ParentScope : number)`: IDX of parent closure scope.
- * 
+ *
  */
 export class BindingsSEXP extends IridiumSEXP {
   constructor(parentScope: number) {
@@ -94,10 +94,10 @@ export class BindingsSEXP extends IridiumSEXP {
   }
 
   /**
-   * 
-   * This function returns the binding for a given lookup. 
+   *
+   * This function returns the binding for a given lookup.
    * If the binding cannot be found, it returns a null.
-   * 
+   *
    * @param name Identifier to lookup
    * @param lookupScope Current lookup scope
    * @returns EnvBindingSEXP | RemoteEnvBindingSEXP | null
@@ -131,19 +131,19 @@ export class BindingsSEXP extends IridiumSEXP {
         nextScope = buildContext.bypassParent;
       }
     }
-    
+
     return this.getBinding(name, nextScope);
   }
 
   /**
    * Returns true if a binding of the specific shape already exists in the Bindings object.
-   * 
+   *
    * @param idx Binding IDX
    * @param name Name of the binding
    * @param flag binding kind
    * @param localScope declared scope
    * @param parentScope parent scope
-   * @returns 
+   * @returns
    */
 
   hasBindingReference(idx: number, name: string, flag: JSEnvBindingFlags, localScope: number, parentScope: number) {
@@ -184,9 +184,9 @@ export class BindingsSEXP extends IridiumSEXP {
   }
 
   /**
-   * 
+   *
    * Given a {@link RemoteEnvBindingSEXP} it returns the effective resultant {@link EnvBindingSEXP}.
-   * 
+   *
    * @param binding Name of the binding
    * @returns EnvBindingSEXP
    */
@@ -203,7 +203,7 @@ export class BindingsSEXP extends IridiumSEXP {
 
   toString(space?: number): string {
     if (!space) space = 0;
-    let res = [];
+    let res: Array<string> = [];
     res.push(`${printIriSpace(space)}Bindings`);
     const args = this.args.map(e => e.toString(space + 2));
     res = [...res, ...args];
