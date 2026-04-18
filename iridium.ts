@@ -4,6 +4,7 @@ import {
 } from "#utils";
 import chalk from "chalk";
 import { IridiumBuildContext, IRIDIUMV2 } from "./classes/builder/IridiumV2/IRIDIUMV2";
+import { tick, tock, printReport } from "./classes/debugger/IRIPerf";
 import JS3Builder from "./classes/builder/JS3Builder";
 import { ProjectFile } from "./classes/ProjectFile";
 import { initIRI, initJS3, initPIKA } from "./configs/argparse";
@@ -15,6 +16,7 @@ import {
   printProjectStats
 } from "./configs/printUsage";
 import { VERSION } from "./configs/projectStats";
+
 
 debugConfig.versionNumber = `Iridium ${VERSION}`;
 
@@ -31,9 +33,10 @@ Iridium Version: ${chalk.red(VERSION)}
 
 // FilePath -> JS3Builder
 function js3(filePath: string, printToConsole = false): JS3Builder {
-  debugConfig.logger.printToConsole = false;
+  tick("js3")
   const file = new ProjectFile(filePath, path.dirname(filePath));
   try {
+    tick("initSync")
     if (debugConfig.cli.sourceType === "unambiguous" || debugConfig.cli.sourceType === "script" || debugConfig.cli.sourceType === "module") {
       file.initSync(debugConfig.cli.sourceType);
     } else {
@@ -43,8 +46,12 @@ function js3(filePath: string, printToConsole = false): JS3Builder {
     if (file.initData.parseStatus !== "parsed")
       throw new Error("JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)");
 
+    tock("initSync")
+
+    tick("js3Build")
     const builder = new JS3Builder(file);
     builder.build();
+    tock("js3Build")
 
     if (printToConsole)
       console.log(builder.getCodeString());
@@ -52,14 +59,20 @@ function js3(filePath: string, printToConsole = false): JS3Builder {
     return builder;
   } catch (e) {
     throw new Error(`Failed to generate JS3: ${e}`);
+  } finally {
+    tock("js3")
   }
 }
 
 function iri(filePath: string, printToConsole = false): IRIDIUMV2 {
+  tick("iri")
   try {
     const js3Builder = js3(filePath, false);
     const iridiumV2Builder = new IRIDIUMV2(js3Builder);
+
+    tick("iri-build")
     iridiumV2Builder.build();
+    tock("iri-build")
 
     if (!iridiumV2Builder.container) throw new Error("Iridium container is undefined");
 
@@ -79,6 +92,8 @@ function iri(filePath: string, printToConsole = false): IRIDIUMV2 {
     return iridiumV2Builder;
   } catch (e) {
     throw new Error(`Failed to generate Iridium: ${e}`);
+  } finally {
+    tock("iri")
   }
 }
 
@@ -102,6 +117,7 @@ function pika(files: Array<string>, printToConsole = false) {
 }
 
 function main() {
+  tick("main")
   let [mainCommand, argv] = getNextCommand();
 
   debugConfig.cli.outputsPath = path.resolve("./outputs");
@@ -133,6 +149,9 @@ function main() {
 
     default: printDefaultUsage(header);
   }
+
+  tock("main")
+  printReport()
 }
 
 main();
