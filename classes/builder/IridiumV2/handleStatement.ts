@@ -692,7 +692,6 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
 
   // TryContextBB
   cx.declareAndPushLexicalContext();
-  cx.getCurrentBB().setFlag("TryContextBB");
   tryContextObj = cx.getCurrentContext();
   tryContext.tryContextIDX = cx.getCurrentBB().getIDX();
 
@@ -700,7 +699,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
 
   // TryBB
   cx.declareAndPushLexicalContext();
-  cx.getCurrentBB().setFlag("TryBB");
+  // cx.getCurrentBB().setFlag("TryBB");
   tryContext.tryIDX = cx.getCurrentBB().getIDX();
   cx.getCurrentBB().args.push(tryCatchContext);
   for (let s of stmt.block.body) {
@@ -716,7 +715,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   if (stmt.handler) {
     // udCatchBB
     cx.declareAndPushLexicalContext();
-    cx.getCurrentBB().setFlag("udCatchBB");
+    // cx.getCurrentBB().setFlag("udCatchBB");
     tryContext.udCatchIDX = cx.getCurrentBB().getIDX();
     if (stmt.handler.param) {
       cx.getCurrentBB().args.push(
@@ -742,7 +741,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
 
   // imCatchBB
   cx.declareAndPushLexicalContext();
-  cx.getCurrentBB().setFlag("imCatchBB");
+  // cx.getCurrentBB().setFlag("imCatchBB");
   tryContext.imCatchIDX = cx.getCurrentBB().getIDX();
   const imArg = cx.js3Builder.utils.getNewTemporary("imCatchArg")
   cx.getCurrentBB().args.push(
@@ -762,7 +761,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   if (stmt.finalizer) {
     // finalizerBB
     cx.declareAndPushLexicalContext();
-    cx.getCurrentBB().setFlag("finalizerBB");
+    // cx.getCurrentBB().setFlag("finalizerBB");
     finalizerContextObj = cx.getCurrentContext();
     tryContext.finalizerIDX = cx.getCurrentBB().getIDX();
     for (let s of stmt.finalizer.body) {
