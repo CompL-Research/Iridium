@@ -3,32 +3,46 @@ import fs from "fs";
 import { pack } from "msgpackr";
 import path from "path";
 import { gzipSync } from "zlib";
+import { performance } from "node:perf_hooks";
 import { VERSION } from "../../../configs/projectStats";
 import JS3Builder from "../JS3Builder";
 import { JS3Program } from "../JS3Helpers/JS3Types";
 import { PrivateMapping } from "./handleRVal";
 import { IRIV2_STMT } from "./handleStatement";
-import { BBSEXP, BBSEXPFlags, EnvReadSEXP, FileSEXP, getRegularClosureFlag, IfElseJumpSEXP, IridiumSEXP, JSImplicitBindingDeclarationSEXP, ModuleRequestSEXP, ReturnAsyncSEXP, ReturnSEXP } from "./Types/index";
+import {
+  BBSEXP,
+  BBSEXPFlags,
+  EnvReadSEXP,
+  FileSEXP,
+  getRegularClosureFlag,
+  IfElseJumpSEXP,
+  IridiumSEXP,
+  JSImplicitBindingDeclarationSEXP,
+  ModuleRequestSEXP,
+  ReturnAsyncSEXP,
+  ReturnSEXP,
+} from "./Types/index";
 
-import iridiumForge from '#forge';
+import iridiumForge from "#forge";
+import { tick, tock } from "../../debugger/IRIPerf";
 
 type LoopConfig = {
-  kind: "for-of" | "standard",
-  loopHeadIDX: number,
-  loopBodyIDX: number,
-  loopInitIDX: number,
-  label: string | null,
-  breakTarget: number,
-  continueTarget: number
-}
+  kind: "for-of" | "standard";
+  loopHeadIDX: number;
+  loopBodyIDX: number;
+  loopInitIDX: number;
+  label: string | null;
+  breakTarget: number;
+  continueTarget: number;
+};
 
 type TryContext = {
-  tryContextIDX: number,
-  tryIDX: number,
-  udCatchIDX: number,
-  imCatchIDX: number,
-  finalizerIDX: number
-}
+  tryContextIDX: number;
+  tryIDX: number;
+  udCatchIDX: number;
+  imCatchIDX: number;
+  finalizerIDX: number;
+};
 
 //
 // Function to serialize the Iridium build context, this information is needed by many main passes to perform resolution
@@ -36,27 +50,27 @@ type TryContext = {
 
 type SerializableIridiumBuildContextObject = {
   parent: number;
-  scopeIdx: number;
+  scopeIDX: number;
   args: Array<string>;
   isArgInitContext: boolean;
   bypassParent: number;
   argInitContextWhitelist: Array<string>; // Set
   hasRestArgs: boolean;
   loopConfig: {
-    kind: "for-of" | "standard",
-    loopHeadIDX: number,
-    loopBodyIDX: number,
-    loopInitIDX: number,
-    label: string | null,
-    breakTarget: number,
-    continueTarget: number
+    kind: "for-of" | "standard";
+    loopHeadIDX: number;
+    loopBodyIDX: number;
+    loopInitIDX: number;
+    label: string | null;
+    breakTarget: number;
+    continueTarget: number;
   } | null;
   tryContext: {
-    tryContextIDX: number,
-    tryIDX: number,
-    udCatchIDX: number,
-    imCatchIDX: number,
-    finalizerIDX: number
+    tryContextIDX: number;
+    tryIDX: number;
+    udCatchIDX: number;
+    imCatchIDX: number;
+    finalizerIDX: number;
   } | null;
   kind: number;
   propInitClos: string | null;
@@ -70,16 +84,12 @@ type SerializableIridiumBuildContextObject = {
 
   name: string;
 
-  privateMapping: Array<[
-    string,
-    [string, string]
-  ]> | null
+  privateMapping: Array<[string, [string, string]]> | null;
 
   moduleRequestMap: Array<[string, Array<any>]> | null; // Array<any> are interpreted as IridiumSEXPs
 
   BB: Array<number>; // This must be resolved to their respective BBs at init time...
-
-}
+};
 
 function serializeBuildContext(): Array<SerializableIridiumBuildContextObject> {
   const res: Array<SerializableIridiumBuildContextObject> = new Array();
@@ -88,14 +98,11 @@ function serializeBuildContext(): Array<SerializableIridiumBuildContextObject> {
   for (let e of contexts) {
     const buildContext: IridiumBuildContext = e[1];
 
-    const privateMapping: Array<[
-      string,
-      [string, string]
-    ]> = [];
+    const privateMapping: Array<[string, [string, string]]> = [];
 
     if (buildContext.privateMapping) {
       for (let p of buildContext.privateMapping) {
-        privateMapping.push([p[0], [p[1][0], p[1][1]]])
+        privateMapping.push([p[0], [p[1][0], p[1][1]]]);
       }
     }
 
@@ -103,35 +110,39 @@ function serializeBuildContext(): Array<SerializableIridiumBuildContextObject> {
 
     if (buildContext.moduleRequestMap) {
       for (let p of buildContext.moduleRequestMap) {
-        moduleRequestMap.push([p[0], p[1].serialize()])
+        moduleRequestMap.push([p[0], p[1].serializeFlat()]);
       }
     }
 
     // Create Serializable Iridium Build Context from buildContext
     const serializedContext: SerializableIridiumBuildContextObject = {
       parent: buildContext.parent,
-      scopeIdx: buildContext.scopeIdx,
+      scopeIDX: buildContext.scopeIdx,
       args: buildContext.args,
       isArgInitContext: buildContext.isArgInitContext,
       bypassParent: buildContext.bypassParent,
       argInitContextWhitelist: [...buildContext.argInitContextWhitelist], // Set
       hasRestArgs: buildContext.hasRestArgs,
-      loopConfig: buildContext.loopConfig ? {
-        kind: buildContext.loopConfig.kind,
-        loopHeadIDX: buildContext.loopConfig.loopHeadIDX,
-        loopBodyIDX: buildContext.loopConfig.loopBodyIDX,
-        loopInitIDX: buildContext.loopConfig.loopInitIDX,
-        label: buildContext.loopConfig.label,
-        breakTarget: buildContext.loopConfig.breakTarget,
-        continueTarget: buildContext.loopConfig.continueTarget
-      } : null,
-      tryContext: buildContext.tryContext ? {
-        tryContextIDX: buildContext.tryContext.tryContextIDX,
-        tryIDX: buildContext.tryContext.tryIDX,
-        udCatchIDX: buildContext.tryContext.udCatchIDX,
-        imCatchIDX: buildContext.tryContext.imCatchIDX,
-        finalizerIDX: buildContext.tryContext.finalizerIDX
-      } : null,
+      loopConfig: buildContext.loopConfig
+        ? {
+            kind: buildContext.loopConfig.kind,
+            loopHeadIDX: buildContext.loopConfig.loopHeadIDX,
+            loopBodyIDX: buildContext.loopConfig.loopBodyIDX,
+            loopInitIDX: buildContext.loopConfig.loopInitIDX,
+            label: buildContext.loopConfig.label,
+            breakTarget: buildContext.loopConfig.breakTarget,
+            continueTarget: buildContext.loopConfig.continueTarget,
+          }
+        : null,
+      tryContext: buildContext.tryContext
+        ? {
+            tryContextIDX: buildContext.tryContext.tryContextIDX,
+            tryIDX: buildContext.tryContext.tryIDX,
+            udCatchIDX: buildContext.tryContext.udCatchIDX,
+            imCatchIDX: buildContext.tryContext.imCatchIDX,
+            finalizerIDX: buildContext.tryContext.finalizerIDX,
+          }
+        : null,
 
       kind: buildContext.kind,
       propInitClos: buildContext.propInitClos,
@@ -147,10 +158,10 @@ function serializeBuildContext(): Array<SerializableIridiumBuildContextObject> {
 
       moduleRequestMap: buildContext.moduleRequestMap ? moduleRequestMap : null,
 
-      BB: [...buildContext.BB.map(e => e.getIDX())]
+      BB: [...buildContext.BB.map((e) => e.getIDX())],
     };
 
-    res.push(serializedContext)
+    res.push(serializedContext);
   }
 
   return res;
@@ -195,13 +206,20 @@ export class IridiumBuildContext {
   }
 
   BB: Array<BBSEXP> = [];
-  constructor(parent: number, BB: BBSEXP | undefined = undefined, flag: BBSEXPFlags | undefined = undefined) {
+  constructor(
+    parent: number,
+    BB: BBSEXP | undefined = undefined,
+    flag: BBSEXPFlags | undefined = undefined,
+  ) {
     this.scopeIdx = IridiumBuildContext.SID++;
     this.parent = parent;
     if (BB) {
       this.pushBB(BB);
     } else {
-      if (!flag) throw new Error("Expected a flag to qualify all the BBs in iridium, not supplied!!!");
+      if (!flag)
+        throw new Error(
+          "Expected a flag to qualify all the BBs in iridium, not supplied!!!",
+        );
       this.pushBB(new BBSEXP(this.scopeIdx, flag));
     }
     IridiumBuildContext.CONTEXT_MAP.set(this.scopeIdx, this);
@@ -227,7 +245,7 @@ export class IRIDIUMV2 {
   js3Builder: JS3Builder;
   buildContext: Array<IridiumBuildContext>;
   container: FileSEXP | null;
-  result: Buffer | null = null;
+  result: Array<any> | null = null;
   constructor(js3Builder: JS3Builder) {
     this.js3Builder = js3Builder;
     this.buildContext = [];
@@ -235,7 +253,14 @@ export class IRIDIUMV2 {
   }
 
   saveToDisk() {
-    const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.js3Builder.projectFile.uname, this.js3Builder.projectFile.extension) + (debugConfig.cli.ljson ? ".json" : ".iri");
+    const filePath =
+      debugConfig.cli.outputsPath +
+      "/" +
+      path.basename(
+        this.js3Builder.projectFile.uname,
+        this.js3Builder.projectFile.extension,
+      ) +
+      (debugConfig.cli.ljson ? ".json" : ".iri");
 
     if (!this.result) throw new Error("Run build before calling 'saveToDisk'");
 
@@ -244,7 +269,10 @@ export class IRIDIUMV2 {
   }
 
   getCurrentContext() {
-    if (this.buildContext.length === 0) throw new Error("Expected atleast one BB to exist in the build context stack!!");
+    if (this.buildContext.length === 0)
+      throw new Error(
+        "Expected atleast one BB to exist in the build context stack!!",
+      );
     const contexts = this.buildContext;
     return contexts[contexts.length - 1];
   }
@@ -253,9 +281,15 @@ export class IRIDIUMV2 {
     return this.getCurrentContext().getCurrentBB();
   }
 
-  declareAndPushLexicalContext(flags: BBSEXPFlags = "Lexical"): IridiumBuildContext {
+  declareAndPushLexicalContext(
+    flags: BBSEXPFlags = "Lexical",
+  ): IridiumBuildContext {
     const currentContext = this.getCurrentContext();
-    const newContext = new IridiumBuildContext(currentContext.scopeIdx, undefined, flags);
+    const newContext = new IridiumBuildContext(
+      currentContext.scopeIdx,
+      undefined,
+      flags,
+    );
     newContext.isStrict = currentContext.isStrict;
     this.pushContext(newContext);
     return newContext;
@@ -278,25 +312,35 @@ export class IRIDIUMV2 {
   }
 
   build() {
+    tick("iri-structural-reduction");
     if (!this.js3Builder) throw new Error("this.js3Builder is null");
-    if (!this.js3Builder.generatedAST) throw new Error("this.js3Builder.generatedAST is null");
+
+    if (!this.js3Builder.generatedAST)
+      throw new Error("this.js3Builder.generatedAST is null");
+
     const program: JS3Program = this.js3Builder.generatedAST.program;
-    const sourceType: "JSModule" | "JSScript" = program.sourceType === "module" ? "JSModule" : "JSScript";
+    const sourceType: "JSModule" | "JSScript" =
+      program.sourceType === "module" ? "JSModule" : "JSScript";
 
     const mainContainer = new FileSEXP(sourceType);
     this.container = mainContainer;
     const topLevelContext = new IridiumBuildContext(-1, undefined, "TopLevel");
 
     topLevelContext.isModule = sourceType === "JSModule";
-    topLevelContext.isStrict = sourceType === "JSModule" || program.directives.some((val) => val.value.value === "use strict");
+    topLevelContext.isStrict =
+      sourceType === "JSModule" ||
+      program.directives.some((val) => val.value.value === "use strict");
     topLevelContext.isAsync = sourceType === "JSModule";
 
     topLevelContext.moduleRequestMap = new Map();
-    topLevelContext.kind = sourceType === "JSModule" ? 13 : getRegularClosureFlag();
+    topLevelContext.kind =
+      sourceType === "JSModule" ? 13 : getRegularClosureFlag();
     this.pushContext(topLevelContext);
 
     if (sourceType === "JSModule") {
-      this.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9));
+      this.getCurrentBB().args.push(
+        new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9),
+      );
 
       // Early return if we dont need to evaluate the module completely
       const earlyReturnBB = this.declareAndPushLexicalContext();
@@ -305,16 +349,26 @@ export class IRIDIUMV2 {
       this.getCurrentBB().args.push(earlyReturnStmt); // Notice how this is not an async return!!
       this.popContext();
 
-      const ifJump = new IfElseJumpSEXP(new EnvReadSEXP("this"), earlyReturnBB.BB[0].idx, -1);
+      const ifJump = new IfElseJumpSEXP(
+        new EnvReadSEXP("this"),
+        earlyReturnBB.BB[0].idx,
+        -1,
+      );
       this.getCurrentBB().args.push(ifJump);
 
       this.addContinuation(this.getCurrentContext());
       ifJump.setFALSE(this.getCurrentBB().getIDX());
 
-      this.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<module_meta>", "JSCONST", 6));
+      this.getCurrentBB().args.push(
+        new JSImplicitBindingDeclarationSEXP("<module_meta>", "JSCONST", 6),
+      );
     } else {
-      this.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9));
-      this.getCurrentBB().args.push(new JSImplicitBindingDeclarationSEXP("<ret>", "JSCONST", 11));
+      this.getCurrentBB().args.push(
+        new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9),
+      );
+      this.getCurrentBB().args.push(
+        new JSImplicitBindingDeclarationSEXP("<ret>", "JSCONST", 11),
+      );
     }
 
     const startBB = this.getCurrentBB();
@@ -322,35 +376,53 @@ export class IRIDIUMV2 {
       IRIV2_STMT(this, s);
     }
     if (sourceType === "JSModule") {
-      this.getCurrentBB().args.push(new ReturnAsyncSEXP(new EnvReadSEXP("undefined")));
+      this.getCurrentBB().args.push(
+        new ReturnAsyncSEXP(new EnvReadSEXP("undefined")),
+      );
     } else {
-      this.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
+      this.getCurrentBB().args.push(
+        new ReturnSEXP(new EnvReadSEXP("undefined")),
+      );
     }
     this.popContext();
-    if (this.buildContext.length !== 0) throw new Error("Expected buildContext stack to be empty after build()");
+    if (this.buildContext.length !== 0)
+      throw new Error("Expected buildContext stack to be empty after build()");
 
+    tock("iri-structural-reduction");
+
+    tick("iri-serial");
     let serializedData;
-
-    if (debugConfig.cli.ljson) serializedData = this.container.serialize();
-    else serializedData = this.container.serializeFlat();
-
-    const packed = pack(
-      {
-        version: VERSION,
-        absoluteFilePath: this.js3Builder.projectFile.absoluteFilePath,
-        iridium: serializedData,
-        buildContext: serializeBuildContext(),
-      }
-    );
-
-    const gzipped = gzipSync(packed);
-
-    if (debugConfig.cli.debugIri) {
-      this.result = gzipped;
-      return;
+    if (debugConfig.cli.ljson) {
+      tick("iri-json-serial");
+      serializedData = this.container.serialize();
+      tock("iri-json-serial");
+    } else {
+      tick("iri-flat-integrity");
+      let integrityCheck = this.container.checkIntegrity();
+      tock("iri-flat-integrity");
+      if (!integrityCheck) throw new Error("Integrity check failed, exiting!");
+      tick("iri-flat-serial");
+      serializedData = this.container.serializeFlat();
+      tock("iri-flat-serial");
     }
-    this.result = iridiumForge.execute(gzipped, 0, debugConfig.cli.ljson);
+
+    tock("iri-serial");
+
+    tick("iri-ctx-serial");
+    const serializedBuildContext = serializeBuildContext();
+    tock("iri-ctx-serial");
+
+    tick("iri-forge");
+    this.result = iridiumForge.execute(
+      VERSION,
+      this.js3Builder.projectFile.absoluteFilePath,
+      serializedData,
+      serializedBuildContext,
+      tick,
+      tock
+    );
+    tock("iri-forge");
+
     if (!this.result) throw new Error("Forge project returned null");
   }
-
 }
