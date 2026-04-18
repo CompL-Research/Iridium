@@ -57,6 +57,52 @@ export class IridiumSEXP {
     return res;
   }
 
+  checkIntegrity(): boolean {
+    // 1. Check if the Tag exists in the IriTag enum
+    if (!(this.tag in IriTag)) {
+      console.error(`Integrity Error: Invalid tag "${this.tag}"`);
+      return false;
+    }
+
+    // 2. Ensure flags is a valid Map or Iterable (matching your for...of loop)
+    if (!(this.flags instanceof Map) && !Array.isArray(this.flags)) {
+      console.error("Integrity Error: flags is not an iterable collection");
+      return false;
+    }
+
+    // 3. Check if all flags are recognized
+    for (let [flagName] of this.flags) {
+      if (!(flagName in IriFlag)) {
+        console.error(`Integrity Error: Unknown flag name "${flagName}"`);
+        return false;
+      }
+    }
+
+    // 4. Ensure args is an array
+    if (!Array.isArray(this.args)) {
+      console.error("Integrity Error: args is not an array");
+      return false;
+    }
+
+    // 5. Recursive check: Ensure all children are valid
+    for (let i = 0; i < this.args.length; i++) {
+      const arg = this.args[i];
+
+      // Check if the argument exists and has the checkIntegrity method
+      if (!arg || typeof arg.checkIntegrity !== 'function') {
+        console.error(`Integrity Error: Argument at index ${i} is null or lacks checkIntegrity()`);
+        return false;
+      }
+
+      // Run the recursive check
+      if (!arg.checkIntegrity()) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   /**
    * Given a serialized array of Iridium code, pretty prints it for debugging
    * @param data The array produced by serialize()
@@ -84,7 +130,14 @@ export class IridiumSEXP {
       const flagEnumVal = data[state.index++]; // The numeric value
       const flagData = data[state.index++];
       const flagName = IriFlag[flagEnumVal] ?? `unknown_flag(${flagEnumVal})`;
-      flags.push(`${flagName}: ${flagData}`);
+      if (flagData === null) {
+        flags.push(`${flagName}`);
+      } else if (typeof flagData === "string") {
+        flags.push(`${flagName}: "${flagData}"`);
+      } else {
+        flags.push(`${flagName}: ${flagData}`);
+      }
+
     }
 
     // 3. Format the current line
