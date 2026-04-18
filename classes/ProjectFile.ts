@@ -1,4 +1,4 @@
-import babel from "@babel/core";
+import babel, { TransformOptions } from "@babel/core";
 
 import t from "@babel/types";
 import fs from "fs";
@@ -6,7 +6,6 @@ import path from "path";
 
 import debugConfig from "#debugConfig";
 import babelStripComments from "./babelStripComments";
-
 
 export class InitData {
   status: "loaded" | "failed" | "uninitialized" = "uninitialized";
@@ -113,19 +112,46 @@ export class ProjectFile {
     if (!debugConfig.cli.comments) {
       plugins = [babelStripComments, ...plugins];
     }
-    const options = {
+    // const options = {
+    //   filename: this.filename,
+    //   sourceType,
+    //   ast: true,
+    //   comments: debugConfig.cli.comments,
+    //   presets,
+    //   plugins,
+    // };
+
+    // const result = babel.transformSync(sourceCode, options);
+
+    const optimalOptions: TransformOptions = {
+      // --- 1. Core Output Control (Massive Speedup) ---
+      ast: true,          // Essential: You need the AST for analysis.
+      code: false,        // CRITICAL: Skips the entire code generation phase.
+      sourceMaps: false,  // Saves memory and CPU by not tracking mappings.
+
+      // --- 2. Memory & AST Optimizations ---
+      cloneInputAst: false, // Prevents Babel from duplicating the AST in memory.
+      comments: false,      // Strips comments during parsing, saving memory.
+
+      // --- 3. I/O & Config Resolution Bypass ---
+      configFile: false,    // Stops Babel from doing disk I/O to find babel.config.js.
+      babelrc: false,       // Stops disk I/O for .babelrc files.
+      browserslistConfigFile: false, // Skips checking for target environments.
+
+      // --- 4. File Context ---
       filename: this.filename,
-      sourceType,
-      ast: true,
-      comments: debugConfig.cli.comments,
-      presets,
-      plugins,
+      sourceType: sourceType, // Pass "unambiguous", "script", or "module"
+
+      // --- 5. Handlers ---
+      presets: presets,
+      plugins: plugins,
     };
 
-    const result = babel.transformSync(sourceCode, options);
+    const result = babel.parseSync(sourceCode, optimalOptions);
     if (!result) throw new Error("babel.transformSync failed");
+
     this.initData.parseStatus = "parsed";
-    this.initData.parseResult = result.ast;
-    this.initData.sourceMap = result.map;
+    this.initData.parseResult = result;
+    this.initData.sourceMap = null;
   }
 }

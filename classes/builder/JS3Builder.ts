@@ -1,7 +1,5 @@
 import debugConfig from "#debugConfig";
-import babel from "@babel/core";
-// import babelGen from "@babel/generator";
-import fs from "node:fs";
+import fs from "fs/promises";
 import path from "node:path";
 import { ProjectFile } from "../ProjectFile";
 import { handleProgram } from "./JS3Helpers/HandleProgram";
@@ -11,11 +9,10 @@ import {
   JS3File,
   JS3Program_body,
 } from "./JS3Helpers/JS3Types";
+import { tick, tock } from "../debugger/IRIPerf";
+import _generate from "@babel/generator";
+const generate = (_generate as any).default || _generate;
 
-// // @ts-ignore
-// const generate = babelGen.default;
-
-const babell = babel
 
 export type JS3BuilderUtils = {
   getNewTemporary: (prefix: string | undefined) => string;
@@ -34,13 +31,13 @@ export default class JS3Builder {
   projectFile: ProjectFile;
   generatedAST: JS3File | null;
   generatedCode: string | null = null;
-  sourceMap: any
+  sourceMap: any;
 
   utils: JS3BuilderUtils = {
     getNewTemporary: (prefix: string | undefined) =>
       `${prefix ? "js3$" + prefix : "js3"}$${++JS3Builder.varIdx}`,
     debugTrace: new Array<string>(),
-    iridiumArgContext: false
+    iridiumArgContext: false,
   };
 
   constructor(file: ProjectFile) {
@@ -54,32 +51,51 @@ export default class JS3Builder {
   }
 
   build() {
+    tick("lowering");
     const file = this.projectFile.initData.parseResult;
     if (!file) throw new Error("File is undefined");
     const program = file.program;
     const js3Program = handleProgram(program, this.utils);
     this.generatedAST = generateJS3File(js3Program, file);
+    tock("lowering");
+    tick("save-to-disk");
     this.saveGeneratedFile();
+    tock("save-to-disk");
   }
 
   getCodeString(): string {
     if (this.generatedCode) return this.generatedCode;
     if (!this.generatedAST) throw new Error("Generated AST is nullish");
-    if (!this.projectFile.initData.sourceCode) throw new Error("Source code not found, empty files are not supported");
-    const result = babel.transformFromAstSync(this.generatedAST, this.projectFile.initData.sourceCode, { sourceMaps: "inline" });
-    if (!result) throw new Error("BABEL transform from AST failed");
+    if (!this.projectFile.initData.sourceCode)
+      throw new Error("Source code not found, empty files are not supported");
+
+    const result = generate(
+      this.generatedAST,
+      {
+        sourceMaps: false,
+        comments: false,
+        compact: true,
+        minified: true,
+        jsescOption: {
+          minimal: true,
+        },
+      },
+    );
+
     if (!result.code) throw new Error("BABEL transformed code not found");
+
+    this.generatedCode = result.code;
     return result.code;
   }
 
-  saveGeneratedFile() {
-    if (debugConfig.cli.tout)
-      return;
+  async saveGeneratedFile() {
+    if (debugConfig.cli.tout) return;
 
-    const filePath = debugConfig.cli.outputsPath + "/" + path.basename(this.projectFile.uname, this.projectFile.extension) + ".js3";
-    fs.writeFileSync(
-      filePath,
-      this.getCodeString()
-    );
+    const filePath =
+      debugConfig.cli.outputsPath +
+      "/" +
+      path.basename(this.projectFile.uname, this.projectFile.extension) +
+      ".js3";
+    await fs.writeFile(filePath, this.getCodeString());
   }
 }
