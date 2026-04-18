@@ -692,6 +692,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
 
   // TryContextBB
   cx.declareAndPushLexicalContext();
+  // cx.getCurrentBB().setFlag("TryContextBB");
   tryContextObj = cx.getCurrentContext();
   tryContext.tryContextIDX = cx.getCurrentBB().getIDX();
 
