@@ -51,7 +51,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
         const staticImportSEXP = new StaticImportSEXP(specifier.local.name, field, currentModuleRequest.getReqIDX());
         cx.getCurrentBB().args.push(staticImportSEXP);
       } else {
-        const staticImportSEXP = new StaticImportSEXP(specifier.local.name, "*", currentModuleRequest.getReqIDX());
+        const staticImportSEXP = new StaticImportSEXP(specifier.local.name, "*", currentModuleRequest.getReqIDX(), true);
         cx.getCurrentBB().args.push(staticImportSEXP);
       }
 
