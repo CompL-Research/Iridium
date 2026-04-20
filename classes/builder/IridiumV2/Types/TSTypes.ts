@@ -1,4 +1,4 @@
-/** Generated: 2026-04-20 15:09:56 */
+/** Generated: 2026-04-21 00:06:27 */
 
 export enum IriTag {
   File = 0,
@@ -151,16 +151,16 @@ export enum IriFlag {
   ParentScope = 49,
   MODULEREQIDX = 50,
   FIELD = 51,
-  LOCALNAME = 52,
-  EXPORTNAME = 53,
-  SOURCE = 54,
-  REQIDX = 55,
-  JSARG = 56,
-  JSRESTARG = 57,
-  REFIDX = 58,
-  Scope = 59,
-  NEXT = 60,
-  NSIMPORT = 61,
+  NSIMPORT = 52,
+  LOCALNAME = 53,
+  EXPORTNAME = 54,
+  SOURCE = 55,
+  REQIDX = 56,
+  JSARG = 57,
+  JSRESTARG = 58,
+  REFIDX = 59,
+  Scope = 60,
+  NEXT = 61,
   THROWERR = 62,
   NVAL = 63,
   FULLY_RESOLVE = 64,

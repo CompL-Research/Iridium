@@ -131,11 +131,12 @@ export class ModuleRequestSEXP extends IridiumSEXP {
  *
  */
 export class StaticImportSEXP extends IridiumSEXP {
-  constructor(storageLocation: string, fieldToImport: string, reqIdx: number) {
+  constructor(storageLocation: string, fieldToImport: string, reqIdx: number, nsImport: boolean = false) {
     super("StaticImport");
     this.setStorageLocation(new ResolveEnvBindingSEXP(storageLocation));
     this.setField(fieldToImport);
     this.setModuleReqIDX(reqIdx);
+    if (nsImport) this.setNSIMPORT();
   }
 
   // Args
@@ -148,6 +149,15 @@ export class StaticImportSEXP extends IridiumSEXP {
   }
 
   // Flags
+
+  setNSIMPORT() {
+    this.setFlag("NSIMPORT");
+  }
+
+  hasNSIMPORT(): boolean {
+    return this.hasFlag("NSIMPORT");
+  }
+
   setField(field: string) {
     this.setFlag("FIELD", field);
   }
