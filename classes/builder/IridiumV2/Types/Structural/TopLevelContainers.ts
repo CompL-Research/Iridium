@@ -129,6 +129,8 @@ export class ModuleRequestSEXP extends IridiumSEXP {
  *
  * - `FLAG(MODULEREQIDX)`: The index (REQIDX) of the corresponding {@link ModuleRequestSEXP}.
  *
+ * - `FLAG(NSIMPORT : void)`: Denotes a namespace import.
+ *
  */
 export class StaticImportSEXP extends IridiumSEXP {
   constructor(storageLocation: string, fieldToImport: string, reqIdx: number, nsImport: boolean = false) {

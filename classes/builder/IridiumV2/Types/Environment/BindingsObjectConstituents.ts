@@ -3,41 +3,41 @@ import { IridiumSEXP } from "../Structural/General";
 import { isLambdaSEXP, LambdaSEXP } from "../RVAL/Primitives";
 
 /**
- * 
+ *
  * @group TSHelper
- * 
+ *
  */
 export type JSEnvBindingFlags = "JSARG" | "JSRESTARG" | "JSLET" | "JSCONST" | "JSVAR";
 
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * EnvBinding represents an environment binding.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(NAME : string)`: The name of the binding.
- * 
+ *
  * - `FLAG(ASW : void)`: Always Safe Write. Bindings like argument bindings are declared as ASWs as writing to them is always safe in any scope.
- * 
+ *
  * - `FLAG(JSARG : void | JSRESTARG : void | JSLET : void | JSCONST : void | JSVAR : void)`: A JS binding can be one of this type {@link JSEnvBindingFlags}.
- * 
+ *
  * - `FLAG(IDX : number)`: A unique index is assigned to each binding.
- * 
+ *
  * - `FLAG(REFIDX : number)`: Reference IDX refers to the offset of the binding on the stack frame.
- * 
+ *
  * - `FLAG(Scope : number)`: The scope number of the identifier, useful during analysis and code generation.
- * 
+ *
  * - `FLAG(ParentScope : number)`: The scope number of the enclosing lexical scope.
- * 
+ *
  * - `FLAG(NEXT? : number)`: The REFIDX of the NEXT lexical variable.
- * 
+ *
  */
 export class EnvBindingSEXP extends IridiumSEXP {
   constructor(refIdx: number, idx: number, b: string, flags: [JSEnvBindingFlags, null][], scope: number, parentScope: number) {
@@ -127,24 +127,24 @@ export class EnvBindingSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * RemoteEnvBinding represents a reference to a remote binding (i.e. from an enclosing parent scope).
  * Its argument may contain nested {@link RemoteEnvBindingSEXP}, but it always terminates with a {@link EnvBindingSEXP}.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(parentReference)`: An {@link EnvBindingSEXP} or {@link RemoteEnvBindingSEXP}.
- * 
+ *
  * - `FLAG(REFIDX : number)`: Reference IDX refers to the offset of the binding on the stack frame.
- * 
+ *
  * - `FLAG(NSIMPORT : void)`: Indicates that the current binding stores the result of a namespace import.
- * 
+ *
  */
 export class RemoteEnvBindingSEXP extends IridiumSEXP {
   constructor(binding: IridiumSEXP, refIDX: number) {
@@ -217,19 +217,21 @@ export class RemoteEnvBindingSEXP extends IridiumSEXP {
 
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * GlobalBinding represents a reference to a global binding (i.e. not declared in any declared scope).
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(NAME : string)`: The name of the binding.
- * 
+ *
+ * - `FLAG(SLOPPYDECL : void)`: The name of the binding.
+ *
  */
 export class GlobalBindingSEXP extends IridiumSEXP {
   constructor(id: string) {
@@ -238,6 +240,14 @@ export class GlobalBindingSEXP extends IridiumSEXP {
   }
 
   // Flags
+  setSLOPPYDECL() {
+    this.setFlag("SLOPPYDECL");
+  }
+
+  hasSLOPPYDECL(): boolean {
+    return this.hasFlag("SLOPPYDECL");
+  }
+
   setName(name: string) {
     this.setFlag("NAME", name);
   }
@@ -257,23 +267,23 @@ export class GlobalBindingSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * PoolBinding represents a reference to a global binding (i.e. not declared in any declared scope).
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(lambda)`: A {@link LambdaSEXP} object.
- * 
+ *
  * - `FLAG(StartBBIDX : number)`: IDX of the start BB.
- * 
+ *
  * - `FLAG(REFIDX : number)`: Reference IDX refers to the offset of the binding on the iridium constant pool.
- * 
+ *
  */
 export class PoolBindingSEXP extends IridiumSEXP {
   constructor(idx: number, refIdx: number, lambda: LambdaSEXP) {
@@ -292,7 +302,7 @@ export class PoolBindingSEXP extends IridiumSEXP {
     if (!isLambdaSEXP(this.args[0])) throw new Error("Expected LambdaSEXP");
     return this.args[0];
   }
-  
+
   // Flags
   setStartBBIDX(idx: number) {
     this.setFlag("StartBBIDX", idx);
