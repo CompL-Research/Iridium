@@ -1335,6 +1335,7 @@ export const createLambda = (
   body: Array<JS3AllowedBlockStatement>,
   implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP  }>,
   name: string = "",
+  sourceLine: number = -1,
   privateMapping: PrivateMapping | null = null,
   funcContextCallback: (arg0: IridiumBuildContext) => void = () => {},
   closureScopeCallback: () => void = () => {},
@@ -1350,6 +1351,7 @@ export const createLambda = (
   funcContext.ecmaArgs       = ecmaArgs;
   funcContext.privateMapping = privateMapping;
   funcContext.name           = name;
+  funcContext.sourceLine     = sourceLine;
 
   implicitBindings.forEach(binding => {
     cx.getCurrentBB().args.push(
@@ -1474,7 +1476,8 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
     stmt.params,
     stmt.body.body,
     implicitBindings,
-    stmt.id.name
+    stmt.id.name,
+    stmt.loc?.start.line,
   )
 
   const lambda = new LambdaSEXP(funBBIdx, stmt.id.name);

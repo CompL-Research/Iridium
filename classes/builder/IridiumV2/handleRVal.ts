@@ -1688,6 +1688,7 @@ const createClassConstructorClosure = (
     [],
     implicitBindings,
     `<CONSTRUCTOR : ${node.id ? node.id.name : "NONAME"}>`,
+    node.loc?.start.line,
     null,
     funcContextCallback,
     closureScopeCallback,
@@ -2323,6 +2324,7 @@ const handleFunctionExpression = (
     node.body.body,
     implicitBindings,
     name,
+    node.loc?.start.line,
     privateMapping
   );
 
@@ -2534,7 +2536,9 @@ const handleArrowFunctionExpression = (
     ecmaArgs,
     node.params,
     node.body.body,
-    implicitBindings
+    implicitBindings,
+    "ARROW_FN",
+    node.loc?.start.line
   );
 
   return new LambdaSEXP(funBBIdx);

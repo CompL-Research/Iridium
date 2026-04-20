@@ -83,6 +83,7 @@ type SerializableIridiumBuildContextObject = {
   ecmaArgs: number;
 
   name: string;
+  sourceLine: number;
 
   privateMapping: Array<[string, [string, string]]> | null;
 
@@ -153,6 +154,7 @@ function serializeBuildContext(): Array<SerializableIridiumBuildContextObject> {
       isModule: buildContext.isModule,
       ecmaArgs: buildContext.ecmaArgs,
       name: buildContext.name,
+      sourceLine: buildContext.sourceLine,
 
       privateMapping: buildContext.privateMapping ? privateMapping : null,
 
@@ -195,6 +197,7 @@ export class IridiumBuildContext {
 
   ecmaArgs: number = 0;
   name: string = "";
+  sourceLine: number = -1;
 
   privateMapping: PrivateMapping | null = null;
 
