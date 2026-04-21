@@ -1,3 +1,7 @@
+tests/failure*.txt
+tests/failure_summar*
+tests/failing*
+
 *.irdump
 IRIDIUM.DOT
 IRIDIUM.png
