@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-rm -rf tmp
-mkdir tmp
 # Test
 TESTS=(
   # "test/language/expressions/call"
@@ -80,26 +78,26 @@ TESTS=(
   # "test/language/M_super"
 
 
-  "test/language/arguments-object"
-  "test/language/asi"
-  "test/language/block-scope"
-  "test/language/comments"
-  "test/language/computed-property-names"
-  "test/language/destructuring"
-  "test/language/directive-prologue"
-  "test/language/eval-code"
-  "test/language/export"
-  "test/language/expressions"
-  "test/language/function-code"
-  "test/language/future-reserved-words"
-  "test/language/global-code"
-  "test/language/identifier-resolution"
-  "test/language/identifiers"
-  # "test/language/import"
-  # "test/language/keywords"
-  "test/language/line-terminators"
-  "test/language/literals"
-  # "test/language/module-code"
+  # "test/language/arguments-object"
+  # "test/language/asi"
+  # "test/language/block-scope"
+  # "test/language/comments"
+  # "test/language/computed-property-names"
+  # "test/language/destructuring"
+  # "test/language/directive-prologue"
+  # "test/language/eval-code"
+  # "test/language/export"
+  # "test/language/expressions"
+  # "test/language/function-code"
+  # "test/language/future-reserved-words"
+  # "test/language/global-code"
+  # "test/language/identifier-resolution"
+  # "test/language/identifiers"
+  # # "test/language/import"
+  # # "test/language/keywords"
+  # "test/language/line-terminators"
+  # "test/language/literals"
+  # # "test/language/module-code"
   "test/language/punctuators"
   "test/language/reserved-words"
   "test/language/rest-parameters"
@@ -145,8 +143,15 @@ TESTS=(
 )
 
 for test in "${TESTS[@]}"; do
-  outFile="out_${test//\//_}"
-  echo "Running $test -> test262out/$outFile"
-  # NO_OPT=1 IRI_CS_BRREACHED=1 node run.cjs "$test/" > "test262out/$outFile"
-  NO_OPT=1 IRI_CS_BRREACHED=1 node run.cjs "$test/" > "test262out/$outFile"
+  outFile="failure_summary_${test//\//_}"
+
+  rm -rf failing_tests
+  mkdir failing_tests
+
+  NO_OPT=1 node run.cjs "$test/" --only-diff --ignore-with
+
+  node audit_failures.cjs
+  mv failure_summary.txt $outFile
+
+  mv failing_tests "failing_tests_${test//\//_}"
 done

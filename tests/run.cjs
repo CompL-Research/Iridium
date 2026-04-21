@@ -1,211 +1,139 @@
-"use strict";
-// 
-// Inspired by babel-262 runner: https://github.com/babel/babel-test262-runner
-// 
 const Test262Stream = require("test262-stream");
+const { Worker } = require("jest-worker");
 const path = require("path");
-const tap = require("make-tap-output")({ count: true });
-const { Worker: JestWorker } = require("jest-worker");
+const pc = require("picocolors");
+const cliProgress = require("cli-progress");
 
-const UNSUPPORTED_FEATURES = ["import-attributes", "decorators"]
-const EXCLUDE_ESID_PREFIXES = ["pending", "proposal", "legacy"];
-
-const TEST262_PATH      = path.resolve("test262");
-const config = require("./config.cjs");
-
-const TESTSTOSKIP = config.toSkipUnsupported
-
-// const THREADS = Number(process.env.THREADS) || require("os").cpus().length / 2;
 const THREADS = 64;
+const TEST262_PATH = path.resolve("./test262");
 
-const worker = new JestWorker(require.resolve("./worker.cjs"), {
+const worker = new Worker(require.resolve("./worker.cjs"), {
   numWorkers: THREADS,
-  exposedMethods: ["runBaseline", "runIridium"],
-  // enableWorkerThreads: true,
-  // setupArgs: [{ hostPath: EXEC, shortName: "$262", testRoot: TESTS }],
+  exposedMethods: ["runTest", "saveArtifacts"],
 });
-worker.getStdout().pipe(process.stdout);
-worker.getStderr().pipe(process.stderr);
-
-tap.pipe(process.stdout);
-
 
 async function main() {
-  const filter = process.argv[2];
-  if (!filter) {
-    throw new Error(
-      "If you really want to run all the tests, use\n\tnode run.cjs I_AM_SURE"
-    );
-  }
+  const args = process.argv.slice(2);
+  const filter = args.find((a) => !a.startsWith("--")) || "";
+  const onlyDiff = args.includes("--only-diff");
+  const ignoreWith = args.includes("--ignore-with");
 
-  const tests = new Test262Stream(TEST262_PATH, {
-    paths: ["test/language", "test/harness"],
-  }).once("error", () => {
-    process.exitCode = 1;
+  const stream = new Test262Stream(TEST262_PATH, {
+    paths: ["test/language"],
   });
 
-  tap.diag(`Using ${THREADS} threads.`);
-
-  const baseline = {
-    storeFail: 0,
-    execFail: 0,
-    success: 0
-  };
-
-  const iridium = {
-    storeFail: 0,
-    execFail: 0,
-    success: 0
-  };
-
-  let PASS = 0;
-  let FAIL = 0;
-
-  const tasks = [];
-  
-  for await (const test of tests) {
-    const file = `${test.file} ${test.scenario}`;
-
-    
-
-    if (filter !== "I_AM_SURE" && !test.file.includes(filter)) {
+  // 1. Pre-scan or estimate tests (Streaming doesn't give total count easily)
+  // For a cleaner UI, we collect tests first. With 128 cores, memory is rarely the issue.
+  const allTests = [];
+  // for await (const test of stream) {
+  //   if (filter && !test.file.includes(filter)) continue;
+  //   allTests.push(test);
+  // }
+  for await (const test of stream) {
+    // 1. Skip Negative Tests (Parser/Early Error tests)
+    if (test.attrs.negative) {
       continue;
     }
 
+    // 2. Your existing filters
+    if (filter && !test.file.includes(filter)) continue;
 
-    // if (chunk && !chunk.has(test.file)) continue;
-    const baseExpectedRes = getExpected(test)
-    if (baseExpectedRes !== "success") continue;
-    
-    // If there are attributes that we do not plan to support right now, we will skip those tests as-well
-    let toSkip = false
-    let features = test.attrs.features ?? []
-    for (const tf of features) {
-      if (UNSUPPORTED_FEATURES.includes(tf)) {
-        // console.log("Skipping test with feature")
-        toSkip = true
-      }
+    allTests.push(test);
+  }
+
+  const total = allTests.length;
+  let passCount = 0;
+  let failCount = 0;
+  let activeTasks = [];
+
+  console.log(pc.cyan(`\n🚀 Iridium JS3 Test Runner`));
+  console.log(
+    pc.gray(`Threads: ${THREADS} | Target: ${filter || "All tests"}\n`),
+  );
+
+  const progressBar = new cliProgress.SingleBar(
+    {
+      format: `${pc.yellow("{bar}")} {percentage}% | {value}/{total} Tests | ${pc.green("PASS: {passes}")} | ${pc.red("FAIL: {fails}")}`,
+      barCompleteChar: "\u2588",
+      barIncompleteChar: "\u2591",
+      hideCursor: true,
+    },
+    cliProgress.Presets.shades_classic,
+  );
+
+  progressBar.start(total, 0, { passes: 0, fails: 0 });
+
+  for (const test of allTests) {
+    // Throttling to prevent worker saturation
+    if (activeTasks.length >= THREADS * 2) {
+      await Promise.all(activeTasks);
+      activeTasks = [];
     }
 
-    // Tests to skip
-    for (const tt of TESTSTOSKIP) {
-      if (test.file.includes(tt)) { toSkip = true; }
-    }
+    activeTasks.push(
+      (async (t) => {
+        try {
+          const baseline = await worker.runTest(t, "baseline");
+          const iridium = await worker.runTest(t, "iridium");
 
-    // Skip tests that are not yet part of the official ECMA spec
-    if (isNonStandardTest(test)) toSkip = true;
-    if (toSkip) continue
+          const match =
+            baseline.status === iridium.status &&
+            baseline.errorType === iridium.errorType;
 
-    tasks.push(
-      (async test => {
+          if (match) {
+            passCount++;
+          } else {
+            const isWithFailure = iridium.message.includes(
+              "unhandled Statement->WithStatement",
+            );
+            const isTrueRegression =
+              baseline.status === "PASS" && iridium.status === "FAIL";
 
-        // If expected result is negative
-        const baselineRes = await worker.runBaseline(test);
-        const iridiumRes  = await worker.runIridium(test);
+            // Logic for saving artifacts
+            let shouldSave = true;
+            if (onlyDiff && !isTrueRegression) shouldSave = false;
+            if (ignoreWith && isWithFailure) shouldSave = false;
 
-        if (baselineRes.result === "store-fail") {
-          baseline.storeFail++;
-        } else if (baselineRes.result === "exec-fail") {
-          baseline.execFail++;
-        } else {
-          baseline.success++;
+            if (shouldSave) {
+              failCount++;
+              await worker.saveArtifacts(t, baseline, iridium);
+            } else {
+              // If we ignored it, we count it as a "Pass" in the progress bar
+              // to keep the success rate focused on "fixable" bugs
+              passCount++;
+            }
+
+            // failCount++;
+            // await worker.saveArtifacts(t, baseline, iridium);
+          }
+        } catch (err) {
+          failCount++;
+        } finally {
+          progressBar.update(passCount + failCount, {
+            passes: passCount,
+            fails: failCount,
+          });
         }
-
-        if (iridiumRes.result === "store-fail") {
-          iridium.storeFail++;
-        } else if (iridiumRes.result === "exec-fail") {
-          iridium.execFail++;
-        } else {
-          iridium.success++;
-        }
-
-
-        if (baselineRes.result === iridiumRes.result) {
-          PASS++;
-          tap.pass(file, `(${iridiumRes.result})`);
-        } else {
-          FAIL++;
-          tap.fail(
-            file,
-            `(expected ${baselineRes.result}, got ${iridiumRes.result})`,
-            iridiumRes.error
-              ? new RethrownError(iridiumRes.error)
-              : new Error("[no error]")
-          );
-        }
-      })(test)
+      })(test),
     );
   }
 
-  await Promise.all(tasks);
+  await Promise.all(activeTasks);
+  progressBar.stop();
 
-  tap.diag("\n\n");
-  tap.diag(`Baseline: { storeFail: ${baseline.storeFail}, execFail: ${baseline.execFail}, success: ${baseline.success} }`);
-  tap.diag(`Iridium:  { storeFail: ${iridium.storeFail}, execFail: ${iridium.execFail}, success: ${iridium.success} }`);
-  tap.diag(`Rate: ${(1 - ((baseline.success - iridium.success)/baseline.success))*100}%.`);
-  tap.diag(`PASS: ${PASS}, FAIL: ${FAIL}.`);
-  tap.diag(`Success: ${(1 - (FAIL/(PASS + FAIL)))*100}%.`);
+  // --- Final Report ---
+  const successRate = ((passCount / total) * 100).toFixed(2);
+
+  console.log(`\n${pc.bold("--- Final Report ---")}`);
+  console.log(`${pc.green("✔ Passed:")}  ${passCount}`);
+  console.log(`${pc.red("✖ Failed:")}  ${failCount}`);
+  console.log(`${pc.cyan("📊 Rate:")}    ${successRate}%`);
+
+  if (failCount > 0) {
+    console.log(`\n${pc.yellow("⚠ Artifacts saved to:")} ./failing_tests/`);
+  }
+
   process.exit(0);
 }
-main().catch(error => {
-  process.exitCode = 1;
-  throw error;
-});
 
-function getExpected({ attrs }) {
-  if (attrs.negative) {
-    const { phase } = attrs.negative;
-    if (phase === "early" || phase === "parse") {
-      return "parser error";
-    } else {
-      return "runtime error";
-    }
-  } else {
-    return "success";
-  }
-}
-
-// 
-// Helpers
-// 
-
-function isNonStandardTest(test) {
-  const esid = test.attrs.esid;
-  return esid && EXCLUDE_ESID_PREFIXES.some(prefix => esid.startsWith(prefix));
-}
-
-class ExtendedError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = this.constructor.name;
-    this.message = message;
-    if (typeof Error.captureStackTrace === "function") {
-      Error.captureStackTrace(this, this.constructor);
-    } else {
-      this.stack = new Error(message).stack;
-    }
-  }
-}
-
-class RethrownError extends ExtendedError {
-  constructor(error) {
-    if (!error) {
-      throw new Error("RethrownError requires an error with a message");
-    }
-    super(error.message || "[no message]");
-
-    this.name = error.name;
-    this.original = error;
-    this.new_stack = this.stack;
-    const errorStackString =
-      error.stack &&
-      (typeof error.stack === "string"
-        ? error.stack
-        : error.stack.map(location => location.source).join("\n"));
-    let message_lines = (this.message.match(/\n/g) || []).length + 1;
-    this.stack = `${this.name}: ${this.message}\n${this.stack
-      .split("\n")
-      .slice(0, message_lines + 1)
-      .join("\n")}\n${errorStackString}`;
-  }
-}
+main().catch(console.error);

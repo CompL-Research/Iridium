@@ -1,96 +1,124 @@
+const { execSync } = require("child_process");
+const fs = require("fs");
 const path = require("path");
-const fs   = require("fs");
 
-const EXEC_BIN          = path.resolve("../externalDeps/quickjs/build/qjs_new");
-const IRI_PATH          = path.resolve("../");
-const TEST262_PATH      = path.resolve("./test262");
-const TMP_PATH          = path.resolve("./tmp");
-const { execSync }      = require('child_process');
+const EXEC_BIN = "/root/.nvm/versions/node/v24.14.1/bin/node";
+const IRI_PATH = "/root/Iridium";
+const ARTIFACT_DIR = path.resolve("./failing_tests");
 
-const TEST_TIMEOUT = 60 * 1000; // 1 minute
+if (!fs.existsSync(ARTIFACT_DIR))
+  fs.mkdirSync(ARTIFACT_DIR, { recursive: true });
 
-exports.runBaseline = async function (test) {
-  const isModule = test.attrs.flags.module;
-  let {result: baselineTestPath, error} = storeBaselineTest(test);
-  if (error) {
-    return { result: "store-fail", error };
-  }
-  try {
-    execSync(`${EXEC_BIN} ${isModule ? '-m' : '-C'} ${baselineTestPath}`, { encoding: 'utf-8', stdio: 'pipe', timeout: TEST_TIMEOUT });
-    return { result: "success", error: false };
-  } catch (error) {
-    return { result: "exec-fail", error };
-  }
-}
-
-exports.runIridium = async function (test) {
-  let {result: iriTestPath, error} = storeIridiumTest(test);
-
-  if (error) {
-    return { result: "store-fail", error };
-  }
-
-  try {
-    execSync(`${EXEC_BIN} -X ${iriTestPath}`, { encoding: 'utf-8', stdio: 'pipe', timeout: TEST_TIMEOUT });
-    return { result: "success", error: false };
-  } catch (error) {
-    return { result: "exec-fail", error };
-  }
-}
-
-// 
-// Utility Functions
-// 
-
-function timeout(file) {
-  return new Promise((_resolve, reject) =>
-    setTimeout(
-      () => reject(new Error(`test ${file} timed out after ${TEST_TIMEOUT} ms`)),
-      TEST_TIMEOUT
-    )
+function getErrorType(stderr) {
+  if (!stderr) return null;
+  const match = stderr.match(
+    /(SyntaxError|ReferenceError|TypeError|Test262Error)/,
   );
+  return match ? match[0] : "Error";
 }
 
-function storeBaselineTest(test) {
-  let { attrs, contents, file, scenario } = test;
-  const baseName = file.replace(/\//g, '_');
-  const isModule = attrs.flags.module;
-  const isStrict = scenario === "strict mode";
-  const UID = Math.random().toString(36).substring(2, 15);
-  const date = Date.now();
-  const fPath = `${TMP_PATH}/${baseName}_baseline_${date}_${UID}.js`;
+module.exports = {
+  async runTest(test, mode) {
+    const { contents, file, attrs, scenario } = test;
+    const isModule = attrs.flags?.module;
+    const isStrict = scenario === "strict mode";
 
-  try {
+    // This shim fixes the "print is not defined" and other shell-specific missing globals
+    const ENV_SHIM = `
+          var print = console.log;
+          var $262 = {
+            global: globalThis,
+            agent: {
+              receiveBroadcast: function() {},
+              report: function(msg) { console.log(msg); },
+              sleep: function(ms) {
+                const start = Date.now();
+                while (Date.now() - start < ms) {}
+              },
+              broadcast: function() {},
+              leaving: function() {}
+            },
+            destroy: function() {},
+            gc: function() { if (global.gc) global.gc(); },
+            IsHTMLDDA: function() { return {}; }
+          };
+        `;
+
+    let finalContents = ENV_SHIM + contents;
+
+    // Unique ID for this specific test run to prevent collisions
+    const testId = `${file.replace(/\//g, "_")}_${scenario.replace(/ /g, "_")}`;
+    const tempFile = path.join(
+      "/dev/shm",
+      `iri_${process.pid}_${Math.random().toString(36).slice(2)}.js`,
+    );
+
     if (isStrict && !isModule && !/^\s*['"]use strict['"]/.test(contents)) {
-      contents = `"use strict";\nundefined;\n${contents}`;
+      finalContents = `"use strict";\n${contents}`;
     }
-    fs.writeFileSync(fPath, contents);
-  } catch (error) {
-    return { result: "Failed to save baseline test", error };
-  }
 
-  return { result: fPath, error: false }
-}
+    let result = { status: "PASS", errorType: null, message: "", code: "" };
 
-function storeIridiumTest(test) {
-  let { attrs, contents, file, scenario } = test;
-  const baseName = file.replace(/\//g, '_');
-  const isModule = attrs.flags.module;
-  const isStrict = scenario === "strict mode";
-  const UID = Math.random().toString(36).substring(2, 15);
-  const date = Date.now();
-  const fPath = `${TMP_PATH}/${baseName}_iri_${date}_${UID}.js`;
-  const fPathIri = `${TMP_PATH}/${baseName}_iri_${date}_${UID}.json`;
+    try {
+      if (mode === "baseline") {
+        fs.writeFileSync(tempFile, finalContents);
+        execSync(`${EXEC_BIN} ${tempFile}`, { stdio: "pipe", timeout: 10000 });
+      } else {
+        fs.writeFileSync(tempFile, finalContents);
+        const transformedCode = execSync(
+          `./iridium js3 -s ${isModule ? "module" : "script"} -t ${tempFile}`,
+          {
+            cwd: IRI_PATH,
+            encoding: "utf-8",
+            stdio: "pipe",
+          },
+        );
+        result.code = transformedCode; // Store transformed code to return it
 
-  try {
-    if (isStrict && !isModule && !/^\s*['"]use strict['"]/.test(contents)) {
-      contents = `"use strict";\nundefined;\n${contents}`;
+        const secondTemp = tempFile + ".transformed.js";
+        fs.writeFileSync(secondTemp, transformedCode);
+        try {
+          execSync(`${EXEC_BIN} ${secondTemp}`, {
+            stdio: "pipe",
+            timeout: 10000,
+          });
+        } finally {
+          if (fs.existsSync(secondTemp)) fs.unlinkSync(secondTemp);
+        }
+      }
+    } catch (e) {
+      result.status = "FAIL";
+      result.errorType = getErrorType(e.stderr?.toString() || e.message);
+      result.message = e.stderr?.toString() || e.message;
+    } finally {
+      if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
     }
-    fs.writeFileSync(fPath, contents);
-    execSync(`./iridium iri -s ${isModule ? 'module' : 'script'} --ljson -t ${TEST262_PATH} ${fPath} > ${fPathIri}`, { cwd: IRI_PATH, encoding: 'utf-8', stdio: 'pipe', env: { ...process.env }  });
-  } catch (error) {
-    return { result: "Failed to save iridium test", error };
-  }
 
-  return { result: fPathIri, error: false }
-}
+    return result;
+  },
+
+  async saveArtifacts(test, baseline, iridium) {
+    const testId = `${test.file.replace(/\//g, "_")}_${test.scenario.replace(/ /g, "_")}`;
+    const folder = path.join(ARTIFACT_DIR, testId);
+    if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
+
+    // Save Baseline Source
+    fs.writeFileSync(path.join(folder, "original.js"), test.contents);
+    // Save Transformed Source
+    fs.writeFileSync(path.join(folder, "transformed.js"), iridium.code);
+    // Save Metadata
+    fs.writeFileSync(
+      path.join(folder, "report.json"),
+      JSON.stringify(
+        {
+          file: test.file,
+          scenario: test.scenario,
+          baseline,
+          iridium: { ...iridium, code: undefined }, // Don't duplicate code in JSON
+        },
+        null,
+        2,
+      ),
+    );
+  },
+};
