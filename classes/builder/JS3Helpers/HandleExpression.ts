@@ -2928,7 +2928,7 @@ export function handleAssignmentExpression(
         const condExprCheck = handleConditionalExpression(
           conditionalExpression(
             lvalResHolder,
-            assignmentExpression("=", LVAL_EVAL_RES, node.right),
+            assignmentExpression("=", isIdentifier(node.left) ? node.left : LVAL_EVAL_RES, node.right),
             lvalResHolder,
           ),
           otherProps,
@@ -2940,7 +2940,7 @@ export function handleAssignmentExpression(
           generateDummyJS3VariableDeclaration(node, fin$res, condExprCheck),
         );
 
-        handleAssignmentExpression(assignmentExpression("=", node.left, fin$res), otherProps);
+        // handleAssignmentExpression(assignmentExpression("=", node.left, fin$res), otherProps);
 
         return fin$res;
       } else if (node.operator === "||=") {
@@ -2949,7 +2949,7 @@ export function handleAssignmentExpression(
           conditionalExpression(
             lvalResHolder,
             lvalResHolder,
-            assignmentExpression("=", LVAL_EVAL_RES, node.right),
+            assignmentExpression("=", isIdentifier(node.left) ? node.left : LVAL_EVAL_RES, node.right),
           ),
           otherProps,
         );
@@ -2961,7 +2961,7 @@ export function handleAssignmentExpression(
           generateDummyJS3VariableDeclaration(node, fin$res, condExprCheck),
         );
 
-        handleAssignmentExpression(assignmentExpression("=", node.left, fin$res), otherProps);
+        // handleAssignmentExpression(assignmentExpression("=", node.left, fin$res), otherProps);
 
         return fin$res;
       } else if (node.operator === "??=") {
@@ -2985,7 +2985,7 @@ export function handleAssignmentExpression(
         const condExprCheck = handleConditionalExpression(
           conditionalExpression(
             bCondTest,
-            assignmentExpression("=", LVAL_EVAL_RES, node.right),
+            assignmentExpression("=", isIdentifier(node.left) ? node.left : LVAL_EVAL_RES, node.right),
             lvalResHolder,
           ),
           otherProps,
@@ -2999,7 +2999,7 @@ export function handleAssignmentExpression(
           generateDummyJS3VariableDeclaration(node, fin$res, condExprCheck),
         );
 
-        handleAssignmentExpression(assignmentExpression("=", node.left, fin$res), otherProps);
+        // handleAssignmentExpression(assignmentExpression("=", node.left, fin$res), otherProps);
 
         return fin$res;
       }
