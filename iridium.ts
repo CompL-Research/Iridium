@@ -151,7 +151,8 @@ function main() {
   }
 
   tock("main")
-  printReport()
+  if (!debugConfig.cli.tout)
+    printReport()
 }
 
 main();
