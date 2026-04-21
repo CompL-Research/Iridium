@@ -104,7 +104,7 @@ export function handleClassDeclaration(
   //
   // Change : class NAME ...
   //
-  // To     : const NAME = class NAME {  }
+  // To     : let NAME = class NAME {  }
   //
   // Class declarations behave like "const" in JS.
   //
@@ -114,7 +114,7 @@ export function handleClassDeclaration(
   //@ts-expect-error: We are processing class declaration as a class expression here.
   node.type = "ClassExpression";
 
-  const patchedNode = variableDeclaration("const", [
+  const patchedNode = variableDeclaration("let", [
     //@ts-expect-error: We are processing class declaration as a class expression here.
     variableDeclarator(node.id, node),
   ]);
