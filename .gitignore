@@ -1,3 +1,5 @@
+tests/over_compliant.txt
+tests/fail_both.txt
 *.js3.js
 *.iri.x
 *.iri
