@@ -1,11 +1,37 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# Initialize variables
+js3_passed=false
+iri_passed=false
+ulimit -n 65535
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --js3) js3_passed=true; shift ;;
+        --iri) iri_passed=true; shift ;;
+        *) echo "Unknown parameter passed: $1"; exit 1 ;;
+    esac
+done
+
+if [ "$js3_passed" = true ] && [ "$iri_passed" = true ]; then
+    echo "Error: You cannot use --js3 and --iri at the same time."
+    exit 1
+fi
+
+if [ "$js3_passed" = false ] && [ "$iri_passed" = false ]; then
+    echo "Error: You must provide either --js3 or --iri."
+    exit 1
+fi
 
 # Test
 TESTS=(
+  # "test/language/eval-code"
+  # "test/language/statements/try"
+  "test/language"
+  # "test/language/expressions/logical-assignment"
   # "test/language/expressions/call"
 
-
+  # "test/language/expressions/addition/S11.6.1_A3.2_T1.2"
   # "test/language/expressions/addition"
   # "test/language/expressions/array"
   # "test/language/expressions/arrow-function"
@@ -98,14 +124,14 @@ TESTS=(
   # "test/language/line-terminators"
   # "test/language/literals"
   # # "test/language/module-code"
-  "test/language/punctuators"
-  "test/language/reserved-words"
-  "test/language/rest-parameters"
-  "test/language/source-text"
-  "test/language/statementList"
-  "test/language/statements"
-  "test/language/types"
-  "test/language/white-space"
+  # "test/language/punctuators"
+  # "test/language/reserved-words"
+  # "test/language/rest-parameters"
+  # "test/language/source-text"
+  # "test/language/statementList"
+  # "test/language/statements"
+  # "test/language/types"
+  # "test/language/white-space"
 
 
 
@@ -143,15 +169,29 @@ TESTS=(
 )
 
 for test in "${TESTS[@]}"; do
-  outFile="failure_summary_${test//\//_}"
+
 
   rm -rf failing_tests
   mkdir failing_tests
 
-  NO_OPT=1 node run.cjs "$test/" --only-diff --ignore-with
+  # 3. Branching logic
+  if [ "$js3_passed" = true ]; then
+    outFile="failure_summary_js3_${test//\//_}"
+    NO_OPT=1 node run.cjs "$test/" --only-diff --ignore-with --js3
 
-  node audit_failures.cjs
-  mv failure_summary.txt $outFile
+    node audit_failures.cjs
+    mv failure_summary.txt $outFile
+    rm -rf "failing_tests_js3_${test//\//_}"
+    mv failing_tests "failing_tests_js3_${test//\//_}"
 
-  mv failing_tests "failing_tests_${test//\//_}"
+  else
+    outFile="failure_summary_iri_${test//\//_}"
+    NO_OPT=1 node run.cjs "$test/" --only-diff --ignore-with --iri
+
+    node audit_failures.cjs
+    mv failure_summary.txt $outFile
+    rm -rf "failing_tests_iri_${test//\//_}"
+    mv failing_tests "failing_tests_iri_${test//\//_}"
+  fi
+
 done

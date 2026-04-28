@@ -2,9 +2,10 @@ const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-const EXEC_BIN = "/root/.nvm/versions/node/v24.14.1/bin/node";
+const EXEC_BIN = path.resolve("../externalDeps/quickjs/build/qjs_new");
 const IRI_PATH = "/root/Iridium";
 const ARTIFACT_DIR = path.resolve("./failing_tests");
+const TEST262_PATH = path.resolve("./test262");
 
 if (!fs.existsSync(ARTIFACT_DIR))
   fs.mkdirSync(ARTIFACT_DIR, { recursive: true });
@@ -44,52 +45,70 @@ module.exports = {
           };
         `;
 
-    let finalContents = ENV_SHIM + contents;
+    let finalContents = contents + ENV_SHIM;
 
     // Unique ID for this specific test run to prevent collisions
-    const testId = `${file.replace(/\//g, "_")}_${scenario.replace(/ /g, "_")}`;
     const tempFile = path.join(
-      "/dev/shm",
+      "/tmp",
       `iri_${process.pid}_${Math.random().toString(36).slice(2)}.js`,
     );
 
-    if (isStrict && !isModule && !/^\s*['"]use strict['"]/.test(contents)) {
-      finalContents = `"use strict";\n${contents}`;
+    if (
+      isStrict &&
+      !isModule &&
+      !/^\s*['"]use strict['"]/.test(finalContents)
+    ) {
+      finalContents = `"use strict";\n${finalContents}`;
     }
 
-    let result = { status: "PASS", errorType: null, message: "", code: "" };
+    fs.writeFileSync(tempFile, finalContents);
+
+    let result = {
+      status: "PASS",
+      errorType: null,
+      message: "",
+      code: undefined,
+    };
 
     try {
       if (mode === "baseline") {
-        fs.writeFileSync(tempFile, finalContents);
-        execSync(`${EXEC_BIN} ${tempFile}`, { stdio: "pipe", timeout: 10000 });
-      } else {
-        fs.writeFileSync(tempFile, finalContents);
-        const transformedCode = execSync(
-          `./iridium js3 -s ${isModule ? "module" : "script"} -t ${tempFile}`,
+        execSync(`${EXEC_BIN} ${isModule ? "" : "-C"} ${tempFile}`, {
+          stdio: "pipe",
+          timeout: 10000,
+        });
+      } else if (mode === "--iri") {
+        execSync(
+          `./iridium iri -r -s ${isModule ? "module" : "script"} ${tempFile}`,
           {
             cwd: IRI_PATH,
             encoding: "utf-8",
             stdio: "pipe",
+            timeout: 10000,
           },
         );
-        result.code = transformedCode; // Store transformed code to return it
-
-        const secondTemp = tempFile + ".transformed.js";
-        fs.writeFileSync(secondTemp, transformedCode);
-        try {
-          execSync(`${EXEC_BIN} ${secondTemp}`, {
+      } else {
+        execSync(
+          `./iridium js3 -r -s ${isModule ? "module" : "script"} ${tempFile}`,
+          {
+            cwd: IRI_PATH,
+            encoding: "utf-8",
             stdio: "pipe",
             timeout: 10000,
-          });
-        } finally {
-          if (fs.existsSync(secondTemp)) fs.unlinkSync(secondTemp);
-        }
+          },
+        );
       }
     } catch (e) {
       result.status = "FAIL";
-      result.errorType = getErrorType(e.stderr?.toString() || e.message);
-      result.message = e.stderr?.toString() || e.message;
+
+      // 1. e.stderr is the standard error output (usually where compilers/runtimes put errors)
+      // 2. e.stdout might contain info if the tool prints errors to standard output
+      // 3. e.output is an array: [stdin, stdout, stderr]
+
+      const rawError =
+        e.stderr?.toString() || e.stdout?.toString() || e.message;
+
+      result.errorType = getErrorType(rawError);
+      result.message = rawError;
     } finally {
       if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
     }
@@ -104,8 +123,10 @@ module.exports = {
 
     // Save Baseline Source
     fs.writeFileSync(path.join(folder, "original.js"), test.contents);
-    // Save Transformed Source
-    fs.writeFileSync(path.join(folder, "transformed.js"), iridium.code);
+
+    // Save Transformed Source - for 3js, ignore otherwise
+    if (iridium.code)
+      fs.writeFileSync(path.join(folder, "transformed.js"), iridium.code);
     // Save Metadata
     fs.writeFileSync(
       path.join(folder, "report.json"),
@@ -114,7 +135,7 @@ module.exports = {
           file: test.file,
           scenario: test.scenario,
           baseline,
-          iridium: { ...iridium, code: undefined }, // Don't duplicate code in JSON
+          iridium: { ...iridium, code: undefined },
         },
         null,
         2,
