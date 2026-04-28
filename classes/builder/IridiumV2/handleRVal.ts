@@ -1,6 +1,5 @@
 import { getIridiumBinop, getIridiumUnop, untilFirstMatch } from "#utils";
 import {
-  ArrayPattern,
   assignmentExpression,
   BigIntLiteral,
   Expression,
@@ -25,13 +24,10 @@ import {
   isStringLiteral,
   isSuper,
   isThisExpression,
-  isV8IntrinsicIdentifier,
   memberExpression,
-  Node,
   NumericLiteral,
   PatternLike,
   SpreadElement,
-  stringLiteral,
   StringLiteral,
   thisExpression
 } from "@babel/types";
@@ -44,13 +40,11 @@ import {
   generateJS3ArrayExpressionfromBaseNode,
   generateJS3AssignmentExpressionfromBaseNode,
   generateJS3BinaryExpressionfromBaseNode,
-  generateJS3SpreadElement,
   generateJS3SpreadElementfromBaseNode
 } from "../JS3Helpers/JS3Constructors";
 import {
   isJS3AnonMemberExpression,
   isJS3ArrayExpression,
-  isJS3ArrayPattern,
   isJS3ArrowFunctionExpression,
   isJS3AssignmentExpression,
   isJS3AssnObjectProperty,
@@ -66,7 +60,6 @@ import {
   isJS3ContextualCallExpression,
   isJS3DefaultExportMemberExpression,
   isJS3FunctionExpression,
-  isJS3Import,
   isJS3JSXCallExpression,
   isJS3MemberExpression,
   isJS3MetaProperty,
@@ -85,7 +78,6 @@ import {
   isJS3UpdateExpression,
   isJS3YieldExpression,
   JS3ArrayExpression,
-  JS3ArrayPattern_elements,
   JS3ArrayTerminals,
   JS3ArrowFunctionExpression,
   JS3AssignmentExpression,
@@ -106,7 +98,6 @@ import {
   JS3NewExpression,
   JS3ObjectExpression,
   JS3ObjectMethod,
-  JS3ObjectMethod_key,
   JS3ObjectPattern_properties,
   JS3RestElement,
   JS3SpreadElement,
@@ -119,7 +110,6 @@ import {
   funArgLength,
   handleBlockStatement,
   IRIV2_STMT,
-  lowerArgumentInit,
   reduceJSAssignmentExprToIridium,
   reduceMemberExpressionIntoJS3MemberExpression,
 } from "./handleStatement";
@@ -142,12 +132,8 @@ import {
   getPrivateMethodClosureFlag,
   getPropInitDerivedNoPrivateClosureFlag,
   getPropInitDerivedPrivateClosureFlag,
-  getPropInitNoPrivateClosureFlag,
-  getPropInitPrivateClosureFlag,
   getRegularClosureFlag,
   getStaticPropInitClosureFlag,
-  getStaticPropInitDerivedClosureFlag,
-  GlobalBindingSEXP,
   GotoSEXP,
   IDOPSEXP,
   IfElseJumpSEXP,
@@ -172,7 +158,6 @@ import {
   JSIDOPSEXP,
   JSImplicitBindingDeclarationSEXP,
   JSImplicitBindingDeclarationTypes,
-  JSInitialYieldSEXP,
   JSNUBDSEXP,
   JSObjectSEXP,
   JSPrivateFieldReadSEXP,
@@ -203,6 +188,7 @@ import {
   UNOPDelVarSEXP,
   YieldSEXP,
 } from "./Types/index";
+import { newTemp } from "../Shared";
 
 // Handle RValues | AMPPrivateSEXP
 export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
@@ -430,7 +416,6 @@ export const handleArrayPatternAssignmentExpr = (
   cx: IRIDIUMV2,
   elements: Array<null | PatternLike>,
   rValTarget: IridiumSEXP,
-  safeWrite: boolean = false,
 ) => {
   const currentContext = cx.getCurrentContext();
   const currentBB = currentContext.getCurrentBB();
@@ -472,8 +457,8 @@ export const handleArrayPatternAssignmentExpr = (
   entryIntoLoop.setIDX(cx.getCurrentBB().getIDX());
   exitFromLoop.setIDX(postBB.getIDX());
 
-  let for$of$loop$next = cx.js3Builder.utils.getNewTemporary("next");
-  let for$of$loop$done = cx.js3Builder.utils.getNewTemporary("done");
+  let for$of$loop$next = newTemp("next");
+  let for$of$loop$done = newTemp("done");
 
   // RetainedOnStack[<loop-iterator>, <loop-method>, <loop-catchoffset>] = JSForOfStartSEXP(RVal)
   cx.getCurrentBB().args.push(
@@ -539,8 +524,8 @@ export const handleArrayPatternAssignmentExpr = (
 
       // tempres = []
       // i = 0
-      let tempres = cx.js3Builder.utils.getNewTemporary("tempres");
-      let tempit = cx.js3Builder.utils.getNewTemporary("it");
+      let tempres = newTemp("tempres");
+      let tempit = newTemp("it");
       cx.getCurrentBB().args.push(
         new JSExplicitBindingDeclarationSEXP(
           new ResolveEnvBindingSEXP(tempres),
@@ -678,7 +663,7 @@ export const handleObjectPatternAssignmentExpr = (
     }
   });
 
-  let toObjRes = cx.js3Builder.utils.getNewTemporary("toObjRes");
+  let toObjRes = newTemp("toObjRes");
   // 1. toObjRes = VSysCall[JSToObjectSEXP](rValTarget)
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
@@ -694,7 +679,7 @@ export const handleObjectPatternAssignmentExpr = (
   //    for (f of fields)
   //      exc_obj[f] = null;
   if (hasRest) {
-    exc_obj = cx.js3Builder.utils.getNewTemporary("exc_obj");
+    exc_obj = newTemp("exc_obj");
     cx.getCurrentBB().args.push(
       new JSExplicitBindingDeclarationSEXP(
         new ResolveEnvBindingSEXP(exc_obj),
@@ -794,7 +779,7 @@ export const handleObjectPatternAssignmentExpr = (
   }
   if (hasRest) {
     // 4. [*] fin_obj = {}
-    let fin_obj = cx.js3Builder.utils.getNewTemporary("fin_obj");
+    let fin_obj = newTemp("fin_obj");
     cx.getCurrentBB().args.push(
       new JSExplicitBindingDeclarationSEXP(
         new ResolveEnvBindingSEXP(fin_obj),
@@ -883,8 +868,8 @@ const handleYieldExpression = (
 
   if (node.delegate) throw new Error("//TODO handle Yield * (delegated yield)");
   let yieldDoneIndicator =
-    cx.js3Builder.utils.getNewTemporary("yieldDoneIndicator");
-  let yieldReturnResultHolder = cx.js3Builder.utils.getNewTemporary(
+    newTemp("yieldDoneIndicator");
+  let yieldReturnResultHolder = newTemp(
     "yieldReturnResultHolder",
   );
 
@@ -991,7 +976,7 @@ const handleComputedProps = (
     .filter((classItem) => classItem.computed);
 
   computedProps.forEach((classItem) => {
-    let targetID = cx.js3Builder.utils.getNewTemporary(undefined);
+    let targetID = newTemp(undefined);
     cx.getCurrentBB().args.push(
       new JSExplicitBindingDeclarationSEXP(
         new ResolveEnvBindingSEXP(targetID),
@@ -1009,7 +994,7 @@ const handleComputedProps = (
       isJS3ClassPrivateMethod(classItem),
   );
   privateProps.forEach((classItem) => {
-    let targetID = cx.js3Builder.utils.getNewTemporary(undefined);
+    let targetID = newTemp(undefined);
     cx.getCurrentBB().args.push(
       new JSExplicitBindingDeclarationSEXP(
         new ResolveEnvBindingSEXP(targetID),
@@ -1105,13 +1090,6 @@ const getFieldKeyString = (key: JS3ContainedExprKey): string => {
   else if (isBooleanLiteral(key)) lookupField = "" + key.value;
   else throw new Error("Unhandled static lookup field name");
   return lookupField;
-};
-
-const getMethodKindFlag = (kind: string): string => {
-  if (kind === "method") return "METHOD";
-  else if (kind === "get") return "GET";
-  else if (kind === "set") return "SET";
-  throw new Error("Didnt expect constructors to be lowered this way");
 };
 
 const lowerClassMethods = (
@@ -1228,7 +1206,7 @@ const createClassNonStaticPropInitClosure = (
   privateMapping: null | PrivateMapping,
   addBrand: boolean,
 ) => {
-  const location = cx.js3Builder.utils.getNewTemporary("PropInitClosure");
+  const location = newTemp("PropInitClosure");
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   funcContext.privateMapping = privateMapping;
   funcContext.name = "<prop-init>";
@@ -1390,7 +1368,7 @@ const createClassStaticPropInitClosure = (
   hasSuper: boolean,
 ) => {
   if (!(node.body.body.find(e => (isJS3ClassProperty(e) && e.static || isJS3ClassPrivateProperty(e) && e.static || isJS3StaticBlock(e))))) return null;
-  const location = cx.js3Builder.utils.getNewTemporary("StaticPropInitClosure");
+  const location = newTemp("StaticPropInitClosure");
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   funcContext.privateMapping = privateMapping;
   funcContext.name = "<static-prop-init>";
@@ -1567,6 +1545,7 @@ const createClassConstructorClosure = (
     { name: "arguments", type: "JSVAR", value: isStrict ? 0 : isSimpleArgs ? 1 : 0 },
     { name: "new.target", type: "JSVAR", value: 3 },
     { name: "<home_object>", type: "JSVAR", value: 4 },
+    { name: "<var>", type: "JSVAR", value: 5 },
     {
       name: "<super_obj>",
       type: "JSCONST",
@@ -1660,7 +1639,7 @@ const createClassConstructorClosure = (
         // const superCall = new CallSiteSEXP(args, "Super");
         cx.getCurrentBB().args.push(
           new JSExplicitBindingDeclarationSEXP(
-            new ResolveEnvBindingSEXP(cx.js3Builder.utils.getNewTemporary("superResHolder")),
+            new ResolveEnvBindingSEXP(newTemp("superResHolder")),
             generateIridiumCall(cx, new EnvReadSEXP("<super_ctr>"), new EnvReadSEXP("new.target"), [generateJS3SpreadElementfromBaseNode(identifier("arguments"), node)], "SUPER"),
             "JSLET",
             false
@@ -1731,7 +1710,7 @@ const handleUpdateExpression = (
       // n = n [+|-] 1;
       // ret tmp
 
-      let tmp = cx.js3Builder.utils.getNewTemporary(undefined);
+      let tmp = newTemp(undefined);
 
       cx.getCurrentBB().args.push(
         new JSExplicitBindingDeclarationSEXP(
@@ -1781,8 +1760,8 @@ const handleUpdateExpression = (
     // prefix ? tmp = tmp [+|-] 1
     // ret tmp
 
-    let tmp = cx.js3Builder.utils.getNewTemporary(undefined);
-    let num1 = cx.js3Builder.utils.getNewTemporary(undefined);
+    let tmp = newTemp(undefined);
+    let num1 = newTemp(undefined);
 
     cx.getCurrentBB().args.push(
       new JSExplicitBindingDeclarationSEXP( // tmp = n[x]
@@ -1848,8 +1827,8 @@ const handleClassExpression = (
 ): IridiumSEXP => {
   const name = node.id ? node.id.name : "";
 
-  const finalClassRes = cx.js3Builder.utils.getNewTemporary("ClassRes");
-  const finalClassProto = cx.js3Builder.utils.getNewTemporary("ClassProto");
+  const finalClassRes = newTemp("ClassRes");
+  const finalClassProto = newTemp("ClassProto");
 
   let oldContext: IridiumBuildContext | undefined = undefined, newContext: IridiumBuildContext | undefined = undefined;
 
@@ -2066,12 +2045,12 @@ export const lowerSpreadToJS3Spread = (
   from: SpreadElement,
 ) => {
   // Generate 3JS code
-  const otherProps = cx.js3Builder.utils;
-  const js3SpillHolder: JS3BlockStatement_body = [];
-  const updatedProps = {
-    ...otherProps,
-    others: { ...otherProps.others, holder: js3SpillHolder },
-  };
+  const otherProps = cx.utils;
+    const js3SpillHolder: JS3BlockStatement_body = [];
+    const updatedProps = {
+      ...otherProps,
+      others: { ...otherProps.others, holder: js3SpillHolder },
+    };
 
   let res: JS3SpreadElement = handleSpreadElement(from, updatedProps);
 
@@ -2087,12 +2066,12 @@ export const lowerExprToResolveEnvBindingSEXP = (
   from: JS3ContainedExprKey | Expression,
 ) => {
   // Generate 3JS code
-  const otherProps = cx.js3Builder.utils;
-  const js3SpillHolder: JS3BlockStatement_body = [];
-  const updatedProps = {
-    ...otherProps,
-    others: { ...otherProps.others, holder: js3SpillHolder },
-  };
+  const otherProps = cx.utils;
+    const js3SpillHolder: JS3BlockStatement_body = [];
+    const updatedProps = {
+      ...otherProps,
+      others: { ...otherProps.others, holder: js3SpillHolder },
+    };
 
   let exprRes: Identifier;
 
@@ -2119,7 +2098,7 @@ const handleConditionalExpression = (
 ) => {
   const currentContext = cx.getCurrentContext();
   const currentBB = currentContext.getCurrentBB();
-  const resHolder = cx.js3Builder.utils.getNewTemporary("conditionalResult");
+  const resHolder = newTemp("conditionalResult");
   currentBB.args.push(
     new JSExplicitBindingDeclarationSEXP(
       new ResolveEnvBindingSEXP(resHolder),
@@ -2187,8 +2166,6 @@ const handleAssignmentExpression = (
     let init = left;
 
     let obj: string;
-    let prop: string;
-    let isSuper: boolean = false;
 
     if (isIdentifier(init.object)) {
       obj = init.object.name;
@@ -2279,6 +2256,7 @@ const handleFunctionExpression = (
     { name: "this", type: "JSLET", value: 9 },
     { name: "new.target", type: "JSVAR", value: 3 },
     { name: "<home_object>", type: "JSVAR", value: 4 },
+    { name: "<var>", type: "JSVAR", value: 5 },
     {
       name: "<super_obj>",
       type: "JSCONST",
@@ -2338,7 +2316,7 @@ const handleFunctionExpression = (
 
 const generateDynamicCallArgList = (cx: IRIDIUMV2, argList: Array<Identifier | JS3SpreadElement>): string => {
   // let temp$id, insertionIdx$id;
-  let temp$id = cx.js3Builder.utils.getNewTemporary("temp");
+  let temp$id = newTemp("temp");
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
       new ResolveEnvBindingSEXP(temp$id),
@@ -2348,7 +2326,7 @@ const generateDynamicCallArgList = (cx: IRIDIUMV2, argList: Array<Identifier | J
     ),
   );
 
-  let insertionIdx$id = cx.js3Builder.utils.getNewTemporary("insertionIdx");
+  let insertionIdx$id = newTemp("insertionIdx");
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
       new ResolveEnvBindingSEXP(insertionIdx$id),
@@ -2524,7 +2502,9 @@ const handleArrowFunctionExpression = (
   const kind = getRegularClosureFlag();
   const ecmaArgs = funArgLength(node.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
   // There are no implicit bindings in an arrow function
-  const implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP }> = [];
+  const implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP }> = [
+    { name: "<var>", type: "JSVAR", value: 5 },
+  ];
 
   const funBBIdx = createLambda(
     cx,
@@ -2564,7 +2544,7 @@ const handleContextualCallExpression = (
   if (isOptionalMemberExpression(node.callee)) throw new Error("TODO // ContextualCall with OptionalMemberExpression");
 
   // Callee
-  const tempHolder = cx.js3Builder.utils.getNewTemporary("ccallCallee");
+  const tempHolder = newTemp("ccallCallee");
   {
     if (!node.callee.object.extra) node.callee.object.extra = {};
     node.callee.object.extra = { SuperCallCTX: true };
@@ -2614,7 +2594,7 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
     return new JSArraySEXP(args);
   } else {
     // let temp$id, insertionIdx$id;
-    let temp$id = cx.js3Builder.utils.getNewTemporary("temp");
+    let temp$id = newTemp("temp");
     cx.getCurrentBB().args.push(
       new JSExplicitBindingDeclarationSEXP(
         new ResolveEnvBindingSEXP(temp$id),
@@ -2624,7 +2604,7 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
       ),
     );
 
-    let insertionIdx$id = cx.js3Builder.utils.getNewTemporary("insertionIdx");
+    let insertionIdx$id = newTemp("insertionIdx");
     cx.getCurrentBB().args.push(
       new JSExplicitBindingDeclarationSEXP(
         new ResolveEnvBindingSEXP(insertionIdx$id),
@@ -2730,7 +2710,7 @@ const getObjKeyString = (
 };
 
 const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
-  let obj$id = cx.js3Builder.utils.getNewTemporary("newObj");
+  let obj$id = newTemp("newObj");
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
       new ResolveEnvBindingSEXP(obj$id),

@@ -1,27 +1,150 @@
-import { ArrayPattern, assignmentExpression, AssignmentExpression, AssignmentPattern, identifier, Identifier, isArrayPattern, isAssignmentPattern, isIdentifier, isImportSpecifier, isObjectPattern, isObjectProperty, isRestElement, isVariableDeclaration, MemberExpression, ObjectPattern, RestElement, variableDeclaration, VariableDeclaration, variableDeclarator } from "@babel/types";
-import { isJS3ArrayPattern, isJS3AssnObjectProperty, isJS3BlockStatement, isJS3BreakStatement, isJS3ContinueStatement, isJS3DebuggerStatement, isJS3DoWhileStatement, isJS3EmptyStatement, isJS3ExportAllDeclaration, isJS3ExportDefaultDeclaration, isJS3ExportNamedDeclaration, isJS3ExportSpecifier, isJS3ForInStatement, isJS3ForOfStatement, isJS3ForStatement, isJS3FunctionDeclaration, isJS3IfStatement, isJS3ImportDeclaration, isJS3LabeledStatement, isJS3ObjectPattern, isJS3RestElement, isJS3ReturnStatement, isJS3SwitchStatement, isJS3TDZCheck, isJS3ThrowStatement, isJS3TryStatement, isJS3VariableDeclaration, isJS3WhileStatement, JS3AllowedBlockStatement, JS3AllowedFunctionArgs, JS3AllowedProgStatement, JS3ArrayPattern_elements, JS3BlockStatement, JS3BlockStatement_body, JS3DoWhileStatement, JS3ForInStatement, JS3ForOfStatement, JS3ForStatement, JS3FunctionDeclaration, JS3IfStatement, JS3ReturnStatement, JS3StaticBlock, JS3SwitchCase, JS3SwitchCase_test, JS3SwitchStatement, JS3TryStatement, JS3VariableDeclaration, JS3WhileStatement } from "../JS3Helpers/JS3Types";
+import {
+  ArrayPattern,
+  assignmentExpression,
+  AssignmentExpression,
+  AssignmentPattern,
+  identifier,
+  Identifier,
+  isArrayPattern,
+  isAssignmentPattern,
+  isIdentifier,
+  isImportSpecifier,
+  isObjectPattern,
+  isObjectProperty,
+  isRestElement,
+  isVariableDeclaration,
+  MemberExpression,
+  ObjectPattern,
+  RestElement,
+  variableDeclaration,
+  VariableDeclaration,
+  variableDeclarator,
+} from "@babel/types";
+import {
+  isJS3ArrayPattern,
+  isJS3AssnObjectProperty,
+  isJS3BlockStatement,
+  isJS3BreakStatement,
+  isJS3ContinueStatement,
+  isJS3DebuggerStatement,
+  isJS3DoWhileStatement,
+  isJS3EmptyStatement,
+  isJS3ExportAllDeclaration,
+  isJS3ExportDefaultDeclaration,
+  isJS3ExportNamedDeclaration,
+  isJS3ExportSpecifier,
+  isJS3ForInStatement,
+  isJS3ForOfStatement,
+  isJS3ForStatement,
+  isJS3FunctionDeclaration,
+  isJS3IfStatement,
+  isJS3ImportDeclaration,
+  isJS3LabeledStatement,
+  isJS3ObjectPattern,
+  isJS3RestElement,
+  isJS3ReturnStatement,
+  isJS3SwitchStatement,
+  isJS3TDZCheck,
+  isJS3ThrowStatement,
+  isJS3TryStatement,
+  isJS3VariableDeclaration,
+  isJS3WhileStatement,
+  JS3AllowedBlockStatement,
+  JS3AllowedFunctionArgs,
+  JS3AllowedProgStatement,
+  JS3ArrayPattern_elements,
+  JS3BlockStatement,
+  JS3BlockStatement_body,
+  JS3DoWhileStatement,
+  JS3ForInStatement,
+  JS3ForOfStatement,
+  JS3ForStatement,
+  JS3FunctionDeclaration,
+  JS3IfStatement,
+  JS3ReturnStatement,
+  JS3StaticBlock,
+  JS3SwitchCase,
+  JS3SwitchStatement,
+  JS3TryStatement,
+  JS3VariableDeclaration,
+  JS3WhileStatement,
+} from "../JS3Helpers/JS3Types";
 import { IridiumBuildContext, IRIDIUMV2 } from "./IRIDIUMV2";
-import { handleArrayPatternAssignmentExpr, handleObjectPatternAssignmentExpr, IRIV2_RVAL, lowerExprToResolveEnvBindingSEXP, PrivateMapping } from "./handleRVal";
+import {
+  handleObjectPatternAssignmentExpr,
+  IRIV2_RVAL,
+  lowerExprToResolveEnvBindingSEXP,
+  PrivateMapping,
+} from "./handleRVal";
 
 import { getIridiumBinop } from "#utils";
 import { handleVariableDeclaration as js3handleVariableDeclaration } from "../JS3Helpers/HandleBlocks";
-import { handleMemberExpression, handleAssignmentExpression as js3handleAssignmentExpression } from "../JS3Helpers/HandleExpression";
-import { EnvReadSEXP, EnvWriteSEXP, getConstructorClosureFlag, GotoSEXP, IfElseJumpSEXP, InvokeFinalizerSEXP, IridiumSEXP, isLambdaSEXP, JSArraySEXP, JSCatchContextSEXP, JSComputedFieldWriteSEXP, JSEnvWriteTypes, JSExplicitBindingDeclarationNSEXP, JSExplicitBindingDeclarationSEXP, JSForInNextSEXP, JSForInStartSEXP, JSForOfIteratorCloseSEXP, JSForOfNextSEXP, JSForOfStartSEXP, JSFuncDeclSEXP, JSImplicitBindingDeclarationSEXP, JSImplicitBindingDeclarationTypes, JSInitialYieldSEXP, JSNUBDSEXP, LambdaSEXP, ListSEXP, LocalStaticExportSEXP, LoopInitPreludeEndSEXP, ModuleRequestSEXP, NamedReexportSEXP, NumberSEXP, PopCatchContextSEXP, PushCatchContextSEXP, ResolveBreakTargetSEXP, ResolveContinueTargetSEXP, ResolveEnvBindingSEXP, RetSEXP, ReturnSEXP, SiblingSpecialWriteSEXP, StackPopSEXP, StackRejectSEXP, StackRetainSEXP, StarExportSEXP, StaticImportSEXP, TDZReadSEXP, ThrowSEXP } from "./Types/index";
+import {
+  handleMemberExpression,
+  handleAssignmentExpression as js3handleAssignmentExpression,
+} from "../JS3Helpers/HandleExpression";
+import {
+  EnvReadSEXP,
+  EnvWriteSEXP,
+  getConstructorClosureFlag,
+  GotoSEXP,
+  IfElseJumpSEXP,
+  InvokeFinalizerSEXP,
+  IridiumSEXP,
+  isLambdaSEXP,
+  JSArraySEXP,
+  JSCatchContextSEXP,
+  JSComputedFieldWriteSEXP,
+  JSEnvWriteTypes,
+  JSExplicitBindingDeclarationNSEXP,
+  JSExplicitBindingDeclarationSEXP,
+  JSForInNextSEXP,
+  JSForInStartSEXP,
+  JSForOfIteratorCloseSEXP,
+  JSForOfNextSEXP,
+  JSForOfStartSEXP,
+  JSFuncDeclSEXP,
+  JSImplicitBindingDeclarationSEXP,
+  JSImplicitBindingDeclarationTypes,
+  JSInitialYieldSEXP,
+  JSNUBDSEXP,
+  LambdaSEXP,
+  ListSEXP,
+  LocalStaticExportSEXP,
+  LoopInitPreludeEndSEXP,
+  ModuleRequestSEXP,
+  NamedReexportSEXP,
+  NumberSEXP,
+  PopCatchContextSEXP,
+  PushCatchContextSEXP,
+  ResolveBreakTargetSEXP,
+  ResolveContinueTargetSEXP,
+  ResolveEnvBindingSEXP,
+  RetSEXP,
+  ReturnSEXP,
+  SiblingSpecialWriteSEXP,
+  StackPopSEXP,
+  StackRejectSEXP,
+  StackRetainSEXP,
+  StarExportSEXP,
+  StaticImportSEXP,
+  TDZReadSEXP,
+  ThrowSEXP,
+} from "./Types/index";
+import { newTemp } from "../Shared";
 
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   if (isJS3TDZCheck(stmt)) {
     cx.getCurrentBB().args.push(
-      new StackRejectSEXP(
-        new TDZReadSEXP(stmt.expression.name),
-        1
-      )
+      new StackRejectSEXP(new TDZReadSEXP(stmt.expression.name), 1),
     );
   } else if (isJS3ImportDeclaration(stmt)) {
     const currentContext = cx.getCurrentContext();
 
     // Create/Reuse a Module Request
     const moduleRequestMap = currentContext.moduleRequestMap;
-    if (!currentContext.BB[0].isTopLevel()) throw new Error("Expected imports to exist only at the top level");
+    if (!currentContext.BB[0].isTopLevel())
+      throw new Error("Expected imports to exist only at the top level");
     if (!moduleRequestMap) throw new Error("Module Request Map not found");
 
     const source = stmt.source.value;
@@ -30,31 +153,48 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
       currentModuleRequest = moduleRequestMap.get(source);
     } else {
       // Create a new module request
-      currentModuleRequest = new ModuleRequestSEXP(source, moduleRequestMap.size);
+      currentModuleRequest = new ModuleRequestSEXP(
+        source,
+        moduleRequestMap.size,
+      );
       moduleRequestMap.set(source, currentModuleRequest);
     }
 
-    if (!currentModuleRequest) throw new Error("Expected current module request to be defined");
+    if (!currentModuleRequest)
+      throw new Error("Expected current module request to be defined");
 
     // Create an import request
     // 3JS enforces a single specifier per Import Declaration
     const specifiers = stmt.specifiers;
     if (specifiers.length == 0) {
-      const staticImportSEXP = new StaticImportSEXP(cx.js3Builder.utils.getNewTemporary("throwaway"), "default", currentModuleRequest.getReqIDX());
+      const staticImportSEXP = new StaticImportSEXP(
+        newTemp("throwaway"),
+        "default",
+        currentModuleRequest.getReqIDX(),
+      );
       cx.getCurrentBB().args.push(staticImportSEXP);
-    }
-    else {
+    } else {
       const specifier = specifiers[0];
 
       if (isImportSpecifier(specifier)) {
-        const field = isIdentifier(specifier.imported) ? specifier.imported.name : specifier.imported.value;
-        const staticImportSEXP = new StaticImportSEXP(specifier.local.name, field, currentModuleRequest.getReqIDX());
+        const field = isIdentifier(specifier.imported)
+          ? specifier.imported.name
+          : specifier.imported.value;
+        const staticImportSEXP = new StaticImportSEXP(
+          specifier.local.name,
+          field,
+          currentModuleRequest.getReqIDX(),
+        );
         cx.getCurrentBB().args.push(staticImportSEXP);
       } else {
-        const staticImportSEXP = new StaticImportSEXP(specifier.local.name, "*", currentModuleRequest.getReqIDX(), true);
+        const staticImportSEXP = new StaticImportSEXP(
+          specifier.local.name,
+          "*",
+          currentModuleRequest.getReqIDX(),
+          true,
+        );
         cx.getCurrentBB().args.push(staticImportSEXP);
       }
-
     }
     // if (specifiers.length !== 1)
     //   throw new Error("Expected only one specifier to exist after 3js conversion");
@@ -63,16 +203,23 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
     throw new Error("IRIV2: TODO JS3ExportDefaultDeclaration");
   } else if (isJS3ExportNamedDeclaration(stmt)) {
     if (stmt.declaration) {
-      throw new Error("Expected js3 to remove all declaration from the export nodes");
+      throw new Error(
+        "Expected js3 to remove all declaration from the export nodes",
+      );
     }
 
-    if (stmt.specifiers.length !== 1) throw new Error("Expected one specifier per named export statement after 3js translation");
+    if (stmt.specifiers.length !== 1)
+      throw new Error(
+        "Expected one specifier per named export statement after 3js translation",
+      );
 
     const specifier = stmt.specifiers[0];
 
     if (isJS3ExportSpecifier(specifier)) {
       const local = specifier.local.name;
-      const remote = isIdentifier(specifier.exported) ? specifier.exported.name : specifier.exported.value;
+      const remote = isIdentifier(specifier.exported)
+        ? specifier.exported.name
+        : specifier.exported.value;
 
       cx.getCurrentBB().args.push(new LocalStaticExportSEXP(local, remote));
     } else {
@@ -80,7 +227,8 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
 
       // Create/Reuse a Module Request
       const moduleRequestMap = currentContext.moduleRequestMap;
-      if (!currentContext.BB[0].isTopLevel()) throw new Error("Expected imports to exist only at the top level");
+      if (!currentContext.BB[0].isTopLevel())
+        throw new Error("Expected imports to exist only at the top level");
       if (!moduleRequestMap) throw new Error("Module Request Map not found");
 
       const sourceNode = stmt.source;
@@ -92,19 +240,26 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
         currentModuleRequest = moduleRequestMap.get(source);
       } else {
         // Create a new module request
-        currentModuleRequest = new ModuleRequestSEXP(source, moduleRequestMap.size);
+        currentModuleRequest = new ModuleRequestSEXP(
+          source,
+          moduleRequestMap.size,
+        );
         moduleRequestMap.set(source, currentModuleRequest);
       }
-      if (!currentModuleRequest) throw new Error("Expected current module request to be defined");
+      if (!currentModuleRequest)
+        throw new Error("Expected current module request to be defined");
       const binding = specifier.exported.name;
-      cx.getCurrentBB().args.push(new NamedReexportSEXP(currentModuleRequest.getReqIDX(), binding))
+      cx.getCurrentBB().args.push(
+        new NamedReexportSEXP(currentModuleRequest.getReqIDX(), binding),
+      );
     }
   } else if (isJS3ExportAllDeclaration(stmt)) {
     const currentContext = cx.getCurrentContext();
 
     // Create/Reuse a Module Request
     const moduleRequestMap = currentContext.moduleRequestMap;
-    if (!currentContext.BB[0].isTopLevel()) throw new Error("Expected imports to exist only at the top level");
+    if (!currentContext.BB[0].isTopLevel())
+      throw new Error("Expected imports to exist only at the top level");
     if (!moduleRequestMap) throw new Error("Module Request Map not found");
 
     const source = stmt.source.value;
@@ -113,12 +268,17 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
       currentModuleRequest = moduleRequestMap.get(source);
     } else {
       // Create a new module request
-      currentModuleRequest = new ModuleRequestSEXP(source, moduleRequestMap.size);
+      currentModuleRequest = new ModuleRequestSEXP(
+        source,
+        moduleRequestMap.size,
+      );
       moduleRequestMap.set(source, currentModuleRequest);
     }
-    if (!currentModuleRequest) throw new Error("Expected current module request to be defined");
-    cx.getCurrentBB().args.push(new StarExportSEXP(currentModuleRequest.getReqIDX()));
-
+    if (!currentModuleRequest)
+      throw new Error("Expected current module request to be defined");
+    cx.getCurrentBB().args.push(
+      new StarExportSEXP(currentModuleRequest.getReqIDX()),
+    );
   } else if (isJS3DebuggerStatement(stmt)) {
     throw new Error("IRIV2: TODO JS3DebuggerStatement");
   } else if (isJS3ReturnStatement(stmt)) {
@@ -165,13 +325,13 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
       let loopHeadContext: IridiumBuildContext | null = null;
 
       const loopConfig: {
-        kind: "for-of" | "standard",
-        loopHeadIDX: number,
-        loopBodyIDX: number,
-        loopInitIDX: number,
-        label: string | null,
-        breakTarget: number,
-        continueTarget: number
+        kind: "for-of" | "standard";
+        loopHeadIDX: number;
+        loopBodyIDX: number;
+        loopInitIDX: number;
+        label: string | null;
+        breakTarget: number;
+        continueTarget: number;
       } = {
         kind: "standard",
         loopHeadIDX: -1,
@@ -179,7 +339,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
         loopInitIDX: -1,
         label: stmt.label.name,
         breakTarget: postBB.getIDX(),
-        continueTarget: -1
+        continueTarget: -1,
       };
 
       loopConfig.breakTarget = postBB.getIDX();
@@ -190,7 +350,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
       currentBB.args.push(currentBBToLabeledBlockScopeNode);
 
       // 2. labeledBB
-      cx.declareAndPushLexicalContext()
+      cx.declareAndPushLexicalContext();
       loopHeadContext = cx.getCurrentContext();
       loopConfig.loopHeadIDX = cx.getCurrentBB().getIDX();
       IRIV2_STMT(cx, stmt.body);
@@ -198,7 +358,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
       cx.popContext(); // labeledBB
 
       // Initialize Node(s)
-      loopHeadContext.loopConfig = loopConfig
+      loopHeadContext.loopConfig = loopConfig;
       currentBBToLabeledBlockScopeNode.setIDX(loopConfig.loopHeadIDX);
     }
   } else if (isJS3ForStatement(stmt)) {
@@ -210,24 +370,27 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   } else if (isJS3ForOfStatement(stmt)) {
     handleForOfStatement(cx, stmt);
   } else {
-    throw new Error(
-      `IRIV2: Unhandled Statement ${stmt.type}, ${stmt.js3type}`,
-    );
+    throw new Error(`IRIV2: Unhandled Statement ${stmt.type}, ${stmt.js3type}`);
   }
 };
 
 type IRILoopBodyCTX = {
-  label: string | null
+  label: string | null;
 };
 
-export const handleBlockStatement = (cx: IRIDIUMV2, stmt: JS3BlockStatement | JS3StaticBlock, loopBodyCTX: IRILoopBodyCTX | null = null): IridiumBuildContext => {
+export const handleBlockStatement = (
+  cx: IRIDIUMV2,
+  stmt: JS3BlockStatement | JS3StaticBlock,
+  loopBodyCTX: IRILoopBodyCTX | null = null,
+): IridiumBuildContext => {
   const oldContext = cx.getCurrentContext();
   const newContext = cx.declareAndPushLexicalContext();
 
   // Add Gotos from oldContext's last BB to currentBB.
-  oldContext.getCurrentBB().args.push(new GotoSEXP(newContext.BB[0].idx))
+  oldContext.getCurrentBB().args.push(new GotoSEXP(newContext.BB[0].idx));
 
-  if (!loopBodyCTX) { // Such an implicit jump should not be allowed in a loop body context, it will result in an empty BB
+  if (!loopBodyCTX) {
+    // Such an implicit jump should not be allowed in a loop body context, it will result in an empty BB
     cx.addContinuation(oldContext);
   }
 
@@ -236,7 +399,9 @@ export const handleBlockStatement = (cx: IRIDIUMV2, stmt: JS3BlockStatement | JS
   }
 
   if (loopBodyCTX) {
-    cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP(loopBodyCTX.label));
+    cx.getCurrentBB().args.push(
+      new ResolveContinueTargetSEXP(loopBodyCTX.label),
+    );
   } else {
     // After generating the code, add a goto from the last lowered block to the oldContexts continuation
     cx.getCurrentBB().args.push(new GotoSEXP(oldContext.getCurrentBB().idx));
@@ -245,14 +410,14 @@ export const handleBlockStatement = (cx: IRIDIUMV2, stmt: JS3BlockStatement | JS
   cx.popContext();
 
   return newContext;
-}
+};
 
 const handleReturnStatement = (cx: IRIDIUMV2, stmt: JS3ReturnStatement) => {
   let arg: IridiumSEXP;
   if (stmt.argument) arg = IRIV2_RVAL(cx, stmt.argument);
   else arg = new EnvReadSEXP("undefined");
   cx.getCurrentBB().args.push(new ReturnSEXP(arg));
-}
+};
 
 const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
   const currentContext = cx.getCurrentContext();
@@ -264,13 +429,13 @@ const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
 
   // const loop head config
   const loopConfig: {
-    kind: "for-of" | "standard",
-    loopHeadIDX: number,
-    loopBodyIDX: number,
-    loopInitIDX: number,
-    label: string | null,
-    breakTarget: number,
-    continueTarget: number
+    kind: "for-of" | "standard";
+    loopHeadIDX: number;
+    loopBodyIDX: number;
+    loopInitIDX: number;
+    label: string | null;
+    breakTarget: number;
+    continueTarget: number;
   } = {
     kind: "standard",
     loopHeadIDX: -1,
@@ -278,8 +443,8 @@ const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
     loopInitIDX: -1,
     label: null,
     breakTarget: -1,
-    continueTarget: -1
-  }
+    continueTarget: -1,
+  };
 
   loopConfig.breakTarget = postBB.getIDX();
 
@@ -299,17 +464,35 @@ const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
   loopConfig.loopHeadIDX = cx.getCurrentBB().getIDX();
 
   // Add control header
-  const intermediateResHolder = cx.js3Builder.utils.getNewTemporary("switchResHolder");
-  cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(intermediateResHolder), null, "JSLET", false));
+  const intermediateResHolder = newTemp("switchResHolder");
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationSEXP(
+      new ResolveEnvBindingSEXP(intermediateResHolder),
+      null,
+      "JSLET",
+      false,
+    ),
+  );
   let defaultCase: null | JS3SwitchCase = null;
   for (let c of stmt.cases) {
-    if (c.test === null) { // default case, exhaust all case matches before checking for default case...
+    if (c.test === null) {
+      // default case, exhaust all case matches before checking for default case...
       defaultCase = c;
     } else {
       const testResHolder = lowerExprToResolveEnvBindingSEXP(cx, c.test);
-      const eqCheck = getIridiumBinop("===", new EnvReadSEXP(stmt.discriminant.name), new EnvReadSEXP(testResHolder.getBindingName()));
-      cx.getCurrentBB().args.push(new EnvWriteSEXP(intermediateResHolder, eqCheck, false, false));
-      let t = new IfElseJumpSEXP(new EnvReadSEXP(intermediateResHolder), -1, -1);
+      const eqCheck = getIridiumBinop(
+        "===",
+        new EnvReadSEXP(stmt.discriminant.name),
+        new EnvReadSEXP(testResHolder.getBindingName()),
+      );
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(intermediateResHolder, eqCheck, false, false),
+      );
+      let t = new IfElseJumpSEXP(
+        new EnvReadSEXP(intermediateResHolder),
+        -1,
+        -1,
+      );
       caseGotoMap.set(c, t);
       cx.getCurrentBB().args.push(t);
       cx.addContinuation(cx.getCurrentContext());
@@ -333,7 +516,8 @@ const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
     const currentCaseBBIdx = postBB.getIDX();
 
     let gotoTarget = caseGotoMap.get(c);
-    if (gotoTarget === undefined) throw new Error("switch case target not set!");
+    if (gotoTarget === undefined)
+      throw new Error("switch case target not set!");
 
     if (gotoTarget instanceof GotoSEXP) gotoTarget.setIDX(currentCaseBBIdx);
     else gotoTarget.setTRUE(currentCaseBBIdx);
@@ -352,9 +536,13 @@ const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
   // Initialize Nodes
   loopHeadContext.loopConfig = loopConfig;
   currentBBToSwitchControlBB.setIDX(loopConfig.loopHeadIDX);
-}
+};
 
-const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInStatement, label: string | null = null) => {
+const handleIteratedLoops = (
+  cx: IRIDIUMV2,
+  stmt: JS3ForOfStatement | JS3ForInStatement,
+  label: string | null = null,
+) => {
   const currentContext = cx.getCurrentContext();
   const currentBB = currentContext.getCurrentBB();
   cx.addContinuation(currentContext);
@@ -364,13 +552,13 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
 
   // const loop head config
   const loopConfig: {
-    kind: "for-of" | "standard",
-    loopHeadIDX: number,
-    loopBodyIDX: number,
-    loopInitIDX: number,
-    label: string | null,
-    breakTarget: number,
-    continueTarget: number
+    kind: "for-of" | "standard";
+    loopHeadIDX: number;
+    loopBodyIDX: number;
+    loopInitIDX: number;
+    label: string | null;
+    breakTarget: number;
+    continueTarget: number;
   } = {
     kind: isJS3ForOfStatement(stmt) ? "for-of" : "standard",
     loopHeadIDX: -1,
@@ -378,8 +566,8 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
     loopInitIDX: -1,
     label: label ? label : null,
     breakTarget: -1,
-    continueTarget: -1
-  }
+    continueTarget: -1,
+  };
 
   loopConfig.breakTarget = postBB.getIDX();
 
@@ -399,35 +587,82 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
   if (isJS3ForOfStatement(stmt)) {
     // [<loop-iterator>, <loop-method>, <loop-catchoffset>] = JSForOfStartSEXP(RVal)
     if (stmt.await) {
-      cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfStartSEXP(stmt.right.name, true), 3));
+      cx.getCurrentBB().args.push(
+        new StackRetainSEXP(new JSForOfStartSEXP(stmt.right.name, true), 3),
+      );
     } else {
-      cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfStartSEXP(stmt.right.name), 3));
+      cx.getCurrentBB().args.push(
+        new StackRetainSEXP(new JSForOfStartSEXP(stmt.right.name), 3),
+      );
     }
   } else {
     // <loop-iterator> = JSForInStartSEXP(RVal)
-    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-iterator>"), new JSForInStartSEXP(stmt.right.name), "JSLET", false));
+    cx.getCurrentBB().args.push(
+      new JSExplicitBindingDeclarationSEXP(
+        new ResolveEnvBindingSEXP("<loop-iterator>"),
+        new JSForInStartSEXP(stmt.right.name),
+        "JSLET",
+        false,
+      ),
+    );
   }
   cx.getCurrentBB().args.push(loopInitToLoopTestNode);
 
   // 3. Loop Test
   cx.declareAndPushLexicalContext();
   loopHeadContext = cx.getCurrentContext();
-  loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX();
+  loopConfig.loopHeadIDX = loopConfig.continueTarget = cx
+    .getCurrentBB()
+    .getIDX();
 
   if (isJS3ForOfStatement(stmt)) {
     // [<loop-next>, <loop-done>] = JSForOfNextSEXP(RVal)
     if (stmt.await) {
-      cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfNextSEXP(true), 2, 0));
+      cx.getCurrentBB().args.push(
+        new StackRetainSEXP(new JSForOfNextSEXP(true), 2, 0),
+      );
     } else {
-      cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForOfNextSEXP(), 2, 0));
+      cx.getCurrentBB().args.push(
+        new StackRetainSEXP(new JSForOfNextSEXP(), 2, 0),
+      );
     }
-    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-done>"), new StackPopSEXP(), "JSLET", false));
-    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-next>"), new StackPopSEXP(), "JSLET", false));
+    cx.getCurrentBB().args.push(
+      new JSExplicitBindingDeclarationSEXP(
+        new ResolveEnvBindingSEXP("<loop-done>"),
+        new StackPopSEXP(),
+        "JSLET",
+        false,
+      ),
+    );
+    cx.getCurrentBB().args.push(
+      new JSExplicitBindingDeclarationSEXP(
+        new ResolveEnvBindingSEXP("<loop-next>"),
+        new StackPopSEXP(),
+        "JSLET",
+        false,
+      ),
+    );
   } else {
     // [<loop-next>, <loop-done>] = JSForInNextSEXP(RVal)
-    cx.getCurrentBB().args.push(new StackRetainSEXP(new JSForInNextSEXP("<loop-iterator>"), 2, 1));
-    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-done>"), new StackPopSEXP(), "JSLET", false));
-    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP("<loop-next>"), new StackPopSEXP(), "JSLET", false));
+    cx.getCurrentBB().args.push(
+      new StackRetainSEXP(new JSForInNextSEXP("<loop-iterator>"), 2, 1),
+    );
+    cx.getCurrentBB().args.push(
+      new JSExplicitBindingDeclarationSEXP(
+        new ResolveEnvBindingSEXP("<loop-done>"),
+        new StackPopSEXP(),
+        "JSLET",
+        false,
+      ),
+    );
+    cx.getCurrentBB().args.push(
+      new JSExplicitBindingDeclarationSEXP(
+        new ResolveEnvBindingSEXP("<loop-next>"),
+        new StackPopSEXP(),
+        "JSLET",
+        false,
+      ),
+    );
   }
 
   testBBLoopContinueNode.setTest(new EnvReadSEXP("<loop-done>"));
@@ -437,9 +672,10 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
   cx.addContinuation(cx.getCurrentContext());
   let testBBLoopContinueNodeContinuation = cx.getCurrentBB().getIDX();
 
-
   if (isJS3ForOfStatement(stmt)) {
-    cx.getCurrentBB().args.push(new StackRejectSEXP(new JSForOfIteratorCloseSEXP(), 0));
+    cx.getCurrentBB().args.push(
+      new StackRejectSEXP(new JSForOfIteratorCloseSEXP(), 0),
+    );
   }
   cx.getCurrentBB().args.push(testBBLoopExitNode);
 
@@ -451,9 +687,11 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
 
   if (isVariableDeclaration(stmt.left)) {
     // Ensure only one declarator
-    if (stmt.left.declarations.length !== 1) throw new Error("Expected only one declarator on the left side");
+    if (stmt.left.declarations.length !== 1)
+      throw new Error("Expected only one declarator on the left side");
     // Ensure no initializer, this is illegal syntax anyway
-    if (stmt.left.declarations[0].init) throw new Error("No initializer expected for left side");
+    if (stmt.left.declarations[0].init)
+      throw new Error("No initializer expected for left side");
 
     const leftDeclarator = stmt.left.declarations[0];
 
@@ -484,18 +722,29 @@ const handleIteratedLoops = (cx: IRIDIUMV2, stmt: JS3ForOfStatement | JS3ForInSt
   } else {
     throw new Error("[Iterated Loop] Loop head context is null...");
   }
+};
 
-}
-
-const handleForOfStatement = (cx: IRIDIUMV2, stmt: JS3ForOfStatement, label: string | null = null) => {
+const handleForOfStatement = (
+  cx: IRIDIUMV2,
+  stmt: JS3ForOfStatement,
+  label: string | null = null,
+) => {
   handleIteratedLoops(cx, stmt, label);
-}
+};
 
-const handleForInStatement = (cx: IRIDIUMV2, stmt: JS3ForInStatement, label: string | null = null) => {
+const handleForInStatement = (
+  cx: IRIDIUMV2,
+  stmt: JS3ForInStatement,
+  label: string | null = null,
+) => {
   handleIteratedLoops(cx, stmt, label);
-}
+};
 
-const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement, label: string | null = null) => {
+const handleForStatement = (
+  cx: IRIDIUMV2,
+  stmt: JS3ForStatement,
+  label: string | null = null,
+) => {
   const currentContext = cx.getCurrentContext();
   const currentBB = currentContext.getCurrentBB();
   cx.addContinuation(currentContext);
@@ -505,13 +754,13 @@ const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement, label: string 
 
   // const loop head config
   const loopConfig: {
-    kind: "for-of" | "standard",
-    loopHeadIDX: number,
-    loopBodyIDX: number,
-    loopInitIDX: number,
-    label: string | null,
-    breakTarget: number,
-    continueTarget: number
+    kind: "for-of" | "standard";
+    loopHeadIDX: number;
+    loopBodyIDX: number;
+    loopInitIDX: number;
+    label: string | null;
+    breakTarget: number;
+    continueTarget: number;
   } = {
     kind: "standard",
     loopHeadIDX: -1,
@@ -519,8 +768,8 @@ const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement, label: string 
     loopInitIDX: -1,
     label: label ? label : null,
     breakTarget: -1,
-    continueTarget: -1
-  }
+    continueTarget: -1,
+  };
 
   loopConfig.breakTarget = postBB.getIDX();
 
@@ -561,7 +810,9 @@ const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement, label: string 
   }
 
   // 4. For Body
-  loopConfig.loopBodyIDX = handleBlockStatement(cx, stmt.body, { label: label }).BB[0].getIDX();
+  loopConfig.loopBodyIDX = handleBlockStatement(cx, stmt.body, {
+    label: label,
+  }).BB[0].getIDX();
 
   // 5. For Update Iterator
   cx.declareAndPushLexicalContext();
@@ -587,9 +838,13 @@ const handleForStatement = (cx: IRIDIUMV2, stmt: JS3ForStatement, label: string 
   } else {
     throw new Error("[ForStatement] Loop head context is null...");
   }
-}
+};
 
-const handleWhileStatement = (cx: IRIDIUMV2, stmt: JS3WhileStatement | JS3DoWhileStatement, label: string | null = null) => {
+const handleWhileStatement = (
+  cx: IRIDIUMV2,
+  stmt: JS3WhileStatement | JS3DoWhileStatement,
+  label: string | null = null,
+) => {
   const currentContext = cx.getCurrentContext();
   const currentBB = currentContext.getCurrentBB();
   cx.addContinuation(currentContext);
@@ -599,13 +854,13 @@ const handleWhileStatement = (cx: IRIDIUMV2, stmt: JS3WhileStatement | JS3DoWhil
 
   // const loop head config
   const loopConfig: {
-    kind: "for-of" | "standard",
-    loopHeadIDX: number,
-    loopBodyIDX: number,
-    loopInitIDX: number,
-    label: string | null,
-    breakTarget: number,
-    continueTarget: number
+    kind: "for-of" | "standard";
+    loopHeadIDX: number;
+    loopBodyIDX: number;
+    loopInitIDX: number;
+    label: string | null;
+    breakTarget: number;
+    continueTarget: number;
   } = {
     kind: "standard",
     loopHeadIDX: -1,
@@ -613,8 +868,8 @@ const handleWhileStatement = (cx: IRIDIUMV2, stmt: JS3WhileStatement | JS3DoWhil
     loopInitIDX: -1,
     label: label ? label : null,
     breakTarget: -1,
-    continueTarget: -1
-  }
+    continueTarget: -1,
+  };
 
   loopConfig.breakTarget = postBB.getIDX();
 
@@ -625,18 +880,22 @@ const handleWhileStatement = (cx: IRIDIUMV2, stmt: JS3WhileStatement | JS3DoWhil
   // 1. Current BB to LoopHead
   currentBB.args.push(currentBBToLoopHeadNode);
 
-    // 2. While Loop Test
-    cx.declareAndPushLexicalContext();
-    loopHeadContext = cx.getCurrentContext();
-    loopConfig.loopHeadIDX = loopConfig.continueTarget = cx.getCurrentBB().getIDX(); // In a while loop continue returns to test block
-    const testResult = lowerExprToResolveEnvBindingSEXP(cx, stmt.test);
-    testBBElseIfNode.setTest(new EnvReadSEXP(testResult.getBindingName()));
-    cx.getCurrentBB().args.push(testBBElseIfNode);
+  // 2. While Loop Test
+  cx.declareAndPushLexicalContext();
+  loopHeadContext = cx.getCurrentContext();
+  loopConfig.loopHeadIDX = loopConfig.continueTarget = cx
+    .getCurrentBB()
+    .getIDX(); // In a while loop continue returns to test block
+  const testResult = lowerExprToResolveEnvBindingSEXP(cx, stmt.test);
+  testBBElseIfNode.setTest(new EnvReadSEXP(testResult.getBindingName()));
+  cx.getCurrentBB().args.push(testBBElseIfNode);
 
-      // 3. While Body
-      loopConfig.loopBodyIDX = handleBlockStatement(cx, stmt.body, { label: label }).BB[0].getIDX();
+  // 3. While Body
+  loopConfig.loopBodyIDX = handleBlockStatement(cx, stmt.body, {
+    label: label,
+  }).BB[0].getIDX();
 
-    cx.popContext(); // While Loop Test
+  cx.popContext(); // While Loop Test
 
   // Initialize Nodes
   if (loopHeadContext) {
@@ -652,7 +911,7 @@ const handleWhileStatement = (cx: IRIDIUMV2, stmt: JS3WhileStatement | JS3DoWhil
   } else {
     throw new Error("[WhileStatement] Loop head context is null...");
   }
-}
+};
 
 const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   const currentContext = cx.getCurrentContext();
@@ -662,19 +921,19 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
 
   // const loop head config
   let tryContextObj: IridiumBuildContext;
-  let finalizerContextObj: IridiumBuildContext | null = null;
+  // let finalizerContextObj: IridiumBuildContext | null = null;
   const tryContext: {
-    tryContextIDX: number,
-    tryIDX: number,
-    udCatchIDX: number,
-    imCatchIDX: number,
-    finalizerIDX: number
+    tryContextIDX: number;
+    tryIDX: number;
+    udCatchIDX: number;
+    imCatchIDX: number;
+    finalizerIDX: number;
   } = {
     tryContextIDX: -1,
     tryIDX: -1,
     udCatchIDX: -1,
     imCatchIDX: -1,
-    finalizerIDX: -1
+    finalizerIDX: -1,
   };
 
   // Catch Contexts
@@ -724,13 +983,17 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
           new ResolveEnvBindingSEXP(stmt.handler.param.name),
           new JSCatchContextSEXP(),
           "JSLET",
-          false
-        )
+          false,
+        ),
+      );
+    } else {
+      cx.getCurrentBB().args.push(
+        new StackRejectSEXP(new JSCatchContextSEXP(), 1),
       );
     }
     cx.getCurrentBB().args.push(udCatchContext);
     for (let s of stmt.handler.body.body) {
-      IRIV2_STMT(cx, s)
+      IRIV2_STMT(cx, s);
     }
     cx.getCurrentBB().args.push(new PopCatchContextSEXP());
     if (stmt.finalizer) {
@@ -744,14 +1007,14 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   cx.declareAndPushLexicalContext();
   // cx.getCurrentBB().setFlag("imCatchBB");
   tryContext.imCatchIDX = cx.getCurrentBB().getIDX();
-  const imArg = cx.js3Builder.utils.getNewTemporary("imCatchArg")
+  const imArg = newTemp("imCatchArg");
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
       new ResolveEnvBindingSEXP(imArg),
       new JSCatchContextSEXP(),
       "JSLET",
-      false
-    )
+      false,
+    ),
   );
   if (stmt.finalizer) {
     cx.getCurrentBB().args.push(gotoInvokeFinalizer);
@@ -763,10 +1026,10 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
     // finalizerBB
     cx.declareAndPushLexicalContext();
     // cx.getCurrentBB().setFlag("finalizerBB");
-    finalizerContextObj = cx.getCurrentContext();
+    // finalizerContextObj = cx.getCurrentContext();
     tryContext.finalizerIDX = cx.getCurrentBB().getIDX();
     for (let s of stmt.finalizer.body) {
-      IRIV2_STMT(cx, s)
+      IRIV2_STMT(cx, s);
     }
     cx.getCurrentBB().args.push(new RetSEXP());
     cx.popContext(); // finalizerBB
@@ -805,9 +1068,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   gotoTryContextBBToTryBB.setIDX(tryContext.tryIDX);
   gotoPostBB.setIDX(postBB.getIDX());
   gotoInvokeFinalizer.setIDX(tryContext.finalizerIDX);
-
-
-}
+};
 
 const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
   const currentContext = cx.getCurrentContext();
@@ -834,9 +1095,13 @@ const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
     cx.popContext();
   }
   // Make branch check the last instruction of currentBB
-  const ifElseJump = new IfElseJumpSEXP(new EnvReadSEXP(stmt.test.name), trueContext.BB[0].idx, falseContext ? falseContext.BB[0].idx : postBB.idx)
+  const ifElseJump = new IfElseJumpSEXP(
+    new EnvReadSEXP(stmt.test.name),
+    trueContext.BB[0].idx,
+    falseContext ? falseContext.BB[0].idx : postBB.idx,
+  );
   currentBB.args.push(ifElseJump);
-}
+};
 
 export const handleArrayPatternAssignmentDecl = (
   cx: IRIDIUMV2,
@@ -844,8 +1109,8 @@ export const handleArrayPatternAssignmentDecl = (
   rValTarget: IridiumSEXP,
   safeWrite: boolean = false,
 ) => {
-  let for$of$loop$next = cx.js3Builder.utils.getNewTemporary("next");
-  let for$of$loop$done = cx.js3Builder.utils.getNewTemporary("done");
+  let for$of$loop$next = newTemp("next");
+  let for$of$loop$done = newTemp("done");
 
   // RetainedOnStack[<loop-iterator>, <loop-method>, <loop-catchoffset>] = JSForOfStartSEXP(RVal)
   cx.getCurrentBB().args.push(
@@ -856,7 +1121,7 @@ export const handleArrayPatternAssignmentDecl = (
       new ResolveEnvBindingSEXP(for$of$loop$next),
       null,
       "JSLET",
-      false
+      false,
     ),
   );
   cx.getCurrentBB().args.push(
@@ -864,7 +1129,7 @@ export const handleArrayPatternAssignmentDecl = (
       new ResolveEnvBindingSEXP(for$of$loop$done),
       null,
       "JSLET",
-      false
+      false,
     ),
   );
 
@@ -884,7 +1149,7 @@ export const handleArrayPatternAssignmentDecl = (
           e.name,
           new EnvReadSEXP(for$of$loop$next),
           safeWrite,
-          false
+          false,
         ),
       );
     } else if (isJS3RestElement(e)) {
@@ -897,14 +1162,14 @@ export const handleArrayPatternAssignmentDecl = (
       //  i = i + 1;
       //  continue
       // }
-      let tempres = cx.js3Builder.utils.getNewTemporary("tempres");
-      let tempit = cx.js3Builder.utils.getNewTemporary("it");
+      let tempres = newTemp("tempres");
+      let tempit = newTemp("it");
       cx.getCurrentBB().args.push(
         new JSExplicitBindingDeclarationSEXP(
           new ResolveEnvBindingSEXP(tempres),
           new JSArraySEXP([]),
           "JSLET",
-          false
+          false,
         ),
       );
       cx.getCurrentBB().args.push(
@@ -912,7 +1177,7 @@ export const handleArrayPatternAssignmentDecl = (
           new ResolveEnvBindingSEXP(tempit),
           new NumberSEXP(0),
           "JSLET",
-          false
+          false,
         ),
       );
 
@@ -944,7 +1209,11 @@ export const handleArrayPatternAssignmentDecl = (
       loopConfig.breakTarget = postBB.getIDX();
 
       const currToLoop = new GotoSEXP(-1);
-      const loopToPost = new IfElseJumpSEXP(new EnvReadSEXP(for$of$loop$done), -1, -1);
+      const loopToPost = new IfElseJumpSEXP(
+        new EnvReadSEXP(for$of$loop$done),
+        -1,
+        -1,
+      );
 
       // 1. CurrBB to LoopBB
       currentBB.args.push(currToLoop);
@@ -973,17 +1242,17 @@ export const handleArrayPatternAssignmentDecl = (
           new JSComputedFieldWriteSEXP(
             tempres,
             tempit,
-            new EnvReadSEXP(for$of$loop$next)
+            new EnvReadSEXP(for$of$loop$next),
           ),
-          1
-        )
+          1,
+        ),
       );
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
           tempit,
           getIridiumBinop("+", new EnvReadSEXP(tempit), new NumberSEXP(1)),
           false,
-          false
+          false,
         ),
       );
       cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP());
@@ -1000,7 +1269,7 @@ export const handleArrayPatternAssignmentDecl = (
           e.argument.name,
           new EnvReadSEXP(tempres),
           safeWrite,
-          false
+          false,
         ),
       );
     }
@@ -1010,7 +1279,10 @@ export const handleArrayPatternAssignmentDecl = (
   );
 };
 
-const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) => {
+const handleVariableDeclaration = (
+  cx: IRIDIUMV2,
+  stmt: JS3VariableDeclaration,
+) => {
   // Assert that only one specifier exists
   if (stmt.kind === "using" || stmt.kind === "await using") {
     throw new Error(
@@ -1030,9 +1302,9 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   const declaration = stmt.declarations[0];
   let KIND: JSEnvWriteTypes;
 
-  if (stmt.kind === "let") KIND = "JSLET"
-  else if (stmt.kind === "const") KIND = "JSCONST"
-  else KIND = "JSVAR"
+  if (stmt.kind === "let") KIND = "JSLET";
+  else if (stmt.kind === "const") KIND = "JSCONST";
+  else KIND = "JSVAR";
 
   // case a.
   // KIND ID = RVal
@@ -1053,7 +1325,12 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
       }
     }
 
-    const envWrite = new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(declaration.id.name), rValTarget ? rValTarget : null, KIND, false);
+    const envWrite = new JSExplicitBindingDeclarationSEXP(
+      new ResolveEnvBindingSEXP(declaration.id.name),
+      rValTarget ? rValTarget : null,
+      KIND,
+      false,
+    );
     cx.getCurrentBB().args.push(envWrite);
     return;
   }
@@ -1061,17 +1338,38 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   // case b.
   // KIND [ ID, ...ID ] = RVal
   if (isJS3ArrayPattern(declaration.id)) {
-    const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined");
+    const rValTarget = declaration.init
+      ? IRIV2_RVAL(cx, declaration.init)
+      : new EnvReadSEXP("undefined");
 
     // Alloca all declarations
     for (let e of declaration.id.elements) {
       if (isIdentifier(e)) {
-        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(e.name), null, KIND, false));
+        cx.getCurrentBB().args.push(
+          new JSExplicitBindingDeclarationSEXP(
+            new ResolveEnvBindingSEXP(e.name),
+            null,
+            KIND,
+            false,
+          ),
+        );
       } else if (isJS3RestElement(e)) {
-        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(e.argument.name), null, KIND, false));
+        cx.getCurrentBB().args.push(
+          new JSExplicitBindingDeclarationSEXP(
+            new ResolveEnvBindingSEXP(e.argument.name),
+            null,
+            KIND,
+            false,
+          ),
+        );
       }
     }
-    handleArrayPatternAssignmentDecl(cx, declaration.id.elements, rValTarget, true);
+    handleArrayPatternAssignmentDecl(
+      cx,
+      declaration.id.elements,
+      rValTarget,
+      true,
+    );
 
     return;
   }
@@ -1079,25 +1377,46 @@ const handleVariableDeclaration = (cx: IRIDIUMV2, stmt: JS3VariableDeclaration) 
   // case c.
   // KIND { TRIV_KEY: ID, ...ID } = RVal
   if (isJS3ObjectPattern(declaration.id)) {
-    const rValTarget = declaration.init ? IRIV2_RVAL(cx, declaration.init) : new EnvReadSEXP("undefined");
+    const rValTarget = declaration.init
+      ? IRIV2_RVAL(cx, declaration.init)
+      : new EnvReadSEXP("undefined");
 
     // Alloca all declarations
     for (let d of declaration.id.properties) {
       if (isJS3AssnObjectProperty(d)) {
-        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(d.value.name), null, KIND, false));
+        cx.getCurrentBB().args.push(
+          new JSExplicitBindingDeclarationSEXP(
+            new ResolveEnvBindingSEXP(d.value.name),
+            null,
+            KIND,
+            false,
+          ),
+        );
       } else {
-        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationSEXP(new ResolveEnvBindingSEXP(d.argument.name), null, KIND, false));
+        cx.getCurrentBB().args.push(
+          new JSExplicitBindingDeclarationSEXP(
+            new ResolveEnvBindingSEXP(d.argument.name),
+            null,
+            KIND,
+            false,
+          ),
+        );
       }
     }
 
-    handleObjectPatternAssignmentExpr(cx, declaration.id.properties, rValTarget, true);
+    handleObjectPatternAssignmentExpr(
+      cx,
+      declaration.id.properties,
+      rValTarget,
+      true,
+    );
   }
 
   return;
-}
+};
 
 const handleLoopInitBlock = (cx: IRIDIUMV2, stmt: VariableDeclaration) => {
-  const otherProps = cx.js3Builder.utils;
+  const otherProps = cx.utils;
   const js3SpillHolder: JS3BlockStatement_body = [];
   const updatedProps = {
     ...otherProps,
@@ -1105,12 +1424,15 @@ const handleLoopInitBlock = (cx: IRIDIUMV2, stmt: VariableDeclaration) => {
   };
   const res = js3handleVariableDeclaration(stmt, updatedProps);
   for (let stmt of res) {
-    IRIV2_STMT(cx, stmt)
+    IRIV2_STMT(cx, stmt);
   }
-}
+};
 
-export const reduceMemberExpressionIntoJS3MemberExpression = (cx: IRIDIUMV2, stmt: MemberExpression) => {
-  const otherProps = cx.js3Builder.utils;
+export const reduceMemberExpressionIntoJS3MemberExpression = (
+  cx: IRIDIUMV2,
+  stmt: MemberExpression,
+) => {
+  const otherProps = cx.utils;
   const js3SpillHolder: JS3BlockStatement_body = [];
   const updatedProps = {
     ...otherProps,
@@ -1118,13 +1440,16 @@ export const reduceMemberExpressionIntoJS3MemberExpression = (cx: IRIDIUMV2, stm
   };
   const res = handleMemberExpression(stmt, updatedProps);
   for (let stmt of js3SpillHolder) {
-    IRIV2_STMT(cx, stmt)
+    IRIV2_STMT(cx, stmt);
   }
   return res;
-}
+};
 
-export const reduceJSAssignmentExprToIridium = (cx: IRIDIUMV2, stmt: AssignmentExpression) => {
-  const otherProps = cx.js3Builder.utils;
+export const reduceJSAssignmentExprToIridium = (
+  cx: IRIDIUMV2,
+  stmt: AssignmentExpression
+) => {
+  const otherProps = cx.utils;
   const js3SpillHolder: JS3BlockStatement_body = [];
   const updatedProps = {
     ...otherProps,
@@ -1132,9 +1457,9 @@ export const reduceJSAssignmentExprToIridium = (cx: IRIDIUMV2, stmt: AssignmentE
   };
   js3handleAssignmentExpression(stmt, updatedProps);
   for (let stmt of js3SpillHolder) {
-    IRIV2_STMT(cx, stmt)
+    IRIV2_STMT(cx, stmt);
   }
-}
+};
 
 // export const getArrayDestSEXP = (stmt: JS3ArrayPattern): [IridiumSEXP, boolean] => {
 //   // Assertion: a rest element must be the last in the destructuring pattern
@@ -1171,42 +1496,69 @@ const extractBindings = (node: JS3AllowedFunctionArgs, result: Set<string>) => {
     result.add(node.name);
   } else if (isArrayPattern(node)) {
     for (let r of node.elements) {
-      if (isIdentifier(r) || isArrayPattern(r) || isObjectPattern(r) || isAssignmentPattern(r) || isRestElement(r)) {
+      if (
+        isIdentifier(r) ||
+        isArrayPattern(r) ||
+        isObjectPattern(r) ||
+        isAssignmentPattern(r) ||
+        isRestElement(r)
+      ) {
         extractBindings(r, result);
       } else if (r === null) {
         continue;
-      } else
-        throw new Error("Todo, array pattern no Identifier case");
+      } else throw new Error("Todo, array pattern no Identifier case");
     }
   } else if (isObjectPattern(node)) {
     for (let p of node.properties) {
       if (isObjectProperty(p)) {
-        if (isIdentifier(p.value) || isArrayPattern(p.value) || isObjectPattern(p.value) || isAssignmentPattern(p.value) || isRestElement(p.value)) {
+        if (
+          isIdentifier(p.value) ||
+          isArrayPattern(p.value) ||
+          isObjectPattern(p.value) ||
+          isAssignmentPattern(p.value) ||
+          isRestElement(p.value)
+        ) {
           extractBindings(p.value, result);
         }
       } else if (isRestElement(p)) {
-        if (isIdentifier(p.argument) || isArrayPattern(p.argument) || isObjectPattern(p.argument) || isAssignmentPattern(p.argument) || isRestElement(p.argument)) {
+        if (
+          isIdentifier(p.argument) ||
+          isArrayPattern(p.argument) ||
+          isObjectPattern(p.argument) ||
+          isAssignmentPattern(p.argument) ||
+          isRestElement(p.argument)
+        ) {
           extractBindings(p.argument, result);
         }
-      } else
-        throw new Error("Todo, object pattern unhandled case");
+      } else throw new Error("Todo, object pattern unhandled case");
     }
   } else if (isAssignmentPattern(node)) {
-    if (isIdentifier(node.left) || isArrayPattern(node.left) || isObjectPattern(node.left) || isAssignmentPattern(node.left) || isRestElement(node.left)) {
+    if (
+      isIdentifier(node.left) ||
+      isArrayPattern(node.left) ||
+      isObjectPattern(node.left) ||
+      isAssignmentPattern(node.left) ||
+      isRestElement(node.left)
+    ) {
       extractBindings(node.left, result);
     } else throw new Error("Todo, assignment pattern unhandled case");
   } else if (isRestElement(node)) {
-    if (isIdentifier(node.argument) || isArrayPattern(node.argument) || isObjectPattern(node.argument) || isAssignmentPattern(node.argument) || isRestElement(node.argument)) {
+    if (
+      isIdentifier(node.argument) ||
+      isArrayPattern(node.argument) ||
+      isObjectPattern(node.argument) ||
+      isAssignmentPattern(node.argument) ||
+      isRestElement(node.argument)
+    ) {
       extractBindings(node.argument, result);
     } else throw new Error("Todo, RestElement unhandled case");
-  }
-  else
-    throw new Error("Todo, unhandled extract bindings case");
-}
-
+  } else throw new Error("Todo, unhandled extract bindings case");
+};
 
 export const funArgLength = (
-  params: Array<Identifier | ArrayPattern | ObjectPattern | AssignmentPattern | RestElement>
+  params: Array<
+    Identifier | ArrayPattern | ObjectPattern | AssignmentPattern | RestElement
+  >,
 ): number => {
   let count = 0;
   for (const param of params) {
@@ -1221,8 +1573,26 @@ export const funArgLength = (
 };
 
 // export type JS3AllowedFunctionArgs = Identifier | ArrayPattern | ObjectPattern | AssignmentPattern | RestElement;
-export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctionArgs>, abstractResolutions: Array<SiblingSpecialWriteSEXP> = [], extractedBindingsSet: Set<string> = new Set()) => {
+export const lowerArgumentInit = (
+  cx: IRIDIUMV2,
+  implicitBindings: Array<{
+    name: string;
+    type: JSImplicitBindingDeclarationTypes;
+    value: number;
+    initializer?: ListSEXP;
+  }>,
+  params: Array<JS3AllowedFunctionArgs>,
+  abstractResolutions: Array<SiblingSpecialWriteSEXP> = [],
+  extractedBindingsSet: Set<string> = new Set(),
+) => {
   const closureTopLevelContext = cx.getCurrentContext();
+
+  let hasArguments = implicitBindings.find((e) => e.name === "arguments")
+    ? true
+    : false;
+  let addVarDeclScope = implicitBindings.find((e) => e.name === "var")
+    ? true
+    : false;
 
   const currToArgInit = new GotoSEXP(-1);
   const argInitToPost = new GotoSEXP(-1);
@@ -1239,6 +1609,7 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
 
     const argInitConntext = cx.declareAndPushLexicalContext("VARBoundary"); // VARBoundary Start -- Arguments
     let argInitBBIdx = cx.getCurrentBB().getIDX();
+    argInitConntext.isArgInitContext = true;
 
     // S1: Extract all bindings that are being made
     // S2: Declare all argument as let bindings in the argument init scope
@@ -1249,6 +1620,23 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
     // const extractedBindingsSet: Set<string> = new Set();
     for (let p of params) extractBindings(p, extractedBindingsSet);
 
+    if (hasArguments && !extractedBindingsSet.has("arguments")) {
+      cx.getCurrentBB().args.push(
+        new JSExplicitBindingDeclarationSEXP(
+          new ResolveEnvBindingSEXP("arguments"),
+          null,
+          "JSLET",
+          false,
+        ),
+      );
+    }
+
+    if (addVarDeclScope) {
+      cx.getCurrentBB().args.push(
+        new JSImplicitBindingDeclarationSEXP("<var>", "JSVAR", 5),
+      );
+    }
+
     // S2: Declare all argument as let bindings in the argument init scope
     for (const b of extractedBindingsSet) {
       const bindingUnresolved = new ResolveEnvBindingSEXP(b);
@@ -1258,17 +1646,12 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
           bindingUnresolved,
           null,
           "JSLET",
-          false
+          false,
         ),
       );
 
       cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(
-          b,
-          new JSNUBDSEXP(),
-          true,
-          false
-        ),
+        new EnvWriteSEXP(b, new JSNUBDSEXP(), true, false),
       );
     }
 
@@ -1276,43 +1659,55 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
     const argReplacementMap: Map<JS3AllowedFunctionArgs, string> = new Map();
 
     for (const arg of params) {
-      let currArg = cx.js3Builder.utils.getNewTemporary("ARG");
+      let currArg = newTemp("ARG");
       closureTopLevelContext.args.push(currArg);
       if (isRestElement(arg)) closureTopLevelContext.hasRestArgs = true;
       argReplacementMap.set(arg, currArg);
     }
 
     // S3: Use assignment logic
-    cx.js3Builder.utils.iridiumArgContext = true;
+    cx.utils.iridiumArgContext = true;
     for (const arg of params) {
       const rVal = argReplacementMap.get(arg);
-      if (!rVal) throw new Error("Arg replacement map is supposed to map all the arguments");
-      if (isIdentifier(arg) || isArrayPattern(arg) || isObjectPattern(arg) || isAssignmentPattern(arg)) {
-        reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", arg, identifier(rVal)));
+      if (!rVal)
+        throw new Error(
+          "Arg replacement map is supposed to map all the arguments",
+        );
+      if (
+        isIdentifier(arg) ||
+        isArrayPattern(arg) ||
+        isObjectPattern(arg) ||
+        isAssignmentPattern(arg)
+      ) {
+        reduceJSAssignmentExprToIridium(
+          cx,
+          assignmentExpression("=", arg, identifier(rVal))
+        );
       } else if (isRestElement(arg)) {
-        reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", arg.argument, identifier(rVal)));
+        reduceJSAssignmentExprToIridium(
+          cx,
+          assignmentExpression("=", arg.argument, identifier(rVal))
+        );
       }
     }
-    cx.js3Builder.utils.iridiumArgContext = false;
+    cx.utils.iridiumArgContext = false;
 
     // Sibling scope forwarding
     // Sibling[a] = CurrScope[a]
     for (const b of extractedBindingsSet) {
-
       // lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean, mapInf: string, scopeIDX: number
       const siblingSpecialWrite = new SiblingSpecialWriteSEXP(
         b,
         new EnvReadSEXP(b),
         true,
         false,
-        -1
+        -1,
       );
 
       cx.getCurrentBB().args.push(siblingSpecialWrite);
 
       abstractResolutions.push(siblingSpecialWrite);
     }
-
 
     cx.getCurrentBB().args.push(argInitToPost);
     cx.popContext(); // VARBoundary End -- Arguments
@@ -1321,7 +1716,7 @@ export const lowerArgumentInit = (cx: IRIDIUMV2, params: Array<JS3AllowedFunctio
     currToArgInit.setIDX(argInitBBIdx);
     argInitToPost.setIDX(postBBIdx);
   }
-}
+};
 
 export const createLambda = (
   cx: IRIDIUMV2,
@@ -1333,31 +1728,45 @@ export const createLambda = (
   ecmaArgs: number,
   params: Array<JS3AllowedFunctionArgs>,
   body: Array<JS3AllowedBlockStatement>,
-  implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP  }>,
+  implicitBindings: Array<{
+    name: string;
+    type: JSImplicitBindingDeclarationTypes;
+    value: number;
+    initializer?: ListSEXP;
+  }>,
   name: string = "",
   sourceLine: number = -1,
   privateMapping: PrivateMapping | null = null,
   funcContextCallback: (arg0: IridiumBuildContext) => void = () => {},
   closureScopeCallback: () => void = () => {},
-  bodyScopeCallback: () => void = () => {}
+  bodyScopeCallback: () => void = () => {},
 ) => {
   // Lower Function code
-  const funcContext          = cx.declareAndPushLexicalContext("ClosureBoundary"); // ClosureBoundary
-  const funBBIdx             = funcContext.getCurrentBB().idx;
-  funcContext.isStrict       = isStrict;
-  funcContext.isAsync        = isAsync;
-  funcContext.isGenerator    = isGenerator;
-  funcContext.kind           = kind;
-  funcContext.ecmaArgs       = ecmaArgs;
+  const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary"); // ClosureBoundary
+  const funBBIdx = funcContext.getCurrentBB().idx;
+  funcContext.isStrict = isStrict;
+  funcContext.isAsync = isAsync;
+  funcContext.isGenerator = isGenerator;
+  funcContext.kind = kind;
+  funcContext.ecmaArgs = ecmaArgs;
   funcContext.privateMapping = privateMapping;
-  funcContext.name           = name;
-  funcContext.sourceLine     = sourceLine;
+  funcContext.name = name;
+  funcContext.sourceLine = sourceLine;
 
-  implicitBindings.forEach(binding => {
+  implicitBindings.forEach((binding) => {
     cx.getCurrentBB().args.push(
       binding.initializer
-        ? new JSImplicitBindingDeclarationSEXP(binding.name, binding.type, binding.value, binding.initializer)
-        : new JSImplicitBindingDeclarationSEXP(binding.name, binding.type, binding.value)
+        ? new JSImplicitBindingDeclarationSEXP(
+            binding.name,
+            binding.type,
+            binding.value,
+            binding.initializer,
+          )
+        : new JSImplicitBindingDeclarationSEXP(
+            binding.name,
+            binding.type,
+            binding.value,
+          ),
     );
   });
 
@@ -1368,12 +1777,19 @@ export const createLambda = (
   const extractedBindingsSet: Set<string> = new Set();
   {
     // Arguments
-    if (!isSimpleArgs) { // !funcContext.isStrict && isSimpleArgs
+    if (!isSimpleArgs) {
+      // !funcContext.isStrict && isSimpleArgs
       // VARBoundary Start -- Arguments
-      lowerArgumentInit(cx, params, abstractResolutions, extractedBindingsSet);
+      lowerArgumentInit(
+        cx,
+        implicitBindings,
+        params,
+        abstractResolutions,
+        extractedBindingsSet,
+      );
       // VARBoundary End -- Arguments
     } else {
-      params.forEach(p => {
+      params.forEach((p) => {
         if (isIdentifier(p)) {
           cx.getCurrentContext().args.push(p.name);
         }
@@ -1393,24 +1809,24 @@ export const createLambda = (
       const bodyScopeIDX = cx.getCurrentBB().getScopeIDX();
 
       // Set lookup target to sibling writes
-      abstractResolutions.forEach(ar => ar.setScopeIDX(bodyScopeIDX));
+      abstractResolutions.forEach((ar) => ar.setScopeIDX(bodyScopeIDX));
 
       // Declare the arguments in the body, using VAR semantics
 
-      extractedBindingsSet.forEach(bb => {
+      extractedBindingsSet.forEach((bb) => {
         cx.getCurrentBB().args.push(
           new JSExplicitBindingDeclarationNSEXP(
             new ResolveEnvBindingSEXP(bb),
             null,
             "JSVAR",
-            false
-          )
-        )
-      })
+            false,
+          ),
+        );
+      });
     }
 
-
-    if (funcContext.isGenerator) cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
+    if (funcContext.isGenerator)
+      cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
 
     // Callback called when emitting code to top level closure scope
     bodyScopeCallback();
@@ -1442,21 +1858,36 @@ export const createLambda = (
   cx.popContext(); // ClosureBoundary
 
   return funBBIdx;
-}
+};
 
-const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) => {
-  const isSimpleArgs  = stmt.params.every(p => isIdentifier(p));
-  const isStrict      = cx.getCurrentContext().isStrict || stmt.body.directives.some((val) => val.value.value === "use strict");
-  const isAsync       = stmt.async ? stmt.async : false;
-  const isGenerator   = stmt.generator ? stmt.generator : false;
-  const kind          = getConstructorClosureFlag();
-  const ecmaArgs      = funArgLength(stmt.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
+const handleFunctionDeclaration = (
+  cx: IRIDIUMV2,
+  stmt: JS3FunctionDeclaration,
+) => {
+  const isSimpleArgs = stmt.params.every((p) => isIdentifier(p));
+  const isStrict =
+    cx.getCurrentContext().isStrict ||
+    stmt.body.directives.some((val) => val.value.value === "use strict");
+  const isAsync = stmt.async ? stmt.async : false;
+  const isGenerator = stmt.generator ? stmt.generator : false;
+  const kind = getConstructorClosureFlag();
+  const ecmaArgs = funArgLength(stmt.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
 
-  const implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP  }> = [
-    { name: "arguments", type: "JSVAR", value: isStrict ? 0 : isSimpleArgs ? 1 : 0 },
+  const implicitBindings: Array<{
+    name: string;
+    type: JSImplicitBindingDeclarationTypes;
+    value: number;
+    initializer?: ListSEXP;
+  }> = [
+    {
+      name: "arguments",
+      type: "JSVAR",
+      value: isStrict ? 0 : isSimpleArgs ? 1 : 0,
+    },
     { name: "this", type: "JSLET", value: 9 },
     { name: "new.target", type: "JSVAR", value: 3 },
     { name: "<home_object>", type: "JSVAR", value: 4 },
+    { name: "<var>", type: "JSVAR", value: 5 },
     {
       name: "<super_obj>",
       type: "JSCONST",
@@ -1478,14 +1909,12 @@ const handleFunctionDeclaration = (cx: IRIDIUMV2, stmt: JS3FunctionDeclaration) 
     implicitBindings,
     stmt.id.name,
     stmt.loc?.start.line,
-  )
+  );
 
   const lambda = new LambdaSEXP(funBBIdx, stmt.id.name);
 
   // FUNC = LAMBDA
   cx.getCurrentBB().args.push(
-    new JSFuncDeclSEXP(
-      new ResolveEnvBindingSEXP(stmt.id.name), lambda
-    )
+    new JSFuncDeclSEXP(new ResolveEnvBindingSEXP(stmt.id.name), lambda),
   );
-}
+};
