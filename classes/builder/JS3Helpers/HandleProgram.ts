@@ -27,7 +27,6 @@ import {
   isExportNamedDeclaration,
   isExportNamespaceSpecifier,
   isExportSpecifier,
-  isExpression,
   isExpressionStatement,
   isFunctionDeclaration,
   isFunctionExpression,
@@ -80,7 +79,6 @@ import {
 
 import { JS3BuilderUtils } from "../JS3Builder";
 
-import debugConfig from "#debugConfig";
 
 import {
   handleFunctionDeclaration,
@@ -94,6 +92,7 @@ import babel from "@babel/core";
 import _generate from "@babel/generator";
 import _traverse from "@babel/traverse";
 import { handleDefaultExportNames } from "./GenericConstructs";
+import { ProjectFile } from "../../ProjectFile";
 
 // @ts-ignore
 let generate = _generate.default;
@@ -101,6 +100,20 @@ let generate = _generate.default;
 let traverse = _traverse.default;
 
 type OtherProps = JS3BuilderUtils;
+
+export function gen$JS3(
+  node: Program,
+  otherProps: OtherProps,
+  file: ProjectFile
+): JS3Program | null {
+  try {
+    const result = handleProgram(node, otherProps);
+    return result;
+  } catch (e: any) {
+    file.errLog.push(e.toString());
+    return null;
+  }
+}
 
 export function handleProgram(
   node: Program,
@@ -223,7 +236,8 @@ export function handleImportDeclaration(
       }
 
       if (!otherProps.others) throw new Error("otherProps.others undefined");
-      if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+      if (!otherProps.others.holder)
+        throw new Error("otherProps.others.holder is null");
 
       // Add duplicated node to the resultArray
       (otherProps.others.holder as JS3Program_body).push(duplicatedNode);
@@ -232,7 +246,8 @@ export function handleImportDeclaration(
 
   if (orig_specifiers.length === 0) {
     if (!otherProps.others) throw new Error("otherProps.others undefined");
-    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+    if (!otherProps.others.holder)
+      throw new Error("otherProps.others.holder is null");
 
     (otherProps.others.holder as JS3Program_body).push(
       generateJS3ImportDeclaration([], fin_assertions, fin_attributes, node),
@@ -258,7 +273,8 @@ export function handleExportDefaultDeclaration(
     if (isIdentifier(orig_declaration.id)) {
       const js3FnDecl = handleFunctionDeclaration(orig_declaration, otherProps);
       if (!otherProps.others) throw new Error("otherProps.others undefined");
-      if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+      if (!otherProps.others.holder)
+        throw new Error("otherProps.others.holder is null");
       otherProps.others.holder.push(js3FnDecl);
       fin_declaration = orig_declaration.id;
     }
@@ -275,7 +291,8 @@ export function handleExportDefaultDeclaration(
 
       js3ClassDecl.forEach((s) => {
         if (!otherProps.others) throw new Error("otherProps.others undefined");
-        if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+        if (!otherProps.others.holder)
+          throw new Error("otherProps.others.holder is null");
         otherProps.others.holder.push(s);
       });
 
@@ -300,7 +317,8 @@ export function handleExportDefaultDeclaration(
   } else {
     // ========================================================================================
     if (!otherProps.others) throw new Error("otherProps.others undefined");
-    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+    if (!otherProps.others.holder)
+      throw new Error("otherProps.others.holder is null");
     otherProps.others.prefix = "exportDefExpr";
     fin_declaration = handleExpression(orig_declaration, otherProps);
     // ========================================================================================
@@ -326,7 +344,8 @@ export function handleExportDefaultDeclaration(
     );
 
   if (!otherProps.others) throw new Error("otherProps.others undefined");
-  if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+  if (!otherProps.others.holder)
+    throw new Error("otherProps.others.holder is null");
   // Generate a export default statement and push it into the holder
   (otherProps.others.holder as JS3Program_body).push(duplicatedExportNamedDecl);
 }
@@ -367,7 +386,8 @@ export function handleExportNamedDeclaration(
     // ========================================================================================
     const js3FnDecl = handleFunctionDeclaration(orig_declaration, otherProps);
     if (!otherProps.others) throw new Error("otherProps.others undefined");
-    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+    if (!otherProps.others.holder)
+      throw new Error("otherProps.others.holder is null");
     otherProps.others.holder.push(js3FnDecl);
     const specifierArray: Array<JS3ExportSpecifier> = [];
     const specifier = generateJS3ExportSpecifierfromBaseNode(
@@ -385,7 +405,8 @@ export function handleExportNamedDeclaration(
       node,
     );
     if (!otherProps.others) throw new Error("otherProps.others undefined");
-    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+    if (!otherProps.others.holder)
+      throw new Error("otherProps.others.holder is null");
     (otherProps.others.holder as JS3Program_body).push(
       duplicatedExportNamedDecl,
     );
@@ -416,7 +437,8 @@ export function handleExportNamedDeclaration(
     // Spill all declarations
     fin_declarations.forEach((s) => {
       if (!otherProps.others) throw new Error("otherProps.others undefined");
-      if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+      if (!otherProps.others.holder)
+        throw new Error("otherProps.others.holder is null");
       otherProps.others.holder.push(s);
     });
 
@@ -445,7 +467,9 @@ export function handleExportNamedDeclaration(
             const tempVarDecl = generateJS3VariableDeclarationfromBaseNode(
               [tempVarDeclarator],
               orig_declaration.kind,
-              orig_declaration.declare === undefined ? null : orig_declaration.declare,
+              orig_declaration.declare === undefined
+                ? null
+                : orig_declaration.declare,
               orig_declaration,
             );
 
@@ -459,7 +483,10 @@ export function handleExportNamedDeclaration(
             const result = babel.transformSync(output.code, options);
 
             // Populate generated bindings
-            if (!result) throw new Error("Expected result to be non-null, handleExportNamedDeclaration");
+            if (!result)
+              throw new Error(
+                "Expected result to be non-null, handleExportNamedDeclaration",
+              );
             traverse(result.ast, {
               Program(path: any) {
                 for (const key in path.scope.bindings) {
@@ -469,9 +496,7 @@ export function handleExportNamedDeclaration(
               },
             });
           } catch (e) {
-            throw new Error(
-              `Failed lowering export declaration pattern: ${e}`
-            );
+            throw new Error(`Failed lowering export declaration pattern: ${e}`);
           }
         } else {
           // Trivial case
@@ -479,7 +504,7 @@ export function handleExportNamedDeclaration(
         }
 
         for (const b of declaredBindings) {
-          const specifierArray : Array<JS3ExportSpecifier> = [];
+          const specifierArray: Array<JS3ExportSpecifier> = [];
           const specifier = generateJS3ExportSpecifierfromBaseNode(
             generateIdentifier(orig_declaration, b),
             generateIdentifier(orig_declaration, b),
@@ -495,8 +520,10 @@ export function handleExportNamedDeclaration(
             fin_attributes,
             node,
           );
-          if (!otherProps.others) throw new Error("otherProps.others undefined");
-          if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+          if (!otherProps.others)
+            throw new Error("otherProps.others undefined");
+          if (!otherProps.others.holder)
+            throw new Error("otherProps.others.holder is null");
           (otherProps.others.holder as JS3Program_body).push(
             duplicatedExportNamedDecl,
           );
@@ -509,12 +536,14 @@ export function handleExportNamedDeclaration(
     const js3ClassDecl = handleClassDeclaration(orig_declaration, otherProps);
     js3ClassDecl.forEach((s) => {
       if (!otherProps.others) throw new Error("otherProps.others undefined");
-      if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+      if (!otherProps.others.holder)
+        throw new Error("otherProps.others.holder is null");
       otherProps.others.holder.push(s);
     });
     // otherProps.others.holder.push(js3ClassDecl)
     const specifierArray: Array<JS3ExportSpecifier> = [];
-    if (!orig_declaration.id) throw new Error("Expected declaration id to be non null");
+    if (!orig_declaration.id)
+      throw new Error("Expected declaration id to be non null");
     const specifier = generateJS3ExportSpecifierfromBaseNode(
       orig_declaration.id,
       orig_declaration.id,
@@ -530,7 +559,8 @@ export function handleExportNamedDeclaration(
       node,
     );
     if (!otherProps.others) throw new Error("otherProps.others undefined");
-    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+    if (!otherProps.others.holder)
+      throw new Error("otherProps.others.holder is null");
     (otherProps.others.holder as JS3Program_body).push(
       duplicatedExportNamedDecl,
     );
@@ -644,7 +674,8 @@ export function handleExportNamedDeclaration(
           node,
         );
         if (!otherProps.others) throw new Error("otherProps.others undefined");
-        if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+        if (!otherProps.others.holder)
+          throw new Error("otherProps.others.holder is null");
         (otherProps.others.holder as JS3Program_body).push(
           duplicatedExportNamedDecl,
         );
@@ -664,7 +695,8 @@ export function handleExportNamedDeclaration(
           node,
         );
         if (!otherProps.others) throw new Error("otherProps.others undefined");
-        if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+        if (!otherProps.others.holder)
+          throw new Error("otherProps.others.holder is null");
         (otherProps.others.holder as JS3Program_body).push(
           duplicatedExportNamedDecl,
         );
@@ -730,7 +762,8 @@ export function handleExportAllDeclaration(
     node,
   );
   if (!otherProps.others) throw new Error("otherProps.others undefined");
-  if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
+  if (!otherProps.others.holder)
+    throw new Error("otherProps.others.holder is null");
   // Generate a export default statement and push it into the holder
   (otherProps.others.holder as JS3Program_body).push(result);
 }
