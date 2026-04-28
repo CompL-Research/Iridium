@@ -1,32 +1,32 @@
+import pino from "pino";
+
+export const logger = pino();
 
 const config: {
-  operationMode: "js3" | "iri" | "pika";
-  cli: {
-    allowLangWithSupport: boolean;
-    outputsPath: string | undefined;
-    comments: boolean;
-    debugIri: boolean;
-    tout: boolean;
-    ljson: boolean;
-    iridiumPP: boolean;
-    sourceType: string;
-    projectBase: string | undefined;
+  operationMode: "js3" | "iri";
+  sourceType: "unambiguous" | "module" | "script";
+  rac: boolean;
+  dump: {
+    out: string;
+    js3: boolean;
+    irix: boolean;
+    iri: boolean;
+    irio: boolean;
   };
   versionNumber: string;
 } = {
   operationMode: "js3",
-  cli: {
-    allowLangWithSupport: false,
-    outputsPath: undefined,
-    comments: false,
-    debugIri: false,
-    tout: false,
-    ljson: false,
-    iridiumPP: false,
-    sourceType: "unambiguous",
-    projectBase: undefined,
+  sourceType: "unambiguous",
+  rac: false,
+  dump: {
+    out: "./",
+    js3: false,
+    irix: false,
+    iri: false,
+    irio: false,
   },
   versionNumber: ""
 };
+
 
 export default config;

@@ -1,35 +1,40 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import debugConfig from "#debugConfig";
 import chalk from "chalk";
 import path from "path";
-// @ts-ignore
+// @ts-expect-error
 import commandLineArgs from "command-line-args";
-// @ts-ignore
+// @ts-expect-error
 import commandLineUsage from "command-line-usage";
-import { projectStats } from "./projectStats";
 
-//let directories = ["./classes", "./configs", "./docs", "./playground/src"];
-let directories: Array<string> = [];
+import authors from "../Authors";
+
 //
 // Utility
 //
 export const getFirstCommand = [{ name: "command", defaultOption: true }];
 
-export const getNextCommand = (argv: Array<string> | undefined = undefined) : [string, Array<string>] => {
+export const getNextCommand = (
+  argv: Array<string> | undefined = undefined,
+): [string, Array<string>] => {
   const mainOptions = commandLineArgs(getFirstCommand, {
     argv: argv ? argv : undefined,
     stopAtFirstUnknown: true,
   });
 
   return [mainOptions.command, mainOptions._unknown || []];
-}
+};
 
-export const handleOptionsFromArgv = (argv: Array<string>, optionList: any) : Array<string> => {
-  const options = commandLineArgs(optionList, { argv, stopAtFirstUnknown: true });
+export const handleOptionsFromArgv = (
+  argv: Array<string>,
+  optionList: any,
+): Array<string> => {
+  const options = commandLineArgs(optionList, {
+    argv,
+    stopAtFirstUnknown: true,
+  });
   handleOptions(options);
   return options._unknown || [];
-}
-
+};
 
 type UsageSectionObject = {
   content?: any;
@@ -48,9 +53,8 @@ const defaultUsageInfo: UsageSectionsArray = [
       "Iridium is a static analysis framework for JavaScript Programs 📈.",
       "$ ./iridium <command>",
       "$ ./iridium js3",
-      "$ ./iridium pika",
       "$ ./iridium iri",
-      "$ ./iridium stats",
+      "$ ./iridium author",
       "$ ./iridium help",
     ],
   },
@@ -58,11 +62,7 @@ const defaultUsageInfo: UsageSectionsArray = [
     header: "Command List",
     content: [
       { name: "help", summary: "Display this information." },
-      { name: "js3", summary: "Generate JS3 file and print to stdout" },
-      {
-        name: "pika",
-        summary: "Generate Iridium Pika-ge (package).",
-      },
+      { name: "js3", summary: "Generate JS3 file (.js3.js)" },
       {
         name: "iri",
         summary: "Generate Iridium file (.iri)",
@@ -71,50 +71,70 @@ const defaultUsageInfo: UsageSectionsArray = [
   },
 ];
 
-const projectStatsInfo: UsageSectionsArray = [
-  {
-    header: "=== Iridium ===",
-    content: [
-      ...projectStats(directories)
-    ],
-  }
-];
-
 type UsageSectionsArray = Array<UsageSectionObject>;
+
+const OPT_OUT = {
+  name: "out",
+  description: "Output folder (default = cwd).",
+  alias: "o",
+  type: String,
+  typeLabel: "{underline path} ...",
+  defaultValue: "./",
+};
+
+const OPT_SRC_TYPE = {
+  name: "source-type",
+  description: 'Source Type ("module" | "script" | "unambiguous" (default)).',
+  alias: "s",
+  type: String,
+  defaultValue: "unambiguous",
+};
+
+const OPT_RUN_AFTER_COMPILE = (defVal: boolean) => ({
+  name: "rac",
+  description: "Run after compilation.",
+  alias: "r",
+  type: Boolean,
+  defaultValue: defVal,
+});
+
+const OPT_DUMP_JS3 = (defVal: boolean) => ({
+  name: "dump-js3",
+  description: "Dump js3 pass outputs ( *.3js.js ).",
+  type: Boolean,
+  defaultValue: defVal,
+});
+
+const OPT_DUMP_IRI_X = (defVal: boolean) => ({
+  name: "dump-iri-x",
+  description: "Dump iri after Structural Reduction pass ( *.iri.x ).",
+  type: Boolean,
+  defaultValue: defVal,
+});
+
+const OPT_DUMP_IRI = (defVal: boolean) => ({
+  name: "dump-iri",
+  description: "Dump iri after Forge ( *.iri ).",
+  type: Boolean,
+  defaultValue: defVal,
+});
+
+const OPT_DUMP_IRI_OPT = (defVal: boolean) => ({
+  name: "dump-iri-opt",
+  description: "Dump iri after each Optimization pass ( *.opt.iri ).",
+  type: Boolean,
+  defaultValue: defVal,
+});
 
 //
 // === JS3 Related ===
 //
 
 const JS3_OPTIONS = [
-  {
-    name: "outputs-path",
-    description:
-      "Path to outputs directory (For JS3 this must be an file path).",
-    alias: "o",
-    type: String,
-    typeLabel: "{underline path} ...",
-  },
-  {
-    name: "comments",
-    description:
-      "Preserves comments when translating to JS3 (needed for test262 tests to run).",
-    alias: "c",
-    type: Boolean,
-  },
-  {
-    name: "tout",
-    description:
-      "Print the output directly to the terminal.",
-    alias: "t",
-    type: Boolean,
-  },
-  {
-    name: "source-type",
-    description: 'Source Type ("module" | "script" | "unambigious" (default)).',
-    alias: "s",
-    type: String,
-  }
+  OPT_OUT,
+  OPT_SRC_TYPE,
+  OPT_RUN_AFTER_COMPILE(false),
+  OPT_DUMP_JS3(false),
 ];
 
 export const js3UsageInfo: UsageSectionsArray = [
@@ -133,60 +153,19 @@ export const js3UsageInfo: UsageSectionsArray = [
 //
 
 const IRI_OPTIONS = [
-  {
-    name: "outputs-path",
-    description:
-      "Path to outputs directory (For JS3 this must be an file path).",
-    alias: "o",
-    type: String,
-    typeLabel: "{underline path} ...",
-  },
-  {
-    name: "comments",
-    description:
-      "Preserves comments when translating to JS3 (needed for test262 tests to run).",
-    alias: "c",
-    type: Boolean,
-  },
-  {
-    name: "pp",
-    description:
-      "Pretty Print.",
-    type: Boolean,
-  },
-  {
-    name: "tout",
-    description:
-      "Print the output directly to the terminal.",
-    alias: "t",
-    type: Boolean,
-  },
-  {
-    name: "ljson",
-    description:
-      "Generate legacy json format using the old pipeline, all the passes are also run (this is very slow for large programs).",
-    type: Boolean,
-  },
-  {
-    name: "debugIri",
-    description:
-      "Print the generated intermediate binary to stdout consubed by the forge project.",
-    type: Boolean,
-  },
-  {
-    name: "source-type",
-    description: 'Source Type ("module" | "script" | "unambigious" (default)).',
-    alias: "s",
-    type: String,
-  }
+  OPT_OUT,
+  OPT_SRC_TYPE,
+  OPT_RUN_AFTER_COMPILE(false),
+  OPT_DUMP_JS3(false),
+  OPT_DUMP_IRI_X(false),
+  OPT_DUMP_IRI(false),
+  OPT_DUMP_IRI_OPT(false),
 ];
 
 export const iriUsageInfo: UsageSectionsArray = [
   {
     header: "=== IRI ===",
-    content: [
-      `$ ./iridium iri [OPTIONS] {bold <project-base-path>} {bold <source-js-file>}`,
-    ],
+    content: [`$ ./iridium iri [OPTIONS] {bold <source-js-file>}`],
   },
   {
     header: "Iridium Options",
@@ -194,114 +173,37 @@ export const iriUsageInfo: UsageSectionsArray = [
   },
 ];
 
-//
-// === IRIDIUM Related ===
-//
-
-const PIKA_OPTIONS = [
-  {
-    name: "outputs-path",
-    description:
-      "Path to outputs directory (For JS3 this must be an file path).",
-    alias: "o",
-    type: String,
-    typeLabel: "{underline path} ...",
-  },
-  {
-    name: "comments",
-    description:
-      "Preserves comments when translating to JS3 (needed for test262 tests to run).",
-    alias: "c",
-    type: Boolean,
-  },
-  {
-    name: "pp",
-    description:
-      "Pretty Print.",
-    type: Boolean,
-  },
-  {
-    name: "tout",
-    description:
-      "Print the output directly to the terminal.",
-    alias: "t",
-    type: Boolean,
-  },
-  {
-    name: "source-type",
-    description: 'Source Type ("module" | "script" | "unambigious" (default)).',
-    alias: "s",
-    type: String,
-  },
-];
-
-export const pikaUsageInfo: UsageSectionsArray = [
-  {
-    header: "=== Pika ===",
-    content: [
-      `$ ./iridium pika [OPTIONS] {bold <project-base-path>} {bold <main-file>} {bold <other-file>...}`,
-    ],
-  },
-  {
-    header: "Pika Options",
-    optionList: [...PIKA_OPTIONS],
-  },
-];
-
-//
-// General Exports
-//
-export const handleOutputsPath = (options: any) => {
-  if (options["outputs-path"] === null) {
-    console.log(chalk.red("Outputs path not provided"));
-    process.exit(1);
-  }
-  debugConfig.cli.outputsPath = path.resolve("./" + options["outputs-path"]);
-};
-
-export const handleComments = () => {
-  debugConfig.cli.comments = true;
-};
-
-export const handleTout = () => {
-  debugConfig.cli.tout = true;
-}
-
-export const handleLjson = () => {
-  debugConfig.cli.ljson = true;
-}
-
-export const handleDebugIri = () => {
-  debugConfig.cli.debugIri = true;
-}
-
-export const handleIridiumPP = () => {
-  debugConfig.cli.iridiumPP = true;
-}
-
-export const handleSourceType = (options: any) => {
-  if (options["source-type"] === null) {
-    console.log(chalk.red("JS3 mode is not provided"));
-    process.exit(1);
-  }
-  debugConfig.cli.sourceType = options["source-type"];
-};
-
-// export const handleLangWithSupport = () =>
-//   (debugConfig.cli.allowLangWithSupport = true);
-// export const handleSavePTAGraph = () => (debugConfig.cli.savePTAGraph = true);
-// export const handleSaveFlowGraph = () => (debugConfig.cli.saveFlowGraph = true);
-// export const handleSaveDepGraph = () => (debugConfig.cli.saveDepGraph = true);
-
 export const handleOptions = (options: any) => {
-  if ("outputs-path" in options) handleOutputsPath(options);
-  if ("comments" in options) handleComments();
-  if ("debugIri" in options) handleDebugIri();
-  if ("tout" in options) handleTout();
-  if ("ljson" in options) handleLjson();
-  if ("pp" in options) handleIridiumPP();
-  if ("source-type" in options) handleSourceType(options);
-}
+  if (OPT_OUT.name in options) {
+    debugConfig.dump.out = path.resolve(options[OPT_OUT.name]);
+  }
+  if (OPT_SRC_TYPE.name in options) {
+    debugConfig.sourceType = options[OPT_SRC_TYPE.name];
+    if (
+      debugConfig.sourceType !== "unambiguous" &&
+      debugConfig.sourceType !== "script" &&
+      debugConfig.sourceType !== "module"
+    ) {
+      throw new Error("Supplied source type is invalid");
+    }
+  }
+  if (OPT_RUN_AFTER_COMPILE(false).name in options) {
+    debugConfig.rac = options[OPT_RUN_AFTER_COMPILE(false).name];
+  }
+
+  if (OPT_DUMP_JS3(false).name in options) {
+    debugConfig.dump.js3 = options[OPT_DUMP_JS3(false).name];
+  }
+  if (OPT_DUMP_IRI_X(false).name in options) {
+    debugConfig.dump.irix = options[OPT_DUMP_IRI_X(false).name];
+  }
+  if (OPT_DUMP_IRI(false).name in options) {
+    debugConfig.dump.iri = options[OPT_DUMP_IRI(false).name];
+  }
+  if (OPT_DUMP_IRI_OPT(false).name in options) {
+    debugConfig.dump.irio = options[OPT_DUMP_IRI_OPT(false).name];
+  }
+};
 
 export function printDefaultUsage(header: string) {
   const sections: UsageSectionsArray = [
@@ -312,20 +214,6 @@ export function printDefaultUsage(header: string) {
     },
 
     ...defaultUsageInfo,
-  ];
-  const usage = commandLineUsage(sections);
-  console.log(usage);
-}
-
-export function printProjectStats(header: string) {
-  const sections: UsageSectionsArray = [
-    // Sometimes the type system is just annoying
-    {
-      content: chalk.red(header),
-      raw: true,
-    },
-
-    ...projectStatsInfo,
   ];
   const usage = commandLineUsage(sections);
   console.log(usage);
@@ -345,21 +233,6 @@ export function printJS3Usage(header: string) {
   console.log(usage);
 }
 
-export function printPikaUsage(header: string) {
-  const sections: UsageSectionsArray = [
-    // Sometimes the type system is just annoying
-    {
-      content: chalk.red(header),
-      raw: true,
-    },
-
-    ...pikaUsageInfo,
-  ];
-  const usage = commandLineUsage(sections);
-  console.log(usage);
-}
-
-
 export function printIRIUsage(header: string) {
   const sections: UsageSectionsArray = [
     // Sometimes the type system is just annoying
@@ -372,4 +245,87 @@ export function printIRIUsage(header: string) {
   ];
   const usage = commandLineUsage(sections);
   console.log(usage);
+}
+
+export function printAuthorInfo() {
+  const IndiaFlag =
+    // --- SAFFRON (Top 10 lines) ---
+    "\x1B[38;5;208m" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡤⠤⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⣏⡀⠀⠀⠀⢳⣀⣀⣤⠤⠢⢤⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣨⠷⠀⠀⠀⠀⠀⠀⠀⣠⠼⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⠀⠀⠀⠀⠀⠀⠀⠸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠣⣄⣀⠀⠀⠀⠀⣰⣾⠆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡏⠉⠀⠀⠀⠀⠘⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠃⠀⠀⠀⠀⠀⠀⠀⠙⠲⢦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠏⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡞⠉⠁⠈⣆⣀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠦⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⢤⠀⠀⠀⠀⣤⡞⠁⠀⠀⠀⢀⡴⠯⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠋⠦⠚⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠒⠤⠤⣤⡀⠀⠀⠀⠀⢇⠸⢤⣤⠤⠤⠼⠃⠀⠀⠀⠰⡉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    // --- WHITE (Middle 10 lines) ---
+    "\x1B[38;5;255m" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠛⠛⠒⠚⣾⡶⢤⠀⠀⠀⠀⠀⠀⠀⣼⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⠛⠘⠒⠈⢉⣩⠇⢀⡀⣽⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣄⡠⠤⠧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⡆⠀⠀⠀⡞⣵⢦⢸⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⢿⡉⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⠙⠟⢸⣀⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⣽⣿⡿⠃⠀⠀⡠⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣤⢀⡧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠳⣄⠀⠀⢀⠷⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠁⠀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠚⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠖⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    // --- GREEN (Bottom 10 lines) ---
+    "\x1B[38;5;34m" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣴⠒⠚⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠏⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢣⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⠀⠀⠀⠀⠀⡾⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⡆⠀⠀⠀⠀⠀⠀⣵⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⡀⠀⠀⠀⢠⡟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢧⠀⠀⡜⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+    // --- RESET terminal colors ---
+    "\x1B[0m";
+  console.log(IndiaFlag);
+
+  console.log(
+    chalk.bold.hex("#00ff41")("⬡ IRIDIUM ") +
+      chalk.gray("| ") +
+      chalk.white("Static Analysis Framework"),
+  );
+  console.log(
+    chalk.hex("#00ff41")("└── ") +
+      chalk.dim("Origin: ") +
+      chalk.bold.blue("IIT Bombay"),
+  );
+  console.log(
+    chalk.hex("#00ff41")("└── ") +
+      chalk.dim("Lead:   ") +
+      chalk.magenta("Meetesh Kalpesh Mehta"),
+  );
+  console.log(
+    `\n${chalk.bgWhite.black.bold(" CORE CONCEPT ")} ${chalk.italic("Sounder Static Analysis/Optimization for JavaScript Programs.")}`,
+  );
+
+  interface AuthorInfo {
+    Role: string;
+    Affiliation: string;
+    Email: string;
+  }
+
+  const tableData: Record<string, AuthorInfo> = {};
+
+  authors.forEach(([name, affiliation, email], index) => {
+    const role = index === 0 ? "Maintainer" : "Contributor";
+    // We use the name as the key for the object
+    tableData[name] = {
+      Role: role,
+      Affiliation: affiliation,
+      Email: email ?? "N/A",
+    };
+  });
+  console.table(tableData);
+  console.log(`\nTotal Contributors: ${authors.length}`);
+  console.log(`Primary Contact: ${authors[0][0]} <${authors[0][2]}>\n`);
 }

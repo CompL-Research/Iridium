@@ -1,22 +1,19 @@
-import debugConfig from "#debugConfig";
-import {
-  initializeOutputsPath
-} from "#utils";
+import debugConfig, { logger } from "#debugConfig";
 import chalk from "chalk";
-import { IridiumBuildContext, IRIDIUMV2 } from "./classes/builder/IridiumV2/IRIDIUMV2";
+import { IRIDIUMV2 } from "./classes/builder/IridiumV2/IRIDIUMV2";
 import { tick, tock, printReport } from "./classes/debugger/IRIPerf";
 import JS3Builder from "./classes/builder/JS3Builder";
 import { ProjectFile } from "./classes/ProjectFile";
-import { initIRI, initJS3, initPIKA } from "./configs/argparse";
+import { initIRI, initJS3 } from "./configs/argparse";
 import fs from "fs";
-import path from "path";
 import {
   getNextCommand,
+  printAuthorInfo,
   printDefaultUsage,
-  printProjectStats
 } from "./configs/printUsage";
 import { VERSION } from "./configs/projectStats";
-
+import { IridiumSEXP } from "./classes/builder/IridiumV2/Types";
+import { execSync } from "child_process";
 
 debugConfig.versionNumber = `Iridium ${VERSION}`;
 
@@ -32,127 +29,151 @@ Iridium Version: ${chalk.red(VERSION)}
 `;
 
 // FilePath -> JS3Builder
-function js3(filePath: string, printToConsole = false): JS3Builder {
-  tick("js3")
-  const file = new ProjectFile(filePath, path.dirname(filePath));
-  try {
-    tick("initSync")
-    if (debugConfig.cli.sourceType === "unambiguous" || debugConfig.cli.sourceType === "script" || debugConfig.cli.sourceType === "module") {
-      file.initSync(debugConfig.cli.sourceType);
-    } else {
-      throw new Error("JS3: supplied source type is invalid");
-    }
+function js3(filePath: string): ProjectFile {
+  tick("js3");
+  const file = new ProjectFile(filePath);
 
-    if (file.initData.parseStatus !== "parsed")
-      throw new Error("JS3: Failed to parse input file (there might be syntax errors or sourceType is set incorrectly)");
+  tick("babel");
+  file.initSync(debugConfig.sourceType);
+  tock("babel");
 
-    tock("initSync")
-
-    tick("js3Build")
-    const builder = new JS3Builder(file);
-    builder.build();
-    tock("js3Build")
-
-    if (printToConsole)
-      console.log(builder.getCodeString());
-
-    return builder;
-  } catch (e) {
-    throw new Error(`Failed to generate JS3: ${e}`);
-  } finally {
-    tock("js3")
-  }
-}
-
-function iri(filePath: string, printToConsole = false): IRIDIUMV2 {
-  tick("iri")
-  try {
-    const js3Builder = js3(filePath, false);
-    const iridiumV2Builder = new IRIDIUMV2(js3Builder);
-
-    tick("iri-build")
-    iridiumV2Builder.build();
-    tock("iri-build")
-
-    if (!iridiumV2Builder.container) throw new Error("Iridium container is undefined");
-
-    if (debugConfig.cli.iridiumPP) {
-      console.log(iridiumV2Builder.container.toString());
-    }
-
-    if (printToConsole) {
-      // @ts-ignore
-      process.stdout.write(iridiumV2Builder.result);
-    }
-    else
-    {
-      iridiumV2Builder.saveToDisk()
-    }
-
-    return iridiumV2Builder;
-  } catch (e) {
-    throw new Error(`Failed to generate Iridium: ${e}`);
-  } finally {
-    tock("iri")
-  }
-}
-
-function pika(files: Array<string>, printToConsole = false) {
-  const finalRes: Array<any> = [];
-  for (let i = 0; i < files.length; i++) {
-    finalRes.push(iri(files[i], false).result);
-    IridiumBuildContext.resetBuildContext();
+  if (file.info.babel !== "parsed") {
+    logger.error(file.errLog, "Babel parsing failed");
+    process.exit(1);
   }
 
-  const finalStr = JSON.stringify({ pika: finalRes });
+  tick("build");
+  const builder = new JS3Builder(file);
+  builder.build();
+  if (!file.info.js3 || file.info.js3 !== "parsed") {
+    logger.error(file.errLog, "JS3 build failed");
+    process.exit(1);
+  }
+  tock("build");
 
-  if (printToConsole)
-    console.log(finalStr);
-  else {
-    const filePath = debugConfig.cli.outputsPath + "/" + "bundle.pika";
+  if (debugConfig.dump.js3) {
+    tick("save-to-disk");
     fs.writeFileSync(
-      filePath,
-      finalStr);
+      debugConfig.dump.out + "/" + file.uname + ".js3.js",
+      file.getJS3CodeStringPayload(),
+    );
+    tock("save-to-disk");
   }
+
+  if (debugConfig.operationMode === "js3") {
+    if (debugConfig.rac) {
+      const tempFile = "/tmp/" + file.uname + ".js3.js";
+      try {
+        tick("save-to-disk");
+        fs.writeFileSync(tempFile, file.getJS3CodeStringPayload());
+        tock("save-to-disk");
+        tick("execute");
+        const output: string = execSync(
+          `./externalDeps/quickjs/build/qjs_new ${tempFile}`,
+          { encoding: "utf-8" },
+        );
+        console.log(output);
+        tock("execute");
+      } catch (error: any) {
+        // The error object contains stderr and the exit code
+        console.error("Execution failed:", error.stderr?.toString());
+        process.exit(1);
+      } finally {
+        if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
+      }
+    }
+  }
+
+  tock("js3");
+  return file;
+}
+
+function iri(filePath: string): ProjectFile {
+  tick("iri");
+  const file = js3(filePath);
+  const iridiumV2Builder = new IRIDIUMV2(file, { iridiumArgContext: false });
+  tick("build");
+  iridiumV2Builder.build();
+  if (!file.info.iri || file.info.iri !== "normalized") {
+    logger.error(file.errLog, "IRI build failed");
+    process.exit(1);
+  }
+  tock("build");
+
+  if (debugConfig.dump.irix) {
+    tick("save-to-disk");
+    fs.writeFileSync(
+      debugConfig.dump.out + "/" + file.uname + ".iri.x",
+      IridiumSEXP.dumpFlat(file.getIRIXPayload()).join("\n"),
+    );
+    tock("save-to-disk");
+  }
+
+  if (debugConfig.dump.iri) {
+    tick("save-to-disk");
+    fs.writeFileSync(
+      debugConfig.dump.out + "/" + file.uname + ".iri",
+      file.getIRIPayload(),
+    );
+    tock("save-to-disk");
+  }
+
+  if (debugConfig.operationMode === "iri") {
+    if (debugConfig.rac) {
+      const tempFile = "/tmp/" + file.uname + ".iri";
+      try {
+        tick("save-to-disk");
+        fs.writeFileSync(tempFile, file.getIRIPayload());
+        tock("save-to-disk");
+        tick("execute");
+        const output: string = execSync(
+          `./externalDeps/quickjs/build/qjs_new -X ${tempFile}`,
+          { encoding: "utf-8" },
+        );
+        console.log(output);
+        tock("execute");
+      } catch (error: any) {
+        // The error object contains stderr and the exit code
+        console.error("Execution failed:", error.stderr?.toString());
+        process.exit(1);
+      } finally {
+        if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
+      }
+    }
+  }
+
+  tock("iri");
+  return file;
 }
 
 function main() {
-  tick("main")
+  tick("main");
   let [mainCommand, argv] = getNextCommand();
-
-  debugConfig.cli.outputsPath = path.resolve("./outputs");
 
   switch (mainCommand) {
     case "iri": {
       const IRIPATH = initIRI(header, argv);
-      if (!debugConfig.cli.tout) initializeOutputsPath();
-      iri(IRIPATH, debugConfig.cli.tout);
+      iri(IRIPATH);
       break;
     }
     case "js3": {
       const JS3PATH = initJS3(header, argv);
-      if (!debugConfig.cli.tout) initializeOutputsPath();
-      js3(JS3PATH, debugConfig.cli.tout);
-      break;
-    }
-    case "pika": {
-      const paths = initPIKA(header, argv);
-      if (!debugConfig.cli.tout) initializeOutputsPath();
-      pika(paths, debugConfig.cli.tout);
+      logger.error(debugConfig, "Config");
+      js3(JS3PATH);
       break;
     }
 
-    case "stats": {
-      printProjectStats(header);
+    case "author": {
+      printAuthorInfo();
       break;
     }
 
-    default: printDefaultUsage(header);
+    default:
+      printDefaultUsage(header);
   }
 
-  tock("main")
-  if (!debugConfig.cli.tout)
-    printReport()
+  tock("main");
+  printReport();
 }
 
 main();
