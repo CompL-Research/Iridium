@@ -170,7 +170,6 @@ import {
   JS3WithStatement_object,
 } from "./JS3Types";
 
-import debugConfig from "#debugConfig";
 import {
   handleArrowFunctionExpression,
   handleClassExpression,
@@ -225,6 +224,7 @@ import {
   lowerComputedKey,
 } from "./GenericConstructs";
 import { handleClassDeclaration } from "./HandleClassDeclaration";
+import { newTemp } from "../Shared";
 
 type OtherProps = JS3BuilderUtils;
 
@@ -294,12 +294,9 @@ export function handleStatement(
   else if (isWhileStatement(node))
     return handleWhileStatement(node, otherProps);
   else if (isWithStatement(node)) {
-    if (debugConfig.cli.allowLangWithSupport)
-      return handleWithStatement(node, otherProps);
-    else
-      throw new Error(
-        "TODO // unhandled Statement->WithStatement [REMOVED SUPPORT]",
-      );
+    throw new Error(
+      "TODO // unhandled Statement->WithStatement [REMOVED SUPPORT]",
+    );
   } else if (isClassDeclaration(node))
     return handleClassDeclaration(node, otherProps);
   else if (isExportAllDeclaration(node)) {
@@ -435,23 +432,7 @@ export function handleExpressionStatement(
   otherProps: OtherProps,
 ) {
   const orig_expression = node.expression; // Handling prop expression
-  const leadingCommentEmptyNode = generateJS3EmptyStatementfromBaseNode(node);
-  const trailingCommentEmptyNode = generateJS3EmptyStatementfromBaseNode(node);
-  leadingCommentEmptyNode.trailingComments = null;
-  trailingCommentEmptyNode.leadingComments = null;
-
-  if (debugConfig.cli.comments) {
-    if (!otherProps.others) throw new Error("otherProps.others undefined");
-    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
-    otherProps.others.holder.push(leadingCommentEmptyNode);
-  }
   handleExpression(orig_expression, otherProps);
-  if (debugConfig.cli.comments) {
-    if (!otherProps.others) throw new Error("otherProps.others undefined");
-    if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
-    otherProps.others.holder.push(trailingCommentEmptyNode);
-  }
-
   return generateJS3EmptyStatementfromBaseNode(node);
 }
 
@@ -716,7 +697,7 @@ export function handleDeclaratorRec(
         temporaries.push(
           generateIdentifier(
             LVal,
-            otherProps.getNewTemporary("arraPat"),
+            newTemp("arraPat"),
           )
         );
         continue;
@@ -724,7 +705,7 @@ export function handleDeclaratorRec(
 
       const temporary = generateIdentifier(
         LVal,
-        otherProps.getNewTemporary("arraPat"),
+        newTemp("arraPat"),
       );
 
       if (generateIntermediateBindings) {
@@ -850,11 +831,11 @@ export function handleDeclaratorRec(
 
     const fin$res = generateIdentifier(
       LVal,
-      otherProps.getNewTemporary("assnPat"),
+      newTemp("assnPat"),
     );
     const cond$res = generateIdentifier(
       LVal,
-      otherProps.getNewTemporary("condRes"),
+      newTemp("condRes"),
     );
     const undefID = generateIdentifier(LVal, "undefined");
 
@@ -906,7 +887,7 @@ export function handleDeclaratorRec(
     );
     const tempVar = generateTempIdentifier(
       LVal,
-      otherProps.getNewTemporary("tempID"),
+      newTemp("tempID"),
     );
     const finDeclarator = generateJS3VariableDeclaratorfromBaseNode(
       tempVar,
@@ -1011,7 +992,7 @@ export function handleDeclaratorRec(
 
       const temporary = generateIdentifier(
         LVal,
-        otherProps.getNewTemporary("objPat"),
+        newTemp("objPat"),
       );
 
       if (generateIntermediateBindings) {
@@ -1268,12 +1249,12 @@ export function handleCatchClause(node: CatchClause, otherProps: OtherProps) {
   if (isIdentifier(orig_param)) {
     fin_param = orig_param;
   } else if (isArrayPattern(orig_param)) {
-    fin_param = generateIdentifier(node, otherProps.getNewTemporary("param"));
+    fin_param = generateIdentifier(node, newTemp("param"));
 
     const declarator = variableDeclarator(orig_param, fin_param);
     paramSpill = variableDeclaration("let", [declarator]);
   } else if (isObjectPattern(orig_param)) {
-    fin_param = generateIdentifier(node, otherProps.getNewTemporary("param"));
+    fin_param = generateIdentifier(node, newTemp("param"));
 
     const declarator = variableDeclarator(orig_param, fin_param);
     paramSpill = variableDeclaration("let", [declarator]);
