@@ -1,3 +1,6 @@
+*.js3.js
+*.iri.x
+*.iri
 tests/failure*.txt
 tests/failure_summar*
 tests/failing*
