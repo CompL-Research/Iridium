@@ -13,7 +13,6 @@ import {
   Expression,
   FunctionExpression,
   identifier,
-  super as supp,
   Identifier,
   Import,
   ImportExpression,
@@ -29,7 +28,6 @@ import {
   isBlockStatement,
   isBooleanLiteral,
   isCallExpression,
-  isClassBody,
   isClassExpression,
   isClassImplements,
   isConditionalExpression,
@@ -95,7 +93,6 @@ import {
   isYieldExpression,
   logicalExpression,
   LogicalExpression,
-  memberExpression,
   MemberExpression,
   MetaProperty,
   NewExpression,
@@ -113,8 +110,6 @@ import {
   UnaryExpression,
   UpdateExpression,
   YieldExpression,
-  Super,
-  stringLiteral,
   ArrayPattern,
   booleanLiteral
 } from "@babel/types";
@@ -125,7 +120,6 @@ import {
   generateJS3AnonArrayExpressionfromBaseNode,
   generateJS3AnonMemberExpressionfromBaseNode,
   generateJS3ArrayExpression,
-  generateJS3ArrayPatternfromBaseNode,
   generateJS3ArrowFunctionExpression,
   generateJS3AssignmentExpression,
   generateJS3AssignmentExpressionfromBaseNode,
@@ -170,7 +164,6 @@ import {
   JS3AllowedBlockStatement,
   JS3ArrayExpression,
   JS3ArrayExpression_elements,
-  JS3ArrayPattern,
   JS3ArrowFunctionExpression,
   JS3ArrowFunctionExpression_body,
   JS3ArrowFunctionExpression_params,
@@ -274,6 +267,7 @@ import {
   JS3CallExpression_typeArguments,
   JS3CallExpression_typeParameters,
 } from "./JS3Types";
+import { newTemp } from "../Shared";
 
 type OtherProps = JS3BuilderUtils;
 
@@ -296,7 +290,7 @@ export function handleExpression(
     // $resultIdentifier = [id, id, , id]
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleArrayExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -313,7 +307,7 @@ export function handleExpression(
     // const assnExpr = handleAssignmentExpression(node, otherProps)
     // // otherProps.others.holder.push(assnExpr)
 
-    // resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+    // resultIdentifier = generateIdentifier(node, newTemp(otherProps.others.prefix))
     // const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, assnExpr);
     // otherProps.others.holder.push(varDecl)
 
@@ -325,7 +319,7 @@ export function handleExpression(
     // $resultIdentifier = a op b
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleBinaryExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -340,7 +334,7 @@ export function handleExpression(
     // $resultIdentifier = JS3CallExpression()
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleCallExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -355,7 +349,7 @@ export function handleExpression(
     // $resultIdentifier = JS3ConditionalExpr
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleConditionalExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -370,7 +364,7 @@ export function handleExpression(
     // $resultIdentifier = function () [] ()
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleFunctionExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -386,7 +380,7 @@ export function handleExpression(
     // This fixes 47 tests in expression, but breaks other tests!
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = node;
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -402,7 +396,7 @@ export function handleExpression(
     // $resultIdentifier = "abc"
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = node;
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -417,7 +411,7 @@ export function handleExpression(
     // $resultIdentifier = 123
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = node;
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -432,7 +426,7 @@ export function handleExpression(
     // $resultIdentifier = null
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = node;
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -447,7 +441,7 @@ export function handleExpression(
     // $resultIdentifier = true/false
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = node;
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -462,7 +456,7 @@ export function handleExpression(
     // $resultIdentifier = /REGEX/FLAGSs
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleRegExpLiteral(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -477,7 +471,7 @@ export function handleExpression(
     // $resultIdentifier = a op b
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleLogicalExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -492,7 +486,7 @@ export function handleExpression(
     // $resultIdentifier = a.b
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleMemberExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -507,7 +501,7 @@ export function handleExpression(
     // $resultIdentifier = new abc ()
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleNewExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -522,7 +516,7 @@ export function handleExpression(
     // $resultIdentifier = {JS3ObjectExpression} // All property declarations are spilled into the holder
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleObjectExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -535,7 +529,7 @@ export function handleExpression(
   } else if (isSequenceExpression(node)) {
     // ========================================================================================
     // // $resultIdentifier = (seq1Res, seq2Res, seq3Res...) <- Deprecated...
-    // resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+    // resultIdentifier = generateIdentifier(node, newTemp(otherProps.others.prefix))
     // const init = handleSequenceExpression(node, otherProps)
     // const varDecl = generateDummyJS3VariableDeclaration(node, resultIdentifier, init);
     // otherProps.others.holder.push(varDecl)
@@ -550,7 +544,7 @@ export function handleExpression(
     // $resultIdentifier = this
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = node;
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -565,7 +559,7 @@ export function handleExpression(
     // $resultIdentifier = [unary op]Id
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleUnaryExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -580,7 +574,7 @@ export function handleExpression(
     // $resultIdentifier = JS3updateExpr
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleUpdateExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -595,7 +589,7 @@ export function handleExpression(
     // $resultIdentifier = () => JS3Body
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleArrowFunctionExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -610,7 +604,7 @@ export function handleExpression(
     // $resultIdentifier = JS3 classexpr { ... }
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleClassExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -625,7 +619,7 @@ export function handleExpression(
     // $resultIdentifier = import(..., ...)
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleImportExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -640,7 +634,7 @@ export function handleExpression(
     // $resultIdentifier = meta.prop
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleMetaProperty(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -661,7 +655,7 @@ export function handleExpression(
     // $resultIdentifier = tag`...`
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleTaggedTemplateExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -676,7 +670,7 @@ export function handleExpression(
     // $resultIdentifier = `text${id}text${id}...`
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleTemplateLiteral(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -692,7 +686,7 @@ export function handleExpression(
     // $resultIdentifier = yield ID | null
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleYieldExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -707,7 +701,7 @@ export function handleExpression(
     // $resultIdentifier = await ID
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = handleAwaitExpression(node, otherProps);
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -725,7 +719,7 @@ export function handleExpression(
     // $resultIdentifier = 123n
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     const init = node;
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -742,7 +736,7 @@ export function handleExpression(
 
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     // const init = handleOptionalMemberExpression(node, otherProps)
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -760,7 +754,7 @@ export function handleExpression(
     // resultIdentifier = handleOptionalCallExpression(node, otherProps)
     resultIdentifier = generateIdentifier(
       node,
-      otherProps.getNewTemporary(otherProps.others.prefix),
+      newTemp(otherProps.others.prefix),
     );
     // const init = handleOptionalCallExpression(node, otherProps)
     const varDecl = generateDummyJS3VariableDeclaration(
@@ -881,7 +875,7 @@ export function lowerToAnonArrayExpr(
   // let temp = [func...][0]
   const resHolder = generateIdentifier(
     node,
-    otherProps.getNewTemporary("noname"),
+    newTemp("noname"),
   );
   if (!otherProps.others) throw new Error("otherProps.others undefined");
   if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
@@ -1269,7 +1263,7 @@ export function handleMemberExpression(
 
 //   // parentNode$res && parentNode$res.r
 
-//   // let fin$res = generateIdentifier(node.object, otherProps.getNewTemporary("OMEres"))
+//   // let fin$res = generateIdentifier(node.object, newTemp("OMEres"))
 
 //   // let parentNode : MemberExpression | CallExpression
 //   // let spilledNodes : Array<MemberExpression | CallExpression> = []
@@ -1308,7 +1302,7 @@ export function handleMemberExpression(
 //   // let result: JS3OptionalMemberExpression = generateJS3OptionalMemberExpression(fin_object, fin_property, node);
 //   // return result
 
-//   // let fin$res = generateIdentifier(node, otherProps.getNewTemporary("OPTE_RESULT"))
+//   // let fin$res = generateIdentifier(node, newTemp("OPTE_RESULT"))
 
 //   // // let fin$res = undefined
 //   // otherProps.others.holder.push(generateDummyJS3VariableDeclaration(node, fin$res, generateIdentifier(node, "undefined"), "let", null, null))
@@ -1330,7 +1324,7 @@ export function handleMemberExpression(
 //   // }
 
 //   // // let first$cond = obj$res !== undefined
-//   // let first$cond = generateIdentifier(node, otherProps.getNewTemporary("OPTE_C1"))
+//   // let first$cond = generateIdentifier(node, newTemp("OPTE_C1"))
 //   // let decl = new Array()
 //   // decl.push(generateJS3VariableDeclaratorfromBaseNode(first$cond, // first$cond =
 //   //   generateJS3BinaryExpressionfromBaseNode(obj$res, generateIdentifier(node.object, "undefined"), "!==", node.object), // obj$res !== undefined
@@ -1338,7 +1332,7 @@ export function handleMemberExpression(
 //   // otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(decl, "let", null, node.object)) // let first$cond = obj$res !== undefined
 
 //   // // let null$literal = null
-//   // let null$literal = generateIdentifier(node, otherProps.getNewTemporary("OPTE_NULL"))
+//   // let null$literal = generateIdentifier(node, newTemp("OPTE_NULL"))
 //   // let declNull = new Array()
 //   // declNull.push(generateJS3VariableDeclaratorfromBaseNode(null$literal, // null$literal =
 //   //   nullLiteral(), // null
@@ -1346,7 +1340,7 @@ export function handleMemberExpression(
 //   // otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(declNull, "let", null, node.object)) // let null$literal = null
 
 //   // // let second$cond = obj$res !== undefined
-//   // let second$cond = generateIdentifier(node, otherProps.getNewTemporary("OPTE_C2"))
+//   // let second$cond = generateIdentifier(node, newTemp("OPTE_C2"))
 //   // let declSecond = new Array()
 //   // declSecond.push(generateJS3VariableDeclaratorfromBaseNode(second$cond, // second$cond =
 //   //   generateJS3BinaryExpressionfromBaseNode(obj$res, null$literal, "!==", node.object), // obj$res !== null$literal
@@ -1380,7 +1374,7 @@ export function handleMemberExpression(
 //   // }
 
 //   // // let final$cond = first$cond && second$cond
-//   // let final$cond = generateIdentifier(node, otherProps.getNewTemporary("OPTE_CFIN"))
+//   // let final$cond = generateIdentifier(node, newTemp("OPTE_CFIN"))
 //   // let declFinal = new Array()
 //   // declFinal.push(generateJS3VariableDeclaratorfromBaseNode(final$cond, // final$cond =
 //   //   generateJS3LogicalExpressionfromBaseNode(first$cond, second$cond, "&&", node.object), // first$cond && second$cond
@@ -1407,7 +1401,7 @@ export function handleMemberExpression(
 //   // //   fin$res = ID(...args) | ID.X(...args) | ID.call(CONTEXT,...args)
 //   // // }
 
-//   // let fin$res = generateIdentifier(node, otherProps.getNewTemporary("OPTE_RESULT"))
+//   // let fin$res = generateIdentifier(node, newTemp("OPTE_RESULT"))
 
 //   // // let fin$res = undefined
 //   // otherProps.others.holder.push(generateDummyJS3VariableDeclaration(node, fin$res, generateIdentifier(node, "undefined"), "let", null, null))
@@ -1473,7 +1467,7 @@ export function handleMemberExpression(
 //   //   // t2 = t1.boo <- t2 == CALLEE
 //   //   //
 //   //   let mExpr = handleMemberExpression(orig_callee, otherProps)
-//   //   callee$res = generateIdentifier(node, otherProps.getNewTemporary("OPTCE_CALLEE"))
+//   //   callee$res = generateIdentifier(node, newTemp("OPTCE_CALLEE"))
 
 //   //   let declarator = generateJS3VariableDeclaratorfromBaseNode(callee$res, mExpr, null, orig_callee)
 //   //   let decl = new Array()
@@ -1481,7 +1475,7 @@ export function handleMemberExpression(
 //   //   otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(decl, "let", null, orig_callee))
 
 //   //   if (isIdentifier(mExpr.object)) {
-//   //     CALLEE_CONTEXT = generateIdentifier(node, otherProps.getNewTemporary("OPTCE_CALLEE_CON"))
+//   //     CALLEE_CONTEXT = generateIdentifier(node, newTemp("OPTCE_CALLEE_CON"))
 //   //     otherProps.others.holder.push(generateJS3AssignmentExpressionfromBaseNode(CALLEE_CONTEXT, mExpr.object, "=", orig_callee))
 //   //   } else if (isSuper(mExpr.object)) {
 //   //     IS_SUPER_CONTEXT = true
@@ -1498,7 +1492,7 @@ export function handleMemberExpression(
 //   // }
 
 //   // // let first$cond = callee$res !== undefined
-//   // let first$cond = generateIdentifier(node, otherProps.getNewTemporary("OPTCE_C1"))
+//   // let first$cond = generateIdentifier(node, newTemp("OPTCE_C1"))
 //   // let decl = new Array()
 //   // decl.push(generateJS3VariableDeclaratorfromBaseNode(first$cond, // first$cond =
 //   //   generateJS3BinaryExpressionfromBaseNode(callee$res, generateIdentifier(node.callee, "undefined"), "!==", node.callee), // callee$res !== undefined
@@ -1506,7 +1500,7 @@ export function handleMemberExpression(
 //   // otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(decl, "let", null, node.callee)) // let first$cond = obj$res !== undefined
 
 //   // // let null$literal = null
-//   // let null$literal = generateIdentifier(node, otherProps.getNewTemporary("OPTCE_NULL"))
+//   // let null$literal = generateIdentifier(node, newTemp("OPTCE_NULL"))
 //   // let declNull = new Array()
 //   // declNull.push(generateJS3VariableDeclaratorfromBaseNode(null$literal, // null$literal =
 //   //   nullLiteral(), // null
@@ -1514,7 +1508,7 @@ export function handleMemberExpression(
 //   // otherProps.others.holder.push(generateJS3VariableDeclarationfromBaseNode(declNull, "let", null, node.callee)) // let null$literal = null
 
 //   // // let second$cond = obj$res !== undefined
-//   // let second$cond = generateIdentifier(node, otherProps.getNewTemporary("OPTCE_C2"))
+//   // let second$cond = generateIdentifier(node, newTemp("OPTCE_C2"))
 //   // let declSecond = new Array()
 //   // declSecond.push(generateJS3VariableDeclaratorfromBaseNode(second$cond, // second$cond =
 //   //   generateJS3BinaryExpressionfromBaseNode(callee$res, null$literal, "!==", node.callee), // callee$res !== null$literal
@@ -1571,7 +1565,7 @@ export function handleMemberExpression(
 //   // }
 
 //   // // let final$cond = first$cond && second$cond
-//   // let final$cond = generateIdentifier(node, otherProps.getNewTemporary("OPTE_CFIN"))
+//   // let final$cond = generateIdentifier(node, newTemp("OPTE_CFIN"))
 //   // let declFinal = new Array()
 //   // declFinal.push(generateJS3VariableDeclaratorfromBaseNode(final$cond, // final$cond =
 //   //   generateJS3LogicalExpressionfromBaseNode(first$cond, second$cond, "&&", node.callee), // first$cond && second$cond
@@ -1867,7 +1861,7 @@ export function handleObjectProperty(
 //         }
 
 //         const dummyNode = generateBaseNodeFrom(_arrProp)
-//         const tempHolder = generateIdentifier(dummyNode, otherProps.getNewTemporary(otherProps.others.prefix))
+//         const tempHolder = generateIdentifier(dummyNode, newTemp(otherProps.others.prefix))
 
 //         const objMeth = handleObjectMethod(_arrProp, otherProps)
 //         const value = generateJS3FunctionExpressionfromBaseNode(null, objMeth.params, objMeth.body, null, objMeth.returnType, objMeth.typeParameters, objMeth.generator, objMeth.async, dummyNode)
@@ -2229,7 +2223,7 @@ export function handleLogicalExpression(
 
   const rValFinalResHolder = generateIdentifier(
     node,
-    otherProps.getNewTemporary(otherProps.others.prefix),
+    newTemp(otherProps.others.prefix),
   );
 
   if (node.operator === "&&") {
@@ -2356,9 +2350,9 @@ export function handleAssnPatRec(
     return fin_init;
   }
 
-  const getFinInitDelayed = () => {
-    return lowerComputedKey(RVal, otherProps);
-  }
+  // const getFinInitDelayed = () => {
+  //   return lowerComputedKey(RVal, otherProps);
+  // }
 
   const generateTDZCheck = (i: Identifier) => {
     if (otherProps.iridiumArgContext) return;
@@ -2481,7 +2475,7 @@ export function handleAssnPatRec(
 
       const temporary = generateIdentifier(
         LVal,
-        otherProps.getNewTemporary("objPat"),
+        newTemp("objPat"),
       );
 
       otherProps.others.holder.push(
@@ -2645,11 +2639,11 @@ export function handleAssnPatRec(
 
     const fin$res = generateIdentifier(
       LVal,
-      otherProps.getNewTemporary("assnPat"),
+      newTemp("assnPat"),
     );
     const cond$res = generateIdentifier(
       LVal,
-      otherProps.getNewTemporary("condRes"),
+      newTemp("condRes"),
     );
     const undefID = generateIdentifier(LVal, "undefined");
 
@@ -2701,7 +2695,7 @@ export function handleAssnPatRec(
     );
     const tempVar = generateTempIdentifier(
       LVal,
-      otherProps.getNewTemporary("tempID"),
+      newTemp("tempID"),
     );
     const finDeclarator = generateJS3VariableDeclaratorfromBaseNode(
       tempVar,
@@ -2784,14 +2778,14 @@ export function handleAssignmentExpression(
         const assnExpr = generateJS3AssignmentExpression("=", LVal, RVal, node);
         init$res = generateIdentifier(
           node,
-          otherProps.getNewTemporary("AssnRes"),
+          newTemp("AssnRes"),
         );
         return generateDummyJS3VariableDeclaration(node, init$res, assnExpr);
       } else {
         const rr = generateJS3AssignmentExpression("=", LVal, RVal, node);
         return generateDummyJS3VariableDeclaration(
           node,
-          generateIdentifier(node, otherProps.getNewTemporary("throwaway")),
+          generateIdentifier(node, newTemp("throwaway")),
           rr,
           "let",
           null,
@@ -2910,7 +2904,7 @@ export function handleAssignmentExpression(
 
       const lvalResHolder = generateIdentifier(
         node,
-        otherProps.getNewTemporary("AssnTarget"),
+        newTemp("AssnTarget"),
       );
       if (!otherProps.others) throw new Error("otherProps.others undefined");
       if (!otherProps.others.holder) throw new Error("otherProps.others.holder is null");
@@ -2920,7 +2914,7 @@ export function handleAssignmentExpression(
 
       const fin$res = generateIdentifier(
         node,
-        otherProps.getNewTemporary("FinAssnRes"),
+        newTemp("FinAssnRes"),
       );
 
       if (node.operator === "&&=") {
@@ -3487,7 +3481,7 @@ export function handleConditionalExpression(
   return result;
 
   // // let result:
-  // let resultIdentifier = generateIdentifier(node, otherProps.getNewTemporary(otherProps.others.prefix))
+  // let resultIdentifier = generateIdentifier(node, newTemp(otherProps.others.prefix))
   // otherProps.others.holder.push(generateDummyJS3VariableDeclaration(node, resultIdentifier, null, "let", null, null))
 
   // // if (fin_test) { result = ...consequent } else { result = ...alternate }
@@ -3513,7 +3507,7 @@ export function handleConditionalExpression(
 
   //   const resss = generateDummyJS3VariableDeclaration(
   //     orig_consequent,
-  //     generateIdentifier(orig_consequent, otherProps.getNewTemporary("throwaway")),
+  //     generateIdentifier(orig_consequent, newTemp("throwaway")),
   //     generateJS3AssignmentExpressionfromBaseNode("=", resultIdentifier, fin_consequent, orig_consequent)
   //   )
 
@@ -3535,7 +3529,7 @@ export function handleConditionalExpression(
 
   //   const resss = generateDummyJS3VariableDeclaration(
   //     orig_alternate,
-  //     generateIdentifier(orig_alternate, otherProps.getNewTemporary("throwaway")),
+  //     generateIdentifier(orig_alternate, newTemp("throwaway")),
   //     generateJS3AssignmentExpressionfromBaseNode("=", resultIdentifier, fin_alternate, orig_alternate)
   //   )
 
