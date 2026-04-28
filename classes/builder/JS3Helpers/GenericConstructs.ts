@@ -19,7 +19,6 @@ import {
   isNullLiteral,
   isNumericLiteral,
   isStringLiteral,
-  isYieldExpression,
   objectExpression,
   objectProperty
 } from "@babel/types";
@@ -42,6 +41,7 @@ import {
   JS3FunctionExpression,
   JS3Program_body
 } from "./JS3Types";
+import { newTemp } from "../Shared";
 
 type OtherProps = JS3BuilderUtils;
 
@@ -99,7 +99,7 @@ export function handleDefaultExportNames(
   ]);
   const temp$1 = generateIdentifier(
     orig_declaration,
-    otherProps.getNewTemporary("exportDefUnnamed"),
+    newTemp("exportDefUnnamed"),
   );
   const varDecl = generateJS3VariableDeclaratorfromBaseNode(
     temp$1,
@@ -146,10 +146,10 @@ export function lowerComputedKey(
     return node;
   } else if (isDecimalLiteral(node)) {
     return node;
-  } 
+  }
   // else if (isYieldExpression(node) && !node.argument) {
   //   return generateIdentifier(node, "yield");
-  // } 
+  // }
   else {
     node.leadingComments = [generateCommentBlock("JS3ContainedExprKey")];
     //@ts-expect-error: Mark the node as JS3ContainedExprKey, js3type prop helps validate it later.
