@@ -1,12 +1,6 @@
-import debugConfig from "#debugConfig";
-import fs from "fs";
-import { pack } from "msgpackr";
-import path from "path";
-import { gzipSync } from "zlib";
-import { performance } from "node:perf_hooks";
 import { VERSION } from "../../../configs/projectStats";
-import JS3Builder from "../JS3Builder";
-import { JS3Program } from "../JS3Helpers/JS3Types";
+import { JS3BuilderUtils } from "../JS3Builder";
+import { JS3File, JS3Program } from "../JS3Helpers/JS3Types";
 import { PrivateMapping } from "./handleRVal";
 import { IRIV2_STMT } from "./handleStatement";
 import {
@@ -16,7 +10,6 @@ import {
   FileSEXP,
   getRegularClosureFlag,
   IfElseJumpSEXP,
-  IridiumSEXP,
   JSImplicitBindingDeclarationSEXP,
   ModuleRequestSEXP,
   ReturnAsyncSEXP,
@@ -25,6 +18,7 @@ import {
 
 import iridiumForge from "#forge";
 import { tick, tock } from "../../debugger/IRIPerf";
+import { ProjectFile } from "../../ProjectFile";
 
 type LoopConfig = {
   kind: "for-of" | "standard";
@@ -245,30 +239,18 @@ export class IridiumBuildContext {
 }
 
 export class IRIDIUMV2 {
-  js3Builder: JS3Builder;
+  projectFile: ProjectFile;
   buildContext: Array<IridiumBuildContext>;
   container: FileSEXP | null;
-  result: Array<any> | null = null;
-  constructor(js3Builder: JS3Builder) {
-    this.js3Builder = js3Builder;
+  utils: JS3BuilderUtils = {
+    iridiumArgContext: false,
+  };
+
+  constructor(projectFile: ProjectFile, utils: JS3BuilderUtils) {
+    this.projectFile = projectFile;
     this.buildContext = [];
     this.container = null;
-  }
-
-  saveToDisk() {
-    const filePath =
-      debugConfig.cli.outputsPath +
-      "/" +
-      path.basename(
-        this.js3Builder.projectFile.uname,
-        this.js3Builder.projectFile.extension,
-      ) +
-      (debugConfig.cli.ljson ? ".json" : ".iri");
-
-    if (!this.result) throw new Error("Run build before calling 'saveToDisk'");
-
-    // @ts-ignore
-    fs.writeFileSync(filePath, this.result);
+    this.utils = utils;
   }
 
   getCurrentContext() {
@@ -315,13 +297,10 @@ export class IRIDIUMV2 {
   }
 
   build() {
-    tick("iri-structural-reduction");
-    if (!this.js3Builder) throw new Error("this.js3Builder is null");
+    tick("structural");
+    const file: JS3File = this.projectFile.getJS3Payload();
+    const program: JS3Program = file.program;
 
-    if (!this.js3Builder.generatedAST)
-      throw new Error("this.js3Builder.generatedAST is null");
-
-    const program: JS3Program = this.js3Builder.generatedAST.program;
     const sourceType: "JSModule" | "JSScript" =
       program.sourceType === "module" ? "JSModule" : "JSScript";
 
@@ -374,10 +353,15 @@ export class IRIDIUMV2 {
       );
     }
 
-    const startBB = this.getCurrentBB();
-    for (let s of program.body) {
-      IRIV2_STMT(this, s);
+    try {
+      for (let s of program.body) {
+        IRIV2_STMT(this, s);
+      }
+    } catch (e) {
+      this.projectFile.errLog.push(e);
+      return;
     }
+
     if (sourceType === "JSModule") {
       this.getCurrentBB().args.push(
         new ReturnAsyncSEXP(new EnvReadSEXP("undefined")),
@@ -388,44 +372,53 @@ export class IRIDIUMV2 {
       );
     }
     this.popContext();
-    if (this.buildContext.length !== 0)
-      throw new Error("Expected buildContext stack to be empty after build()");
-
-    tock("iri-structural-reduction");
-
-    tick("iri-serial");
-    let serializedData;
-    if (debugConfig.cli.ljson) {
-      tick("iri-json-serial");
-      serializedData = this.container.serialize();
-      tock("iri-json-serial");
-    } else {
-      tick("iri-flat-integrity");
-      let integrityCheck = this.container.checkIntegrity();
-      tock("iri-flat-integrity");
-      if (!integrityCheck) throw new Error("Integrity check failed, exiting!");
-      tick("iri-flat-serial");
-      serializedData = this.container.serializeFlat();
-      tock("iri-flat-serial");
+    if (this.buildContext.length !== 0) {
+      this.projectFile.errLog.push(
+        "Expected buildContext stack to be empty after build()",
+      );
     }
 
-    tock("iri-serial");
+    this.projectFile.info.iri = "structural";
+    tock("structural");
 
-    tick("iri-ctx-serial");
+    this.projectFile.payload.iriSEXP = mainContainer;
+
+    tick("integrity-check");
+    let integrityCheck = this.container.checkIntegrity();
+    if (!integrityCheck) {
+      this.projectFile.errLog.push("IRIDIUM integrity-check failed");
+      return;
+    }
+    tock("integrity-check");
+    tick("serialize");
+    tick("code");
+    const serializedData = this.container.serializeFlat();
+    this.projectFile.payload.irix = serializedData;
+    tock("code");
+    tick("build-ctx");
     const serializedBuildContext = serializeBuildContext();
-    tock("iri-ctx-serial");
+    tock("build-ctx");
+    tock("serialize");
 
-    tick("iri-forge");
-    this.result = iridiumForge.execute(
-      VERSION,
-      this.js3Builder.projectFile.absoluteFilePath,
-      serializedData,
-      serializedBuildContext,
-      tick,
-      tock
-    );
-    tock("iri-forge");
+    try {
+      tick("forge");
+      const res = iridiumForge.execute(
+        VERSION,
+        this.projectFile.filepath,
+        serializedData,
+        serializedBuildContext,
+        tick,
+        tock,
+        true,
+      );
+      if (!res) throw new Error("Forge compile failed");
+      this.projectFile.payload.iri = res.toString();
+      tock("forge");
+    } catch (e) {
+      this.projectFile.errLog.push(e);
+      return;
+    }
 
-    if (!this.result) throw new Error("Forge project returned null");
+    this.projectFile.info.iri = "normalized";
   }
 }
