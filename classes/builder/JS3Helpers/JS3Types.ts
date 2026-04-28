@@ -1,6 +1,6 @@
-// Generated on 21/4/2026, 7:01:14 pm, extended 64 interfaces 
+// Generated on 28/4/2026, 1:36:30 pm, extended 64 interfaces 
 
-import { LVal, ConditionalExpression, AssignmentPattern, ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ArgumentPlaceholder, ThisExpression, TSParameterProperty, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, Pattern, BigIntLiteral, Super, V8IntrinsicIdentifier, TSDeclareFunction, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, EmptyStatement, Expression, OptionalCallExpression, OptionalMemberExpression, ExpressionStatement, Node, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DebuggerStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
+import { LVal, ConditionalExpression, AssignmentPattern, ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ThisExpression, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, BigIntLiteral, Super, V8IntrinsicIdentifier, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportNamespaceSpecifier, EmptyStatement, Expression, OptionalCallExpression, OptionalMemberExpression, ExpressionStatement, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DebuggerStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
 export type JS3AllowedBlockStatement = JS3TDZCheck | JS3DebuggerStatement | JS3WithStatement | JS3VariableDeclaration | JS3ReturnStatement | JS3IfStatement | JS3TryStatement | JS3ThrowStatement | JS3FunctionDeclaration | JS3EmptyStatement | JS3WhileStatement | JS3BreakStatement | JS3ContinueStatement | JS3BlockStatement | JS3ForInStatement | JS3LabeledStatement | JS3ForStatement | JS3DoWhileStatement | JS3SwitchStatement | JS3ForOfStatement;
 export type JS3Literals = DecimalLiteral | BigIntLiteral | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral;
@@ -16,25 +16,25 @@ export type JS3ObjectTerminals = Identifier | StringLiteral | NumericLiteral | N
 
 /// CUSTOM INTERFACES START
 
-// 
-// "JS3DefaultExportMemberExpression" is used to provide a namespace, where named evaluation can infer "default" as the 
+//
+// "JS3DefaultExportMemberExpression" is used to provide a namespace, where named evaluation can infer "default" as the
 // name for functions/classes
-// 
+//
 // Basically does makes:
-//   export default CLASS/FUNC 
-// 
-// into: 
+//   export default CLASS/FUNC
+//
+// into:
 //   { default: CLASS/FUNC }.default
-// 
+//
 // Before:
 // let t$1 = () => {} // Breaks semantics, t$1.name === "t$1", expected "default"
-// 
+//
 // Before with JS3AnonMemberExpression:
 // let t$1 = [() => {}][0] // Preserves semantics, t$1.name === "", expected "default"
-// 
+//
 // After:
 // let t$1 = { default: () => {} }.default // Preserves semantics, t$1.name === "default", expected "default"
-// 
+//
 
 // @ts-ignore
 export interface JS3DefaultExportMemberExpression extends MemberExpression {
@@ -50,10 +50,10 @@ export function isJS3DefaultExportMemberExpression(node: any): node is JS3Defaul
   return false;
 }
 
-// 
-// "JS3TDZCheck" node is inserted before writing to a binding, 
+//
+// "JS3TDZCheck" node is inserted before writing to a binding,
 // if the eval mode is sloppy and write happens to a global binding, this check should be removed
-// 
+//
 
 // @ts-ignore
 export interface JS3TDZCheck extends ExpressionStatement {
@@ -68,9 +68,9 @@ export function isJS3TDZCheck(node: any): node is JS3TDZCheck {
   return false;
 }
 
-// 
+//
 // "JS3JSXCallExpression" node is used to denote JSX call expressions
-// 
+//
 
 export type JS3JSXCallExpression_callee = Identifier
 export type JS3JSXCallExpression_arguments = Array < Identifier | StringLiteral >
@@ -128,14 +128,14 @@ export function isJS3ContainedExprKey(node: any): node is JS3ContainedExprKey {
   return false;
 }
 
-// "JS3AssnObjectProperty" node is used to limit the RValues for Object pattern found 
+// "JS3AssnObjectProperty" node is used to limit the RValues for Object pattern found
 // variable assignment and assignment expressions.
-// 
+//
 // Basically limits the Object Property value, { ID: EXPR } ==> { ID: ID }
-// 
+//
 // Before:
 // let { b, c: { d: e } } = undefined
-// 
+//
 // After:
 // let {
 //   b,
@@ -144,7 +144,7 @@ export function isJS3ContainedExprKey(node: any): node is JS3ContainedExprKey {
 // let {
 //   d: e
 // } = objPat$1;
-// 
+//
 
 export type JS3AssnObjectProperty_key = Identifier | StringLiteral | NumericLiteral | BigIntLiteral | DecimalLiteral | JS3PrivateName;
 export type JS3AssnObjectProperty_value = Identifier;
@@ -165,18 +165,18 @@ export function isJS3AssnObjectProperty(node: any): node is JS3AssnObjectPropert
   return false;
 }
 
-// 
-// "JS3AnonMemberExpression" is used to provide an anonymous namespace for function/arrow fn/classe expressions 
+//
+// "JS3AnonMemberExpression" is used to provide an anonymous namespace for function/arrow fn/classe expressions
 // so that they dont acquire names of the intermediate temporary variables they are assigned to.
-// 
+//
 // Basically does, (() => {}) ==> [() => {}][0]
-// 
+//
 // Before:
 // let t$1 = () => {} // Breaks semantics, t$1.name === "t$1", expected ""
-// 
+//
 // After:
 // let t$1 = [() => {}][0] // Preserves semantics, t$1.name === "", expected ""
-// 
+//
 
 // @ts-ignore
 export interface JS3AnonMemberExpression extends MemberExpression {
@@ -205,11 +205,11 @@ export function isJS3AnonArrayExpression(node: any): node is JS3AnonArrayExpress
   return false;
 }
 
-// 
+//
 // "JS3LoopDeclaration" is used to lower create assignment statements, where the init is lowered into anonymous function scopes.
-// 
+//
 // Basically does, let a = EXPR1, b = EXPR2 ... -> let a = (() => {...EXPR1_JS3})(), b = (() => {...EXPR2_JS3})(),
-// 
+//
 
 export type JS3LoopDeclaration_declarations = Array<JS3LoopDeclarator>;
 
