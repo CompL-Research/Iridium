@@ -1,5 +1,4 @@
 import { printFlagString, printIriSpace } from "#utils";
-import { ResolveEnvBindingSEXP } from "../../AbstractOperations/Resolution";
 import { EnvReadSEXP } from "../../Environment";
 import { IridiumSEXP } from "../../Structural/General";
 import { StringSEXP } from "../../RVAL/Primitives";

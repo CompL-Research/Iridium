@@ -1,4 +1,4 @@
-import { printFlagString, printIriSpace } from "#utils";
+import { printIriSpace } from "#utils";
 import { IridiumSEXP } from "../Structural/General";
 import { isLambdaSEXP, LambdaSEXP } from "../RVAL/Primitives";
 

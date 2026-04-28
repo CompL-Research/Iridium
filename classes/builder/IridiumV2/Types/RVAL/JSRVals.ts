@@ -1,25 +1,25 @@
-import { printFlagString, printIriSpace } from "#utils";
+import { printIriSpace } from "#utils";
 import { IridiumSEXP } from "../Structural/General";
 import { LambdaSEXP, StringSEXP } from "./Primitives";
 
 
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * An field reference which must not be resolved, this identifier and possibly computed field names are used by the delete operator to delete the binding.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(receiver)`: {@link IridiumSEXP} referencing the receiver object.
- * 
+ *
  * - `ARG(field)`: {@link IridiumSEXP} if the field is computed, {@link StringSEXP} otherwise.
- * 
+ *
  */
 export class UNOPDelMemberExprSEXP extends IridiumSEXP {
   constructor(receiver: IridiumSEXP, field: IridiumSEXP) {
@@ -48,19 +48,19 @@ export class UNOPDelMemberExprSEXP extends IridiumSEXP {
 
 }
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * An identifier which must not be resolved, this identifier name is used by the delete operator to delete the binding.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(NAME : string)`: Name of the binding to delete.
- * 
+ *
  */
 export class UNOPDelVarSEXP extends IridiumSEXP {
   constructor(name: string) {
@@ -81,23 +81,23 @@ export class UNOPDelVarSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * A JS binop operation.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(lBinop)`: the left operand.
- * 
+ *
  * - `ARG(rBinop)`: the right operand.
- * 
+ *
  * - `FLAG(OP : string)`: a string.
- * 
+ *
  */
 export class JSBinopSEXP extends IridiumSEXP {
   constructor(op: string, lBinop: IridiumSEXP, rBinop: IridiumSEXP) {
@@ -143,21 +143,21 @@ export class JSBinopSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * A JS unop operation.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(val)`: the operand.
- * 
+ *
  * - `FLAG(OP : string)`: a string.
- * 
+ *
  */
 export class JSUnopSEXP extends IridiumSEXP {
   constructor(op: string, val: IridiumSEXP) {
@@ -190,24 +190,24 @@ export class JSUnopSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * An untagged JS template object.
  * When untagged, the default behaviour is to call the `concat` function as follows.
- * 
+ *
  * ```
  * "".concat(...args)
  * ```
- * 
+ *
  * #### Structure
- * 
+ *
  * - `...ARG(vals)`: the intermix of quasis and expressions.
- * 
+ *
  */
 export class JSTemplateSEXP extends IridiumSEXP {
   constructor(elements: Array<IridiumSEXP>) {
@@ -221,20 +221,20 @@ export class JSTemplateSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * An JS BigInt object.
  * (Ref: [mdn](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt))
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(IridiumPrimitive : string)`: a string.
- * 
+ *
  */
 export class JSBitIntSEXP extends IridiumSEXP {
   constructor(str: string) {
@@ -252,20 +252,20 @@ export class JSBitIntSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * An JS Private object.
  * (Ref: [mdn](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_elements))
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(IridiumPrimitive : string)`: a string.
- * 
+ *
  */
 export class JSPrivateSEXP extends IridiumSEXP {
   constructor(str: string) {
@@ -279,20 +279,20 @@ export class JSPrivateSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * A new JS Array object.
  * (Ref: [mdn](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))
- * 
+ *
  * #### Structure
- * 
+ *
  * - `...ARG(vals)`: values to be inserted into the array.
- * 
+ *
  */
 export class JSArraySEXP extends IridiumSEXP {
   constructor(vals: Array<IridiumSEXP>) {
@@ -306,15 +306,15 @@ export class JSArraySEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * An JS special that is used to model the no-use-before-def semantics.
- * 
+ *
  */
 export class JSNUBDSEXP extends IridiumSEXP {
   constructor() {
@@ -327,25 +327,25 @@ export class JSNUBDSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * A JavaScript Class Object.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(Parent)`: The parent class object.
- * 
+ *
  * - `ARG(Constructor)`: The constructor closure.
- * 
+ *
  * - `FLAG(NAME : string)`: Name of the class.
- * 
+ *
  * - `FLAG(DERIVED : void)`: This flag is set if the class is a derived class.
- * 
+ *
  */
 export class JSClassSEXP extends IridiumSEXP {
   constructor(parent: IridiumSEXP, constructor: LambdaSEXP, name: string = "", isDerived: boolean) {
@@ -392,15 +392,15 @@ export class JSClassSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Creates a new empty JS Object.
- * 
+ *
  */
 export class JSObjectSEXP extends IridiumSEXP {
   constructor() {
@@ -413,21 +413,21 @@ export class JSObjectSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group RVAL
- * 
+ *
  * @remarks
- * 
+ *
  * Increment Decrement Operator on JSComputedFieldRead.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(obj)`: JSComputedFieldRead
  * - `FLAG(PREFIX : boolean)`: Is the operation in the prefix
  * - `FLAG(INCREMENT : boolean)`: Is the operation performing increment (true = increment, false = decrement)
- * 
+ *
  */
 export class JSIDOPSEXP extends IridiumSEXP {
   constructor(obj: IridiumSEXP, isPrefix: boolean, isIncrement: boolean) {
