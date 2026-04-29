@@ -169,8 +169,6 @@ TESTS=(
 )
 
 for test in "${TESTS[@]}"; do
-
-
   rm -rf failing_tests
   mkdir failing_tests
 
