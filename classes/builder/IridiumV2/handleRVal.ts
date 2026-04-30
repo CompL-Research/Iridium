@@ -29,7 +29,7 @@ import {
   PatternLike,
   SpreadElement,
   StringLiteral,
-  thisExpression
+  thisExpression,
 } from "@babel/types";
 import {
   handleExpression,
@@ -40,7 +40,7 @@ import {
   generateJS3ArrayExpressionfromBaseNode,
   generateJS3AssignmentExpressionfromBaseNode,
   generateJS3BinaryExpressionfromBaseNode,
-  generateJS3SpreadElementfromBaseNode
+  generateJS3SpreadElementfromBaseNode,
 } from "../JS3Helpers/JS3Constructors";
 import {
   isJS3AnonMemberExpression,
@@ -103,7 +103,7 @@ import {
   JS3SpreadElement,
   JS3UnaryExpression,
   JS3UpdateExpression,
-  JS3YieldExpression
+  JS3YieldExpression,
 } from "../JS3Helpers/JS3Types";
 import {
   createLambda,
@@ -210,7 +210,10 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
         obj = init.object.name;
       } else if (isThisExpression(init.object)) {
         obj = "this";
-      } else throw new Error("Private member expression, impossible case, super obj");
+      } else
+        throw new Error(
+          "Private member expression, impossible case, super obj",
+        );
       return new JSPrivateFieldReadSEXP(obj, prop);
     }
 
@@ -219,17 +222,32 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
       // ID.ID
       // THIS.ID
       // SUPER.ID
-      if (isIdentifier(init.object)) return new FieldReadSEXP(init.object.name, init.property.name);
-      else if (isThisExpression(init.object)) return new FieldReadSEXP("this", init.property.name);
-      else if (init.object.extra?.SuperCallCTX) return new JSComputedFieldReadSEXP("<super_obj>", new StringSEXP(init.property.name));
+      if (isIdentifier(init.object))
+        return new FieldReadSEXP(init.object.name, init.property.name);
+      else if (isThisExpression(init.object))
+        return new FieldReadSEXP("this", init.property.name);
+      else if (init.object.extra?.SuperCallCTX)
+        return new JSComputedFieldReadSEXP(
+          "<super_obj>",
+          new StringSEXP(init.property.name),
+        );
       else return new JSSuperFieldReadSEXP(new StringSEXP(init.property.name));
     } else {
       // ID[ID]
       // THIS[ID]
       // SUPER[ID]
-      if (isIdentifier(init.object)) return new JSComputedFieldReadSEXP(init.object.name, init.property.name);
-      else if (isThisExpression(init.object)) return new JSComputedFieldReadSEXP("this", init.property.name);
-      else if (init.object.extra?.SuperCallCTX) return new JSComputedFieldReadSEXP("<super_obj>", new EnvReadSEXP(init.property.name));
+      if (isIdentifier(init.object))
+        return new JSComputedFieldReadSEXP(
+          init.object.name,
+          init.property.name,
+        );
+      else if (isThisExpression(init.object))
+        return new JSComputedFieldReadSEXP("this", init.property.name);
+      else if (init.object.extra?.SuperCallCTX)
+        return new JSComputedFieldReadSEXP(
+          "<super_obj>",
+          new EnvReadSEXP(init.property.name),
+        );
       else return new JSSuperFieldReadSEXP(new EnvReadSEXP(init.property.name));
     }
   }
@@ -283,8 +301,7 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   else if (isJS3MetaProperty(init)) {
     if (init.meta.name === "import") {
       return new EnvReadSEXP("<module_meta>");
-    }
-    else {
+    } else {
       return new EnvReadSEXP("new.target");
     }
   }
@@ -403,7 +420,9 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   // JS3DefaultExportMemberExpression
   else if (isJS3DefaultExportMemberExpression(init)) {
     return new EnvReadSEXP("undefined");
-    console.error("Iridium conversion still not specified (default export expression), codegen is invalid but analysis results may be used");
+    console.error(
+      "Iridium conversion still not specified (default export expression), codegen is invalid but analysis results may be used",
+    );
     // return this.handleJS3DefaultExportMemberExpression(init);
   }
 
@@ -424,13 +443,13 @@ export const handleArrayPatternAssignmentExpr = (
 
   // const loop head config for decorators
   const loopConfig: {
-    kind: "for-of" | "standard",
-    loopHeadIDX: number,
-    loopBodyIDX: number,
-    loopInitIDX: number,
-    label: string | null,
-    breakTarget: number,
-    continueTarget: number
+    kind: "for-of" | "standard";
+    loopHeadIDX: number;
+    loopBodyIDX: number;
+    loopInitIDX: number;
+    label: string | null;
+    breakTarget: number;
+    continueTarget: number;
   } = {
     kind: "for-of",
     loopHeadIDX: -1,
@@ -438,8 +457,8 @@ export const handleArrayPatternAssignmentExpr = (
     loopInitIDX: -1,
     label: null,
     breakTarget: -1,
-    continueTarget: -1
-  }
+    continueTarget: -1,
+  };
 
   // 1. Control Flow Nodes
   const entryIntoLoop = new GotoSEXP(-1);
@@ -469,7 +488,7 @@ export const handleArrayPatternAssignmentExpr = (
       new ResolveEnvBindingSEXP(for$of$loop$next),
       null,
       "JSLET",
-      false
+      false,
     ),
   );
   cx.getCurrentBB().args.push(
@@ -477,12 +496,11 @@ export const handleArrayPatternAssignmentExpr = (
       new ResolveEnvBindingSEXP(for$of$loop$done),
       null,
       "JSLET",
-      false
+      false,
     ),
   );
 
   for (let e of elements) {
-
     const stepIterator = () => {
       // Get next element from the iterator
       cx.getCurrentBB().args.push(
@@ -497,14 +515,25 @@ export const handleArrayPatternAssignmentExpr = (
     };
 
     // Identifier | MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | VoidPattern | TSAsExpression | TSSatisfiesExpression | TSTypeAssertion | TSNonNullExpression;
-    if (isIdentifier(e) || isAssignmentPattern(e) || isArrayPattern(e) || isObjectPattern(e)) {
+    if (
+      isIdentifier(e) ||
+      isAssignmentPattern(e) ||
+      isArrayPattern(e) ||
+      isObjectPattern(e)
+    ) {
       stepIterator();
-      reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", e, identifier(for$of$loop$next)));
+      reduceJSAssignmentExprToIridium(
+        cx,
+        assignmentExpression("=", e, identifier(for$of$loop$next)),
+      );
       continue;
     } else if (isMemberExpression(e)) {
       const mExpr = reduceMemberExpressionIntoJS3MemberExpression(cx, e);
       stepIterator();
-      reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", mExpr, identifier(for$of$loop$next)));
+      reduceJSAssignmentExprToIridium(
+        cx,
+        assignmentExpression("=", mExpr, identifier(for$of$loop$next)),
+      );
       continue;
     } else if (e === null) {
       stepIterator();
@@ -531,7 +560,7 @@ export const handleArrayPatternAssignmentExpr = (
           new ResolveEnvBindingSEXP(tempres),
           new JSArraySEXP([]),
           "JSLET",
-          false
+          false,
         ),
       );
       cx.getCurrentBB().args.push(
@@ -539,7 +568,7 @@ export const handleArrayPatternAssignmentExpr = (
           new ResolveEnvBindingSEXP(tempit),
           new NumberSEXP(0),
           "JSLET",
-          false
+          false,
         ),
       );
       const currentContext = cx.getCurrentContext();
@@ -570,7 +599,11 @@ export const handleArrayPatternAssignmentExpr = (
       loopConfig.breakTarget = postBB.getIDX();
 
       const currToLoop = new GotoSEXP(-1);
-      const loopToPost = new IfElseJumpSEXP(new EnvReadSEXP(for$of$loop$done), -1, -1);
+      const loopToPost = new IfElseJumpSEXP(
+        new EnvReadSEXP(for$of$loop$done),
+        -1,
+        -1,
+      );
 
       // 1. CurrBB to LoopBB
       currentBB.args.push(currToLoop);
@@ -599,17 +632,17 @@ export const handleArrayPatternAssignmentExpr = (
           new JSComputedFieldWriteSEXP(
             tempres,
             tempit,
-            new EnvReadSEXP(for$of$loop$next)
+            new EnvReadSEXP(for$of$loop$next),
           ),
-          1
-        )
+          1,
+        ),
       );
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
           tempit,
           getIridiumBinop("+", new EnvReadSEXP(tempit), new NumberSEXP(1)),
           false,
-          false
+          false,
         ),
       );
       cx.getCurrentBB().args.push(new ResolveContinueTargetSEXP());
@@ -625,15 +658,31 @@ export const handleArrayPatternAssignmentExpr = (
     };
 
     if (isRestElement(e)) {
-      if (isIdentifier(e.argument) || isArrayPattern(e.argument) || isObjectPattern(e.argument)) {
-        reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", e.argument, spreadTillEnd()));
+      if (
+        isIdentifier(e.argument) ||
+        isArrayPattern(e.argument) ||
+        isObjectPattern(e.argument)
+      ) {
+        reduceJSAssignmentExprToIridium(
+          cx,
+          assignmentExpression("=", e.argument, spreadTillEnd()),
+        );
         continue;
       } else if (isMemberExpression(e.argument)) {
-        const mExpr = reduceMemberExpressionIntoJS3MemberExpression(cx, e.argument);
-        reduceJSAssignmentExprToIridium(cx, assignmentExpression("=", mExpr, spreadTillEnd()));
+        const mExpr = reduceMemberExpressionIntoJS3MemberExpression(
+          cx,
+          e.argument,
+        );
+        reduceJSAssignmentExprToIridium(
+          cx,
+          assignmentExpression("=", mExpr, spreadTillEnd()),
+        );
         continue;
       } else throw new Error("// unhandled rest array destructuring pattern");
-    } else throw new Error(`TODO// unhandled array destructuring pattern: \n${JSON.stringify(e)}`);
+    } else
+      throw new Error(
+        `TODO// unhandled array destructuring pattern: \n${JSON.stringify(e)}`,
+      );
   }
 
   cx.getCurrentBB().args.push(
@@ -645,7 +694,6 @@ export const handleArrayPatternAssignmentExpr = (
 
   // Close === loop context ===
   cx.popContext();
-
 };
 
 export const handleObjectPatternAssignmentExpr = (
@@ -670,7 +718,7 @@ export const handleObjectPatternAssignmentExpr = (
       new ResolveEnvBindingSEXP(toObjRes),
       new JSToObjectSEXP(rValTarget),
       "JSLET",
-      false
+      false,
     ),
   );
 
@@ -685,7 +733,7 @@ export const handleObjectPatternAssignmentExpr = (
         new ResolveEnvBindingSEXP(exc_obj),
         new JSObjectSEXP(),
         "JSLET",
-        false
+        false,
       ),
     );
   }
@@ -701,18 +749,18 @@ export const handleObjectPatternAssignmentExpr = (
         if (isIdentifier(d.key)) {
           rVal = new JSComputedFieldReadSEXP(toObjRes, d.key.name);
           if (hasRest) {
-
-            if (typeof exc_obj !== "string") throw new Error("Expected exc_obj to be a string");
+            if (typeof exc_obj !== "string")
+              throw new Error("Expected exc_obj to be a string");
 
             cx.getCurrentBB().args.push(
               new StackRejectSEXP(
                 new JSComputedFieldWriteSEXP(
                   exc_obj,
                   d.key.name,
-                  new NullSEXP()
+                  new NullSEXP(),
                 ),
-                1
-              )
+                1,
+              ),
             );
           }
         } else if (isJS3PrivateName(d.key)) {
@@ -721,17 +769,16 @@ export const handleObjectPatternAssignmentExpr = (
           let fieldSEXP = IRIV2_RVAL(cx, d.key);
           rVal = new JSComputedFieldReadSEXP(toObjRes, fieldSEXP);
           if (hasRest) {
-
             cx.getCurrentBB().args.push(
               new StackRejectSEXP(
                 new JSComputedFieldWriteSEXP(
                   // @ts-expect-error
                   exc_obj,
                   fieldSEXP,
-                  new NullSEXP()
+                  new NullSEXP(),
                 ),
-                1
-              )
+                1,
+              ),
             );
           }
         }
@@ -739,17 +786,16 @@ export const handleObjectPatternAssignmentExpr = (
         if (isIdentifier(d.key)) {
           rVal = new FieldReadSEXP(toObjRes, d.key.name);
           if (hasRest) {
-
             cx.getCurrentBB().args.push(
               new StackRejectSEXP(
                 new FieldWriteSEXP(
                   // @ts-expect-error
                   exc_obj,
                   d.key.name,
-                  new NullSEXP()
+                  new NullSEXP(),
                 ),
-                1
-              )
+                1,
+              ),
             );
           }
         } else if (isJS3PrivateName(d.key)) {
@@ -763,10 +809,10 @@ export const handleObjectPatternAssignmentExpr = (
                   // @ts-expect-error
                   exc_obj,
                   "" + d.key.value,
-                  new NullSEXP()
+                  new NullSEXP(),
                 ),
-                1
-              )
+                1,
+              ),
             );
           }
         }
@@ -785,7 +831,7 @@ export const handleObjectPatternAssignmentExpr = (
         new ResolveEnvBindingSEXP(fin_obj),
         new JSObjectSEXP(),
         "JSLET",
-        false
+        false,
       ),
     );
 
@@ -808,7 +854,7 @@ export const handleObjectPatternAssignmentExpr = (
         restElement.argument.name,
         new StackPopSEXP(),
         safeWrite,
-        false
+        false,
       ),
     );
   }
@@ -824,8 +870,8 @@ const handleUnaryExpression = (
       const property = node.argument.property;
 
       const acceptable =
-        (isIdentifier(receiver) && isIdentifier(property))
-        || (isThisExpression(receiver) && isIdentifier(property));
+        (isIdentifier(receiver) && isIdentifier(property)) ||
+        (isThisExpression(receiver) && isIdentifier(property));
 
       if (!acceptable)
         throw new Error(
@@ -865,22 +911,19 @@ const handleYieldExpression = (
   cx: IRIDIUMV2,
   node: JS3YieldExpression,
 ): IridiumSEXP => {
-
   if (node.delegate) throw new Error("//TODO handle Yield * (delegated yield)");
-  let yieldDoneIndicator =
-    newTemp("yieldDoneIndicator");
-  let yieldReturnResultHolder = newTemp(
-    "yieldReturnResultHolder",
-  );
+  let yieldDoneIndicator = newTemp("yieldDoneIndicator");
+  let yieldReturnResultHolder = newTemp("yieldReturnResultHolder");
 
   // Is async context?
   const isAsyncContext = (curr: IridiumBuildContext) => {
     if (curr.BB[0].isClosureBoundary()) return curr.isAsync;
     // recurse
     const parentContext = IridiumBuildContext.CONTEXT_MAP.get(curr.parent);
-    if (!parentContext) throw new Error("YIELD: Iridium build context not found");
+    if (!parentContext)
+      throw new Error("YIELD: Iridium build context not found");
     return isAsyncContext(parentContext);
-  }
+  };
 
   let isAsync = isAsyncContext(cx.getCurrentContext());
 
@@ -893,8 +936,8 @@ const handleYieldExpression = (
         yieldReturnResultHolder,
         new AwaitSEXP(yieldReturnResultHolder),
         true,
-        false
-      )
+        false,
+      ),
     );
   }
   cx.getCurrentBB().args.push(
@@ -907,7 +950,7 @@ const handleYieldExpression = (
       new ResolveEnvBindingSEXP(yieldDoneIndicator),
       null,
       "JSLET",
-      false
+      false,
     ),
   );
   cx.getCurrentBB().args.push(
@@ -915,7 +958,7 @@ const handleYieldExpression = (
       new ResolveEnvBindingSEXP(yieldReturnResultHolder),
       null,
       "JSLET",
-      false
+      false,
     ),
   );
 
@@ -923,7 +966,9 @@ const handleYieldExpression = (
   // <yieldDoneIndicator, yieldReturnResultHolder> = YIELD [POP_CTX]
   cx.getCurrentBB().args.push(
     new YieldSEXP(
-      isAsync ? new AwaitSEXP(node.argument ? node.argument.name : "undefined") : new EnvReadSEXP(node.argument ? node.argument.name : "undefined"),
+      isAsync
+        ? new AwaitSEXP(node.argument ? node.argument.name : "undefined")
+        : new EnvReadSEXP(node.argument ? node.argument.name : "undefined"),
       yieldDoneIndicator,
       yieldReturnResultHolder,
     ),
@@ -933,7 +978,7 @@ const handleYieldExpression = (
   const ifJump = new IfElseJumpSEXP(
     new EnvReadSEXP(yieldDoneIndicator),
     trueContext.BB[0].idx,
-    -1
+    -1,
   );
   cx.getCurrentBB().args.push(ifJump);
 
@@ -982,7 +1027,7 @@ const handleComputedProps = (
         new ResolveEnvBindingSEXP(targetID),
         null,
         "JSLET",
-        false
+        false,
       ),
     );
     computedPropMapping.set(classItem, targetID);
@@ -1000,7 +1045,7 @@ const handleComputedProps = (
         new ResolveEnvBindingSEXP(targetID),
         new JSPrivateSEXP("#" + classItem.key.id.name),
         "JSLET",
-        false
+        false,
       ),
     );
     computedPropMapping.set(classItem, targetID);
@@ -1018,7 +1063,7 @@ const handleComputedProps = (
       new ResolveEnvBindingSEXP("this"),
       new EnvReadSEXP("undefined"),
       "JSCONST",
-      false
+      false,
     ),
   );
   if (isIdentifier(node.id))
@@ -1027,7 +1072,7 @@ const handleComputedProps = (
         new ResolveEnvBindingSEXP(node.id.name),
         new JSNUBDSEXP(),
         "JSCONST",
-        false
+        false,
       ),
     );
 
@@ -1044,7 +1089,7 @@ const handleComputedProps = (
         computedPropLoc,
         new EnvReadSEXP(keyLoweredTo.getBindingName()),
         false,
-        false
+        false,
       ),
     );
   });
@@ -1104,13 +1149,12 @@ const lowerClassMethods = (
     string
   >,
   finalClassProto: string,
-  finalClassRes: string
+  finalClassRes: string,
 ) => {
-  const methods = node.body.body
-    .filter(
-      (classItem) =>
-        isJS3ClassMethod(classItem) || isJS3ClassPrivateMethod(classItem),
-    )
+  const methods = node.body.body.filter(
+    (classItem) =>
+      isJS3ClassMethod(classItem) || isJS3ClassPrivateMethod(classItem),
+  );
   const hasSuper = node.superClass ? true : false;
 
   let PROTO_OBJ = "";
@@ -1123,7 +1167,10 @@ const lowerClassMethods = (
       let allocaLocation = computedPropMapping.get(methodNode);
       if (!allocaLocation) throw new Error("allocaLocation is undefined");
 
-      if (methodNode.kind === "get" || methodNode.kind === "set") throw new Error("setter and getters for private fields not supported yet");
+      if (methodNode.kind === "get" || methodNode.kind === "set")
+        throw new Error(
+          "setter and getters for private fields not supported yet",
+        );
 
       const funBodyLambda = handleFunctionExpression(
         cx,
@@ -1140,17 +1187,23 @@ const lowerClassMethods = (
       // Set name of the private method
       cx.getCurrentBB().args.push(
         new StackRejectSEXP(
-          new JSSetNameSEXP(new EnvReadSEXP(allocaLocation), new StringSEXP("#" + methodNode.key.id.name)),
-          1
-        )
+          new JSSetNameSEXP(
+            new EnvReadSEXP(allocaLocation),
+            new StringSEXP("#" + methodNode.key.id.name),
+          ),
+          1,
+        ),
       );
 
       // Set home object
       cx.getCurrentBB().args.push(
         new StackRejectSEXP(
-          new JSSetHomeSEXP(new EnvReadSEXP(PROTO_OBJ), new EnvReadSEXP(allocaLocation)),
-          2
-        )
+          new JSSetHomeSEXP(
+            new EnvReadSEXP(PROTO_OBJ),
+            new EnvReadSEXP(allocaLocation),
+          ),
+          2,
+        ),
       );
 
       continue;
@@ -1183,14 +1236,13 @@ const lowerClassMethods = (
             false,
           ),
           methodNode.kind,
-          true
+          true,
         ),
-        1
-      )
+        1,
+      ),
     );
   }
 };
-
 
 // This method lowers code for initialization of non-static fields
 const createClassNonStaticPropInitClosure = (
@@ -1306,10 +1358,10 @@ const createClassNonStaticPropInitClosure = (
       let loweredValue: IridiumSEXP = new EnvReadSEXP(
         classItem.value
           ? lowerExprToResolveEnvBindingSEXP(
-            cx,
-            classItem.value,
-          ).getBindingName()
-          : "undefined"
+              cx,
+              classItem.value,
+            ).getBindingName()
+          : "undefined",
       );
       cx.getCurrentBB().args.push(
         new StackRejectSEXP(
@@ -1317,7 +1369,7 @@ const createClassNonStaticPropInitClosure = (
             "this",
             lookupPrivateKeyHolder,
             loweredValue,
-            true
+            true,
           ),
           1,
         ),
@@ -1346,7 +1398,7 @@ const createClassNonStaticPropInitClosure = (
       new ResolveEnvBindingSEXP(location),
       new LambdaSEXP(funBBIdx),
       "JSLET",
-      false
+      false,
     ),
   );
 
@@ -1367,7 +1419,15 @@ const createClassStaticPropInitClosure = (
   privateMapping: null | PrivateMapping,
   hasSuper: boolean,
 ) => {
-  if (!(node.body.body.find(e => (isJS3ClassProperty(e) && e.static || isJS3ClassPrivateProperty(e) && e.static || isJS3StaticBlock(e))))) return null;
+  if (
+    !node.body.body.find(
+      (e) =>
+        (isJS3ClassProperty(e) && e.static) ||
+        (isJS3ClassPrivateProperty(e) && e.static) ||
+        isJS3StaticBlock(e),
+    )
+  )
+    return null;
   const location = newTemp("StaticPropInitClosure");
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   funcContext.privateMapping = privateMapping;
@@ -1392,24 +1452,24 @@ const createClassStaticPropInitClosure = (
   );
 
   // if (hasSuper) {
-    // add <home_object>
-    cx.getCurrentBB().args.push(
-      new JSImplicitBindingDeclarationSEXP("<home_object>", "JSCONST", 4),
-    );
-    // add <super_obj>
-    cx.getCurrentBB().args.push(
-      new JSImplicitBindingDeclarationSEXP(
-        "<super_obj>",
-        "JSCONST",
-        8,
-        new ListSEXP([new ResolveEnvBindingSEXP("<home_object>")]),
-      ),
-    );
+  // add <home_object>
+  cx.getCurrentBB().args.push(
+    new JSImplicitBindingDeclarationSEXP("<home_object>", "JSCONST", 4),
+  );
+  // add <super_obj>
+  cx.getCurrentBB().args.push(
+    new JSImplicitBindingDeclarationSEXP(
+      "<super_obj>",
+      "JSCONST",
+      8,
+      new ListSEXP([new ResolveEnvBindingSEXP("<home_object>")]),
+    ),
+  );
   // }
 
   // Set closure context
   // if (hasSuper) {
-    funcContext.kind = getStaticPropInitClosureFlag();
+  funcContext.kind = getStaticPropInitClosureFlag();
   // } else {
   //   funcContext.kind = getStaticPropInitDerivedClosureFlag();
   // }
@@ -1421,7 +1481,7 @@ const createClassStaticPropInitClosure = (
         new ResolveEnvBindingSEXP(node.id.name),
         new EnvReadSEXP("this"),
         "JSCONST",
-        false
+        false,
       ),
     );
   }
@@ -1473,10 +1533,10 @@ const createClassStaticPropInitClosure = (
       let loweredValue: IridiumSEXP = new EnvReadSEXP(
         classItem.value
           ? lowerExprToResolveEnvBindingSEXP(
-            cx,
-            classItem.value,
-          ).getBindingName()
-          : "undefined"
+              cx,
+              classItem.value,
+            ).getBindingName()
+          : "undefined",
       );
       cx.getCurrentBB().args.push(
         new StackRejectSEXP(
@@ -1484,7 +1544,7 @@ const createClassStaticPropInitClosure = (
             "this",
             lookupPrivateKeyHolder,
             loweredValue,
-            true
+            true,
           ),
           1,
         ),
@@ -1504,7 +1564,7 @@ const createClassStaticPropInitClosure = (
       new ResolveEnvBindingSEXP(location),
       new LambdaSEXP(funBBIdx),
       "JSLET",
-      false
+      false,
     ),
   );
 
@@ -1517,7 +1577,6 @@ const createClassConstructorClosure = (
   superClass: EnvReadSEXP | undefined,
   propInitClos: string,
 ): LambdaSEXP => {
-
   let constructor: undefined | Array<JS3ClassMethod> | JS3ClassMethod =
     node.body.body
       .filter((item) => isJS3ClassMethod(item))
@@ -1527,7 +1586,9 @@ const createClassConstructorClosure = (
 
   const constructorBody = constructor ? constructor.body.body : [];
 
-  const isSimpleArgs = constructor ? constructor.params.every(p => isIdentifier(p)) : true;
+  const isSimpleArgs = constructor
+    ? constructor.params.every((p) => isIdentifier(p))
+    : true;
 
   // Class methods are always strict mode
   const isStrict = true;
@@ -1535,14 +1596,25 @@ const createClassConstructorClosure = (
   const isAsync = constructor ? constructor.async : false;
   const isGenerator = constructor ? constructor.generator : false;
 
-  let kind = superClass ? getDerivedConstructorClosureFlag() : getConstructorClosureFlag();
+  let kind = superClass
+    ? getDerivedConstructorClosureFlag()
+    : getConstructorClosureFlag();
 
-  const params = constructor ? constructor.params : []
+  const params = constructor ? constructor.params : [];
 
   const ecmaArgs = funArgLength(params); // 15.1.5 Static Semantics: ExpectedArgumentCount
 
-  const implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP }> = [
-    { name: "arguments", type: "JSVAR", value: isStrict ? 0 : isSimpleArgs ? 1 : 0 },
+  const implicitBindings: Array<{
+    name: string;
+    type: JSImplicitBindingDeclarationTypes;
+    value: number;
+    initializer?: ListSEXP;
+  }> = [
+    {
+      name: "arguments",
+      type: "JSVAR",
+      value: isStrict ? 0 : isSimpleArgs ? 1 : 0,
+    },
     { name: "new.target", type: "JSVAR", value: 3 },
     { name: "<home_object>", type: "JSVAR", value: 4 },
     { name: "<var>", type: "JSVAR", value: 5 },
@@ -1560,15 +1632,19 @@ const createClassConstructorClosure = (
     // this = NUBD
     // This is a special case where we use thisinit
     implicitBindings.push({ name: "this", type: "JSCONST", value: 10 });
-    implicitBindings.push({ name: "this.active_func", type: "JSCONST", value: 2 });
-    implicitBindings.push(
-      {
-        name: "<super_ctr>",
-        type: "JSCONST",
-        value: 7,
-        initializer: new ListSEXP([new ResolveEnvBindingSEXP("this.active_func")]),
-      },
-    );
+    implicitBindings.push({
+      name: "this.active_func",
+      type: "JSCONST",
+      value: 2,
+    });
+    implicitBindings.push({
+      name: "<super_ctr>",
+      type: "JSCONST",
+      value: 7,
+      initializer: new ListSEXP([
+        new ResolveEnvBindingSEXP("this.active_func"),
+      ]),
+    });
   } else {
     // add "this" to the closure scope
     implicitBindings.push({ name: "this", type: "JSCONST", value: 9 });
@@ -1582,7 +1658,7 @@ const createClassConstructorClosure = (
         new ResolveEnvBindingSEXP("<class_fields_init>"),
         new EnvReadSEXP(propInitClos),
         "JSLET",
-        false
+        false,
       ),
     );
   };
@@ -1621,10 +1697,10 @@ const createClassConstructorClosure = (
             new EnvReadSEXP(propInitClos),
             new EnvReadSEXP("this"),
             [],
-            "CONTEXTUAL"
+            "CONTEXTUAL",
           ),
-          1
-        )
+          1,
+        ),
       );
 
       for (let item of constructorBody) IRIV2_STMT(cx, item);
@@ -1640,9 +1716,20 @@ const createClassConstructorClosure = (
         cx.getCurrentBB().args.push(
           new JSExplicitBindingDeclarationSEXP(
             new ResolveEnvBindingSEXP(newTemp("superResHolder")),
-            generateIridiumCall(cx, new EnvReadSEXP("<super_ctr>"), new EnvReadSEXP("new.target"), [generateJS3SpreadElementfromBaseNode(identifier("arguments"), node)], "SUPER"),
+            generateIridiumCall(
+              cx,
+              new EnvReadSEXP("<super_ctr>"),
+              new EnvReadSEXP("new.target"),
+              [
+                generateJS3SpreadElementfromBaseNode(
+                  identifier("arguments"),
+                  node,
+                ),
+              ],
+              "SUPER",
+            ),
             "JSLET",
-            false
+            false,
           ),
         );
       } else for (let item of constructorBody) IRIV2_STMT(cx, item);
@@ -1671,7 +1758,7 @@ const createClassConstructorClosure = (
     null,
     funcContextCallback,
     closureScopeCallback,
-    bodyScopeCallback
+    bodyScopeCallback,
   );
 
   return new LambdaSEXP(lambdaIDX, node.id ? node.id.name : "");
@@ -1682,7 +1769,6 @@ const handleUpdateExpression = (
   node: JS3UpdateExpression,
 ): IridiumSEXP => {
   if (isIdentifier(node.argument)) {
-
     // return new IDOPSEXP(
     //   new EnvReadSEXP(node.argument.name),
     //   node.prefix,
@@ -1701,7 +1787,7 @@ const handleUpdateExpression = (
             new NumberSEXP(1),
           ),
           false,
-          false
+          false,
         ),
       );
       return new EnvReadSEXP(node.argument.name);
@@ -1717,7 +1803,7 @@ const handleUpdateExpression = (
           new ResolveEnvBindingSEXP(tmp),
           new EnvReadSEXP(node.argument.name),
           "JSLET",
-          false
+          false,
         ),
       );
 
@@ -1730,26 +1816,46 @@ const handleUpdateExpression = (
             new NumberSEXP(1),
           ),
           false,
-          false
+          false,
         ),
       );
 
       return new EnvReadSEXP(tmp);
     }
   } else {
-
     // JS3MemberExpression
     //  object = Identifier | ThisExpression | Super
     //  property = Identifier | JS3PrivateName
     //  computed = true | false
 
     // a.x++ || --this.a || a[x]++ || --this[a]
-    if ((isIdentifier(node.argument.object) || isThisExpression(node.argument.object)) && isIdentifier(node.argument.property)) {
+    if (
+      (isIdentifier(node.argument.object) ||
+        isThisExpression(node.argument.object)) &&
+      isIdentifier(node.argument.property)
+    ) {
       if (!node.argument.computed) {
-        return new IDOPSEXP(new FieldReadSEXP(isThisExpression(node.argument.object) ? "this" : node.argument.object.name, node.argument.property.name), node.prefix, node.operator === "++");
-      }
-      else {
-        return new JSIDOPSEXP(new JSComputedFieldReadSEXP(isThisExpression(node.argument.object) ? "this" : node.argument.object.name, node.argument.property.name), node.prefix, node.operator === "++");
+        return new IDOPSEXP(
+          new FieldReadSEXP(
+            isThisExpression(node.argument.object)
+              ? "this"
+              : node.argument.object.name,
+            node.argument.property.name,
+          ),
+          node.prefix,
+          node.operator === "++",
+        );
+      } else {
+        return new JSIDOPSEXP(
+          new JSComputedFieldReadSEXP(
+            isThisExpression(node.argument.object)
+              ? "this"
+              : node.argument.object.name,
+            node.argument.property.name,
+          ),
+          node.prefix,
+          node.operator === "++",
+        );
       }
     }
 
@@ -1768,7 +1874,7 @@ const handleUpdateExpression = (
         new ResolveEnvBindingSEXP(tmp),
         IRIV2_RVAL(cx, node.argument),
         "JSLET",
-        false
+        false,
       ),
     );
 
@@ -1777,7 +1883,7 @@ const handleUpdateExpression = (
         new ResolveEnvBindingSEXP(num1),
         new NumberSEXP(1),
         "JSLET",
-        false
+        false,
       ),
     );
 
@@ -1812,7 +1918,7 @@ const handleUpdateExpression = (
             new NumberSEXP(1),
           ),
           false,
-          false
+          false,
         ),
       );
     }
@@ -1830,14 +1936,15 @@ const handleClassExpression = (
   const finalClassRes = newTemp("ClassRes");
   const finalClassProto = newTemp("ClassProto");
 
-  let oldContext: IridiumBuildContext | undefined = undefined, newContext: IridiumBuildContext | undefined = undefined;
+  let oldContext: IridiumBuildContext | undefined = undefined,
+    newContext: IridiumBuildContext | undefined = undefined;
 
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationNSEXP(
       new ResolveEnvBindingSEXP(finalClassRes),
       new JSNUBDSEXP(),
       "JSLET",
-      false
+      false,
     ),
   );
 
@@ -1846,13 +1953,13 @@ const handleClassExpression = (
       new ResolveEnvBindingSEXP(finalClassProto),
       new JSNUBDSEXP(),
       "JSLET",
-      false
+      false,
     ),
   );
 
   oldContext = cx.getCurrentContext();
   newContext = cx.declareAndPushLexicalContext();
-  oldContext.getCurrentBB().args.push(new GotoSEXP(newContext.BB[0].idx))
+  oldContext.getCurrentBB().args.push(new GotoSEXP(newContext.BB[0].idx));
   cx.addContinuation(oldContext);
 
   if (name !== "") {
@@ -1862,7 +1969,7 @@ const handleClassExpression = (
         new ResolveEnvBindingSEXP(name),
         new JSNUBDSEXP(),
         "JSCONST",
-        false
+        false,
       ),
     );
   }
@@ -1870,30 +1977,24 @@ const handleClassExpression = (
   let superClass: EnvReadSEXP | undefined = undefined;
   if (node.superClass) {
     if (isIdentifier(node.superClass)) {
-      superClass = new EnvReadSEXP(
-        node.superClass.name
-      );
-    }
-    else {
+      superClass = new EnvReadSEXP(node.superClass.name);
+    } else {
       //
       // Heritage evaluation should take place in a special scope where the classname eventually points to the name of the class if it exists
       //
       // if (name === "") {
       superClass = new EnvReadSEXP(
-        lowerExprToResolveEnvBindingSEXP(cx, node.superClass).getBindingName()
+        lowerExprToResolveEnvBindingSEXP(cx, node.superClass).getBindingName(),
       );
       // }
       // else {
       //   throw new Error("Heritage computation special block not supported yet!");
       // }
-
     }
-  };
+  }
   const isDerived = node.superClass ? true : false;
 
-  const heritage = node.superClass
-    ? superClass
-    : new EnvReadSEXP("undefined");
+  const heritage = node.superClass ? superClass : new EnvReadSEXP("undefined");
   const addBrand = node.body.body.some(
     (n) => isJS3ClassPrivateMethod(n) && !n.static,
   );
@@ -1925,40 +2026,27 @@ const handleClassExpression = (
         heritage ? heritage : new EnvReadSEXP("undefined"),
         constructorLambda,
         name,
-        isDerived
+        isDerived,
       ),
-      2
-    )
+      2,
+    ),
   );
 
   // [ctr] finalClassProto <- pop[ctr, proto]
   cx.getCurrentBB().args.push(
-    new EnvWriteSEXP(
-      finalClassProto,
-      new StackPopSEXP(),
-      true,
-      false
-    )
+    new EnvWriteSEXP(finalClassProto, new StackPopSEXP(), true, false),
   );
 
   // [] finalClassRes <- pop[ctr]
   cx.getCurrentBB().args.push(
-    new EnvWriteSEXP(
-      finalClassRes,
-      new StackPopSEXP(),
-      true,
-      false
-    )
+    new EnvWriteSEXP(finalClassRes, new StackPopSEXP(), true, false),
   );
 
   if (addBrand) {
     // add_brand this <home_object>
     cx.getCurrentBB().args.push(
       new StackRejectSEXP(
-        new JSADDBRANDSEXP(
-          new NullSEXP(),
-          new EnvReadSEXP(finalClassProto),
-        ),
+        new JSADDBRANDSEXP(new NullSEXP(), new EnvReadSEXP(finalClassProto)),
         0,
       ),
     );
@@ -1977,7 +2065,6 @@ const handleClassExpression = (
     );
   }
 
-
   // Lower class methods
   lowerClassMethods(
     cx,
@@ -1985,15 +2072,18 @@ const handleClassExpression = (
     privateMapping,
     computedPropMapping,
     finalClassProto,
-    finalClassRes
+    finalClassRes,
   );
 
   // set home_object of the prop init method to be the prototype
   cx.getCurrentBB().args.push(
     new StackRejectSEXP(
-      new JSSetHomeSEXP(new EnvReadSEXP(finalClassProto), new EnvReadSEXP(classPropInitClosure)),
-      2
-    )
+      new JSSetHomeSEXP(
+        new EnvReadSEXP(finalClassProto),
+        new EnvReadSEXP(classPropInitClosure),
+      ),
+      2,
+    ),
   );
 
   const classStaticPropInitClosure = createClassStaticPropInitClosure(
@@ -2008,31 +2098,36 @@ const handleClassExpression = (
     // Set home object
     cx.getCurrentBB().args.push(
       new StackRejectSEXP(
-        new JSSetHomeSEXP(new EnvReadSEXP(finalClassRes), new EnvReadSEXP(classStaticPropInitClosure)),
-        2
-      )
+        new JSSetHomeSEXP(
+          new EnvReadSEXP(finalClassRes),
+          new EnvReadSEXP(classStaticPropInitClosure),
+        ),
+        2,
+      ),
     );
 
     // Call Static Prop Init
     cx.getCurrentBB().args.push(
       new StackRejectSEXP(
-        generateIridiumCall(cx, new EnvReadSEXP(classStaticPropInitClosure), new EnvReadSEXP(finalClassRes), [], "CONTEXTUAL"),
-        1
-      )
+        generateIridiumCall(
+          cx,
+          new EnvReadSEXP(classStaticPropInitClosure),
+          new EnvReadSEXP(finalClassRes),
+          [],
+          "CONTEXTUAL",
+        ),
+        1,
+      ),
     );
   }
 
   if (name !== "") {
     cx.getCurrentBB().args.push(
-      new EnvWriteSEXP(
-        name,
-        new EnvReadSEXP(finalClassRes),
-        true,
-        false
-      ),
+      new EnvWriteSEXP(name, new EnvReadSEXP(finalClassRes), true, false),
     );
 
-    if (!oldContext) throw new Error("Impossible check, TS cant resolve this yet...");
+    if (!oldContext)
+      throw new Error("Impossible check, TS cant resolve this yet...");
   }
 
   cx.getCurrentBB().args.push(new GotoSEXP(oldContext.getCurrentBB().idx));
@@ -2040,17 +2135,14 @@ const handleClassExpression = (
   return new EnvReadSEXP(finalClassRes);
 };
 
-export const lowerSpreadToJS3Spread = (
-  cx: IRIDIUMV2,
-  from: SpreadElement,
-) => {
+export const lowerSpreadToJS3Spread = (cx: IRIDIUMV2, from: SpreadElement) => {
   // Generate 3JS code
   const otherProps = cx.utils;
-    const js3SpillHolder: JS3BlockStatement_body = [];
-    const updatedProps = {
-      ...otherProps,
-      others: { ...otherProps.others, holder: js3SpillHolder },
-    };
+  const js3SpillHolder: JS3BlockStatement_body = [];
+  const updatedProps = {
+    ...otherProps,
+    others: { ...otherProps.others, holder: js3SpillHolder },
+  };
 
   let res: JS3SpreadElement = handleSpreadElement(from, updatedProps);
 
@@ -2067,11 +2159,11 @@ export const lowerExprToResolveEnvBindingSEXP = (
 ) => {
   // Generate 3JS code
   const otherProps = cx.utils;
-    const js3SpillHolder: JS3BlockStatement_body = [];
-    const updatedProps = {
-      ...otherProps,
-      others: { ...otherProps.others, holder: js3SpillHolder },
-    };
+  const js3SpillHolder: JS3BlockStatement_body = [];
+  const updatedProps = {
+    ...otherProps,
+    others: { ...otherProps.others, holder: js3SpillHolder },
+  };
 
   let exprRes: Identifier;
 
@@ -2104,7 +2196,7 @@ const handleConditionalExpression = (
       new ResolveEnvBindingSEXP(resHolder),
       new EnvReadSEXP("undefined"),
       "JSLET",
-      false
+      false,
     ),
   );
 
@@ -2115,7 +2207,12 @@ const handleConditionalExpression = (
   const trueContext = cx.declareAndPushLexicalContext();
   let trueVal = lowerExprToResolveEnvBindingSEXP(cx, node.consequent);
   cx.getCurrentBB().args.push(
-    new EnvWriteSEXP(resHolder, new EnvReadSEXP(trueVal.getName()), false, false),
+    new EnvWriteSEXP(
+      resHolder,
+      new EnvReadSEXP(trueVal.getName()),
+      false,
+      false,
+    ),
   );
   cx.getCurrentBB().args.push(new GotoSEXP(postBB.idx));
   cx.popContext();
@@ -2124,7 +2221,12 @@ const handleConditionalExpression = (
   const falseContext = cx.declareAndPushLexicalContext();
   let falseVal = lowerExprToResolveEnvBindingSEXP(cx, node.alternate);
   cx.getCurrentBB().args.push(
-    new EnvWriteSEXP(resHolder, new EnvReadSEXP(falseVal.getName()), false, false),
+    new EnvWriteSEXP(
+      resHolder,
+      new EnvReadSEXP(falseVal.getName()),
+      false,
+      false,
+    ),
   );
   cx.getCurrentBB().args.push(new GotoSEXP(postBB.idx));
   cx.popContext();
@@ -2196,7 +2298,7 @@ const handleAssignmentExpression = (
         obj,
         prop,
         IRIV2_RVAL(cx, right),
-        false
+        false,
       );
     }
   }
@@ -2229,11 +2331,14 @@ const handleFunctionExpression = (
   hasSuper: boolean = false,
   isPrivateMethod: boolean = false,
 ) => {
-  const isSimpleArgs = node.params.every(p => isIdentifier(p));
+  const isSimpleArgs = node.params.every((p) => isIdentifier(p));
 
   let isStrict;
   if (isJS3ClassMethod(node) || isJS3ClassPrivateMethod(node)) isStrict = true;
-  else isStrict = cx.getCurrentContext().isStrict || node.body.directives.some((val) => val.value.value === "use strict");
+  else
+    isStrict =
+      cx.getCurrentContext().isStrict ||
+      node.body.directives.some((val) => val.value.value === "use strict");
 
   const isAsync = node.async ? node.async : false;
   const isGenerator = node.generator ? node.generator : false;
@@ -2251,8 +2356,17 @@ const handleFunctionExpression = (
 
   const ecmaArgs = funArgLength(node.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
 
-  const implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP }> = [
-    { name: "arguments", type: "JSVAR", value: isStrict ? 0 : isSimpleArgs ? 1 : 0 },
+  const implicitBindings: Array<{
+    name: string;
+    type: JSImplicitBindingDeclarationTypes;
+    value: number;
+    initializer?: ListSEXP;
+  }> = [
+    {
+      name: "arguments",
+      type: "JSVAR",
+      value: isStrict ? 0 : isSimpleArgs ? 1 : 0,
+    },
     { name: "this", type: "JSLET", value: 9 },
     { name: "new.target", type: "JSVAR", value: 3 },
     { name: "<home_object>", type: "JSVAR", value: 4 },
@@ -2274,14 +2388,21 @@ const handleFunctionExpression = (
     name = node.id.name;
     isComputedName = false;
     toSetName = false;
-  } else if (isJS3ObjectMethod(node)) {
+      } else if (isJS3ObjectMethod(node)) {
     name = getObjKeyString(node.key);
     isComputedName = node.computed;
     toSetName = node.computed ? true : false;
   } else if (isJS3ClassMethod(node)) {
     // Set name
     if (isIdentifier(node.key)) name = node.key.name;
-    else if (isDecimalLiteral(node.key) || isBigIntLiteral(node.key) || isStringLiteral(node.key) || isNumericLiteral(node.key) || isBooleanLiteral(node.key)) name = "" + node.key.value;
+    else if (
+      isDecimalLiteral(node.key) ||
+      isBigIntLiteral(node.key) ||
+      isStringLiteral(node.key) ||
+      isNumericLiteral(node.key) ||
+      isBooleanLiteral(node.key)
+    )
+      name = "" + node.key.value;
     else if (isNullLiteral(node.key)) name = "null";
     else name = "TODO//JS3ClassMethod::name";
     isComputedName = node.computed;
@@ -2289,6 +2410,9 @@ const handleFunctionExpression = (
   } else if (isJS3ClassPrivateMethod(node)) {
     name = "#" + node.key.id.name;
   }
+
+  if (name !== "" && !isComputedName)
+    implicitBindings.push({ name: name, type: "JSCONST", value: 2 });
 
   const funBBIdx = createLambda(
     cx,
@@ -2303,7 +2427,7 @@ const handleFunctionExpression = (
     implicitBindings,
     name,
     node.loc?.start.line,
-    privateMapping
+    privateMapping,
   );
 
   const lambda = new LambdaSEXP(funBBIdx);
@@ -2314,7 +2438,10 @@ const handleFunctionExpression = (
   return lambda;
 };
 
-const generateDynamicCallArgList = (cx: IRIDIUMV2, argList: Array<Identifier | JS3SpreadElement>): string => {
+const generateDynamicCallArgList = (
+  cx: IRIDIUMV2,
+  argList: Array<Identifier | JS3SpreadElement>,
+): string => {
   // let temp$id, insertionIdx$id;
   let temp$id = newTemp("temp");
   cx.getCurrentBB().args.push(
@@ -2322,7 +2449,7 @@ const generateDynamicCallArgList = (cx: IRIDIUMV2, argList: Array<Identifier | J
       new ResolveEnvBindingSEXP(temp$id),
       null,
       "JSLET",
-      false
+      false,
     ),
   );
 
@@ -2332,7 +2459,7 @@ const generateDynamicCallArgList = (cx: IRIDIUMV2, argList: Array<Identifier | J
       new ResolveEnvBindingSEXP(insertionIdx$id),
       null,
       "JSLET",
-      false
+      false,
     ),
   );
 
@@ -2344,10 +2471,13 @@ const generateDynamicCallArgList = (cx: IRIDIUMV2, argList: Array<Identifier | J
       temp$id,
       handleArrayExpression(
         cx,
-        generateJS3ArrayExpressionfromBaseNode(allEs, identifier("IridiumCode")),
+        generateJS3ArrayExpressionfromBaseNode(
+          allEs,
+          identifier("IridiumCode"),
+        ),
       ),
       true,
-      false
+      false,
     ),
   );
 
@@ -2357,12 +2487,14 @@ const generateDynamicCallArgList = (cx: IRIDIUMV2, argList: Array<Identifier | J
       insertionIdx$id,
       new NumberSEXP(allEs.length),
       true,
-      false
+      false,
     ),
   );
 
   if (!isJS3SpreadElement(argList[allEs.length]))
-    throw new Error(`Expected atleast one JS3SpreadElement when lowering dynamic call arg list, use simple routine otherwise! this is inefficient!!`);
+    throw new Error(
+      `Expected atleast one JS3SpreadElement when lowering dynamic call arg list, use simple routine otherwise! this is inefficient!!`,
+    );
 
   for (let i = allEs.length; i < argList.length; i++) {
     let currEle = argList[i];
@@ -2394,13 +2526,9 @@ const generateDynamicCallArgList = (cx: IRIDIUMV2, argList: Array<Identifier | J
       // tmp[insertionIdx] = rVal
       cx.getCurrentBB().args.push(
         new StackRejectSEXP(
-          new JSComputedFieldWriteSEXP(
-            temp$id,
-            insertionIdx$id,
-            rVal
-          ),
-          1
-        )
+          new JSComputedFieldWriteSEXP(temp$id, insertionIdx$id, rVal),
+          1,
+        ),
       );
       // insertionIdx++
       cx.getCurrentBB().args.push(
@@ -2412,26 +2540,35 @@ const generateDynamicCallArgList = (cx: IRIDIUMV2, argList: Array<Identifier | J
             new NumberSEXP(1),
           ),
           true,
-          false
+          false,
         ),
       );
     }
   }
 
   return temp$id;
-}
+};
 
-const generateIridiumCall = (cx: IRIDIUMV2, callee: IridiumSEXP, calleeContext: IridiumSEXP, rawCallArguments: Array<JS3ContainedExprKey | JS3SpreadElement | SpreadElement>, kind: "NORMAL" | "CONSTRUCTOR" | "CONTEXTUAL" | "SUPER") => {
+const generateIridiumCall = (
+  cx: IRIDIUMV2,
+  callee: IridiumSEXP,
+  calleeContext: IridiumSEXP,
+  rawCallArguments: Array<
+    JS3ContainedExprKey | JS3SpreadElement | SpreadElement
+  >,
+  kind: "NORMAL" | "CONSTRUCTOR" | "CONTEXTUAL" | "SUPER",
+) => {
   let callArguments: Array<Identifier | JS3SpreadElement> = [];
 
   // Process lower, it might have been delayed by 3JS
-  callArguments = rawCallArguments.map(e => {
-    if (isIdentifier(e) || isJS3SpreadElement(e)) return e
+  callArguments = rawCallArguments.map((e) => {
+    if (isIdentifier(e) || isJS3SpreadElement(e)) return e;
     else if (isSpreadElement(e)) return lowerSpreadToJS3Spread(cx, e);
     else return identifier(lowerExprToResolveEnvBindingSEXP(cx, e).getName());
   });
 
-  const isSimpleArgList: boolean = callArguments.find(e => !isIdentifier(e)) === undefined;
+  const isSimpleArgList: boolean =
+    callArguments.find((e) => !isIdentifier(e)) === undefined;
 
   if (isSimpleArgList) {
     // Regular call semantics
@@ -2464,47 +2601,61 @@ const generateIridiumCall = (cx: IRIDIUMV2, callee: IridiumSEXP, calleeContext: 
     if (kind === "NORMAL" || kind === "CONTEXTUAL") {
       return new ApplySEXP(
         callee, // Callee
-        calleeContext,  // CTX
+        calleeContext, // CTX
         new EnvReadSEXP(argListHolder), // arglist
-        false
+        false,
       );
     } else {
       let res = new ApplySEXP(
         callee, // Callee
-        calleeContext,  // CTX, ignored
+        calleeContext, // CTX, ignored
         new EnvReadSEXP(argListHolder), // arglist
-        true // constructor call
+        true, // constructor call
       );
       if (kind === "SUPER") res.setSuper();
       return res;
     }
   }
-}
+};
 
 const handleNewExpression = (cx: IRIDIUMV2, node: JS3NewExpression) => {
   let callee: IridiumSEXP;
   if (isIdentifier(node.callee)) {
     callee = new EnvReadSEXP(node.callee.name);
-  } else throw new Error("TODO // NewExpression with Super | V8IntrinsicIdentifier not supported yet");
+  } else
+    throw new Error(
+      "TODO // NewExpression with Super | V8IntrinsicIdentifier not supported yet",
+    );
 
   let calleeContext: IridiumSEXP = new NullSEXP();
-  return generateIridiumCall(cx, callee, calleeContext, node.arguments, "CONSTRUCTOR");
+  return generateIridiumCall(
+    cx,
+    callee,
+    calleeContext,
+    node.arguments,
+    "CONSTRUCTOR",
+  );
 };
 
 const handleArrowFunctionExpression = (
   cx: IRIDIUMV2,
   node: JS3ArrowFunctionExpression,
 ) => {
-  const isSimpleArgs = node.params.every(p => isIdentifier(p));
-  const isStrict = cx.getCurrentContext().isStrict || node.body.directives.some((val) => val.value.value === "use strict");
+  const isSimpleArgs = node.params.every((p) => isIdentifier(p));
+  const isStrict =
+    cx.getCurrentContext().isStrict ||
+    node.body.directives.some((val) => val.value.value === "use strict");
   const isAsync = node.async ? node.async : false;
   const isGenerator = node.generator ? node.generator : false;
   const kind = getRegularClosureFlag();
   const ecmaArgs = funArgLength(node.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
   // There are no implicit bindings in an arrow function
-  const implicitBindings: Array<{ name: string, type: JSImplicitBindingDeclarationTypes, value: number, initializer?: ListSEXP }> = [
-    { name: "<var>", type: "JSVAR", value: 5 },
-  ];
+  const implicitBindings: Array<{
+    name: string;
+    type: JSImplicitBindingDeclarationTypes;
+    value: number;
+    initializer?: ListSEXP;
+  }> = [{ name: "<var>", type: "JSVAR", value: 5 }];
 
   const funBBIdx = createLambda(
     cx,
@@ -2518,30 +2669,48 @@ const handleArrowFunctionExpression = (
     node.body.body,
     implicitBindings,
     "ARROW_FN",
-    node.loc?.start.line
+    node.loc?.start.line,
   );
 
   return new LambdaSEXP(funBBIdx);
 };
 
-const handleCallExpression = (cx: IRIDIUMV2, node: JS3CallExpression | JS3JSXCallExpression) => {
+const handleCallExpression = (
+  cx: IRIDIUMV2,
+  node: JS3CallExpression | JS3JSXCallExpression,
+) => {
   if (isIdentifier(node.callee)) {
     let callee = new EnvReadSEXP(node.callee.name);
     let calleeContext = new NullSEXP();
-    return generateIridiumCall(cx, callee, calleeContext, node.arguments, "NORMAL");
+    return generateIridiumCall(
+      cx,
+      callee,
+      calleeContext,
+      node.arguments,
+      "NORMAL",
+    );
   } else if (isSuper(node.callee)) {
     let calleeContext = new EnvReadSEXP("<super_ctr>");
     let callee = new EnvReadSEXP("new.target");
-    return generateIridiumCall(cx, callee, calleeContext, node.arguments, "SUPER");
-  } else throw new Error("TODO // CallExpression with JS3Import | Super | V8IntrinsicIdentifier");
+    return generateIridiumCall(
+      cx,
+      callee,
+      calleeContext,
+      node.arguments,
+      "SUPER",
+    );
+  } else
+    throw new Error(
+      "TODO // CallExpression with JS3Import | Super | V8IntrinsicIdentifier",
+    );
 };
 
 const handleContextualCallExpression = (
   cx: IRIDIUMV2,
   node: JS3ContextualCallExpression,
 ) => {
-
-  if (isOptionalMemberExpression(node.callee)) throw new Error("TODO // ContextualCall with OptionalMemberExpression");
+  if (isOptionalMemberExpression(node.callee))
+    throw new Error("TODO // ContextualCall with OptionalMemberExpression");
 
   // Callee
   const tempHolder = newTemp("ccallCallee");
@@ -2552,7 +2721,7 @@ const handleContextualCallExpression = (
       new ResolveEnvBindingSEXP(tempHolder),
       IRIV2_RVAL(cx, node.callee),
       "JSLET",
-      false
+      false,
     );
     cx.getCurrentBB().args.push(stmt);
   }
@@ -2565,7 +2734,13 @@ const handleContextualCallExpression = (
   } else {
     calleeContext = new EnvReadSEXP("this");
   }
-  return generateIridiumCall(cx, callee, calleeContext, node.arguments, "CONTEXTUAL");
+  return generateIridiumCall(
+    cx,
+    callee,
+    calleeContext,
+    node.arguments,
+    "CONTEXTUAL",
+  );
 };
 
 const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
@@ -2573,7 +2748,6 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
 
   if (isSimpleArray) {
     const args = init.elements.map((e) => {
-
       if (
         isIdentifier(e) ||
         isStringLiteral(e) ||
@@ -2600,7 +2774,7 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
         new ResolveEnvBindingSEXP(temp$id),
         null,
         "JSLET",
-        false
+        false,
       ),
     );
 
@@ -2610,7 +2784,7 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
         new ResolveEnvBindingSEXP(insertionIdx$id),
         null,
         "JSLET",
-        false
+        false,
       ),
     );
 
@@ -2624,7 +2798,7 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
           generateJS3ArrayExpressionfromBaseNode(allEs, init),
         ),
         true,
-        false
+        false,
       ),
     );
 
@@ -2634,7 +2808,7 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
         insertionIdx$id,
         new NumberSEXP(allEs.length),
         true,
-        false
+        false,
       ),
     );
 
@@ -2670,10 +2844,10 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
             new JSComputedFieldWriteSEXP(
               temp$id,
               insertionIdx$id,
-              IRIV2_RVAL(cx, currEle)
+              IRIV2_RVAL(cx, currEle),
             ),
-            1
-          )
+            1,
+          ),
         );
         // insertionIdx++
         cx.getCurrentBB().args.push(
@@ -2685,7 +2859,7 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
               new NumberSEXP(1),
             ),
             true,
-            false
+            false,
           ),
         );
       } else {
@@ -2716,7 +2890,7 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
       new ResolveEnvBindingSEXP(obj$id),
       new JSObjectSEXP(),
       "JSLET",
-      false
+      false,
     ),
   );
 
@@ -2734,7 +2908,7 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
             prop.kind,
           ),
           false,
-          false
+          false,
         ),
       );
     } else if (isJS3ObjectProperty(prop)) {
@@ -2749,7 +2923,7 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
               IRIV2_RVAL(cx, prop.value),
             ),
             false,
-            false
+            false,
           ),
         );
       } else {
@@ -2765,7 +2939,7 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
               IRIV2_RVAL(cx, prop.value),
             ),
             false,
-            false
+            false,
           ),
         );
       }
@@ -2791,5 +2965,14 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
   return new EnvReadSEXP(obj$id);
 };
 function isJS3ArrayTerminals(node: JS3ArrayTerminals | null) {
-  return (isIdentifier(node)) || isStringLiteral(node) || isNumericLiteral(node) || isNullLiteral(node) || isBooleanLiteral(node) || isThisExpression(node) || isBigIntLiteral(node) || isDecimalLiteral(node);
+  return (
+    isIdentifier(node) ||
+    isStringLiteral(node) ||
+    isNumericLiteral(node) ||
+    isNullLiteral(node) ||
+    isBooleanLiteral(node) ||
+    isThisExpression(node) ||
+    isBigIntLiteral(node) ||
+    isDecimalLiteral(node)
+  );
 }
