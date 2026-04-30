@@ -1778,8 +1778,6 @@ export const createLambda = (
   {
     // Arguments
     if (!isSimpleArgs) {
-      // !funcContext.isStrict && isSimpleArgs
-      // VARBoundary Start -- Arguments
       lowerArgumentInit(
         cx,
         implicitBindings,
@@ -1799,7 +1797,7 @@ export const createLambda = (
 
   {
     // Body
-    if (!isSimpleArgs) {
+    // if (!isSimpleArgs) {
       let argInitToBody = new GotoSEXP(-1);
       cx.getCurrentBB().args.push(argInitToBody);
 
@@ -1823,7 +1821,7 @@ export const createLambda = (
           ),
         );
       });
-    }
+    // }
 
     if (funcContext.isGenerator)
       cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
@@ -1846,10 +1844,10 @@ export const createLambda = (
 
     cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
 
-    if (!isSimpleArgs) {
+    // if (!isSimpleArgs) {
       // VARBoundary End -- Body
       cx.popContext();
-    }
+    // }
   }
 
   // Call at the very end, to allow overrides and avoid confusion
