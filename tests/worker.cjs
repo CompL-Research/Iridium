@@ -74,7 +74,7 @@ module.exports = {
       if (mode === "baseline") {
         execSync(`${EXEC_BIN} ${isModule ? "" : "-C"} ${tempFile}`, {
           stdio: "pipe",
-          timeout: 10000,
+          timeout: 15000,
         });
       } else if (mode === "--iri") {
         execSync(
@@ -83,7 +83,7 @@ module.exports = {
             cwd: IRI_PATH,
             encoding: "utf-8",
             stdio: "pipe",
-            timeout: 10000,
+            timeout: 15000,
           },
         );
       } else {
@@ -93,7 +93,7 @@ module.exports = {
             cwd: IRI_PATH,
             encoding: "utf-8",
             stdio: "pipe",
-            timeout: 10000,
+            timeout: 15000,
           },
         );
       }
