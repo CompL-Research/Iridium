@@ -296,13 +296,19 @@ export function printAuthorInfo() {
   );
   console.log(
     chalk.hex("#00ff41")("└── ") +
-      chalk.dim("Origin: ") +
+      chalk.dim("Origin:   ") +
       chalk.bold.blue("IIT Bombay"),
   );
   console.log(
     chalk.hex("#00ff41")("└── ") +
-      chalk.dim("Lead:   ") +
+      chalk.dim("Lead:     ") +
       chalk.magenta("Meetesh Kalpesh Mehta"),
+  );
+
+  console.log(
+    chalk.hex("#00ff41")("└── ") +
+      chalk.dim("Advisor:  ") +
+      chalk.magenta("Dr Manas Thakur"),
   );
   console.log(
     `\n${chalk.bgWhite.black.bold(" CORE CONCEPT ")} ${chalk.italic("Sounder Static Analysis/Optimization for JavaScript Programs.")}`,
