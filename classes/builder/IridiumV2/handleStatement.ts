@@ -84,6 +84,7 @@ import {
   handleAssignmentExpression as js3handleAssignmentExpression,
 } from "../JS3Helpers/HandleExpression";
 import {
+  BBSEXPFlags,
   EnvReadSEXP,
   EnvWriteSEXP,
   getConstructorClosureFlag,
@@ -382,9 +383,10 @@ export const handleBlockStatement = (
   cx: IRIDIUMV2,
   stmt: JS3BlockStatement | JS3StaticBlock,
   loopBodyCTX: IRILoopBodyCTX | null = null,
+  blockFlag: BBSEXPFlags = "Lexical"
 ): IridiumBuildContext => {
   const oldContext = cx.getCurrentContext();
-  const newContext = cx.declareAndPushLexicalContext();
+  const newContext = cx.declareAndPushLexicalContext(blockFlag);
 
   // Add Gotos from oldContext's last BB to currentBB.
   oldContext.getCurrentBB().args.push(new GotoSEXP(newContext.BB[0].idx));
@@ -1620,16 +1622,16 @@ export const lowerArgumentInit = (
     // const extractedBindingsSet: Set<string> = new Set();
     for (let p of params) extractBindings(p, extractedBindingsSet);
 
-    if (hasArguments && !extractedBindingsSet.has("arguments")) {
-      cx.getCurrentBB().args.push(
-        new JSExplicitBindingDeclarationSEXP(
-          new ResolveEnvBindingSEXP("arguments"),
-          null,
-          "JSLET",
-          false,
-        ),
-      );
-    }
+    // if (hasArguments && !extractedBindingsSet.has("arguments")) {
+    //   cx.getCurrentBB().args.push(
+    //     new JSExplicitBindingDeclarationSEXP(
+    //       new ResolveEnvBindingSEXP("arguments"),
+    //       null,
+    //       "JSLET",
+    //       false,
+    //     ),
+    //   );
+    // }
 
     if (addVarDeclScope) {
       cx.getCurrentBB().args.push(

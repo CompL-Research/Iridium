@@ -1552,7 +1552,7 @@ const createClassStaticPropInitClosure = (
     } else if (isJS3StaticBlock(classItem)) {
       // { /** code **/ }
       // TODO:: THIS IS A VAR BOUNDAY CONTEXT...
-      handleBlockStatement(cx, classItem);
+      handleBlockStatement(cx, classItem, null, "VARBoundary");
     }
   }
 
@@ -2411,7 +2411,7 @@ const handleFunctionExpression = (
     name = "#" + node.key.id.name;
   }
 
-  if (name !== "" && !isComputedName)
+  if (name !== "" && !isComputedName && isJS3FunctionExpression(node))
     implicitBindings.push({ name: name, type: "JSCONST", value: 2 });
 
   const funBBIdx = createLambda(
