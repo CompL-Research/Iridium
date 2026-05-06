@@ -158,7 +158,6 @@ function main() {
     }
     case "js3": {
       const JS3PATH = initJS3(header, argv);
-      logger.error(debugConfig, "Config");
       js3(JS3PATH);
       break;
     }
