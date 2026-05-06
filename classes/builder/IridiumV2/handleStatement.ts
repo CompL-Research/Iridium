@@ -1589,9 +1589,9 @@ export const lowerArgumentInit = (
 ) => {
   const closureTopLevelContext = cx.getCurrentContext();
 
-  let hasArguments = implicitBindings.find((e) => e.name === "arguments")
-    ? true
-    : false;
+  // let hasArguments = implicitBindings.find((e) => e.name === "arguments")
+  //   ? true
+  //   : false;
   let addVarDeclScope = implicitBindings.find((e) => e.name === "var")
     ? true
     : false;
