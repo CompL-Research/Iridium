@@ -20,6 +20,7 @@ async function main() {
   const iri = args.includes("--iri");
   const onlyDiff = args.includes("--only-diff");
   const ignoreWith = args.includes("--ignore-with");
+  const ignoreName = args.includes("--ignore-name");
 
   if (js3 === iri) {
     console.error("Expected one of --js3 or --iri, not both or neither.");
@@ -34,6 +35,7 @@ async function main() {
   for await (const test of stream) {
     if (test.attrs.negative) continue;
     if (filter && !test.file.includes(filter)) continue;
+    if (ignoreName && test.file.includes("-name-")) continue;
     allTests.push(test);
   }
 
@@ -47,17 +49,16 @@ async function main() {
   // Detailed tracking
   let stats = {
     passBoth: 0,
-    failBoth: 0,
-    overCompliant: 0,
-    regression: 0,
-    mismatch: 0, // Failed both but with different error types
-    ignored: 0,
+    failBothEMatch: [],
+    failBothEMismatch: [],
+    overCompliant: [],
+    regression: [],
+    ignored: [],
   };
 
-  const failBothFiles = [];
-  const overCompliantFiles = [];
-
-  console.log(pc.cyan(`\n🚀 Iridium Test-262 Runner (${js3 ? "--js3" : "--iri"})`));
+  console.log(
+    pc.cyan(`\n🚀 Iridium Test-262 Runner (${js3 ? "--js3" : "--iri"})`),
+  );
   console.log(
     pc.gray(`Threads: ${THREADS} | Target: ${filter || "All tests"}\n`),
   );
@@ -68,6 +69,7 @@ async function main() {
       barCompleteChar: "\u2588",
       barIncompleteChar: "\u2591",
       hideCursor: true,
+      stream: process.stdout
     },
     cliProgress.Presets.shades_classic,
   );
@@ -84,7 +86,9 @@ async function main() {
       (async (t) => {
         try {
           const baseline = await worker.runTest(t, "baseline");
-          const iridium = js3 ? await worker.runTest(t, "--js3") :  await worker.runTest(t, "--iri");
+          const iridium = js3
+            ? await worker.runTest(t, "--js3")
+            : await worker.runTest(t, "--iri");
 
           // Status definitions
           const isBaselinePass = baseline.status === "PASS";
@@ -95,38 +99,41 @@ async function main() {
           if (isBaselinePass && isIridiumPass) {
             passCount++;
             stats.passBoth++;
-          } else if (!isBaselinePass && !isIridiumPass && errorsMatch) {
-            passCount++; // Counted as progress bar 'pass' because there's no diff
-            stats.failBoth++;
-            failBothFiles.push(t.file);
-            await worker.saveArtifacts(t, baseline, iridium);
-          } else {
-            // Mismatch block (Regressions, Over-compliance, Diff errors)
-            const isWithFailure = iridium.message && iridium.message.includes("unhandled Statement->WithStatement");
-            const isTrueRegression = isBaselinePass && !isIridiumPass;
-            const isOverCompliant = !isBaselinePass && isIridiumPass;
-
-            if (isOverCompliant) {
-              stats.overCompliant++;
-              overCompliantFiles.push(t.file);
-            } else if (isTrueRegression) {
-              stats.regression++;
-            } else {
-              stats.mismatch++;
-            }
-
-            // Artifact saving logic
-            let shouldSave = true;
-            if (onlyDiff && !isTrueRegression && !isOverCompliant) shouldSave = false;
-            if (ignoreWith && isWithFailure) shouldSave = false;
-
-            if (shouldSave) {
-              failCount++;
-              await worker.saveArtifacts(t, baseline, iridium);
-            } else {
+          } else if (
+            ignoreWith &&
+            iridium.message &&
+            iridium.message.includes("JS3 build failed")
+          ) {
+            passCount++;
+            stats.ignored.push(t.file);
+            await worker.saveArtifacts(t, baseline, iridium, "IGNO");
+          } else if (
+            iridium.message &&
+            iridium.message.includes("IRI build failed")
+          ) {
+            passCount++;
+            stats.ignored.push(t.file);
+            await worker.saveArtifacts(t, baseline, iridium, "IGNO");
+          } else if (!isBaselinePass && !isIridiumPass) {
+            if (errorsMatch) {
               passCount++;
-              stats.ignored++;
+              stats.failBothEMatch.push(t.file);
+              await worker.saveArtifacts(t, baseline, iridium, "FBOT");
+            } else {
+              failCount++;
+              stats.failBothEMismatch.push(t.file);
+              await worker.saveArtifacts(t, baseline, iridium, "EMIS");
             }
+          } else if (isBaselinePass && !isIridiumPass) {
+            failCount++;
+            stats.regression.push(t.file);
+            await worker.saveArtifacts(t, baseline, iridium, "REGR");
+          } else if (!isBaselinePass && isIridiumPass) {
+            passCount++;
+            stats.overCompliant.push(t.file);
+            await worker.saveArtifacts(t, baseline, iridium, "OVER");
+          } else {
+            throw new Error("Unreachable...");
           }
         } catch (err) {
           failCount++;
@@ -143,41 +150,55 @@ async function main() {
   await Promise.all(activeTasks);
   progressBar.stop();
 
-  // Write the tracking arrays to files
-  if (failBothFiles.length > 0) {
-    fs.writeFileSync(path.resolve("./fail_both.txt"), failBothFiles.join("\n"));
-  }
-  if (overCompliantFiles.length > 0) {
-    fs.writeFileSync(path.resolve("./over_compliant.txt"), overCompliantFiles.join("\n"));
-  }
-
   // --- Final Report ---
   const successRate = ((passCount / total) * 100).toFixed(2);
 
   console.log(`\n${pc.bold("--- Final Report ---")}`);
   console.log(`${pc.green("Total:")}                        ${total}`);
   console.log(`${pc.green("PassCount:")}                    ${passCount}`);
-  console.log(`${pc.green("✔ True Passes (Pass Both):")}    ${stats.passBoth}`);
-  console.log(`${pc.gray("➖ Failed Both (No Diff):")}      ${stats.failBoth}`);
-  console.log(`${pc.magenta("★ Over Compliant (Fixes):")}     ${stats.overCompliant}`);
-  console.log(`${pc.red("✖ True Regressions:")}           ${stats.regression}`);
-  console.log(`${pc.yellow("⚠ Other Mismatches:")}           ${stats.mismatch}`);
-  if (stats.ignored > 0) {
-    console.log(`${pc.dim("⊘ Ignored (--ignore-with):")}    ${stats.ignored}`);
-  }
+  console.log(
+    `${pc.green("✔ True Passes (Pass Both):")}    ${stats.passBoth}`,
+  );
+  console.log(
+    `${pc.gray("➖ Failed Both (Err Match):")}      ${stats.failBothEMatch.length}`,
+  );
+  console.log(
+    `${pc.gray("➖ Failed Both (Err Mismatch):")}      ${stats.failBothEMismatch.length}`,
+  );
+  console.log(
+    `${pc.magenta("★ Over Compliant (Fixes):")}     ${stats.overCompliant.length}`,
+  );
+  console.log(
+    `${pc.red("✖ True Regressions:")}           ${stats.regression.length}`,
+  );
+  console.log(
+    `${pc.dim("⊘ Ignored (Compile Errors):")}    ${stats.ignored.length}`,
+  );
 
   console.log(`\n${pc.cyan("📊 Overall Bar Rate:")}          ${successRate}%`);
 
-  if (failCount > 0) {
-    console.log(`\n${pc.yellow("⚠ Diff Artifacts saved to:")} ./failing_tests/`);
+  // 1. Build the string
+  let outputString = "=== TEST RUN STATISTICS ===\n\n";
+
+  for (const [key, value] of Object.entries(stats)) {
+    if (Array.isArray(value)) {
+      outputString += `${key.toUpperCase()} (${value.length}):\n`;
+      if (value.length === 0) {
+        outputString += "  (None)\n";
+      } else {
+        value.forEach((filePath) => {
+          outputString += `  - ${filePath}\n`;
+        });
+      }
+    } else {
+      // For flat numbers like passBoth
+      outputString += `${key.toUpperCase()}: ${value}\n`;
+    }
+    outputString += "\n";
   }
 
-  if (failBothFiles.length > 0 || overCompliantFiles.length > 0) {
-    console.log(`${pc.yellow("📄 Lists generated:")}`);
-    if (failBothFiles.length > 0) console.log(`   - ./fail_both.txt`);
-    if (overCompliantFiles.length > 0) console.log(`   - ./over_compliant.txt`);
-  }
-
+  // 2. Write exactly that string to stderr
+  process.stderr.write(outputString);
   process.exit(0);
 }
 

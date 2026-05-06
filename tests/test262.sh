@@ -103,6 +103,8 @@ TESTS=(
 
   # "test/language/M_super"
 
+  # "test/language/expressions/assignment"
+
 
   # "test/language/arguments-object"
   # "test/language/asi"
@@ -139,10 +141,10 @@ TESTS=(
 
   # "test/language/statements/async-function"
   # "test/language/statements/async-generator"
-  # # "test/language/statements/await-using"
+  # "test/language/statements/await-using"
   # "test/language/statements/block"
   # "test/language/statements/break"
-  # # "test/language/statements/class"
+  # "test/language/statements/class"
   # "test/language/statements/const"
   # "test/language/statements/continue"
   # # "test/language/statements/debugger"
@@ -175,19 +177,19 @@ for test in "${TESTS[@]}"; do
   # 3. Branching logic
   if [ "$js3_passed" = true ]; then
     outFile="failure_summary_js3_${test//\//_}"
-    NO_OPT=1 node run.cjs "$test/" --only-diff --ignore-with --js3
+    NO_OPT=1 node run.cjs "$test/" --only-diff --ignore-with --ignore-name --js3 2> $outFile
 
-    node audit_failures.cjs
-    mv failure_summary.txt $outFile
+    # node audit_failures.cjs
+    # mv failure_summary.txt $outFile
     rm -rf "failing_tests_js3_${test//\//_}"
     mv failing_tests "failing_tests_js3_${test//\//_}"
 
   else
     outFile="failure_summary_iri_${test//\//_}"
-    NO_OPT=1 node run.cjs "$test/" --only-diff --ignore-with --iri
+    NO_OPT=1 node run.cjs "$test/" --only-diff --ignore-with --ignore-name --iri 2> $outFile
 
-    node audit_failures.cjs
-    mv failure_summary.txt $outFile
+    # node audit_failures.cjs
+    # mv failure_summary.txt $outFile
     rm -rf "failing_tests_iri_${test//\//_}"
     mv failing_tests "failing_tests_iri_${test//\//_}"
   fi

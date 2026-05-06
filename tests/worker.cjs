@@ -116,8 +116,8 @@ module.exports = {
     return result;
   },
 
-  async saveArtifacts(test, baseline, iridium) {
-    const testId = `${test.file.replace(/\//g, "_")}_${test.scenario.replace(/ /g, "_")}`;
+  async saveArtifacts(test, baseline, iridium, prefix="") {
+    const testId = `${prefix ? prefix + "_" : ""}${test.file.replace(/\//g, "_")}_${test.scenario.replace(/ /g, "_")}`;
     const folder = path.join(ARTIFACT_DIR, testId);
     if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
 
