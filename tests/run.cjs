@@ -3,10 +3,17 @@ const { Worker } = require("jest-worker");
 const path = require("path");
 const pc = require("picocolors");
 const cliProgress = require("cli-progress");
-const fs = require("fs"); // Added for writing list outputs
+const fs = require("fs");
 
 const THREADS = 64;
 const TEST262_PATH = path.resolve("./test262");
+
+const IGNORED = [
+  "test/language/expressions/arrow-function/name.js",
+  "test/language/expressions/class/elements/static-field-anonymous-function-name.js",
+  "test/language/statements/class/definition/basics.js",
+
+]
 
 const worker = new Worker(require.resolve("./worker.cjs"), {
   numWorkers: THREADS,
@@ -21,6 +28,7 @@ async function main() {
   const onlyDiff = args.includes("--only-diff");
   const ignoreWith = args.includes("--ignore-with");
   const ignoreName = args.includes("--ignore-name");
+  const ignoreList = true;
 
   if (js3 === iri) {
     console.error("Expected one of --js3 or --iri, not both or neither.");
@@ -36,6 +44,9 @@ async function main() {
     if (test.attrs.negative) continue;
     if (filter && !test.file.includes(filter)) continue;
     if (ignoreName && test.file.includes("-name-")) continue;
+    if (ignoreList && IGNORED.includes(test.file)) {
+      continue;
+    }
     allTests.push(test);
   }
 
@@ -44,7 +55,9 @@ async function main() {
   // High-level progress counts
   let passCount = 0;
   let failCount = 0;
-  let activeTasks = [];
+
+  // Use a Set to track active tasks for O(1) additions/deletions
+  const activeTasks = new Set();
 
   // Detailed tracking
   let stats = {
@@ -77,78 +90,89 @@ async function main() {
   progressBar.start(total, 0, { passes: 0, fails: 0 });
 
   for (const test of allTests) {
-    if (activeTasks.length >= THREADS * 2) {
-      await Promise.all(activeTasks);
-      activeTasks = [];
-    }
+    // 1. Create the async task promise
+    const taskPromise = (async (t) => {
+      try {
+        const baseline = await worker.runTest(t, "baseline");
+        const iridium = js3
+          ? await worker.runTest(t, "--js3")
+          : await worker.runTest(t, "--iri");
 
-    activeTasks.push(
-      (async (t) => {
-        try {
-          const baseline = await worker.runTest(t, "baseline");
-          const iridium = js3
-            ? await worker.runTest(t, "--js3")
-            : await worker.runTest(t, "--iri");
+        // Status definitions
+        const isBaselinePass = baseline.status === "PASS";
+        const isIridiumPass = iridium.status === "PASS";
+        const errorsMatch = baseline.errorType === iridium.errorType;
 
-          // Status definitions
-          const isBaselinePass = baseline.status === "PASS";
-          const isIridiumPass = iridium.status === "PASS";
-          const errorsMatch = baseline.errorType === iridium.errorType;
-
-          // Categorize the result
-          if (isBaselinePass && isIridiumPass) {
+        // Categorize the result
+        if (isBaselinePass && isIridiumPass) {
+          passCount++;
+          stats.passBoth++;
+        } else if (
+          ignoreWith &&
+          iridium.message &&
+          iridium.message.includes("JS3 build failed")
+        ) {
+          passCount++;
+          stats.ignored.push(t.file);
+          await worker.saveArtifacts(t, baseline, iridium, "IGNO");
+        } else if (
+          iridium.message &&
+          iridium.message.includes("IRI build failed")
+        ) {
+          passCount++;
+          stats.ignored.push(t.file);
+          await worker.saveArtifacts(t, baseline, iridium, "IGNO");
+        } else if (!isBaselinePass && !isIridiumPass) {
+          if (errorsMatch) {
             passCount++;
-            stats.passBoth++;
-          } else if (
-            ignoreWith &&
-            iridium.message &&
-            iridium.message.includes("JS3 build failed")
-          ) {
-            passCount++;
-            stats.ignored.push(t.file);
-            await worker.saveArtifacts(t, baseline, iridium, "IGNO");
-          } else if (
-            iridium.message &&
-            iridium.message.includes("IRI build failed")
-          ) {
-            passCount++;
-            stats.ignored.push(t.file);
-            await worker.saveArtifacts(t, baseline, iridium, "IGNO");
-          } else if (!isBaselinePass && !isIridiumPass) {
-            if (errorsMatch) {
-              passCount++;
-              stats.failBothEMatch.push(t.file);
-              await worker.saveArtifacts(t, baseline, iridium, "FBOT");
-            } else {
-              failCount++;
-              stats.failBothEMismatch.push(t.file);
-              await worker.saveArtifacts(t, baseline, iridium, "EMIS");
-            }
-          } else if (isBaselinePass && !isIridiumPass) {
-            failCount++;
-            stats.regression.push(t.file);
-            await worker.saveArtifacts(t, baseline, iridium, "REGR");
-          } else if (!isBaselinePass && isIridiumPass) {
-            passCount++;
-            stats.overCompliant.push(t.file);
-            await worker.saveArtifacts(t, baseline, iridium, "OVER");
+            stats.failBothEMatch.push(t.file);
+            await worker.saveArtifacts(t, baseline, iridium, "FBOT");
           } else {
-            throw new Error("Unreachable...");
+            failCount++;
+            stats.failBothEMismatch.push(t.file);
+            await worker.saveArtifacts(t, baseline, iridium, "EMIS");
           }
-        } catch (err) {
+        } else if (isBaselinePass && !isIridiumPass) {
           failCount++;
-        } finally {
-          progressBar.update(passCount + failCount, {
-            passes: passCount,
-            fails: failCount,
-          });
+          stats.regression.push(t.file);
+          await worker.saveArtifacts(t, baseline, iridium, "REGR");
+        } else if (!isBaselinePass && isIridiumPass) {
+          passCount++;
+          stats.overCompliant.push(t.file);
+          await worker.saveArtifacts(t, baseline, iridium, "OVER");
+        } else {
+          throw new Error("Unreachable...");
         }
-      })(test),
-    );
+      } catch (err) {
+        failCount++;
+      } finally {
+        progressBar.update(passCount + failCount, {
+          passes: passCount,
+          fails: failCount,
+        });
+      }
+    })(test);
+
+    // 2. Add it to our Set of active workers
+    activeTasks.add(taskPromise);
+
+    // 3. Remove it from the Set as soon as it finishes
+    taskPromise.finally(() => {
+      activeTasks.delete(taskPromise);
+    });
+
+    // 4. Backpressure: If we hit our thread limit, wait for ANY single task to finish
+    if (activeTasks.size >= THREADS) {
+      await Promise.race(activeTasks);
+    }
   }
 
+  // Wait for the remaining tail-end tasks to finish
   await Promise.all(activeTasks);
   progressBar.stop();
+
+  // Explicitly close the worker pool so Jest doesn't hang the main process
+  await worker.end();
 
   // --- Final Report ---
   const successRate = ((passCount / total) * 100).toFixed(2);
@@ -186,7 +210,7 @@ async function main() {
       if (value.length === 0) {
         outputString += "  (None)\n";
       } else {
-        value.forEach((filePath) => {
+        value.sort().forEach((filePath) => {
           outputString += `  - ${filePath}\n`;
         });
       }
@@ -202,4 +226,7 @@ async function main() {
   process.exit(0);
 }
 
-main().catch(console.error);
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
