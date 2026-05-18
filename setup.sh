@@ -39,7 +39,7 @@ iridium=$(
 # The executable also needs to load nvm to find the correct node version
 export NVM_DIR="\$HOME/.nvm"
 [ -s "\$NVM_DIR/nvm.sh" ] && \. "\$NVM_DIR/nvm.sh"
-node --max-old-space-size=8192 --import=tsx $wd/iridium.ts \$*
+exec node --max-old-space-size=8192 --import=tsx $wd/iridium.ts \$*
 END
 )
 
