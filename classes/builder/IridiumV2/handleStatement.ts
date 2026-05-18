@@ -85,9 +85,9 @@ import {
 } from "../JS3Helpers/HandleExpression";
 import {
   BBSEXPFlags,
+  CF_FUNCTION,
   EnvReadSEXP,
   EnvWriteSEXP,
-  getConstructorClosureFlag,
   GotoSEXP,
   IfElseJumpSEXP,
   InvokeFinalizerSEXP,
@@ -131,6 +131,7 @@ import {
   StaticImportSEXP,
   TDZReadSEXP,
   ThrowSEXP,
+  UnresolvedReturnSEXP,
 } from "./Types/index";
 import { newTemp } from "../Shared";
 
@@ -383,7 +384,7 @@ export const handleBlockStatement = (
   cx: IRIDIUMV2,
   stmt: JS3BlockStatement | JS3StaticBlock,
   loopBodyCTX: IRILoopBodyCTX | null = null,
-  blockFlag: BBSEXPFlags = "Lexical"
+  blockFlag: BBSEXPFlags = "Lexical",
 ): IridiumBuildContext => {
   const oldContext = cx.getCurrentContext();
   const newContext = cx.declareAndPushLexicalContext(blockFlag);
@@ -415,10 +416,12 @@ export const handleBlockStatement = (
 };
 
 const handleReturnStatement = (cx: IRIDIUMV2, stmt: JS3ReturnStatement) => {
-  let arg: IridiumSEXP;
-  if (stmt.argument) arg = IRIV2_RVAL(cx, stmt.argument);
-  else arg = new EnvReadSEXP("undefined");
-  cx.getCurrentBB().args.push(new ReturnSEXP(arg));
+  if (stmt.argument) {
+    cx.getCurrentBB().args.push(new ReturnSEXP(IRIV2_RVAL(cx, stmt.argument)));
+  } else {
+    // cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
+    cx.getCurrentBB().args.push(new UnresolvedReturnSEXP());
+  }
 };
 
 const handleSwitchStatement = (cx: IRIDIUMV2, stmt: JS3SwitchStatement) => {
@@ -1449,7 +1452,7 @@ export const reduceMemberExpressionIntoJS3MemberExpression = (
 
 export const reduceJSAssignmentExprToIridium = (
   cx: IRIDIUMV2,
-  stmt: AssignmentExpression
+  stmt: AssignmentExpression,
 ) => {
   const otherProps = cx.utils;
   const js3SpillHolder: JS3BlockStatement_body = [];
@@ -1683,12 +1686,12 @@ export const lowerArgumentInit = (
       ) {
         reduceJSAssignmentExprToIridium(
           cx,
-          assignmentExpression("=", arg, identifier(rVal))
+          assignmentExpression("=", arg, identifier(rVal)),
         );
       } else if (isRestElement(arg)) {
         reduceJSAssignmentExprToIridium(
           cx,
-          assignmentExpression("=", arg.argument, identifier(rVal))
+          assignmentExpression("=", arg.argument, identifier(rVal)),
         );
       }
     }
@@ -1800,29 +1803,29 @@ export const createLambda = (
   {
     // Body
     // if (!isSimpleArgs) {
-      let argInitToBody = new GotoSEXP(-1);
-      cx.getCurrentBB().args.push(argInitToBody);
+    let argInitToBody = new GotoSEXP(-1);
+    cx.getCurrentBB().args.push(argInitToBody);
 
-      // VARBoundary Start -- Body
-      cx.declareAndPushLexicalContext("VARBoundary");
-      argInitToBody.setIDX(cx.getCurrentBB().getIDX());
-      const bodyScopeIDX = cx.getCurrentBB().getScopeIDX();
+    // VARBoundary Start -- Body
+    cx.declareAndPushLexicalContext("VARBoundary");
+    argInitToBody.setIDX(cx.getCurrentBB().getIDX());
+    const bodyScopeIDX = cx.getCurrentBB().getScopeIDX();
 
-      // Set lookup target to sibling writes
-      abstractResolutions.forEach((ar) => ar.setScopeIDX(bodyScopeIDX));
+    // Set lookup target to sibling writes
+    abstractResolutions.forEach((ar) => ar.setScopeIDX(bodyScopeIDX));
 
-      // Declare the arguments in the body, using VAR semantics
+    // Declare the arguments in the body, using VAR semantics
 
-      extractedBindingsSet.forEach((bb) => {
-        cx.getCurrentBB().args.push(
-          new JSExplicitBindingDeclarationNSEXP(
-            new ResolveEnvBindingSEXP(bb),
-            null,
-            "JSVAR",
-            false,
-          ),
-        );
-      });
+    extractedBindingsSet.forEach((bb) => {
+      cx.getCurrentBB().args.push(
+        new JSExplicitBindingDeclarationNSEXP(
+          new ResolveEnvBindingSEXP(bb),
+          null,
+          "JSVAR",
+          false,
+        ),
+      );
+    });
     // }
 
     if (funcContext.isGenerator)
@@ -1847,8 +1850,8 @@ export const createLambda = (
     cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
 
     // if (!isSimpleArgs) {
-      // VARBoundary End -- Body
-      cx.popContext();
+    // VARBoundary End -- Body
+    cx.popContext();
     // }
   }
 
@@ -1870,7 +1873,7 @@ const handleFunctionDeclaration = (
     stmt.body.directives.some((val) => val.value.value === "use strict");
   const isAsync = stmt.async ? stmt.async : false;
   const isGenerator = stmt.generator ? stmt.generator : false;
-  const kind = getConstructorClosureFlag();
+  const kind = CF_FUNCTION;
   const ecmaArgs = funArgLength(stmt.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
 
   const implicitBindings: Array<{
