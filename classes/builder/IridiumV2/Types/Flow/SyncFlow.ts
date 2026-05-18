@@ -3,19 +3,19 @@ import { NullSEXP } from "../RVAL/Primitives";
 import { IridiumSEXP } from "../Structural/General";
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * Standard Goto statement.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(IDX : number)`: IDX of the BB to flow the control to.
- * 
+ *
  */
 export class GotoSEXP extends IridiumSEXP {
   constructor(idx: number) {
@@ -38,19 +38,19 @@ export class GotoSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * Pushes Catch Offset onto the stack.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(IDX : number)`: IDX of the BB to flow the control to.
- * 
+ *
  */
 export class PushCatchContextSEXP extends IridiumSEXP {
   constructor(idx: number) {
@@ -73,19 +73,19 @@ export class PushCatchContextSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * Throws a value, which will be caught by the corresponding catch target.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(throwVal)`: The value to be thrown.
- * 
+ *
  */
 export class ThrowSEXP extends IridiumSEXP {
   constructor(val: IridiumSEXP) {
@@ -109,15 +109,15 @@ export class ThrowSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * Exits the `catch` context.
- * 
+ *
  */
 export class PopCatchContextSEXP extends IridiumSEXP {
   constructor() {
@@ -131,19 +131,19 @@ export class PopCatchContextSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * Invokes the finalizer block.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `FLAG(IDX : number)`: IDX of the BB to flow the control to.
- * 
+ *
  */
 export class InvokeFinalizerSEXP extends IridiumSEXP {
   constructor(idx: number) {
@@ -166,23 +166,23 @@ export class InvokeFinalizerSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * Used to return control back to the caller.
  * `ModuleEarlyReturn` is a special case where a JavaScript module may call an synchronous return if the module does not need to be evaluated.
- * A JavaScript module, after evaluation always returns asynchronously except for the aforementioned case. 
- * 
+ * A JavaScript module, after evaluation always returns asynchronously except for the aforementioned case.
+ *
  * #### Structure
- * 
+ *
  * - `ARG(Obj)`: The value to return
- * 
+ *
  * - `FLAG(ModuleEarlyReturn : void)`: Signifies a synchronous return from a module, this happens if the module is just to be loaded and not evaluated.
- * 
+ *
  */
 export class ReturnSEXP extends IridiumSEXP {
   constructor(val: IridiumSEXP) {
@@ -214,15 +214,37 @@ export class ReturnSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
+ * An unresolved return
+ *
+ */
+export class UnresolvedReturnSEXP extends IridiumSEXP {
+  constructor() {
+    super("UnresolvedReturn");
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}UnresolvedReturn`
+  }
+}
+
+
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group STMT
+ *
+ * @remarks
+ *
  * Used to return from a finalizer block, even though this is just a BasicBlock, the execution treats it like a lightweight function call.
- * 
+ *
  */
 export class RetSEXP extends IridiumSEXP {
   constructor() {
@@ -231,25 +253,25 @@ export class RetSEXP extends IridiumSEXP {
 }
 
 /**
- * 
+ *
  * @extends {IridiumSEXP}
- * 
+ *
  * @group STMT
- * 
+ *
  * @remarks
- * 
+ *
  * Used to jump to a TRUE/FALSE branch based on the test value.
- * 
+ *
  * #### Structure
- * 
+ *
  * - `ARG(test)`: Stores the value of the object to be tested.
- * 
+ *
  * - `FLAG(TRUE : number)`: IDX of the BB to flow the control to if the test is true.
- * 
+ *
  * - `FLAG(FALSE : number)`: IDX of the BB to flow the control to if the test is false.
- * 
+ *
  * - `FLAG(NOT : void)`: Negate the test condition
- * 
+ *
  */
 export class IfElseJumpSEXP extends IridiumSEXP {
   constructor(test: IridiumSEXP | null, trueTarget: number, falseTarget: number) {
