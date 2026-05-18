@@ -95,6 +95,7 @@ function iri(filePath: string): ProjectFile {
   tick("build");
   iridiumV2Builder.build();
   if (!file.info.iri || file.info.iri !== "normalized") {
+    // console.error(file.errLog);
     logger.error(file.errLog, "IRI build failed");
     process.exit(1);
   }
