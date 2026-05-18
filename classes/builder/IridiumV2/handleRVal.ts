@@ -11,6 +11,8 @@ import {
   isBigIntLiteral,
   isBooleanLiteral,
   isClassExpression,
+  isClassMethod,
+  isClassPrivateMethod,
   isDecimalLiteral,
   isFunctionExpression,
   isIdentifier,
@@ -125,15 +127,6 @@ import {
   EnvWriteSEXP,
   FieldReadSEXP,
   FieldWriteSEXP,
-  getConstructorClosureFlag,
-  getDerivedConstructorClosureFlag,
-  getDerivedMethodClosureFlag,
-  getPrivateDerivedMethodClosureFlag,
-  getPrivateMethodClosureFlag,
-  getPropInitDerivedNoPrivateClosureFlag,
-  getPropInitDerivedPrivateClosureFlag,
-  getRegularClosureFlag,
-  getStaticPropInitClosureFlag,
   GotoSEXP,
   IDOPSEXP,
   IfElseJumpSEXP,
@@ -187,6 +180,12 @@ import {
   UNOPDelMemberExprSEXP,
   UNOPDelVarSEXP,
   YieldSEXP,
+  CF_ARROW_FUNCTION,
+  CF_FUNCTION,
+  CF_DERIVED_CTR,
+  CF_CTR,
+  CF_CLASS_METHOD,
+  CF_PROP_INIT,
 } from "./Types/index";
 import { newTemp } from "../Shared";
 
@@ -1031,6 +1030,7 @@ const handleComputedProps = (
       ),
     );
     computedPropMapping.set(classItem, targetID);
+    // console.log(`handleComputedProps[CTX: ${cx.getCurrentBB().getScopeIDX()}]{Declare: ${classItem.key} -> ${targetID}}`);
   });
 
   const privateProps = node.body.body.filter(
@@ -1049,6 +1049,7 @@ const handleComputedProps = (
       ),
     );
     computedPropMapping.set(classItem, targetID);
+    // console.log(`handleComputedProps[CTX: ${cx.getCurrentBB().getScopeIDX()}]{Declare: ${"#" + classItem.key.id.name} -> ${targetID}}`);
   });
 
   const oldContext = cx.getCurrentContext();
@@ -1140,7 +1141,6 @@ const getFieldKeyString = (key: JS3ContainedExprKey): string => {
 const lowerClassMethods = (
   cx: IRIDIUMV2,
   node: JS3ClassExpression,
-  privateMapping: null | PrivateMapping,
   computedPropMapping: Map<
     | JS3ClassProperty
     | JS3ClassMethod
@@ -1175,9 +1175,8 @@ const lowerClassMethods = (
       const funBodyLambda = handleFunctionExpression(
         cx,
         methodNode,
-        privateMapping,
+        null,
         hasSuper,
-        true,
       );
       // Initialize the private method alloca location with the
       cx.getCurrentBB().args.push(
@@ -1231,9 +1230,8 @@ const lowerClassMethods = (
           handleFunctionExpression(
             cx,
             methodNode,
-            privateMapping,
+            null,
             hasSuper,
-            false,
           ),
           methodNode.kind,
           true,
@@ -1255,12 +1253,10 @@ const createClassNonStaticPropInitClosure = (
     | JS3ClassPrivateMethod,
     string
   >,
-  privateMapping: null | PrivateMapping,
   addBrand: boolean,
 ) => {
   const location = newTemp("PropInitClosure");
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
-  funcContext.privateMapping = privateMapping;
   funcContext.name = "<prop-init>";
   const funBBIdx = funcContext.getCurrentBB().idx;
 
@@ -1287,6 +1283,18 @@ const createClassNonStaticPropInitClosure = (
   );
   // if (addBrand || hasSuper) {
   // }
+  if (addBrand) {
+    // add_brand this <home_object>
+    cx.getCurrentBB().args.push(
+      new StackRejectSEXP(
+        new JSADDBRANDSEXP(
+          new EnvReadSEXP("this"),
+          new EnvReadSEXP("<home_object>"),
+        ),
+        0,
+      ),
+    );
+  }
 
   // add <super_obj>
   cx.getCurrentBB().args.push(
@@ -1301,19 +1309,10 @@ const createClassNonStaticPropInitClosure = (
   // }
 
   // Set closure context
-  funcContext.kind = addBrand
-    ? getPropInitDerivedPrivateClosureFlag() // 9
-    : getPropInitDerivedNoPrivateClosureFlag(); // 7
-  // if (hasSuper) {
-  // } else {
-  //   funcContext.kind = addBrand
-  //     ? getPropInitPrivateClosureFlag() // 8
-  //     : getPropInitNoPrivateClosureFlag(); // 6
-  // }
+  funcContext.kind = CF_PROP_INIT;
 
   for (let classItem of node.body.body) {
     if (isJS3ClassProperty(classItem) && !classItem.static) {
-      let memberExpr;
       if (classItem.computed) {
         if (!computedPropMapping.has(classItem))
           throw new Error(
@@ -1322,29 +1321,44 @@ const createClassNonStaticPropInitClosure = (
         // this[computedFieldLoc] = RVal
         let compProp = computedPropMapping.get(classItem);
         if (!compProp) throw new Error("compProp is undefined");
-        memberExpr = memberExpression(
-          thisExpression(),
-          identifier(compProp),
-          true,
+        // memberExpr = memberExpression(
+        //   thisExpression(),
+        //   identifier(compProp),
+        //   true,
+        // );
+        //
+        const res = new JSDefineObjPropSEXP(
+          new EnvReadSEXP("this"),
+          new EnvReadSEXP(compProp),
+          classItem.value ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value) : new EnvReadSEXP("undefined")
         );
+        cx.getCurrentBB().args.push(new StackRejectSEXP(res, 1));
+
       } else {
         // this.field = RVal
         let lookupField: string = getFieldKeyString(classItem.key);
-        memberExpr = memberExpression(
-          thisExpression(),
-          identifier(lookupField),
-          false,
+        // memberExpr = memberExpression(
+        //   thisExpression(),
+        //   identifier(lookupField),
+        //   false,
+        // );
+        const res = new JSDefineObjPropSEXP(
+          new EnvReadSEXP("this"),
+          new StringSEXP(lookupField),
+          classItem.value ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value) : new EnvReadSEXP("undefined")
         );
+        cx.getCurrentBB().args.push(new StackRejectSEXP(res, 1));
+
       }
-      // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
-      lowerExprToResolveEnvBindingSEXP(
-        cx,
-        assignmentExpression(
-          "=",
-          memberExpr,
-          classItem.value ? classItem.value : identifier("undefined"),
-        ),
-      );
+      // // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
+      // lowerExprToResolveEnvBindingSEXP(
+      //   cx,
+      //   assignmentExpression(
+      //     "=",
+      //     memberExpr,
+      //     classItem.value ? classItem.value : identifier("undefined"),
+      //   ),
+      // );
     } else if (isJS3ClassPrivateProperty(classItem) && !classItem.static) {
       // this.#field = RVal
       if (!computedPropMapping.has(classItem))
@@ -1377,18 +1391,6 @@ const createClassNonStaticPropInitClosure = (
     }
   }
 
-  if (addBrand) {
-    // add_brand this <home_object>
-    cx.getCurrentBB().args.push(
-      new StackRejectSEXP(
-        new JSADDBRANDSEXP(
-          new EnvReadSEXP("this"),
-          new EnvReadSEXP("<home_object>"),
-        ),
-        0,
-      ),
-    );
-  }
 
   cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
 
@@ -1416,8 +1418,6 @@ const createClassStaticPropInitClosure = (
     | JS3ClassPrivateMethod,
     string
   >,
-  privateMapping: null | PrivateMapping,
-  hasSuper: boolean,
 ) => {
   if (
     !node.body.body.find(
@@ -1430,7 +1430,6 @@ const createClassStaticPropInitClosure = (
     return null;
   const location = newTemp("StaticPropInitClosure");
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
-  funcContext.privateMapping = privateMapping;
   funcContext.name = "<static-prop-init>";
   const funBBIdx = funcContext.getCurrentBB().idx;
 
@@ -1468,11 +1467,7 @@ const createClassStaticPropInitClosure = (
   // }
 
   // Set closure context
-  // if (hasSuper) {
-  funcContext.kind = getStaticPropInitClosureFlag();
-  // } else {
-  //   funcContext.kind = getStaticPropInitDerivedClosureFlag();
-  // }
+  funcContext.kind = CF_PROP_INIT;
 
   // Set classname to "this" if it exists
   if (node.id) {
@@ -1596,9 +1591,7 @@ const createClassConstructorClosure = (
   const isAsync = constructor ? constructor.async : false;
   const isGenerator = constructor ? constructor.generator : false;
 
-  let kind = superClass
-    ? getDerivedConstructorClosureFlag()
-    : getConstructorClosureFlag();
+  let kind = superClass ? CF_DERIVED_CTR : CF_CTR;
 
   const params = constructor ? constructor.params : [];
 
@@ -1961,6 +1954,7 @@ const handleClassExpression = (
   newContext = cx.declareAndPushLexicalContext();
   oldContext.getCurrentBB().args.push(new GotoSEXP(newContext.BB[0].idx));
   cx.addContinuation(oldContext);
+  // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{Initial}`);
 
   if (name !== "") {
     // If this is a named class, create a special evaluation scope where the class name is resolvable
@@ -1992,6 +1986,7 @@ const handleClassExpression = (
       // }
     }
   }
+  // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{After Hertiage Reduction}`);
   const isDerived = node.superClass ? true : false;
 
   const heritage = node.superClass ? superClass : new EnvReadSEXP("undefined");
@@ -2003,21 +1998,28 @@ const handleClassExpression = (
   );
 
   const computedPropMapping = handleComputedProps(cx, node);
+  // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{After handleComputedProps}`);
   const privateMapping: PrivateMapping | null =
     getPrivateMapping(computedPropMapping);
+
+  cx.getCurrentContext().privateMapping = privateMapping;
+
+  // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{After getPrivateMapping}`);
   const classPropInitClosure = createClassNonStaticPropInitClosure(
     cx,
     node,
     computedPropMapping,
-    privateMapping,
     addBrand,
   );
+  // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{After createClassNonStaticPropInitClosure}`);
   const constructorLambda = createClassConstructorClosure(
     cx,
     node,
     superClass,
     classPropInitClosure,
   );
+
+  // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{After createClassConstructorClosure}`);
 
   // [ctr, proto] <- JSClass(HERITAGE, CTR)
   cx.getCurrentBB().args.push(
@@ -2069,11 +2071,12 @@ const handleClassExpression = (
   lowerClassMethods(
     cx,
     node,
-    privateMapping,
     computedPropMapping,
     finalClassProto,
     finalClassRes,
   );
+
+  // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{After lowerClassMethods}`);
 
   // set home_object of the prop init method to be the prototype
   cx.getCurrentBB().args.push(
@@ -2090,9 +2093,9 @@ const handleClassExpression = (
     cx,
     node,
     computedPropMapping,
-    privateMapping,
-    isDerived,
   );
+
+  // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{After createClassStaticPropInitClosure}`);
 
   if (classStaticPropInitClosure) {
     // Set home object
@@ -2131,6 +2134,8 @@ const handleClassExpression = (
   }
 
   cx.getCurrentBB().args.push(new GotoSEXP(oldContext.getCurrentBB().idx));
+
+  // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{End}`);
   cx.popContext();
   return new EnvReadSEXP(finalClassRes);
 };
@@ -2249,6 +2254,8 @@ const handleAssignmentExpression = (
   const left = node.left;
   const right = node.right;
 
+  const RVAL_SIMPLIFICATION = true;
+
   // case a.
   // ID = RVal
   if (isIdentifier(left)) {
@@ -2259,15 +2266,22 @@ const handleAssignmentExpression = (
       rv.setSETNAME(true);
       rv.setNAME(left.name);
     }
-    return new EnvWriteSEXP(left.name, rv, false, false);
+    if (!RVAL_SIMPLIFICATION) { return new EnvWriteSEXP(left.name, rv, false, false); }
+
+    let rValSimp = newTemp("rValSimp");
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
+    cx.getCurrentBB().args.push(new EnvWriteSEXP(left.name, new EnvReadSEXP(rValSimp), false, false));
+
+    return new EnvReadSEXP(rValSimp);
   }
 
   // case b.
   // ID.ID = RVal
   if (isJS3MemberExpression(left)) {
     let init = left;
-
     let obj: string;
+
+    const rv = IRIV2_RVAL(cx, right);
 
     if (isIdentifier(init.object)) {
       obj = init.object.name;
@@ -2275,10 +2289,24 @@ const handleAssignmentExpression = (
       obj = "this";
     } else {
       if (isIdentifier(init.property)) {
-        return new JSSuperFieldWriteSEXP(
-          init.property.name,
-          IRIV2_RVAL(cx, right),
+        if (!RVAL_SIMPLIFICATION) {
+          return new JSSuperFieldWriteSEXP(
+            init.property.name,
+            rv,
+          );
+        }
+
+        let rValSimp = newTemp("rValSimp");
+        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
+
+        cx.getCurrentBB().args.push(
+          new JSSuperFieldWriteSEXP(
+            init.property.name,
+            new EnvReadSEXP(rValSimp),
+          )
         );
+
+        return new EnvReadSEXP(rValSimp);
       } else
         throw new Error(
           "Expected super write to be an identifier, private are not allowed!!",
@@ -2288,33 +2316,80 @@ const handleAssignmentExpression = (
     if (isIdentifier(init.property)) {
       let prop: string = init.property.name;
       if (init.computed) {
-        return new JSComputedFieldWriteSEXP(obj, prop, IRIV2_RVAL(cx, right));
+        if (!RVAL_SIMPLIFICATION) {
+          return new JSComputedFieldWriteSEXP(obj, prop, rv);
+        }
+
+        let rValSimp = newTemp("rValSimp");
+        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
+
+        cx.getCurrentBB().args.push(
+          new JSComputedFieldWriteSEXP(obj, prop, new EnvReadSEXP(rValSimp))
+        );
+
+
+        return new EnvReadSEXP(rValSimp);
       } else {
-        return new FieldWriteSEXP(obj, prop, IRIV2_RVAL(cx, right));
+        if (!RVAL_SIMPLIFICATION) {
+          return new FieldWriteSEXP(obj, prop, rv);
+        }
+
+        let rValSimp = newTemp("rValSimp");
+        cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
+
+        cx.getCurrentBB().args.push(
+          new FieldWriteSEXP(obj, prop, new EnvReadSEXP(rValSimp))
+        );
+
+        return new EnvReadSEXP(rValSimp);
       }
     } else {
       let prop: string = init.property.id.name;
-      return new JSPrivateFieldWriteSEXP(
-        obj,
-        prop,
-        IRIV2_RVAL(cx, right),
-        false,
+      if (!RVAL_SIMPLIFICATION) {
+        return new JSPrivateFieldWriteSEXP(
+          obj,
+          prop,
+          rv,
+          false,
+        );
+      }
+
+      let rValSimp = newTemp("rValSimp");
+      cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
+
+      cx.getCurrentBB().args.push(
+        new JSPrivateFieldWriteSEXP(
+          obj,
+          prop,
+          new EnvReadSEXP(rValSimp),
+          false,
+        )
       );
+
+      return new EnvReadSEXP(rValSimp);
     }
   }
 
   // [ ID, ...ID ] = RVal
   if (isArrayPattern(left)) {
-    const rValTarget = IRIV2_RVAL(cx, right);
-    handleArrayPatternAssignmentExpr(cx, left.elements, rValTarget);
-    return rValTarget;
+    const rv = IRIV2_RVAL(cx, right);
+    let rValSimp = newTemp("rValSimp");
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
+
+    handleArrayPatternAssignmentExpr(cx, left.elements, rv);
+
+    return new EnvReadSEXP(rValSimp);
   }
 
   // { TRIV_KEY: ID, ...ID } = RVal
   if (isJS3ObjectPattern(left)) {
-    const rValTarget = IRIV2_RVAL(cx, right);
-    handleObjectPatternAssignmentExpr(cx, left.properties, rValTarget);
-    return rValTarget;
+    const rv = IRIV2_RVAL(cx, right);
+    let rValSimp = newTemp("rValSimp");
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
+
+    handleObjectPatternAssignmentExpr(cx, left.properties, rv);
+
+    return new EnvReadSEXP(rValSimp);
   }
 
   throw new Error("Unhandled Assignment Expression");
@@ -2329,7 +2404,6 @@ const handleFunctionExpression = (
     | JS3ClassPrivateMethod,
   privateMapping: PrivateMapping | null = null,
   hasSuper: boolean = false,
-  isPrivateMethod: boolean = false,
 ) => {
   const isSimpleArgs = node.params.every((p) => isIdentifier(p));
 
@@ -2344,14 +2418,13 @@ const handleFunctionExpression = (
   const isGenerator = node.generator ? node.generator : false;
 
   let kind;
-  if (isPrivateMethod && hasSuper) {
-    kind = getPrivateDerivedMethodClosureFlag();
-  } else if (isPrivateMethod) {
-    kind = getPrivateMethodClosureFlag();
-  } else if (hasSuper) {
-    kind = getDerivedMethodClosureFlag();
+  if (isJS3FunctionExpression(node)) {
+    kind = CF_FUNCTION;
+  } else if (isClassMethod(node) || isClassPrivateMethod(node)) {
+    kind = CF_CLASS_METHOD;
   } else {
-    kind = getConstructorClosureFlag();
+    // JS3ObjectMethod
+    kind = CF_CLASS_METHOD;
   }
 
   const ecmaArgs = funArgLength(node.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
@@ -2388,7 +2461,7 @@ const handleFunctionExpression = (
     name = node.id.name;
     isComputedName = false;
     toSetName = false;
-      } else if (isJS3ObjectMethod(node)) {
+  } else if (isJS3ObjectMethod(node)) {
     name = getObjKeyString(node.key);
     isComputedName = node.computed;
     toSetName = node.computed ? true : false;
@@ -2647,7 +2720,7 @@ const handleArrowFunctionExpression = (
     node.body.directives.some((val) => val.value.value === "use strict");
   const isAsync = node.async ? node.async : false;
   const isGenerator = node.generator ? node.generator : false;
-  const kind = getRegularClosureFlag();
+  const kind = CF_ARROW_FUNCTION;
   const ecmaArgs = funArgLength(node.params); // 15.1.5 Static Semantics: ExpectedArgumentCount
   // There are no implicit bindings in an arrow function
   const implicitBindings: Array<{
