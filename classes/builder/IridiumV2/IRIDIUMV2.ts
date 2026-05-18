@@ -6,9 +6,10 @@ import { IRIV2_STMT } from "./handleStatement";
 import {
   BBSEXP,
   BBSEXPFlags,
+  CF_TOP_LEVEL_MODULE,
+  CF_TOP_LEVEL_SCRIPT,
   EnvReadSEXP,
   FileSEXP,
-  getRegularClosureFlag,
   IfElseJumpSEXP,
   JSImplicitBindingDeclarationSEXP,
   ModuleRequestSEXP,
@@ -315,8 +316,7 @@ export class IRIDIUMV2 {
     topLevelContext.isAsync = sourceType === "JSModule";
 
     topLevelContext.moduleRequestMap = new Map();
-    topLevelContext.kind =
-      sourceType === "JSModule" ? 13 : getRegularClosureFlag();
+    topLevelContext.kind = sourceType === "JSModule" ? CF_TOP_LEVEL_MODULE : CF_TOP_LEVEL_SCRIPT;
     this.pushContext(topLevelContext);
 
     if (sourceType === "JSModule") {
