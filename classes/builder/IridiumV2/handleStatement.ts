@@ -310,7 +310,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   } else if (isJS3ForInStatement(stmt)) {
     handleForInStatement(cx, stmt);
   } else if (isJS3LabeledStatement(stmt)) {
-    if (isJS3WhileStatement(stmt.body)) {
+    if (isJS3WhileStatement(stmt.body) || isJS3DoWhileStatement(stmt.body)) {
       handleWhileStatement(cx, stmt.body, stmt.label.name);
     } else if (isJS3ForStatement(stmt.body)) {
       handleForStatement(cx, stmt.body, stmt.label.name);
@@ -589,15 +589,41 @@ const handleIteratedLoops = (
   cx.declareAndPushLexicalContext();
   loopConfig.loopInitIDX = cx.getCurrentBB().getIDX();
 
+  // // Declare all created bindings in the init scope (if any)
+  // const extractedBindingsSet: Set<string> = new Set();
+  // if (isVariableDeclaration(stmt.left)) {
+  //   if (stmt.left.declarations.length != 1) throw new Error("Expected exactly one declaration in iterated loop");
+  //   const d = stmt.left.declarations[0];
+  //   const id = d.id;
+  //   if (isVoidPattern(id)) throw new Error("Void Pattern in iterated loop decl");
+  //   if (isIdentifier(id) || isArrayPattern(id) || isObjectPattern(id) || isAssignmentPattern(id) || isRestElement(id)) {
+  //     extractBindings(id, extractedBindingsSet);
+  //   } else throw new Error("Unsupported pattern in iterated loop decl");
+
+  //   for (let b of extractedBindingsSet) {
+  //     // export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
+  //     let kind: JSEnvWriteTypes;
+  //     if (stmt.left.kind === "let") kind = "JSLET";
+  //     else if (stmt.left.kind === "const") kind = "JSCONST";
+  //     else if (stmt.left.kind === "var") kind = "JSVAR";
+  //     else throw new Error("iterated loop, binding kind unknown");
+  //     cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(b), new JSNUBDSEXP(), kind, false));
+  //   }
+  // }
+
+  const iterRVAL = lowerExprToResolveEnvBindingSEXP(cx, stmt.right)
+
+  const iterRVALName = iterRVAL.getBindingName();
+
   if (isJS3ForOfStatement(stmt)) {
     // [<loop-iterator>, <loop-method>, <loop-catchoffset>] = JSForOfStartSEXP(RVal)
     if (stmt.await) {
       cx.getCurrentBB().args.push(
-        new StackRetainSEXP(new JSForOfStartSEXP(stmt.right.name, true), 3),
+        new StackRetainSEXP(new JSForOfStartSEXP(iterRVALName, true), 3),
       );
     } else {
       cx.getCurrentBB().args.push(
-        new StackRetainSEXP(new JSForOfStartSEXP(stmt.right.name), 3),
+        new StackRetainSEXP(new JSForOfStartSEXP(iterRVALName), 3),
       );
     }
   } else {
@@ -605,7 +631,7 @@ const handleIteratedLoops = (
     cx.getCurrentBB().args.push(
       new JSExplicitBindingDeclarationSEXP(
         new ResolveEnvBindingSEXP("<loop-iterator>"),
-        new JSForInStartSEXP(stmt.right.name),
+        new JSForInStartSEXP(iterRVALName),
         "JSLET",
         false,
       ),
@@ -614,7 +640,8 @@ const handleIteratedLoops = (
   cx.getCurrentBB().args.push(loopInitToLoopTestNode);
 
   // 3. Loop Test
-  cx.declareAndPushLexicalContext();
+  cx.addContinuation(cx.getCurrentContext());
+  // cx.declareAndPushLexicalContext();
   loopHeadContext = cx.getCurrentContext();
   loopConfig.loopHeadIDX = loopConfig.continueTarget = cx
     .getCurrentBB()
@@ -685,7 +712,7 @@ const handleIteratedLoops = (
   cx.getCurrentBB().args.push(testBBLoopExitNode);
 
   // 4. For-Of Loop Body
-  cx.declareAndPushLexicalContext();
+  cx.addContinuation(cx.getCurrentContext());
   loopConfig.loopBodyIDX = cx.getCurrentBB().getIDX(); // Continue can resume here, iteration variable is set at the top of the loop body...
 
   const initializer = identifier("<loop-next>");
@@ -704,14 +731,23 @@ const handleIteratedLoops = (
     const newDeclarator = variableDeclarator(leftDeclarator.id, initializer);
     const newDeclaration = variableDeclaration(stmt.left.kind, [newDeclarator]);
     handleLoopInitBlock(cx, newDeclaration);
+
+    // // Close TDZ
+    // for (let b of extractedBindingsSet) {
+    //   cx.getCurrentBB().args.push(new EnvWriteSEXP(b, new EnvReadSEXP("undefined"), true, false));
+    // }
+
+    // if (isVoidPattern(leftDeclarator.id)) throw new Error("Void Pattern in assn ukn");
+    // const newAssn = assignmentExpression("=", leftDeclarator.id, initializer);
+    // reduceJSAssignmentExprToIridium(cx, newAssn);
   } else {
     const newAssn = assignmentExpression("=", stmt.left, initializer);
     reduceJSAssignmentExprToIridium(cx, newAssn);
   }
 
   handleBlockStatement(cx, stmt.body, { label: label });
-  cx.popContext(); // Loop Body
-  cx.popContext(); // Loop Test
+  // cx.popContext(); // Loop Body
+  // cx.popContext(); // Loop Test
   cx.popContext(); // Loop Init
 
   // Initialize Nodes
@@ -1758,20 +1794,29 @@ export const createLambda = (
   funcContext.name = name;
   funcContext.sourceLine = sourceLine;
 
+  let declaresArgInit: JSImplicitBindingDeclarationSEXP | undefined = undefined;
+
   implicitBindings.forEach((binding) => {
+
+    let res = binding.initializer
+      ? new JSImplicitBindingDeclarationSEXP(
+        binding.name,
+        binding.type,
+        binding.value,
+        binding.initializer,
+      )
+      : new JSImplicitBindingDeclarationSEXP(
+        binding.name,
+        binding.type,
+        binding.value,
+      );
+
+    if (binding.name === "arguments") {
+      declaresArgInit = res;
+    }
+
     cx.getCurrentBB().args.push(
-      binding.initializer
-        ? new JSImplicitBindingDeclarationSEXP(
-            binding.name,
-            binding.type,
-            binding.value,
-            binding.initializer,
-          )
-        : new JSImplicitBindingDeclarationSEXP(
-            binding.name,
-            binding.type,
-            binding.value,
-          ),
+      res
     );
   });
 
@@ -1791,10 +1836,20 @@ export const createLambda = (
         extractedBindingsSet,
       );
       // VARBoundary End -- Arguments
+      if (extractedBindingsSet.has("arguments") && declaresArgInit) {
+        // @ts-expect-error
+        declaresArgInit.setName("<arguments-shadowed>");
+        // @ts-expect-error
+        declaresArgInit.setStore(new ResolveEnvBindingSEXP("<arguments-shadowed>"));
+      }
     } else {
       params.forEach((p) => {
         if (isIdentifier(p)) {
           cx.getCurrentContext().args.push(p.name);
+          if (p.name === "arguments" && declaresArgInit) {
+            declaresArgInit.setName("<arguments-shadowed>");
+            declaresArgInit.setStore(new ResolveEnvBindingSEXP("<arguments-shadowed>"));
+          }
         }
       });
     }
