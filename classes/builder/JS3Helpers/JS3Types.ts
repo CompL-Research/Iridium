@@ -1,4 +1,4 @@
-// Generated on 28/4/2026, 1:36:30 pm, extended 64 interfaces 
+// Generated on 19/5/2026, 8:47:37 pm, extended 64 interfaces 
 
 import { LVal, ConditionalExpression, AssignmentPattern, ExportSpecifier, ExportNamespaceSpecifier, TemplateElement, RestElement, ArrayPattern, ObjectPattern, ThisExpression, DecimalLiteral, ObjectMethod, ObjectProperty, SpreadElement, BigIntLiteral, Super, V8IntrinsicIdentifier, FunctionDeclaration, ClassProperty, StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral, CallExpression, Identifier, ImportSpecifier, ImportNamespaceSpecifier, EmptyStatement, Expression, OptionalCallExpression, OptionalMemberExpression, ExpressionStatement, ArrayExpression, AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CatchClause, ContinueStatement, DebuggerStatement, DoWhileStatement, File, ForInStatement, ForStatement, FunctionExpression, IfStatement, LabeledStatement, RegExpLiteral, MemberExpression, NewExpression, Program, ObjectExpression, ReturnStatement, SwitchCase, SwitchStatement, ThrowStatement, TryStatement, UnaryExpression, UpdateExpression, VariableDeclaration, VariableDeclarator, WhileStatement, WithStatement, ArrowFunctionExpression, ClassBody, ClassExpression, ExportAllDeclaration, ExportDefaultDeclaration, ExportNamedDeclaration, ForOfStatement, ImportDeclaration, ImportExpression, MetaProperty, ClassMethod, TaggedTemplateExpression, TemplateLiteral, YieldExpression, AwaitExpression, Import, ClassPrivateProperty, ClassPrivateMethod, PrivateName, StaticBlock, } from "@babel/types";
 
@@ -266,7 +266,7 @@ export type JS3DoWhileStatement_test = JS3ContainedExprKey;
 export type JS3DoWhileStatement_body = JS3BlockStatement;
 export type JS3File_program = JS3Program;
 export type JS3ForInStatement_left = VariableDeclaration | LVal;
-export type JS3ForInStatement_right = Identifier;
+export type JS3ForInStatement_right = Expression;
 export type JS3ForInStatement_body = JS3BlockStatement;
 export type JS3ForStatement_init = VariableDeclaration | JS3ContainedExprKey | null;
 export type JS3ForStatement_test = JS3ContainedExprKey | null;
@@ -346,7 +346,7 @@ export type JS3ExportNamedDeclaration_specifiers = Array<JS3ExportSpecifier | JS
 export type JS3ExportNamedDeclaration_assertions = null;
 export type JS3ExportNamedDeclaration_attributes = null;
 export type JS3ForOfStatement_left = VariableDeclaration | LVal;
-export type JS3ForOfStatement_right = Identifier;
+export type JS3ForOfStatement_right = Expression;
 export type JS3ForOfStatement_body = JS3BlockStatement;
 export type JS3ImportDeclaration_specifiers = Array<ImportSpecifier | ImportNamespaceSpecifier>;
 export type JS3ImportDeclaration_assertions = undefined | null;

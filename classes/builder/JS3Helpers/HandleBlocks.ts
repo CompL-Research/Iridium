@@ -1591,16 +1591,16 @@ export function handleForInStatement(
   // }
 
   const orig_right = node.right; // Handling prop right
-  let fin_right: JS3ForInStatement_right; // Handling prop right
-  if (
-    isFunctionExpression(orig_right) ||
-    isArrowFunctionExpression(orig_right) ||
-    isClassExpression(orig_right)
-  ) {
-    fin_right = lowerToAnonArrayExpr(orig_right, otherProps);
-  } else {
-    fin_right = handleExpression(orig_right, otherProps);
-  }
+  let fin_right: JS3ForInStatement_right = orig_right; // Handling prop right
+  // if (
+  //   isFunctionExpression(orig_right) ||
+  //   isArrowFunctionExpression(orig_right) ||
+  //   isClassExpression(orig_right)
+  // ) {
+  //   fin_right = lowerToAnonArrayExpr(orig_right, otherProps);
+  // } else {
+  //   fin_right = handleExpression(orig_right, otherProps);
+  // }
 
   const orig_body = node.body; // Handling prop body
   let fin_body: JS3ForInStatement_body; // Handling prop body
@@ -1708,16 +1708,16 @@ export function handleForOfStatement(
   // }
 
   const orig_right = node.right; // Handling prop right
-  let fin_right: JS3ForOfStatement_right; // Handling prop right
-  if (
-    isFunctionExpression(orig_right) ||
-    isArrowFunctionExpression(orig_right) ||
-    isClassExpression(orig_right)
-  ) {
-    fin_right = lowerToAnonArrayExpr(orig_right, otherProps);
-  } else {
-    fin_right = handleExpression(orig_right, otherProps);
-  }
+  let fin_right: JS3ForOfStatement_right = orig_right; // Handling prop right
+  // if (
+  //   isFunctionExpression(orig_right) ||
+  //   isArrowFunctionExpression(orig_right) ||
+  //   isClassExpression(orig_right)
+  // ) {
+  //   fin_right = lowerToAnonArrayExpr(orig_right, otherProps);
+  // } else {
+  //   fin_right = handleExpression(orig_right, otherProps);
+  // }
 
   const orig_body = node.body; // Handling prop body
   let fin_body: JS3ForInStatement_body; // Handling prop body
