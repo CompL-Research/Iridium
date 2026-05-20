@@ -1,4 +1,4 @@
-/** Generated: 2026-05-17 15:37:32 */
+/** Generated: 2026-05-19 23:15:32 */
 
 export enum IriTag {
   File = 0,
@@ -101,6 +101,9 @@ export enum IriTag {
   GWrite = 97,
   LWrite = 98,
   RWrite = 99,
+  DCTRRet = 100,
+  NIPCatchCTX = 101,
+  ToNumeric = 102,
 }
 
 export enum IriFlag {

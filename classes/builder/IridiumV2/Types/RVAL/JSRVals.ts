@@ -150,6 +150,43 @@ export class JSBinopSEXP extends IridiumSEXP {
  *
  * @remarks
  *
+ * ToNumeric Operation.
+ *
+ * #### Structure
+ *
+ * - `ARG(val)`: the operand.
+ *
+ * - `FLAG(OP : string)`: a string.
+ *
+ */
+export class ToNumericSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP) {
+    super("ToNumeric");
+    this.setObj(obj);
+  }
+
+  // Args
+  setObj(val: IridiumSEXP) {
+    this.args[0] = val;
+  }
+
+  getObj() {
+    return this.args[0];
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)} ToNumeric ${this.getObj()}`
+  }
+}
+
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group RVAL
+ *
+ * @remarks
+ *
  * A JS unop operation.
  *
  * #### Structure
