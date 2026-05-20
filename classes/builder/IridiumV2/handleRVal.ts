@@ -186,6 +186,8 @@ import {
   CF_CTR,
   CF_CLASS_METHOD,
   CF_PROP_INIT,
+  JSUnopSEXP,
+  ToNumericSEXP,
 } from "./Types/index";
 import { newTemp } from "../Shared";
 
@@ -1769,15 +1771,14 @@ const handleUpdateExpression = (
     // );
 
     if (node.prefix) {
-      // n = n [+|-] 1
+      // n = [-- | ++]n;
       // ret n
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
           node.argument.name,
-          getIridiumBinop(
-            node.operator === "++" ? "+" : "-",
-            new EnvReadSEXP(node.argument.name),
-            new NumberSEXP(1),
+          new JSUnopSEXP(
+            node.operator,
+            new EnvReadSEXP(node.argument.name)
           ),
           false,
           false,
@@ -1785,8 +1786,8 @@ const handleUpdateExpression = (
       );
       return new EnvReadSEXP(node.argument.name);
     } else {
-      // tmp = n;
-      // n = n [+|-] 1;
+      // tmp = ToNumeric(n);
+      // n = [-- | ++]n;
       // ret tmp
 
       let tmp = newTemp(undefined);
@@ -1794,7 +1795,7 @@ const handleUpdateExpression = (
       cx.getCurrentBB().args.push(
         new JSExplicitBindingDeclarationSEXP(
           new ResolveEnvBindingSEXP(tmp),
-          new EnvReadSEXP(node.argument.name),
+          new ToNumericSEXP(new EnvReadSEXP(node.argument.name)),
           "JSLET",
           false,
         ),
@@ -1803,10 +1804,9 @@ const handleUpdateExpression = (
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
           node.argument.name,
-          getIridiumBinop(
-            node.operator === "++" ? "+" : "-",
-            new EnvReadSEXP(node.argument.name),
-            new NumberSEXP(1),
+          new JSUnopSEXP(
+            node.operator,
+            new EnvReadSEXP(node.argument.name)
           ),
           false,
           false,
