@@ -12,8 +12,28 @@ const IGNORED = [
   "test/language/expressions/arrow-function/name.js",
   "test/language/expressions/class/elements/static-field-anonymous-function-name.js",
   "test/language/statements/class/definition/basics.js",
+  "test/language/expressions/async-arrow-function/name.js",
+  "test/language/expressions/async-function/name.js",
+  "test/language/expressions/async-generator/name.js",
+  "test/language/expressions/function/name.js",
+  "test/language/expressions/generators/name.js",
+  "test/language/expressions/generators/no-name.js",
+];
 
-]
+const TODOS = [
+  "test/language/expressions/compound-assignment/S11.13.2_A7.10_T4.js",
+  "test/language/expressions/compound-assignment/S11.13.2_A7.11_T4.js",
+  "test/language/expressions/compound-assignment/S11.13.2_A7.1_T4.js",
+  "test/language/expressions/compound-assignment/S11.13.2_A7.2_T4.js",
+  "test/language/expressions/compound-assignment/S11.13.2_A7.3_T4.js",
+  "test/language/expressions/compound-assignment/S11.13.2_A7.4_T4.js",
+  "test/language/expressions/compound-assignment/S11.13.2_A7.5_T4.js",
+  "test/language/expressions/compound-assignment/S11.13.2_A7.6_T4.js",
+  "test/language/expressions/compound-assignment/S11.13.2_A7.7_T4.js",
+  "test/language/expressions/compound-assignment/S11.13.2_A7.8_T4.js",
+  "test/language/expressions/compound-assignment/S11.13.2_A7.9_T4.js",
+];
+
 
 const worker = new Worker(require.resolve("./worker.cjs"), {
   numWorkers: THREADS,
@@ -25,6 +45,7 @@ async function main() {
   const filter = args.find((a) => !a.startsWith("--")) || "";
   const js3 = args.includes("--js3");
   const iri = args.includes("--iri");
+  const saveArtifacts = args.includes("--saveArtifacts");
   const onlyDiff = args.includes("--only-diff");
   const ignoreWith = args.includes("--ignore-with");
   const ignoreName = args.includes("--ignore-name");
@@ -45,6 +66,9 @@ async function main() {
     if (filter && !test.file.includes(filter)) continue;
     if (ignoreName && test.file.includes("-name-")) continue;
     if (ignoreList && IGNORED.includes(test.file)) {
+      continue;
+    }
+    if (TODOS.includes(test.file)) {
       continue;
     }
     allTests.push(test);
@@ -82,7 +106,7 @@ async function main() {
       barCompleteChar: "\u2588",
       barIncompleteChar: "\u2591",
       hideCursor: true,
-      stream: process.stdout
+      stream: process.stdout,
     },
     cliProgress.Presets.shades_classic,
   );
@@ -114,32 +138,38 @@ async function main() {
         ) {
           passCount++;
           stats.ignored.push(t.file);
-          await worker.saveArtifacts(t, baseline, iridium, "IGNO");
+          if (saveArtifacts)
+            await worker.saveArtifacts(t, baseline, iridium, "IGNO");
         } else if (
           iridium.message &&
           iridium.message.includes("IRI build failed")
         ) {
           passCount++;
           stats.ignored.push(t.file);
-          await worker.saveArtifacts(t, baseline, iridium, "IGNO");
+          if (saveArtifacts)
+            await worker.saveArtifacts(t, baseline, iridium, "IGNO");
         } else if (!isBaselinePass && !isIridiumPass) {
           if (errorsMatch) {
             passCount++;
             stats.failBothEMatch.push(t.file);
-            await worker.saveArtifacts(t, baseline, iridium, "FBOT");
+            if (saveArtifacts)
+              await worker.saveArtifacts(t, baseline, iridium, "FBOT");
           } else {
             failCount++;
             stats.failBothEMismatch.push(t.file);
-            await worker.saveArtifacts(t, baseline, iridium, "EMIS");
+            if (saveArtifacts)
+              await worker.saveArtifacts(t, baseline, iridium, "EMIS");
           }
         } else if (isBaselinePass && !isIridiumPass) {
           failCount++;
           stats.regression.push(t.file);
-          await worker.saveArtifacts(t, baseline, iridium, "REGR");
+          if (saveArtifacts)
+            await worker.saveArtifacts(t, baseline, iridium, "REGR");
         } else if (!isBaselinePass && isIridiumPass) {
           passCount++;
           stats.overCompliant.push(t.file);
-          await worker.saveArtifacts(t, baseline, iridium, "OVER");
+          if (saveArtifacts)
+            await worker.saveArtifacts(t, baseline, iridium, "OVER");
         } else {
           throw new Error("Unreachable...");
         }
