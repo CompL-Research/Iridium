@@ -166,6 +166,24 @@ export class JSExplicitBindingDeclarationNSEXP extends JSExplicitBindingDeclarat
 }
 
 /**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group STMT
+ *
+ * @remarks
+ *
+ * An JSExplicitBindingDeclaration that is not initialized.
+ *
+ */
+export class JSExplicitBindingDeclarationXSEXP extends JSExplicitBindingDeclarationSEXP {
+  constructor(lval: IridiumSEXP, rval: IridiumSEXP | null, kind: JSEnvWriteTypes | undefined = undefined, thisInit: boolean) {
+    super(lval, rval, kind, thisInit);
+    this.tag = "JSExplicitBindingDeclarationX"
+  }
+}
+
+/**
  * @group TSHelper
  */
 export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
@@ -209,6 +227,8 @@ export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  * 10. `this`: Declares and initializes it to NUBD (this initialization is needed in constructor functions with heritage).
  *
  * 11. `<ret>`: Declares and initializes it to undefined.
+ *
+ * 12. `this.active_func`: Becomes a JSCONST of the function name, valid for certain contexts.
  *
  * #### Structure
  *
