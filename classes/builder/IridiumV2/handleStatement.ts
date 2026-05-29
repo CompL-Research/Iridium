@@ -13,6 +13,7 @@ import {
   isObjectProperty,
   isRestElement,
   isVariableDeclaration,
+  isVoidPattern,
   MemberExpression,
   ObjectPattern,
   RestElement,
@@ -99,6 +100,7 @@ import {
   JSEnvWriteTypes,
   JSExplicitBindingDeclarationNSEXP,
   JSExplicitBindingDeclarationSEXP,
+  JSExplicitBindingDeclarationXSEXP,
   JSForInNextSEXP,
   JSForInStartSEXP,
   JSForOfIteratorCloseSEXP,
@@ -223,7 +225,39 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
         ? specifier.exported.name
         : specifier.exported.value;
 
-      cx.getCurrentBB().args.push(new LocalStaticExportSEXP(local, remote));
+      const sourceNode = stmt.source;
+
+
+      if (!sourceNode) {
+        cx.getCurrentBB().args.push(new LocalStaticExportSEXP(local, remote));
+      } else {
+        const currentContext = cx.getCurrentContext();
+
+        // Create/Reuse a Module Request
+        const moduleRequestMap = currentContext.moduleRequestMap;
+        if (!currentContext.BB[0].isTopLevel())
+          throw new Error("Expected imports to exist only at the top level");
+        if (!moduleRequestMap) throw new Error("Module Request Map not found");
+
+        const source = sourceNode.value;
+        let currentModuleRequest: ModuleRequestSEXP | undefined;
+        if (moduleRequestMap.has(source)) {
+          currentModuleRequest = moduleRequestMap.get(source);
+        } else {
+          // Create a new module request
+          currentModuleRequest = new ModuleRequestSEXP(
+            source,
+            moduleRequestMap.size,
+          );
+          moduleRequestMap.set(source, currentModuleRequest);
+        }
+        if (!currentModuleRequest)
+          throw new Error("Expected current module request to be defined");
+        cx.getCurrentBB().args.push(
+          new NamedReexportSEXP(currentModuleRequest.getReqIDX(), "*", remote),
+        );
+      }
+
     } else {
       const currentContext = cx.getCurrentContext();
 
@@ -252,7 +286,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
         throw new Error("Expected current module request to be defined");
       const binding = specifier.exported.name;
       cx.getCurrentBB().args.push(
-        new NamedReexportSEXP(currentModuleRequest.getReqIDX(), binding),
+        new NamedReexportSEXP(currentModuleRequest.getReqIDX(), "*", binding),
       );
     }
   } else if (isJS3ExportAllDeclaration(stmt)) {
@@ -589,30 +623,30 @@ const handleIteratedLoops = (
   cx.declareAndPushLexicalContext();
   loopConfig.loopInitIDX = cx.getCurrentBB().getIDX();
 
-  // // Declare all created bindings in the init scope (if any)
-  // const extractedBindingsSet: Set<string> = new Set();
-  // if (isVariableDeclaration(stmt.left)) {
-  //   if (stmt.left.declarations.length != 1) throw new Error("Expected exactly one declaration in iterated loop");
-  //   const d = stmt.left.declarations[0];
-  //   const id = d.id;
-  //   if (isVoidPattern(id)) throw new Error("Void Pattern in iterated loop decl");
-  //   if (isIdentifier(id) || isArrayPattern(id) || isObjectPattern(id) || isAssignmentPattern(id) || isRestElement(id)) {
-  //     extractBindings(id, extractedBindingsSet);
-  //   } else throw new Error("Unsupported pattern in iterated loop decl");
+  // Declare all created bindings in the init scope (if any)
+  const extractedBindingsSet: Set<string> = new Set();
 
-  //   for (let b of extractedBindingsSet) {
-  //     // export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
-  //     let kind: JSEnvWriteTypes;
-  //     if (stmt.left.kind === "let") kind = "JSLET";
-  //     else if (stmt.left.kind === "const") kind = "JSCONST";
-  //     else if (stmt.left.kind === "var") kind = "JSVAR";
-  //     else throw new Error("iterated loop, binding kind unknown");
-  //     cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(b), new JSNUBDSEXP(), kind, false));
-  //   }
-  // }
+  if (isVariableDeclaration(stmt.left)) {
+    if (stmt.left.declarations.length != 1) throw new Error("Expected exactly one declaration in iterated loop");
+    const d = stmt.left.declarations[0];
+    const id = d.id;
+    if (isVoidPattern(id)) throw new Error("Void Pattern in iterated loop decl");
+    if (isIdentifier(id) || isArrayPattern(id) || isObjectPattern(id) || isAssignmentPattern(id) || isRestElement(id)) {
+      extractBindings(id, extractedBindingsSet);
+    } else throw new Error("Unsupported pattern in iterated loop decl");
 
-  const iterRVAL = lowerExprToResolveEnvBindingSEXP(cx, stmt.right)
+    for (let b of extractedBindingsSet) {
+      // export type JSEnvWriteTypes = "JSLET" | "JSCONST" | "JSVAR";
+      let kind: JSEnvWriteTypes;
+      if (stmt.left.kind === "let") kind = "JSLET";
+      else if (stmt.left.kind === "const") kind = "JSCONST";
+      else if (stmt.left.kind === "var") kind = "JSVAR";
+      else throw new Error("iterated loop, binding kind unknown");
+      cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(b), new JSNUBDSEXP(), kind, false));
+    }
+  }
 
+  const iterRVAL = lowerExprToResolveEnvBindingSEXP(cx, stmt.right);
   const iterRVALName = iterRVAL.getBindingName();
 
   if (isJS3ForOfStatement(stmt)) {
@@ -640,8 +674,8 @@ const handleIteratedLoops = (
   cx.getCurrentBB().args.push(loopInitToLoopTestNode);
 
   // 3. Loop Test
-  cx.addContinuation(cx.getCurrentContext());
-  // cx.declareAndPushLexicalContext();
+  // cx.addContinuation(cx.getCurrentContext());
+  cx.declareAndPushLexicalContext();
   loopHeadContext = cx.getCurrentContext();
   loopConfig.loopHeadIDX = loopConfig.continueTarget = cx
     .getCurrentBB()
@@ -747,7 +781,7 @@ const handleIteratedLoops = (
 
   handleBlockStatement(cx, stmt.body, { label: label });
   // cx.popContext(); // Loop Body
-  // cx.popContext(); // Loop Test
+  cx.popContext(); // Loop Test
   cx.popContext(); // Loop Init
 
   // Initialize Nodes
@@ -827,8 +861,21 @@ const handleForStatement = (
   // 2. For Loop Init
   cx.declareAndPushLexicalContext();
   loopConfig.loopInitIDX = cx.getCurrentBB().getIDX();
+  // let extractedBindingsSet: Set<string> = new Set();
+  // let declKind: JSEnvWriteTypes = "JSLET";
   if (stmt.init) {
     if (isVariableDeclaration(stmt.init)) {
+      // if (stmt.init.kind == "let") declKind = "JSLET";
+      // else if (stmt.init.kind == "const") declKind = "JSCONST";
+      // else if (stmt.init.kind == "var") declKind = "JSVAR";
+      // else throw new Error("Unsupported kind in loop decl");
+      // for (let decl of stmt.init.declarations) {
+      //   const id = decl.id;
+      //   if (isVoidPattern(id)) throw new Error("Void Pattern in iterated loop decl");
+      //   if (isIdentifier(id) || isArrayPattern(id) || isObjectPattern(id) || isAssignmentPattern(id) || isRestElement(id)) {
+      //     extractBindings(id, extractedBindingsSet);
+      //   } else throw new Error("Unsupported pattern in loop decl");
+      // }
       handleLoopInitBlock(cx, stmt.init);
     } else {
       lowerExprToResolveEnvBindingSEXP(cx, stmt.init);
@@ -841,6 +888,7 @@ const handleForStatement = (
   cx.declareAndPushLexicalContext();
   loopHeadContext = cx.getCurrentContext();
   loopConfig.loopHeadIDX = cx.getCurrentBB().getIDX();
+
 
   if (stmt.test) {
     const testResult = lowerExprToResolveEnvBindingSEXP(cx, stmt.test);
@@ -1683,7 +1731,7 @@ export const lowerArgumentInit = (
       const bindingUnresolved = new ResolveEnvBindingSEXP(b);
       bindingUnresolved.markASW();
       cx.getCurrentBB().args.push(
-        new JSExplicitBindingDeclarationNSEXP(
+        new JSExplicitBindingDeclarationXSEXP(
           bindingUnresolved,
           null,
           "JSLET",
@@ -1707,8 +1755,18 @@ export const lowerArgumentInit = (
     }
 
     // S3: Use assignment logic
+    let oldVal = cx.utils.iridiumArgContext;
     cx.utils.iridiumArgContext = true;
     for (const arg of params) {
+      // let ebSet: Set<string> = new Set();
+      // extractBindings(arg, ebSet);
+
+      // for (let b of ebSet) {
+      //   cx.getCurrentBB().args.push(
+      //     new EnvWriteSEXP(b, new EnvReadSEXP("undefined"), true, false)
+      //   );
+      // }
+
       const rVal = argReplacementMap.get(arg);
       if (!rVal)
         throw new Error(
@@ -1731,7 +1789,7 @@ export const lowerArgumentInit = (
         );
       }
     }
-    cx.utils.iridiumArgContext = false;
+    cx.utils.iridiumArgContext = oldVal;
 
     // Sibling scope forwarding
     // Sibling[a] = CurrScope[a]
@@ -1826,7 +1884,14 @@ export const createLambda = (
   const abstractResolutions: Array<SiblingSpecialWriteSEXP> = [];
   const extractedBindingsSet: Set<string> = new Set();
   {
-    // Arguments
+    // lowerArgumentInit(
+    //   cx,
+    //   implicitBindings,
+    //   params,
+    //   abstractResolutions,
+    //   extractedBindingsSet,
+    // );
+    // // Arguments
     if (!isSimpleArgs) {
       lowerArgumentInit(
         cx,
@@ -1835,21 +1900,21 @@ export const createLambda = (
         abstractResolutions,
         extractedBindingsSet,
       );
-      // VARBoundary End -- Arguments
-      if (extractedBindingsSet.has("arguments") && declaresArgInit) {
-        // @ts-expect-error
-        declaresArgInit.setName("<arguments-shadowed>");
-        // @ts-expect-error
-        declaresArgInit.setStore(new ResolveEnvBindingSEXP("<arguments-shadowed>"));
-      }
+      // // VARBoundary End -- Arguments
+      // if (extractedBindingsSet.has("arguments") && declaresArgInit) {
+      //   // @ts-expect-error
+      //   declaresArgInit.setName("<arguments-shadowed>");
+      //   // @ts-expect-error
+      //   declaresArgInit.setStore(new ResolveEnvBindingSEXP("<arguments-shadowed>"));
+      // }
     } else {
       params.forEach((p) => {
         if (isIdentifier(p)) {
           cx.getCurrentContext().args.push(p.name);
-          if (p.name === "arguments" && declaresArgInit) {
-            declaresArgInit.setName("<arguments-shadowed>");
-            declaresArgInit.setStore(new ResolveEnvBindingSEXP("<arguments-shadowed>"));
-          }
+          // if (p.name === "arguments" && declaresArgInit) {
+          //   declaresArgInit.setName("<arguments-shadowed>");
+          //   declaresArgInit.setStore(new ResolveEnvBindingSEXP("<arguments-shadowed>"));
+          // }
         }
       });
     }
@@ -1857,31 +1922,31 @@ export const createLambda = (
 
   {
     // Body
-    // if (!isSimpleArgs) {
-    let argInitToBody = new GotoSEXP(-1);
-    cx.getCurrentBB().args.push(argInitToBody);
+    if (!isSimpleArgs) {
+      let argInitToBody = new GotoSEXP(-1);
+      cx.getCurrentBB().args.push(argInitToBody);
 
-    // VARBoundary Start -- Body
-    cx.declareAndPushLexicalContext("VARBoundary");
-    argInitToBody.setIDX(cx.getCurrentBB().getIDX());
-    const bodyScopeIDX = cx.getCurrentBB().getScopeIDX();
+      // VARBoundary Start -- Body
+      cx.declareAndPushLexicalContext("VARBoundary");
+      argInitToBody.setIDX(cx.getCurrentBB().getIDX());
+      const bodyScopeIDX = cx.getCurrentBB().getScopeIDX();
 
-    // Set lookup target to sibling writes
-    abstractResolutions.forEach((ar) => ar.setScopeIDX(bodyScopeIDX));
+      // Set lookup target to sibling writes
+      abstractResolutions.forEach((ar) => ar.setScopeIDX(bodyScopeIDX));
 
-    // Declare the arguments in the body, using VAR semantics
+      // Declare the arguments in the body, using VAR semantics
 
-    extractedBindingsSet.forEach((bb) => {
-      cx.getCurrentBB().args.push(
-        new JSExplicitBindingDeclarationNSEXP(
-          new ResolveEnvBindingSEXP(bb),
-          null,
-          "JSVAR",
-          false,
-        ),
-      );
-    });
-    // }
+      extractedBindingsSet.forEach((bb) => {
+        cx.getCurrentBB().args.push(
+          new JSExplicitBindingDeclarationNSEXP(
+            new ResolveEnvBindingSEXP(bb),
+            null,
+            "JSVAR",
+            false,
+          ),
+        );
+      });
+    }
 
     if (funcContext.isGenerator)
       cx.getCurrentBB().args.push(new JSInitialYieldSEXP());
@@ -1904,10 +1969,10 @@ export const createLambda = (
 
     cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
 
-    // if (!isSimpleArgs) {
-    // VARBoundary End -- Body
-    cx.popContext();
-    // }
+    if (!isSimpleArgs) {
+      // VARBoundary End -- Body
+      cx.popContext();
+    }
   }
 
   // Call at the very end, to allow overrides and avoid confusion
