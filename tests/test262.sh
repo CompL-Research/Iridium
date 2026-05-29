@@ -25,13 +25,30 @@ fi
 
 # Test
 TESTS=(
+  # "test/language/statements/for"
+  # "test/language/function-code"
+  # "test/language/expressions/generators"
+  # "test/language/expressions/function"
+  # "test/language/expressions/delete"
+  # "test/language/expressions/call"
   # "test/language/eval-code"
+  # "test/language/statements/function"
   # "test/language/statements/try"
+  # "test/language/expressions/compound-assignment"
   "test/language"
+  # "test/language/statements/class"
+  # "test/language/statements/for-in"
+  # "test/language/statements/for-of"
+  # "test/language/expressions/class"
   # "test/language/expressions/logical-assignment"
   # "test/language/expressions/call"
+  # "test/language/arguments-object"
+  # "test/language/statements/class"
+  # "test/language/module-code"
+  # "test/language/expressions/postfix-decrement"
+  # "test/language/expressions/postfix-increment
+  # "test/language/expressions/prefix-decrement"
 
-  # "test/language/expressions/addition/S11.6.1_A3.2_T1.2"
   # "test/language/expressions/addition"
   # "test/language/expressions/array"
   # "test/language/expressions/arrow-function"
@@ -174,6 +191,8 @@ for test in "${TESTS[@]}"; do
   rm -rf failing_tests
   mkdir failing_tests
 
+  # --saveArtifacts : to save artifacts
+
   # 3. Branching logic
   if [ "$js3_passed" = true ]; then
     outFile="failure_summary_js3_${test//\//_}"
@@ -186,7 +205,7 @@ for test in "${TESTS[@]}"; do
 
   else
     outFile="failure_summary_iri_${test//\//_}"
-    NO_OPT=1 node run.cjs "$test/" --only-diff --ignore-with --ignore-name --iri 2> $outFile
+    NO_OPT=1 node run.cjs "$test/" --only-diff --ignore-with --ignore-name --iri --saveArtifacts 2> $outFile
 
     # node audit_failures.cjs
     # mv failure_summary.txt $outFile

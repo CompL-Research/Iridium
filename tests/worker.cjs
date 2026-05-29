@@ -168,15 +168,15 @@ module.exports = {
       message: "",
       code: undefined,
     };
+    let spawnArgs;
+    let cmd;
 
     try {
-      let spawnArgs;
-      let cmd;
 
       if (mode === "baseline") {
         cmd = EXEC_BIN;
         // Filter out empty strings if it's a module
-        spawnArgs = [isModule ? "" : "-C", tempFile].filter(Boolean);
+        spawnArgs = [isModule ? "-m" : "-C", tempFile].filter(Boolean);
       } else {
         cmd = "./iridium";
         spawnArgs = [
@@ -222,9 +222,12 @@ module.exports = {
     } finally {
       // Ensure we always clean up the temp file
       if (fs.existsSync(tempFile)) {
-        fs.unlinkSync(tempFile);
+        // fs.unlinkSync(tempFile);
       }
     }
+
+    result.cmd = cmd;
+    result.spawnArgs = spawnArgs;
 
     return result;
   },
