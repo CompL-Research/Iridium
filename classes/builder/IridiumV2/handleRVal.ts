@@ -420,10 +420,7 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
 
   // JS3DefaultExportMemberExpression
   else if (isJS3DefaultExportMemberExpression(init)) {
-    return new EnvReadSEXP("undefined");
-    console.error(
-      "Iridium conversion still not specified (default export expression), codegen is invalid but analysis results may be used",
-    );
+    throw new Error("::TODO:: JS3DefaultExportMemberExpression");
     // return this.handleJS3DefaultExportMemberExpression(init);
   }
 
@@ -969,10 +966,27 @@ const handleYieldExpression = (
     new YieldSEXP(
       isAsync
         ? new AwaitSEXP(node.argument ? node.argument.name : "undefined")
-        : new EnvReadSEXP(node.argument ? node.argument.name : "undefined"),
+        : new EnvReadSEXP(node.argument ? node.argument.name : "undefined")
+    )
+  );
+
+  // <yieldDoneIndicator, yieldReturnResultHolder> = YIELD [POP_CTX]
+  cx.getCurrentBB().args.push(
+    new EnvWriteSEXP(
       yieldDoneIndicator,
+      new StackPopSEXP(),
+      true,
+      false
+    )
+  );
+
+  cx.getCurrentBB().args.push(
+    new EnvWriteSEXP(
       yieldReturnResultHolder,
-    ),
+      new StackPopSEXP(),
+      true,
+      false
+    )
   );
 
   // Make branch check the last instruction of currentBB
@@ -2485,7 +2499,7 @@ const handleFunctionExpression = (
   }
 
   if (name !== "" && !isComputedName && isJS3FunctionExpression(node))
-    implicitBindings.push({ name: name, type: "JSCONST", value: 2 });
+    implicitBindings.push({ name: name, type: "JSCONST", value: 12 });
 
   const funBBIdx = createLambda(
     cx,
