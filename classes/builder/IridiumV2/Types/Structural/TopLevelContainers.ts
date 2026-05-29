@@ -262,10 +262,11 @@ export class LocalStaticExportSEXP extends IridiumSEXP {
  *
  */
 export class NamedReexportSEXP extends IridiumSEXP {
-  constructor(reqIdx: number, exportName: string) {
+  constructor(reqIdx: number, localName: string, exportName: string) {
     super("NamedReexport");
     this.setModuleReqIDX(reqIdx);
-    this.setFlag("EXPORTNAME", exportName);
+    this.setLOCALNAME(localName);
+    this.setEXPORTNAME(exportName);
   }
 
   // Flags
@@ -277,11 +278,19 @@ export class NamedReexportSEXP extends IridiumSEXP {
     return this.getFlagNumber("MODULEREQIDX");
   }
 
-  setExportName(field: string) {
+  setLOCALNAME(field: string) {
+    this.setFlag("LOCALNAME", field);
+  }
+
+  getLOCALNAME(): string {
+    return this.getFlagString("LOCALNAME");
+  }
+
+  setEXPORTNAME(field: string) {
     this.setFlag("EXPORTNAME", field);
   }
 
-  getExportName(): string {
+  getEXPORTNAME(): string {
     return this.getFlagString("EXPORTNAME");
   }
 }
