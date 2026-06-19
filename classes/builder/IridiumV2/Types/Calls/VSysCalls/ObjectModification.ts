@@ -383,6 +383,24 @@ export class JSDefineObjPropSEXP extends IridiumSEXP {
  *
  * @extends {IridiumSEXP}
  *
+ * @group STMT
+ *
+ * @remarks
+ *
+ * QJS Module Init Header, provides an early return if the module
+ * is not to be initialized again
+ *
+ */
+export class QJSModuleInitSEXP extends IridiumSEXP {
+  constructor() {
+    super("QJSModuleInit");
+  }
+}
+
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
  * @group RVAL
  *
  * @remarks
