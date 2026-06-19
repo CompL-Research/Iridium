@@ -188,6 +188,7 @@ import {
   CF_PROP_INIT,
   JSUnopSEXP,
   ToNumericSEXP,
+  TDZReadSEXP,
 } from "./Types/index";
 import { newTemp } from "../Shared";
 
@@ -895,6 +896,13 @@ const handleUnaryExpression = (
     throw new Error("TODO: unary delete operator");
   } else {
     if (isIdentifier(node.argument)) {
+      // // 13.5.2.1 Runtime Semantics: Evaluation
+      // //   GetValue must be called even though its value is not used because it may have observable side-effects.
+      // cx.getCurrentBB().args.push(
+      //   new StackRejectSEXP(new TDZReadSEXP(node.argument.name), 1),
+      // );
+      // // 13.5.2.1 -- End
+
       if (node.operator === "void") return new EnvReadSEXP("undefined");
       const argument = IRIV2_RVAL(cx, node.argument);
       return getIridiumUnop(node.operator, argument);
@@ -1694,7 +1702,7 @@ const createClassConstructorClosure = (
 
     // Ensure the constructor was called using new
     cx.getCurrentBB().args.push(
-      new StackRejectSEXP(new JSCheckConstructorSEXP(), 0),
+      new JSCheckConstructorSEXP()
     );
 
     if (!superClass) {
