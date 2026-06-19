@@ -10,9 +10,9 @@ import {
   CF_TOP_LEVEL_SCRIPT,
   EnvReadSEXP,
   FileSEXP,
-  IfElseJumpSEXP,
   JSImplicitBindingDeclarationSEXP,
   ModuleRequestSEXP,
+  QJSModuleInitSEXP,
   ReturnAsyncSEXP,
   ReturnSEXP,
 } from "./Types/index";
@@ -37,6 +37,9 @@ type TryContext = {
   udCatchIDX: number;
   imCatchIDX: number;
   finalizerIDX: number;
+  tryScopeIDX: number;
+  udCatchScopeIDX: number;
+  finalizerRetIDX: number;
 };
 
 //
@@ -66,6 +69,9 @@ type SerializableIridiumBuildContextObject = {
     udCatchIDX: number;
     imCatchIDX: number;
     finalizerIDX: number;
+    tryScopeIDX: number;
+    udCatchScopeIDX: number;
+    finalizerRetIDX: number;
   } | null;
   kind: number;
   propInitClos: string | null;
@@ -137,6 +143,9 @@ function serializeBuildContext(): Array<SerializableIridiumBuildContextObject> {
             udCatchIDX: buildContext.tryContext.udCatchIDX,
             imCatchIDX: buildContext.tryContext.imCatchIDX,
             finalizerIDX: buildContext.tryContext.finalizerIDX,
+            tryScopeIDX: buildContext.tryContext.tryScopeIDX,
+            udCatchScopeIDX: buildContext.tryContext.udCatchScopeIDX,
+            finalizerRetIDX: buildContext.tryContext.finalizerRetIDX
           }
         : null,
 
@@ -321,25 +330,12 @@ export class IRIDIUMV2 {
 
     if (sourceType === "JSModule") {
       this.getCurrentBB().args.push(
+        new QJSModuleInitSEXP()
+      );
+
+      this.getCurrentBB().args.push(
         new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9),
       );
-
-      // Early return if we dont need to evaluate the module completely
-      const earlyReturnBB = this.declareAndPushLexicalContext();
-      const earlyReturnStmt = new ReturnSEXP(new EnvReadSEXP("undefined"));
-      earlyReturnStmt.setModuleEarlyReturn();
-      this.getCurrentBB().args.push(earlyReturnStmt); // Notice how this is not an async return!!
-      this.popContext();
-
-      const ifJump = new IfElseJumpSEXP(
-        new EnvReadSEXP("this"),
-        earlyReturnBB.BB[0].idx,
-        -1,
-      );
-      this.getCurrentBB().args.push(ifJump);
-
-      this.addContinuation(this.getCurrentContext());
-      ifJump.setFALSE(this.getCurrentBB().getIDX());
 
       this.getCurrentBB().args.push(
         new JSImplicitBindingDeclarationSEXP("<module_meta>", "JSCONST", 6),
