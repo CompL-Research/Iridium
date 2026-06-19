@@ -8,8 +8,12 @@ tests/failure_summar*
 tests/failing*
 
 *.irdump
-IRIDIUM.DOT
-IRIDIUM.png
+*.DOT
+*.png
+
+clean.sh
+original.mjs
+original.cjs
 
 iridium
 diridium
