@@ -1017,12 +1017,18 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
     udCatchIDX: number;
     imCatchIDX: number;
     finalizerIDX: number;
+    tryScopeIDX: number;
+    udCatchScopeIDX: number;
+    finalizerRetIDX: number;
   } = {
     tryContextIDX: -1,
     tryIDX: -1,
     udCatchIDX: -1,
     imCatchIDX: -1,
     finalizerIDX: -1,
+    tryScopeIDX: -1,
+    udCatchScopeIDX: -1,
+    finalizerRetIDX: -1
   };
 
   // Catch Contexts
@@ -1050,6 +1056,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
   cx.declareAndPushLexicalContext();
   // cx.getCurrentBB().setFlag("TryBB");
   tryContext.tryIDX = cx.getCurrentBB().getIDX();
+  tryContext.tryScopeIDX = cx.getCurrentBB().getScopeIDX();
   cx.getCurrentBB().args.push(tryCatchContext);
   for (let s of stmt.block.body) {
     IRIV2_STMT(cx, s); // A decorator must take care of the return statements...
@@ -1066,6 +1073,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
     cx.declareAndPushLexicalContext();
     // cx.getCurrentBB().setFlag("udCatchBB");
     tryContext.udCatchIDX = cx.getCurrentBB().getIDX();
+    tryContext.udCatchScopeIDX = cx.getCurrentBB().getScopeIDX();
     if (stmt.handler.param) {
       cx.getCurrentBB().args.push(
         new JSExplicitBindingDeclarationSEXP(
@@ -1121,6 +1129,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
       IRIV2_STMT(cx, s);
     }
     cx.getCurrentBB().args.push(new RetSEXP());
+    tryContext.finalizerRetIDX = cx.getCurrentBB().getIDX();
     cx.popContext(); // finalizerBB
   }
 
@@ -1852,7 +1861,6 @@ export const createLambda = (
   funcContext.name = name;
   funcContext.sourceLine = sourceLine;
 
-  let declaresArgInit: JSImplicitBindingDeclarationSEXP | undefined = undefined;
 
   implicitBindings.forEach((binding) => {
 
@@ -1869,10 +1877,6 @@ export const createLambda = (
         binding.value,
       );
 
-    if (binding.name === "arguments") {
-      declaresArgInit = res;
-    }
-
     cx.getCurrentBB().args.push(
       res
     );
@@ -1884,14 +1888,7 @@ export const createLambda = (
   const abstractResolutions: Array<SiblingSpecialWriteSEXP> = [];
   const extractedBindingsSet: Set<string> = new Set();
   {
-    // lowerArgumentInit(
-    //   cx,
-    //   implicitBindings,
-    //   params,
-    //   abstractResolutions,
-    //   extractedBindingsSet,
-    // );
-    // // Arguments
+    // Arguments
     if (!isSimpleArgs) {
       lowerArgumentInit(
         cx,
@@ -1900,21 +1897,10 @@ export const createLambda = (
         abstractResolutions,
         extractedBindingsSet,
       );
-      // // VARBoundary End -- Arguments
-      // if (extractedBindingsSet.has("arguments") && declaresArgInit) {
-      //   // @ts-expect-error
-      //   declaresArgInit.setName("<arguments-shadowed>");
-      //   // @ts-expect-error
-      //   declaresArgInit.setStore(new ResolveEnvBindingSEXP("<arguments-shadowed>"));
-      // }
     } else {
       params.forEach((p) => {
         if (isIdentifier(p)) {
           cx.getCurrentContext().args.push(p.name);
-          // if (p.name === "arguments" && declaresArgInit) {
-          //   declaresArgInit.setName("<arguments-shadowed>");
-          //   declaresArgInit.setStore(new ResolveEnvBindingSEXP("<arguments-shadowed>"));
-          // }
         }
       });
     }
@@ -1953,15 +1939,6 @@ export const createLambda = (
 
     // Callback called when emitting code to top level closure scope
     bodyScopeCallback();
-
-    // These need to be accessible to the argInitScope, moving to top scope...
-    // implicitBindings.forEach(binding => {
-    //   cx.getCurrentBB().args.push(
-    //     binding.initializer
-    //       ? new JSImplicitBindingDeclarationSEXP(binding.name, binding.type, binding.value, binding.initializer)
-    //       : new JSImplicitBindingDeclarationSEXP(binding.name, binding.type, binding.value)
-    //   );
-    // });
 
     for (const s of body) {
       IRIV2_STMT(cx, s);
