@@ -654,11 +654,11 @@ const handleIteratedLoops = (
     // [<loop-iterator>, <loop-method>, <loop-catchoffset>] = JSForOfStartSEXP(RVal)
     if (stmt.await) {
       cx.getCurrentBB().args.push(
-        new StackRetainSEXP(new JSForOfStartSEXP(iterRVALName, true), 3),
+        new JSForOfStartSEXP(iterRVALName, true)
       );
     } else {
       cx.getCurrentBB().args.push(
-        new StackRetainSEXP(new JSForOfStartSEXP(iterRVALName), 3),
+        new JSForOfStartSEXP(iterRVALName)
       );
     }
   } else {
@@ -1205,7 +1205,7 @@ export const handleArrayPatternAssignmentDecl = (
 
   // RetainedOnStack[<loop-iterator>, <loop-method>, <loop-catchoffset>] = JSForOfStartSEXP(RVal)
   cx.getCurrentBB().args.push(
-    new StackRetainSEXP(new JSForOfStartSEXP(rValTarget), 3),
+    new JSForOfStartSEXP(rValTarget)
   );
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(

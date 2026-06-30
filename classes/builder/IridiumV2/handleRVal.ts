@@ -479,7 +479,7 @@ export const handleArrayPatternAssignmentExpr = (
 
   // RetainedOnStack[<loop-iterator>, <loop-method>, <loop-catchoffset>] = JSForOfStartSEXP(RVal)
   cx.getCurrentBB().args.push(
-    new StackRetainSEXP(new JSForOfStartSEXP(rValTarget), 3),
+    new JSForOfStartSEXP(rValTarget)
   );
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
