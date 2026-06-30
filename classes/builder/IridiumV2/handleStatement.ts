@@ -87,6 +87,7 @@ import {
 import {
   BBSEXPFlags,
   CF_FUNCTION,
+  CompoundAssnSEXP,
   EnvReadSEXP,
   EnvWriteSEXP,
   GotoSEXP,
@@ -117,6 +118,7 @@ import {
   LoopInitPreludeEndSEXP,
   ModuleRequestSEXP,
   NamedReexportSEXP,
+  NullSEXP,
   NumberSEXP,
   PopCatchContextSEXP,
   PushCatchContextSEXP,
@@ -126,7 +128,6 @@ import {
   RetSEXP,
   ReturnSEXP,
   SiblingSpecialWriteSEXP,
-  StackPopSEXP,
   StackRejectSEXP,
   StackRetainSEXP,
   StarExportSEXP,
@@ -681,54 +682,46 @@ const handleIteratedLoops = (
     .getCurrentBB()
     .getIDX();
 
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationSEXP(
+      new ResolveEnvBindingSEXP("<loop-next>"),
+      null,
+      "JSLET",
+      false,
+    ),
+  );
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationSEXP(
+      new ResolveEnvBindingSEXP("<loop-done>"),
+      null,
+      "JSLET",
+      false,
+    ),
+  );
+
   if (isJS3ForOfStatement(stmt)) {
     // [<loop-next>, <loop-done>] = JSForOfNextSEXP(RVal)
-    if (stmt.await) {
-      cx.getCurrentBB().args.push(
-        new StackRetainSEXP(new JSForOfNextSEXP(true), 2, 0),
-      );
-    } else {
-      cx.getCurrentBB().args.push(
-        new StackRetainSEXP(new JSForOfNextSEXP(), 2, 0),
-      );
-    }
     cx.getCurrentBB().args.push(
-      new JSExplicitBindingDeclarationSEXP(
-        new ResolveEnvBindingSEXP("<loop-done>"),
-        new StackPopSEXP(),
-        "JSLET",
-        false,
-      ),
+      new CompoundAssnSEXP(
+        new JSForOfNextSEXP(stmt.await),
+        [
+          new EnvWriteSEXP("<loop-done>", new NullSEXP(), false, false),
+          new EnvWriteSEXP("<loop-next>", new NullSEXP(), false, false),
+        ]
+      )
     );
-    cx.getCurrentBB().args.push(
-      new JSExplicitBindingDeclarationSEXP(
-        new ResolveEnvBindingSEXP("<loop-next>"),
-        new StackPopSEXP(),
-        "JSLET",
-        false,
-      ),
-    );
+
   } else {
-    // [<loop-next>, <loop-done>] = JSForInNextSEXP(RVal)
     cx.getCurrentBB().args.push(
-      new StackRetainSEXP(new JSForInNextSEXP("<loop-iterator>"), 2, 1),
+      new CompoundAssnSEXP(
+        new JSForInNextSEXP("<loop-iterator>"),
+        [
+          new EnvWriteSEXP("<loop-done>", new NullSEXP(), false, false),
+          new EnvWriteSEXP("<loop-next>", new NullSEXP(), false, false),
+        ]
+      )
     );
-    cx.getCurrentBB().args.push(
-      new JSExplicitBindingDeclarationSEXP(
-        new ResolveEnvBindingSEXP("<loop-done>"),
-        new StackPopSEXP(),
-        "JSLET",
-        false,
-      ),
-    );
-    cx.getCurrentBB().args.push(
-      new JSExplicitBindingDeclarationSEXP(
-        new ResolveEnvBindingSEXP("<loop-next>"),
-        new StackPopSEXP(),
-        "JSLET",
-        false,
-      ),
-    );
+
   }
 
   testBBLoopContinueNode.setTest(new EnvReadSEXP("<loop-done>"));
@@ -1234,14 +1227,15 @@ export const handleArrayPatternAssignmentDecl = (
   for (let e of elements) {
     if (isIdentifier(e)) {
       cx.getCurrentBB().args.push(
-        new StackRetainSEXP(new JSForOfNextSEXP(), 2),
+        new CompoundAssnSEXP(
+          new JSForOfNextSEXP(),
+          [
+            new EnvWriteSEXP(for$of$loop$done, new NullSEXP(), false, false),
+            new EnvWriteSEXP(for$of$loop$next, new NullSEXP(), false, false),
+          ]
+        )
       );
-      cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false),
-      );
-      cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false),
-      );
+
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
           e.name,
@@ -1322,14 +1316,15 @@ export const handleArrayPatternAssignmentDecl = (
       loopConfig.loopHeadIDX = loopConfig.continueTarget = cx
         .getCurrentBB()
         .getIDX();
+
       cx.getCurrentBB().args.push(
-        new StackRetainSEXP(new JSForOfNextSEXP(), 2),
-      );
-      cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false),
-      );
-      cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false),
+        new CompoundAssnSEXP(
+          new JSForOfNextSEXP(),
+          [
+            new EnvWriteSEXP(for$of$loop$done, new NullSEXP(), false, false),
+            new EnvWriteSEXP(for$of$loop$next, new NullSEXP(), false, false),
+          ]
+        )
       );
 
       cx.getCurrentBB().args.push(loopToPost);

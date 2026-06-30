@@ -173,7 +173,6 @@ import {
   ResolvePrivateEnvBindingSEXP,
   ReturnAsyncSEXP,
   ReturnSEXP,
-  StackPopSEXP,
   StackRejectSEXP,
   StackRetainSEXP,
   StringSEXP,
@@ -188,7 +187,7 @@ import {
   CF_PROP_INIT,
   JSUnopSEXP,
   ToNumericSEXP,
-  TDZReadSEXP,
+  CompoundAssnSEXP,
 } from "./Types/index";
 import { newTemp } from "../Shared";
 
@@ -501,16 +500,16 @@ export const handleArrayPatternAssignmentExpr = (
 
   for (let e of elements) {
     const stepIterator = () => {
-      // Get next element from the iterator
       cx.getCurrentBB().args.push(
-        new StackRetainSEXP(new JSForOfNextSEXP(), 2),
+        new CompoundAssnSEXP(
+          new JSForOfNextSEXP(),
+          [
+            new EnvWriteSEXP(for$of$loop$done, new NullSEXP(), false, false),
+            new EnvWriteSEXP(for$of$loop$next, new NullSEXP(), false, false),
+          ]
+        )
       );
-      cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false),
-      );
-      cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false),
-      );
+
     };
 
     // Identifier | MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | VoidPattern | TSAsExpression | TSSatisfiesExpression | TSTypeAssertion | TSNonNullExpression;
@@ -614,13 +613,13 @@ export const handleArrayPatternAssignmentExpr = (
         .getCurrentBB()
         .getIDX();
       cx.getCurrentBB().args.push(
-        new StackRetainSEXP(new JSForOfNextSEXP(), 2),
-      );
-      cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(for$of$loop$done, new StackPopSEXP(), false, false),
-      );
-      cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(for$of$loop$next, new StackPopSEXP(), false, false),
+        new CompoundAssnSEXP(
+          new JSForOfNextSEXP(),
+          [
+            new EnvWriteSEXP(for$of$loop$done, new NullSEXP(), false, false),
+            new EnvWriteSEXP(for$of$loop$next, new NullSEXP(), false, false),
+          ]
+        )
       );
 
       cx.getCurrentBB().args.push(loopToPost);
@@ -840,22 +839,15 @@ export const handleObjectPatternAssignmentExpr = (
       throw new Error("restElement is not JS3RestElement");
 
     cx.getCurrentBB().args.push(
-      new StackRetainSEXP(
-        new JSCopyDataPropertiesSEXP(exc_obj, toObjRes, fin_obj),
-        1,
-        2,
-      ),
-    );
-
-    cx.getCurrentBB().args.push(
       new EnvWriteSEXP(
         // @ts-expect-error
         restElement.argument.name,
-        new StackPopSEXP(),
+        new JSCopyDataPropertiesSEXP(exc_obj, toObjRes, fin_obj),
         safeWrite,
-        false,
-      ),
+        false
+      )
     );
+
   }
 };
 
@@ -968,32 +960,17 @@ const handleYieldExpression = (
     ),
   );
 
-  // [STACK (VAL)] AWAIT ARG
-  // <yieldDoneIndicator, yieldReturnResultHolder> = YIELD [POP_CTX]
   cx.getCurrentBB().args.push(
-    new YieldSEXP(
-      isAsync
-        ? new AwaitSEXP(node.argument ? node.argument.name : "undefined")
-        : new EnvReadSEXP(node.argument ? node.argument.name : "undefined")
-    )
-  );
-
-  // <yieldDoneIndicator, yieldReturnResultHolder> = YIELD [POP_CTX]
-  cx.getCurrentBB().args.push(
-    new EnvWriteSEXP(
-      yieldDoneIndicator,
-      new StackPopSEXP(),
-      true,
-      false
-    )
-  );
-
-  cx.getCurrentBB().args.push(
-    new EnvWriteSEXP(
-      yieldReturnResultHolder,
-      new StackPopSEXP(),
-      true,
-      false
+    new CompoundAssnSEXP(
+      new YieldSEXP(
+        isAsync
+          ? new AwaitSEXP(node.argument ? node.argument.name : "undefined")
+          : new EnvReadSEXP(node.argument ? node.argument.name : "undefined")
+      ),
+      [
+        new EnvWriteSEXP(yieldDoneIndicator, new NullSEXP(), true, false),
+        new EnvWriteSEXP(yieldReturnResultHolder, new NullSEXP(), true, false),
+      ]
     )
   );
 
@@ -2043,27 +2020,19 @@ const handleClassExpression = (
 
   // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{After createClassConstructorClosure}`);
 
-  // [ctr, proto] <- JSClass(HERITAGE, CTR)
   cx.getCurrentBB().args.push(
-    new StackRetainSEXP(
+    new CompoundAssnSEXP(
       new JSClassSEXP(
         heritage ? heritage : new EnvReadSEXP("undefined"),
         constructorLambda,
         name,
         isDerived,
       ),
-      2,
-    ),
-  );
-
-  // [ctr] finalClassProto <- pop[ctr, proto]
-  cx.getCurrentBB().args.push(
-    new EnvWriteSEXP(finalClassProto, new StackPopSEXP(), true, false),
-  );
-
-  // [] finalClassRes <- pop[ctr]
-  cx.getCurrentBB().args.push(
-    new EnvWriteSEXP(finalClassRes, new StackPopSEXP(), true, false),
+      [
+        new EnvWriteSEXP(finalClassProto, new NullSEXP(), true, false),
+        new EnvWriteSEXP(finalClassRes, new NullSEXP(), true, false),
+      ]
+    )
   );
 
   if (addBrand) {
@@ -2597,24 +2566,20 @@ const generateDynamicCallArgList = (
     if (isJS3SpreadElement(currEle)) {
       let sElem: JS3SpreadElement = currEle;
 
-      // [tmp, insertionIdx] <- append (tmp, insertionIdx, spreadVal)
       cx.getCurrentBB().args.push(
-        new StackRetainSEXP(
+        new CompoundAssnSEXP(
           new JSAppendSEXP(
             new EnvReadSEXP(temp$id), // push
             new EnvReadSEXP(insertionIdx$id), // push
             new EnvReadSEXP(sElem.argument.name), // push
           ),
-          2,
-          0,
-        ),
+          [
+            new EnvWriteSEXP(insertionIdx$id, new NullSEXP(), false, false),
+            new EnvWriteSEXP(temp$id, new NullSEXP(), false, false),
+          ]
+        )
       );
-      cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(insertionIdx$id, new StackPopSEXP(), false, false),
-      );
-      cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(temp$id, new StackPopSEXP(), false, false),
-      );
+
     } else {
       let rVal = new EnvReadSEXP(currEle.name);
 
@@ -2914,24 +2879,21 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
       let currEle = init.elements[i];
 
       if (isJS3SpreadElement(currEle)) {
-        // [insertionIdx, tmp] <- append (tmp, insertionIdx, spreadVal)
+
         cx.getCurrentBB().args.push(
-          new StackRetainSEXP(
+          new CompoundAssnSEXP(
             new JSAppendSEXP(
               new EnvReadSEXP(temp$id), // push
               new EnvReadSEXP(insertionIdx$id), // push
               new EnvReadSEXP(currEle.argument.name), // push
             ),
-            2,
-            0,
-          ),
+            [
+              new EnvWriteSEXP(insertionIdx$id, new NullSEXP(), false, false),
+              new EnvWriteSEXP(temp$id, new NullSEXP(), false, false),
+            ]
+          )
         );
-        cx.getCurrentBB().args.push(
-          new EnvWriteSEXP(insertionIdx$id, new StackPopSEXP(), false, false),
-        );
-        cx.getCurrentBB().args.push(
-          new EnvWriteSEXP(temp$id, new StackPopSEXP(), false, false),
-        );
+
       } else if (isJS3ArrayTerminals(currEle)) {
         // tmp[insertionIdx] = E
         cx.getCurrentBB().args.push(
@@ -3039,21 +3001,16 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
         );
       }
     } else {
-      // JSCopyDataProperties(exc_obj, from, to, | -> | e)
+
       cx.getCurrentBB().args.push(
-        new StackRetainSEXP(
-          new JSCopyDataPropertiesSEXP(
-            new NullSEXP(),
-            prop.argument.name,
-            obj$id,
-          ),
-          1,
-          2,
-        ),
+        new EnvWriteSEXP(
+          obj$id,
+          new JSCopyDataPropertiesSEXP(new NullSEXP(), prop.argument.name, obj$id),
+          false,
+          false
+        )
       );
-      cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(obj$id, new StackPopSEXP(), false, false),
-      );
+
     }
   }
 
