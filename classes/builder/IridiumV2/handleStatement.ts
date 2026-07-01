@@ -128,8 +128,6 @@ import {
   RetSEXP,
   ReturnSEXP,
   SiblingSpecialWriteSEXP,
-  StackRejectSEXP,
-  StackRetainSEXP,
   StarExportSEXP,
   StaticImportSEXP,
   TDZReadSEXP,

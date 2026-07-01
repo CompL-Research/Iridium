@@ -173,8 +173,6 @@ import {
   ResolvePrivateEnvBindingSEXP,
   ReturnAsyncSEXP,
   ReturnSEXP,
-  StackRejectSEXP,
-  StackRetainSEXP,
   StringSEXP,
   UNOPDelMemberExprSEXP,
   UNOPDelVarSEXP,
