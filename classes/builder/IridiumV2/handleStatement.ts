@@ -141,7 +141,7 @@ import { newTemp } from "../Shared";
 export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
   if (isJS3TDZCheck(stmt)) {
     cx.getCurrentBB().args.push(
-      new StackRejectSEXP(new TDZReadSEXP(stmt.expression.name), 1),
+      new TDZReadSEXP(stmt.expression.name)
     );
   } else if (isJS3ImportDeclaration(stmt)) {
     const currentContext = cx.getCurrentContext();
@@ -733,7 +733,7 @@ const handleIteratedLoops = (
 
   if (isJS3ForOfStatement(stmt)) {
     cx.getCurrentBB().args.push(
-      new StackRejectSEXP(new JSForOfIteratorCloseSEXP(), 0),
+      new JSForOfIteratorCloseSEXP()
     );
   }
   cx.getCurrentBB().args.push(testBBLoopExitNode);
@@ -1078,7 +1078,7 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
       );
     } else {
       cx.getCurrentBB().args.push(
-        new StackRejectSEXP(new JSCatchContextSEXP(), 1),
+        new JSCatchContextSEXP()
       );
     }
     cx.getCurrentBB().args.push(udCatchContext);
@@ -1331,14 +1331,11 @@ export const handleArrayPatternAssignmentDecl = (
       cx.addContinuation(cx.getCurrentContext());
       let loopTestContinuation = cx.getCurrentBB().getIDX();
       cx.getCurrentBB().args.push(
-        new StackRejectSEXP(
-          new JSComputedFieldWriteSEXP(
-            tempres,
-            tempit,
-            new EnvReadSEXP(for$of$loop$next),
-          ),
-          1,
-        ),
+        new JSComputedFieldWriteSEXP(
+          tempres,
+          tempit,
+          new EnvReadSEXP(for$of$loop$next),
+        )
       );
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
@@ -1368,7 +1365,7 @@ export const handleArrayPatternAssignmentDecl = (
     }
   }
   cx.getCurrentBB().args.push(
-    new StackRejectSEXP(new JSForOfIteratorCloseSEXP(), 0),
+    new JSForOfIteratorCloseSEXP()
   );
 };
 

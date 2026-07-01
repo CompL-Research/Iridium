@@ -626,14 +626,11 @@ export const handleArrayPatternAssignmentExpr = (
       cx.addContinuation(cx.getCurrentContext());
       let loopTestContinuation = cx.getCurrentBB().getIDX();
       cx.getCurrentBB().args.push(
-        new StackRejectSEXP(
-          new JSComputedFieldWriteSEXP(
-            tempres,
-            tempit,
-            new EnvReadSEXP(for$of$loop$next),
-          ),
-          1,
-        ),
+        new JSComputedFieldWriteSEXP(
+          tempres,
+          tempit,
+          new EnvReadSEXP(for$of$loop$next),
+        )
       );
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(
@@ -684,7 +681,7 @@ export const handleArrayPatternAssignmentExpr = (
   }
 
   cx.getCurrentBB().args.push(
-    new StackRejectSEXP(new JSForOfIteratorCloseSEXP(), 0),
+    new JSForOfIteratorCloseSEXP()
   );
 
   // Exit from current loop
@@ -751,14 +748,11 @@ export const handleObjectPatternAssignmentExpr = (
               throw new Error("Expected exc_obj to be a string");
 
             cx.getCurrentBB().args.push(
-              new StackRejectSEXP(
-                new JSComputedFieldWriteSEXP(
-                  exc_obj,
-                  d.key.name,
-                  new NullSEXP(),
-                ),
-                1,
-              ),
+              new JSComputedFieldWriteSEXP(
+                exc_obj,
+                d.key.name,
+                new NullSEXP(),
+              )
             );
           }
         } else if (isJS3PrivateName(d.key)) {
@@ -768,15 +762,12 @@ export const handleObjectPatternAssignmentExpr = (
           rVal = new JSComputedFieldReadSEXP(toObjRes, fieldSEXP);
           if (hasRest) {
             cx.getCurrentBB().args.push(
-              new StackRejectSEXP(
-                new JSComputedFieldWriteSEXP(
-                  // @ts-expect-error
-                  exc_obj,
-                  fieldSEXP,
-                  new NullSEXP(),
-                ),
-                1,
-              ),
+              new JSComputedFieldWriteSEXP(
+                // @ts-expect-error
+                exc_obj,
+                fieldSEXP,
+                new NullSEXP(),
+              )
             );
           }
         }
@@ -785,15 +776,12 @@ export const handleObjectPatternAssignmentExpr = (
           rVal = new FieldReadSEXP(toObjRes, d.key.name);
           if (hasRest) {
             cx.getCurrentBB().args.push(
-              new StackRejectSEXP(
-                new FieldWriteSEXP(
-                  // @ts-expect-error
-                  exc_obj,
-                  d.key.name,
-                  new NullSEXP(),
-                ),
-                1,
-              ),
+              new FieldWriteSEXP(
+                // @ts-expect-error
+                exc_obj,
+                d.key.name,
+                new NullSEXP(),
+              )
             );
           }
         } else if (isJS3PrivateName(d.key)) {
@@ -802,15 +790,12 @@ export const handleObjectPatternAssignmentExpr = (
           rVal = new FieldReadSEXP(toObjRes, "" + d.key.value);
           if (hasRest) {
             cx.getCurrentBB().args.push(
-              new StackRejectSEXP(
-                new FieldWriteSEXP(
-                  // @ts-expect-error
-                  exc_obj,
-                  "" + d.key.value,
-                  new NullSEXP(),
-                ),
-                1,
-              ),
+              new FieldWriteSEXP(
+                // @ts-expect-error
+                exc_obj,
+                "" + d.key.value,
+                new NullSEXP(),
+              )
             );
           }
         }
@@ -1186,24 +1171,18 @@ const lowerClassMethods = (
 
       // Set name of the private method
       cx.getCurrentBB().args.push(
-        new StackRejectSEXP(
-          new JSSetNameSEXP(
-            new EnvReadSEXP(allocaLocation),
-            new StringSEXP("#" + methodNode.key.id.name),
-          ),
-          1,
-        ),
+        new JSSetNameSEXP(
+          new EnvReadSEXP(allocaLocation),
+          new StringSEXP("#" + methodNode.key.id.name),
+        )
       );
 
       // Set home object
       cx.getCurrentBB().args.push(
-        new StackRejectSEXP(
-          new JSSetHomeSEXP(
-            new EnvReadSEXP(PROTO_OBJ),
-            new EnvReadSEXP(allocaLocation),
-          ),
-          2,
-        ),
+        new JSSetHomeSEXP(
+          new EnvReadSEXP(PROTO_OBJ),
+          new EnvReadSEXP(allocaLocation),
+        )
       );
 
       continue;
@@ -1224,21 +1203,18 @@ const lowerClassMethods = (
     }
 
     cx.getCurrentBB().args.push(
-      new StackRejectSEXP(
-        new JSDefineObjMethodSEXP(
-          new EnvReadSEXP(PROTO_OBJ),
-          mKeyObj,
-          handleFunctionExpression(
-            cx,
-            methodNode,
-            null,
-            hasSuper,
-          ),
-          methodNode.kind,
-          true,
+      new JSDefineObjMethodSEXP(
+        new EnvReadSEXP(PROTO_OBJ),
+        mKeyObj,
+        handleFunctionExpression(
+          cx,
+          methodNode,
+          null,
+          hasSuper,
         ),
-        1,
-      ),
+        methodNode.kind,
+        true,
+      )
     );
   }
 };
@@ -1287,13 +1263,10 @@ const createClassNonStaticPropInitClosure = (
   if (addBrand) {
     // add_brand this <home_object>
     cx.getCurrentBB().args.push(
-      new StackRejectSEXP(
-        new JSADDBRANDSEXP(
-          new EnvReadSEXP("this"),
-          new EnvReadSEXP("<home_object>"),
-        ),
-        0,
-      ),
+      new JSADDBRANDSEXP(
+        new EnvReadSEXP("this"),
+        new EnvReadSEXP("<home_object>"),
+      )
     );
   }
 
@@ -1328,12 +1301,11 @@ const createClassNonStaticPropInitClosure = (
         //   true,
         // );
         //
-        const res = new JSDefineObjPropSEXP(
+        cx.getCurrentBB().args.push(new JSDefineObjPropSEXP(
           new EnvReadSEXP("this"),
           new EnvReadSEXP(compProp),
           classItem.value ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value) : new EnvReadSEXP("undefined")
-        );
-        cx.getCurrentBB().args.push(new StackRejectSEXP(res, 1));
+        ));
 
       } else {
         // this.field = RVal
@@ -1343,12 +1315,11 @@ const createClassNonStaticPropInitClosure = (
         //   identifier(lookupField),
         //   false,
         // );
-        const res = new JSDefineObjPropSEXP(
+        cx.getCurrentBB().args.push(new JSDefineObjPropSEXP(
           new EnvReadSEXP("this"),
           new StringSEXP(lookupField),
           classItem.value ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value) : new EnvReadSEXP("undefined")
-        );
-        cx.getCurrentBB().args.push(new StackRejectSEXP(res, 1));
+        ));
 
       }
       // // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
@@ -1379,15 +1350,12 @@ const createClassNonStaticPropInitClosure = (
           : "undefined",
       );
       cx.getCurrentBB().args.push(
-        new StackRejectSEXP(
-          new JSPrivateFieldWriteSEXP(
-            "this",
-            lookupPrivateKeyHolder,
-            loweredValue,
-            true,
-          ),
-          1,
-        ),
+        new JSPrivateFieldWriteSEXP(
+          "this",
+          lookupPrivateKeyHolder,
+          loweredValue,
+          true,
+        )
       );
     }
   }
@@ -1535,15 +1503,12 @@ const createClassStaticPropInitClosure = (
           : "undefined",
       );
       cx.getCurrentBB().args.push(
-        new StackRejectSEXP(
-          new JSPrivateFieldWriteSEXP(
-            "this",
-            lookupPrivateKeyHolder,
-            loweredValue,
-            true,
-          ),
-          1,
-        ),
+        new JSPrivateFieldWriteSEXP(
+          "this",
+          lookupPrivateKeyHolder,
+          loweredValue,
+          true,
+        )
       );
     } else if (isJS3StaticBlock(classItem)) {
       // { /** code **/ }
@@ -1685,16 +1650,13 @@ const createClassConstructorClosure = (
     if (!superClass) {
       // call propInitClosure
       cx.getCurrentBB().args.push(
-        new StackRejectSEXP(
-          generateIridiumCall(
-            cx,
-            new EnvReadSEXP(propInitClos),
-            new EnvReadSEXP("this"),
-            [],
-            "CONTEXTUAL",
-          ),
-          1,
-        ),
+        generateIridiumCall(
+          cx,
+          new EnvReadSEXP(propInitClos),
+          new EnvReadSEXP("this"),
+          [],
+          "CONTEXTUAL",
+        )
       );
 
       for (let item of constructorBody) IRIV2_STMT(cx, item);
@@ -1881,23 +1843,20 @@ const handleUpdateExpression = (
 
     cx.getCurrentBB().args.push(
       // n[x] = tmp [+|-] num1
-      new StackRejectSEXP(
-        IRIV2_RVAL(
-          cx,
-          generateJS3AssignmentExpressionfromBaseNode(
-            "=",
-            node.argument,
-            generateJS3BinaryExpressionfromBaseNode(
-              identifier(tmp),
-              identifier(num1),
-              node.operator === "++" ? "+" : "-",
-              node,
-            ),
+      IRIV2_RVAL(
+        cx,
+        generateJS3AssignmentExpressionfromBaseNode(
+          "=",
+          node.argument,
+          generateJS3BinaryExpressionfromBaseNode(
+            identifier(tmp),
+            identifier(num1),
+            node.operator === "++" ? "+" : "-",
             node,
           ),
+          node,
         ),
-        1,
-      ),
+      )
     );
 
     if (node.prefix) {
@@ -2038,23 +1997,17 @@ const handleClassExpression = (
   if (addBrand) {
     // add_brand this <home_object>
     cx.getCurrentBB().args.push(
-      new StackRejectSEXP(
-        new JSADDBRANDSEXP(new NullSEXP(), new EnvReadSEXP(finalClassProto)),
-        0,
-      ),
+      new JSADDBRANDSEXP(new NullSEXP(), new EnvReadSEXP(finalClassProto))
     );
   }
 
   if (addStaticBrand) {
     // add_brand this <home_object>
     cx.getCurrentBB().args.push(
-      new StackRejectSEXP(
-        new JSADDBRANDSEXP(
-          new EnvReadSEXP(finalClassRes),
-          new EnvReadSEXP(finalClassRes),
-        ),
-        0,
-      ),
+      new JSADDBRANDSEXP(
+        new EnvReadSEXP(finalClassRes),
+        new EnvReadSEXP(finalClassRes),
+      )
     );
   }
 
@@ -2071,13 +2024,10 @@ const handleClassExpression = (
 
   // set home_object of the prop init method to be the prototype
   cx.getCurrentBB().args.push(
-    new StackRejectSEXP(
-      new JSSetHomeSEXP(
-        new EnvReadSEXP(finalClassProto),
-        new EnvReadSEXP(classPropInitClosure),
-      ),
-      2,
-    ),
+    new JSSetHomeSEXP(
+      new EnvReadSEXP(finalClassProto),
+      new EnvReadSEXP(classPropInitClosure),
+    )
   );
 
   const classStaticPropInitClosure = createClassStaticPropInitClosure(
@@ -2091,27 +2041,21 @@ const handleClassExpression = (
   if (classStaticPropInitClosure) {
     // Set home object
     cx.getCurrentBB().args.push(
-      new StackRejectSEXP(
-        new JSSetHomeSEXP(
-          new EnvReadSEXP(finalClassRes),
-          new EnvReadSEXP(classStaticPropInitClosure),
-        ),
-        2,
-      ),
+      new JSSetHomeSEXP(
+        new EnvReadSEXP(finalClassRes),
+        new EnvReadSEXP(classStaticPropInitClosure),
+      )
     );
 
     // Call Static Prop Init
     cx.getCurrentBB().args.push(
-      new StackRejectSEXP(
-        generateIridiumCall(
-          cx,
-          new EnvReadSEXP(classStaticPropInitClosure),
-          new EnvReadSEXP(finalClassRes),
-          [],
-          "CONTEXTUAL",
-        ),
-        1,
-      ),
+      generateIridiumCall(
+        cx,
+        new EnvReadSEXP(classStaticPropInitClosure),
+        new EnvReadSEXP(finalClassRes),
+        [],
+        "CONTEXTUAL",
+      )
     );
   }
 
@@ -2245,8 +2189,6 @@ const handleAssignmentExpression = (
   const left = node.left;
   const right = node.right;
 
-  const RVAL_SIMPLIFICATION = true;
-
   // case a.
   // ID = RVal
   if (isIdentifier(left)) {
@@ -2257,7 +2199,6 @@ const handleAssignmentExpression = (
       rv.setSETNAME(true);
       rv.setNAME(left.name);
     }
-    if (!RVAL_SIMPLIFICATION) { return new EnvWriteSEXP(left.name, rv, false, false); }
 
     let rValSimp = newTemp("rValSimp");
     cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
@@ -2280,12 +2221,6 @@ const handleAssignmentExpression = (
       obj = "this";
     } else {
       if (isIdentifier(init.property)) {
-        if (!RVAL_SIMPLIFICATION) {
-          return new JSSuperFieldWriteSEXP(
-            init.property.name,
-            rv,
-          );
-        }
 
         let rValSimp = newTemp("rValSimp");
         cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
@@ -2307,9 +2242,6 @@ const handleAssignmentExpression = (
     if (isIdentifier(init.property)) {
       let prop: string = init.property.name;
       if (init.computed) {
-        if (!RVAL_SIMPLIFICATION) {
-          return new JSComputedFieldWriteSEXP(obj, prop, rv);
-        }
 
         let rValSimp = newTemp("rValSimp");
         cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
@@ -2321,10 +2253,6 @@ const handleAssignmentExpression = (
 
         return new EnvReadSEXP(rValSimp);
       } else {
-        if (!RVAL_SIMPLIFICATION) {
-          return new FieldWriteSEXP(obj, prop, rv);
-        }
-
         let rValSimp = newTemp("rValSimp");
         cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
 
@@ -2336,15 +2264,6 @@ const handleAssignmentExpression = (
       }
     } else {
       let prop: string = init.property.id.name;
-      if (!RVAL_SIMPLIFICATION) {
-        return new JSPrivateFieldWriteSEXP(
-          obj,
-          prop,
-          rv,
-          false,
-        );
-      }
-
       let rValSimp = newTemp("rValSimp");
       cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
 
@@ -2585,10 +2504,7 @@ const generateDynamicCallArgList = (
 
       // tmp[insertionIdx] = rVal
       cx.getCurrentBB().args.push(
-        new StackRejectSEXP(
-          new JSComputedFieldWriteSEXP(temp$id, insertionIdx$id, rVal),
-          1,
-        ),
+        new JSComputedFieldWriteSEXP(temp$id, insertionIdx$id, rVal)
       );
       // insertionIdx++
       cx.getCurrentBB().args.push(
@@ -2897,14 +2813,11 @@ const handleArrayExpression = (cx: IRIDIUMV2, init: JS3ArrayExpression) => {
       } else if (isJS3ArrayTerminals(currEle)) {
         // tmp[insertionIdx] = E
         cx.getCurrentBB().args.push(
-          new StackRejectSEXP(
-            new JSComputedFieldWriteSEXP(
-              temp$id,
-              insertionIdx$id,
-              IRIV2_RVAL(cx, currEle),
-            ),
-            1,
-          ),
+          new JSComputedFieldWriteSEXP(
+            temp$id,
+            insertionIdx$id,
+            IRIV2_RVAL(cx, currEle),
+          )
         );
         // insertionIdx++
         cx.getCurrentBB().args.push(
@@ -2954,50 +2867,35 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
   for (let prop of init.properties) {
     if (isJS3ObjectMethod(prop)) {
       cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(
-          obj$id,
-          new JSDefineObjMethodSEXP(
-            new EnvReadSEXP(obj$id),
-            prop.computed
-              ? IRIV2_RVAL(cx, prop.key)
-              : new StringSEXP(getObjKeyString(prop.key)),
-            handleFunctionExpression(cx, prop, null, true),
-            prop.kind,
-          ),
-          false,
-          false,
-        ),
+        new JSDefineObjMethodSEXP(
+          new EnvReadSEXP(obj$id),
+          prop.computed
+            ? IRIV2_RVAL(cx, prop.key)
+            : new StringSEXP(getObjKeyString(prop.key)),
+          handleFunctionExpression(cx, prop, null, true),
+          prop.kind,
+        )
       );
     } else if (isJS3ObjectProperty(prop)) {
       const keyStr = getObjKeyString(prop.key);
       if (!prop.computed && keyStr === "__proto__") {
         // ECMAScript 13.2.5.5: non-computed __proto__ sets the prototype
         cx.getCurrentBB().args.push(
-          new EnvWriteSEXP(
-            obj$id,
-            new JSSetPrototypeOfSEXP(
-              new EnvReadSEXP(obj$id),
-              IRIV2_RVAL(cx, prop.value),
-            ),
-            false,
-            false,
-          ),
+          new JSSetPrototypeOfSEXP(
+            new EnvReadSEXP(obj$id),
+            IRIV2_RVAL(cx, prop.value),
+          )
         );
       } else {
         // Regular property definition (including computed ["__proto__"])
         cx.getCurrentBB().args.push(
-          new EnvWriteSEXP(
-            obj$id,
-            new JSDefineObjPropSEXP(
-              new EnvReadSEXP(obj$id),
-              prop.computed
-                ? IRIV2_RVAL(cx, prop.key)
-                : new StringSEXP(getObjKeyString(prop.key)),
-              IRIV2_RVAL(cx, prop.value),
-            ),
-            false,
-            false,
-          ),
+          new JSDefineObjPropSEXP(
+            new EnvReadSEXP(obj$id),
+            prop.computed
+              ? IRIV2_RVAL(cx, prop.key)
+              : new StringSEXP(getObjKeyString(prop.key)),
+            IRIV2_RVAL(cx, prop.value),
+          )
         );
       }
     } else {
