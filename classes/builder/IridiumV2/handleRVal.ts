@@ -1301,11 +1301,12 @@ const createClassNonStaticPropInitClosure = (
         //   true,
         // );
         //
-        cx.getCurrentBB().args.push(new JSDefineObjPropSEXP(
+        const res = new JSDefineObjPropSEXP(
           new EnvReadSEXP("this"),
           new EnvReadSEXP(compProp),
           classItem.value ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value) : new EnvReadSEXP("undefined")
-        ));
+        );
+        cx.getCurrentBB().args.push(res);
 
       } else {
         // this.field = RVal
@@ -1315,11 +1316,12 @@ const createClassNonStaticPropInitClosure = (
         //   identifier(lookupField),
         //   false,
         // );
-        cx.getCurrentBB().args.push(new JSDefineObjPropSEXP(
+        const res = new JSDefineObjPropSEXP(
           new EnvReadSEXP("this"),
           new StringSEXP(lookupField),
           classItem.value ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value) : new EnvReadSEXP("undefined")
-        ));
+        );
+        cx.getCurrentBB().args.push(res);
 
       }
       // // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
