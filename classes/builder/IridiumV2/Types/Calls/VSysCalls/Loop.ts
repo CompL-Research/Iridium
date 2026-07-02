@@ -169,13 +169,26 @@ export class JSForOfStartSEXP extends IridiumSEXP {
  *
  * #### Structure
  *
+ * - `ARG(obj)`: The object instance {this is a placeholder to make data dependency explicit}
+ *
  * - `FLAG(AWAIT : boolean)`: true if this is a for await of loop otherwise false.
  *
  */
 export class JSForOfNextSEXP extends IridiumSEXP {
-  constructor(awaitVal: boolean = false) {
+  constructor(obj: IridiumSEXP, awaitVal: boolean = false) {
     super("JSForOfNext");
     this.setAWAIT(awaitVal);
+    if (obj.tag != "EnvRead") throw new Error("Expected EnvRead for ForOfNext ~ obj");
+    this.setObj(obj)
+  }
+
+  // Args
+  setObj(obj: IridiumSEXP) {
+    this.args[0] = obj;
+  }
+
+  getObj(): IridiumSEXP {
+    return this.args[0];
   }
 
   // Flags
