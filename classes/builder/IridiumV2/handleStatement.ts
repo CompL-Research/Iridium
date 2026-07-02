@@ -93,7 +93,6 @@ import {
   GotoSEXP,
   IfElseJumpSEXP,
   InvokeFinalizerSEXP,
-  IridiumSEXP,
   isLambdaSEXP,
   JSArraySEXP,
   JSCatchContextSEXP,
@@ -701,7 +700,7 @@ const handleIteratedLoops = (
     // [<loop-next>, <loop-done>] = JSForOfNextSEXP(RVal)
     cx.getCurrentBB().args.push(
       new CompoundAssnSEXP(
-        new JSForOfNextSEXP(stmt.await),
+        new JSForOfNextSEXP(new EnvReadSEXP(iterRVALName), stmt.await),
         [
           new EnvWriteSEXP("<loop-done>", new NullSEXP(), false, false),
           new EnvWriteSEXP("<loop-next>", new NullSEXP(), false, false),
@@ -1195,7 +1194,7 @@ const handleIfStatement = (cx: IRIDIUMV2, stmt: JS3IfStatement) => {
 export const handleArrayPatternAssignmentDecl = (
   cx: IRIDIUMV2,
   elements: JS3ArrayPattern_elements,
-  rValTarget: IridiumSEXP,
+  rValTarget: EnvReadSEXP,
   safeWrite: boolean = false,
 ) => {
   let for$of$loop$next = newTemp("next");
@@ -1226,7 +1225,7 @@ export const handleArrayPatternAssignmentDecl = (
     if (isIdentifier(e)) {
       cx.getCurrentBB().args.push(
         new CompoundAssnSEXP(
-          new JSForOfNextSEXP(),
+          new JSForOfNextSEXP(rValTarget),
           [
             new EnvWriteSEXP(for$of$loop$done, new NullSEXP(), false, false),
             new EnvWriteSEXP(for$of$loop$next, new NullSEXP(), false, false),
@@ -1317,7 +1316,7 @@ export const handleArrayPatternAssignmentDecl = (
 
       cx.getCurrentBB().args.push(
         new CompoundAssnSEXP(
-          new JSForOfNextSEXP(),
+          new JSForOfNextSEXP(rValTarget),
           [
             new EnvWriteSEXP(for$of$loop$done, new NullSEXP(), false, false),
             new EnvWriteSEXP(for$of$loop$next, new NullSEXP(), false, false),
@@ -1452,10 +1451,14 @@ const handleVariableDeclaration = (
         );
       }
     }
+
+    let rValSimp = newTemp("rValSimp");
+    cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rValTarget, "JSLET", false));
+
     handleArrayPatternAssignmentDecl(
       cx,
       declaration.id.elements,
-      rValTarget,
+      new EnvReadSEXP(rValSimp),
       true,
     );
 

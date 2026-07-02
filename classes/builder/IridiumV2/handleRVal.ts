@@ -430,7 +430,7 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
 export const handleArrayPatternAssignmentExpr = (
   cx: IRIDIUMV2,
   elements: Array<null | PatternLike>,
-  rValTarget: IridiumSEXP,
+  rValTarget: EnvReadSEXP,
 ) => {
   const currentContext = cx.getCurrentContext();
   const currentBB = currentContext.getCurrentBB();
@@ -500,7 +500,7 @@ export const handleArrayPatternAssignmentExpr = (
     const stepIterator = () => {
       cx.getCurrentBB().args.push(
         new CompoundAssnSEXP(
-          new JSForOfNextSEXP(),
+          new JSForOfNextSEXP(rValTarget),
           [
             new EnvWriteSEXP(for$of$loop$done, new NullSEXP(), false, false),
             new EnvWriteSEXP(for$of$loop$next, new NullSEXP(), false, false),
@@ -612,7 +612,7 @@ export const handleArrayPatternAssignmentExpr = (
         .getIDX();
       cx.getCurrentBB().args.push(
         new CompoundAssnSEXP(
-          new JSForOfNextSEXP(),
+          new JSForOfNextSEXP(rValTarget),
           [
             new EnvWriteSEXP(for$of$loop$done, new NullSEXP(), false, false),
             new EnvWriteSEXP(for$of$loop$next, new NullSEXP(), false, false),
@@ -2286,7 +2286,7 @@ const handleAssignmentExpression = (
     let rValSimp = newTemp("rValSimp");
     cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
 
-    handleArrayPatternAssignmentExpr(cx, left.elements, rv);
+    handleArrayPatternAssignmentExpr(cx, left.elements, new EnvReadSEXP(rValSimp));
 
     return new EnvReadSEXP(rValSimp);
   }
