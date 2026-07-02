@@ -273,9 +273,9 @@ export class JSTemplateSEXP extends IridiumSEXP {
  * - `FLAG(IridiumPrimitive : string)`: a string.
  *
  */
-export class JSBitIntSEXP extends IridiumSEXP {
+export class JSBigIntSEXP extends IridiumSEXP {
   constructor(str: string) {
-    super("BitInt");
+    super("JSBigInt");
     this.flags.push(["IridiumPrimitive", str]);
   }
 
@@ -528,7 +528,7 @@ export function isJSPrivateSEXP(o: any): o is JSPrivateSEXP {
 /**
  * @hidden
  */
-export function isJSBitIntSEXP(o: any): o is JSBitIntSEXP {
+export function isJSBitIntSEXP(o: any): o is JSBigIntSEXP {
   // @ts-ignore
   return o.tag === "BitInt";
 }

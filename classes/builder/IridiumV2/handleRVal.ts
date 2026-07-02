@@ -135,7 +135,7 @@ import {
   JSADDBRANDSEXP,
   JSAppendSEXP,
   JSArraySEXP,
-  JSBitIntSEXP,
+  JSBigIntSEXP,
   JSCheckConstructorSEXP,
   JSClassSEXP,
   JSComputedFieldReadSEXP,
@@ -258,7 +258,7 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   if (init.type === "DecimalLiteral") {
     throw new Error("IRIV2 TODO: Decimal Literal");
   } else if (init.type === "BigIntLiteral") {
-    return new JSBitIntSEXP(init.value);
+    return new JSBigIntSEXP(init.value);
   } else if (init.type === "StringLiteral") {
     return new StringSEXP(init.value);
   } else if (init.type === "NumericLiteral") {
@@ -2888,15 +2888,14 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
         );
       } else {
         // Regular property definition (including computed ["__proto__"])
-        cx.getCurrentBB().args.push(
-          new JSDefineObjPropSEXP(
-            new EnvReadSEXP(obj$id),
-            prop.computed
-              ? IRIV2_RVAL(cx, prop.key)
-              : new StringSEXP(getObjKeyString(prop.key)),
-            IRIV2_RVAL(cx, prop.value),
-          )
-        );
+        const res = new JSDefineObjPropSEXP(
+          new EnvReadSEXP(obj$id),
+          prop.computed
+            ? IRIV2_RVAL(cx, prop.key)
+            : new StringSEXP(getObjKeyString(prop.key)),
+          IRIV2_RVAL(cx, prop.value),
+        )
+        cx.getCurrentBB().args.push(res);
       }
     } else {
 

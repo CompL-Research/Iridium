@@ -1,4 +1,4 @@
-/** Generated: 2026-07-02 17:01:33 */
+/** Generated: 2026-07-03 00:01:43 */
 
 export enum IriTag {
   File = 0,
@@ -84,7 +84,7 @@ export enum IriTag {
   UNOPDelMemberExpr = 80,
   UNOPDelVar = 81,
   JSTemplate = 82,
-  BitInt = 83,
+  JSBigInt = 83,
   Await = 84,
   Yield = 85,
   JSInitialYield = 86,
