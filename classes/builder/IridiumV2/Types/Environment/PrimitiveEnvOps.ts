@@ -100,13 +100,14 @@ export type EnvWriteFlags = "SAFE" | "THISINIT" | "SLOPPY";
  */
 export class EnvWriteSEXP extends IridiumSEXP {
   lval: string
-  constructor(lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean) {
+  constructor(lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean, constInit: boolean = false) {
     super("EnvWrite");
     this.lval = lval
     this.setLValTarget(new ResolveEnvBindingSEXP(lval));
     this.setRVal(rval);
     this.setSafe(safe);
     this.setThisInit(thisInit);
+    this.setCINIT(constInit);
   }
 
   // Args
@@ -149,6 +150,14 @@ export class EnvWriteSEXP extends IridiumSEXP {
 
   isSafe(): boolean {
     return this.getFlagBoolean("SAFE")
+  }
+
+  setCINIT(val: boolean) {
+    this.setFlag("CINIT", val);
+  }
+
+  isCINIT(): boolean {
+    return this.getFlagBoolean("CINIT")
   }
 
   toString(space?: number): string {

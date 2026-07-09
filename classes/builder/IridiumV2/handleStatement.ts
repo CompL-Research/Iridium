@@ -1237,8 +1237,9 @@ export const handleArrayPatternAssignmentDecl = (
         new EnvWriteSEXP(
           e.name,
           new EnvReadSEXP(for$of$loop$next),
-          safeWrite,
           false,
+          false,
+          safeWrite
         ),
       );
     } else if (isJS3RestElement(e)) {
@@ -1355,8 +1356,9 @@ export const handleArrayPatternAssignmentDecl = (
         new EnvWriteSEXP(
           e.argument.name,
           new EnvReadSEXP(tempres),
-          safeWrite,
           false,
+          false,
+          safeWrite
         ),
       );
     }

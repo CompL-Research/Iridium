@@ -800,7 +800,7 @@ export const handleObjectPatternAssignmentExpr = (
       }
 
       cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(bindingName, rVal, safeWrite, false),
+        new EnvWriteSEXP(bindingName, rVal, false, false, safeWrite),
       );
     }
   }
@@ -826,8 +826,9 @@ export const handleObjectPatternAssignmentExpr = (
         // @ts-expect-error
         restElement.argument.name,
         new JSCopyDataPropertiesSEXP(exc_obj, toObjRes, fin_obj),
-        safeWrite,
-        false
+        false,
+        false,
+        safeWrite
       )
     );
 
@@ -2061,7 +2062,7 @@ const handleClassExpression = (
 
   if (name !== "") {
     cx.getCurrentBB().args.push(
-      new EnvWriteSEXP(name, new EnvReadSEXP(finalClassRes), true, false),
+      new EnvWriteSEXP(name, new EnvReadSEXP(finalClassRes), false, false, true),
     );
 
     if (!oldContext)
