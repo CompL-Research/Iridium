@@ -1987,7 +1987,7 @@ const handleFunctionDeclaration = (
       name: "<super_obj>",
       type: "JSCONST",
       value: 8,
-      initializer: new ListSEXP([new ResolveEnvBindingSEXP("<home_object>")]),
+      initializer: new ListSEXP([new EnvReadSEXP("<home_object>")]),
     },
   ];
 
