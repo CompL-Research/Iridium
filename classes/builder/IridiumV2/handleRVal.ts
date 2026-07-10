@@ -1275,7 +1275,7 @@ const createClassNonStaticPropInitClosure = (
       "<super_obj>",
       "JSCONST",
       8,
-      new ListSEXP([new ResolveEnvBindingSEXP("<home_object>")]),
+      new ListSEXP([new EnvReadSEXP("<home_object>")]),
     ),
   );
   // if (hasSuper) {
@@ -1303,7 +1303,7 @@ const createClassNonStaticPropInitClosure = (
         const res = new JSDefineObjPropSEXP(
           new EnvReadSEXP("this"),
           new EnvReadSEXP(compProp),
-          classItem.value ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value) : new EnvReadSEXP("undefined")
+          classItem.value ? new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getName()) : new EnvReadSEXP("undefined")
         );
         cx.getCurrentBB().args.push(res);
 
@@ -1318,7 +1318,7 @@ const createClassNonStaticPropInitClosure = (
         const res = new JSDefineObjPropSEXP(
           new EnvReadSEXP("this"),
           new StringSEXP(lookupField),
-          classItem.value ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value) : new EnvReadSEXP("undefined")
+          classItem.value ? new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getName()) : new EnvReadSEXP("undefined")
         );
         cx.getCurrentBB().args.push(res);
 
@@ -1431,7 +1431,7 @@ const createClassStaticPropInitClosure = (
       "<super_obj>",
       "JSCONST",
       8,
-      new ListSEXP([new ResolveEnvBindingSEXP("<home_object>")]),
+      new ListSEXP([new EnvReadSEXP("<home_object>")]),
     ),
   );
   // }
@@ -1582,7 +1582,7 @@ const createClassConstructorClosure = (
       name: "<super_obj>",
       type: "JSCONST",
       value: 8,
-      initializer: new ListSEXP([new ResolveEnvBindingSEXP("<home_object>")]),
+      initializer: new ListSEXP([new EnvReadSEXP("<home_object>")]),
     },
   ];
 
@@ -1602,7 +1602,7 @@ const createClassConstructorClosure = (
       type: "JSCONST",
       value: 7,
       initializer: new ListSEXP([
-        new ResolveEnvBindingSEXP("this.active_func"),
+        new EnvReadSEXP("this.active_func"),
       ]),
     });
   } else {
@@ -2359,7 +2359,7 @@ const handleFunctionExpression = (
       name: "<super_obj>",
       type: "JSCONST",
       value: 8,
-      initializer: new ListSEXP([new ResolveEnvBindingSEXP("<home_object>")]),
+      initializer: new ListSEXP([new EnvReadSEXP("<home_object>")]),
     },
   ];
 
