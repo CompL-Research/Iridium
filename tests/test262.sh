@@ -44,7 +44,7 @@ for test in "${TESTS[@]}"; do
 
   else
     outFile="failure_summary_iri_${test//\//_}"
-    NO_OPT=1 node run.cjs "$test/" --only-diff --ignore-with --ignore-name --iri 2> $outFile
+    NO_OPT=1 node run.cjs "$test" --only-diff --ignore-with --ignore-name --iri 2> $outFile
 
     # rm -rf "failing_tests_iri_${test//\//_}"
     # mv failing_tests "failing_tests_iri_${test//\//_}"
