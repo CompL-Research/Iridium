@@ -1,4 +1,4 @@
-/** Generated: 2026-07-10 16:00:55 */
+/** Generated: 2026-07-11 17:47:06 */
 
 export enum IriTag {
   File = 0,
@@ -104,6 +104,7 @@ export enum IriTag {
   JSCTX = 100,
   QJSModuleInit = 101,
   CompoundAssn = 102,
+  ThisINIT = 103,
 }
 
 export enum IriFlag {
