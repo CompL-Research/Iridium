@@ -90,6 +90,7 @@ async function main() {
     failBothEMismatch: [],
     overCompliant: [],
     regression: [],
+    timeoutRegression: [],
     ignored: [],
   };
 
@@ -162,7 +163,11 @@ async function main() {
           }
         } else if (isBaselinePass && !isIridiumPass) {
           failCount++;
-          stats.regression.push(t.file);
+          if (iridium.errorType === "TimeoutError") {
+            stats.timeoutRegression.push(t.file);
+          } else {
+            stats.regression.push(t.file);
+          }
           if (saveArtifacts)
             await worker.saveArtifacts(t, baseline, iridium, "REGR");
         } else if (!isBaselinePass && isIridiumPass) {
@@ -224,6 +229,9 @@ async function main() {
   );
   console.log(
     `${pc.red("✖ True Regressions:")}           ${stats.regression.length}`,
+  );
+  console.log(
+    `${pc.red("✖ Timeout Regressions:")}        ${stats.timeoutRegression.length}`,
   );
   console.log(
     `${pc.dim("⊘ Ignored (Compile Errors):")}    ${stats.ignored.length}`,
