@@ -3283,7 +3283,6 @@ export function handleArrayExpression(
       // Specializations
       // Identifier | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | RegExpLiteral | ThisExpression | BigIntLiteral | DecimalLiteral
       else if (
-        isIdentifier(_arrProp) ||
         isStringLiteral(_arrProp) ||
         isNumericLiteral(_arrProp) ||
         isNullLiteral(_arrProp) ||
