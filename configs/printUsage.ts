@@ -7,6 +7,7 @@ import commandLineArgs from "command-line-args";
 import commandLineUsage from "command-line-usage";
 
 import authors from "../Authors";
+import { PASS_FLAGS_SPEC } from "../classes/builder/IridiumV2/ForgePasses";
 
 //
 // Utility
@@ -152,6 +153,25 @@ export const js3UsageInfo: UsageSectionsArray = [
 // === IRIDIUM Related ===
 //
 
+const kebabCase = (name: string) =>
+  name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+
+const PASS_FLAG_OPTIONS = PASS_FLAGS_SPEC.flatMap((f) => {
+  const flagName = kebabCase(f.name);
+  return [
+    {
+      name: flagName,
+      description: `${f.desc} (default: ${f.default}).`,
+      type: Boolean,
+    },
+    {
+      name: `no-${flagName}`,
+      description: `Disable: ${f.desc}.`,
+      type: Boolean,
+    },
+  ];
+});
+
 const IRI_OPTIONS = [
   OPT_OUT,
   OPT_SRC_TYPE,
@@ -160,6 +180,7 @@ const IRI_OPTIONS = [
   OPT_DUMP_IRI_X(false),
   OPT_DUMP_IRI(false),
   OPT_DUMP_IRI_OPT(false),
+  ...PASS_FLAG_OPTIONS,
 ];
 
 export const iriUsageInfo: UsageSectionsArray = [
@@ -202,6 +223,15 @@ export const handleOptions = (options: any) => {
   }
   if (OPT_DUMP_IRI_OPT(false).name in options) {
     debugConfig.dump.irio = options[OPT_DUMP_IRI_OPT(false).name];
+  }
+
+  for (const f of PASS_FLAGS_SPEC) {
+    const flagName = kebabCase(f.name);
+    if (options[`no-${flagName}`]) {
+      debugConfig.passFlags[f.name] = false;
+    } else if (options[flagName]) {
+      debugConfig.passFlags[f.name] = true;
+    }
   }
 };
 

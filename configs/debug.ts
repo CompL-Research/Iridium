@@ -1,4 +1,8 @@
 import pino from "pino";
+import {
+  DEFAULT_PASS_FLAGS,
+  PassFlags,
+} from "../classes/builder/IridiumV2/ForgePasses";
 
 export const logger = pino();
 
@@ -14,6 +18,7 @@ const config: {
     irio: boolean;
   };
   versionNumber: string;
+  passFlags: Required<PassFlags>;
 } = {
   operationMode: "js3",
   sourceType: "unambiguous",
@@ -25,7 +30,8 @@ const config: {
     iri: false,
     irio: false,
   },
-  versionNumber: ""
+  versionNumber: "",
+  passFlags: { ...DEFAULT_PASS_FLAGS },
 };
 
 

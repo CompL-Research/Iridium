@@ -18,6 +18,7 @@ import {
 } from "./Types/index";
 
 import iridiumForge from "#forge";
+import debugConfig from "#debugConfig";
 import { tick, tock } from "../../debugger/IRIPerf";
 import { ProjectFile } from "../../ProjectFile";
 
@@ -405,7 +406,7 @@ export class IRIDIUMV2 {
         serializedBuildContext,
         tick,
         tock,
-        true,
+        debugConfig.passFlags,
       );
       if (!res) throw new Error("Forge compile failed");
       this.projectFile.payload.iri = res.toString();
