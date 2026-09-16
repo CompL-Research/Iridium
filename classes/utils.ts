@@ -21,8 +21,15 @@ export const getIridiumUnop = (op: string, val: IridiumSEXP) => {
   }
 };
 
-const PrimitiveArithOP = ["+", "-", "/", "%", "*"];
-const PrimitiveBitwiseOP = ["&", "|", "^", "<<", ">>"];
+//
+// JSBinops: "==" | "===" | "!=" | "!==" | "in" | "instanceof" | "|>";
+//
+// Traditional Binops have been mapped to the following in Prakriti:
+//   1. NAC_HandleBinop: "**", "*",  "/", "%", "+", "-", "<<", ">>", ">>>", "&", "^", "|"
+//   2. NAC_HandleRelop: "<", ">", "<=", ">="
+//
+const PrimitiveArithOP = ["+", "-", "/", "%", "*", "**"];
+const PrimitiveBitwiseOP = ["&", "|", "^", "<<", ">>", ">>>"];
 const PrimitiveComparisonOP = [">", "<", ">=", "<="];
 
 const isPrimitiveBinop = (b: string) => {
