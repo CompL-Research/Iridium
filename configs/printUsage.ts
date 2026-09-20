@@ -120,13 +120,6 @@ const OPT_DUMP_IRI = (defVal: boolean) => ({
   defaultValue: defVal,
 });
 
-const OPT_DUMP_IRI_OPT = (defVal: boolean) => ({
-  name: "dump-iri-opt",
-  description: "Dump iri after each Optimization pass ( *.opt.iri ).",
-  type: Boolean,
-  defaultValue: defVal,
-});
-
 //
 // === JS3 Related ===
 //
@@ -179,7 +172,6 @@ const IRI_OPTIONS = [
   OPT_DUMP_JS3(false),
   OPT_DUMP_IRI_X(false),
   OPT_DUMP_IRI(false),
-  OPT_DUMP_IRI_OPT(false),
   ...PASS_FLAG_OPTIONS,
 ];
 
@@ -220,9 +212,6 @@ export const handleOptions = (options: any) => {
   }
   if (OPT_DUMP_IRI(false).name in options) {
     debugConfig.dump.iri = options[OPT_DUMP_IRI(false).name];
-  }
-  if (OPT_DUMP_IRI_OPT(false).name in options) {
-    debugConfig.dump.irio = options[OPT_DUMP_IRI_OPT(false).name];
   }
 
   for (const f of PASS_FLAGS_SPEC) {

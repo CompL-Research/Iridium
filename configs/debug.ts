@@ -15,7 +15,6 @@ const config: {
     js3: boolean;
     irix: boolean;
     iri: boolean;
-    irio: boolean;
   };
   versionNumber: string;
   passFlags: Required<PassFlags>;
@@ -28,11 +27,9 @@ const config: {
     js3: false,
     irix: false,
     iri: false,
-    irio: false,
   },
   versionNumber: "",
   passFlags: { ...DEFAULT_PASS_FLAGS },
 };
-
 
 export default config;
