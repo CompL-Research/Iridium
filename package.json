@@ -6,11 +6,11 @@
   "scripts": {
     "build": "rollup -c",
     "start": "node ./dist/iridium.js",
-    "knip": "knip"
+    "gen:citation": "tsx scripts/genCitation.ts"
   },
   "keywords": [],
   "author": "mee",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "description": "",
   "dependencies": {
     "@babel/preset-env": "^7.25.3",

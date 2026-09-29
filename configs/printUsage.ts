@@ -6,7 +6,7 @@ import commandLineArgs from "command-line-args";
 // @ts-expect-error
 import commandLineUsage from "command-line-usage";
 
-import authors from "../Authors";
+import authors, { type Author, type AuthorRole, fullName } from "../Authors";
 import { PASS_FLAGS_SPEC } from "../classes/builder/IridiumV2/ForgePasses";
 
 //
@@ -266,6 +266,15 @@ export function printIRIUsage(header: string) {
   console.log(usage);
 }
 
+const displayName = (a: Author): string =>
+  a.honorific ? `${a.honorific} ${fullName(a)}` : fullName(a);
+
+const namesWithRole = (role: AuthorRole): string =>
+  authors
+    .filter((a) => a.role === role)
+    .map(displayName)
+    .join(", ");
+
 export function printAuthorInfo() {
   const IndiaFlag =
     // --- SAFFRON (Top 10 lines) ---
@@ -321,13 +330,13 @@ export function printAuthorInfo() {
   console.log(
     chalk.hex("#00ff41")("└── ") +
       chalk.dim("Lead:     ") +
-      chalk.magenta("Meetesh Kalpesh Mehta"),
+      chalk.magenta(namesWithRole("Maintainer")),
   );
 
   console.log(
     chalk.hex("#00ff41")("└── ") +
       chalk.dim("Advisor:  ") +
-      chalk.magenta("Dr Manas Thakur"),
+      chalk.magenta(namesWithRole("Advisor")),
   );
   console.log(
     `\n${chalk.bgWhite.black.bold(" CORE CONCEPT ")} ${chalk.italic("Sounder Static Analysis/Optimization for JavaScript Programs.")}`,
@@ -341,16 +350,16 @@ export function printAuthorInfo() {
 
   const tableData: Record<string, AuthorInfo> = {};
 
-  authors.forEach(([name, affiliation, email], index) => {
-    const role = index === 0 ? "Maintainer" : "Contributor";
+  authors.forEach((author) => {
     // We use the name as the key for the object
-    tableData[name] = {
-      Role: role,
-      Affiliation: affiliation,
-      Email: email ?? "N/A",
+    tableData[fullName(author)] = {
+      Role: author.role,
+      Affiliation: author.affiliation,
+      Email: author.email ?? "N/A",
     };
   });
   console.table(tableData);
   console.log(`\nTotal Contributors: ${authors.length}`);
-  console.log(`Primary Contact: ${authors[0][0]} <${authors[0][2]}>\n`);
+  const contact = authors.find((a) => a.role === "Maintainer") ?? authors[0];
+  console.log(`Primary Contact: ${fullName(contact)} <${contact.email}>\n`);
 }

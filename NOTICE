@@ -1,0 +1,19 @@
+Iridium
+Copyright 2024-2026 The Iridium Authors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+The list of authors is maintained in Authors.ts.
+
+Third-party content
+-------------------
+
+tests/benchmarks/ contains third-party JavaScript benchmark programs
+(including SunSpider, Kraken, Octane and V8 benchmarks) used for evaluation.
+They are not covered by the Apache License; each file remains under the
+license and copyright notice stated in its own header.
+
+The following git submodules are separate projects, licensed separately:
+
+  externalDeps/Iridium-Forge   Apache License 2.0
+  externalDeps/quickjs         MIT License (fork of QuickJS)
+  tests/test262                BSD License (Ecma International / tc39)
