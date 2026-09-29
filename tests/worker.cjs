@@ -3,10 +3,12 @@ const { spawnSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-const EXEC_BIN = path.resolve("../external/Iridium-Quickjs/build/qjs_new");
-const IRI_PATH = path.resolve("../");
-const ARTIFACT_DIR = path.resolve("./failing_tests");
-const TEST262_PATH = path.resolve("./test262");
+const EXEC_BIN = path.resolve(__dirname, "../external/Iridium-Quickjs/build/qjs_new");
+const IRI_PATH = path.resolve(__dirname, "..");
+const IRI_BIN = process.env.IRIDIUM_BIN
+  ? path.resolve(process.env.IRIDIUM_BIN)
+  : path.join(IRI_PATH, "dist/iridium.js");
+const ARTIFACT_DIR = path.resolve(__dirname, "./failing_tests");
 
 const TIMEOUT = 30000; // 30 Seconds Timeout
 
@@ -82,8 +84,11 @@ module.exports = {
         // Filter out empty strings if it's a module
         spawnArgs = [isModule ? "-m" : "-C", tempFile].filter(Boolean);
       } else {
-        cmd = "./iridium";
+        // spawnSync has no shell, so run node itself with the bundle as an arg
+        cmd = process.execPath;
         spawnArgs = [
+          "--max-old-space-size=8192",
+          IRI_BIN,
           mode === "--iri" ? "iri" : "js3",
           "-r",
           "-s",
@@ -105,7 +110,7 @@ module.exports = {
         // Handle system-level errors (like timeout or binary not found)
         result.status = "FAIL";
         if (spawnResult.error.code === "ETIMEDOUT") {
-          result.message = "TIMEOUT: Process took longer than 15s";
+          result.message = `TIMEOUT: Process took longer than ${TIMEOUT / 1000}s`;
           result.errorType = "TimeoutError";
         } else {
           result.message = spawnResult.error.message;

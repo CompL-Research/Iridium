@@ -23,6 +23,16 @@ if [ "$js3_passed" = false ] && [ "$iri_passed" = false ]; then
     exit 1
 fi
 
+# Run from tests/ regardless of where the script is invoked from
+cd "$(dirname "$0")"
+
+# Build the bundle (dist/iridium.js + Forge addon) that worker.cjs runs
+(cd .. && npm run build)
+if [ ! -f ../dist/iridium.js ]; then
+    echo "Error: build did not produce dist/iridium.js"
+    exit 1
+fi
+
 # Test
 TESTS=(
   "test/language"
