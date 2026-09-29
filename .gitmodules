@@ -1,9 +1,3 @@
-[submodule "externalDeps/Iridium-Forge"]
-	path = externalDeps/Iridium-Forge
-	url = ../Iridium-Forge.git
-[submodule "externalDeps/Iridium-Quickjs"]
-	path = externalDeps/quickjs
-	url = ../Iridium-Quickjs.git
 [submodule "tests/test262"]
 	path = tests/test262
 	url = git@github.com:tc39/test262.git
