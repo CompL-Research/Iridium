@@ -1,4 +1,10 @@
 import babel, { TransformOptions } from "@babel/core";
+// Presets/plugins are imported rather than named by string so rollup bundles them.
+import presetEnv from "@babel/preset-env";
+import presetTypescript from "@babel/preset-typescript";
+import presetFlow from "@babel/preset-flow";
+import presetReact from "@babel/preset-react";
+import pluginSyntaxJsx from "@babel/plugin-syntax-jsx";
 
 import t from "@babel/types";
 import fs from "fs";
@@ -6,10 +12,10 @@ import path from "path";
 import { JS3File } from "./builder/JS3Helpers/JS3Types";
 import { FileSEXP } from "./builder/IridiumV2/Types";
 
-const presets: Array<Array<string | object>> = [
-  ["@babel/preset-env", { targets: "last 2 Chrome versions", modules: false }],
+const presets: Array<Array<any>> = [
+  [presetEnv, { targets: "last 2 Chrome versions", modules: false }],
 
-  ["@babel/preset-typescript"],
+  [presetTypescript],
 ];
 
 export class ProjectFile {
@@ -88,19 +94,19 @@ export class ProjectFile {
     const currPresets = [...presets];
 
     if (process.env.PRESET_FLOW) {
-      currPresets.push(["@babel/preset-flow"]);
+      currPresets.push([presetFlow]);
     }
 
     if (process.env.PRESET_REACT) {
       currPresets.push([
-        "@babel/preset-react",
+        presetReact,
         {
           runtime: "classic",
           pragma: "###JSX###",
           pragmaFrag: "###JSXFRAG###",
         },
       ]);
-      plugins = ["@babel/plugin-syntax-jsx", ...plugins];
+      plugins = [pluginSyntaxJsx, ...plugins];
     }
 
     const lightOpts: TransformOptions = {
@@ -114,7 +120,7 @@ export class ProjectFile {
       babelrc: false,
       browserslistConfigFile: false,
       sourceType: sourceType,
-      presets: presets,
+      presets: currPresets,
       plugins: plugins,
     };
 
