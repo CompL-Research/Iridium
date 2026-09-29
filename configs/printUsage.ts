@@ -106,6 +106,14 @@ const OPT_DUMP_JS3 = (defVal: boolean) => ({
   defaultValue: defVal,
 });
 
+const OPT_EMIT_RUNNABLE_JS3 = (defVal: boolean) => ({
+  name: "emit-runnable-js3",
+  description:
+    "By default temporaries are prefixed '~' so that they never collide with user variabled, this option changes the prefix to 't' instead.",
+  type: Boolean,
+  defaultValue: defVal,
+});
+
 const OPT_DUMP_IRI_X = (defVal: boolean) => ({
   name: "dump-iri-x",
   description: "Dump iri after Structural Reduction pass ( *.iri.x ).",
@@ -129,6 +137,7 @@ const JS3_OPTIONS = [
   OPT_SRC_TYPE,
   OPT_RUN_AFTER_COMPILE(false),
   OPT_DUMP_JS3(false),
+  OPT_EMIT_RUNNABLE_JS3(false),
 ];
 
 export const js3UsageInfo: UsageSectionsArray = [
@@ -170,6 +179,7 @@ const IRI_OPTIONS = [
   OPT_SRC_TYPE,
   OPT_RUN_AFTER_COMPILE(false),
   OPT_DUMP_JS3(false),
+  OPT_EMIT_RUNNABLE_JS3(false),
   OPT_DUMP_IRI_X(false),
   OPT_DUMP_IRI(false),
   ...PASS_FLAG_OPTIONS,
@@ -206,6 +216,9 @@ export const handleOptions = (options: any) => {
 
   if (OPT_DUMP_JS3(false).name in options) {
     debugConfig.dump.js3 = options[OPT_DUMP_JS3(false).name];
+  }
+  if (OPT_EMIT_RUNNABLE_JS3(false).name in options) {
+    debugConfig.emitRunnableJS3 = options[OPT_EMIT_RUNNABLE_JS3(false).name];
   }
   if (OPT_DUMP_IRI_X(false).name in options) {
     debugConfig.dump.irix = options[OPT_DUMP_IRI_X(false).name];

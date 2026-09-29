@@ -10,6 +10,7 @@ const config: {
   operationMode: "js3" | "iri";
   sourceType: "unambiguous" | "module" | "script";
   rac: boolean;
+  emitRunnableJS3: boolean;
   dump: {
     out: string;
     js3: boolean;
@@ -22,6 +23,7 @@ const config: {
   operationMode: "js3",
   sourceType: "unambiguous",
   rac: false,
+  emitRunnableJS3: false,
   dump: {
     out: "./",
     js3: false,
