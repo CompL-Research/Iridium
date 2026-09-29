@@ -14,6 +14,6 @@ license and copyright notice stated in its own header.
 
 The following git submodules are separate projects, licensed separately:
 
-  externalDeps/Iridium-Forge   Apache License 2.0
-  externalDeps/quickjs         MIT License (fork of QuickJS)
+  external/Iridium-Forge   Apache License 2.0
+  external/quickjs         MIT License (fork of QuickJS)
   tests/test262                BSD License (Ecma International / tc39)

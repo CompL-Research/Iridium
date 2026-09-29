@@ -13,7 +13,7 @@
     "paths": {
       "#debugConfig": ["./configs/debug.ts"],
       "#utils": ["./classes/utils.ts"],
-      "#forge": ["./externalDeps/Iridium-Forge/forge.ts"]
+      "#forge": ["./external/Iridium-Forge/forge.ts"]
     }
   },
   "include": ["iridium.ts", "configs/*.ts", "classes/**/*.ts"],

@@ -69,7 +69,7 @@ function js3(filePath: string): ProjectFile {
         tock("save-to-disk");
         tick("execute");
         const output: string = execSync(
-          `./externalDeps/quickjs/build/qjs_new ${tempFile}`,
+          `./external/Iridium-Quickjs/build/qjs_new ${tempFile}`,
           { encoding: "utf-8" },
         );
         console.log(output);
@@ -128,7 +128,7 @@ function iri(filePath: string): ProjectFile {
         tock("save-to-disk");
         tick("execute");
         const output: string = execSync(
-          `./externalDeps/quickjs/build/qjs_new -X ${tempFile}`,
+          `./external/Iridium-Quickjs/build/qjs_new -X ${tempFile}`,
           { encoding: "utf-8" },
         );
         console.log(output);

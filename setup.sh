@@ -1,42 +1,37 @@
 #!/bin/bash
 
-# Define NVM_DIR and source nvm.sh to make nvm available in this script session
-export NVM_DIR="$HOME/.nvm"
+set -e
 
-# 1. Install/Load NVM & Node
-# Check if nvm is installed, if not, install it.
-if [ ! -s "$NVM_DIR/nvm.sh" ]; then
-    echo "[NVM not found. Installing...]"
-    # Ensure curl is installed before trying to use it
-    which curl &>/dev/null || sudo apt-get update && sudo apt-get install -y curl
-    # Download and run the nvm installer script
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+# Node + npm are required
+if command -v node &>/dev/null && command -v npm &>/dev/null; then 
+  echo "[Node + npm] found";
+else 
+  echo "[Node + npm] missing...";
+  exit 1;
 fi
 
-# Source nvm.sh to load nvm into the current script session
-\. "$NVM_DIR/nvm.sh"
-echo "[NVM is loaded.]"
+# Get Forge and QuickJS
+git submodule update --init external/Iridium-Forge/
+git submodule update --init external/Iridium-Quickjs/
 
-# Now, use nvm to install the latest Long-Term Support (LTS) version of Node.js if it's not already installed.
-if ! nvm list | grep -q "lts"; then
-    echo "[Node.js LTS not found. Installing...]"
-    nvm install --lts
-fi
+# Build Forge
+pushd external/Iridium-Forge > /dev/null
+npm install
+npm run build
+popd > /dev/null
 
-# Ensure the LTS version is being used for this session
-nvm use --lts
+# Build QuickJS 
+pushd external/Iridium-Quickjs > /dev/null
+make debug 
+popd > /dev/null
 
-# 2. Install Dependencies
-echo "[Installing project dependencies with npm...]"
+# Install Iridium Deps 
 npm install
 
-# 3. Create Binary
-echo "[Creating 'iridium' executable...]"
 wd=$(pwd)
 iridium=$(
     cat <<-END
 #!/bin/bash
-# The executable also needs to load nvm to find the correct node version
 export NVM_DIR="\$HOME/.nvm"
 [ -s "\$NVM_DIR/nvm.sh" ] && \. "\$NVM_DIR/nvm.sh"
 exec node --max-old-space-size=8192 --import=tsx $wd/iridium.ts \$*
@@ -47,8 +42,4 @@ END
 echo "$iridium" >iridium
 chmod +x iridium
 
-echo "[Setup complete! Attempting to run './iridium help'...]"
-./iridium help
-
-echo -e "\n✅ Setup finished successfully!"
-echo "You can now run the program using './iridium <command>'."
+./iridium

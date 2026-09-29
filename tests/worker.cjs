@@ -3,8 +3,8 @@ const { spawnSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-const EXEC_BIN = path.resolve("../externalDeps/quickjs/build/qjs_new");
-const IRI_PATH = "/root/Iridium";
+const EXEC_BIN = path.resolve("../external/Iridium-Quickjs/build/qjs_new");
+const IRI_PATH = path.resolve("../");
 const ARTIFACT_DIR = path.resolve("./failing_tests");
 const TEST262_PATH = path.resolve("./test262");
 
