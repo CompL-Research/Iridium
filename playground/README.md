@@ -1,3 +1,0 @@
-# Iridium Playground
-
-TODO

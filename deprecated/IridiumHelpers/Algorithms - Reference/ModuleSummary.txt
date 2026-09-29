@@ -1,6 +1,0 @@
-1. Root file is analyzed flow-value-context sensitively.
-
-  -- Calls to external functions return UnknownObj
-  -- References to dummy objects are field sensitive to (DUMMY_LEVEL = (N = 3))
-
-  -- After PTA is completed for a given file, we identify the exported 
