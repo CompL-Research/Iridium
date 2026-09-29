@@ -1,0 +1,21 @@
+/* Iridium colour theme, built around #613659 (plum). */
+
+:root {
+  --md-primary-fg-color: #613659;
+  --md-primary-fg-color--light: #834978;
+  --md-primary-fg-color--dark: #42243c;
+  --md-primary-bg-color: #ffffff;
+  --md-primary-bg-color--light: #ffffffb3;
+
+  --md-accent-fg-color: #a83894;
+  --md-accent-fg-color--transparent: #a838941a;
+}
+
+/* Dark mode: plum-tinted background, lighter tints for text on dark. */
+[data-md-color-scheme="slate"] {
+  --md-hue: 311;
+
+  --md-typeset-a-color: #e0aed7;
+  --md-accent-fg-color: #f0c2e7;
+  --md-accent-fg-color--transparent: #f0c2e71a;
+}

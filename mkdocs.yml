@@ -1,0 +1,91 @@
+site_name: Iridium
+site_description: A static analysis framework for JavaScript
+site_url: https://compl-research.github.io/Iridium/
+repo_url: https://github.com/compl-research/Iridium
+repo_name: compl-research/Iridium
+edit_uri: edit/main/website/
+
+docs_dir: website
+site_dir: site
+
+extra_css:
+  - stylesheets/extra.css
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: [website]
+      check_paths: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quickstart: getting-started/quickstart.md
+      - CLI reference: getting-started/cli.md
+  - Concepts:
+      - Architecture: concepts/architecture.md
+      - JS3: concepts/js3.md
+      - The Iridium IR: concepts/ir.md
+      - Iridium for Soot/LLVM users: concepts/for-soot-llvm-users.md
+  - Forge:
+      - forge/index.md
+      - Core passes: forge/core-passes.md
+      - Optimisations: forge/optimisations.md
+      - Points-to analysis: forge/pta.md
+      - Debugging: forge/debugging.md
+      - "Tutorial: writing a pass": forge/writing-a-pass.md
+  - QuickJS runtime: quickjs/index.md
+  - Reference:
+      - reference/index.md
+      - IR node reference: reference/ir/index.md
+      - Pass flags: reference/pass-flags.md
+  - Testing:
+      - test262 harness: testing/test262.md
+      - PTA tests & benchmarks: testing/pta-and-benchmarks.md
+  - Contributing: contributing.md
+  - About: about.md

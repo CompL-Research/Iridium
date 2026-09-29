@@ -175,3 +175,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# MkDocs build output
+site/
+.venv/
