@@ -1,6 +1,6 @@
 {
   "name": "iridium",
-  "version": "0.9a",
+  "version": "1.0b",
   "main": "iridium.ts",
   "type": "module",
   "scripts": {

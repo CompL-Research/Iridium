@@ -3,6 +3,7 @@ import {
   assignmentExpression,
   AssignmentExpression,
   AssignmentPattern,
+  getBindingIdentifiers,
   identifier,
   Identifier,
   isArrayPattern,
@@ -26,6 +27,7 @@ import {
   isJS3AssnObjectProperty,
   isJS3BlockStatement,
   isJS3BreakStatement,
+  isJS3CallExpression,
   isJS3ContinueStatement,
   isJS3DebuggerStatement,
   isJS3DoWhileStatement,
@@ -41,6 +43,7 @@ import {
   isJS3IfStatement,
   isJS3ImportDeclaration,
   isJS3LabeledStatement,
+  isJS3LoopDeclaration,
   isJS3ObjectPattern,
   isJS3RestElement,
   isJS3ReturnStatement,
@@ -50,6 +53,7 @@ import {
   isJS3TryStatement,
   isJS3VariableDeclaration,
   isJS3WhileStatement,
+  isJS3WithStatement,
   JS3AllowedBlockStatement,
   JS3AllowedFunctionArgs,
   JS3AllowedProgStatement,
@@ -1665,6 +1669,89 @@ export const funArgLength = (
   return count;
 };
 
+// Collects the VarDeclaredNames of a function body 
+const collectBodyVarNames = (
+  body: Array<JS3AllowedBlockStatement>,
+): Set<string> | null => {
+  const names: Set<string> = new Set();
+  let hasDirectEval = false;
+
+  const addVarNames = (decl: unknown) => {
+    if (
+      (isJS3VariableDeclaration(decl) || isJS3LoopDeclaration(decl)) &&
+      decl.kind === "var"
+    ) {
+      for (const d of decl.declarations) {
+        Object.keys(getBindingIdentifiers(d.id)).forEach((n) => names.add(n));
+        if (
+          isJS3CallExpression(d.init) &&
+          isIdentifier(d.init.callee) &&
+          d.init.callee.name === "eval"
+        )
+          hasDirectEval = true;
+      }
+    } else if (isJS3VariableDeclaration(decl)) {
+      // let/const, only check for direct eval
+      // ~ This is incomplete ~ Meetesh
+      for (const d of decl.declarations) {
+        if (
+          isJS3CallExpression(d.init) &&
+          isIdentifier(d.init.callee) &&
+          d.init.callee.name === "eval"
+        )
+          hasDirectEval = true;
+      }
+    }
+  };
+
+  // Nested functions and classes (static blocks) have their own var scope and
+  // only appear as expressions/function declarations, so they are not visited.
+  const walk = (stmt: JS3AllowedBlockStatement | null | undefined) => {
+    if (!stmt) return;
+    if (isJS3VariableDeclaration(stmt)) {
+      addVarNames(stmt);
+    } else if (isJS3BlockStatement(stmt)) {
+      stmt.body.forEach(walk);
+    } else if (isJS3IfStatement(stmt)) {
+      walk(stmt.consequent);
+      walk(stmt.alternate);
+    } else if (isJS3TryStatement(stmt)) {
+      walk(stmt.block);
+      walk(stmt.handler?.body);
+      walk(stmt.finalizer);
+    } else if (
+      isJS3WhileStatement(stmt) ||
+      isJS3DoWhileStatement(stmt) ||
+      isJS3WithStatement(stmt) ||
+      isJS3LabeledStatement(stmt)
+    ) {
+      walk(stmt.body);
+    } else if (isJS3ForStatement(stmt)) {
+      addVarNames(stmt.init);
+      walk(stmt.body);
+    } else if (isJS3ForInStatement(stmt) || isJS3ForOfStatement(stmt)) {
+      addVarNames(stmt.left);
+      walk(stmt.body);
+    } else if (isJS3SwitchStatement(stmt)) {
+      stmt.cases.forEach((c) => c.consequent.forEach(walk));
+    }
+  };
+
+  for (const s of body) {
+    // Top level function declarations are part of VarDeclaredNames
+    if (isJS3FunctionDeclaration(s) && s.id) names.add(s.id.name);
+    walk(s);
+  }
+
+  return hasDirectEval ? null : names;
+};
+
+// True if the argument gets a separate binding in the body scope (initialized
+// from the ArgInit scope via a sibling write). bodyVarNames === null means unknown
+// (direct eval), in that case all arguments are copied.
+const isArgCopiedToBody = (b: string, bodyVarNames: Set<string> | null) =>
+  bodyVarNames === null || bodyVarNames.has(b) || b === "arguments";
+
 // export type JS3AllowedFunctionArgs = Identifier | ArrayPattern | ObjectPattern | AssignmentPattern | RestElement;
 export const lowerArgumentInit = (
   cx: IRIDIUMV2,
@@ -1677,6 +1764,7 @@ export const lowerArgumentInit = (
   params: Array<JS3AllowedFunctionArgs>,
   abstractResolutions: Array<SiblingSpecialWriteSEXP> = [],
   extractedBindingsSet: Set<string> = new Set(),
+  bodyVarNames: Set<string> | null = null,
 ) => {
   const closureTopLevelContext = cx.getCurrentContext();
 
@@ -1689,6 +1777,33 @@ export const lowerArgumentInit = (
 
   const currToArgInit = new GotoSEXP(-1);
   const argInitToPost = new GotoSEXP(-1);
+
+  // S1: Extract all bindings that are being made
+  for (let p of params) extractBindings(p, extractedBindingsSet);
+
+  // The ArgInit scope and the Body scope are siblings. Only arguments that are
+  // redeclared in the body (VarDeclaredNames) get a separate body binding that is
+  // initialized via a sibling write. Other arguments are declared in the closure
+  // scope (common parent) so that both the ArgInit and Body scopes resolve to the
+  // same binding (10.2.11 FunctionDeclarationInstantiation, step 27/28).
+  const shareArgBinding = (b: string) => !isArgCopiedToBody(b, bodyVarNames);
+
+  const declareArgBinding = (b: string) => {
+    const bindingUnresolved = new ResolveEnvBindingSEXP(b);
+    bindingUnresolved.markASW();
+    cx.getCurrentBB().args.push(
+      new JSExplicitBindingDeclarationXSEXP(
+        bindingUnresolved,
+        null,
+        "JSLET",
+        false,
+      ),
+    );
+  };
+
+  for (const b of extractedBindingsSet) {
+    if (shareArgBinding(b)) declareArgBinding(b);
+  }
 
   // Goto argInitBB
   cx.getCurrentBB().args.push(currToArgInit);
@@ -1709,10 +1824,6 @@ export const lowerArgumentInit = (
     // S3: Replace all arglist with replacement RVals
     // S4: Use assignment logic to replace with LVal = ARG$I
 
-    // S1: Extract all bindings that are being made
-    // const extractedBindingsSet: Set<string> = new Set();
-    for (let p of params) extractBindings(p, extractedBindingsSet);
-
     // if (hasArguments && !extractedBindingsSet.has("arguments")) {
     //   cx.getCurrentBB().args.push(
     //     new JSExplicitBindingDeclarationSEXP(
@@ -1730,18 +1841,9 @@ export const lowerArgumentInit = (
       );
     }
 
-    // S2: Declare all argument as let bindings in the argument init scope
+    // S2: Declare remaining arguments as let bindings in the argument init scope
     for (const b of extractedBindingsSet) {
-      const bindingUnresolved = new ResolveEnvBindingSEXP(b);
-      bindingUnresolved.markASW();
-      cx.getCurrentBB().args.push(
-        new JSExplicitBindingDeclarationXSEXP(
-          bindingUnresolved,
-          null,
-          "JSLET",
-          false,
-        ),
-      );
+      if (!shareArgBinding(b)) declareArgBinding(b);
 
       cx.getCurrentBB().args.push(
         new EnvWriteSEXP(b, new JSNUBDSEXP(), true, false),
@@ -1797,7 +1899,9 @@ export const lowerArgumentInit = (
 
     // Sibling scope forwarding
     // Sibling[a] = CurrScope[a]
+    // Only for arguments that are redeclared in the body
     for (const b of extractedBindingsSet) {
+      if (shareArgBinding(b)) continue;
       // lval: string, rval: IridiumSEXP, safe: boolean, thisInit: boolean, mapInf: string, scopeIDX: number
       const siblingSpecialWrite = new SiblingSpecialWriteSEXP(
         b,
@@ -1882,6 +1986,7 @@ export const createLambda = (
 
   const abstractResolutions: Array<SiblingSpecialWriteSEXP> = [];
   const extractedBindingsSet: Set<string> = new Set();
+  const bodyVarNames = isSimpleArgs ? null : collectBodyVarNames(body);
   {
     // Arguments
     if (!isSimpleArgs) {
@@ -1891,6 +1996,7 @@ export const createLambda = (
         params,
         abstractResolutions,
         extractedBindingsSet,
+        bodyVarNames,
       );
     } else {
       params.forEach((p) => {
@@ -1915,9 +2021,11 @@ export const createLambda = (
       // Set lookup target to sibling writes
       abstractResolutions.forEach((ar) => ar.setScopeIDX(bodyScopeIDX));
 
-      // Declare the arguments in the body, using VAR semantics
+      // Declare the arguments in the body, using VAR semantics.
+      // Arguments not redeclared in the body resolve to the closure scope (see lowerArgumentInit).
 
       extractedBindingsSet.forEach((bb) => {
+        if (!isArgCopiedToBody(bb, bodyVarNames)) return;
         cx.getCurrentBB().args.push(
           new JSExplicitBindingDeclarationNSEXP(
             new ResolveEnvBindingSEXP(bb),
