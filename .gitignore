@@ -1,3 +1,4 @@
+.mkdocs
 externalDeps/prakriti
 out.pta
 tests/over_compliant.txt
