@@ -179,7 +179,6 @@ import {
   lowerToAnonArrayExpr,
 } from "./HandleExpression";
 import {
-  generateDummyJS3VariableDeclaration,
   generateIdentifier,
   generateJS3ArrayPatternfromBaseNode,
   generateJS3AssignmentExpressionfromBaseNode,
@@ -581,7 +580,6 @@ export function handleDeclaratorRec(
     LVal: JS3MemberExpression | JS3ArrayPattern | JS3ObjectPattern | Identifier,
     RVal: null | JS3VariableDeclarator_init,
   ) => JS3AllowedBlockStatement,
-  generateIntermediateBindings = false,
 ) {
   if (!otherProps.others) throw new Error("otherProps.others undefined");
   if (!otherProps.others.holder)
@@ -659,20 +657,8 @@ export function handleDeclaratorRec(
         continue;
       }
 
+      // No separate declaration needed, the generated pattern declares the temporary
       const temporary = generateIdentifier(LVal, newTemp("arraPat"));
-
-      if (generateIntermediateBindings) {
-        otherProps.others.holder.push(
-          generateDummyJS3VariableDeclaration(
-            LVal,
-            temporary,
-            null,
-            "let",
-            null,
-            null,
-          ),
-        );
-      }
 
       if (isRestElement(e)) {
         // ...REST_ELEMENT
@@ -745,7 +731,6 @@ export function handleDeclaratorRec(
               temporaryHolder.argument,
               otherProps,
               generator,
-              true,
             );
           } else {
             throw new Error(
@@ -763,7 +748,7 @@ export function handleDeclaratorRec(
           if (!e) throw new Error("Expected e to not be null");
           if (isVoidPattern(e))
             throw new Error("TODO // unhandled Void Pattern Node");
-          handleDeclaratorRec(e, temporaryHolder, otherProps, generator, true);
+          handleDeclaratorRec(e, temporaryHolder, otherProps, generator);
         } else {
           throw new Error(
             "IMPOSSIBLE destructure pattern reduction case... expected Identifier",
@@ -853,7 +838,7 @@ export function handleDeclaratorRec(
 
     // Recursive case
     // (let...) left = fin$res
-    handleDeclaratorRec(LVal.left, fin$res, otherProps, generator, true);
+    handleDeclaratorRec(LVal.left, fin$res, otherProps, generator);
   } else if (isObjectPattern(LVal)) {
     //
     // Object pattern case...
@@ -937,20 +922,8 @@ export function handleDeclaratorRec(
 
       reassigned.push(true);
 
+      // No separate declaration needed, the generated pattern declares the temporary
       const temporary = generateIdentifier(LVal, newTemp("objPat"));
-
-      if (generateIntermediateBindings) {
-        otherProps.others.holder.push(
-          generateDummyJS3VariableDeclaration(
-            LVal,
-            temporary,
-            null,
-            "let",
-            null,
-            null,
-          ),
-        );
-      }
 
       if (isObjectProperty(p)) {
         if (isTrivialKey(p.key)) {
@@ -1042,7 +1015,7 @@ export function handleDeclaratorRec(
             isAssignmentPattern(p.value)
           ) {
             // Recurse: (LVal: COMPLEX, RVal: TEMP)
-            handleDeclaratorRec(p.value, tempVar, otherProps, generator, true);
+            handleDeclaratorRec(p.value, tempVar, otherProps, generator);
           } else {
             throw new Error(
               `IMPOSSIBLE destructure objpattern reduction case... LVAL is ${p.value.type}`,
@@ -1078,7 +1051,6 @@ export function handleDeclaratorRec(
               tempVar,
               otherProps,
               generator,
-              true,
             );
           } else {
             throw new Error(
