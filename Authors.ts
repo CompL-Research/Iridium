@@ -24,7 +24,7 @@ const AUTHORS: Array<Author> = [
   },
   { givenNames: "Anirudh", familyNames: "Garg", affiliation: "IIT Bombay", role: "Contributor" },
   { givenNames: "Aneeket", familyNames: "Yadav", affiliation: "IIT Delhi", role: "Contributor" },
-  { givenNames: "Hari", affiliation: "IIT Bombay", role: "Contributor" },
+  { givenNames: "Hari", familyNames: "Shankar", affiliation: "IIT Bombay", role: "Contributor" },
   { givenNames: "Manas", familyNames: "Thakur", honorific: "Dr", affiliation: "IIT Bombay", role: "Advisor" },
 ];
 
