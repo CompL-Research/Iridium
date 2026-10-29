@@ -160,6 +160,8 @@ import {
   JSPrivateFieldWriteSEXP,
   JSPrivateFieldDefineSEXP,
   JSHasPrivateSEXP,
+  JSCheckBrandSEXP,
+  JSThrowErrorSEXP,
   JSPrivateSEXP,
   JSSetHomeSEXP,
   JSSetPrototypeOfSEXP,
@@ -215,7 +217,7 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
         throw new Error(
           "Private member expression, impossible case, super obj",
         );
-      return new JSPrivateFieldReadSEXP(obj, prop);
+      return privateRead(cx, obj, prop);
     }
 
     // Identifier case
@@ -335,7 +337,8 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
     let left: IridiumSEXP;
     if (isJS3PrivateName(init.left)) {
       // #f in o
-      return new JSHasPrivateSEXP(IRIV2_RVAL(cx, init.right), init.left.id.name);
+      const decl = resolvePrivate(cx, init.left.id.name);
+      return new JSHasPrivateSEXP(IRIV2_RVAL(cx, init.right), privateNameRead(decl));
     } else {
       left = IRIV2_RVAL(cx, init.left);
       return getIridiumBinop(init.operator, left, IRIV2_RVAL(cx, init.right));
@@ -2218,12 +2221,7 @@ const handleAssignmentExpression = (
       let rValSimp = newTemp("rValSimp");
       cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
 
-      cx.getCurrentBB().args.push(
-        new JSPrivateFieldWriteSEXP(
-          obj,
-          prop,
-          new EnvReadSEXP(rValSimp))
-      );
+      privateWrite(cx, obj, prop, new EnvReadSEXP(rValSimp));
 
       return new EnvReadSEXP(rValSimp);
     }
@@ -2519,6 +2517,79 @@ const emitSuperCall = (
     new CallSiteSEXP(new EnvReadSEXP(derivedCtorPropInit(cx)), new EnvReadSEXP("this"), []),
   );
   return new EnvReadSEXP(res);
+};
+
+// The private element #name as declared by the innermost enclosing class that
+// declares it in any form (see PrivateMapping): a field or method, a getter, a
+// setter. Each is the binding holding the private symbol or function.
+type PrivateDecl = {
+  plain?: [string, "PROP" | "METHOD" | "GETTER" | "SETTER"];
+  getter?: string;
+  setter?: string;
+};
+
+const resolvePrivate = (cx: IRIDIUMV2, name: string): PrivateDecl => {
+  let curr: IridiumBuildContext | undefined = cx.getCurrentContext();
+  while (curr) {
+    const mapping = curr.privateMapping;
+    if (mapping) {
+      const plain = mapping.get(name);
+      const getter = mapping.get("get:" + name);
+      const setter = mapping.get("set:" + name);
+      if (plain || getter || setter)
+        return { plain, getter: getter?.[0], setter: setter?.[0] };
+    }
+    curr = IridiumBuildContext.CONTEXT_MAP.get(curr.parent);
+  }
+  throw new Error("Failed to resolve private binding : " + name);
+};
+
+// The binding #name itself refers to (e.g. for #name in o)
+const privateNameRead = (decl: PrivateDecl): EnvReadSEXP =>
+  new EnvReadSEXP(decl.plain ? decl.plain[0] : (decl.getter ?? decl.setter)!);
+
+// %fn <- obj.#method[fn]: brand check, in its own statement
+const brandChecked = (cx: IRIDIUMV2, obj: string, fn: string): EnvReadSEXP => {
+  const holder = newTemp("brandChecked");
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationNSEXP(
+      new ResolveEnvBindingSEXP(holder),
+      new JSCheckBrandSEXP(new EnvReadSEXP(obj), new EnvReadSEXP(fn)),
+      "JSLET",
+      false,
+    ),
+  );
+  return new EnvReadSEXP(holder);
+};
+
+// obj.#name
+//   field: obj.#[sym]   method: obj.#method[m]
+//   getter: %g <- obj.#method[getter]; obj->%g()   setter only: throw.readonly
+const privateRead = (cx: IRIDIUMV2, obj: string, name: string): IridiumSEXP => {
+  const decl = resolvePrivate(cx, name);
+  if (decl.plain?.[1] === "PROP")
+    return new JSPrivateFieldReadSEXP(obj, new EnvReadSEXP(decl.plain[0]));
+  if (decl.plain?.[1] === "METHOD")
+    return new JSCheckBrandSEXP(new EnvReadSEXP(obj), new EnvReadSEXP(decl.plain[0]));
+  if (decl.getter)
+    return new CallSiteSEXP(brandChecked(cx, obj, decl.getter), new EnvReadSEXP(obj), []);
+  return new JSThrowErrorSEXP("#" + name);
+};
+
+// obj.#name = value, as a statement
+//   field: obj.#[sym] = v   setter: %s <- obj.#method[setter]; obj->%s(v)
+//   method / getter only: throw.readonly
+const privateWrite = (cx: IRIDIUMV2, obj: string, name: string, value: IridiumSEXP) => {
+  const decl = resolvePrivate(cx, name);
+  if (decl.plain?.[1] === "PROP")
+    cx.getCurrentBB().args.push(
+      new JSPrivateFieldWriteSEXP(obj, new EnvReadSEXP(decl.plain[0]), value),
+    );
+  else if (decl.setter)
+    cx.getCurrentBB().args.push(
+      new CallSiteSEXP(brandChecked(cx, obj, decl.setter), new EnvReadSEXP(obj), [value]),
+    );
+  else cx.getCurrentBB().args.push(new JSThrowErrorSEXP("#" + name));
 };
 
 // %superObj <- getprototypeof(<home_object>), read right before a super.x access

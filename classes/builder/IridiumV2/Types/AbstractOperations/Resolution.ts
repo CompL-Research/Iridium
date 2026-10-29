@@ -1,5 +1,5 @@
 import { IridiumSEXP } from "../Structural/General";
-import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, EnvReadSEXP } from "../Environment";
+import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP } from "../Environment";
 import { GotoSEXP } from "../Flow";
 
 /**
@@ -102,46 +102,6 @@ export class LoopInitPreludeEndSEXP extends IridiumSEXP {
  *
  * @extends {IridiumSEXP}
  *
- * @group RVAL
- *
- * @remarks
- *
- * ResolvePrivateEnvBinding is an abstract operation in the Iridium IR.
- * It indicates a reference to an unresolved private identifier reference.
- *
- * #### Resolutions
- *
- * - {@link EnvReadSEXP}: Environment Read that leads to a Private Symbol or a Private Closure object (lexical).
- *
- * #### Structure
- *
- * - `FLAG(NAME : string)`: Binding name to resolve.
- *
- */
-export class ResolvePrivateEnvBindingSEXP extends IridiumSEXP {
-  constructor(id: string) {
-    super("ResolvePrivateEnvBinding");
-    this.setName(id);
-  }
-
-  // Flags
-  setName(name: string) {
-    this.setFlag("NAME", name);
-  }
-
-  getName(): string {
-    return this.getFlagString("NAME");
-  }
-
-  getBindingName(): string {
-    return this.getName();
-  }
-}
-
-/**
- *
- * @extends {IridiumSEXP}
- *
  * @group STMT
  *
  * @remarks
@@ -214,14 +174,6 @@ export class ResolveBreakTargetSEXP extends IridiumSEXP {
   getLabel(): string {
     return this.getFlagString("Label");
   }
-}
-
-/**
- * @hidden
- */
-export function isResolvePrivateEnvBindingSEXP(o: any): o is ResolvePrivateEnvBindingSEXP {
-  // @ts-ignore
-  return o.tag === "ResolvePrivateEnvBinding";
 }
 
 /**

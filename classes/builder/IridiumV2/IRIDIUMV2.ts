@@ -87,8 +87,6 @@ type SerializableIridiumBuildContextObject = {
   name: string;
   sourceLine: number;
 
-  privateMapping: Array<[string, [string, string]]> | null;
-
   moduleRequestMap: Array<[string, Array<any>]> | null; // Array<any> are interpreted as IridiumSEXPs
 
   BB: Array<number>; // This must be resolved to their respective BBs at init time...
@@ -100,14 +98,6 @@ function serializeBuildContext(): Array<SerializableIridiumBuildContextObject> {
 
   for (let e of contexts) {
     const buildContext: IridiumBuildContext = e[1];
-
-    const privateMapping: Array<[string, [string, string]]> = [];
-
-    if (buildContext.privateMapping) {
-      for (let p of buildContext.privateMapping) {
-        privateMapping.push([p[0], [p[1][0], p[1][1]]]);
-      }
-    }
 
     const moduleRequestMap: Array<[string, Array<any>]> = [];
 
@@ -160,8 +150,6 @@ function serializeBuildContext(): Array<SerializableIridiumBuildContextObject> {
       ecmaArgs: buildContext.ecmaArgs,
       name: buildContext.name,
       sourceLine: buildContext.sourceLine,
-
-      privateMapping: buildContext.privateMapping ? privateMapping : null,
 
       moduleRequestMap: buildContext.moduleRequestMap ? moduleRequestMap : null,
 
