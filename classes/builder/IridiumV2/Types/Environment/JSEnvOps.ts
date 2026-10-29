@@ -1,7 +1,6 @@
 import { printFlagString, printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP } from "../AbstractOperations/Resolution";
 import { IridiumSEXP } from "../Structural/General";
-import { StringSEXP } from "../RVAL/Primitives";
 import { EnvReadSEXP, isEnvReadSEXP } from "./PrimitiveEnvOps";
 import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEXP } from "./BindingsObjectConstituents";
 
@@ -309,7 +308,7 @@ export class JSSuperFieldReadSEXP extends IridiumSEXP {
   constructor(field: IridiumSEXP) {
     super("JSSuperFieldRead");
     this.setThis(new EnvReadSEXP("this"));
-    this.setSuper(new EnvReadSEXP("<home_object>"));
+    this.setHome(new EnvReadSEXP("<home_object>"));
     this.setField(field);
   }
 
@@ -322,11 +321,11 @@ export class JSSuperFieldReadSEXP extends IridiumSEXP {
     return this.args[0];
   }
 
-  setSuper(obj: IridiumSEXP) {
+  setHome(obj: IridiumSEXP) {
     this.args[1] = obj;
   }
 
-  getSuper(): IridiumSEXP {
+  getHome(): IridiumSEXP {
     return this.args[1];
   }
 
@@ -357,7 +356,8 @@ export class JSSuperFieldReadSEXP extends IridiumSEXP {
  *
  * - `ARG(this)`: The lexical `this` object.
  *
- * - `ARG(<super_obj>)`: The lexical `<super_obj>` object.
+ * - `ARG(<home_object>)`: The lexical `<home_object>` object; the super object is
+ *   looked up from it (OP_get_super) at the time of the write.
  *
  * - `ARG(field)`: The field to be updated.
  *
@@ -365,11 +365,11 @@ export class JSSuperFieldReadSEXP extends IridiumSEXP {
  *
  */
 export class JSSuperFieldWriteSEXP extends IridiumSEXP {
-  constructor(field: string, value: IridiumSEXP) {
+  constructor(field: IridiumSEXP, value: IridiumSEXP) {
     super("JSSuperFieldWrite");
     this.setThis(new EnvReadSEXP("this"));
-    this.setSuper(new EnvReadSEXP("<super_obj>"));
-    this.setField(new StringSEXP(field));
+    this.setHome(new EnvReadSEXP("<home_object>"));
+    this.setField(field);
     this.setValue(value);
   }
 
@@ -382,11 +382,11 @@ export class JSSuperFieldWriteSEXP extends IridiumSEXP {
     return this.args[0];
   }
 
-  setSuper(obj: IridiumSEXP) {
+  setHome(obj: IridiumSEXP) {
     this.args[1] = obj;
   }
 
-  getSuper(): IridiumSEXP {
+  getHome(): IridiumSEXP {
     return this.args[1];
   }
 

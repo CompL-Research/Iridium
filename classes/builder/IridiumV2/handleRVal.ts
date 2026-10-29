@@ -150,6 +150,7 @@ import {
   JSForOfStartSEXP,
   JSIDOPSEXP,
   JSImplicitBindingDeclarationSEXP,
+  JSGetPrototypeOfSEXP,
   JSImplicitBindingDeclarationTypes,
   JSNUBDSEXP,
   JSObjectSEXP,
@@ -225,11 +226,6 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
         return new FieldReadSEXP(init.object.name, init.property.name);
       else if (isThisExpression(init.object))
         return new FieldReadSEXP("this", init.property.name);
-      else if (init.object.extra?.SuperCallCTX)
-        return new JSComputedFieldReadSEXP(
-          "<super_obj>",
-          new StringSEXP(init.property.name),
-        );
       else return new JSSuperFieldReadSEXP(new StringSEXP(init.property.name));
     } else {
       // ID[ID]
@@ -242,11 +238,6 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
         );
       else if (isThisExpression(init.object))
         return new JSComputedFieldReadSEXP("this", init.property.name);
-      else if (init.object.extra?.SuperCallCTX)
-        return new JSComputedFieldReadSEXP(
-          "<super_obj>",
-          new EnvReadSEXP(init.property.name),
-        );
       else return new JSSuperFieldReadSEXP(new EnvReadSEXP(init.property.name));
     }
   }
@@ -1269,15 +1260,6 @@ const createClassNonStaticPropInitClosure = (
     );
   }
 
-  // add <super_obj>
-  cx.getCurrentBB().args.push(
-    new JSImplicitBindingDeclarationSEXP(
-      "<super_obj>",
-      "JSCONST",
-      8,
-      new ListSEXP([new EnvReadSEXP("<home_object>")]),
-    ),
-  );
   // if (hasSuper) {
   // }
 
@@ -1425,15 +1407,6 @@ const createClassStaticPropInitClosure = (
   cx.getCurrentBB().args.push(
     new JSImplicitBindingDeclarationSEXP("<home_object>", "JSCONST", 4),
   );
-  // add <super_obj>
-  cx.getCurrentBB().args.push(
-    new JSImplicitBindingDeclarationSEXP(
-      "<super_obj>",
-      "JSCONST",
-      8,
-      new ListSEXP([new EnvReadSEXP("<home_object>")]),
-    ),
-  );
   // }
 
   // Set closure context
@@ -1578,16 +1551,10 @@ const createClassConstructorClosure = (
     { name: "new.target", type: "JSVAR", value: 3 },
     { name: "<home_object>", type: "JSVAR", value: 4 },
     { name: "<var>", type: "JSVAR", value: 5 },
-    {
-      name: "<super_obj>",
-      type: "JSCONST",
-      value: 8,
-      initializer: new ListSEXP([new EnvReadSEXP("<home_object>")]),
-    },
   ];
 
-  // Add <super_ctr> to the scope in case this is a derived class constructor
-  // This will allow us to call super
+  // Derived class constructor: super() looks up the parent constructor from
+  // this.active_func at the call (see superCtor)
   if (superClass) {
     // this = NUBD
     // This is a special case where we use thisinit
@@ -1596,14 +1563,6 @@ const createClassConstructorClosure = (
       name: "this.active_func",
       type: "JSCONST",
       value: 2,
-    });
-    implicitBindings.push({
-      name: "<super_ctr>",
-      type: "JSCONST",
-      value: 7,
-      initializer: new ListSEXP([
-        new EnvReadSEXP("this.active_func"),
-      ]),
     });
   } else {
     // add "this" to the closure scope
@@ -1665,18 +1624,14 @@ const createClassConstructorClosure = (
       cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
     } else {
       if (!constructor) {
-        // Call constructor and initialize "this"
-        // const args: Array<IridiumSEXP> = [];
-        // args.push(new EnvReadSEXP("<super_ctr>"));
-        // args.push(new EnvReadSEXP("new.target"));
-        // const superCall = new CallSiteSEXP(args, "Super");
+        // Call the parent constructor and initialize "this"
         cx.getCurrentBB().args.push(
           new JSExplicitBindingDeclarationSEXP(
             new ResolveEnvBindingSEXP(newTemp("superResHolder")),
             generateIridiumCall(
               cx,
+              new EnvReadSEXP("this.active_func"),
               new EnvReadSEXP("new.target"),
-              new EnvReadSEXP("<super_ctr>"),
               [
                 generateJS3SpreadElementfromBaseNode(
                   identifier("arguments"),
@@ -2228,7 +2183,10 @@ const handleAssignmentExpression = (
 
         cx.getCurrentBB().args.push(
           new JSSuperFieldWriteSEXP(
-            init.property.name,
+            // super[k] = v: k is a temp holding the key; super.k = v: fixed
+            init.computed
+              ? new EnvReadSEXP(init.property.name)
+              : new StringSEXP(init.property.name),
             new EnvReadSEXP(rValSimp),
           )
         );
@@ -2355,12 +2313,6 @@ const handleFunctionExpression = (
     { name: "new.target", type: "JSVAR", value: 3 },
     { name: "<home_object>", type: "JSVAR", value: 4 },
     { name: "<var>", type: "JSVAR", value: 5 },
-    {
-      name: "<super_obj>",
-      type: "JSCONST",
-      value: 8,
-      initializer: new ListSEXP([new EnvReadSEXP("<home_object>")]),
-    },
   ];
 
   let name = "";
@@ -2526,9 +2478,12 @@ const generateDynamicCallArgList = (
   return temp$id;
 };
 
+// SUPER: callee is the active function; the parent constructor (its prototype)
+// is read into a temp right before the call, after the arguments. calleeContext
+// is new.target.
 const generateIridiumCall = (
   cx: IRIDIUMV2,
-  callee: IridiumSEXP,
+  callee: IridiumSEXP, // SUPER: the active function
   calleeContext: IridiumSEXP,
   rawCallArguments: Array<
     JS3ContainedExprKey | JS3SpreadElement | SpreadElement
@@ -2547,14 +2502,30 @@ const generateIridiumCall = (
   const isSimpleArgList: boolean =
     callArguments.find((e) => !isIdentifier(e)) === undefined;
 
+  // %superCtor <- getprototypeof(this.active_func)
+  const readSuperCtor = () => {
+    const holder = newTemp("superCtor");
+    cx.getCurrentBB().args.push(
+      new JSExplicitBindingDeclarationNSEXP(
+        new ResolveEnvBindingSEXP(holder),
+        new JSGetPrototypeOfSEXP(callee),
+        "JSLET",
+        false,
+      ),
+    );
+    return new EnvReadSEXP(holder);
+  };
+
   if (isSimpleArgList) {
     // Regular call semantics
 
+    if (kind === "SUPER") callee = readSuperCtor();
+
+    // CCall: [this, callee, ...]; Super: [callee, new.target, ...]
     const args: Array<IridiumSEXP> = [];
-    if (kind == "CONTEXTUAL" || kind == "SUPER") {
-      args.push(calleeContext);
-    }
+    if (kind == "CONTEXTUAL") args.push(calleeContext);
     args.push(callee);
+    if (kind == "SUPER") args.push(calleeContext);
 
     for (const a of callArguments) {
       if (isIdentifier(a)) {
@@ -2574,6 +2545,7 @@ const generateIridiumCall = (
   } else {
     // Apply semantics for arguments
     const argListHolder = generateDynamicCallArgList(cx, callArguments);
+    if (kind === "SUPER") callee = readSuperCtor();
 
     if (kind === "NORMAL" || kind === "CONTEXTUAL") {
       return new ApplySEXP(
@@ -2582,24 +2554,14 @@ const generateIridiumCall = (
         new EnvReadSEXP(argListHolder), // arglist
         false,
       );
-    } else if (kind === "SUPER") {
-      // SUPER passes callee = new.target, calleeContext = <super_ctr>;
-      // Apply expects the super ctor as Callee and new.target as CTX.
-      let res = new ApplySEXP(
-        calleeContext, // Callee: <super_ctr>
-        callee, // CTX: new.target
-        new EnvReadSEXP(argListHolder), // arglist
-        true, // constructor call
-      );
-      res.setSuper();
-      return res;
     } else {
       let res = new ApplySEXP(
         callee, // Callee
-        calleeContext, // CTX, ignored
+        calleeContext, // CTX: new.target for SUPER, ignored for CONSTRUCTOR
         new EnvReadSEXP(argListHolder), // arglist
         true, // constructor call
       );
+      if (kind === "SUPER") res.setSuper();
       return res;
     }
   }
@@ -2677,12 +2639,10 @@ const handleCallExpression = (
       "NORMAL",
     );
   } else if (isSuper(node.callee)) {
-    let calleeContext = new EnvReadSEXP("<super_ctr>");
-    let callee = new EnvReadSEXP("new.target");
     return generateIridiumCall(
       cx,
-      callee,
-      calleeContext,
+      new EnvReadSEXP("this.active_func"),
+      new EnvReadSEXP("new.target"),
       node.arguments,
       "SUPER",
     );
@@ -2702,8 +2662,6 @@ const handleContextualCallExpression = (
   // Callee
   const tempHolder = newTemp("ccallCallee");
   {
-    if (!node.callee.object.extra) node.callee.object.extra = {};
-    node.callee.object.extra = { SuperCallCTX: true };
     const stmt = new JSExplicitBindingDeclarationSEXP(
       new ResolveEnvBindingSEXP(tempHolder),
       IRIV2_RVAL(cx, node.callee),

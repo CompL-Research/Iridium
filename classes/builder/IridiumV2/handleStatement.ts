@@ -2091,12 +2091,6 @@ const handleFunctionDeclaration = (
     { name: "new.target", type: "JSVAR", value: 3 },
     { name: "<home_object>", type: "JSVAR", value: 4 },
     { name: "<var>", type: "JSVAR", value: 5 },
-    {
-      name: "<super_obj>",
-      type: "JSCONST",
-      value: 8,
-      initializer: new ListSEXP([new EnvReadSEXP("<home_object>")]),
-    },
   ];
 
   const funBBIdx = createLambda(
