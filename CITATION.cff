@@ -4,7 +4,7 @@ message: "If you use Iridium in your research, please cite it as below."
 type: software
 title: Iridium
 abstract: "A static analysis framework for JavaScript programs."
-version: "0.9a"
+version: "1.0b"
 license: Apache-2.0
 url: https://compl-research.github.io/Iridium/
 repository-code: https://github.com/compl-research/Iridium
@@ -26,6 +26,7 @@ authors:
     family-names: "Yadav"
     affiliation: "IIT Delhi"
   - given-names: "Hari"
+    family-names: "Shankar"
     affiliation: "IIT Bombay"
   - given-names: "Manas"
     family-names: "Thakur"
