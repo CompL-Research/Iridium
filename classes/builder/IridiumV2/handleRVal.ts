@@ -1081,7 +1081,13 @@ const handleComputedProps = (
   return computedPropMapping;
 };
 
-export type PrivateMapping = Map<string, [string, "PROP" | "METHOD"]>;
+// One entry per declared private element: [binding, kind]
+//   #x = 1 -> x: PROP    #x() {} -> x: METHOD
+//   get #x() -> get:x: GETTER    set #x(v) -> set:x: SETTER
+export type PrivateMapping = Map<
+  string,
+  [string, "PROP" | "METHOD" | "GETTER" | "SETTER"]
+>;
 
 const getPrivateMapping = (
   computedPropMapping: Map<
@@ -1097,7 +1103,12 @@ const getPrivateMapping = (
     if (isJS3ClassPrivateProperty(item)) {
       privateMapping.set(item.key.id.name, [target, "PROP"]);
     } else if (isJS3ClassPrivateMethod(item)) {
-      privateMapping.set(item.key.id.name, [target, "METHOD"]);
+      const name = item.key.id.name;
+      if (item.kind === "get")
+        privateMapping.set("get:" + name, [target, "GETTER"]);
+      else if (item.kind === "set")
+        privateMapping.set("set:" + name, [target, "SETTER"]);
+      else privateMapping.set(name, [target, "METHOD"]);
     }
   }
   // In case of no private mappings, return null...
@@ -1147,11 +1158,6 @@ const lowerClassMethods = (
       let allocaLocation = computedPropMapping.get(methodNode);
       if (!allocaLocation) throw new Error("allocaLocation is undefined");
 
-      if (methodNode.kind === "get" || methodNode.kind === "set")
-        throw new Error(
-          "setter and getters for private fields not supported yet",
-        );
-
       const funBodyLambda = handleFunctionExpression(
         cx,
         methodNode,
@@ -1163,11 +1169,15 @@ const lowerClassMethods = (
         new EnvWriteSEXP(allocaLocation, funBodyLambda, true, false),
       );
 
-      // Set name of the private method
+      // Set name of the private method ("get #x" / "set #x" for accessors)
+      const accessorPrefix =
+        methodNode.kind === "get" || methodNode.kind === "set"
+          ? methodNode.kind + " "
+          : "";
       cx.getCurrentBB().args.push(
         new JSSetNameSEXP(
           new EnvReadSEXP(allocaLocation),
-          new StringSEXP("#" + methodNode.key.id.name),
+          new StringSEXP(accessorPrefix + "#" + methodNode.key.id.name),
         )
       );
 
