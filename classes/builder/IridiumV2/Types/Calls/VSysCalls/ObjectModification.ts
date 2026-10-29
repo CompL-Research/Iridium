@@ -63,6 +63,30 @@ export class JSSetPrototypeOfSEXP extends IridiumSEXP {
  *
  * @extends {IridiumSEXP}
  *
+ * @group AMP
+ *
+ * @remarks
+ *
+ * Reads the prototype of an object (`Object.getPrototypeOf(obj)`) when evaluated. Used to look up
+ * the parent constructor for `super()` (from `this.active_func`) and the super object for `super.x`
+ * (from `<home_object>`).
+ *
+ * #### Structure
+ *
+ * - `ARG(obj)`: The object whose prototype is read.
+ *
+ */
+export class JSGetPrototypeOfSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP) {
+    super("JSGetPrototypeOf");
+    this.args[0] = obj;
+  }
+}
+
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
  * @group RVAL
  *
  * @remarks

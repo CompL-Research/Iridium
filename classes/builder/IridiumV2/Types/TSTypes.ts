@@ -1,4 +1,4 @@
-/** Generated: 2026-09-20 21:49:29 */
+/** Generated: 2026-10-29 23:52:39 */
 
 export enum IriTag {
   File = 0,
@@ -52,7 +52,7 @@ export enum IriTag {
   ResolveBreakTarget = 48,
   JSForOfIteratorClose = 49,
   PopCatchContext = 50,
-  PopFinalizerReturnTarget = 51,
+  ExitFinalizer = 51,
   InvokeFinalizer = 52,
   JSForInStart = 53,
   JSForInNext = 54,
@@ -106,6 +106,7 @@ export enum IriTag {
   CompoundAssn = 102,
   ThisINIT = 103,
   PTAStub = 104,
+  JSGetPrototypeOf = 105,
 }
 
 export enum IriFlag {
