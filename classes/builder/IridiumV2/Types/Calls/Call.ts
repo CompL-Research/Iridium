@@ -25,22 +25,13 @@ import { IridiumSEXP } from "../Structural/General";
  *
  * - `...ARG(args)`: The arguments.
  *
- * - `FLAG(JSDirectEval?: double)`: Marks the call as direct eval, i.e. in sloppy mode the evaled code **can** modify the enclosing environment.
+ * A plain `eval(a)` call is turned into a JSEval node by Forge (pass 16).
  *
  */
 export class CallSiteSEXP extends IridiumSEXP {
   constructor(callee: IridiumSEXP, thisArg: IridiumSEXP, args: Array<IridiumSEXP>) {
     super("CallSite");
     this.args.push(callee, thisArg, ...args);
-  }
-
-  setJSDirectEval(refIdx: number) {
-    this.setFlag("JSDirectEval", refIdx)
-  }
-
-  getJSDirectEval(): number {
-    if (!this.hasFlag("JSDirectEval")) throw new Error("Expected JSDirectEval to be set before this function is called");
-    return this.getFlagNumber("JSDirectEval");
   }
 
   toString(space?: number): string {
@@ -111,15 +102,6 @@ export class ApplySEXP extends IridiumSEXP {
     return this.args[2];
   }
 
-  // Flags
-  setJSDirectEval(refIdx: number) {
-    this.setFlag("JSDirectEval", refIdx);
-  }
-
-  getJSDirectEval(): number {
-    if (!this.hasFlag("JSDirectEval")) throw new Error("Expected JSDirectEval to be set before this function is called");
-    return this.getFlagNumber("JSDirectEval");
-  }
 
 }
 
