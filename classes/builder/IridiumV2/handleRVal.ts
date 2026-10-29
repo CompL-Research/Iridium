@@ -1675,8 +1675,8 @@ const createClassConstructorClosure = (
             new ResolveEnvBindingSEXP(newTemp("superResHolder")),
             generateIridiumCall(
               cx,
-              new EnvReadSEXP("<super_ctr>"),
               new EnvReadSEXP("new.target"),
+              new EnvReadSEXP("<super_ctr>"),
               [
                 generateJS3SpreadElementfromBaseNode(
                   identifier("arguments"),
@@ -2582,6 +2582,17 @@ const generateIridiumCall = (
         new EnvReadSEXP(argListHolder), // arglist
         false,
       );
+    } else if (kind === "SUPER") {
+      // SUPER passes callee = new.target, calleeContext = <super_ctr>;
+      // Apply expects the super ctor as Callee and new.target as CTX.
+      let res = new ApplySEXP(
+        calleeContext, // Callee: <super_ctr>
+        callee, // CTX: new.target
+        new EnvReadSEXP(argListHolder), // arglist
+        true, // constructor call
+      );
+      res.setSuper();
+      return res;
     } else {
       let res = new ApplySEXP(
         callee, // Callee
@@ -2589,7 +2600,6 @@ const generateIridiumCall = (
         new EnvReadSEXP(argListHolder), // arglist
         true, // constructor call
       );
-      if (kind === "SUPER") res.setSuper();
       return res;
     }
   }
