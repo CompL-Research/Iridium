@@ -128,7 +128,6 @@ import {
   FieldReadSEXP,
   FieldWriteSEXP,
   GotoSEXP,
-  IDOPSEXP,
   IfElseJumpSEXP,
   IridiumSEXP,
   isLambdaSEXP,
@@ -1743,7 +1742,7 @@ const handleUpdateExpression = (
       isIdentifier(node.argument.property)
     ) {
       if (!node.argument.computed) {
-        return new IDOPSEXP(
+        return new JSIDOPSEXP(
           new FieldReadSEXP(
             isThisExpression(node.argument.object)
               ? "this"
