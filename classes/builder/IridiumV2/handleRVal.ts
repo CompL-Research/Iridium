@@ -140,7 +140,7 @@ import {
   JSComputedFieldReadSEXP,
   JSComputedFieldWriteSEXP,
   JSCopyDataPropertiesSEXP,
-  JSDefineObjMethodSEXP,
+  newJSDefineObjMember,
   JSDefineObjPropSEXP,
   JSExplicitBindingDeclarationNSEXP,
   JSExplicitBindingDeclarationSEXP,
@@ -1207,7 +1207,7 @@ const lowerClassMethods = (
     }
 
     cx.getCurrentBB().args.push(
-      new JSDefineObjMethodSEXP(
+      newJSDefineObjMember(
         new EnvReadSEXP(PROTO_OBJ),
         mKeyObj,
         handleFunctionExpression(
@@ -2867,7 +2867,7 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
   for (let prop of init.properties) {
     if (isJS3ObjectMethod(prop)) {
       cx.getCurrentBB().args.push(
-        new JSDefineObjMethodSEXP(
+        newJSDefineObjMember(
           new EnvReadSEXP(obj$id),
           prop.computed
             ? IRIV2_RVAL(cx, prop.key)
