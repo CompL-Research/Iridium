@@ -94,7 +94,6 @@ export class StringSEXP extends IridiumSEXP {
 export class NullSEXP extends IridiumSEXP {
   constructor() {
     super("Null");
-    this.flags.push(["IridiumPrimitive", null]);
   }
 
   toString(space?: number): string {

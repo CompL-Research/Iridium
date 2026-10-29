@@ -1899,9 +1899,6 @@ const handleClassExpression = (
     }
   }
   // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{After Hertiage Reduction}`);
-  const isDerived = node.superClass ? true : false;
-
-  const heritage = node.superClass ? superClass : new EnvReadSEXP("undefined");
   const addBrand = node.body.body.some(
     (n) => isJS3ClassPrivateMethod(n) && !n.static,
   );
@@ -1936,10 +1933,9 @@ const handleClassExpression = (
   cx.getCurrentBB().args.push(
     new CompoundAssnSEXP(
       new JSClassSEXP(
-        heritage ? heritage : new EnvReadSEXP("undefined"),
         constructorLambda,
         name,
-        isDerived,
+        node.superClass ? superClass : undefined,
       ),
       [
         new EnvWriteSEXP(finalClassProto, new NullSEXP(), true, false),
