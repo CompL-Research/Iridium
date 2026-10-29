@@ -158,6 +158,8 @@ import {
   JSObjectSEXP,
   JSPrivateFieldReadSEXP,
   JSPrivateFieldWriteSEXP,
+  JSPrivateFieldDefineSEXP,
+  JSHasPrivateSEXP,
   JSPrivateSEXP,
   JSSetHomeSEXP,
   JSSetPrototypeOfSEXP,
@@ -171,7 +173,6 @@ import {
   RegExpSEXP,
   ResolveContinueTargetSEXP,
   ResolveEnvBindingSEXP,
-  ResolvePrivateEnvBindingSEXP,
   ReturnAsyncSEXP,
   ReturnSEXP,
   StringSEXP,
@@ -333,9 +334,8 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   else if (isJS3BinaryExpression(init)) {
     let left: IridiumSEXP;
     if (isJS3PrivateName(init.left)) {
-      left = new ResolvePrivateEnvBindingSEXP(init.left.id.name, false);
-      // throw new Error("Handle binop with private names");
-      return getIridiumBinop("pin", IRIV2_RVAL(cx, init.right), left);
+      // #f in o
+      return new JSHasPrivateSEXP(IRIV2_RVAL(cx, init.right), init.left.id.name);
     } else {
       left = IRIV2_RVAL(cx, init.left);
       return getIridiumBinop(init.operator, left, IRIV2_RVAL(cx, init.right));
@@ -1337,12 +1337,10 @@ const createClassNonStaticPropInitClosure = (
           : "undefined",
       );
       cx.getCurrentBB().args.push(
-        new JSPrivateFieldWriteSEXP(
+        new JSPrivateFieldDefineSEXP(
           "this",
           lookupPrivateKeyHolder,
-          loweredValue,
-          true,
-        )
+          loweredValue)
       );
     }
   }
@@ -1481,12 +1479,10 @@ const createClassStaticPropInitClosure = (
           : "undefined",
       );
       cx.getCurrentBB().args.push(
-        new JSPrivateFieldWriteSEXP(
+        new JSPrivateFieldDefineSEXP(
           "this",
           lookupPrivateKeyHolder,
-          loweredValue,
-          true,
-        )
+          loweredValue)
       );
     } else if (isJS3StaticBlock(classItem)) {
       // { /** code **/ }
@@ -2233,9 +2229,7 @@ const handleAssignmentExpression = (
         new JSPrivateFieldWriteSEXP(
           obj,
           prop,
-          new EnvReadSEXP(rValSimp),
-          false,
-        )
+          new EnvReadSEXP(rValSimp))
       );
 
       return new EnvReadSEXP(rValSimp);

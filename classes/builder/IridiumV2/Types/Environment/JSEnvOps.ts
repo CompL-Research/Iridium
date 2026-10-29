@@ -1,76 +1,7 @@
-import { printFlagString, printIriSpace } from "#utils";
+import { printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP } from "../AbstractOperations/Resolution";
 import { IridiumSEXP } from "../Structural/General";
 import { EnvReadSEXP, isEnvReadSEXP } from "./PrimitiveEnvOps";
-import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEXP } from "./BindingsObjectConstituents";
-
-/**
- *
- * @extends {IridiumSEXP}
- *
- * @group RVAL
- *
- * @remarks
- *
- * Read a private binding from the environment, the read functionality
- *
- * #### Structure
- *
- * - `ARG(obj)`: The binding to be read, can be any environment binding {@link EnvBindingSEXP} | {@link RemoteEnvBindingSEXP} | {@link GlobalBindingSEXP} | {@link PoolBindingSEXP} (usually {@link ResolveEnvBindingSEXP} before transition).
- *
- * - `FLAG(SYMBOL : void | METHOD : void)`: Depending on the kind of binding, different checks/resolution semantics are applied. SYMBOL leads to a private field lookup while METHOD leads to a branch check.
- *
- * - `FLAG(FULLY_RESOLVE : void)`: Does the binding context request resolution?
- *
- */
-export class PVTEnvReadSEXP extends IridiumSEXP {
-  constructor(id: string, kind: "SYMBOL" | "METHOD", fullyResolve: boolean) {
-    super("PVTEnvRead");
-    this.setObj(new ResolveEnvBindingSEXP(id));
-    if (kind === "METHOD") this.setMethod();
-    else this.setSymbol();
-    if (fullyResolve) this.setFullyResolve();
-  }
-
-  // Args
-  setObj(val: IridiumSEXP) {
-    this.args[0] = val;
-  }
-
-  getObj() : IridiumSEXP {
-    return this.args[0];
-  }
-
-  // Flags
-  setSymbol() {
-    this.setFlag("SYMBOL");
-  }
-
-  hasSymbol() {
-    this.hasFlag("SYMBOL");
-  }
-
-  setMethod() {
-    this.setFlag("METHOD");
-  }
-
-  hasMethod() {
-    this.hasFlag("METHOD");
-  }
-
-  // Flags
-  setFullyResolve() {
-    this.setFlag("FULLY_RESOLVE");
-  }
-
-  isFullyResolve(): boolean {
-    return this.hasFlag("FULLY_RESOLVE");
-  }
-
-  toString(space?: number): string {
-    return `${printIriSpace(space)}PVTEnvRead [${this.getObj().toString(0)}] [${printFlagString(this.flags)}]`
-  }
-}
 
 /**
  *
@@ -239,17 +170,14 @@ export class JSPrivateFieldReadSEXP extends IridiumSEXP {
  *
  * - `ARG(value)`: The value to be written.
  *
- * - `FLAG(DECL : void)`: Is it a declaration?
- *
  */
 export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: EnvReadSEXP | string, right: IridiumSEXP, isDeclaration: boolean) {
+  constructor(object: string, field: EnvReadSEXP | string, right: IridiumSEXP) {
     super("JSPrivateFieldWrite");
     this.setObj(new EnvReadSEXP(object));
     if (isEnvReadSEXP(field)) this.setField(field);
-    else this.setField(new ResolvePrivateEnvBindingSEXP(field, false));
+    else this.setField(new ResolvePrivateEnvBindingSEXP(field));
     this.setValue(right);
-    if (isDeclaration) this.setDeclaration();
   }
 
   // Args
@@ -276,14 +204,52 @@ export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
   getValue(): IridiumSEXP {
     return this.args[2];
   }
+}
 
-  // Flags
-  setDeclaration() {
-    this.setFlag("DECL");
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group STMT
+ *
+ * @remarks
+ *
+ * Define a private field on an object (`PrivateFieldAdd`); throws if it already has it.
+ *
+ * #### Structure
+ *
+ * - `ARG(obj)`, `ARG(field)`, `ARG(value)`: As in {@link JSPrivateFieldWriteSEXP}.
+ *
+ */
+export class JSPrivateFieldDefineSEXP extends JSPrivateFieldWriteSEXP {
+  constructor(object: string, field: EnvReadSEXP | string, right: IridiumSEXP) {
+    super(object, field, right);
+    this.tag = "JSPrivateFieldDefine";
   }
+}
 
-  isDeclaration() : boolean {
-    return this.hasFlag("DECL");
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group AMP
+ *
+ * @remarks
+ *
+ * `#name in obj`: does obj have the private element.
+ *
+ * #### Structure
+ *
+ * - `ARG(obj)`: The object.
+ *
+ * - `ARG(name)`: The private name (resolved to the read of its symbol).
+ *
+ */
+export class JSHasPrivateSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP, name: string) {
+    super("JSHasPrivate");
+    this.args[0] = obj;
+    this.args[1] = new ResolvePrivateEnvBindingSEXP(name);
   }
 }
 
