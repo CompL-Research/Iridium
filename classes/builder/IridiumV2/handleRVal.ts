@@ -2495,7 +2495,8 @@ const readSuperObj = (cx: IRIDIUMV2): string => {
   return holder;
 };
 
-// CONTEXTUAL: calleeContext is `this`. CONSTRUCTOR: calleeContext is new.target.
+// NORMAL / CONTEXTUAL: calleeContext is `this` (undefined for a plain call).
+// CONSTRUCTOR: calleeContext is new.target.
 // SUPER: callee is the active function; the parent constructor (its prototype)
 // is read into a temp right before the call, after the arguments.
 // calleeContext is new.target.
@@ -2549,11 +2550,7 @@ const generateIridiumCall = (
     if (kind === "CONSTRUCTOR" || kind === "SUPER")
       return new JSConstructSEXP(callee, calleeContext, argReads, kind === "SUPER");
 
-    // CCall: [this, callee, ...]
-    const args: Array<IridiumSEXP> = [];
-    if (kind == "CONTEXTUAL") args.push(calleeContext);
-    args.push(callee, ...argReads);
-    return kind === "CONTEXTUAL" ? new CallSiteSEXP(args, "CCall") : new CallSiteSEXP(args);
+    return new CallSiteSEXP(callee, calleeContext, argReads);
   } else {
     // Apply semantics for arguments
     const argListHolder = generateDynamicCallArgList(cx, callArguments);
@@ -2629,7 +2626,8 @@ const handleCallExpression = (
 ) => {
   if (isIdentifier(node.callee)) {
     let callee = new EnvReadSEXP(node.callee.name);
-    let calleeContext = new NullSEXP();
+    // f(a): this is undefined
+    let calleeContext = new EnvReadSEXP("undefined");
     return generateIridiumCall(
       cx,
       callee,
