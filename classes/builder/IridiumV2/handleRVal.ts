@@ -894,7 +894,7 @@ const handleYieldExpression = (
   node: JS3YieldExpression,
 ): IridiumSEXP => {
   if (node.delegate) throw new Error("//TODO handle Yield * (delegated yield)");
-  let yieldDoneIndicator = newTemp("yieldDoneIndicator");
+  let yieldIsReturn = newTemp("yieldIsReturn");
   let yieldReturnResultHolder = newTemp("yieldReturnResultHolder");
 
   // Is async context?
@@ -929,7 +929,7 @@ const handleYieldExpression = (
 
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
-      new ResolveEnvBindingSEXP(yieldDoneIndicator),
+      new ResolveEnvBindingSEXP(yieldIsReturn),
       null,
       "JSLET",
       false,
@@ -952,7 +952,7 @@ const handleYieldExpression = (
           : new EnvReadSEXP(node.argument ? node.argument.name : "undefined")
       ),
       [
-        new EnvWriteSEXP(yieldDoneIndicator, new NullSEXP(), true, false),
+        new EnvWriteSEXP(yieldIsReturn, new NullSEXP(), true, false),
         new EnvWriteSEXP(yieldReturnResultHolder, new NullSEXP(), true, false),
       ]
     )
@@ -960,7 +960,7 @@ const handleYieldExpression = (
 
   // Make branch check the last instruction of currentBB
   const ifJump = new IfElseJumpSEXP(
-    new EnvReadSEXP(yieldDoneIndicator),
+    new EnvReadSEXP(yieldIsReturn),
     trueContext.BB[0].idx,
     -1,
   );

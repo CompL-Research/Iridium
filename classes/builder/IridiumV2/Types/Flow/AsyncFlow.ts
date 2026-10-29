@@ -58,7 +58,8 @@ export class AwaitSEXP extends IridiumSEXP {
  * @remarks
  *
  * Implements `yield` semantics. Yield can pass arguments which can be read as iterator/next values from the iterator function.
- * When the flow resumes, the yieldDoneIndicator value is check to perform an early return otherwise the flow of the generator function continues until next pause.
+ * When the flow resumes, yieldIsReturn is 1 if the generator was resumed with `.return(v)` (0 for `.next(v)`); it is checked to perform an early
+ * return (running finally blocks) otherwise the flow of the generator function continues until next pause.
  *
  * [MDN reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/yield)
  *
@@ -73,14 +74,14 @@ export class AwaitSEXP extends IridiumSEXP {
  * ```
  *
  * ```
- * <yieldDoneIndicator, yieldReturnResultHolder> = YIELD obj
+ * <yieldIsReturn, yieldReturnResultHolder> = YIELD obj
  * ```
  *
  * #### Structure
  *
  * - `ARG(obj)`: An object, likely a promise returned by an asynchronous function.
  *
- * - `ARG(doneTarget)`: The target location for yieldDoneIndicator (usually {@link ResolveEnvBindingSEXP} before transition).
+ * - `ARG(doneTarget)`: The target location for yieldIsReturn (usually {@link ResolveEnvBindingSEXP} before transition).
  *
  * - `ARG(nextValue)`: The target location for yieldReturnResultHolder (usually {@link ResolveEnvBindingSEXP} before transition).
  *
