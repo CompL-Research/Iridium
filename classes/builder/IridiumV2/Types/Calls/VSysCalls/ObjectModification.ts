@@ -63,6 +63,30 @@ export class JSSetPrototypeOfSEXP extends IridiumSEXP {
  *
  * @extends {IridiumSEXP}
  *
+ * @group AMP
+ *
+ * @remarks
+ *
+ * Reads the prototype of an object (`Object.getPrototypeOf(obj)`) when evaluated. Used to look up
+ * the parent constructor for `super()` (from `this.active_func`) and the super object for `super.x`
+ * (from `<home_object>`).
+ *
+ * #### Structure
+ *
+ * - `ARG(obj)`: The object whose prototype is read.
+ *
+ */
+export class JSGetPrototypeOfSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP) {
+    super("JSGetPrototypeOf");
+    this.args[0] = obj;
+  }
+}
+
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
  * @group RVAL
  *
  * @remarks
@@ -185,21 +209,12 @@ export class JSAppendSEXP extends IridiumSEXP {
  *
  * @extends {IridiumSEXP}
  *
- * @group RVAL
+ * @group STMT
  *
  * @remarks
  *
- * Given a JSObject, this call is used to define methods of different kinds on it.
- *
- * #### Action
- *
- * Given an `targetObj`, `key` and `value`, it adds the `value` to the specified `field`.
- *
- * ```
- * [updatedObject = 1] JSDefineObjMethod (targetObj, key, value)
- * ```
- *
- * #### Trigger
+ * Defines a method, getter or setter on an object (`define_method`): {@link JSDefineMethodSEXP},
+ * {@link JSDefineGetterSEXP}, {@link JSDefineSetterSEXP}. Create them with {@link newJSDefineObjMember}.
  *
  * ```
  * let a = {
@@ -211,94 +226,72 @@ export class JSAppendSEXP extends IridiumSEXP {
  *
  * #### Structure
  *
- * - `ARG(targetObj)`: The source object.
+ * - `ARG(targetObj)`: The object to define the member on.
  *
- * - `ARG(key)`: The field where the value must be stored.
+ * - `ARG(key)`: The member's key.
  *
- * - `ARG(value)`: The value, in this case a lambda.
+ * - `ARG(value)`: The function (a lambda).
  *
- * - `FLAG(NOENUM : void)`: Setting this flag ensures the fiels is not enumerable.
+ * - `FLAG(NOENUM : void)`: The member is not enumerable (class members).
  *
  */
-export class JSDefineObjMethodSEXP extends IridiumSEXP {
-  constructor(obj: IridiumSEXP, key: IridiumSEXP, value: IridiumSEXP, kind: "method" | "get" | "set", noenum: boolean = false) {
-    super("JSDefineObjMethod");
-    this.setTargetObj(obj);
-    this.setKey(key);
-    this.setValue(value);
-    if (kind === "method") this.setMethod();
-    else if (kind === "get") this.setGetter();
-    else if (kind === "set") this.setSetter();
-    if (noenum) this.setNOENUM();
-  }
-
-  // Args
-  setTargetObj(obj: IridiumSEXP) {
+abstract class JSDefineObjMemberSEXP extends IridiumSEXP {
+  constructor(tag: string, obj: IridiumSEXP, key: IridiumSEXP, value: IridiumSEXP, noenum: boolean) {
+    super(tag);
     this.args[0] = obj;
+    this.args[1] = key;
+    this.args[2] = value;
+    if (noenum) this.setFlag("NOENUM");
   }
 
   getTargetObj(): IridiumSEXP {
     return this.args[0];
   }
 
-  setKey(key: IridiumSEXP) {
-    this.args[1] = key;
-  }
-
   getKey(): IridiumSEXP {
     return this.args[1];
-  }
-
-  setValue(value: IridiumSEXP) {
-    this.args[2] = value;
   }
 
   getValue(): IridiumSEXP {
     return this.args[2];
   }
 
-  // Flags
-  setMethod() {
-    this.setFlag("METHOD");
-  }
-
-  isMethod() {
-    return this.hasFlag("METHOD");
-  }
-
-  setGetter() {
-    this.setFlag("GET");
-  }
-
-  isGetter() {
-    return this.hasFlag("GET");
-  }
-
-  setSetter() {
-    this.setFlag("SET");
-  }
-
-  isSetter() {
-    return this.hasFlag("SET");
-  }
-
-  setNOENUM() {
-    this.setFlag("NOENUM");
-  }
-
   isNOENUM() {
     return this.hasFlag("NOENUM");
   }
+}
 
-
-  toString(space?: number): string {
-    const res: Array<string> = [];
-    res.push(`${printIriSpace(space)}${this.tag}${printFlagString(this.flags)}`);
-    for (let s of this.args) {
-      res.push(`${printIriSpace(10)}${s.toString(0)}`);
-    }
-    return res.join("\n");
+export class JSDefineMethodSEXP extends JSDefineObjMemberSEXP {
+  constructor(obj: IridiumSEXP, key: IridiumSEXP, value: IridiumSEXP, noenum: boolean = false) {
+    super("JSDefineMethod", obj, key, value, noenum);
   }
+}
+
+export class JSDefineGetterSEXP extends JSDefineObjMemberSEXP {
+  constructor(obj: IridiumSEXP, key: IridiumSEXP, value: IridiumSEXP, noenum: boolean = false) {
+    super("JSDefineGetter", obj, key, value, noenum);
+  }
+}
+
+export class JSDefineSetterSEXP extends JSDefineObjMemberSEXP {
+  constructor(obj: IridiumSEXP, key: IridiumSEXP, value: IridiumSEXP, noenum: boolean = false) {
+    super("JSDefineSetter", obj, key, value, noenum);
+  }
+}
+
+/**
+ * The define node for a class / object literal member of the given kind.
+ */
+export function newJSDefineObjMember(
+  obj: IridiumSEXP,
+  key: IridiumSEXP,
+  value: IridiumSEXP,
+  kind: "method" | "get" | "set",
+  noenum: boolean = false,
+): IridiumSEXP {
+  if (kind === "get") return new JSDefineGetterSEXP(obj, key, value, noenum);
+  if (kind === "set") return new JSDefineSetterSEXP(obj, key, value, noenum);
+  return new JSDefineMethodSEXP(obj, key, value, noenum);
 }
 
 /**
@@ -482,14 +475,6 @@ export class JSCopyDataPropertiesSEXP extends IridiumSEXP {
 export function isJSDefineObjPropSEXP(o: any): o is JSDefineObjPropSEXP {
   // @ts-ignore
   return o.tag === "JSDefineObjProp";
-}
-
-/**
- * @hidden
- */
-export function isJSDefineObjMethodSEXP(o: any): o is JSDefineObjMethodSEXP {
-  // @ts-ignore
-  return o.tag === "JSDefineObjMethod";
 }
 
 /**

@@ -6,8 +6,6 @@ import { IridiumSEXP } from "../Structural/General";
  * @group TSHelper
  *
  */
-export type CallSiteSEXPFlags = "Import" | "Super" | "V8Intrinsic" | "CCall" | "ConstructorCall" | "PrivateCall" | "JSDirectEval";
-
 /**
  *
  * @extends {IridiumSEXP}
@@ -16,77 +14,24 @@ export type CallSiteSEXPFlags = "Import" | "Super" | "V8Intrinsic" | "CCall" | "
  *
  * @remarks
  *
- * Represents a call made to a closure. First `N` arguments are used to form the calling context, the value of N is 1 by default.
- * Depending on the marked flag (see {@link CallSiteSEXPFlags}) different values of `N` are selected.
- * Also, when calling a closure, different calling conventions might apply, these are broadly classified into the following three categories:
- *
- * 1. **Basic Closure Application**:
- *
- * - No flag set, N = 1 by default i.e. the first argument is the callee object. The rest of the args are passed as arguments to the callee.
- *
- * 2. **Contextual Closure Application**:
- *
- * - `CCall`: N = 2, the first two args form the calling context (first arg is mapped to the `this` object and the second arg is callee). The rest of the args are passed as arguments to the callee.
- *
- * - `PrivateCall`: N = 2, same as `CCall` but an additional brand check is needed before actual execution.
- *
- * 3. **Constructor Special Closure Application**: This kind of call expects two objects to form the calling context, the callee object and a new_target special object.
- *
- * - `ConstructorCall`: N = 1, (even though N = 1, the first argument is duplicated before the actual call). The rest of the args are passed as arguments to the closure.
- *
- * - `super`: N = 2. The rest of the args are passed as arguments to the closure.
- *
- * 4. **TODOs**: Import and V8Intrinsic.
+ * `[[Call]](callee, this, args)`: calls a closure with an explicit `this`. A plain call `f(a)` passes
+ * `undefined` as `this`; a method call `o.f(a)` passes `o`.
  *
  * #### Structure
  *
- * - `...ARG(...callContext, ...args)`: The first N args are used form the calling context while the rest are mapped to formals.
+ * - `ARG(callee)`: The closure to call.
  *
- * - `FLAG(CCall)`: Contextual Call where `this` binding is provided by the call site.
+ * - `ARG(this)`: The `this` value.
  *
- * - `FLAG(ConstructorCall)`: Contextual Call where `this` binding is provided by the call site.
+ * - `...ARG(args)`: The arguments.
  *
- * - `FLAG(PrivateCall)`: Contextual Call with added brand check.
- *
- * - `FLAG(Import)`: Dynamic import call.
- *
- * - `FLAG(Super)`: Call to the parent class constructor.
- *
- * - `FLAG(V8Intrinsic)`: Call to a V8 Intrinsic.
- *
- * - `FLAG(JSDirectEval)`: Marks the call as direct eval, i.e. in sloppy mode the evaled code **can** modify the enclosing environment.
+ * A plain `eval(a)` call is turned into a JSEval node by Forge (pass 16).
  *
  */
 export class CallSiteSEXP extends IridiumSEXP {
-  constructor(args: Array<IridiumSEXP>, closureFlag: CallSiteSEXPFlags | undefined = undefined) {
+  constructor(callee: IridiumSEXP, thisArg: IridiumSEXP, args: Array<IridiumSEXP>) {
     super("CallSite");
-    args.forEach(a => this.args.push(a));
-    if (closureFlag) this.setCallFlag(closureFlag);
-  }
-
-  // Flags
-  setCallFlag(closureFlag: CallSiteSEXPFlags) {
-    this.setFlag(closureFlag);
-  }
-
-  getCallFlag(): CallSiteSEXPFlags | undefined {
-    if (this.hasFlag("Import")) return "Import";
-    else if (this.hasFlag("Super")) return "Super";
-    else if (this.hasFlag("V8Intrinsic")) return "V8Intrinsic";
-    else if (this.hasFlag("CCall")) return "CCall";
-    else if (this.hasFlag("ConstructorCall")) return "ConstructorCall";
-    else if (this.hasFlag("PrivateCall")) return "PrivateCall";
-    else if (this.hasFlag("JSDirectEval")) return "JSDirectEval";
-    else return undefined;
-  }
-
-  setJSDirectEval(refIdx: number) {
-    this.setFlag("JSDirectEval", refIdx)
-  }
-
-  getJSDirectEval(): number {
-    if (!this.hasFlag("JSDirectEval")) throw new Error("Expected JSDirectEval to be set before this function is called");
-    return this.getFlagNumber("JSDirectEval");
+    this.args.push(callee, thisArg, ...args);
   }
 
   toString(space?: number): string {
@@ -124,14 +69,12 @@ export class CallSiteSEXP extends IridiumSEXP {
  *
  */
 export class ApplySEXP extends IridiumSEXP {
-  constructor(callee: IridiumSEXP, context: IridiumSEXP, argList: IridiumSEXP, isConstructorCall: boolean = false) {
+  constructor(callee: IridiumSEXP, context: IridiumSEXP, argList: IridiumSEXP) {
     super("Apply");
 
     this.setCallee(callee);
     this.setContext(context);
     this.setArgList(argList);
-
-    if (isConstructorCall) this.setConstructorCall();
   }
 
   // Args
@@ -159,31 +102,6 @@ export class ApplySEXP extends IridiumSEXP {
     return this.args[2];
   }
 
-  // Flags
-  setConstructorCall() {
-    this.setFlag("ConstructorCall");
-  }
-
-  hasConstructorCall(): boolean {
-    return this.hasFlag("ConstructorCall");
-  }
-
-  setSuper() {
-    this.setFlag("Super");
-  }
-
-  hasSuper(): boolean {
-    return this.hasFlag("Super");
-  }
-
-  setJSDirectEval(refIdx: number) {
-    this.setFlag("JSDirectEval", refIdx);
-  }
-
-  getJSDirectEval(): number {
-    if (!this.hasFlag("JSDirectEval")) throw new Error("Expected JSDirectEval to be set before this function is called");
-    return this.getFlagNumber("JSDirectEval");
-  }
 
 }
 
@@ -193,4 +111,55 @@ export class ApplySEXP extends IridiumSEXP {
 export function isCallSiteSEXP(o: any): o is CallSiteSEXP {
   // @ts-ignore
   return o.tag === "CallSite";
+}
+
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group AMP
+ *
+ * @remarks
+ *
+ * `[[Construct]](callee, args, newTarget)`. `new F(a)` passes `F` as new.target; `super(a)` passes the
+ * parent constructor as callee and the caller's `new.target`.
+ *
+ * #### Structure
+ *
+ * - `ARG(callee)`: The constructor.
+ *
+ * - `ARG(newTarget)`: Whose `prototype` the new object gets.
+ *
+ * - `...ARG(args)`: The arguments.
+ *
+ */
+export class JSConstructSEXP extends IridiumSEXP {
+  constructor(callee: IridiumSEXP, newTarget: IridiumSEXP, args: Array<IridiumSEXP>) {
+    super("JSConstruct");
+    this.args.push(callee, newTarget, ...args);
+  }
+}
+
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group AMP
+ *
+ * @remarks
+ *
+ * {@link JSConstructSEXP} with a dynamic argument list (spread).
+ *
+ * #### Structure
+ *
+ * - `ARG(callee)`, `ARG(newTarget)`: As in {@link JSConstructSEXP}.
+ *
+ * - `ARG(argList)`: A JSArray holding the arguments.
+ *
+ */
+export class JSConstructApplySEXP extends IridiumSEXP {
+  constructor(callee: IridiumSEXP, newTarget: IridiumSEXP, argList: IridiumSEXP) {
+    super("JSConstructApply");
+    this.args.push(callee, newTarget, argList);
+  }
 }

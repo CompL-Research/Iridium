@@ -218,9 +218,9 @@ export type JSImplicitBindingDeclarationTypes = "JSLET" | "JSCONST" | "JSVAR";
  *
  * 6. `<module_meta>`: Declares and initializes the `<module_meta>` (same as `import.meta` provided in the source code) object; It is generally used to get metadata such as filepath of the module/etc.
  *
- * 7. `<super_ctr>`: Declares and stores the `super()` at `<super_ctr>`; takes (this.active_func) as an argument.
+ * 7. (removed: `super()` reads the parent constructor with JSGetPrototypeOf)
  *
- * 8. `<super_obj>`: Declares and stores the `super` at `<super_obj>`; takes (<home_object>) as an argument.
+ * 8. (removed: super property access reads the super object with JSGetPrototypeOf)
  *
  * 9. `this`: Declares and initializes the `this` object (see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this).
  *
@@ -551,3 +551,4 @@ export function isJSExplicitBindingDeclarationSEXP(o: any): o is JSExplicitBindi
   // @ts-ignore
   return o.tag === "JSExplicitBindingDeclaration";
 }
+

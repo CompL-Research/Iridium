@@ -21,10 +21,6 @@ import { IridiumSEXP } from "../../Structural";
  * try {  } catch(e) {  } // result of e will be obtained using JSCatchContext
  * ```
  * 
- * #### Structure
- * 
- * - `FLAG(NAME)`: The name of the variable holding the catch value.
- * 
  */
 export class JSCatchContextSEXP extends IridiumSEXP {
   constructor() {

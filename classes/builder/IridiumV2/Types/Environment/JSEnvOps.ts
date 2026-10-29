@@ -1,77 +1,7 @@
-import { printFlagString, printIriSpace } from "#utils";
-import { ResolveEnvBindingSEXP, ResolvePrivateEnvBindingSEXP } from "../AbstractOperations/Resolution";
+import { printIriSpace } from "#utils";
+import { ResolveEnvBindingSEXP } from "../AbstractOperations/Resolution";
 import { IridiumSEXP } from "../Structural/General";
-import { StringSEXP } from "../RVAL/Primitives";
-import { EnvReadSEXP, isEnvReadSEXP } from "./PrimitiveEnvOps";
-import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEXP } from "./BindingsObjectConstituents";
-
-/**
- *
- * @extends {IridiumSEXP}
- *
- * @group RVAL
- *
- * @remarks
- *
- * Read a private binding from the environment, the read functionality
- *
- * #### Structure
- *
- * - `ARG(obj)`: The binding to be read, can be any environment binding {@link EnvBindingSEXP} | {@link RemoteEnvBindingSEXP} | {@link GlobalBindingSEXP} | {@link PoolBindingSEXP} (usually {@link ResolveEnvBindingSEXP} before transition).
- *
- * - `FLAG(SYMBOL : void | METHOD : void)`: Depending on the kind of binding, different checks/resolution semantics are applied. SYMBOL leads to a private field lookup while METHOD leads to a branch check.
- *
- * - `FLAG(FULLY_RESOLVE : void)`: Does the binding context request resolution?
- *
- */
-export class PVTEnvReadSEXP extends IridiumSEXP {
-  constructor(id: string, kind: "SYMBOL" | "METHOD", fullyResolve: boolean) {
-    super("PVTEnvRead");
-    this.setObj(new ResolveEnvBindingSEXP(id));
-    if (kind === "METHOD") this.setMethod();
-    else this.setSymbol();
-    if (fullyResolve) this.setFullyResolve();
-  }
-
-  // Args
-  setObj(val: IridiumSEXP) {
-    this.args[0] = val;
-  }
-
-  getObj() : IridiumSEXP {
-    return this.args[0];
-  }
-
-  // Flags
-  setSymbol() {
-    this.setFlag("SYMBOL");
-  }
-
-  hasSymbol() {
-    this.hasFlag("SYMBOL");
-  }
-
-  setMethod() {
-    this.setFlag("METHOD");
-  }
-
-  hasMethod() {
-    this.hasFlag("METHOD");
-  }
-
-  // Flags
-  setFullyResolve() {
-    this.setFlag("FULLY_RESOLVE");
-  }
-
-  isFullyResolve(): boolean {
-    return this.hasFlag("FULLY_RESOLVE");
-  }
-
-  toString(space?: number): string {
-    return `${printIriSpace(space)}PVTEnvRead [${this.getObj().toString(0)}] [${printFlagString(this.flags)}]`
-  }
-}
+import { EnvReadSEXP } from "./PrimitiveEnvOps";
 
 /**
  *
@@ -91,13 +21,14 @@ export class PVTEnvReadSEXP extends IridiumSEXP {
  *
  */
 export class JSComputedFieldReadSEXP extends IridiumSEXP {
-  constructor(object: string, field: string | IridiumSEXP) {
+  constructor(object: string, field: string | IridiumSEXP, receiver?: IridiumSEXP) {
     super("JSComputedFieldRead");
     this.setObj(new EnvReadSEXP(object));
     if (typeof field === "string")
       this.setField(new EnvReadSEXP(field));
     else
       this.setField(field);
+    if (receiver) this.args[2] = receiver;
   }
 
   // Args
@@ -138,7 +69,7 @@ export class JSComputedFieldReadSEXP extends IridiumSEXP {
  *
  */
 export class JSComputedFieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: string | IridiumSEXP, right: IridiumSEXP) {
+  constructor(object: string, field: string | IridiumSEXP, right: IridiumSEXP, receiver?: IridiumSEXP) {
     super("JSComputedFieldWrite");
     this.setObj(new EnvReadSEXP(object));
     if (typeof field === "string")
@@ -146,6 +77,7 @@ export class JSComputedFieldWriteSEXP extends IridiumSEXP {
     else
       this.setField(field);
     this.setValue(right);
+    if (receiver) this.args[3] = receiver;
   }
 
   // Args
@@ -196,10 +128,11 @@ export class JSComputedFieldWriteSEXP extends IridiumSEXP {
  *
  */
 export class JSPrivateFieldReadSEXP extends IridiumSEXP {
-  constructor(object: string, field: string) {
+  // field: the read of the binding holding the private symbol
+  constructor(object: string, field: IridiumSEXP) {
     super("JSPrivateFieldRead");
     this.setObj(new EnvReadSEXP(object));
-    this.setField(new ResolvePrivateEnvBindingSEXP(field));
+    this.setField(field);
   }
 
   // Args
@@ -238,17 +171,14 @@ export class JSPrivateFieldReadSEXP extends IridiumSEXP {
  *
  * - `ARG(value)`: The value to be written.
  *
- * - `FLAG(DECL : void)`: Is it a declaration?
- *
  */
 export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: EnvReadSEXP | string, right: IridiumSEXP, isDeclaration: boolean) {
+  // field: the read of the binding holding the private symbol
+  constructor(object: string, field: IridiumSEXP, right: IridiumSEXP) {
     super("JSPrivateFieldWrite");
     this.setObj(new EnvReadSEXP(object));
-    if (isEnvReadSEXP(field)) this.setField(field);
-    else this.setField(new ResolvePrivateEnvBindingSEXP(field, false));
+    this.setField(field);
     this.setValue(right);
-    if (isDeclaration) this.setDeclaration();
   }
 
   // Args
@@ -275,14 +205,27 @@ export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
   getValue(): IridiumSEXP {
     return this.args[2];
   }
+}
 
-  // Flags
-  setDeclaration() {
-    this.setFlag("DECL");
-  }
-
-  isDeclaration() : boolean {
-    return this.hasFlag("DECL");
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group STMT
+ *
+ * @remarks
+ *
+ * Define a private field on an object (`PrivateFieldAdd`); throws if it already has it.
+ *
+ * #### Structure
+ *
+ * - `ARG(obj)`, `ARG(field)`, `ARG(value)`: As in {@link JSPrivateFieldWriteSEXP}.
+ *
+ */
+export class JSPrivateFieldDefineSEXP extends JSPrivateFieldWriteSEXP {
+  constructor(object: string, field: IridiumSEXP, right: IridiumSEXP) {
+    super(object, field, right);
+    this.tag = "JSPrivateFieldDefine";
   }
 }
 
@@ -290,56 +233,24 @@ export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
  *
  * @extends {IridiumSEXP}
  *
- * @group RVAL
+ * @group AMP
  *
  * @remarks
  *
- * Read a field from `super`.
+ * `#name in obj`: does obj have the private element.
  *
  * #### Structure
  *
- * - `ARG(this)`: The lexical `this` object.
+ * - `ARG(obj)`: The object.
  *
- * - `ARG(<home_object>)`: The lexical `<home_object>` object.
- *
- * - `ARG(field)`: The field to be read.
+ * - `ARG(name)`: The read of the binding holding the private symbol (or method / accessor).
  *
  */
-export class JSSuperFieldReadSEXP extends IridiumSEXP {
-  constructor(field: IridiumSEXP) {
-    super("JSSuperFieldRead");
-    this.setThis(new EnvReadSEXP("this"));
-    this.setSuper(new EnvReadSEXP("<home_object>"));
-    this.setField(field);
-  }
-
-  // Args
-  setThis(obj: IridiumSEXP) {
+export class JSHasPrivateSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP, name: IridiumSEXP) {
+    super("JSHasPrivate");
     this.args[0] = obj;
-  }
-
-  getThis(): IridiumSEXP {
-    return this.args[0];
-  }
-
-  setSuper(obj: IridiumSEXP) {
-    this.args[1] = obj;
-  }
-
-  getSuper(): IridiumSEXP {
-    return this.args[1];
-  }
-
-  setField(field: IridiumSEXP) {
-    this.args[2] = field;
-  }
-
-  getField(): IridiumSEXP {
-    return this.args[2];
-  }
-
-  toString(space?: number): string {
-    return `${printIriSpace(space)}[${this.args[0].toString(0)}, ${this.args[1].toString(0)}].${this.args[2].toString(0)}`
+    this.args[1] = name;
   }
 }
 
@@ -347,66 +258,47 @@ export class JSSuperFieldReadSEXP extends IridiumSEXP {
  *
  * @extends {IridiumSEXP}
  *
- * @group RVAL
+ * @group AMP
  *
  * @remarks
  *
- * Write to field of `super`.
+ * `obj.#m` for a private method (or the getter / setter of a private accessor): throws unless obj has
+ * the brand of the declaring class; the value is the function.
  *
  * #### Structure
  *
- * - `ARG(this)`: The lexical `this` object.
+ * - `ARG(obj)`: The object.
  *
- * - `ARG(<super_obj>)`: The lexical `<super_obj>` object.
- *
- * - `ARG(field)`: The field to be updated.
- *
- * - `ARG(value)`: The value to be written.
+ * - `ARG(method)`: The read of the binding holding the private method.
  *
  */
-export class JSSuperFieldWriteSEXP extends IridiumSEXP {
-  constructor(field: string, value: IridiumSEXP) {
-    super("JSSuperFieldWrite");
-    this.setThis(new EnvReadSEXP("this"));
-    this.setSuper(new EnvReadSEXP("<super_obj>"));
-    this.setField(new StringSEXP(field));
-    this.setValue(value);
-  }
-
-  // Args
-  setThis(obj: IridiumSEXP) {
+export class JSCheckBrandSEXP extends IridiumSEXP {
+  constructor(obj: IridiumSEXP, method: IridiumSEXP) {
+    super("JSCheckBrand");
     this.args[0] = obj;
-  }
-
-  getThis(): IridiumSEXP {
-    return this.args[0];
-  }
-
-  setSuper(obj: IridiumSEXP) {
-    this.args[1] = obj;
-  }
-
-  getSuper(): IridiumSEXP {
-    return this.args[1];
-  }
-
-  setField(field: IridiumSEXP) {
-    this.args[2] = field;
-  }
-
-  getField(): IridiumSEXP {
-    return this.args[2];
-  }
-
-  setValue(field: IridiumSEXP) {
-    this.args[3] = field;
-  }
-
-  getValue(): IridiumSEXP {
-    return this.args[3];
-  }
-
-  toString(space?: number): string {
-    return `${printIriSpace(space)}super.${this.args[2].toString(0)} = ${this.args[3].toString(0)}`
+    this.args[1] = method;
   }
 }
+
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group AMP
+ *
+ * @remarks
+ *
+ * Throws TypeError "'NAME' is read-only", e.g. writing a private method or getter-only accessor.
+ *
+ * #### Structure
+ *
+ * - `FLAG(NAME : string)`: The name in the message.
+ *
+ */
+export class JSThrowErrorSEXP extends IridiumSEXP {
+  constructor(name: string) {
+    super("JSThrowError");
+    this.setFlag("NAME", name);
+  }
+}
+

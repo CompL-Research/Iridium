@@ -110,6 +110,8 @@ import {
   JSForOfIteratorCloseSEXP,
   JSForOfNextSEXP,
   JSForOfStartSEXP,
+  JSForAwaitOfStartSEXP,
+  JSForAwaitOfNextSEXP,
   JSFuncDeclSEXP,
   JSImplicitBindingDeclarationSEXP,
   JSImplicitBindingDeclarationTypes,
@@ -653,15 +655,11 @@ const handleIteratedLoops = (
 
   if (isJS3ForOfStatement(stmt)) {
     // [<loop-iterator>, <loop-method>, <loop-catchoffset>] = JSForOfStartSEXP(RVal)
-    if (stmt.await) {
-      cx.getCurrentBB().args.push(
-        new JSForOfStartSEXP(iterRVALName, true)
-      );
-    } else {
-      cx.getCurrentBB().args.push(
-        new JSForOfStartSEXP(iterRVALName)
-      );
-    }
+    cx.getCurrentBB().args.push(
+      stmt.await
+        ? new JSForAwaitOfStartSEXP(iterRVALName)
+        : new JSForOfStartSEXP(iterRVALName),
+    );
   } else {
     // <loop-iterator> = JSForInStartSEXP(RVal)
     cx.getCurrentBB().args.push(
@@ -704,7 +702,9 @@ const handleIteratedLoops = (
     // [<loop-next>, <loop-done>] = JSForOfNextSEXP(RVal)
     cx.getCurrentBB().args.push(
       new CompoundAssnSEXP(
-        new JSForOfNextSEXP(new EnvReadSEXP(iterRVALName), stmt.await),
+        stmt.await
+          ? new JSForAwaitOfNextSEXP(new EnvReadSEXP(iterRVALName))
+          : new JSForOfNextSEXP(new EnvReadSEXP(iterRVALName)),
         [
           new EnvWriteSEXP("<loop-done>", new NullSEXP(), false, false),
           new EnvWriteSEXP("<loop-next>", new NullSEXP(), false, false),
@@ -2091,12 +2091,6 @@ const handleFunctionDeclaration = (
     { name: "new.target", type: "JSVAR", value: 3 },
     { name: "<home_object>", type: "JSVAR", value: 4 },
     { name: "<var>", type: "JSVAR", value: 5 },
-    {
-      name: "<super_obj>",
-      type: "JSCONST",
-      value: 8,
-      initializer: new ListSEXP([new EnvReadSEXP("<home_object>")]),
-    },
   ];
 
   const funBBIdx = createLambda(

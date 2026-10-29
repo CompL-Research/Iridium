@@ -109,18 +109,17 @@ export class JSForInNextSEXP extends IridiumSEXP {
  *
  * - `ARG(obj)`: The object instance.
  *
- * - `FLAG(AWAIT : boolean)`: true if this is a for await of loop otherwise false.
+ * For `for await` loops use {@link JSForAwaitOfStartSEXP}.
  *
  */
 export class JSForOfStartSEXP extends IridiumSEXP {
-  constructor(obj: string | IridiumSEXP, awaitVal: boolean = false) {
+  constructor(obj: string | IridiumSEXP) {
     super("JSForOfStart");
     if (typeof (obj) === "string") {
       this.setObj(new EnvReadSEXP(obj));
     } else {
       this.setObj(obj);
     }
-    this.setAWAIT(awaitVal);
   }
 
   // Args
@@ -130,15 +129,6 @@ export class JSForOfStartSEXP extends IridiumSEXP {
 
   getObj(): IridiumSEXP {
     return this.args[0];
-  }
-
-  // Flags
-  setAWAIT(awaitVal: boolean) {
-    this.setFlag("AWAIT", awaitVal);
-  }
-
-  getAWAIT() {
-    return this.getFlag("AWAIT");
   }
 
   toString(space?: number): string {
@@ -171,13 +161,12 @@ export class JSForOfStartSEXP extends IridiumSEXP {
  *
  * - `ARG(obj)`: The object instance {this is a placeholder to make data dependency explicit}
  *
- * - `FLAG(AWAIT : boolean)`: true if this is a for await of loop otherwise false.
+ * For `for await` loops use {@link JSForAwaitOfNextSEXP}.
  *
  */
 export class JSForOfNextSEXP extends IridiumSEXP {
-  constructor(obj: IridiumSEXP, awaitVal: boolean = false) {
+  constructor(obj: IridiumSEXP) {
     super("JSForOfNext");
-    this.setAWAIT(awaitVal);
     if (obj.tag != "EnvRead") throw new Error("Expected EnvRead for ForOfNext ~ obj");
     this.setObj(obj)
   }
@@ -191,15 +180,6 @@ export class JSForOfNextSEXP extends IridiumSEXP {
     return this.args[0];
   }
 
-  // Flags
-  setAWAIT(awaitVal: boolean) {
-    this.setFlag("AWAIT", awaitVal);
-  }
-
-  getAWAIT() {
-    return this.getFlag("AWAIT");
-  }
-
   toString(space?: number): string {
     const res: Array<string> = [];
     res.push(`${printIriSpace(space)}${this.tag}`);
@@ -207,6 +187,26 @@ export class JSForOfNextSEXP extends IridiumSEXP {
       res.push(`${printIriSpace(10)}${s.toString(0)}`);
     }
     return res.join("\n");
+  }
+}
+
+/**
+ * {@link JSForOfStartSEXP} for `for await` loops (for_await_of_start).
+ */
+export class JSForAwaitOfStartSEXP extends JSForOfStartSEXP {
+  constructor(obj: string | IridiumSEXP) {
+    super(obj);
+    this.tag = "JSForAwaitOfStart";
+  }
+}
+
+/**
+ * {@link JSForOfNextSEXP} for `for await` loops: the step result is awaited.
+ */
+export class JSForAwaitOfNextSEXP extends JSForOfNextSEXP {
+  constructor(obj: IridiumSEXP) {
+    super(obj);
+    this.tag = "JSForAwaitOfNext";
   }
 }
 

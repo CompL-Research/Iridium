@@ -216,10 +216,12 @@ export class SiblingSpecialWriteSEXP extends EnvWriteSEXP {
  *
  */
 export class FieldReadSEXP extends IridiumSEXP {
-  constructor(object: string, field: string) {
+  // receiver: `this` for the access when it differs from the object (super.f)
+  constructor(object: string, field: string, receiver?: IridiumSEXP) {
     super("FieldRead");
     this.setObj(new EnvReadSEXP(object));
     this.setField(new StringSEXP(field));
+    if (receiver) this.args[2] = receiver;
   }
 
   // Args
@@ -264,11 +266,12 @@ export class FieldReadSEXP extends IridiumSEXP {
  *
  */
 export class FieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: string, right: IridiumSEXP) {
+  constructor(object: string, field: string, right: IridiumSEXP, receiver?: IridiumSEXP) {
     super("FieldWrite");
     this.args.push(new EnvReadSEXP(object));
     this.args.push(new StringSEXP(field));
     this.args.push(right);
+    if (receiver) this.args.push(receiver);
   }
 
   toString(space?: number): string {
@@ -290,4 +293,29 @@ export function isEnvReadSEXP(o: any): o is EnvReadSEXP {
 export function isEnvWriteSEXP(o: any): o is EnvWriteSEXP {
   // @ts-ignore
   return o.tag === "EnvWrite";
+}
+
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group RVAL
+ *
+ * @remarks
+ *
+ * The value to bind `this` to after `super(...)` in a derived constructor: written with a THISINIT
+ * EnvWrite, which throws if `this` is already initialized (super() called twice).
+ *
+ * #### Structure
+ *
+ * - `ARG(oldVal)`: The current `this`.
+ *
+ * - `ARG(newVal)`: The object super() constructed.
+ *
+ */
+export class ThisINITSEXP extends IridiumSEXP {
+  constructor(oldVal: IridiumSEXP, newVal: IridiumSEXP) {
+    super("ThisINIT");
+    this.args.push(oldVal, newVal);
+  }
 }

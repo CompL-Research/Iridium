@@ -375,38 +375,35 @@ export class JSNUBDSEXP extends IridiumSEXP {
  *
  * #### Structure
  *
- * - `ARG(Parent)`: The parent class object.
- *
  * - `ARG(Constructor)`: The constructor closure.
+ *
+ * - `ARG(Parent?)`: The parent class object (`extends Parent`); present iff the class is derived.
  *
  * - `FLAG(NAME : string)`: Name of the class.
  *
- * - `FLAG(DERIVED : void)`: This flag is set if the class is a derived class.
- *
  */
 export class JSClassSEXP extends IridiumSEXP {
-  constructor(parent: IridiumSEXP, constructor: LambdaSEXP, name: string = "", isDerived: boolean) {
+  constructor(constructor: LambdaSEXP, name: string = "", parent?: IridiumSEXP) {
     super("JSClass");
-    this.setParent(parent);
     this.setConstructor(constructor);
+    if (parent) this.setParent(parent);
     this.setNAME(name);
-    if (isDerived) this.setDERIVED();
   }
 
   // Args
-  setParent(parent: IridiumSEXP) {
-    this.args[0] = parent;
-  }
-
-  getParent(): IridiumSEXP {
-    return this.args[0];
-  }
-
   setConstructor(constructor: IridiumSEXP) {
-    this.args[1] = constructor;
+    this.args[0] = constructor;
   }
 
   getConstructor(): IridiumSEXP {
+    return this.args[0];
+  }
+
+  setParent(parent: IridiumSEXP) {
+    this.args[1] = parent;
+  }
+
+  getParent(): IridiumSEXP | undefined {
     return this.args[1];
   }
 
@@ -417,14 +414,6 @@ export class JSClassSEXP extends IridiumSEXP {
 
   getName(): string {
     return this.getFlagString("NAME");
-  }
-
-  setDERIVED() {
-    this.setFlag("DERIVED");
-  }
-
-  isDERIVED(): boolean {
-    return this.hasFlag("DERIVED");
   }
 }
 

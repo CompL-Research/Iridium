@@ -128,7 +128,6 @@ import {
   FieldReadSEXP,
   FieldWriteSEXP,
   GotoSEXP,
-  IDOPSEXP,
   IfElseJumpSEXP,
   IridiumSEXP,
   isLambdaSEXP,
@@ -141,7 +140,7 @@ import {
   JSComputedFieldReadSEXP,
   JSComputedFieldWriteSEXP,
   JSCopyDataPropertiesSEXP,
-  JSDefineObjMethodSEXP,
+  newJSDefineObjMember,
   JSDefineObjPropSEXP,
   JSExplicitBindingDeclarationNSEXP,
   JSExplicitBindingDeclarationSEXP,
@@ -150,17 +149,23 @@ import {
   JSForOfStartSEXP,
   JSIDOPSEXP,
   JSImplicitBindingDeclarationSEXP,
+  JSGetPrototypeOfSEXP,
+  ThisINITSEXP,
+  JSConstructSEXP,
+  JSConstructApplySEXP,
   JSImplicitBindingDeclarationTypes,
   JSNUBDSEXP,
   JSObjectSEXP,
   JSPrivateFieldReadSEXP,
   JSPrivateFieldWriteSEXP,
+  JSPrivateFieldDefineSEXP,
+  JSHasPrivateSEXP,
+  JSCheckBrandSEXP,
+  JSThrowErrorSEXP,
   JSPrivateSEXP,
   JSSetHomeSEXP,
   JSSetPrototypeOfSEXP,
   JSSetNameSEXP,
-  JSSuperFieldReadSEXP,
-  JSSuperFieldWriteSEXP,
   JSTemplateSEXP,
   JSToObjectSEXP,
   LambdaSEXP,
@@ -170,7 +175,6 @@ import {
   RegExpSEXP,
   ResolveContinueTargetSEXP,
   ResolveEnvBindingSEXP,
-  ResolvePrivateEnvBindingSEXP,
   ReturnAsyncSEXP,
   ReturnSEXP,
   StringSEXP,
@@ -213,7 +217,7 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
         throw new Error(
           "Private member expression, impossible case, super obj",
         );
-      return new JSPrivateFieldReadSEXP(obj, prop);
+      return privateRead(cx, obj, prop);
     }
 
     // Identifier case
@@ -225,12 +229,9 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
         return new FieldReadSEXP(init.object.name, init.property.name);
       else if (isThisExpression(init.object))
         return new FieldReadSEXP("this", init.property.name);
-      else if (init.object.extra?.SuperCallCTX)
-        return new JSComputedFieldReadSEXP(
-          "<super_obj>",
-          new StringSEXP(init.property.name),
-        );
-      else return new JSSuperFieldReadSEXP(new StringSEXP(init.property.name));
+      else
+        // super.f: this->getprototypeof(<home_object>).f
+        return new FieldReadSEXP(readSuperObj(cx), init.property.name, new EnvReadSEXP("this"));
     } else {
       // ID[ID]
       // THIS[ID]
@@ -242,12 +243,9 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
         );
       else if (isThisExpression(init.object))
         return new JSComputedFieldReadSEXP("this", init.property.name);
-      else if (init.object.extra?.SuperCallCTX)
-        return new JSComputedFieldReadSEXP(
-          "<super_obj>",
-          new EnvReadSEXP(init.property.name),
-        );
-      else return new JSSuperFieldReadSEXP(new EnvReadSEXP(init.property.name));
+      else
+        // super[k]: this->getprototypeof(<home_object>)[k]
+        return new JSComputedFieldReadSEXP(readSuperObj(cx), init.property.name, new EnvReadSEXP("this"));
     }
   }
 
@@ -338,9 +336,9 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
   else if (isJS3BinaryExpression(init)) {
     let left: IridiumSEXP;
     if (isJS3PrivateName(init.left)) {
-      left = new ResolvePrivateEnvBindingSEXP(init.left.id.name, false);
-      // throw new Error("Handle binop with private names");
-      return getIridiumBinop("pin", IRIV2_RVAL(cx, init.right), left);
+      // #f in o
+      const decl = resolvePrivate(cx, init.left.id.name);
+      return new JSHasPrivateSEXP(IRIV2_RVAL(cx, init.right), privateNameRead(decl));
     } else {
       left = IRIV2_RVAL(cx, init.left);
       return getIridiumBinop(init.operator, left, IRIV2_RVAL(cx, init.right));
@@ -1086,7 +1084,13 @@ const handleComputedProps = (
   return computedPropMapping;
 };
 
-export type PrivateMapping = Map<string, [string, "PROP" | "METHOD"]>;
+// One entry per declared private element: [binding, kind]
+//   #x = 1 -> x: PROP    #x() {} -> x: METHOD
+//   get #x() -> get:x: GETTER    set #x(v) -> set:x: SETTER
+export type PrivateMapping = Map<
+  string,
+  [string, "PROP" | "METHOD" | "GETTER" | "SETTER"]
+>;
 
 const getPrivateMapping = (
   computedPropMapping: Map<
@@ -1102,7 +1106,12 @@ const getPrivateMapping = (
     if (isJS3ClassPrivateProperty(item)) {
       privateMapping.set(item.key.id.name, [target, "PROP"]);
     } else if (isJS3ClassPrivateMethod(item)) {
-      privateMapping.set(item.key.id.name, [target, "METHOD"]);
+      const name = item.key.id.name;
+      if (item.kind === "get")
+        privateMapping.set("get:" + name, [target, "GETTER"]);
+      else if (item.kind === "set")
+        privateMapping.set("set:" + name, [target, "SETTER"]);
+      else privateMapping.set(name, [target, "METHOD"]);
     }
   }
   // In case of no private mappings, return null...
@@ -1152,11 +1161,6 @@ const lowerClassMethods = (
       let allocaLocation = computedPropMapping.get(methodNode);
       if (!allocaLocation) throw new Error("allocaLocation is undefined");
 
-      if (methodNode.kind === "get" || methodNode.kind === "set")
-        throw new Error(
-          "setter and getters for private fields not supported yet",
-        );
-
       const funBodyLambda = handleFunctionExpression(
         cx,
         methodNode,
@@ -1168,11 +1172,15 @@ const lowerClassMethods = (
         new EnvWriteSEXP(allocaLocation, funBodyLambda, true, false),
       );
 
-      // Set name of the private method
+      // Set name of the private method ("get #x" / "set #x" for accessors)
+      const accessorPrefix =
+        methodNode.kind === "get" || methodNode.kind === "set"
+          ? methodNode.kind + " "
+          : "";
       cx.getCurrentBB().args.push(
         new JSSetNameSEXP(
           new EnvReadSEXP(allocaLocation),
-          new StringSEXP("#" + methodNode.key.id.name),
+          new StringSEXP(accessorPrefix + "#" + methodNode.key.id.name),
         )
       );
 
@@ -1202,7 +1210,7 @@ const lowerClassMethods = (
     }
 
     cx.getCurrentBB().args.push(
-      new JSDefineObjMethodSEXP(
+      newJSDefineObjMember(
         new EnvReadSEXP(PROTO_OBJ),
         mKeyObj,
         handleFunctionExpression(
@@ -1269,15 +1277,6 @@ const createClassNonStaticPropInitClosure = (
     );
   }
 
-  // add <super_obj>
-  cx.getCurrentBB().args.push(
-    new JSImplicitBindingDeclarationSEXP(
-      "<super_obj>",
-      "JSCONST",
-      8,
-      new ListSEXP([new EnvReadSEXP("<home_object>")]),
-    ),
-  );
   // if (hasSuper) {
   // }
 
@@ -1351,12 +1350,10 @@ const createClassNonStaticPropInitClosure = (
           : "undefined",
       );
       cx.getCurrentBB().args.push(
-        new JSPrivateFieldWriteSEXP(
+        new JSPrivateFieldDefineSEXP(
           "this",
           lookupPrivateKeyHolder,
-          loweredValue,
-          true,
-        )
+          loweredValue)
       );
     }
   }
@@ -1424,15 +1421,6 @@ const createClassStaticPropInitClosure = (
   // add <home_object>
   cx.getCurrentBB().args.push(
     new JSImplicitBindingDeclarationSEXP("<home_object>", "JSCONST", 4),
-  );
-  // add <super_obj>
-  cx.getCurrentBB().args.push(
-    new JSImplicitBindingDeclarationSEXP(
-      "<super_obj>",
-      "JSCONST",
-      8,
-      new ListSEXP([new EnvReadSEXP("<home_object>")]),
-    ),
   );
   // }
 
@@ -1504,12 +1492,10 @@ const createClassStaticPropInitClosure = (
           : "undefined",
       );
       cx.getCurrentBB().args.push(
-        new JSPrivateFieldWriteSEXP(
+        new JSPrivateFieldDefineSEXP(
           "this",
           lookupPrivateKeyHolder,
-          loweredValue,
-          true,
-        )
+          loweredValue)
       );
     } else if (isJS3StaticBlock(classItem)) {
       // { /** code **/ }
@@ -1578,16 +1564,10 @@ const createClassConstructorClosure = (
     { name: "new.target", type: "JSVAR", value: 3 },
     { name: "<home_object>", type: "JSVAR", value: 4 },
     { name: "<var>", type: "JSVAR", value: 5 },
-    {
-      name: "<super_obj>",
-      type: "JSCONST",
-      value: 8,
-      initializer: new ListSEXP([new EnvReadSEXP("<home_object>")]),
-    },
   ];
 
-  // Add <super_ctr> to the scope in case this is a derived class constructor
-  // This will allow us to call super
+  // Derived class constructor: super() looks up the parent constructor from
+  // this.active_func at the call (see superCtor)
   if (superClass) {
     // this = NUBD
     // This is a special case where we use thisinit
@@ -1597,20 +1577,15 @@ const createClassConstructorClosure = (
       type: "JSCONST",
       value: 2,
     });
-    implicitBindings.push({
-      name: "<super_ctr>",
-      type: "JSCONST",
-      value: 7,
-      initializer: new ListSEXP([
-        new EnvReadSEXP("this.active_func"),
-      ]),
-    });
   } else {
     // add "this" to the closure scope
     implicitBindings.push({ name: "this", type: "JSCONST", value: 9 });
   }
 
   const closureScopeCallback = () => {
+    // super() calls in the body (see emitSuperCall) run the field initializers
+    cx.getCurrentContext().propInitClos = propInitClos;
+
     // We initialize the binding which stores a reference to the property init closure
     // it has to be <class_fields_init> so that eval can find it in QJS
     cx.getCurrentBB().args.push(
@@ -1665,30 +1640,10 @@ const createClassConstructorClosure = (
       cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
     } else {
       if (!constructor) {
-        // Call constructor and initialize "this"
-        // const args: Array<IridiumSEXP> = [];
-        // args.push(new EnvReadSEXP("<super_ctr>"));
-        // args.push(new EnvReadSEXP("new.target"));
-        // const superCall = new CallSiteSEXP(args, "Super");
-        cx.getCurrentBB().args.push(
-          new JSExplicitBindingDeclarationSEXP(
-            new ResolveEnvBindingSEXP(newTemp("superResHolder")),
-            generateIridiumCall(
-              cx,
-              new EnvReadSEXP("new.target"),
-              new EnvReadSEXP("<super_ctr>"),
-              [
-                generateJS3SpreadElementfromBaseNode(
-                  identifier("arguments"),
-                  node,
-                ),
-              ],
-              "SUPER",
-            ),
-            "JSLET",
-            false,
-          ),
-        );
+        // super(...arguments)
+        emitSuperCall(cx, [
+          generateJS3SpreadElementfromBaseNode(identifier("arguments"), node),
+        ]);
       } else for (let item of constructorBody) IRIV2_STMT(cx, item);
 
       cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("this")));
@@ -1790,7 +1745,7 @@ const handleUpdateExpression = (
       isIdentifier(node.argument.property)
     ) {
       if (!node.argument.computed) {
-        return new IDOPSEXP(
+        return new JSIDOPSEXP(
           new FieldReadSEXP(
             isThisExpression(node.argument.object)
               ? "this"
@@ -1946,9 +1901,6 @@ const handleClassExpression = (
     }
   }
   // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{After Hertiage Reduction}`);
-  const isDerived = node.superClass ? true : false;
-
-  const heritage = node.superClass ? superClass : new EnvReadSEXP("undefined");
   const addBrand = node.body.body.some(
     (n) => isJS3ClassPrivateMethod(n) && !n.static,
   );
@@ -1983,10 +1935,9 @@ const handleClassExpression = (
   cx.getCurrentBB().args.push(
     new CompoundAssnSEXP(
       new JSClassSEXP(
-        heritage ? heritage : new EnvReadSEXP("undefined"),
         constructorLambda,
         name,
-        isDerived,
+        node.superClass ? superClass : undefined,
       ),
       [
         new EnvWriteSEXP(finalClassProto, new NullSEXP(), true, false),
@@ -2226,11 +2177,13 @@ const handleAssignmentExpression = (
         let rValSimp = newTemp("rValSimp");
         cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
 
+        // super[k] = v / super.k = v: this->getprototypeof(<home_object>)[k] = v,
+        // the super object is read after the rhs
+        const superObj = readSuperObj(cx);
         cx.getCurrentBB().args.push(
-          new JSSuperFieldWriteSEXP(
-            init.property.name,
-            new EnvReadSEXP(rValSimp),
-          )
+          init.computed
+            ? new JSComputedFieldWriteSEXP(superObj, init.property.name, new EnvReadSEXP(rValSimp), new EnvReadSEXP("this"))
+            : new FieldWriteSEXP(superObj, init.property.name, new EnvReadSEXP(rValSimp), new EnvReadSEXP("this")),
         );
 
         return new EnvReadSEXP(rValSimp);
@@ -2268,14 +2221,7 @@ const handleAssignmentExpression = (
       let rValSimp = newTemp("rValSimp");
       cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
 
-      cx.getCurrentBB().args.push(
-        new JSPrivateFieldWriteSEXP(
-          obj,
-          prop,
-          new EnvReadSEXP(rValSimp),
-          false,
-        )
-      );
+      privateWrite(cx, obj, prop, new EnvReadSEXP(rValSimp));
 
       return new EnvReadSEXP(rValSimp);
     }
@@ -2355,12 +2301,6 @@ const handleFunctionExpression = (
     { name: "new.target", type: "JSVAR", value: 3 },
     { name: "<home_object>", type: "JSVAR", value: 4 },
     { name: "<var>", type: "JSVAR", value: 5 },
-    {
-      name: "<super_obj>",
-      type: "JSCONST",
-      value: 8,
-      initializer: new ListSEXP([new EnvReadSEXP("<home_object>")]),
-    },
   ];
 
   let name = "";
@@ -2526,9 +2466,154 @@ const generateDynamicCallArgList = (
   return temp$id;
 };
 
+// The field initializer closure of the derived constructor a super() call
+// belongs to (the call may be in an arrow function inside the constructor).
+const derivedCtorPropInit = (cx: IRIDIUMV2): string => {
+  let curr: IridiumBuildContext | undefined = cx.getCurrentContext();
+  while (curr) {
+    if (curr.kind === CF_DERIVED_CTR) {
+      if (!curr.propInitClos)
+        throw new Error("super(): derived constructor without a field initializer closure");
+      return curr.propInitClos;
+    }
+    curr = IridiumBuildContext.CONTEXT_MAP.get(curr.parent);
+  }
+  throw new Error("super() outside a derived constructor");
+};
+
+// super(...args), as SuperCall: construct the parent, bind `this` to the result
+// (throws if already bound), run the field initializers; the value is the result.
+//   %superRes <- new new.target->%superCtor(...args)
+//   thisinit this .= this.init(this, %superRes)
+//   this->propInit()
+const emitSuperCall = (
+  cx: IRIDIUMV2,
+  args: Array<JS3ContainedExprKey | JS3SpreadElement | SpreadElement>,
+): EnvReadSEXP => {
+  const res = newTemp("superRes");
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationNSEXP(
+      new ResolveEnvBindingSEXP(res),
+      generateIridiumCall(
+        cx,
+        new EnvReadSEXP("this.active_func"),
+        new EnvReadSEXP("new.target"),
+        args,
+        "SUPER",
+      ),
+      "JSLET",
+      false,
+    ),
+  );
+  cx.getCurrentBB().args.push(
+    new EnvWriteSEXP(
+      "this",
+      new ThisINITSEXP(new EnvReadSEXP("this"), new EnvReadSEXP(res)),
+      false,
+      true,
+    ),
+  );
+  cx.getCurrentBB().args.push(
+    new CallSiteSEXP(new EnvReadSEXP(derivedCtorPropInit(cx)), new EnvReadSEXP("this"), []),
+  );
+  return new EnvReadSEXP(res);
+};
+
+// The private element #name as declared by the innermost enclosing class that
+// declares it in any form (see PrivateMapping): a field or method, a getter, a
+// setter. Each is the binding holding the private symbol or function.
+type PrivateDecl = {
+  plain?: [string, "PROP" | "METHOD" | "GETTER" | "SETTER"];
+  getter?: string;
+  setter?: string;
+};
+
+const resolvePrivate = (cx: IRIDIUMV2, name: string): PrivateDecl => {
+  let curr: IridiumBuildContext | undefined = cx.getCurrentContext();
+  while (curr) {
+    const mapping = curr.privateMapping;
+    if (mapping) {
+      const plain = mapping.get(name);
+      const getter = mapping.get("get:" + name);
+      const setter = mapping.get("set:" + name);
+      if (plain || getter || setter)
+        return { plain, getter: getter?.[0], setter: setter?.[0] };
+    }
+    curr = IridiumBuildContext.CONTEXT_MAP.get(curr.parent);
+  }
+  throw new Error("Failed to resolve private binding : " + name);
+};
+
+// The binding #name itself refers to (e.g. for #name in o)
+const privateNameRead = (decl: PrivateDecl): EnvReadSEXP =>
+  new EnvReadSEXP(decl.plain ? decl.plain[0] : (decl.getter ?? decl.setter)!);
+
+// %fn <- obj.#method[fn]: brand check, in its own statement
+const brandChecked = (cx: IRIDIUMV2, obj: string, fn: string): EnvReadSEXP => {
+  const holder = newTemp("brandChecked");
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationNSEXP(
+      new ResolveEnvBindingSEXP(holder),
+      new JSCheckBrandSEXP(new EnvReadSEXP(obj), new EnvReadSEXP(fn)),
+      "JSLET",
+      false,
+    ),
+  );
+  return new EnvReadSEXP(holder);
+};
+
+// obj.#name
+//   field: obj.#[sym]   method: obj.#method[m]
+//   getter: %g <- obj.#method[getter]; obj->%g()   setter only: throw.readonly
+const privateRead = (cx: IRIDIUMV2, obj: string, name: string): IridiumSEXP => {
+  const decl = resolvePrivate(cx, name);
+  if (decl.plain?.[1] === "PROP")
+    return new JSPrivateFieldReadSEXP(obj, new EnvReadSEXP(decl.plain[0]));
+  if (decl.plain?.[1] === "METHOD")
+    return new JSCheckBrandSEXP(new EnvReadSEXP(obj), new EnvReadSEXP(decl.plain[0]));
+  if (decl.getter)
+    return new CallSiteSEXP(brandChecked(cx, obj, decl.getter), new EnvReadSEXP(obj), []);
+  return new JSThrowErrorSEXP("#" + name);
+};
+
+// obj.#name = value, as a statement
+//   field: obj.#[sym] = v   setter: %s <- obj.#method[setter]; obj->%s(v)
+//   method / getter only: throw.readonly
+const privateWrite = (cx: IRIDIUMV2, obj: string, name: string, value: IridiumSEXP) => {
+  const decl = resolvePrivate(cx, name);
+  if (decl.plain?.[1] === "PROP")
+    cx.getCurrentBB().args.push(
+      new JSPrivateFieldWriteSEXP(obj, new EnvReadSEXP(decl.plain[0]), value),
+    );
+  else if (decl.setter)
+    cx.getCurrentBB().args.push(
+      new CallSiteSEXP(brandChecked(cx, obj, decl.setter), new EnvReadSEXP(obj), [value]),
+    );
+  else cx.getCurrentBB().args.push(new JSThrowErrorSEXP("#" + name));
+};
+
+// %superObj <- getprototypeof(<home_object>), read right before a super.x access
+const readSuperObj = (cx: IRIDIUMV2): string => {
+  const holder = newTemp("superObj");
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationNSEXP(
+      new ResolveEnvBindingSEXP(holder),
+      new JSGetPrototypeOfSEXP(new EnvReadSEXP("<home_object>")),
+      "JSLET",
+      false,
+    ),
+  );
+  return holder;
+};
+
+// NORMAL / CONTEXTUAL: calleeContext is `this` (undefined for a plain call).
+// CONSTRUCTOR: calleeContext is new.target.
+// SUPER: callee is the active function; the parent constructor (its prototype)
+// is read into a temp right before the call, after the arguments.
+// calleeContext is new.target.
 const generateIridiumCall = (
   cx: IRIDIUMV2,
-  callee: IridiumSEXP,
+  callee: IridiumSEXP, // SUPER: the active function
   calleeContext: IridiumSEXP,
   rawCallArguments: Array<
     JS3ContainedExprKey | JS3SpreadElement | SpreadElement
@@ -2547,61 +2632,44 @@ const generateIridiumCall = (
   const isSimpleArgList: boolean =
     callArguments.find((e) => !isIdentifier(e)) === undefined;
 
+  // %superCtor <- getprototypeof(this.active_func)
+  const readSuperCtor = () => {
+    const holder = newTemp("superCtor");
+    cx.getCurrentBB().args.push(
+      new JSExplicitBindingDeclarationNSEXP(
+        new ResolveEnvBindingSEXP(holder),
+        new JSGetPrototypeOfSEXP(callee),
+        "JSLET",
+        false,
+      ),
+    );
+    return new EnvReadSEXP(holder);
+  };
+
   if (isSimpleArgList) {
     // Regular call semantics
 
-    const args: Array<IridiumSEXP> = [];
-    if (kind == "CONTEXTUAL" || kind == "SUPER") {
-      args.push(calleeContext);
-    }
-    args.push(callee);
+    if (kind === "SUPER") callee = readSuperCtor();
 
+    const argReads: Array<IridiumSEXP> = [];
     for (const a of callArguments) {
       if (isIdentifier(a)) {
-        args.push(new EnvReadSEXP(a.name));
+        argReads.push(new EnvReadSEXP(a.name));
       } else throw new Error("TODO // SimpleArgList cannot have spread");
     }
 
-    if (kind === "CONTEXTUAL") {
-      return new CallSiteSEXP(args, "CCall");
-    } else if (kind === "CONSTRUCTOR") {
-      return new CallSiteSEXP(args, "ConstructorCall");
-    } else if (kind === "SUPER") {
-      return new CallSiteSEXP(args, "Super");
-    } else {
-      return new CallSiteSEXP(args);
-    }
+    if (kind === "CONSTRUCTOR" || kind === "SUPER")
+      return new JSConstructSEXP(callee, calleeContext, argReads);
+
+    return new CallSiteSEXP(callee, calleeContext, argReads);
   } else {
     // Apply semantics for arguments
     const argListHolder = generateDynamicCallArgList(cx, callArguments);
+    if (kind === "SUPER") callee = readSuperCtor();
 
-    if (kind === "NORMAL" || kind === "CONTEXTUAL") {
-      return new ApplySEXP(
-        callee, // Callee
-        calleeContext, // CTX
-        new EnvReadSEXP(argListHolder), // arglist
-        false,
-      );
-    } else if (kind === "SUPER") {
-      // SUPER passes callee = new.target, calleeContext = <super_ctr>;
-      // Apply expects the super ctor as Callee and new.target as CTX.
-      let res = new ApplySEXP(
-        calleeContext, // Callee: <super_ctr>
-        callee, // CTX: new.target
-        new EnvReadSEXP(argListHolder), // arglist
-        true, // constructor call
-      );
-      res.setSuper();
-      return res;
-    } else {
-      let res = new ApplySEXP(
-        callee, // Callee
-        calleeContext, // CTX, ignored
-        new EnvReadSEXP(argListHolder), // arglist
-        true, // constructor call
-      );
-      return res;
-    }
+    if (kind === "CONSTRUCTOR" || kind === "SUPER")
+      return new JSConstructApplySEXP(callee, calleeContext, new EnvReadSEXP(argListHolder));
+    return new ApplySEXP(callee, calleeContext, new EnvReadSEXP(argListHolder));
   }
 };
 
@@ -2614,7 +2682,8 @@ const handleNewExpression = (cx: IRIDIUMV2, node: JS3NewExpression) => {
       "TODO // NewExpression with Super | V8IntrinsicIdentifier not supported yet",
     );
 
-  let calleeContext: IridiumSEXP = new NullSEXP();
+  // new F(a): new.target is F itself
+  let calleeContext: IridiumSEXP = new EnvReadSEXP(node.callee.name);
   return generateIridiumCall(
     cx,
     callee,
@@ -2668,7 +2737,8 @@ const handleCallExpression = (
 ) => {
   if (isIdentifier(node.callee)) {
     let callee = new EnvReadSEXP(node.callee.name);
-    let calleeContext = new NullSEXP();
+    // f(a): this is undefined
+    let calleeContext = new EnvReadSEXP("undefined");
     return generateIridiumCall(
       cx,
       callee,
@@ -2677,15 +2747,7 @@ const handleCallExpression = (
       "NORMAL",
     );
   } else if (isSuper(node.callee)) {
-    let calleeContext = new EnvReadSEXP("<super_ctr>");
-    let callee = new EnvReadSEXP("new.target");
-    return generateIridiumCall(
-      cx,
-      callee,
-      calleeContext,
-      node.arguments,
-      "SUPER",
-    );
+    return emitSuperCall(cx, node.arguments);
   } else
     throw new Error(
       "TODO // CallExpression with JS3Import | Super | V8IntrinsicIdentifier",
@@ -2702,8 +2764,6 @@ const handleContextualCallExpression = (
   // Callee
   const tempHolder = newTemp("ccallCallee");
   {
-    if (!node.callee.object.extra) node.callee.object.extra = {};
-    node.callee.object.extra = { SuperCallCTX: true };
     const stmt = new JSExplicitBindingDeclarationSEXP(
       new ResolveEnvBindingSEXP(tempHolder),
       IRIV2_RVAL(cx, node.callee),
@@ -2878,7 +2938,7 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
   for (let prop of init.properties) {
     if (isJS3ObjectMethod(prop)) {
       cx.getCurrentBB().args.push(
-        new JSDefineObjMethodSEXP(
+        newJSDefineObjMember(
           new EnvReadSEXP(obj$id),
           prop.computed
             ? IRIV2_RVAL(cx, prop.key)
