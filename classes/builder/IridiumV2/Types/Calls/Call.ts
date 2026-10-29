@@ -132,14 +132,11 @@ export function isCallSiteSEXP(o: any): o is CallSiteSEXP {
  *
  * - `...ARG(args)`: The arguments.
  *
- * - `FLAG(Super?)`: A `super(...)` call; pass 6 binds `this` and runs the field initializers after it.
- *
  */
 export class JSConstructSEXP extends IridiumSEXP {
-  constructor(callee: IridiumSEXP, newTarget: IridiumSEXP, args: Array<IridiumSEXP>, isSuper: boolean = false) {
+  constructor(callee: IridiumSEXP, newTarget: IridiumSEXP, args: Array<IridiumSEXP>) {
     super("JSConstruct");
     this.args.push(callee, newTarget, ...args);
-    if (isSuper) this.setFlag("Super");
   }
 }
 
@@ -159,13 +156,10 @@ export class JSConstructSEXP extends IridiumSEXP {
  *
  * - `ARG(argList)`: A JSArray holding the arguments.
  *
- * - `FLAG(Super?)`: A `super(...)` call.
- *
  */
 export class JSConstructApplySEXP extends IridiumSEXP {
-  constructor(callee: IridiumSEXP, newTarget: IridiumSEXP, argList: IridiumSEXP, isSuper: boolean = false) {
+  constructor(callee: IridiumSEXP, newTarget: IridiumSEXP, argList: IridiumSEXP) {
     super("JSConstructApply");
     this.args.push(callee, newTarget, argList);
-    if (isSuper) this.setFlag("Super");
   }
 }

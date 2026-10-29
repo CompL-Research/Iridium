@@ -151,6 +151,7 @@ import {
   JSIDOPSEXP,
   JSImplicitBindingDeclarationSEXP,
   JSGetPrototypeOfSEXP,
+  ThisINITSEXP,
   JSConstructSEXP,
   JSConstructApplySEXP,
   JSImplicitBindingDeclarationTypes,
@@ -1580,6 +1581,9 @@ const createClassConstructorClosure = (
   }
 
   const closureScopeCallback = () => {
+    // super() calls in the body (see emitSuperCall) run the field initializers
+    cx.getCurrentContext().propInitClos = propInitClos;
+
     // We initialize the binding which stores a reference to the property init closure
     // it has to be <class_fields_init> so that eval can find it in QJS
     cx.getCurrentBB().args.push(
@@ -1634,26 +1638,10 @@ const createClassConstructorClosure = (
       cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
     } else {
       if (!constructor) {
-        // Call the parent constructor and initialize "this"
-        cx.getCurrentBB().args.push(
-          new JSExplicitBindingDeclarationSEXP(
-            new ResolveEnvBindingSEXP(newTemp("superResHolder")),
-            generateIridiumCall(
-              cx,
-              new EnvReadSEXP("this.active_func"),
-              new EnvReadSEXP("new.target"),
-              [
-                generateJS3SpreadElementfromBaseNode(
-                  identifier("arguments"),
-                  node,
-                ),
-              ],
-              "SUPER",
-            ),
-            "JSLET",
-            false,
-          ),
-        );
+        // super(...arguments)
+        emitSuperCall(cx, [
+          generateJS3SpreadElementfromBaseNode(identifier("arguments"), node),
+        ]);
       } else for (let item of constructorBody) IRIV2_STMT(cx, item);
 
       cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("this")));
@@ -2485,6 +2473,59 @@ const generateDynamicCallArgList = (
   return temp$id;
 };
 
+// The field initializer closure of the derived constructor a super() call
+// belongs to (the call may be in an arrow function inside the constructor).
+const derivedCtorPropInit = (cx: IRIDIUMV2): string => {
+  let curr: IridiumBuildContext | undefined = cx.getCurrentContext();
+  while (curr) {
+    if (curr.kind === CF_DERIVED_CTR) {
+      if (!curr.propInitClos)
+        throw new Error("super(): derived constructor without a field initializer closure");
+      return curr.propInitClos;
+    }
+    curr = IridiumBuildContext.CONTEXT_MAP.get(curr.parent);
+  }
+  throw new Error("super() outside a derived constructor");
+};
+
+// super(...args), as SuperCall: construct the parent, bind `this` to the result
+// (throws if already bound), run the field initializers; the value is the result.
+//   %superRes <- new new.target->%superCtor(...args)
+//   thisinit this .= this.init(this, %superRes)
+//   this->propInit()
+const emitSuperCall = (
+  cx: IRIDIUMV2,
+  args: Array<JS3ContainedExprKey | JS3SpreadElement | SpreadElement>,
+): EnvReadSEXP => {
+  const res = newTemp("superRes");
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationNSEXP(
+      new ResolveEnvBindingSEXP(res),
+      generateIridiumCall(
+        cx,
+        new EnvReadSEXP("this.active_func"),
+        new EnvReadSEXP("new.target"),
+        args,
+        "SUPER",
+      ),
+      "JSLET",
+      false,
+    ),
+  );
+  cx.getCurrentBB().args.push(
+    new EnvWriteSEXP(
+      "this",
+      new ThisINITSEXP(new EnvReadSEXP("this"), new EnvReadSEXP(res)),
+      false,
+      true,
+    ),
+  );
+  cx.getCurrentBB().args.push(
+    new CallSiteSEXP(new EnvReadSEXP(derivedCtorPropInit(cx)), new EnvReadSEXP("this"), []),
+  );
+  return new EnvReadSEXP(res);
+};
+
 // %superObj <- getprototypeof(<home_object>), read right before a super.x access
 const readSuperObj = (cx: IRIDIUMV2): string => {
   const holder = newTemp("superObj");
@@ -2552,7 +2593,7 @@ const generateIridiumCall = (
     }
 
     if (kind === "CONSTRUCTOR" || kind === "SUPER")
-      return new JSConstructSEXP(callee, calleeContext, argReads, kind === "SUPER");
+      return new JSConstructSEXP(callee, calleeContext, argReads);
 
     return new CallSiteSEXP(callee, calleeContext, argReads);
   } else {
@@ -2561,7 +2602,7 @@ const generateIridiumCall = (
     if (kind === "SUPER") callee = readSuperCtor();
 
     if (kind === "CONSTRUCTOR" || kind === "SUPER")
-      return new JSConstructApplySEXP(callee, calleeContext, new EnvReadSEXP(argListHolder), kind === "SUPER");
+      return new JSConstructApplySEXP(callee, calleeContext, new EnvReadSEXP(argListHolder));
     return new ApplySEXP(callee, calleeContext, new EnvReadSEXP(argListHolder));
   }
 };
@@ -2640,13 +2681,7 @@ const handleCallExpression = (
       "NORMAL",
     );
   } else if (isSuper(node.callee)) {
-    return generateIridiumCall(
-      cx,
-      new EnvReadSEXP("this.active_func"),
-      new EnvReadSEXP("new.target"),
-      node.arguments,
-      "SUPER",
-    );
+    return emitSuperCall(cx, node.arguments);
   } else
     throw new Error(
       "TODO // CallExpression with JS3Import | Super | V8IntrinsicIdentifier",

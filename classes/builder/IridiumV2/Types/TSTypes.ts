@@ -1,4 +1,4 @@
-/** Generated: 2026-10-30 02:04:41 */
+/** Generated: 2026-10-30 02:50:44 */
 
 export enum IriTag {
   File = 0,
@@ -188,5 +188,4 @@ export enum IriFlag {
   INIT = 70,
   DECLVAR = 71,
   DECLFUN = 72,
-  Super = 73,
 }
