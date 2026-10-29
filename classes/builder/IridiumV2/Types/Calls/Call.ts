@@ -6,7 +6,7 @@ import { IridiumSEXP } from "../Structural/General";
  * @group TSHelper
  *
  */
-export type CallSiteSEXPFlags = "Import" | "Super" | "V8Intrinsic" | "CCall" | "ConstructorCall" | "PrivateCall" | "JSDirectEval";
+export type CallSiteSEXPFlags = "Import" | "V8Intrinsic" | "CCall" | "PrivateCall" | "JSDirectEval";
 
 /**
  *
@@ -71,10 +71,8 @@ export class CallSiteSEXP extends IridiumSEXP {
 
   getCallFlag(): CallSiteSEXPFlags | undefined {
     if (this.hasFlag("Import")) return "Import";
-    else if (this.hasFlag("Super")) return "Super";
     else if (this.hasFlag("V8Intrinsic")) return "V8Intrinsic";
     else if (this.hasFlag("CCall")) return "CCall";
-    else if (this.hasFlag("ConstructorCall")) return "ConstructorCall";
     else if (this.hasFlag("PrivateCall")) return "PrivateCall";
     else if (this.hasFlag("JSDirectEval")) return "JSDirectEval";
     else return undefined;
@@ -124,14 +122,12 @@ export class CallSiteSEXP extends IridiumSEXP {
  *
  */
 export class ApplySEXP extends IridiumSEXP {
-  constructor(callee: IridiumSEXP, context: IridiumSEXP, argList: IridiumSEXP, isConstructorCall: boolean = false) {
+  constructor(callee: IridiumSEXP, context: IridiumSEXP, argList: IridiumSEXP) {
     super("Apply");
 
     this.setCallee(callee);
     this.setContext(context);
     this.setArgList(argList);
-
-    if (isConstructorCall) this.setConstructorCall();
   }
 
   // Args
@@ -160,22 +156,6 @@ export class ApplySEXP extends IridiumSEXP {
   }
 
   // Flags
-  setConstructorCall() {
-    this.setFlag("ConstructorCall");
-  }
-
-  hasConstructorCall(): boolean {
-    return this.hasFlag("ConstructorCall");
-  }
-
-  setSuper() {
-    this.setFlag("Super");
-  }
-
-  hasSuper(): boolean {
-    return this.hasFlag("Super");
-  }
-
   setJSDirectEval(refIdx: number) {
     this.setFlag("JSDirectEval", refIdx);
   }
@@ -193,4 +173,61 @@ export class ApplySEXP extends IridiumSEXP {
 export function isCallSiteSEXP(o: any): o is CallSiteSEXP {
   // @ts-ignore
   return o.tag === "CallSite";
+}
+
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group AMP
+ *
+ * @remarks
+ *
+ * `[[Construct]](callee, args, newTarget)`. `new F(a)` passes `F` as new.target; `super(a)` passes the
+ * parent constructor as callee and the caller's `new.target`.
+ *
+ * #### Structure
+ *
+ * - `ARG(callee)`: The constructor.
+ *
+ * - `ARG(newTarget)`: Whose `prototype` the new object gets.
+ *
+ * - `...ARG(args)`: The arguments.
+ *
+ * - `FLAG(Super?)`: A `super(...)` call; pass 6 binds `this` and runs the field initializers after it.
+ *
+ */
+export class JSConstructSEXP extends IridiumSEXP {
+  constructor(callee: IridiumSEXP, newTarget: IridiumSEXP, args: Array<IridiumSEXP>, isSuper: boolean = false) {
+    super("JSConstruct");
+    this.args.push(callee, newTarget, ...args);
+    if (isSuper) this.setFlag("Super");
+  }
+}
+
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group AMP
+ *
+ * @remarks
+ *
+ * {@link JSConstructSEXP} with a dynamic argument list (spread).
+ *
+ * #### Structure
+ *
+ * - `ARG(callee)`, `ARG(newTarget)`: As in {@link JSConstructSEXP}.
+ *
+ * - `ARG(argList)`: A JSArray holding the arguments.
+ *
+ * - `FLAG(Super?)`: A `super(...)` call.
+ *
+ */
+export class JSConstructApplySEXP extends IridiumSEXP {
+  constructor(callee: IridiumSEXP, newTarget: IridiumSEXP, argList: IridiumSEXP, isSuper: boolean = false) {
+    super("JSConstructApply");
+    this.args.push(callee, newTarget, argList);
+    if (isSuper) this.setFlag("Super");
+  }
 }

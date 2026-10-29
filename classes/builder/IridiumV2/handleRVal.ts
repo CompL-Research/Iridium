@@ -151,6 +151,8 @@ import {
   JSIDOPSEXP,
   JSImplicitBindingDeclarationSEXP,
   JSGetPrototypeOfSEXP,
+  JSConstructSEXP,
+  JSConstructApplySEXP,
   JSImplicitBindingDeclarationTypes,
   JSNUBDSEXP,
   JSObjectSEXP,
@@ -2493,9 +2495,10 @@ const readSuperObj = (cx: IRIDIUMV2): string => {
   return holder;
 };
 
+// CONTEXTUAL: calleeContext is `this`. CONSTRUCTOR: calleeContext is new.target.
 // SUPER: callee is the active function; the parent constructor (its prototype)
-// is read into a temp right before the call, after the arguments. calleeContext
-// is new.target.
+// is read into a temp right before the call, after the arguments.
+// calleeContext is new.target.
 const generateIridiumCall = (
   cx: IRIDIUMV2,
   callee: IridiumSEXP, // SUPER: the active function
@@ -2536,49 +2539,29 @@ const generateIridiumCall = (
 
     if (kind === "SUPER") callee = readSuperCtor();
 
-    // CCall: [this, callee, ...]; Super: [callee, new.target, ...]
-    const args: Array<IridiumSEXP> = [];
-    if (kind == "CONTEXTUAL") args.push(calleeContext);
-    args.push(callee);
-    if (kind == "SUPER") args.push(calleeContext);
-
+    const argReads: Array<IridiumSEXP> = [];
     for (const a of callArguments) {
       if (isIdentifier(a)) {
-        args.push(new EnvReadSEXP(a.name));
+        argReads.push(new EnvReadSEXP(a.name));
       } else throw new Error("TODO // SimpleArgList cannot have spread");
     }
 
-    if (kind === "CONTEXTUAL") {
-      return new CallSiteSEXP(args, "CCall");
-    } else if (kind === "CONSTRUCTOR") {
-      return new CallSiteSEXP(args, "ConstructorCall");
-    } else if (kind === "SUPER") {
-      return new CallSiteSEXP(args, "Super");
-    } else {
-      return new CallSiteSEXP(args);
-    }
+    if (kind === "CONSTRUCTOR" || kind === "SUPER")
+      return new JSConstructSEXP(callee, calleeContext, argReads, kind === "SUPER");
+
+    // CCall: [this, callee, ...]
+    const args: Array<IridiumSEXP> = [];
+    if (kind == "CONTEXTUAL") args.push(calleeContext);
+    args.push(callee, ...argReads);
+    return kind === "CONTEXTUAL" ? new CallSiteSEXP(args, "CCall") : new CallSiteSEXP(args);
   } else {
     // Apply semantics for arguments
     const argListHolder = generateDynamicCallArgList(cx, callArguments);
     if (kind === "SUPER") callee = readSuperCtor();
 
-    if (kind === "NORMAL" || kind === "CONTEXTUAL") {
-      return new ApplySEXP(
-        callee, // Callee
-        calleeContext, // CTX
-        new EnvReadSEXP(argListHolder), // arglist
-        false,
-      );
-    } else {
-      let res = new ApplySEXP(
-        callee, // Callee
-        calleeContext, // CTX: new.target for SUPER, ignored for CONSTRUCTOR
-        new EnvReadSEXP(argListHolder), // arglist
-        true, // constructor call
-      );
-      if (kind === "SUPER") res.setSuper();
-      return res;
-    }
+    if (kind === "CONSTRUCTOR" || kind === "SUPER")
+      return new JSConstructApplySEXP(callee, calleeContext, new EnvReadSEXP(argListHolder), kind === "SUPER");
+    return new ApplySEXP(callee, calleeContext, new EnvReadSEXP(argListHolder));
   }
 };
 
@@ -2591,7 +2574,8 @@ const handleNewExpression = (cx: IRIDIUMV2, node: JS3NewExpression) => {
       "TODO // NewExpression with Super | V8IntrinsicIdentifier not supported yet",
     );
 
-  let calleeContext: IridiumSEXP = new NullSEXP();
+  // new F(a): new.target is F itself
+  let calleeContext: IridiumSEXP = new EnvReadSEXP(node.callee.name);
   return generateIridiumCall(
     cx,
     callee,
