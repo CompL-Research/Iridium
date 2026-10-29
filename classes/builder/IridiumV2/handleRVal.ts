@@ -160,8 +160,6 @@ import {
   JSSetHomeSEXP,
   JSSetPrototypeOfSEXP,
   JSSetNameSEXP,
-  JSSuperFieldReadSEXP,
-  JSSuperFieldWriteSEXP,
   JSTemplateSEXP,
   JSToObjectSEXP,
   LambdaSEXP,
@@ -226,7 +224,9 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
         return new FieldReadSEXP(init.object.name, init.property.name);
       else if (isThisExpression(init.object))
         return new FieldReadSEXP("this", init.property.name);
-      else return new JSSuperFieldReadSEXP(new StringSEXP(init.property.name));
+      else
+        // super.f: this->getprototypeof(<home_object>).f
+        return new FieldReadSEXP(readSuperObj(cx), init.property.name, new EnvReadSEXP("this"));
     } else {
       // ID[ID]
       // THIS[ID]
@@ -238,7 +238,9 @@ export const IRIV2_RVAL = (cx: IRIDIUMV2, init: JS3AssnInit): IridiumSEXP => {
         );
       else if (isThisExpression(init.object))
         return new JSComputedFieldReadSEXP("this", init.property.name);
-      else return new JSSuperFieldReadSEXP(new EnvReadSEXP(init.property.name));
+      else
+        // super[k]: this->getprototypeof(<home_object>)[k]
+        return new JSComputedFieldReadSEXP(readSuperObj(cx), init.property.name, new EnvReadSEXP("this"));
     }
   }
 
@@ -2181,14 +2183,13 @@ const handleAssignmentExpression = (
         let rValSimp = newTemp("rValSimp");
         cx.getCurrentBB().args.push(new JSExplicitBindingDeclarationNSEXP(new ResolveEnvBindingSEXP(rValSimp), rv, "JSLET", false));
 
+        // super[k] = v / super.k = v: this->getprototypeof(<home_object>)[k] = v,
+        // the super object is read after the rhs
+        const superObj = readSuperObj(cx);
         cx.getCurrentBB().args.push(
-          new JSSuperFieldWriteSEXP(
-            // super[k] = v: k is a temp holding the key; super.k = v: fixed
-            init.computed
-              ? new EnvReadSEXP(init.property.name)
-              : new StringSEXP(init.property.name),
-            new EnvReadSEXP(rValSimp),
-          )
+          init.computed
+            ? new JSComputedFieldWriteSEXP(superObj, init.property.name, new EnvReadSEXP(rValSimp), new EnvReadSEXP("this"))
+            : new FieldWriteSEXP(superObj, init.property.name, new EnvReadSEXP(rValSimp), new EnvReadSEXP("this")),
         );
 
         return new EnvReadSEXP(rValSimp);
@@ -2476,6 +2477,20 @@ const generateDynamicCallArgList = (
   }
 
   return temp$id;
+};
+
+// %superObj <- getprototypeof(<home_object>), read right before a super.x access
+const readSuperObj = (cx: IRIDIUMV2): string => {
+  const holder = newTemp("superObj");
+  cx.getCurrentBB().args.push(
+    new JSExplicitBindingDeclarationNSEXP(
+      new ResolveEnvBindingSEXP(holder),
+      new JSGetPrototypeOfSEXP(new EnvReadSEXP("<home_object>")),
+      "JSLET",
+      false,
+    ),
+  );
+  return holder;
 };
 
 // SUPER: callee is the active function; the parent constructor (its prototype)

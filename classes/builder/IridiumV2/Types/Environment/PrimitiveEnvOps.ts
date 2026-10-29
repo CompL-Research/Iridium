@@ -216,10 +216,12 @@ export class SiblingSpecialWriteSEXP extends EnvWriteSEXP {
  *
  */
 export class FieldReadSEXP extends IridiumSEXP {
-  constructor(object: string, field: string) {
+  // receiver: `this` for the access when it differs from the object (super.f)
+  constructor(object: string, field: string, receiver?: IridiumSEXP) {
     super("FieldRead");
     this.setObj(new EnvReadSEXP(object));
     this.setField(new StringSEXP(field));
+    if (receiver) this.args[2] = receiver;
   }
 
   // Args
@@ -264,11 +266,12 @@ export class FieldReadSEXP extends IridiumSEXP {
  *
  */
 export class FieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: string, right: IridiumSEXP) {
+  constructor(object: string, field: string, right: IridiumSEXP, receiver?: IridiumSEXP) {
     super("FieldWrite");
     this.args.push(new EnvReadSEXP(object));
     this.args.push(new StringSEXP(field));
     this.args.push(right);
+    if (receiver) this.args.push(receiver);
   }
 
   toString(space?: number): string {

@@ -90,13 +90,14 @@ export class PVTEnvReadSEXP extends IridiumSEXP {
  *
  */
 export class JSComputedFieldReadSEXP extends IridiumSEXP {
-  constructor(object: string, field: string | IridiumSEXP) {
+  constructor(object: string, field: string | IridiumSEXP, receiver?: IridiumSEXP) {
     super("JSComputedFieldRead");
     this.setObj(new EnvReadSEXP(object));
     if (typeof field === "string")
       this.setField(new EnvReadSEXP(field));
     else
       this.setField(field);
+    if (receiver) this.args[2] = receiver;
   }
 
   // Args
@@ -137,7 +138,7 @@ export class JSComputedFieldReadSEXP extends IridiumSEXP {
  *
  */
 export class JSComputedFieldWriteSEXP extends IridiumSEXP {
-  constructor(object: string, field: string | IridiumSEXP, right: IridiumSEXP) {
+  constructor(object: string, field: string | IridiumSEXP, right: IridiumSEXP, receiver?: IridiumSEXP) {
     super("JSComputedFieldWrite");
     this.setObj(new EnvReadSEXP(object));
     if (typeof field === "string")
@@ -145,6 +146,7 @@ export class JSComputedFieldWriteSEXP extends IridiumSEXP {
     else
       this.setField(field);
     this.setValue(right);
+    if (receiver) this.args[3] = receiver;
   }
 
   // Args
@@ -285,128 +287,3 @@ export class JSPrivateFieldWriteSEXP extends IridiumSEXP {
   }
 }
 
-/**
- *
- * @extends {IridiumSEXP}
- *
- * @group RVAL
- *
- * @remarks
- *
- * Read a field from `super`.
- *
- * #### Structure
- *
- * - `ARG(this)`: The lexical `this` object.
- *
- * - `ARG(<home_object>)`: The lexical `<home_object>` object.
- *
- * - `ARG(field)`: The field to be read.
- *
- */
-export class JSSuperFieldReadSEXP extends IridiumSEXP {
-  constructor(field: IridiumSEXP) {
-    super("JSSuperFieldRead");
-    this.setThis(new EnvReadSEXP("this"));
-    this.setHome(new EnvReadSEXP("<home_object>"));
-    this.setField(field);
-  }
-
-  // Args
-  setThis(obj: IridiumSEXP) {
-    this.args[0] = obj;
-  }
-
-  getThis(): IridiumSEXP {
-    return this.args[0];
-  }
-
-  setHome(obj: IridiumSEXP) {
-    this.args[1] = obj;
-  }
-
-  getHome(): IridiumSEXP {
-    return this.args[1];
-  }
-
-  setField(field: IridiumSEXP) {
-    this.args[2] = field;
-  }
-
-  getField(): IridiumSEXP {
-    return this.args[2];
-  }
-
-  toString(space?: number): string {
-    return `${printIriSpace(space)}[${this.args[0].toString(0)}, ${this.args[1].toString(0)}].${this.args[2].toString(0)}`
-  }
-}
-
-/**
- *
- * @extends {IridiumSEXP}
- *
- * @group RVAL
- *
- * @remarks
- *
- * Write to field of `super`.
- *
- * #### Structure
- *
- * - `ARG(this)`: The lexical `this` object.
- *
- * - `ARG(<home_object>)`: The lexical `<home_object>` object; the super object is
- *   looked up from it (OP_get_super) at the time of the write.
- *
- * - `ARG(field)`: The field to be updated.
- *
- * - `ARG(value)`: The value to be written.
- *
- */
-export class JSSuperFieldWriteSEXP extends IridiumSEXP {
-  constructor(field: IridiumSEXP, value: IridiumSEXP) {
-    super("JSSuperFieldWrite");
-    this.setThis(new EnvReadSEXP("this"));
-    this.setHome(new EnvReadSEXP("<home_object>"));
-    this.setField(field);
-    this.setValue(value);
-  }
-
-  // Args
-  setThis(obj: IridiumSEXP) {
-    this.args[0] = obj;
-  }
-
-  getThis(): IridiumSEXP {
-    return this.args[0];
-  }
-
-  setHome(obj: IridiumSEXP) {
-    this.args[1] = obj;
-  }
-
-  getHome(): IridiumSEXP {
-    return this.args[1];
-  }
-
-  setField(field: IridiumSEXP) {
-    this.args[2] = field;
-  }
-
-  getField(): IridiumSEXP {
-    return this.args[2];
-  }
-
-  setValue(field: IridiumSEXP) {
-    this.args[3] = field;
-  }
-
-  getValue(): IridiumSEXP {
-    return this.args[3];
-  }
-
-  toString(space?: number): string {
-    return `${printIriSpace(space)}super.${this.args[2].toString(0)} = ${this.args[3].toString(0)}`
-  }
-}
