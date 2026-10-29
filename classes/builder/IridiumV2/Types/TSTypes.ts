@@ -1,4 +1,4 @@
-/** Generated: 2026-10-30 03:47:02 */
+/** Generated: 2026-10-30 04:00:24 */
 
 export enum IriTag {
   File = 0,
@@ -112,7 +112,9 @@ export enum IriTag {
   JSConstructApply = 108,
   JSEval = 109,
   JSEvalApply = 110,
-  JSGetPrototypeOf = 111,
+  JSForAwaitOfStart = 111,
+  JSForAwaitOfNext = 112,
+  JSGetPrototypeOf = 113,
 }
 
 export enum IriFlag {
@@ -176,14 +178,13 @@ export enum IriFlag {
   MODULENSI = 57,
   CINIT = 58,
   Label = 59,
-  AWAIT = 60,
-  OP = 61,
-  NOENUM = 62,
-  EXP = 63,
-  FLAGS = 64,
-  PREFIX = 65,
-  INCREMENT = 66,
-  INIT = 67,
-  DECLVAR = 68,
-  DECLFUN = 69,
+  OP = 60,
+  NOENUM = 61,
+  EXP = 62,
+  FLAGS = 63,
+  PREFIX = 64,
+  INCREMENT = 65,
+  INIT = 66,
+  DECLVAR = 67,
+  DECLFUN = 68,
 }
