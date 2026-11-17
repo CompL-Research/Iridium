@@ -305,9 +305,17 @@ export class JSBigIntSEXP extends IridiumSEXP {
  *
  */
 export class JSPrivateSEXP extends IridiumSEXP {
-  constructor(str: string) {
+  // PRIV* kind flags: carried on the private element's declaration
+  // initializer; Forge pass 23 (annotatePrivateVarKinds) copies them onto
+  // the binding so the bytecode can expose quickjs var_kind for eval'd
+  // `#name` resolution. Only meaningful on private element bindings.
+  constructor(
+    str: string,
+    kind?: "PRIVFIELD" | "PRIVMETHOD" | "PRIVGET" | "PRIVSET" | "PRIVGETSET",
+  ) {
     super("JSPrivate");
     this.flags.push(["IridiumPrimitive", str]);
+    if (kind) this.setFlag(kind);
   }
 
   getVal(): string {

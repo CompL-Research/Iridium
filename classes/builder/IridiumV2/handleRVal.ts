@@ -1022,11 +1022,53 @@ const handleComputedProps = (
       isJS3ClassPrivateMethod(classItem),
   );
   privateProps.forEach((classItem) => {
-    let targetID = newTemp(undefined);
+    const pvtName = classItem.key.id.name;
+    const privateName = "#" + pvtName;
+    const isSameStaticness = (other: JS3ClassPrivateMethod) =>
+      !!other.static === !!classItem.static;
+    let privateKind:
+      | "PRIVFIELD"
+      | "PRIVMETHOD"
+      | "PRIVGET"
+      | "PRIVSET"
+      | "PRIVGETSET" = "PRIVFIELD";
+    let targetID = privateName;
+    if (isJS3ClassPrivateMethod(classItem)) {
+      if (classItem.kind === "get") {
+        const hasSetter = node.body.body.some(
+          (other) =>
+            isJS3ClassPrivateMethod(other) &&
+            other.kind === "set" &&
+            isSameStaticness(other) &&
+            other.key.id.name === pvtName,
+        );
+        privateKind = hasSetter ? "PRIVGETSET" : "PRIVGET";
+      } else if (classItem.kind === "set") {
+        privateKind = "PRIVSET";
+        targetID = privateName + "<set>";
+        const hasGetter = node.body.body.some(
+          (other) =>
+            isJS3ClassPrivateMethod(other) &&
+            other.kind === "get" &&
+            isSameStaticness(other) &&
+            other.key.id.name === pvtName,
+        );
+        if (!hasGetter) {
+          cx.getCurrentBB().args.push(
+            new JSExplicitBindingDeclarationSEXP(
+              new ResolveEnvBindingSEXP(privateName),
+              new JSPrivateSEXP(privateName, "PRIVSET"),
+              "JSLET",
+              false,
+            ),
+          );
+        }
+      } else privateKind = "PRIVMETHOD";
+    }
     cx.getCurrentBB().args.push(
       new JSExplicitBindingDeclarationSEXP(
         new ResolveEnvBindingSEXP(targetID),
-        new JSPrivateSEXP("#" + classItem.key.id.name),
+        new JSPrivateSEXP(privateName, privateKind),
         "JSLET",
         false,
       ),
