@@ -6,7 +6,10 @@
   "scripts": {
     "build": "rollup -c",
     "start": "node ./dist/iridium.js",
-    "gen:citation": "tsx scripts/genCitation.ts"
+    "gen:citation": "tsx scripts/genCitation.ts",
+    "test:iri": "cd tests && node run.cjs --iri",
+    "test:js3": "cd tests && node run.cjs --js3",
+    "test:iri:failed": "cd tests && node run.cjs --iri --rerun"
   },
   "keywords": [],
   "author": "mee",

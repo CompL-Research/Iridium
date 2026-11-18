@@ -77,6 +77,8 @@ function js3(filePath: string): ProjectFile {
       } catch (error: any) {
         // The error object contains stderr and the exit code
         console.error("Execution failed:", error.stderr?.toString());
+        // process.exit() skips the finally block, so unlink before bailing
+        if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
         process.exit(1);
       } finally {
         if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
@@ -136,6 +138,8 @@ function iri(filePath: string): ProjectFile {
       } catch (error: any) {
         // The error object contains stderr and the exit code
         console.error("Execution failed:", error.stderr?.toString());
+        // process.exit() skips the finally block, so unlink before bailing
+        if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
         process.exit(1);
       } finally {
         if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
