@@ -870,14 +870,16 @@ const handleUnaryExpression = (
     throw new Error("TODO: unary delete operator");
   } else {
     if (isIdentifier(node.argument)) {
-      // // 13.5.2.1 Runtime Semantics: Evaluation
-      // //   GetValue must be called even though its value is not used because it may have observable side-effects.
-      // cx.getCurrentBB().args.push(
-      //   new StackRejectSEXP(new TDZReadSEXP(node.argument.name), 1),
-      // );
-      // // 13.5.2.1 -- End
-
-      if (node.operator === "void") return new EnvReadSEXP("undefined");
+      if (node.operator === "void") {
+        // 13.5.2.2 Runtime Semantics: Evaluation
+        //   GetValue must be called on the operand even though its value
+        //   is not used: reading an unresolvable or TDZ binding throws
+        //   ReferenceError. Emit the reference read as a statement (the
+        //   same shape the TDZ check lowering leaves behind) before
+        //   producing undefined.
+        cx.getCurrentBB().args.push(new EnvReadSEXP(node.argument.name));
+        return new EnvReadSEXP("undefined");
+      }
       const argument = IRIV2_RVAL(cx, node.argument);
       return getIridiumUnop(node.operator, argument);
     } else
