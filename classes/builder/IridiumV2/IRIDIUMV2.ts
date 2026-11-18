@@ -397,6 +397,7 @@ export class IRIDIUMV2 {
         debugConfig.passFlags,
       );
       if (!res) throw new Error("Forge compile failed");
+      this.projectFile.payload.iriBuffer = res;
       this.projectFile.payload.iri = res.toString();
       tock("forge");
     } catch (e) {

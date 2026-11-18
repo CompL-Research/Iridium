@@ -116,7 +116,7 @@ function iri(filePath: string): ProjectFile {
     tick("save-to-disk");
     fs.writeFileSync(
       debugConfig.dump.out + "/" + file.uname + ".iri",
-      file.getIRIPayload(),
+      file.getIRIPayloadBuffer(),
     );
     tock("save-to-disk");
   }
@@ -126,7 +126,7 @@ function iri(filePath: string): ProjectFile {
       const tempFile = "/tmp/" + file.uname + ".iri";
       try {
         tick("save-to-disk");
-        fs.writeFileSync(tempFile, file.getIRIPayload());
+        fs.writeFileSync(tempFile, file.getIRIPayloadBuffer());
         tock("save-to-disk");
         tick("execute");
         const output: string = execSync(

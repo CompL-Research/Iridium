@@ -34,6 +34,7 @@ export class ProjectFile {
     iriSEXP?: FileSEXP
     irix?: Array<any>
     iri?: string
+    iriBuffer?: Buffer
   }
   errLog: Array<any> = [];
 
@@ -72,6 +73,15 @@ export class ProjectFile {
     if (this.payload.iri)
       return this.payload.iri;
     else throw new Error("getIRIPayload Error");
+  }
+
+  // The .iri text must be written from the raw addon bytes: the payload
+  // string went through a lossy utf8 decode (res.toString()), which turns
+  // WTF-8 encoded lone surrogates into U+FFFD.
+  getIRIPayloadBuffer(): Buffer {
+    if (this.payload.iriBuffer)
+      return this.payload.iriBuffer;
+    else return Buffer.from(this.getIRIPayload(), "utf-8");
   }
 
   initSync(
