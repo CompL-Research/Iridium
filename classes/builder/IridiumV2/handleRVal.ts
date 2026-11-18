@@ -1935,9 +1935,24 @@ const handleClassExpression = (
       // Heritage evaluation should take place in a special scope where the classname eventually points to the name of the class if it exists
       //
       // if (name === "") {
-      superClass = new EnvReadSEXP(
-        lowerExprToResolveEnvBindingSEXP(cx, node.superClass).getBindingName(),
-      );
+      // A class definition is strict code and the engine compiles the
+      // extends expression with strictness enabled (quickjs's own parser
+      // does the same for the whole ClassTail production), so function
+      // expressions written inline in the heritage clause are strict:
+      // their arguments object rejects .callee and Function.prototype
+      // .arguments/.caller throw on them (see the class/strict-mode
+      // Test262 suite). A superclass referenced by name keeps whatever
+      // strictness it was declared with, hence the identifier skip.
+      const heritageCtx = cx.getCurrentContext();
+      const prevStrict = heritageCtx.isStrict;
+      heritageCtx.isStrict = true;
+      let superName: string;
+      try {
+        superName = lowerExprToResolveEnvBindingSEXP(cx, node.superClass).getBindingName();
+      } finally {
+        heritageCtx.isStrict = prevStrict;
+      }
+      superClass = new EnvReadSEXP(superName);
       // }
       // else {
       //   throw new Error("Heritage computation special block not supported yet!");
@@ -2969,6 +2984,21 @@ const getObjKeyString = (
 };
 
 const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
+  // B.3.1.1 __proto__ Property Names in Object Initializers: the prototype
+  // setter semantics apply only when the literal has exactly one non-computed
+  // data-property (kind value, including shorthand) named __proto__. With
+  // more than one (e.g. { __proto__, __proto__ }), every entry is defined as
+  // a regular data property instead.
+  let protoDataCount = 0;
+  for (const prop of init.properties) {
+    if (
+      isJS3ObjectProperty(prop) &&
+      !prop.computed &&
+      getObjKeyString(prop.key) === "__proto__"
+    )
+      protoDataCount++;
+  }
+
   let obj$id = newTemp("newObj");
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
@@ -2993,8 +3023,8 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
       );
     } else if (isJS3ObjectProperty(prop)) {
       const keyStr = getObjKeyString(prop.key);
-      if (!prop.computed && keyStr === "__proto__") {
-        // ECMAScript 13.2.5.5: non-computed __proto__ sets the prototype
+      if (!prop.computed && keyStr === "__proto__" && protoDataCount === 1) {
+        // B.3.1.1: the sole non-computed __proto__ data property sets the prototype
         cx.getCurrentBB().args.push(
           new JSSetPrototypeOfSEXP(
             new EnvReadSEXP(obj$id),
