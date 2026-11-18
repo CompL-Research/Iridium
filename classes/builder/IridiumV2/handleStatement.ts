@@ -89,6 +89,7 @@ import {
   handleAssignmentExpression as js3handleAssignmentExpression,
 } from "../JS3Helpers/HandleExpression";
 import {
+  AwaitSEXP,
   BBSEXPFlags,
   CF_FUNCTION,
   CompoundAssnSEXP,
@@ -453,9 +454,40 @@ export const handleBlockStatement = (
   return newContext;
 };
 
+const isAsyncGeneratorContext = (
+  curr: IridiumBuildContext,
+): boolean => {
+  if (curr.BB[0].isClosureBoundary()) return curr.isAsync && curr.isGenerator;
+  // recurse
+  const parentContext = IridiumBuildContext.CONTEXT_MAP.get(curr.parent);
+  if (!parentContext) return false;
+  return isAsyncGeneratorContext(parentContext);
+};
+
 const handleReturnStatement = (cx: IRIDIUMV2, stmt: JS3ReturnStatement) => {
   if (stmt.argument) {
-    cx.getCurrentBB().args.push(new ReturnSEXP(IRIV2_RVAL(cx, stmt.argument)));
+    let value = IRIV2_RVAL(cx, stmt.argument);
+    // AsyncGeneratorAwaitReturn: `return <expr>` in an async generator must
+    // await the returned value before the completion unwinds (observable as
+    // one extra microtask tick), unlike plain async functions. The await is
+    // materialized as a statement (not inside the Return rvalue) so it runs
+    // at the return site, before any finally-block unwinding.
+    if (isAsyncGeneratorContext(cx.getCurrentContext())) {
+      const awaitedHolder = newTemp("awaitedReturn");
+      cx.getCurrentBB().args.push(
+        new JSExplicitBindingDeclarationSEXP(
+          new ResolveEnvBindingSEXP(awaitedHolder),
+          null,
+          "JSLET",
+          false,
+        ),
+      );
+      cx.getCurrentBB().args.push(
+        new EnvWriteSEXP(awaitedHolder, new AwaitSEXP(value), true, false),
+      );
+      value = new EnvReadSEXP(awaitedHolder);
+    }
+    cx.getCurrentBB().args.push(new ReturnSEXP(value));
   } else {
     // cx.getCurrentBB().args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
     cx.getCurrentBB().args.push(new UnresolvedReturnSEXP());

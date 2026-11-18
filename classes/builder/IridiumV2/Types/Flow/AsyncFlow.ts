@@ -31,9 +31,9 @@ import { IridiumSEXP } from "../Structural/General";
  *
  */
 export class AwaitSEXP extends IridiumSEXP {
-  constructor(arg: string) {
+  constructor(arg: string | IridiumSEXP) {
     super("Await");
-    this.setObj(new EnvReadSEXP(arg));
+    this.setObj(typeof arg === "string" ? new EnvReadSEXP(arg) : arg);
   }
 
   // Args

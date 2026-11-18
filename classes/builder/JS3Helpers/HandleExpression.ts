@@ -107,6 +107,7 @@ import {
   SpreadElement,
   TaggedTemplateExpression,
   TemplateLiteral,
+  thisExpression,
   UnaryExpression,
   UpdateExpression,
   YieldExpression,
@@ -1127,6 +1128,17 @@ export function handleMemberExpression(
 
   const orig_property = node.property; // Handling prop property
   let fin_property: JS3MemberExpression_property; // Handling prop property
+  // For computed accesses on `this`/`super`, the base reference is resolved
+  // before the key is evaluated (MakeSuperPropertyReference validates `this`:
+  // an uninitialized `this` must throw ReferenceError before any side effects
+  // of the computed key). Spilling `this` into a temp now forces that
+  // validation first; the read itself is unobservable.
+  if (
+    node.computed &&
+    (isSuper(orig_object) || isThisExpression(orig_object))
+  ) {
+    handleExpression(thisExpression(), otherProps);
+  }
   // Breaks TDZ check... let handleExpression perform a read
   if (isIdentifier(orig_property) && !node.computed) {
     fin_property = orig_property;
@@ -2544,6 +2556,24 @@ export function handleAssnPatRec(
     // 2. Generate simplified assignment pattern
     // { [t$1] : t$2, d, ...e }
     const objectPattern = generateJS3ObjectPattern(temporaries, LVal);
+
+    // Member targets' lrefs (receiver resolution) happen after the RHS is
+    // evaluated but before each per-property GetV of the source: an
+    // uninitialized `this` must ReferenceError before a source-property
+    // getter runs (test262 privatefieldset-evaluation-order-1), while the
+    // getter must still precede private-field presence checks (order-2/-3).
+    // Guard with a checked `this` read when any member target at this level
+    // has a `this`/`super` receiver; nested patterns guard on their own pass.
+    if (
+      properties.some(
+        (p) =>
+          isObjectProperty(p) &&
+          isMemberExpression(p.value) &&
+          (isThisExpression(p.value.object) || isSuper(p.value.object)),
+      )
+    ) {
+      handleExpression(thisExpression(), otherProps);
+    }
 
     otherProps.others.holder.push(generator(objectPattern, earlyInit));
 

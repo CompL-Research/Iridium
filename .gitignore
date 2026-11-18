@@ -41,6 +41,8 @@ tests/js3_benchmark/*
 tests/json_benchmark/*
 tests/failing/*
 tests/test262out
+tests/runs/
+tests/reports/
 
 # Outputs
 outputs
