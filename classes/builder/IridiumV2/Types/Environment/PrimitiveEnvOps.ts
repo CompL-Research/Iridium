@@ -71,6 +71,27 @@ export class TDZReadSEXP extends EnvReadSEXP {
 
 /**
  *
+ * @extends {IridiumSEXP}
+ *
+ * @group STMT
+ *
+ * @remarks
+ *
+ * ToPropertyKey(binding): in-place observable key conversion
+ * (no-ops on int/string/symbol), result dropped. Forces the
+ * conversion a computed destructuring key undergoes to happen at
+ * pattern-evaluation time.
+ *
+ */
+export class PropKeyCheckSEXP extends IridiumSEXP {
+  constructor(id: string) {
+    super("PropKeyCheck");
+    this.args.push(new ResolveEnvBindingSEXP(id));
+  }
+}
+
+/**
+ *
  * @group TSHelper
  */
 export type EnvWriteFlags = "SAFE" | "THISINIT" | "SLOPPY";

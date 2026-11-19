@@ -45,6 +45,7 @@ import {
   isJS3LabeledStatement,
   isJS3LoopDeclaration,
   isJS3ObjectPattern,
+  isJS3PropKeyCheck,
   isJS3RestElement,
   isJS3ReturnStatement,
   isJS3SwitchStatement,
@@ -121,12 +122,12 @@ import {
   LambdaSEXP,
   ListSEXP,
   LocalStaticExportSEXP,
-  LoopInitPreludeEndSEXP,
   ModuleRequestSEXP,
   NamedReexportSEXP,
   NullSEXP,
   NumberSEXP,
   PopCatchContextSEXP,
+  PropKeyCheckSEXP,
   PushCatchContextSEXP,
   ResolveBreakTargetSEXP,
   ResolveContinueTargetSEXP,
@@ -136,6 +137,7 @@ import {
   SiblingSpecialWriteSEXP,
   StarExportSEXP,
   StaticImportSEXP,
+  StackToHeapSEXP,
   TDZReadSEXP,
   ThrowSEXP,
   UnresolvedReturnSEXP,
@@ -147,6 +149,8 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
     cx.getCurrentBB().args.push(
       new TDZReadSEXP(stmt.expression.name)
     );
+  } else if (isJS3PropKeyCheck(stmt)) {
+    cx.getCurrentBB().args.push(new PropKeyCheckSEXP(stmt.expression.name));
   } else if (isJS3ImportDeclaration(stmt)) {
     const currentContext = cx.getCurrentContext();
 
@@ -887,26 +891,32 @@ const handleForStatement = (
   // 2. For Loop Init
   cx.declareAndPushLexicalContext();
   loopConfig.loopInitIDX = cx.getCurrentBB().getIDX();
-  // let extractedBindingsSet: Set<string> = new Set();
-  // let declKind: JSEnvWriteTypes = "JSLET";
+  const perIterationBindings: Set<string> = new Set();
   if (stmt.init) {
     if (isVariableDeclaration(stmt.init)) {
-      // if (stmt.init.kind == "let") declKind = "JSLET";
-      // else if (stmt.init.kind == "const") declKind = "JSCONST";
-      // else if (stmt.init.kind == "var") declKind = "JSVAR";
-      // else throw new Error("Unsupported kind in loop decl");
-      // for (let decl of stmt.init.declarations) {
-      //   const id = decl.id;
-      //   if (isVoidPattern(id)) throw new Error("Void Pattern in iterated loop decl");
-      //   if (isIdentifier(id) || isArrayPattern(id) || isObjectPattern(id) || isAssignmentPattern(id) || isRestElement(id)) {
-      //     extractBindings(id, extractedBindingsSet);
-      //   } else throw new Error("Unsupported pattern in loop decl");
-      // }
       handleLoopInitBlock(cx, stmt.init);
+      if (stmt.init.kind !== "var") {
+        for (const d of stmt.init.declarations) {
+          const id = d.id;
+          if (
+            isIdentifier(id) ||
+            isArrayPattern(id) ||
+            isObjectPattern(id) ||
+            isAssignmentPattern(id) ||
+            isRestElement(id)
+          ) {
+            extractBindings(id, perIterationBindings);
+          }
+        }
+        // Freeze captures made during init: later writes mutate per-iteration slots.
+        if (perIterationBindings.size > 0)
+          cx.getCurrentBB().args.push(
+            new StackToHeapSEXP([...perIterationBindings]),
+          );
+      }
     } else {
       lowerExprToResolveEnvBindingSEXP(cx, stmt.init);
     }
-    cx.getCurrentBB().args.push(new LoopInitPreludeEndSEXP());
   }
   cx.getCurrentBB().args.push(loopInitToLoopTestNode);
 
@@ -932,6 +942,11 @@ const handleForStatement = (
   // 5. For Update Iterator
   cx.declareAndPushLexicalContext();
   loopConfig.continueTarget = cx.getCurrentBB().getIDX();
+  // Per-iteration freeze: update runs after this iteration's captures freeze.
+  if (perIterationBindings.size > 0)
+    cx.getCurrentBB().args.push(
+      new StackToHeapSEXP([...perIterationBindings]),
+    );
   if (stmt.update) {
     lowerExprToResolveEnvBindingSEXP(cx, stmt.update);
   }
@@ -1115,9 +1130,27 @@ const handleTryStatement = (cx: IRIDIUMV2, stmt: JS3TryStatement) => {
       );
     }
     cx.getCurrentBB().args.push(udCatchContext);
-    for (let s of stmt.handler.body.body) {
-      IRIV2_STMT(cx, s);
+
+    const paramSpill = stmt.handler.paramSpill;
+    if (paramSpill) {
+      // Param scope: destructured bindings + initializers resolve here,
+      // where block-level let bindings of the catch body are invisible.
+      const udContext = cx.getCurrentContext();
+      const paramContext = cx.declareAndPushLexicalContext();
+      udContext.getCurrentBB().args.push(new GotoSEXP(paramContext.BB[0].idx));
+      cx.addContinuation(udContext);
+      for (const s of paramSpill) {
+        IRIV2_STMT(cx, s);
+      }
+      handleBlockStatement(cx, stmt.handler.body, null);
+      cx.getCurrentBB().args.push(new GotoSEXP(udContext.getCurrentBB().idx));
+      cx.popContext(); // udCatchParamBB
+    } else {
+      for (let s of stmt.handler.body.body) {
+        IRIV2_STMT(cx, s);
+      }
     }
+
     cx.getCurrentBB().args.push(new PopCatchContextSEXP());
     if (stmt.finalizer) {
       cx.getCurrentBB().args.push(gotoInvokeFinalizer);

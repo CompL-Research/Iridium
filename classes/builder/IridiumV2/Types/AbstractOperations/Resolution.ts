@@ -88,12 +88,14 @@ export class ResolveEnvBindingSEXP extends IridiumSEXP {
  *
  * @remarks
  *
- * Marks the end of LoopInit, at this point escaping bindings must be moved to heap if any
+ * Closes (heap-ifies) the named bindings: captures made until here are
+ * detached from the slot, later captures get fresh live references.
  *
  */
-export class LoopInitPreludeEndSEXP extends IridiumSEXP {
-  constructor() {
-    super("LoopInitPreludeEnd");
+export class StackToHeapSEXP extends IridiumSEXP {
+  constructor(names: Array<string>) {
+    super("StackToHeap");
+    for (const n of names) this.args.push(new ResolveEnvBindingSEXP(n));
   }
 }
 

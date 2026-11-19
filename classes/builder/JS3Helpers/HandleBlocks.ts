@@ -1186,12 +1186,12 @@ export function handleCatchClause(node: CatchClause, otherProps: OtherProps) {
   let fin_body: JS3CatchClause_body; // Handling prop body
   fin_body = handleBlockStatement(orig_body, otherProps);
 
+  const fin = generateJS3CatchClause(fin_param, fin_body, node);
   if (paramSpill) {
-    const argSpill = handleVariableDeclaration(paramSpill, otherProps);
-    fin_body.body = [...argSpill, ...fin_body.body];
+    fin.paramSpill = handleVariableDeclaration(paramSpill, otherProps);
   }
 
-  return generateJS3CatchClause(fin_param, fin_body, node);
+  return fin;
 }
 
 //

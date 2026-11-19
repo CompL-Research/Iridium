@@ -69,6 +69,26 @@ export function isJS3TDZCheck(node: any): node is JS3TDZCheck {
 }
 
 //
+// "JS3PropKeyCheck" node forces ToPropertyKey(binding) to execute at
+// this point (observable computed-key conversion). Inserted after a
+// computed destructuring key is evaluated, before the assignment's
+// member-target lrefs are created.
+//
+
+// @ts-ignore
+export interface JS3PropKeyCheck extends ExpressionStatement {
+  expression: Identifier;
+  js3type: "JS3PropKeyCheck";
+}
+
+// @ts-ignore
+export function isJS3PropKeyCheck(node: any): node is JS3PropKeyCheck {
+  // @ts-ignore
+  if (node && node.js3type === "JS3PropKeyCheck") return true;
+  return false;
+}
+
+//
 // "JS3JSXCallExpression" node is used to denote JSX call expressions
 //
 
@@ -475,6 +495,10 @@ export function isJS3CallExpression(node: any): node is JS3CallExpression {
 export interface JS3CatchClause extends CatchClause {
   param: JS3CatchClause_param;
   body: JS3CatchClause_body;
+  // Destructured-param spill statements; lowered in a dedicated param
+  // scope, parent of the block scope, so param initializers never see
+  // block-level let bindings.
+  paramSpill?: JS3BlockStatement_body;
   js3type: "JS3CatchClause";
 }
 

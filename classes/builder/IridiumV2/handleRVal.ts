@@ -732,7 +732,8 @@ export const handleObjectPatternAssignmentExpr = (
   // 3. f1 = orig_rval.f1
   for (let d of properties) {
     if (isJS3AssnObjectProperty(d)) {
-      const bindingName = d.value.name;
+      const memberTarget = isJS3MemberExpression(d.value) ? d.value : null;
+      const bindingName = memberTarget ? "" : d.value.name;
 
       let rVal: IridiumSEXP;
 
@@ -797,9 +798,32 @@ export const handleObjectPatternAssignmentExpr = (
         }
       }
 
-      cx.getCurrentBB().args.push(
-        new EnvWriteSEXP(bindingName, rVal, false, false, safeWrite),
-      );
+      if (memberTarget) {
+        // Spec order: target lref (receiver + key) evaluates after the
+        // source property name but before the source GetV; the write lands
+        // at the tail. The member reduce emits the lref hoists at this point.
+        const mExpr = reduceMemberExpressionIntoJS3MemberExpression(
+          cx,
+          memberTarget as any,
+        );
+        const dstrVal = newTemp("dstrVal");
+        cx.getCurrentBB().args.push(
+          new JSExplicitBindingDeclarationNSEXP(
+            new ResolveEnvBindingSEXP(dstrVal),
+            rVal,
+            "JSLET",
+            false,
+          ),
+        );
+        reduceJSAssignmentExprToIridium(
+          cx,
+          assignmentExpression("=", mExpr, identifier(dstrVal)),
+        );
+      } else {
+        cx.getCurrentBB().args.push(
+          new EnvWriteSEXP(bindingName, rVal, false, false, safeWrite),
+        );
+      }
     }
   }
   if (hasRest) {

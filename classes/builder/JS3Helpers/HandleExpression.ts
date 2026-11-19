@@ -147,6 +147,7 @@ import {
   generateJS3ObjectProperty,
   generateJS3PrivateName,
   generateJS3RegExpLiteral,
+  generateJS3PropKeyCheckfromBaseNode,
   generateJS3RestElement,
   generateJS3ReturnStatementfromBaseNode,
   generateJS3SpreadElement,
@@ -2480,6 +2481,42 @@ export function handleAssnPatRec(
       if (isRestElement(p) && isIdentifier(p.argument)) {
         reassigned.push(false);
         temporaries.push(generateJS3RestElement(p.argument, p));
+        continue;
+      }
+
+      //
+      // Base Case 3: { KEY : MEMBER_TARGET } passes through untemp'd. The
+      // builder must interleave the target lref (receiver + key) between
+      // this property's source key evaluation and the source GetV, which
+      // is only expressible inside the builder's pattern loop. Private
+      // targets keep the old recursive path (private-presence checks).
+      //
+      if (
+        isObjectProperty(p) &&
+        isMemberExpression(p.value) &&
+        !isPrivateName(p.value.property)
+      ) {
+        reassigned.push(false);
+        let finKey = p.key;
+        if (!isTrivialKey(p.key)) {
+          // Spec converts the key (ToPropertyKey) at PropertyName
+          // evaluation time; the check executes before the target
+          // lref is created below.
+          finKey = handleExpression(p.key, otherProps);
+          otherProps.others?.holder?.push(
+            generateJS3PropKeyCheckfromBaseNode(finKey, p),
+          );
+        }
+        temporaries.push(
+          generateJS3AssnObjectPropertyfromBaseNode(
+            finKey,
+            handleMemberExpression(p.value, otherProps),
+            null,
+            p.computed,
+            p.shorthand,
+            p,
+          ),
+        );
         continue;
       }
 
