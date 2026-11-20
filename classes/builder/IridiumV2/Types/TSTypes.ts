@@ -1,4 +1,4 @@
-/** Generated: 2026-11-20 01:01:49 */
+/** Generated: 2026-11-20 22:49:22 */
 
 export enum IriTag {
   File = 0,
@@ -103,8 +103,8 @@ export enum IriTag {
   DCTRRet = 99,
   ToNumeric = 100,
   JSCTX = 101,
-  ModuleDeclareGuard = 102,
-  ModuleDeclareReturn = 103,
+  ModuleDecl = 102,
+  ModuleDeclarationEarlyExit = 103,
   CompoundAssn = 104,
   ThisINIT = 105,
   PTAStub = 106,
@@ -194,6 +194,4 @@ export enum IriFlag {
   INIT = 73,
   DECLVAR = 74,
   DECLFUN = 75,
-  DECL = 76,
-  EVAL = 77,
 }

@@ -380,49 +380,18 @@ export class JSDefineObjPropSEXP extends IridiumSEXP {
  *
  * @remarks
  *
- * Branches a module body between its two passes: DECL initializes the exported
- * bindings, EVAL runs the body
+ * Ends the module declaration pass synchronously, before the module body runs.
+ *
+ * The declaration pass initializes the exported bindings and stops here; the
+ * standard terminal that follows (a return, rewritten by the CFG into a write
+ * of `<common-ret>` and a Goto to the exit block) is dead at runtime — the
+ * engine returns from this statement. Removing the dead tail is a peephole
+ * optimization, not a correctness requirement.
  *
  */
-export class ModuleDeclareGuardSEXP extends IridiumSEXP {
-  constructor(decl: number, evalIdx: number) {
-    super("ModuleDeclareGuard");
-    this.setDECL(decl);
-    this.setEVAL(evalIdx);
-  }
-
-  // Flags
-  setDECL(decl: number) {
-    this.setFlag("DECL", decl);
-  }
-
-  getDECL(): number {
-    return this.getFlagNumber("DECL");
-  }
-
-  setEVAL(evalIdx: number) {
-    this.setFlag("EVAL", evalIdx);
-  }
-
-  getEVAL(): number {
-    return this.getFlagNumber("EVAL");
-  }
-}
-
-/**
- *
- * @extends {IridiumSEXP}
- *
- * @group STMT
- *
- * @remarks
- *
- * Ends the module declaration pass, without running the module body
- *
- */
-export class ModuleDeclareReturnSEXP extends IridiumSEXP {
+export class ModuleDeclarationEarlyExitSEXP extends IridiumSEXP {
   constructor() {
-    super("ModuleDeclareReturn");
+    super("ModuleDeclarationEarlyExit");
   }
 }
 

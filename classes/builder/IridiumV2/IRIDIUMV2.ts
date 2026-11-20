@@ -10,9 +10,10 @@ import {
   CF_TOP_LEVEL_SCRIPT,
   EnvReadSEXP,
   FileSEXP,
+  IfElseJumpSEXP,
   JSImplicitBindingDeclarationSEXP,
-  ModuleDeclareGuardSEXP,
-  ModuleDeclareReturnSEXP,
+  ModuleDeclSEXP,
+  ModuleDeclarationEarlyExitSEXP,
   ModuleRequestSEXP,
   ReturnAsyncSEXP,
   ReturnSEXP,
@@ -319,23 +320,19 @@ export class IRIDIUMV2 {
     this.pushContext(topLevelContext);
 
     if (sourceType === "JSModule") {
-      // A module body runs in two passes. The declaration pass initializes the
-      // exported bindings, so a cyclic dependent that touches one before the
-      // body runs holds that same object, then stops; the evaluation pass runs
-      // the body without re-initializing them. The guard branches between the
-      // two, which makes both passes ordinary blocks of the CFG.
-      const guard = new ModuleDeclareGuardSEXP(-1, -1);
+      const guard = new IfElseJumpSEXP(new ModuleDeclSEXP(), -1, -1);
       this.getCurrentBB().args.push(guard);
 
       this.addContinuation(topLevelContext);
       const declareBB = this.getCurrentBB();
-      guard.setDECL(declareBB.getIDX());
-      // The hoisted function declarations are inserted before this statement.
-      declareBB.args.push(new ModuleDeclareReturnSEXP());
+      guard.setTRUE(declareBB.getIDX());
+
+      declareBB.args.push(new ModuleDeclarationEarlyExitSEXP());
+      declareBB.args.push(new ReturnSEXP(new EnvReadSEXP("undefined")));
 
       this.addContinuation(topLevelContext);
       const evalBB = this.getCurrentBB();
-      guard.setEVAL(evalBB.getIDX());
+      guard.setFALSE(evalBB.getIDX());
 
       evalBB.args.push(
         new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9),

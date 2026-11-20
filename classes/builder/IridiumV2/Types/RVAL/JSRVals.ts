@@ -2,6 +2,25 @@ import { printIriSpace } from "#utils";
 import { IridiumSEXP } from "../Structural/General";
 import { LambdaSEXP, StringSEXP } from "./Primitives";
 
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group RVAL
+ *
+ * @remarks
+ *
+ * Truthy exactly while the module function is running its declaration pass.
+ * Used as the Test of the entry block's IfElseJump, splitting the module body
+ * into the declaration pass (TRUE arm) and the evaluation pass (FALSE arm).
+ *
+ */
+export class ModuleDeclSEXP extends IridiumSEXP {
+  constructor() {
+    super("ModuleDecl");
+  }
+}
+
 
 
 /**
