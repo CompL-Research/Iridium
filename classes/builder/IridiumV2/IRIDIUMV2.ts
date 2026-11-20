@@ -11,8 +11,9 @@ import {
   EnvReadSEXP,
   FileSEXP,
   JSImplicitBindingDeclarationSEXP,
+  ModuleDeclareGuardSEXP,
+  ModuleDeclareReturnSEXP,
   ModuleRequestSEXP,
-  QJSModuleInitSEXP,
   ReturnAsyncSEXP,
   ReturnSEXP,
 } from "./Types/index";
@@ -318,15 +319,29 @@ export class IRIDIUMV2 {
     this.pushContext(topLevelContext);
 
     if (sourceType === "JSModule") {
-      this.getCurrentBB().args.push(
-        new QJSModuleInitSEXP()
-      );
+      // A module body runs in two passes. The declaration pass initializes the
+      // exported bindings, so a cyclic dependent that touches one before the
+      // body runs holds that same object, then stops; the evaluation pass runs
+      // the body without re-initializing them. The guard branches between the
+      // two, which makes both passes ordinary blocks of the CFG.
+      const guard = new ModuleDeclareGuardSEXP(-1, -1);
+      this.getCurrentBB().args.push(guard);
 
-      this.getCurrentBB().args.push(
+      this.addContinuation(topLevelContext);
+      const declareBB = this.getCurrentBB();
+      guard.setDECL(declareBB.getIDX());
+      // The hoisted function declarations are inserted before this statement.
+      declareBB.args.push(new ModuleDeclareReturnSEXP());
+
+      this.addContinuation(topLevelContext);
+      const evalBB = this.getCurrentBB();
+      guard.setEVAL(evalBB.getIDX());
+
+      evalBB.args.push(
         new JSImplicitBindingDeclarationSEXP("this", "JSCONST", 9),
       );
 
-      this.getCurrentBB().args.push(
+      evalBB.args.push(
         new JSImplicitBindingDeclarationSEXP("<module_meta>", "JSCONST", 6),
       );
     } else {

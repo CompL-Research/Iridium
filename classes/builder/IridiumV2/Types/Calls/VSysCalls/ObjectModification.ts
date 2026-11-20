@@ -380,13 +380,49 @@ export class JSDefineObjPropSEXP extends IridiumSEXP {
  *
  * @remarks
  *
- * QJS Module Init Header, provides an early return if the module
- * is not to be initialized again
+ * Branches a module body between its two passes: DECL initializes the exported
+ * bindings, EVAL runs the body
  *
  */
-export class QJSModuleInitSEXP extends IridiumSEXP {
+export class ModuleDeclareGuardSEXP extends IridiumSEXP {
+  constructor(decl: number, evalIdx: number) {
+    super("ModuleDeclareGuard");
+    this.setDECL(decl);
+    this.setEVAL(evalIdx);
+  }
+
+  // Flags
+  setDECL(decl: number) {
+    this.setFlag("DECL", decl);
+  }
+
+  getDECL(): number {
+    return this.getFlagNumber("DECL");
+  }
+
+  setEVAL(evalIdx: number) {
+    this.setFlag("EVAL", evalIdx);
+  }
+
+  getEVAL(): number {
+    return this.getFlagNumber("EVAL");
+  }
+}
+
+/**
+ *
+ * @extends {IridiumSEXP}
+ *
+ * @group STMT
+ *
+ * @remarks
+ *
+ * Ends the module declaration pass, without running the module body
+ *
+ */
+export class ModuleDeclareReturnSEXP extends IridiumSEXP {
   constructor() {
-    super("QJSModuleInit");
+    super("ModuleDeclareReturn");
   }
 }
 

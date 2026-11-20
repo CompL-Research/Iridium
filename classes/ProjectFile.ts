@@ -132,9 +132,28 @@ export class ProjectFile {
       sourceType: sourceType,
       presets: currPresets,
       plugins: plugins,
+      // Syntax-only plugins for proposals the runtime cannot execute yet. They
+      // let the parser build a full AST; lowering then reports an unsupported
+      // construct instead of babel aborting the parse.
+      parserOpts: {
+        plugins: [
+          "deferredImportEvaluation",
+          "sourcePhaseImports",
+          "importAttributes",
+          "decorators",
+          "decoratorAutoAccessors",
+        ],
+      },
     };
 
-    const result = babel.parseSync(sourceCode, lightOpts);
+    let result: ReturnType<typeof babel.parseSync>;
+    try {
+      result = babel.parseSync(sourceCode, lightOpts);
+    } catch (e) {
+      // A syntax error is a compile failure to report, not a crash to dump.
+      errLog.push(e);
+      return;
+    }
 
     if (!result) {
       errLog.push(new Error("Babel parseSync Failed"));
