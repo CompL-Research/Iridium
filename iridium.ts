@@ -17,6 +17,21 @@ import { execSync } from "child_process";
 
 debugConfig.versionNumber = `Iridium ${VERSION}`;
 
+// Result msgs were not visible before, this fixes that
+function describeErrLog(errLog: Array<any>): { errors: string[] } {
+  return {
+    errors: errLog.map((entry) => {
+      if (entry instanceof Error) return entry.stack ?? `Error: ${entry.message}`;
+      if (typeof entry === "string") return entry;
+      try {
+        return JSON.stringify(entry) ?? String(entry);
+      } catch {
+        return String(entry);
+      }
+    }),
+  };
+}
+
 const header = `
 ██╗██████╗ ██╗██████╗ ██╗██╗   ██╗███╗   ███╗
 ██║██╔══██╗██║██╔══██╗██║██║   ██║████╗ ████║
@@ -38,7 +53,7 @@ function js3(filePath: string): ProjectFile {
   tock("babel");
 
   if (file.info.babel !== "parsed") {
-    logger.error(file.errLog, "Babel parsing failed");
+    logger.error(describeErrLog(file.errLog), "Babel parsing failed");
     process.exit(1);
   }
 
@@ -46,7 +61,7 @@ function js3(filePath: string): ProjectFile {
   const builder = new JS3Builder(file);
   builder.build();
   if (!file.info.js3 || file.info.js3 !== "parsed") {
-    logger.error(file.errLog, "JS3 build failed");
+    logger.error(describeErrLog(file.errLog), "JS3 build failed");
     process.exit(1);
   }
   tock("build");
@@ -98,7 +113,7 @@ function iri(filePath: string): ProjectFile {
   iridiumV2Builder.build();
   if (!file.info.iri || file.info.iri !== "normalized") {
     // console.error(file.errLog);
-    logger.error(file.errLog, "IRI build failed");
+    logger.error(describeErrLog(file.errLog), "IRI build failed");
     process.exit(1);
   }
   tock("build");

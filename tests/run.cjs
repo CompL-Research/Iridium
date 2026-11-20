@@ -27,6 +27,7 @@ const ALL_CATS = [
   "failBothEMatch",
   "overCompliant",
   "ignored",
+  "unsupported",
 ];
 // Categories the runner counts toward passCount (the "bar")
 const PASSING_CATS = new Set([
@@ -34,6 +35,7 @@ const PASSING_CATS = new Set([
   "failBothEMatch",
   "overCompliant",
   "ignored",
+  "unsupported",
 ]);
 const SAVE_ARTIFACT_PREFIX = {
   ignored: "IGNO",
@@ -42,6 +44,7 @@ const SAVE_ARTIFACT_PREFIX = {
   regression: "REGR",
   timeoutRegression: "REGR",
   overCompliant: "OVER",
+  unsupported: "UNSP",
 };
 
 function formatDuration(ms) {
@@ -62,6 +65,7 @@ function freshStats() {
     regression: [],
     timeoutRegression: [],
     ignored: [],
+    unsupported: [],
   };
 }
 
@@ -258,6 +262,7 @@ const MD_SECTIONS = [
   ["overCompliant", "★ Over-compliant (fixes)"],
   ["failBothEMatch", "➖ Failed both — error match"],
   ["ignored", "⊘ Ignored (compile errors)"],
+  ["unsupported", "⊘ Unsupported (by design)"],
 ];
 
 // Collapse to one readable line (compile failures carry multi-line pino JSON).
@@ -266,6 +271,78 @@ const oneLine = (s) => String(s).replace(/\s+/g, " ").trim().slice(0, 240);
 function mdCell(s) {
   // backticks + escaped pipes: markdown tables split on | inside code too
   return String(s).replace(/\|/g, "\\|");
+}
+
+// The point of the non-pass sections is to say what support is missing, so they
+// are grouped by test262 feature, by compiler reason, and by area of the suite
+// as well as by path. features: has an inline ([a, b]) and a block (- a) form.
+// The YAML block follows a copyright header in most files, so it is not anchored.
+const FRONTMATTER = /\/\*---([\s\S]*?)---\*\//;
+function testFeatures(relPath) {
+  const out = new Set();
+  let src;
+  try {
+    src = fs.readFileSync(path.join(TEST262_PATH, relPath), "utf8");
+  } catch {
+    return out;
+  }
+  const fm = (FRONTMATTER.exec(src) || [])[1] || "";
+  const inline = /features:\s*\[([^\]]*)\]/.exec(fm);
+  if (inline) {
+    for (const f of inline[1].split(",")) if (f.trim()) out.add(f.trim());
+  } else {
+    const block = /^features:\s*\n((?:[ \t]*-[ \t]*.+\n?)+)/m.exec(fm);
+    if (block)
+      for (const l of block[1].split("\n")) {
+        const f = l.replace(/^[ \t]*-[ \t]*/, "").trim();
+        if (f) out.add(f);
+      }
+  }
+  return out;
+}
+
+function gapGroups(details, cat, by) {
+  const counts = new Map();
+  const bump = (k) => counts.set(k, (counts.get(k) || 0) + 1);
+  for (const [key, d] of Object.entries(details || {})) {
+    if (d.category !== cat) continue;
+    const rel = key.replace(/ \(strict mode\)$/, "");
+    if (by === "feature") for (const f of testFeatures(rel)) bump(f);
+    else if (by === "reason") bump(d.note || d.candidate || "(no reason recorded)");
+    else bump(rel.split("/").slice(0, 4).join("/"));
+  }
+  return [...counts.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
+}
+
+// Ranked gap tables, one block per non-pass category that has rows.
+function buildGapBreakdown(report, details) {
+  const L = [];
+  for (const [cat, title] of MD_SECTIONS) {
+    const arr = report.stats[cat] || [];
+    if (!arr.length || cat === "overCompliant") continue;
+    const tables = [
+      ["feature", "feature"],
+      ["compiler reason / error", "reason"],
+      ["suite area", "dir"],
+    ]
+      .map(([label, by]) => [label, gapGroups(details, cat, by).slice(0, 12)])
+      .filter(([, rows]) => rows.length);
+    if (!tables.length) continue;
+    L.push("", `### ${title} (${arr.length})`, "");
+    for (const [label, rows] of tables) {
+      L.push("", `| ${label} | rows |`, "|---|--:|");
+      for (const [k, n] of rows) L.push(`| \`${mdCell(k)}\` | ${n} |`);
+    }
+  }
+  if (!L.length) return L;
+  return [
+    "",
+    "## Feature gap breakdown",
+    "",
+    "_Rows, not tests: one test can declare several features, and a test runs",
+    "twice (sloppy + strict) unless it is `onlyStrict`._",
+    ...L,
+  ];
 }
 
 function buildMarkdownReport({ report, details, jsonPath, cmdLine }) {
@@ -288,7 +365,7 @@ function buildMarkdownReport({ report, details, jsonPath, cmdLine }) {
   L.push(`| duration | ${formatDuration(m.durationMs)} @ ${throughput} tests/s |`);
   L.push(`| total tests | ${m.total} |`);
   L.push(
-    `| passed (bar) | **${m.passCount}** (${rate}%) — passBoth ${report.stats.passBoth}, errMatch ${report.stats.failBothEMatch.length}, overCompliant ${report.stats.overCompliant.length}, ignored ${report.stats.ignored.length} |`,
+    `| passed (bar) | **${m.passCount}** (${rate}%) — passBoth ${report.stats.passBoth}, errMatch ${report.stats.failBothEMatch.length}, overCompliant ${report.stats.overCompliant.length}, ignored ${report.stats.ignored.length}, unsupported ${report.stats.unsupported.length} |`,
   );
   L.push(`| failed | **${m.failCount}** — regression ${report.stats.regression.length}, timeoutRegression ${report.stats.timeoutRegression.length}, errMismatch ${report.stats.failBothEMismatch.length} |`);
 
@@ -305,6 +382,9 @@ function buildMarkdownReport({ report, details, jsonPath, cmdLine }) {
         `| \`${mdCell(line)}\` | ${g.total} | ${g.pass} | ${g.fail} |`,
       );
   }
+
+  // What support is missing, ranked, before the per-test evidence below.
+  L.push(...buildGapBreakdown(report, details));
 
   for (const [cat, title] of MD_SECTIONS) {
     const arr = report.stats[cat] || [];
@@ -326,6 +406,7 @@ function buildMarkdownReport({ report, details, jsonPath, cmdLine }) {
           L.push(
             `  baseline : ${d.baseline}`,
             `  candidate: ${d.candidate}`,
+            ...(d.note ? [`  reason   : ${d.note}`] : []),
             "",
           );
         }
@@ -373,6 +454,18 @@ const TODOS = [
   "test/language/expressions/compound-assignment/S11.13.2_A7.9_T4.js",
 ];
 
+// Feature gaps that are unsupported by design. When the candidate dies with one
+// of these compiler errors the row is a known gap, not a regression: it joins
+// the passing side of the bar and gets its own report section.
+// --unsupported=<file> replaces this list with a JSON array of
+// { "needle": <substring of the candidate error>, "reason": <shown text> }.
+const UNSUPPORTED_DEFAULT = [
+  {
+    needle: "unhandled Statement->WithStatement",
+    reason: "with statement (support removed by design)",
+  },
+];
+
 const USAGE = `Usage: node run.cjs --iri|--js3 [options] [filter]
 
   filter                substring of test paths (e.g. language/types)
@@ -388,8 +481,15 @@ const USAGE = `Usage: node run.cjs --iri|--js3 [options] [filter]
   Every run also writes a markdown statistics report to tests/reports/.
   --saveArtifacts       copy non-passing tests to tests/failing_tests/<run-tag>/
                         (run-tag = --save-run name, else a timestamp)
-  --ignore-with         count "JS3 build failed" as ignored instead of failing
+  --ignore-with         count "JS3 build failed"/"Babel parsing failed" as
+                        ignored even when the baseline passes (they are always
+                        ignored when the baseline fails too)
   --ignore-name         skip test files containing "-name-"
+  --unsupported=<file>  JSON array of {needle, reason} describing by-design
+                        feature gaps; a candidate error containing a needle is
+                        counted UNSUPPORTED instead of as a regression (the
+                        built-in list covers the with statement)
+  --no-unsupported      disable that bucket
   --help                show this message
 
   examples & typical workflow: see tests/usage.txt`;
@@ -481,6 +581,76 @@ async function main() {
   const ignoreWith = args.includes("--ignore-with");
   const ignoreName = args.includes("--ignore-name");
   const ignoreList = true;
+  // By-design feature gaps (see UNSUPPORTED_DEFAULT). --unsupported=<file>
+  // replaces the built-in list with a JSON array of { needle, reason };
+  // --no-unsupported turns the bucket off.
+  const unsupportedEq = args.find((a) => a.startsWith("--unsupported="));
+  const UNSUPPORTED = args.includes("--no-unsupported")
+    ? []
+    : unsupportedEq
+      ? JSON.parse(
+          fs.readFileSync(
+            path.resolve(unsupportedEq.slice("--unsupported=".length)),
+            "utf8",
+          ),
+        )
+      : UNSUPPORTED_DEFAULT;
+  const unsupportedReasonOf = (message) => {
+    if (!message) return null;
+    for (const gap of UNSUPPORTED)
+      if (message.includes(gap.needle)) return gap.reason;
+    return null;
+  };
+
+  // A compile failure is a feature gap, so the report should name the construct
+  // that is missing. The CLI logs it inside a pino JSON line ("IRI/JS3 build
+  // failed" is only the wrapper) and the Forge aborts with a `what():` line, so
+  // dig the real message out of both envelopes.
+  const compileGapReasonOf = (message) => {
+    if (!message) return null;
+    let text = message;
+    for (const line of message.split("\n")) {
+      const t = line.trim();
+      if (!t.startsWith("{") || !t.endsWith("}")) continue;
+      try {
+        const p = JSON.parse(t);
+        const errors = Array.isArray(p.errors) ? p.errors : [];
+        const payload = [...errors, p.msg].filter((x) => typeof x === "string");
+        if (payload.length) text = payload.join("\n");
+        break;
+      } catch {
+        /* not a log line, keep scanning */
+      }
+    }
+    const lines = text
+      .split("\n")
+      .map((l) => l.trim().replace(/^Error:\s+/, "").replace(/^what\(\):\s*/, ""))
+      .filter(Boolean);
+    // "IRI build failed" is true of every row in this bucket and says nothing,
+    // so it is never the answer: prefer the compiler's own marker (a ::TODO::
+    // from a lowering that is not written yet, or the Forge abort message), then
+    // the first real line of the log, which is the message that was thrown.
+    const wrapper = /^(IRI|JS3|Babel) .*failed(::.*)?$/;
+    const real = lines.filter((l) => !wrapper.test(l) && !/^terminate called/.test(l));
+    const pick = (re) => real.find((l) => re.test(l));
+    const found =
+      pick(/::TODO::/) ||
+      pick(/TODO \/\/ unhandled /) ||
+      pick(/unhandled [A-Za-z]+->/) ||
+      pick(/Unhandled [A-Za-z]/) ||
+      pick(/^(SyntaxError|TypeError|RangeError|ReferenceError)\b/) ||
+      pick(/^(Expected|Found|.*integrity-check failed|Failed to resolve)/) ||
+      real[0] ||
+      lines[0];
+    if (!found || wrapper.test(found)) return null;
+    // Both spellings of the compiler's not-implemented-yet marker mean the same
+    // thing, so group them under one label.
+    return found
+      .replace(/^(TODO \/\/|::TODO::)\s*/, "TODO: ")
+      .replace(/^IRI build failed\s*/, "")
+      .replace(/::TODO::\s*/, "TODO: ")
+      .slice(0, 160);
+  };
 
   // --rerun[=name]: only re-run the failures from a saved run (default: the
   // newest file under tests/runs/). Only the `=` form takes a value so a
@@ -793,12 +963,22 @@ async function main() {
 
         // Categorize the result
         let category;
+        // A candidate error that matches the by-design gap table is a known
+        // gap; the reason is kept for the report's unsupported section.
+        const unsReason = !isIridiumPass
+          ? unsupportedReasonOf(iridium.message)
+          : null;
         if (isBaselinePass && isIridiumPass) category = "passBoth";
+        else if (unsReason) category = "unsupported"; // known by-design gap
         else if (
-          ignoreWith &&
           iridium.message &&
-          iridium.message.includes("JS3 build failed")
+          (iridium.message.includes("JS3 build failed") ||
+            iridium.message.includes("Babel parsing failed")) &&
+          (ignoreWith || !isBaselinePass)
         )
+          // The frontend reports a construct it does not lower. When the
+          // reference engine rejects the same test there is nothing to compare,
+          // so the row is a shared gap rather than a failure of ours.
           category = "ignored";
         else if (iridium.message && iridium.message.includes("IRI build failed"))
           category = "ignored";
@@ -828,6 +1008,13 @@ async function main() {
         if (category !== "passBoth") {
           runDetails[detailKey(t)] = {
             category,
+            // By-design gaps carry the gap-table reason; a plain compile failure
+            // carries the compiler's own message so the gap tables can rank it.
+            note:
+              unsReason ||
+              (category === "ignored"
+                ? compileGapReasonOf(iridium.message)
+                : null),
             baseline: isBaselinePass
               ? "PASS"
               : oneLine(baseline.errorSig || baseline.message || baseline.errorType || "FAIL"),
@@ -914,6 +1101,7 @@ async function main() {
   );
   console.log(
     `${pc.dim("⊘ Ignored (Compile Errors):")}    ${stats.ignored.length}`,
+    `${pc.dim("⊘ Unsupported (By Design):")}     ${stats.unsupported.length}`,
   );
 
   console.log(`\n${pc.cyan("📊 Overall Bar Rate:")}          ${successRate}%`);
@@ -927,7 +1115,7 @@ async function main() {
         g.stats.timeoutRegression.length +
         g.stats.failBothEMismatch.length;
       console.log(
-        `   ${line.padEnd(42)} ${String(g.total).padStart(5)} tests | ${pc.green(`${g.pass} pass`)} | ${bad ? pc.red(`${bad} fail`) : pc.gray("0 fail")}${g.stats.ignored.length ? pc.gray(` | ${g.stats.ignored.length} ignored`) : ""}`,
+        `   ${line.padEnd(42)} ${String(g.total).padStart(5)} tests | ${pc.green(`${g.pass} pass`)} | ${bad ? pc.red(`${bad} fail`) : pc.gray("0 fail")}${g.stats.ignored.length ? pc.gray(` | ${g.stats.ignored.length} ignored`) : ""}${g.stats.unsupported.length ? pc.gray(` | ${g.stats.unsupported.length} unsupported`) : ""}`,
       );
     }
   }

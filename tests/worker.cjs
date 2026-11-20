@@ -181,6 +181,60 @@ function makeRunTempDir(runTempRoot) {
   return fs.mkdtempSync(path.join(os.tmpdir(), "iri-test-"));
 }
 
+// A test that imports sibling fixtures resolves those requests against the
+// input file's own directory, and so does the compiled artifact. Staging it at
+// its original relative path with the referenced files copied alongside keeps
+// module resolution honest, instead of failing both engines over a file the
+// harness never placed next to it.
+const TEST262_DIR = path.resolve(__dirname, "./test262");
+const RELATIVE_REQUEST_RE = /(?:\bfrom\s*|\bimport\s*\(?\s*)["'](\.[^"']+)["']/g;
+const MAX_STAGED_FILES = 200;
+
+function relativeRequests(source) {
+  const requests = [];
+  RELATIVE_REQUEST_RE.lastIndex = 0;
+  let match;
+  while ((match = RELATIVE_REQUEST_RE.exec(source))) requests.push(match[1]);
+  return requests;
+}
+
+// Writes `contents` at the test's own path under `dir` and copies every module
+// the test references transitively. Returns null when nothing relative is
+// referenced, leaving the flat single-file staging as it was.
+function stageTestTree(test, contents, dir) {
+  const requests = relativeRequests(contents);
+  if (requests.length === 0) return null;
+  const original = path.join(TEST262_DIR, test.file);
+  if (!fs.existsSync(original)) return null;
+
+  const entry = path.join(dir, test.file);
+  fs.mkdirSync(path.dirname(entry), { recursive: true });
+  fs.writeFileSync(entry, contents);
+
+  const staged = new Set([path.resolve(original)]);
+  const queue = [{ baseDir: path.dirname(original), requests }];
+  let copied = 0;
+  while (queue.length > 0 && copied < MAX_STAGED_FILES) {
+    const { baseDir, requests: pending } = queue.shift();
+    for (const request of pending) {
+      const target = path.resolve(baseDir, request);
+      if (staged.has(target)) continue;
+      staged.add(target);
+      if (!target.startsWith(TEST262_DIR + path.sep)) continue;
+      if (!fs.existsSync(target)) continue;
+      const copy = path.join(dir, path.relative(TEST262_DIR, target));
+      fs.mkdirSync(path.dirname(copy), { recursive: true });
+      fs.copyFileSync(target, copy);
+      copied += 1;
+      queue.push({
+        baseDir: path.dirname(target),
+        requests: relativeRequests(fs.readFileSync(target, "utf-8")),
+      });
+    }
+  }
+  return entry;
+}
+
 // Compile one test into a runnable artifact using the CLI's dump modes
 // (iri -> `<uname>.iri`, js3 -> `<uname>.js3.js`). The artifact lives in a
 // throwaway dir under the run's temp root — the compiler changes between
@@ -188,8 +242,13 @@ function makeRunTempDir(runTempRoot) {
 function compileTest(test, mode, runTempRoot = null) {
   const dir = makeRunTempDir(runTempRoot);
   const isModule = test.attrs.flags?.module;
-  const inputPath = path.join(dir, "input.js");
-  fs.writeFileSync(inputPath, buildInputContents(test));
+  const contents = buildInputContents(test);
+  const mirrored = stageTestTree(test, contents, dir);
+  const inputPath = mirrored || path.join(dir, "input.js");
+  if (!mirrored) fs.writeFileSync(inputPath, contents);
+  // The artifact goes next to the input so relative module requests in it
+  // resolve against the same directory the source saw.
+  const outDir = path.dirname(inputPath);
 
   const compileArgs = [
     "--max-old-space-size=8192",
@@ -203,7 +262,7 @@ function compileTest(test, mode, runTempRoot = null) {
     // they can be loaded as plain classic scripts/modules.
     ...(mode === "--js3" ? ["--emit-runnable-js3"] : []),
     "-o",
-    dir,
+    outDir,
     inputPath,
   ];
   const compiled = spawnSync(process.execPath, compileArgs, {
@@ -230,7 +289,7 @@ function compileTest(test, mode, runTempRoot = null) {
     // separators replaced; the temp dir is unique per test, so we just
     // glob for the expected suffix.
     const suffix = mode === "--iri" ? ".iri" : ".js3.js";
-    const artifact = fs.readdirSync(dir).find((f) => f.endsWith(suffix));
+    const artifact = fs.readdirSync(outDir).find((f) => f.endsWith(suffix));
 
     if (artifact) {
       meta = { ok: true, artifact, message: "" };
@@ -247,7 +306,12 @@ function compileTest(test, mode, runTempRoot = null) {
     }
   }
 
-  return { dir, meta };
+  return {
+    dir,
+    inputPath,
+    artifactPath: meta.ok ? path.join(outDir, meta.artifact) : null,
+    meta,
+  };
 }
 
 function runBaseline(test, inputPath) {
@@ -313,23 +377,20 @@ module.exports = Object.assign(module.exports, {
   // runner's --saveArtifacts pass can copy from it; the run-wide temp root
   // is then wiped in one shot by the runner at the end.
   async runTest(test, mode, runTempRoot = null, keepDirs = false) {
-    const { dir, meta } = compileTest(test, mode, runTempRoot);
+    const { dir, inputPath, artifactPath, meta } = compileTest(
+      test,
+      mode,
+      runTempRoot,
+    );
     const isAsync = !!test.attrs.flags?.async;
 
     try {
-      const baseline = applyAsyncGate(
-        runBaseline(test, path.join(dir, "input.js")),
-        isAsync,
-      );
+      const baseline = applyAsyncGate(runBaseline(test, inputPath), isAsync);
 
       let iridium;
       if (meta.ok) {
         iridium = applyAsyncGate(
-          runArtifact(
-            mode,
-            path.join(dir, meta.artifact),
-            !!test.attrs.flags?.module,
-          ),
+          runArtifact(mode, artifactPath, !!test.attrs.flags?.module),
           isAsync,
         );
       } else {
@@ -395,7 +456,7 @@ module.exports = Object.assign(module.exports, {
           continue;
         }
 
-        const { dir, meta } = compileTest(test, mode, probeRoot);
+        const { meta, artifactPath } = compileTest(test, mode, probeRoot);
         if (!meta.ok) {
           problems.push(
             `${name} ${mode} compile failed on a trivial input: ${String(meta.message).slice(0, 300)}`,
@@ -403,7 +464,7 @@ module.exports = Object.assign(module.exports, {
           continue;
         }
         const candidate = applyAsyncGate(
-          runArtifact(mode, path.join(dir, meta.artifact), false),
+          runArtifact(mode, artifactPath, false),
           !!test.attrs.flags?.async,
         );
         if (candidate.status !== "PASS")
