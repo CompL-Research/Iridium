@@ -43,6 +43,7 @@ import {
   isTSTypeAliasDeclaration,
   isTypeAlias,
   isVariableDeclaration,
+  getBindingIdentifiers,
   Program,
 } from "@babel/types";
 import {
@@ -54,9 +55,8 @@ import {
   generateJS3ExportSpecifier,
   generateJS3ExportSpecifierfromBaseNode,
   generateJS3ImportDeclaration,
+  generateJS3ImportDeclarationfromBaseNode,
   generateJS3Program,
-  generateJS3VariableDeclarationfromBaseNode,
-  generateJS3VariableDeclaratorfromBaseNode,
 } from "./JS3Constructors";
 import {
   isJS3VariableDeclaration,
@@ -88,16 +88,9 @@ import {
 import { handleClassDeclaration } from "./HandleClassDeclaration";
 import { handleExpression } from "./HandleExpression";
 
-import babel from "@babel/core";
-import _generate from "@babel/generator";
-import _traverse from "@babel/traverse";
 import { handleDefaultExportNames } from "./GenericConstructs";
 import { ProjectFile } from "../../ProjectFile";
 
-// @ts-ignore
-let generate = _generate.default;
-// @ts-ignore
-let traverse = _traverse.default;
 
 type OtherProps = JS3BuilderUtils;
 
@@ -173,6 +166,13 @@ export function handleImportDeclaration(
   otherProps: OtherProps,
 ) {
   // 5 fallthrough props, 3 restricted props
+  const phase = (node as { phase?: string | null }).phase;
+  // `import defer "m"` / `import source "m"` are not supported by the engine;
+  // lowering them as eager imports would evaluate the wrong thing.
+  if (phase) {
+    throw new Error(`TODO // unhandled ImportDeclaration->[phase]->${phase}`);
+  }
+
   const orig_assertions = node.assertions; // Handling prop assertions
   const fin_assertions: JS3ImportDeclaration_assertions = null; // Handling prop assertions
   if (Array.isArray(orig_assertions)) {
@@ -355,6 +355,13 @@ export function handleExportNamedDeclaration(
   otherProps: OtherProps,
 ) {
   // 3 fallthrough props, 4 restricted props
+  const phase = (node as { phase?: string | null }).phase;
+  // `export defer "m"` is not supported by the engine.
+  if (phase) {
+    throw new Error(
+      `TODO // unhandled ExportNamedDeclaration->[phase]->${phase}`,
+    );
+  }
 
   const orig_assertions = node.assertions; // Handling prop assertions
   const fin_assertions: JS3ExportNamedDeclaration_assertions = null; // Handling prop assertions
@@ -452,55 +459,14 @@ export function handleExportNamedDeclaration(
       .forEach((s) => {
         const declaredBindings: Array<string> = [];
 
-        if (!isIdentifier(s.declarations[0].id)) {
-          // Find the identifiers created by this assignment pattern.
-          try {
-            // Generate a temp assignment of the form
-            //  [a, ...rest] = undefined
-            //  {a, b: { d: e }} = undefined
-            const tempVarDeclarator = generateJS3VariableDeclaratorfromBaseNode(
-              s.declarations[0].id,
-              generateIdentifier(orig_declaration, "undefined"),
-              null,
-              orig_declaration,
-            );
-            const tempVarDecl = generateJS3VariableDeclarationfromBaseNode(
-              [tempVarDeclarator],
-              orig_declaration.kind,
-              orig_declaration.declare === undefined
-                ? null
-                : orig_declaration.declare,
-              orig_declaration,
-            );
-
-            // Generate source string
-            const output = generate(tempVarDecl);
-
-            // Generate AST
-            const options = {
-              ast: true,
-            };
-            const result = babel.transformSync(output.code, options);
-
-            // Populate generated bindings
-            if (!result)
-              throw new Error(
-                "Expected result to be non-null, handleExportNamedDeclaration",
-              );
-            traverse(result.ast, {
-              Program(path: any) {
-                for (const key in path.scope.bindings) {
-                  const b = path.scope.bindings[key];
-                  declaredBindings.push(b.identifier.name);
-                }
-              },
-            });
-          } catch (e) {
-            throw new Error(`Failed lowering export declaration pattern: ${e}`);
+        for (const declarator of s.declarations) {
+          if (isIdentifier(declarator.id)) {
+            if (declarator.id.name.charAt(0) !== "~")
+              declaredBindings.push(declarator.id.name);
+            continue;
           }
-        } else {
-          // Trivial case
-          declaredBindings.push(s.declarations[0].id.name);
+          for (const name of Object.keys(getBindingIdentifiers(declarator.id)))
+            if (name.charAt(0) !== "~") declaredBindings.push(name);
         }
 
         for (const b of declaredBindings) {
@@ -661,6 +627,23 @@ export function handleExportNamedDeclaration(
   const orig_specifiers = node.specifiers; // Handling prop specifiers
   // let fin_specifiers: JS3ExportNamedDeclaration_specifiers; // Handling prop specifiers
   if (Array.isArray(orig_specifiers)) {
+    if (orig_specifiers.length === 0 && node.source) {
+      if (!otherProps.others) throw new Error("otherProps.others undefined");
+      if (!otherProps.others.holder)
+        throw new Error("otherProps.others.holder is null");
+      (otherProps.others.holder as JS3Program_body).push(
+        generateJS3ImportDeclarationfromBaseNode(
+          [],
+          null,
+          null,
+          node.source,
+          "value",
+          null,
+          null,
+          node,
+        ),
+      );
+    }
     for (const _arrProp of orig_specifiers) {
       if (isExportSpecifier(_arrProp)) {
         const eSpec = handleExportSpecifier(_arrProp, otherProps);

@@ -179,14 +179,9 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
     // Create an import request
     // 3JS enforces a single specifier per Import Declaration
     const specifiers = stmt.specifiers;
-    if (specifiers.length == 0) {
-      const staticImportSEXP = new StaticImportSEXP(
-        newTemp("throwaway"),
-        "default",
-        currentModuleRequest.getReqIDX(),
-      );
-      cx.getCurrentBB().args.push(staticImportSEXP);
-    } else {
+    // A bare `import "./m.js"` needs the module instantiated and evaluated, but
+    // binding a name from it would demand an export the module may not have.
+    if (specifiers.length > 0) {
       const specifier = specifiers[0];
 
       if (isImportSpecifier(specifier)) {
@@ -229,7 +224,9 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
     const specifier = stmt.specifiers[0];
 
     if (isJS3ExportSpecifier(specifier)) {
-      const local = specifier.local.name;
+      const local = isIdentifier(specifier.local)
+        ? specifier.local.name
+        : specifier.local.value;
       const remote = isIdentifier(specifier.exported)
         ? specifier.exported.name
         : specifier.exported.value;
@@ -263,7 +260,7 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
         if (!currentModuleRequest)
           throw new Error("Expected current module request to be defined");
         cx.getCurrentBB().args.push(
-          new NamedReexportSEXP(currentModuleRequest.getReqIDX(), "*", remote),
+          new NamedReexportSEXP(currentModuleRequest.getReqIDX(), local, remote),
         );
       }
 
@@ -293,7 +290,9 @@ export const IRIV2_STMT = (cx: IRIDIUMV2, stmt: JS3AllowedProgStatement) => {
       }
       if (!currentModuleRequest)
         throw new Error("Expected current module request to be defined");
-      const binding = specifier.exported.name;
+      const binding = isIdentifier(specifier.exported)
+        ? specifier.exported.name
+        : specifier.exported.value;
       cx.getCurrentBB().args.push(
         new NamedReexportSEXP(currentModuleRequest.getReqIDX(), "*", binding),
       );
@@ -1469,11 +1468,25 @@ const handleVariableDeclaration = (
   if (isIdentifier(declaration.id)) {
     let rValTarget = declaration.init && IRIV2_RVAL(cx, declaration.init);
 
-    // Propagate name property
-    if (rValTarget && isLambdaSEXP(rValTarget)) {
+    if (
+      rValTarget &&
+      isLambdaSEXP(rValTarget) &&
+      declaration.id.name.charAt(0) !== "~" &&
+      rValTarget.getNAME() === ""
+    ) {
       rValTarget.setSETNAME(true);
       rValTarget.setNAME(declaration.id.name);
     }
+
+    const declaredClass = (rValTarget as any)?.__classSEXP as
+      | { getName(): string; setNAME(name: string): void }
+      | undefined;
+    if (
+      declaredClass &&
+      declaration.id.name.charAt(0) !== "~" &&
+      declaredClass.getName() === ""
+    )
+      declaredClass.setNAME(declaration.id.name);
 
     if (!rValTarget) {
       if (KIND === "JSLET") {
@@ -2173,7 +2186,7 @@ const handleFunctionDeclaration = (
     stmt.loc?.start.line,
   );
 
-  const lambda = new LambdaSEXP(funBBIdx, stmt.id.name);
+  const lambda = new LambdaSEXP(funBBIdx, stmt.id.name, false, true);
 
   // FUNC = LAMBDA
   cx.getCurrentBB().args.push(

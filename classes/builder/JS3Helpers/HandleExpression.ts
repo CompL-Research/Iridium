@@ -261,7 +261,7 @@ import {
   isV8IntrinsicIdentifier,
   LVal
 } from "@babel/types";
-import { lowerComputedKey } from "./GenericConstructs";
+import { lowerComputedKey, markAnonDefinitionName } from "./GenericConstructs";
 import { handleBlockStatement } from "./HandleBlocks";
 import { handleClassBody } from "./HandleClassDeclaration";
 import {
@@ -856,6 +856,10 @@ export function lowerToAnonArrayExpr(
   } else {
     declExpr = handleClassExpression(node, otherProps);
   }
+
+  // Forward name
+  const anonHint = (node as any).__nameHint;
+  if (anonHint) (declExpr as any).__nameHint = anonHint;
 
   const holder: Array<
     JS3FunctionExpression | JS3ClassExpression | JS3ArrowFunctionExpression
@@ -1768,6 +1772,23 @@ export function handleObjectProperty(
 
 
   const orig_value = node.value; // Handling prop value
+  const isAnonDefValue =
+    isArrowFunctionExpression(orig_value) ||
+    (isFunctionExpression(orig_value) && !orig_value.id) ||
+    (isClassExpression(orig_value) && !orig_value.id);
+  // Minor bugfix...
+  const isProtoKey =
+    (isIdentifier(orig_key) && orig_key.name === "__proto__") ||
+    (isStringLiteral(orig_key) && orig_key.value === "__proto__");
+  if (isAnonDefValue && !node.computed && !isProtoKey) {
+    if (isIdentifier(orig_key)) (orig_value as any).__nameHint = orig_key.name;
+    else if (
+      isStringLiteral(orig_key) ||
+      isNumericLiteral(orig_key) ||
+      isBigIntLiteral(orig_key)
+    )
+      (orig_value as any).__nameHint = "" + (orig_key as any).value;
+  }
   let fin_value: JS3ObjectProperty_value; // Handling prop value
   // Specializations
   // Identifier | StringLiteral | NumericLiteral | NullLiteral | BooleanLiteral | RegExpLiteral | ThisExpression | BigIntLiteral | DecimalLiteral
@@ -1827,6 +1848,9 @@ export function handleObjectProperty(
   } else {
     throw new Error("TODO // unhandled ObjectProperty->value ... UKN",);
   }
+
+  if (isAnonDefValue && node.computed && isIdentifier(fin_value))
+    (fin_value as any).__nameFromKey = true;
 
   const orig_decorators = node.decorators; // Handling prop decorators
   const fin_decorators: JS3ObjectProperty_decorators = null; // Handling prop decorators
@@ -2754,6 +2778,10 @@ export function handleAssnPatRec(
     );
 
     // let tempVar = fin$res = cond$res ? EXPR1 : EXPR2
+    markAnonDefinitionName(
+      isIdentifier(LVal.left) ? LVal.left : undefined,
+      LVal.right,
+    );
     const condExpr = generateJS3ConditionalExpressionfromBaseNode(
       cond$res,
       lowerComputedKey(LVal.right, otherProps),
@@ -3702,6 +3730,28 @@ export function handleImportExpression(
     fin_options = lowerToAnonArrayExpr(orig_options, otherProps);
   } else if (isExpression(orig_options)) {
     fin_options = handleExpression(orig_options, otherProps);
+  }
+
+  // unsupported by quickjs...
+  if (
+    isObjectExpression(orig_options) &&
+    orig_options.properties.some(
+      (prop) =>
+        isObjectProperty(prop) &&
+        (isIdentifier(prop.key, { name: "with" }) ||
+          isStringLiteral(prop.key, { value: "with" })),
+    )
+  ) {
+    throw new Error(
+      "TODO // unhandled ImportExpression->[options]->with (import attributes)",
+    );
+  }
+
+  // `import.source(x)` / `import.defer(x)` are not supported by the engine;
+  // lowering them as eager imports would evaluate the wrong thing.
+  const phase = (node as { phase?: string | null }).phase;
+  if (phase) {
+    throw new Error(`TODO // unhandled ImportExpression->[phase]->${phase}`);
   }
 
   const result: JS3ImportExpression = generateJS3ImportExpression(

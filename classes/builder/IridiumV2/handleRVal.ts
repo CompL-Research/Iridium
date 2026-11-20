@@ -172,6 +172,7 @@ import {
   ListSEXP,
   NullSEXP,
   NumberSEXP,
+  PropKeyCheckSEXP,
   RegExpSEXP,
   ResolveContinueTargetSEXP,
   ResolveEnvBindingSEXP,
@@ -1144,6 +1145,7 @@ const handleComputedProps = (
         false,
       ),
     );
+    cx.getCurrentBB().args.push(new PropKeyCheckSEXP(computedPropLoc));
   });
 
   // After generating the code, add a goto from the last lowered block to the oldContexts continuation
@@ -1186,6 +1188,11 @@ const getPrivateMapping = (
   if (privateMapping.size === 0) return null;
   return privateMapping;
 };
+
+const isAnonDefinitionNode = (node: Expression | null | undefined): boolean =>
+  isArrowFunctionExpression(node) ||
+  (isFunctionExpression(node) && !node.id) ||
+  (isClassExpression(node) && !node.id);
 
 const getFieldKeyString = (key: JS3ContainedExprKey): string => {
   let lookupField: string;
@@ -1367,12 +1374,22 @@ const createClassNonStaticPropInitClosure = (
         //   true,
         // );
         //
+        const fieldBinding = classItem.value
+          ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getName()
+          : "undefined";
         const res = new JSDefineObjPropSEXP(
           new EnvReadSEXP("this"),
           new EnvReadSEXP(compProp),
-          classItem.value ? new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getName()) : new EnvReadSEXP("undefined")
+          new EnvReadSEXP(fieldBinding),
         );
         cx.getCurrentBB().args.push(res);
+        if (isAnonDefinitionNode(classItem.value))
+          cx.getCurrentBB().args.push(
+            new JSSetNameSEXP(
+              new EnvReadSEXP(fieldBinding),
+              new EnvReadSEXP(compProp),
+            ),
+          );
 
       } else {
         // this.field = RVal
@@ -1382,12 +1399,23 @@ const createClassNonStaticPropInitClosure = (
         //   identifier(lookupField),
         //   false,
         // );
+        const fieldBinding = classItem.value
+          ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getName()
+          : "undefined";
         const res = new JSDefineObjPropSEXP(
           new EnvReadSEXP("this"),
           new StringSEXP(lookupField),
-          classItem.value ? new EnvReadSEXP(lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getName()) : new EnvReadSEXP("undefined")
+          new EnvReadSEXP(fieldBinding),
         );
         cx.getCurrentBB().args.push(res);
+        // SetFunctionName(PName, PV) for an anonymous definition value.
+        if (isAnonDefinitionNode(classItem.value))
+          cx.getCurrentBB().args.push(
+            new JSSetNameSEXP(
+              new EnvReadSEXP(fieldBinding),
+              new StringSEXP(lookupField),
+            ),
+          );
 
       }
       // // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
@@ -1409,20 +1437,24 @@ const createClassNonStaticPropInitClosure = (
       if (!compProp) throw new Error("compProp is undefined");
       let lookupPrivateKeyHolder = new EnvReadSEXP(compProp);
       // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
-      let loweredValue: IridiumSEXP = new EnvReadSEXP(
-        classItem.value
-          ? lowerExprToResolveEnvBindingSEXP(
-              cx,
-              classItem.value,
-            ).getBindingName()
-          : "undefined",
-      );
+      let valueBinding: string = classItem.value
+        ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getBindingName()
+        : "undefined";
+      let loweredValue: IridiumSEXP = new EnvReadSEXP(valueBinding);
       cx.getCurrentBB().args.push(
         new JSPrivateFieldDefineSEXP(
           "this",
           lookupPrivateKeyHolder,
           loweredValue)
       );
+      // SetFunctionName("#x", PV) for an anonymous definition value.
+      if (isAnonDefinitionNode(classItem.value))
+        cx.getCurrentBB().args.push(
+          new JSSetNameSEXP(
+            new EnvReadSEXP(valueBinding),
+            new StringSEXP("#" + classItem.key.id.name),
+          ),
+        );
     }
   }
 
@@ -1532,15 +1564,32 @@ const createClassStaticPropInitClosure = (
           false,
         );
       }
-      // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
+      // SetFunctionName(PName, PV): lower an anonymous definition value into a
+      // binding so the field name can be applied to it after the write.
+      let fieldBinding: string | null = null;
+      let fieldInit: Expression = classItem.value
+        ? classItem.value
+        : identifier("undefined");
+      if (isAnonDefinitionNode(classItem.value)) {
+        fieldBinding = lowerExprToResolveEnvBindingSEXP(
+          cx,
+          classItem.value!,
+        ).getBindingName();
+        fieldInit = identifier(fieldBinding);
+      }
       lowerExprToResolveEnvBindingSEXP(
         cx,
-        assignmentExpression(
-          "=",
-          memberExpr,
-          classItem.value ? classItem.value : identifier("undefined"),
-        ),
+        assignmentExpression("=", memberExpr, fieldInit),
       );
+      if (fieldBinding !== null)
+        cx.getCurrentBB().args.push(
+          new JSSetNameSEXP(
+            new EnvReadSEXP(fieldBinding),
+            classItem.computed
+              ? new EnvReadSEXP(computedPropMapping.get(classItem)!)
+              : new StringSEXP(getFieldKeyString(classItem.key)),
+          ),
+        );
     } else if (isJS3ClassPrivateProperty(classItem) && classItem.static) {
       // this.#field = RVal
       if (!computedPropMapping.has(classItem))
@@ -1551,20 +1600,24 @@ const createClassStaticPropInitClosure = (
       if (!compProp) throw new Error("compProp is undefined");
       let lookupPrivateKeyHolder = new EnvReadSEXP(compProp);
       // if (!classItem.value) throw new Error("TODO: Class props with no defualt value");
-      let loweredValue: IridiumSEXP = new EnvReadSEXP(
-        classItem.value
-          ? lowerExprToResolveEnvBindingSEXP(
-              cx,
-              classItem.value,
-            ).getBindingName()
-          : "undefined",
-      );
+      let valueBinding: string = classItem.value
+        ? lowerExprToResolveEnvBindingSEXP(cx, classItem.value).getBindingName()
+        : "undefined";
+      let loweredValue: IridiumSEXP = new EnvReadSEXP(valueBinding);
       cx.getCurrentBB().args.push(
         new JSPrivateFieldDefineSEXP(
           "this",
           lookupPrivateKeyHolder,
           loweredValue)
       );
+      // SetFunctionName("#x", PV) for an anonymous definition value.
+      if (isAnonDefinitionNode(classItem.value))
+        cx.getCurrentBB().args.push(
+          new JSSetNameSEXP(
+            new EnvReadSEXP(valueBinding),
+            new StringSEXP("#" + classItem.key.id.name),
+          ),
+        );
     } else if (isJS3StaticBlock(classItem)) {
       // { /** code **/ }
       // TODO:: THIS IS A VAR BOUNDAY CONTEXT...
@@ -1720,6 +1773,7 @@ const createClassConstructorClosure = (
 
   const funcContextCallback = (funcContext: IridiumBuildContext) => {
     funcContext.propInitClos = propInitClos;
+    funcContext.name = "";
   };
 
   const lambdaIDX = createLambda(
@@ -2012,16 +2066,21 @@ const handleClassExpression = (
     superClass,
     classPropInitClosure,
   );
+  constructorLambda.setNAME(name || (node as any).__nameHint || "");
+  constructorLambda.setCNAME(false);
+  constructorLambda.setSETNAME(true);
 
   // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{After createClassConstructorClosure}`);
 
+  const jsClassSEXP = new JSClassSEXP(
+    constructorLambda,
+    name || ((node as any).__nameHint ?? ""),
+    node.superClass ? superClass : undefined,
+  );
+
   cx.getCurrentBB().args.push(
     new CompoundAssnSEXP(
-      new JSClassSEXP(
-        constructorLambda,
-        name,
-        node.superClass ? superClass : undefined,
-      ),
+      jsClassSEXP,
       [
         new EnvWriteSEXP(finalClassProto, new NullSEXP(), true, false),
         new EnvWriteSEXP(finalClassRes, new NullSEXP(), true, false),
@@ -2107,7 +2166,9 @@ const handleClassExpression = (
 
   // console.log(`handleClassExpression[CTX: ${cx.getCurrentBB().getScopeIDX()}]{End}`);
   cx.popContext();
-  return new EnvReadSEXP(finalClassRes);
+  const classResult = new EnvReadSEXP(finalClassRes);
+  (classResult as any).__classSEXP = jsClassSEXP;
+  return classResult;
 };
 
 export const lowerSpreadToJS3Spread = (cx: IRIDIUMV2, from: SpreadElement) => {
@@ -2229,10 +2290,22 @@ const handleAssignmentExpression = (
   if (isIdentifier(left)) {
     const rv = IRIV2_RVAL(cx, right);
 
-    // Propagate name property
-    if (isLambdaSEXP(rv)) {
+    const namesTheValue =
+      (left as any).extra?.parenthesized !== true &&
+      left.name.charAt(0) !== "~";
+    if (namesTheValue && isLambdaSEXP(rv) && rv.getNAME() === "") {
       rv.setSETNAME(true);
       rv.setNAME(left.name);
+    } else if (
+      namesTheValue &&
+      ((rv as any).__classSEXP as
+        | { getName(): string; setNAME(name: string): void }
+        | undefined)?.getName() === ""
+    ) {
+      // Anonymous class expressions take the name of the assignment target.
+      ((rv as any).__classSEXP as { setNAME(name: string): void }).setNAME(
+        left.name,
+      );
     }
 
     let rValSimp = newTemp("rValSimp");
@@ -2394,7 +2467,7 @@ const handleFunctionExpression = (
   if (isJS3FunctionExpression(node) && node.id) {
     name = node.id.name;
     isComputedName = false;
-    toSetName = false;
+    toSetName = true;
   } else if (isJS3ObjectMethod(node)) {
     name = getObjKeyString(node.key);
     isComputedName = node.computed;
@@ -2421,6 +2494,8 @@ const handleFunctionExpression = (
   if (name !== "" && !isComputedName && isJS3FunctionExpression(node))
     implicitBindings.push({ name: name, type: "JSCONST", value: 12 });
 
+  const containerName = isJS3FunctionExpression(node) ? "" : name;
+
   const funBBIdx = createLambda(
     cx,
     isSimpleArgs,
@@ -2432,7 +2507,7 @@ const handleFunctionExpression = (
     node.params,
     node.body.body,
     implicitBindings,
-    name,
+    containerName,
     node.loc?.start.line,
     privateMapping,
   );
@@ -2441,6 +2516,12 @@ const handleFunctionExpression = (
   lambda.setNAME(name);
   lambda.setCNAME(isComputedName);
   lambda.setSETNAME(toSetName);
+
+  const feHint = (node as any).__nameHint;
+  if (feHint && !name && !isComputedName) {
+    lambda.setNAME(feHint);
+    lambda.setSETNAME(true);
+  }
 
   return lambda;
 };
@@ -2807,9 +2888,12 @@ const handleArrowFunctionExpression = (
     node.params,
     node.body.body,
     implicitBindings,
-    "ARROW_FN",
+    "",
     node.loc?.start.line,
   );
+
+  const arrowHint = (node as any).__nameHint;
+  if (arrowHint) return new LambdaSEXP(funBBIdx, arrowHint, false, true);
 
   return new LambdaSEXP(funBBIdx);
 };
@@ -3057,13 +3141,21 @@ const handleObjectExpression = (cx: IRIDIUMV2, init: JS3ObjectExpression) => {
         );
       } else {
         // Regular property definition (including computed ["__proto__"])
+        const keySEXP = prop.computed
+          ? IRIV2_RVAL(cx, prop.key)
+          : new StringSEXP(getObjKeyString(prop.key));
+        const propValue = IRIV2_RVAL(cx, prop.value);
+        if (
+          (prop.value as any)?.__nameFromKey === true &&
+          (keySEXP instanceof StringSEXP || keySEXP instanceof EnvReadSEXP)
+        ) {
+          cx.getCurrentBB().args.push(new JSSetNameSEXP(propValue, keySEXP));
+        }
         const res = new JSDefineObjPropSEXP(
           new EnvReadSEXP(obj$id),
-          prop.computed
-            ? IRIV2_RVAL(cx, prop.key)
-            : new StringSEXP(getObjKeyString(prop.key)),
-          IRIV2_RVAL(cx, prop.value),
-        )
+          keySEXP,
+          propValue,
+        );
         cx.getCurrentBB().args.push(res);
       }
     } else {

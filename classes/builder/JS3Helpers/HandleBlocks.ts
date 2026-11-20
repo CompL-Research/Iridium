@@ -217,7 +217,7 @@ import {
   generateTempIdentifier,
 } from "./JS3Constructors";
 
-import { lowerComputedKey } from "./GenericConstructs";
+import { lowerComputedKey, markAnonDefinitionName } from "./GenericConstructs";
 import { handleClassDeclaration } from "./HandleClassDeclaration";
 import { newTemp } from "../Shared";
 
@@ -814,6 +814,10 @@ export function handleDeclaratorRec(
     );
 
     // let tempVar = fin$res = cond$res ? EXPR1 : EXPR2
+    markAnonDefinitionName(
+      isIdentifier(LVal.left) ? LVal.left : undefined,
+      LVal.right,
+    );
     const condExpr = generateJS3ConditionalExpressionfromBaseNode(
       cond$res,
       lowerComputedKey(LVal.right, otherProps),

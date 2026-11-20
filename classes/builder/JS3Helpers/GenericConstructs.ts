@@ -12,6 +12,7 @@ import {
   isBigIntLiteral,
   isBooleanLiteral,
   isClassDeclaration,
+  isClassExpression,
   isDecimalLiteral,
   isFunctionDeclaration,
   isFunctionExpression,
@@ -125,6 +126,21 @@ export function handleDefaultExportNames(
   );
 
   return temp$1;
+}
+
+// An ugly hack to remember fn names, I hate this...
+export function markAnonDefinitionName(
+  target: Identifier | null | undefined,
+  definition: Expression,
+): void {
+  if (
+    isIdentifier(target) &&
+    ((isFunctionExpression(definition) && !definition.id) ||
+      isArrowFunctionExpression(definition) ||
+      (isClassExpression(definition) && !definition.id))
+  ) {
+    (definition as any).__nameHint = target.name;
+  }
 }
 
 export function lowerComputedKey(
