@@ -5,6 +5,7 @@ const path = require("path");
 const pc = require("picocolors");
 const cliProgress = require("cli-progress");
 const fs = require("fs");
+const { execSync } = require("child_process");
 
 // Default to one worker per logical core. Every test spawns a synchronous
 // child process, so oversubscribing the pool mostly adds scheduling churn.
@@ -14,6 +15,7 @@ const AUTO_THREADS = Math.min(
   32,
 );
 const TEST262_PATH = path.resolve("./test262");
+const ROOT = path.resolve(__dirname, "..");
 
 // Saved runs (--save-run / --compare) live here as <name>.json
 const RUNS_DIR = path.resolve(__dirname, "runs");
@@ -466,6 +468,19 @@ const UNSUPPORTED_DEFAULT = [
   },
 ];
 
+// Always rebuild, in dependency order, before any test runs: the workers
+// spawn dist/iridium.js and qjs_new, and a stale artifact silently tests an
+// old compiler (it has happened). Incremental builds make this cheap.
+function runStep(cmd, args, cwd) {
+  console.log(`> ${cmd} ${args.join(" ")}`);
+  execSync(`${cmd} ${args.join(" ")}`, { cwd, stdio: "inherit" });
+}
+function buildAll() {
+  runStep("make", ["debug"], path.join(ROOT, "external/Iridium-Quickjs"));
+  runStep("npm", ["run", "build"], path.join(ROOT, "external/Iridium-Forge"));
+  runStep("npm", ["run", "build"], ROOT);
+}
+
 const USAGE = `Usage: node run.cjs --iri|--js3 [options] [filter]
 
   filter                substring of test paths (e.g. language/types)
@@ -696,6 +711,8 @@ async function main() {
     }
   }
   const grouped = !!filterFileArg;
+
+  buildAll();
 
   const worker = new Worker(require.resolve("./worker.cjs"), {
     numWorkers: THREADS,
