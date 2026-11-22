@@ -1,4 +1,4 @@
-/** Generated: 2026-11-20 22:49:22 */
+/** Generated: 2026-11-22 20:07:56 */
 
 export enum IriTag {
   File = 0,
@@ -139,8 +139,8 @@ export enum IriFlag {
   Lexical = 18,
   VARBoundary = 19,
   TryBB = 20,
-  IDX = 21,
-  ScopeIDX = 22,
+  ScopeIDX = 21,
+  IDX = 22,
   NOT = 23,
   TRUE = 24,
   FALSE = 25,
@@ -176,9 +176,9 @@ export enum IriFlag {
   PRIVGET = 55,
   PRIVSET = 56,
   PRIVGETSET = 57,
-  REFIDX = 58,
-  SCOPE = 59,
-  NEXT = 60,
+  NEXT = 58,
+  REFIDX = 59,
+  SCOPE = 60,
   LINK = 61,
   MODULE = 62,
   MODULEI = 63,
