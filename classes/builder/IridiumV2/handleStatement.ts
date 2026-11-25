@@ -99,7 +99,7 @@ import {
   GotoSEXP,
   IfElseJumpSEXP,
   InvokeFinalizerSEXP,
-  isLambdaSEXP,
+  isLambdaRefSEXP,
   JSArraySEXP,
   JSCatchContextSEXP,
   JSComputedFieldWriteSEXP,
@@ -119,7 +119,7 @@ import {
   JSImplicitBindingDeclarationTypes,
   JSInitialYieldSEXP,
   JSNUBDSEXP,
-  LambdaSEXP,
+  LambdaRefSEXP,
   ListSEXP,
   LocalStaticExportSEXP,
   ModuleRequestSEXP,
@@ -1470,7 +1470,7 @@ const handleVariableDeclaration = (
 
     if (
       rValTarget &&
-      isLambdaSEXP(rValTarget) &&
+      isLambdaRefSEXP(rValTarget) &&
       declaration.id.name.charAt(0) !== "~" &&
       rValTarget.getNAME() === ""
     ) {
@@ -2028,7 +2028,7 @@ export const createLambda = (
 ) => {
   // Lower Function code
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary"); // ClosureBoundary
-  const funBBIdx = funcContext.getCurrentBB().idx;
+  const closureScope = funcContext.scopeIdx;
   funcContext.isStrict = isStrict;
   funcContext.isAsync = isAsync;
   funcContext.isGenerator = isGenerator;
@@ -2138,7 +2138,8 @@ export const createLambda = (
 
   cx.popContext(); // ClosureBoundary
 
-  return funBBIdx;
+  // The closure's scope: what a Lambda node uses to name its target.
+  return closureScope;
 };
 
 const handleFunctionDeclaration = (
@@ -2171,7 +2172,7 @@ const handleFunctionDeclaration = (
     { name: "<var>", type: "JSVAR", value: 5 },
   ];
 
-  const funBBIdx = createLambda(
+  const closureScope = createLambda(
     cx,
     isSimpleArgs,
     isStrict,
@@ -2186,7 +2187,7 @@ const handleFunctionDeclaration = (
     stmt.loc?.start.line,
   );
 
-  const lambda = new LambdaSEXP(funBBIdx, stmt.id.name, false, true);
+  const lambda = new LambdaRefSEXP(closureScope, stmt.id.name, false, true);
 
   // FUNC = LAMBDA
   cx.getCurrentBB().args.push(

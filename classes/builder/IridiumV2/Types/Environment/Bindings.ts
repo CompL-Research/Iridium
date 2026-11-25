@@ -2,7 +2,7 @@ import { printIriSpace } from "#utils";
 import { IridiumBuildContext } from "../../IRIDIUMV2";
 import { IridiumSEXP } from "../Structural/General";
 import { ListSEXP } from "../RVAL/Primitives";
-import { EnvBindingSEXP, isEnvBindingSEXP, isRemoteEnvBindingSEXP, JSEnvBindingFlags, PoolBindingSEXP, RemoteEnvBindingSEXP } from "./BindingsObjectConstituents";
+import { EnvBindingSEXP, isEnvBindingSEXP, isRemoteEnvBindingSEXP, JSEnvBindingFlags, RemoteEnvBindingSEXP } from "./BindingsObjectConstituents";
 /**
  *
  * @extends {IridiumSEXP}
@@ -21,7 +21,7 @@ import { EnvBindingSEXP, isEnvBindingSEXP, isRemoteEnvBindingSEXP, JSEnvBindingF
  *
  * - `ARG(remoteBindings)`: A {@link ListSEXP} object containing remote bindings {@link RemoteEnvBindingSEXP}.
  *
- * - `ARG(lambdas)`: A {@link ListSEXP} object containing pool bindings {@link PoolBindingSEXP} (used to store lambdas in Iridium).
+ * - `ARG(lambdas)`: A {@link ListSEXP} list of {@link LambdaSEXP} closures this container materializes. The forge owns it: the closure tree writes it, in slot order, when it commits.
  *
  * - `FLAG(ParentScope : number)`: IDX of parent closure scope.
  *
@@ -40,7 +40,7 @@ export class BindingsSEXP extends IridiumSEXP {
     this.setRemoteBindings(remoteBindings);
 
     const lambdas = new ListSEXP([]);
-    lambdas.setType("PoolBinding");
+    lambdas.setType("Lambda");
     this.setLambdas(lambdas);
   }
 
@@ -74,7 +74,7 @@ export class BindingsSEXP extends IridiumSEXP {
     this.args[2] = lambdasListSEXP;
   }
 
-  getLambdaPoolBindings() {
+  getLambdas() {
     return this.args[2];
   }
 
@@ -86,11 +86,6 @@ export class BindingsSEXP extends IridiumSEXP {
 
   addRemoteBinding(binding: RemoteEnvBindingSEXP) {
     this.getRemoteBindings().args.push(binding);
-  }
-
-  addLambdaPoolBinding(binding: PoolBindingSEXP) {
-    let poolBindings = this.getLambdaPoolBindings().args;
-    poolBindings.push(binding);
   }
 
   /**

@@ -130,7 +130,7 @@ import {
   GotoSEXP,
   IfElseJumpSEXP,
   IridiumSEXP,
-  isLambdaSEXP,
+  isLambdaRefSEXP,
   JSADDBRANDSEXP,
   JSAppendSEXP,
   JSArraySEXP,
@@ -168,7 +168,7 @@ import {
   JSSetNameSEXP,
   JSTemplateSEXP,
   JSToObjectSEXP,
-  LambdaSEXP,
+  LambdaRefSEXP,
   ListSEXP,
   NullSEXP,
   NumberSEXP,
@@ -1317,7 +1317,7 @@ const createClassNonStaticPropInitClosure = (
   const location = newTemp("PropInitClosure");
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   funcContext.name = "<prop-init>";
-  const funBBIdx = funcContext.getCurrentBB().idx;
+  const closureScope = funcContext.scopeIdx;
 
   // Class constructors are strict and use an unmapped arguments object
   funcContext.isStrict = true;
@@ -1465,7 +1465,7 @@ const createClassNonStaticPropInitClosure = (
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
       new ResolveEnvBindingSEXP(location),
-      new LambdaSEXP(funBBIdx),
+      new LambdaRefSEXP(closureScope),
       "JSLET",
       false,
     ),
@@ -1498,7 +1498,7 @@ const createClassStaticPropInitClosure = (
   const location = newTemp("StaticPropInitClosure");
   const funcContext = cx.declareAndPushLexicalContext("ClosureBoundary");
   funcContext.name = "<static-prop-init>";
-  const funBBIdx = funcContext.getCurrentBB().idx;
+  const closureScope = funcContext.scopeIdx;
 
   // Class constructors are strict and use an unmapped arguments object
   funcContext.isStrict = true;
@@ -1631,7 +1631,7 @@ const createClassStaticPropInitClosure = (
   cx.getCurrentBB().args.push(
     new JSExplicitBindingDeclarationSEXP(
       new ResolveEnvBindingSEXP(location),
-      new LambdaSEXP(funBBIdx),
+      new LambdaRefSEXP(closureScope),
       "JSLET",
       false,
     ),
@@ -1645,7 +1645,7 @@ const createClassConstructorClosure = (
   node: JS3ClassExpression,
   superClass: EnvReadSEXP | undefined,
   propInitClos: string,
-): LambdaSEXP => {
+): LambdaRefSEXP => {
   let constructor: undefined | Array<JS3ClassMethod> | JS3ClassMethod =
     node.body.body
       .filter((item) => isJS3ClassMethod(item))
@@ -1776,7 +1776,7 @@ const createClassConstructorClosure = (
     funcContext.name = "";
   };
 
-  const lambdaIDX = createLambda(
+  const closureScope = createLambda(
     cx,
     isSimpleArgs,
     isStrict,
@@ -1795,7 +1795,7 @@ const createClassConstructorClosure = (
     bodyScopeCallback,
   );
 
-  return new LambdaSEXP(lambdaIDX, node.id ? node.id.name : "");
+  return new LambdaRefSEXP(closureScope, node.id ? node.id.name : "");
 };
 
 const handleUpdateExpression = (
@@ -2293,7 +2293,7 @@ const handleAssignmentExpression = (
     const namesTheValue =
       (left as any).extra?.parenthesized !== true &&
       left.name.charAt(0) !== "~";
-    if (namesTheValue && isLambdaSEXP(rv) && rv.getNAME() === "") {
+    if (namesTheValue && isLambdaRefSEXP(rv) && rv.getNAME() === "") {
       rv.setSETNAME(true);
       rv.setNAME(left.name);
     } else if (
@@ -2496,7 +2496,7 @@ const handleFunctionExpression = (
 
   const containerName = isJS3FunctionExpression(node) ? "" : name;
 
-  const funBBIdx = createLambda(
+  const closureScope = createLambda(
     cx,
     isSimpleArgs,
     isStrict,
@@ -2512,10 +2512,7 @@ const handleFunctionExpression = (
     privateMapping,
   );
 
-  const lambda = new LambdaSEXP(funBBIdx);
-  lambda.setNAME(name);
-  lambda.setCNAME(isComputedName);
-  lambda.setSETNAME(toSetName);
+  const lambda = new LambdaRefSEXP(closureScope, name, isComputedName, toSetName);
 
   const feHint = (node as any).__nameHint;
   if (feHint && !name && !isComputedName) {
@@ -2877,7 +2874,7 @@ const handleArrowFunctionExpression = (
     initializer?: ListSEXP;
   }> = [{ name: "<var>", type: "JSVAR", value: 5 }];
 
-  const funBBIdx = createLambda(
+  const closureScope = createLambda(
     cx,
     isSimpleArgs,
     isStrict,
@@ -2893,9 +2890,10 @@ const handleArrowFunctionExpression = (
   );
 
   const arrowHint = (node as any).__nameHint;
-  if (arrowHint) return new LambdaSEXP(funBBIdx, arrowHint, false, true);
+  if (arrowHint)
+    return new LambdaRefSEXP(closureScope, arrowHint, false, true);
 
-  return new LambdaSEXP(funBBIdx);
+  return new LambdaRefSEXP(closureScope);
 };
 
 const handleCallExpression = (

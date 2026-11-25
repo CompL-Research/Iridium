@@ -1,6 +1,5 @@
 import { printIriSpace } from "#utils";
 import { IridiumSEXP } from "../Structural/General";
-import { isLambdaSEXP, LambdaSEXP } from "../RVAL/Primitives";
 
 /**
  *
@@ -215,7 +214,6 @@ export class RemoteEnvBindingSEXP extends IridiumSEXP {
   }
 }
 
-
 /**
  *
  * @extends {IridiumSEXP}
@@ -264,73 +262,6 @@ export class GlobalBindingSEXP extends IridiumSEXP {
     return `${printIriSpace(space)}🟪[${this.getName()}]`
   }
 
-}
-
-/**
- *
- * @extends {IridiumSEXP}
- *
- * @group RVAL
- *
- * @remarks
- *
- * PoolBinding represents a reference to a global binding (i.e. not declared in any declared scope).
- *
- * #### Structure
- *
- * - `ARG(lambda)`: A {@link LambdaSEXP} object.
- *
- * - `FLAG(StartBBIDX : number)`: IDX of the start BB.
- *
- * - `FLAG(REFIDX : number)`: Reference IDX refers to the offset of the binding on the iridium constant pool.
- *
- */
-export class PoolBindingSEXP extends IridiumSEXP {
-  constructor(idx: number, refIdx: number, lambda: LambdaSEXP) {
-    super("PoolBinding");
-    this.setLambda(lambda);
-    this.setStartBBIDX(idx);
-    this.setREFIDX(refIdx);
-  }
-
-  // Args
-  setLambda(lambda: LambdaSEXP) {
-    this.args[0] = lambda;
-  }
-
-  getLambda(): LambdaSEXP {
-    if (!isLambdaSEXP(this.args[0])) throw new Error("Expected LambdaSEXP");
-    return this.args[0];
-  }
-
-  // Flags
-  setStartBBIDX(idx: number) {
-    this.setFlag("StartBBIDX", idx);
-  }
-
-  getStartBBIDX(): number {
-    return this.getFlagNumber("StartBBIDX");
-  }
-
-  setREFIDX(idx: number) {
-    this.setFlag("REFIDX", idx);
-  }
-
-  getREFIDX(): number {
-    return this.getFlagNumber("REFIDX");
-  }
-
-  toString(space?: number): string {
-    return `${printIriSpace(space)}POOL[λ@${this.getStartBBIDX()}]`
-  }
-}
-
-/**
- * @hidden
- */
-export function isPoolBindingSEXP(o: any): o is PoolBindingSEXP {
-  // @ts-ignore
-  return o.tag === "PoolBinding";
 }
 
 /**

@@ -1,6 +1,6 @@
 import { printIriSpace } from "#utils";
 import { IridiumSEXP } from "../Structural/General";
-import { LambdaSEXP, StringSEXP } from "./Primitives";
+import { LambdaRefSEXP, StringSEXP } from "./Primitives";
 
 /**
  *
@@ -410,7 +410,7 @@ export class JSNUBDSEXP extends IridiumSEXP {
  *
  */
 export class JSClassSEXP extends IridiumSEXP {
-  constructor(constructor: LambdaSEXP, name: string = "", parent?: IridiumSEXP) {
+  constructor(constructor: LambdaRefSEXP, name: string = "", parent?: IridiumSEXP) {
     super("JSClass");
     this.setConstructor(constructor);
     if (parent) this.setParent(parent);

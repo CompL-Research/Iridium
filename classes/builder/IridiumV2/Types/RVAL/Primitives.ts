@@ -11,7 +11,7 @@ import { IridiumPrimitives, IridiumSEXP } from "../Structural/General";
  * Basic allowed types during codegen for homogenous lists in Iridium.
  * 
  */
-export type ListSEXPFlags = "ModuleRequest" | "StaticImport" | "StarExport" | "EnvBinding" | "RemoteEnvBinding" | "PoolBinding" | "BB";
+export type ListSEXPFlags = "ModuleRequest" | "StaticImport" | "StarExport" | "EnvBinding" | "RemoteEnvBinding" | "Lambda" | "BB";
 
 /**
  * 
@@ -301,11 +301,49 @@ export class UnopSEXP extends IridiumSEXP {
  * 
  * @remarks
  * 
- * A Lambda :)
+ * A closure: its handle in the closure tree and its constant pool slot. One per
+ * closure, shared by every site that materializes it. The forge owns ClosIDX
+ * and REFIDX; the frontend only says which closure is meant.
  * 
  * #### Structure
  * 
- * - `FLAG(StartBBIDX)`: IDX of the first BB in the Lambda.
+ * - `FLAG(ClosureScope)`: Scope of the closure this node refers to.
+ * 
+ */
+export class LambdaSEXP extends IridiumSEXP {
+  constructor(scopeIDX: number) {
+    super("Lambda");
+    this.setClosureScope(scopeIDX);
+  }
+
+  // Flags
+  setClosureScope(scopeIDX: number) {
+    this.setFlag("ClosureScope", scopeIDX);
+  }
+
+  getClosureScope() {
+    return this.getFlagNumber("ClosureScope");
+  }
+
+  toString(space?: number): string {
+    return `${printIriSpace(space)}λ[s${this.getClosureScope()}]`
+  }
+}
+
+/**
+ * @extends {IridiumSEXP}
+ * 
+ * @group RVAL
+ * 
+ * @remarks
+ * 
+ * A site that materializes a closure: the name it is created with, and the
+ * {@link LambdaSEXP} it loads. One per site, so sites may name the same closure
+ * differently while sharing one slot.
+ * 
+ * #### Structure
+ * 
+ * - `ARG(lambda)`: The {@link LambdaSEXP} being materialized.
  * 
  * - `FLAG(NAME : string)`: Name for the closure, "" by default.
  * 
@@ -314,24 +352,22 @@ export class UnopSEXP extends IridiumSEXP {
  * - `FLAG(SETNAME : boolean)`: boolean specifying whether the name needs to be explicitly set.
  * 
  */
-export class LambdaSEXP extends IridiumSEXP {
-  constructor(bbIdx: number, name: string = "", cName: boolean = false, setName: boolean = false) {
-    super("Lambda");
-    this.setStartBBIDX(bbIdx);
+export class LambdaRefSEXP extends IridiumSEXP {
+  constructor(scopeIDX: number, name: string = "", cName: boolean = false, setName: boolean = false) {
+    super("LambdaRef");
+    this.args[0] = new LambdaSEXP(scopeIDX);
     this.setNAME(name);
     this.setCNAME(cName);
     this.setSETNAME(setName);
   }
 
+  // Args
+  getLambda(): LambdaSEXP {
+    if (!isLambdaSEXP(this.args[0])) throw new Error("Expected LambdaSEXP");
+    return this.args[0];
+  }
+
   // Flags
-  setStartBBIDX(startBBIDX: number) {
-    this.setFlag("StartBBIDX", startBBIDX);
-  }
-
-  getStartBBIDX() {
-    return this.getFlagNumber("StartBBIDX");
-  }
-
   setNAME(name: string) {
     this.setFlag("NAME", name);
   }
@@ -357,7 +393,7 @@ export class LambdaSEXP extends IridiumSEXP {
   }
 
   toString(space?: number): string {
-    return `${printIriSpace(space)}λ[${this.getStartBBIDX()}]`
+    return `${printIriSpace(space)}λ[${this.getNAME()}]`
   }
 }
 
@@ -367,6 +403,14 @@ export class LambdaSEXP extends IridiumSEXP {
 export function isLambdaSEXP(o: any): o is LambdaSEXP {
   // @ts-ignore
   return o.tag === "Lambda";
+}
+
+/**
+ * @hidden
+ */
+export function isLambdaRefSEXP(o: any): o is LambdaRefSEXP {
+  // @ts-ignore
+  return o.tag === "LambdaRef";
 }
 
 /**

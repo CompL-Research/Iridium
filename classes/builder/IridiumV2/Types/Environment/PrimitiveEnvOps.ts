@@ -2,7 +2,7 @@ import {  printIriSpace } from "#utils";
 import { ResolveEnvBindingSEXP } from "../AbstractOperations";
 import { IridiumSEXP } from "../Structural";
 import { StringSEXP } from "../RVAL";
-import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEXP } from "./BindingsObjectConstituents";
+import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP } from "./BindingsObjectConstituents";
 
 
 /**
@@ -17,7 +17,7 @@ import { EnvBindingSEXP, RemoteEnvBindingSEXP, GlobalBindingSEXP, PoolBindingSEX
  *
  * #### Structure
  *
- * - `ARG(obj)`: The binding to be read, can be any environment binding {@link EnvBindingSEXP} | {@link RemoteEnvBindingSEXP} | {@link GlobalBindingSEXP} | {@link PoolBindingSEXP} (usually {@link ResolveEnvBindingSEXP} before transition).
+ * - `ARG(obj)`: The binding to be read, can be any environment binding {@link EnvBindingSEXP} | {@link RemoteEnvBindingSEXP} | {@link GlobalBindingSEXP} | {@link LambdaSEXP} (usually {@link ResolveEnvBindingSEXP} before transition).
  *
  * - `FLAG(SAFE : void)`: Is it safe to read this binding?
  *
