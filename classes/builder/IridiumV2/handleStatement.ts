@@ -92,6 +92,7 @@ import {
 import {
   AwaitSEXP,
   BBSEXPFlags,
+  BooleanSEXP,
   CF_FUNCTION,
   CompoundAssnSEXP,
   EnvReadSEXP,
@@ -881,7 +882,6 @@ const handleForStatement = (
   const currentBBToLoopInitNode = new GotoSEXP(-1);
   const loopInitToLoopTestNode = new GotoSEXP(-1);
   const testBBElseIfNode = new IfElseJumpSEXP(null, -1, -1);
-  const testBBUCTrueNode = new GotoSEXP(-1);
   const updateBBToHeadNode = new GotoSEXP(-1);
 
   // 1. Current BB to LoopHead
@@ -925,13 +925,15 @@ const handleForStatement = (
   loopConfig.loopHeadIDX = cx.getCurrentBB().getIDX();
 
 
+  // A missing test is a constant true. The loop head still gets a false arm
+  // to postBB, so the code after the loop stays reachable in the CFG.
   if (stmt.test) {
     const testResult = lowerExprToResolveEnvBindingSEXP(cx, stmt.test);
     testBBElseIfNode.setTest(new EnvReadSEXP(testResult.getBindingName()));
-    cx.getCurrentBB().args.push(testBBElseIfNode);
   } else {
-    cx.getCurrentBB().args.push(testBBUCTrueNode);
+    testBBElseIfNode.setTest(new BooleanSEXP(true));
   }
+  cx.getCurrentBB().args.push(testBBElseIfNode);
 
   // 4. For Body
   loopConfig.loopBodyIDX = handleBlockStatement(cx, stmt.body, {
@@ -962,7 +964,6 @@ const handleForStatement = (
     loopInitToLoopTestNode.setIDX(loopConfig.loopHeadIDX);
     testBBElseIfNode.setTRUE(loopConfig.loopBodyIDX);
     testBBElseIfNode.setFALSE(loopConfig.breakTarget);
-    testBBUCTrueNode.setIDX(loopConfig.loopBodyIDX);
     updateBBToHeadNode.setIDX(loopConfig.loopHeadIDX);
   } else {
     throw new Error("[ForStatement] Loop head context is null...");
